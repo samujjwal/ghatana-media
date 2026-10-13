@@ -1,0 +1,2272 @@
+{
+  "schemaVersion": "media.discovery.pdp3-mdc30-currentness.v1",
+  "observationId": "MEDIA-PDP3-MDC30-2026-10-13-R1",
+  "observedAt": "2026-10-13",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "branch": "main",
+    "sourceBaselineHead": "2aaa15f5a15ce9d05726cc133885b6415317efff",
+    "macroStage": "DISCOVERY",
+    "exactPhase": "PDP-3",
+    "exactTask": "MDC-30",
+    "permittedWork": "PDP-3 source review, denominator reconciliation, contract/source mapping, and prescribed MDC-30 checks only"
+  },
+  "denominator": {
+    "physicalCandidates": 26,
+    "physicalDispositions": {
+      "PHYSICAL": 12,
+      "SUPPORT_ONLY": 12,
+      "SUBSUMED": 2
+    },
+    "semanticCompositions": 6,
+    "repositoryRoots": 1,
+    "consumerBindings": 17,
+    "totalPdp3Cells": 50,
+    "totalCampaignCells": 200
+  },
+  "prerequisites": {
+    "PDP0": {
+      "status": "CURRENT_PHASE_EXIT_PASS",
+      "ref": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json",
+      "fingerprint": "sha256:7a7a0f700890915863e9f93eafa30edc2f6d856adbf7944c17fecc0aadd8031b"
+    },
+    "PDP1": {
+      "status": "CURRENT_PHASE_EXIT_PASS",
+      "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json",
+      "fingerprint": "sha256:53352578058a5deb1ab8faef43857848e9bbab2b8ad0d81a8bb6b6d73bef0baa"
+    },
+    "PDP2": {
+      "status": "CURRENT_PHASE_EXIT_PASS",
+      "ref": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json",
+      "fingerprint": "sha256:954c8930f3e9cc4e68570bfca29ac586be7474869b785a9b8c59ea9beeff4cea"
+    },
+    "PDP3HistoricalStatus": {
+      "status": "DEV_COMPLETE",
+      "mainSha": "81386992d273a98237451702c2daf618c77c8e51",
+      "outstandingMeaningIds": [],
+      "sourcePinCount": 337
+    }
+  },
+  "sourcePinReview": {
+    "status": "REVIEWED_WITH_MATERIAL_SOURCE_DRIFT",
+    "pinnedSourceHead": "81386992d273a98237451702c2daf618c77c8e51",
+    "pinnedSourceCount": 337,
+    "matchingHistoricalPins": 332,
+    "mismatchedHistoricalPins": 5,
+    "currentObservedSourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+    "fingerprintAlgorithm": "sha256 of JSON.stringify over sorted [repository-relative path, current file sha256] pairs for the 337 paths in the historical PDP-3 sourceShaSet",
+    "changedSources": [
+      {
+        "path": ".product-experience/artifact-identities.yaml",
+        "historicalSha256": "c26eada9cef07827211acc0541892b40505f4785fbce460a724efa140817a31e",
+        "currentSha256": "ed1d0a7ee4ed8422624ff8efb486ea667680532560de1031c01d0531b905f8f8",
+        "classification": "Artifact identity index adds governance records and an observation-only PDP-3 runtime-dispositions record; metadata only."
+      },
+      {
+        "path": ".product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md",
+        "historicalSha256": "723955bd515104f6f5410be0b94185334e4a22d46016bf741dde3236ae92c8f9",
+        "currentSha256": "da305fec425233ffe9479a1a5e9ec6d6e058863ad969f474adfddf99ab5d8d37",
+        "classification": "Authority/status text now says DEV_COMPLETE at its recorded cut for the same population, while preserving independent acceptance and runtime admission as separate. No journey semantic change found; status statement remains historical-cut bound."
+      },
+      {
+        "path": ".product-experience/source-manifest.yaml",
+        "historicalSha256": "3585dce67cef314913f942984a0a8c43c5693f9650dee9a8ea6141f785bb892a",
+        "currentSha256": "532e2fc1ace3af61b2fcf9ab7b5e076664cace68e9ad7fdd1e3d5ff882bd21dc",
+        "classification": "Regenerated dependency/index projections and external source observations; no direct journey or screen definition change found. Current live sibling states differ from several external snapshots, so external owner currentness is not claimed."
+      },
+      {
+        "path": "apps/media-experience-explorer/specification-artifacts.json",
+        "historicalSha256": "e88b8d0ce9c41b710ca065b8a25ff2ab95d257b0d24ee88599ac86c42b3ba7ac",
+        "currentSha256": "ec1616ced628be48ae395d974803e4caebcb5399b1cc88b1eb4ba38d7efc0a30",
+        "classification": "Projection adds governance and observation-only artifact index entries; no definition change."
+      },
+      {
+        "path": "libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx",
+        "historicalSha256": "1311af4d6c97fb4a32e822d975f4fa36ccb9e802992a0c98912156d042ef37b3",
+        "currentSha256": "298229ec5101c181981eb4e4c3b9c79fb61b4c2ce4b1e7ca602964faaca91776",
+        "classification": "Implementation-only: exact subject references, action finality messaging, and in-flight duplicate prevention; no PDP-3 definition source changed."
+      }
+    ],
+    "currentSourceDigests": {
+      ".product-experience/artifact-identities.yaml": "ed1d0a7ee4ed8422624ff8efb486ea667680532560de1031c01d0531b905f8f8",
+      ".product-experience/pdp-0-product-truth/handoff-contracts.yaml": "43c015f3e2a4af776d51025b8dbd57ec6f4e78b9d0429c8926ef6c5dbe3ced15",
+      ".product-experience/pdp-1-domain-data/handoff-contracts.yaml": "4e1553875033beb543aabdae013385057a3651a83a1db7949ce7c5704c2acf55",
+      ".product-experience/pdp-2-design-interface-system/handoff-contracts.yaml": "825cf82d5c9cc556b3db8aa77b82574a16f43faae95781b5f97f81ef6891bdb3",
+      ".product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md": "da305fec425233ffe9479a1a5e9ec6d6e058863ad969f474adfddf99ab5d8d37",
+      ".product-experience/pdp-3-product-experience/action-reconciliation-contracts.yaml": "fc10bce13dd23b0f116e4f09dd94ec3def05a82f0ccdc63cf5e9cf6597eb6d92",
+      ".product-experience/pdp-3-product-experience/action-registry.yaml": "da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2",
+      ".product-experience/pdp-3-product-experience/agent-tools/runtime-dispositions.json": "2f0e495a97c39a9f871a58acc5676982856692f6e9c6b59869b0bed5456e4ed6",
+      ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml": "bec6d8b8a72aaa4a3f34a3c0b4040911e6aaaf8f88da64a103fec32e26825170",
+      ".product-experience/pdp-3-product-experience/api-experience-mapping.yaml": "a81e7c0b544f70edae155d4f7a164710120cb8981b4f374bf306b1a55d5bdd45",
+      ".product-experience/pdp-3-product-experience/api/.generate-interface-registries.py": "8fc8270e27ff63373a4ab03049e8c9ba50bb7882c0880e9a2c7b1c9ccfe9ae95",
+      ".product-experience/pdp-3-product-experience/api/api-registry.yaml": "ba5cb270b1d4b397ff9c078777642527b90b99e3532835387c231ab376813ff7",
+      ".product-experience/pdp-3-product-experience/api/operations/README.md": "041271007a9a30c780d1635fe82441e5ae768195647fe9b53ebaf352a4554bc4",
+      ".product-experience/pdp-3-product-experience/api/operations/appendMediaChunk.yaml": "623f94e6bd904ee61d85cc7cdb7caf1ffacac8e054110f89f9928d516a2b3a01",
+      ".product-experience/pdp-3-product-experience/api/operations/beginMediaUpload.yaml": "23fe45c3d3601d1741696e80a6b5ea0b8aa8d1bb3fd10e52070922ab0cc426e8",
+      ".product-experience/pdp-3-product-experience/api/operations/cancelMediaJob.yaml": "bb94d8c47d314e4344679c0cce5dbd134661a424e64d5b83aa2f2d4675c4bba4",
+      ".product-experience/pdp-3-product-experience/api/operations/closeMediaStream.yaml": "0c5887edde40b1b16c3568ac320083e57e1f2bc291a587e01dacce71c42a091f",
+      ".product-experience/pdp-3-product-experience/api/operations/completeMediaUpload.yaml": "14583dca55a7fec9eab241980cf8ee74a810204116af426a15df67e1eca85696",
+      ".product-experience/pdp-3-product-experience/api/operations/connectMediaStream.yaml": "3809246369a5a737b226a1e10dc6a9e2f4bb7fa3e708ee1eb19f5952c79ba01d",
+      ".product-experience/pdp-3-product-experience/api/operations/getMediaArtifact.yaml": "a0f1954dc1d530313b65d2caea64ef73bc90881d0d816d44367e0aeed20ea3f9",
+      ".product-experience/pdp-3-product-experience/api/operations/getMediaConsent.yaml": "8fb73214eeaa9943495f1a3e276b2fe1458ffba11d056715a778c27aa9fe2f11",
+      ".product-experience/pdp-3-product-experience/api/operations/getMediaHealth.yaml": "39a2175e7c54ff0c7a5e2f5b4151171da124321068e7e51c617ba06725454a42",
+      ".product-experience/pdp-3-product-experience/api/operations/getMediaInfo.yaml": "570bc7c29d406eec3fa9c65da517f3892c6e383f900ce3a782347b3234b96794",
+      ".product-experience/pdp-3-product-experience/api/operations/getMediaJob.yaml": "94e7d9e40c049337dc200823cd612afb3f80fccc9064da4e4e93a8a04632e159",
+      ".product-experience/pdp-3-product-experience/api/operations/getMediaLiveness.yaml": "0bf5d09c551174535ba8b9264e3ae5cc9f17196061328ac3c8ceae1bf1322d46",
+      ".product-experience/pdp-3-product-experience/api/operations/getMediaMetrics.yaml": "10c1ad3632adf69cb9abde7bb5331766c1724410335582b5677c3b85475a94f7",
+      ".product-experience/pdp-3-product-experience/api/operations/getMediaProviders.yaml": "e397543f204908ba0f770572d9f2d5ba572d69e57e0b64616661085fe3f8e22b",
+      ".product-experience/pdp-3-product-experience/api/operations/getMediaReadiness.yaml": "c5acdfa1115112a4a22c58f7879f744c84235673f05a83ff1929156e6c266880",
+      ".product-experience/pdp-3-product-experience/api/operations/getMediaReadyAlias.yaml": "c3537d22cea6e742a50eb49ba54f867c2af854e95fe04ed019d2e5b7a7fcad79",
+      ".product-experience/pdp-3-product-experience/api/operations/getMediaStartup.yaml": "d375a0139491ed400406598e989b18fe7bc4d5a6da846655d7176bd0f939b663",
+      ".product-experience/pdp-3-product-experience/api/operations/getMediaStream.yaml": "89e87cfe60c77f3d51ca91c1fcfb6b06cb9c3857ce2b4c3b90cbff6ddf710ec5",
+      ".product-experience/pdp-3-product-experience/api/operations/getMediaUpload.yaml": "c53571d5cdba7bbbd967e49839460a96a642d776685e8d4aa315a493ad85d530",
+      ".product-experience/pdp-3-product-experience/api/operations/getMediaVersionedHealth.yaml": "88bd132336286ca2d5d76b336420df00a48683149cd5169ac399385d247c4387",
+      ".product-experience/pdp-3-product-experience/api/operations/grantMediaConsent.yaml": "ce0673b0ac0652a30e15619adc4b339daa8d700ae39c189976a7c95050b26855",
+      ".product-experience/pdp-3-product-experience/api/operations/listMediaConsents.yaml": "ab4b17edb6437a604830f03de65c825e534f2bf78d0379f47da8c4dbff7f2b45",
+      ".product-experience/pdp-3-product-experience/api/operations/listMediaJobs.yaml": "ecd9ac91cb3062bcd2c008c5ee2c146d88e7fff05873b159df9163f13130c7b4",
+      ".product-experience/pdp-3-product-experience/api/operations/openMediaStream.yaml": "ef4fb653150bb709174bddaffd891c4edcf8994d3bedf473ceeb6951c412572a",
+      ".product-experience/pdp-3-product-experience/api/operations/revokeMediaConsent.yaml": "45bb002e9eebe41f15ffd8a4504ec21820232c58b2c381f0a483a10894ece7eb",
+      ".product-experience/pdp-3-product-experience/api/operations/submitMediaJob.yaml": "0d28634bc3c14e580266d9912892a319ef57fc39ed1d59e25a75a8984db3a7d8",
+      ".product-experience/pdp-3-product-experience/api/operations/submitMediaStreamFrame.yaml": "1a319dc93893e733c51a53f0b764237f3ffb6f080c2778596bafee8b5a8c89d7",
+      ".product-experience/pdp-3-product-experience/application-channel-registry.yaml": "750ddbfb2161711e8642edd8a28f681dc3e81909ad902255240984c61feb6206",
+      ".product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml": "2d3917ade9908dd9d826efaf67dcc7b119868e043d68e22116aa64ba14085ba1",
+      ".product-experience/pdp-3-product-experience/cli-command-registry.yaml": "81c7e55299fef3b14584c3a77f2d8312b2daabfe610c1ec69449b9302da57604",
+      ".product-experience/pdp-3-product-experience/cli/command-registry.yaml": "6feed0105beddb02232045fff28cdd5d64d6e8314cb647c96dcdda3b945f82a4",
+      ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml": "e95e812bb436c1c6f7630dd885bd2eb9fee9d645bf611ab99d20fe6421ce3a8c",
+      ".product-experience/pdp-3-product-experience/cli/source-crosswalk.yaml": "b85d1034c61e22a76a2e8f7baf5ad4fab3f01ec7f18412cc3a1cb3a5984f3873",
+      ".product-experience/pdp-3-product-experience/consent-observation-adapter-contracts.yaml": "468b26de564d30b06598c33c565424c0ef0110e9b2633fb854f4b3c6e4fe8e8d",
+      ".product-experience/pdp-3-product-experience/content-copy-catalog.yaml": "9eb4afc07a1bdc01b67716810164bf71377dc622c1bb9225f624baf14529e6be",
+      ".product-experience/pdp-3-product-experience/data-view-contracts.yaml": "5ffba50f4f93fde9ae6f0e88705e5a10feb0404e261b563329f23bfd03a21fbe",
+      ".product-experience/pdp-3-product-experience/events/event-registry.yaml": "1620f2e0f3239e60c5237d604077efa69fbe0bfb70dec50953abba2016cdcbf8",
+      ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml": "5f7054de2784dc25b84c1ddc7f4b4864fb3352a42a4fce41f194e6f5983b526f",
+      ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json": "95624e4fa774c241e06ca354f3feec7bd3c9de9ecd4fa3b5b3c75fe68bb48c59",
+      ".product-experience/pdp-3-product-experience/generated/implementation-handoff.v1.json": "5aa327acd408b0f9b8ffaf2d24e05d9859024b9144df4f3a48437bb8bfb95440",
+      ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.AnalyzeCrossModal.yaml": "fa1549c06f06df4a4ac6bc6083443aa674036a692d4afdd763f0fab9ca02aaa6",
+      ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.AnalyzeVideoWithAudio.yaml": "a9a2a4c4e807c8362ece683e0ac6a556c02ab8944995e3fbbcb76256b1a8a1c9",
+      ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.GenerateDescription.yaml": "a90c563dcaa8b1ec18eed729315b5614926462625a1240aaef4124693eec6ae1",
+      ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.GetInsights.yaml": "9abaa56e36d731282b002336d93d16c507f7189a4b80adb329d13b7e56368b17",
+      ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.GetStatus.yaml": "1cd288a857439c7e653b543a803ece8ff89bda9db89b3412c7267aece5ef8ca9",
+      ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.HealthCheck.yaml": "fea5b871f33372bb69e9a386f9dcf81888e18d46e25508a40908855c0b1222b2",
+      ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.ListModels.yaml": "ea6dbcf27f53050bf28d8e40a1121ce1805876d18950374e5be416a44f902fc4",
+      ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.LoadModel.yaml": "779b76ef894eadf78192fcd402260ab8443794280d559a71704cb7a98a204e25",
+      ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.ProcessMultimodal.yaml": "e220a47dc99e06746112bbea3f9d5ce84c796e1444d1930204f9768215197a6a",
+      ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.UnloadModel.yaml": "a33cbcb916d37f0df8f92e993cc1a26e2a08031b20e9ea0e46f79434b78a65c0",
+      ".product-experience/pdp-3-product-experience/grpc/operations/README.md": "135a5bf0082413596ae39890da456fc85ac7a4383efd1e5f438a01a81b688fb8",
+      ".product-experience/pdp-3-product-experience/grpc/operations/STTService.AdaptModel.yaml": "73d561806e9d641e1cd705a45e9716f39fc54f13bb33fcd3bd8c7d566c3a6d67",
+      ".product-experience/pdp-3-product-experience/grpc/operations/STTService.CreateProfile.yaml": "00631eb6ee375febe612dc7a3641c66014eddf6362a50ea9215060139dadce3e",
+      ".product-experience/pdp-3-product-experience/grpc/operations/STTService.GetProfile.yaml": "8001a19fa0b892368f0580eae6f07e7adb845e6e4b49d9cff679d2146bad4823",
+      ".product-experience/pdp-3-product-experience/grpc/operations/STTService.GetStatus.yaml": "a8a6d17e0a6ee3319edd7a4cb76a12f6f6e2de515b2c28ec9cd332c0e731d0c3",
+      ".product-experience/pdp-3-product-experience/grpc/operations/STTService.HealthCheck.yaml": "39e38c9f3512b3c6ba78d16afa2cf7040cdbb3d3a1d0440c7c6ea3259f0f10b0",
+      ".product-experience/pdp-3-product-experience/grpc/operations/STTService.ListModels.yaml": "444e82e0e2d176cadd5fe9bceddf5516e3342f84c6493f402b028adaa7402bc8",
+      ".product-experience/pdp-3-product-experience/grpc/operations/STTService.LoadModel.yaml": "3dcb26395f4935197244f86756100f139bdc9002366e70dc0c57c751c8dc0e79",
+      ".product-experience/pdp-3-product-experience/grpc/operations/STTService.StreamTranscribe.yaml": "31b8ece0ddce1bc2ceb68e112f8570549ba833e77fdface607968fc48ac75c3d",
+      ".product-experience/pdp-3-product-experience/grpc/operations/STTService.SubmitCorrection.yaml": "8a0e13f571cd633ef9624555d300d9b0d251db1c2558475e46e03d7e6404d542",
+      ".product-experience/pdp-3-product-experience/grpc/operations/STTService.Transcribe.yaml": "db5cb19e9d1127640cfbc9c4e418e11cd9303aff9720d78375179c5375ae6583",
+      ".product-experience/pdp-3-product-experience/grpc/operations/STTService.UnloadModel.yaml": "a3006a65fe725356af1ecede45fe4bac98501be19cab96e9ad263d017d832d77",
+      ".product-experience/pdp-3-product-experience/grpc/operations/STTService.UpdateProfile.yaml": "945121eea277d402ca53ab0816d04695204b7fe00101618dff531de7868ab1d3",
+      ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.CloneVoice.yaml": "3a22133bd1f06896ea93fafd9df53f6ff89092265f926cc1fb45b1f06a895f08",
+      ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.CreateProfile.yaml": "604152019a7ae1334d8817e8ec2ff3f237a04b0da9a20c7e8a74ffa6f066cb10",
+      ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.GetMetrics.yaml": "13a606f151114d26dc89d716e1c4ebf61485919e9531cb21cef8f6ce0836515c",
+      ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.GetProfile.yaml": "12d5da6a47582868a224c676664d90232e61c67fb15214bc1020f274da562761",
+      ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.GetStatus.yaml": "524411901a360c4458978de09114682de35b059d45e9134b2f292c3eed7512f8",
+      ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.GetVoices.yaml": "b15819abc1af623ef7faf4a4f0a4416ff69c10e61585465d04ad4f5e72fdd5be",
+      ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.LoadVoice.yaml": "031f5aae401ca69457c04e5b6a046fab26604ec0c79ca4cc092cb148fa40562a",
+      ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.StreamSynthesize.yaml": "ee524c8c9892cf164c6c9db6434ae932a093333b19a6a628fe6e5517d64849e6",
+      ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.SubmitFeedback.yaml": "f870419fb54e35d83c9557a3733b4f2b48201721795bdf6a52aadbe7957994d5",
+      ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.Synthesize.yaml": "33d7baf9180c90a6570fe650e97ebeb0e5674b8112f031628c35319e3c003855",
+      ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.UpdateProfile.yaml": "58001642b61f38b6cfbba5584ad9a29f338b7fa6f75ae395f795ac3fba19185a",
+      ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.AnalyzeImage.yaml": "c0a0d1700a95b1b0b12bc468f4fbb4e52410be6eb553ec7be0baa769884a834e",
+      ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.AnalyzeVideoFile.yaml": "ab926bffe05cc52e0d584a4a927655bb154e9f2340eeea24bdb6a7415842cb35",
+      ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.ClassifyImage.yaml": "f54f29909da5d4db5372e78d96274c491d62692b736c45b9c5bfdb343ecd8ac9",
+      ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.DetectObjects.yaml": "29896c2e03772936522f8b64b96b33ef2bab19807728a99f7a218d759d98b877",
+      ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.GetStatus.yaml": "830239f92b87606b2f9f8def9ae6daee6dac4a70f23dd1ecb771a728df91fa15",
+      ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.HealthCheck.yaml": "8c726ef1a409d112f8f40b8d73001168a4af73426242ce517b451d46aa0060a4",
+      ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.ListModels.yaml": "2a94165f3edf11973d916c2e5911ecf7ca42a43aa7bd796bdc091853ee6181d2",
+      ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.LoadModel.yaml": "511cdf9538cde3943fbc1ad2df7bb09c27b7150d96f9d2b3041ec1f364882a23",
+      ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.ProcessVideo.yaml": "996e07264f7e0799bf3fb2a8fd332c6b2ce701e1db599e398008ebc41ab4054f",
+      ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.UnloadModel.yaml": "596ab20c58576a91ab01be8d3a84cad240c54a1e493961e114c2e88b6f4b23fb",
+      ".product-experience/pdp-3-product-experience/grpc/service-registry.yaml": "428c758331daca9ef4ec1239b5b3596948e3e104e687a3991a01657d9300401a",
+      ".product-experience/pdp-3-product-experience/handoff-bindings.yaml": "1ab6530c7c375ff542e3fffd0328e14a63bfbe3b94d85abb1f5dc9ea7eebcdef",
+      ".product-experience/pdp-3-product-experience/interaction-registry.yaml": "ba07d3855d3e30ce2cabb166f119df50452f3c73fa092e7001b23a37d6219e9c",
+      ".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml": "28dacec9e35e1e4a634f8e58a0b2718d9b24b07db9a4c1447f10ad65326e8851",
+      ".product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml": "c443ab0050d109d5a41b7708b6ec1b0a84a6909ad586e7db6f764aa295368240",
+      ".product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml": "c9d301ca2b2de0e1c82334e3000cacc968394e6ab036d775a12323f267f6253c",
+      ".product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml": "33fb881eccfcc83794cd21ca34e60022f3d73cd9157183563c559a1e4e9b220c",
+      ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml": "e825c2291f458159bee28a728b70947134c440fd73b3fa8ead282daedf70088b",
+      ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml": "0647c4754fc0762812b82425983417a2366b92063ea7a4f3b645dfee5b0b2e2f",
+      ".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml": "edff1b6219370bb38b67dd111232500bcf16555f1c24bf0fa28fd5878428a9f7",
+      ".product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml": "67bf48d99e42a5c7278116ebd498de2afd8dae1f1b299c9460ed85a3b45678f9",
+      ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml": "6576a2ec2dd847be99dd7792ff3a86d05d254ef94a8ba40dfdae63ee3f2b436d",
+      ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml": "0fec7ff0e3b5f1617b9107652c7aa7f04ea4234082cb5a4082f8ef7a09f0968b",
+      ".product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml": "fe9732c7fffc2edfcea9201592933be72b842494187e403e381e6404ec1a7ef0",
+      ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml": "61f780b09da713d822829d82df73011b2731ee447fbdd54a9b1e6dab2fe9521c",
+      ".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml": "9f3ca8eb013a6bbe7c5b737a299b5c8f8582eb983b8728d767673433ca4d0342",
+      ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml": "8ee9e0330ee4677510596c65538acb3d900261c8c7da51d808972c42280e2750",
+      ".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml": "13c4ac9e663dc85a9a5d139483ff62473f604f8aa0b5b34fdb1cb723451b2f4f",
+      ".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml": "d1f92206926963d639c6c51727644d8ae99108610d70a36d737ec480e7632d17",
+      ".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml": "ddea7a6980c55b6898a41c8b942c6a8545526f58b50ebf7ba2a79ced1c04b158",
+      ".product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml": "05b0a67bf1259f32540353393d3ee6185dee64fbff4ceb481ebce6c9d48bd7ff",
+      ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml": "b5eb6abb656e67ca1b7f6c38832d938d22b82eff393a92e60c86f8b3b424b100",
+      ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml": "1fed4fd153499db8c2390f4818eaf9c222ff0319d21d5488ab2bc9c7ed288240",
+      ".product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml": "e67413811c384c7b3553c764cc39cf0dd40378b3d2780ecfdc784d3aafe0817a",
+      ".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml": "5f5aaf48df4db6e6b92df223fc7b3f709d82ca4b55cf12c10dab11fa4329e01d",
+      ".product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml": "0b4dd27736f26258362604a3cc61fe15a11b8a17be10c682d4954435e6005715",
+      ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml": "507f5232b105f28d94c7c1a17409ad8abe083e3be5a86e4a286b919a7b287613",
+      ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml": "ff8b386b8971666a568d7a8e18bbaa6f2223f1e9e9273d46ce0961eae9991e1e",
+      ".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml": "d77b2b1bec59c93db94a286a629e6ad596a4b5b883dafc586412193f41ed1051",
+      ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml": "0116c0638bd8cfd8ad97038b70170acf9d53a9be65fa60d08529be65e2f4ba1f",
+      ".product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml": "0b9387686a75d4d389f26ddca7e859733bc8e773d6ab495db8db9ed28f7c9a59",
+      ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml": "7cbc04c8f1870f9533b3da9e6805ee74fad9dc48ed5f6b86935050cea80d9c2e",
+      ".product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml": "a90b215ddf40a2017ff8ab29b853339d9b3c6ee1744ca789ff0f75cb59a6f56e",
+      ".product-experience/pdp-3-product-experience/journey-outcome-projection-decisions.yaml": "2454a8d540564e8f3ccf5c1702e027b003318b2a61e2cd381bbdf8e91f2f9d83",
+      ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml": "e0db7b142f24fcfca8e9c063050c7fa1f488baba3b0adddf8ea6362cb22ae3a0",
+      ".product-experience/pdp-3-product-experience/journey-registry.yaml": "23aad1bfa7e8a518a737741ac1a5402578fb0ae0e095298ac5f3bda2aac537c5",
+      ".product-experience/pdp-3-product-experience/journey-scenario-bindings.yaml": "90acb01f2202538459da3e1c53defa0e9676a65cd8bdc2d3f3e6d8ed22f2d60f",
+      ".product-experience/pdp-3-product-experience/journey-transition-edge-bindings.yaml": "c909b36efc4369a41df275dffca1bc52b5872e2c99be9ba544610326153ab165",
+      ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml": "e9831e8b310325878e2898c97eed5ca710641a3cb9d7ef4dceaba1959b6c7685",
+      ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml": "bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d",
+      ".product-experience/pdp-3-product-experience/navigation-contracts.yaml": "c79f7e7366e0c0eb3cf6be3316d83c71dae1bc749511ae71698c2e04144ca59a",
+      ".product-experience/pdp-3-product-experience/project-list-observation-contracts.yaml": "8a968aad886589098125eecaceecec389127206566c1797234cfb9dac8321259",
+      ".product-experience/pdp-3-product-experience/public-effect-finality-taxonomy.yaml": "fb2f916db21133cdf51bdced8947791dd9c405445707afd0a9a208c1dea32be7",
+      ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml": "630c2b4f0d9301795625d33719836a30680c61043e314570c5c13afc842a2df9",
+      ".product-experience/pdp-3-product-experience/responsive-variants.yaml": "0b4c813c088d17765ad896579097556b8af2f2bcb813d62dbdb72d5a65d8fb12",
+      ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml": "70225ab64215cfba42996bcaec118b5eb73150d0c672ca348e1e55278cd9f8bb",
+      ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml": "566c35fed9c5fe3f8b5cb26dce11c89b17bd17f424ffd0b57184cf17ce5e605b",
+      ".product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml": "27ecd6b39c91f8773e2fcd3d2545039e63d9a7153cfcbc00127de92540af1d32",
+      ".product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml": "adc3e629147760902c08a2102452dbb576afca6738af242b29e118030763372e",
+      ".product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml": "03e288a52b2baabcdd06b01eaf999fd4cc1cbeb1d8d63981612e206b26f4072a",
+      ".product-experience/pdp-3-product-experience/screen-contracts/artifact-verification-job-family.yaml": "fc44d1d9fe92ff1a3e203f39fcc43daa54bb616a668188988de57a2cc6755580",
+      ".product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml": "5388de818974661b31067f65d059cc952c6fd1f5451af23a3cd83e20c8de75c7",
+      ".product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml": "02cc1cfc1bcddafb2c9ed623d8164a7985079174b4fe73298f686beaea39c43a",
+      ".product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml": "61748b10bbcbe49454747e58ab4013570912e3a1966935aa419210a23092b9fc",
+      ".product-experience/pdp-3-product-experience/screen-contracts/check-processing-options.yaml": "7c6ef4742c4cf35fe175b5bf3a5c41120283c96678db2500e52c2a43fadc004f",
+      ".product-experience/pdp-3-product-experience/screen-contracts/check-processing-readiness.yaml": "9bb4f5d7370468c64077a6e3e313c4407ff85c21f9de5fc9956041df332eb836",
+      ".product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml": "05699f13cbc90854b294aecf1f3bebdcf7c5ec080527172fcfb2c745c591982b",
+      ".product-experience/pdp-3-product-experience/screen-contracts/compare-caption-versions.yaml": "6589a9e2de5064e72e0027fa4e68b9352aad068a9120d2791f9df2b350171f90",
+      ".product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml": "180e7d63d8863cff516f2b8f7ea6809fdbb64e086574f64cc7d206ca8a602923",
+      ".product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml": "a136356bcdc928807f40cfe8bad3a24ed2ee8d3a62c12e067836d3f10bcea7e1",
+      ".product-experience/pdp-3-product-experience/screen-contracts/compose-scene.yaml": "609a5083fcfeb14100561e1503617f4b43f0e05ce7c87a1e152a75cb3d22062f",
+      ".product-experience/pdp-3-product-experience/screen-contracts/correct-captions.yaml": "e937edc97d5d05095df8799b556c5e05e83674b1e93d6622586d93f8b4c55446",
+      ".product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml": "34071ac9057986f5e7c10aa6c040d5b60bed85f43736ca067edde337bfe44f8f",
+      ".product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml": "e2ae10fe2a427200e6d06888ba3d951e168e78ab909687d7928684a06031893e",
+      ".product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml": "fec825afc8df43f9b341693b2b8873028b2c4a8e07dec1a63c913d81477c8ffc",
+      ".product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml": "69d5f0253b28846f467f9f1015dbfe890ff160f98bfa51282b767620b55a9d9a",
+      ".product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml": "81ff92dfe7890e3ecc3f5d90dfaf95a61033e8ba1a2002c0c0a9a4c75abb16bb",
+      ".product-experience/pdp-3-product-experience/screen-contracts/edit-captions.yaml": "a06bcafcfd7708713659be7413dc9c1d2199f2c8e6b76883cbef0676526f2810",
+      ".product-experience/pdp-3-product-experience/screen-contracts/edit-media-region.yaml": "6ae24f3b563ff3ce4d211012708776d6d70ac33ba21a0ffe077ba8ccaebe3d13",
+      ".product-experience/pdp-3-product-experience/screen-contracts/edit-media.yaml": "fa3281449fdc2df202a1761b53879f089a19daaf7db408c47e1f1f4d678f2db3",
+      ".product-experience/pdp-3-product-experience/screen-contracts/explore-simulation.yaml": "2e17f2a062b79002bbffc69a2b95d3a058127dc1824e12468de677f8faa7684d",
+      ".product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml": "3db53fec248053ecb444dbadae937c9368dabbf620e048ad8e7473d19044653d",
+      ".product-experience/pdp-3-product-experience/screen-contracts/find-task-guidance.yaml": "8e8b0b449bffbdd0ad702f78e93c1e11764da3b7210785b2d73f32f18e959340",
+      ".product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml": "cec6117b570f3299daa2255d58e59e923e60cb0fd3e4239e5ada6aa2b8e8e3ba",
+      ".product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml": "6f00c9ba71cf828e16595f6e70edbd13e0061db032c79f4e6ce0eba376ae961f",
+      ".product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml": "e7f14b17d96777c8c2edd88e0ae3b8514107e97b03a8b3d5ec0af1e02e814683",
+      ".product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml": "e2b534d6f975b91782d0931f5ba2dfd6f6a3d98bf43bd8f06a86472951f775c6",
+      ".product-experience/pdp-3-product-experience/screen-contracts/inspect-provenance.yaml": "bd5a101a740475bccabe9211d21632ec5133bda1ed127ee094e988e1d2548330",
+      ".product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml": "c4a19e45d2dd5e2586cba7242fbcaea8a666d9d62eb1932fab5bd10191630fbb",
+      ".product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml": "1466a36c31100b08dd8f260d7dad675e2dca9ee402fdd614c6358fcf2ecb3dee",
+      ".product-experience/pdp-3-product-experience/screen-contracts/resume-work.yaml": "716098d7595b1250a7d7230d27865795bbc81cc0b7130255da1722e2d660c1d4",
+      ".product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml": "94f3c5bcab8618c43bb6fd73603ff6f0349aeca40a225b54f99193f39fe74066",
+      ".product-experience/pdp-3-product-experience/screen-contracts/review-creation-plan.yaml": "6992a3924be882f4bc7fb54e2461969c6cf2d8a61650199e2a4f5bdfbc9f1335",
+      ".product-experience/pdp-3-product-experience/screen-contracts/review-dubbing.yaml": "4d77e533872039aaebc04dea95d1495a34f80c2866aa1a30a0a33abd15337d16",
+      ".product-experience/pdp-3-product-experience/screen-contracts/review-exact-version.yaml": "a12ed542186c20b6c5a6d665712e38300cc19676e1ecf21aa3684bebcc3c72bc",
+      ".product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml": "e4165ac1dd6f4dc28fdcc6c545ae45260d02c23d0cbc51fbe9cd5b9677b9d758",
+      ".product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml": "d03ec391cecb5359e1637a3df3c9cadd55ea799befafe214142492719bc765e5",
+      ".product-experience/pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml": "5187fb70e064085021ae04d9f5ea2c883026b3d7cf75d4a7f1bd7449da7532eb",
+      ".product-experience/pdp-3-product-experience/screen-contracts/review-transcript.yaml": "ca01fea9de3761bbee9b53f501778dde55571bbc7c1bb7bea3db482de807f368",
+      ".product-experience/pdp-3-product-experience/screen-contracts/review-workspace-settings.yaml": "a986d9886250906a337a7f1942b85345e09512c17713951698ff52fdd644681e",
+      ".product-experience/pdp-3-product-experience/screen-contracts/select-source.yaml": "024e093c3c9ade27c0d00dcf0e47c7dd5500f919c8d3279a2789c7d5e3906e89",
+      ".product-experience/pdp-3-product-experience/screen-contracts/transcription-progress.yaml": "794e90ed6f3e2249f439a5fead8fb6bfad52717448450a8b700f278586feb5a4",
+      ".product-experience/pdp-3-product-experience/screen-contracts/use-authorized-voice.yaml": "753c2de50385b728fc29d5e545ec2ca06bc0dcef9a84e3bef33dac4651c0a5e2",
+      ".product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml": "9df409fa8a91b004f40378e90168bafb8e66073523b1cbeaf0ac52e120a1bc0f",
+      ".product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml": "03fa7f7936679af343e7b56c76b5be70385e9cd5b836d256ffefa9617d71baae",
+      ".product-experience/pdp-3-product-experience/screen-registry.yaml": "b49380a9bdedaee554a21a07b4eb26bd6891d16c784fb2ccbfb7c3bc09f1d438",
+      ".product-experience/pdp-3-product-experience/sdk/client-architecture.yaml": "7edcc105f89d82ef6ca3f0154bbb1fabac9eb60f36ef203584318064db7ec92d",
+      ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml": "25ec48a642e012265f7b77dec4ae68c94025335caa4ccb6aaa01acfecb3973c4",
+      ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml": "af92beebeb647fb1be510509a72586bf9de407a76db5fd223585b699ac603a75",
+      ".product-experience/pdp-3-product-experience/search-inspection-source-proposals.yaml": "37e8de56ef6112a76a78daa93f151a1f30d3354e1b87fa7c8575c1e5c1dbee15",
+      ".product-experience/pdp-3-product-experience/services/service-registry.yaml": "b743461f6d5584fcd79d47b6ef9c17046152cd4c905e583b7b7e945c1e711449",
+      ".product-experience/pdp-3-product-experience/simulation-semantics.yaml": "c37b3168893ff5e70779d2b882d32e17b57ec5888b2a934cc862eac18cdca149",
+      ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml": "27c11521e4f59b5bb752072cc8673576493a2868bc344f97699ae65cd9c1f76e",
+      ".product-experience/pdp-3-product-experience/step-definition-oracles.yaml": "8b24a6b60823c4b62aed10d57ba18b7a8ec0bb5790d8d58e13bacbab5476f385",
+      ".product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml": "cbc8c5c9d72243da15cb711ce645cf9eecb9d4daf65b67a3a5050fcbaa2ea407",
+      ".product-experience/pdp-3-product-experience/step-guard-specialized-fact-contracts.yaml": "f4ca13287d21ebbea346ee1af73c429bc18228a9d9a83f9b1fd364008b8b677b",
+      ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml": "ab0eb857bf3230699e66d7ddf2cb96837e473a981315dc001c4b64e91f8d283f",
+      ".product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml": "0ecfeedd491bd714bddffe2f8a0b7b100915d932608067ba2fa204c80741234e",
+      ".product-experience/pdp-3-product-experience/view-observation-predicates.yaml": "8b829f853cac213606b8bfc6befe0cd4ac2914774cc5c037317291b91332ee13",
+      ".product-experience/pdp-3-product-experience/view-state-binding-dispositions.yaml": "f2129db8e7c9f4e3b0eb3376b86c3862197afcd33809b9af1c07e7b074f0117b",
+      ".product-experience/source-manifest.yaml": "532e2fc1ace3af61b2fcf9ab7b5e076664cace68e9ad7fdd1e3d5ff882bd21dc",
+      "apps/media-experience-explorer/specification-artifacts.json": "ec1616ced628be48ae395d974803e4caebcb5399b1cc88b1eb4ba38d7efc0a30",
+      "apps/media-experience-explorer/src/lifecycle-pack-adapter.d.ts": "152e636f8df664303b6391d374692f488fce483315f57b59dfed765607a4820f",
+      "apps/media-experience-explorer/src/lifecycle-pack-adapter.js": "1c0c43727ea0cd463db732a1ed3cf0bc0d93ae7b864eb366f636d9c827ed9714",
+      "apps/media-experience-explorer/src/main.ts": "5a1e8b287ec8ec78e2836e9367606ea6540ade7db6cd338f8b93943256a53444",
+      "apps/media-experience-explorer/src/physical-topology.ts": "4297825c4c8e6a0cdae6cf16686f61e038905a76cf276677db3fef7d9fd790f3",
+      "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
+      "apps/media-experience-explorer/src/specification.ts": "bc7073a6d75695a35bb39bc112b3260e58a7f6bd5d0fe30c026d7b0fe688e931",
+      "apps/media-experience-explorer/src/strict-csp-controls.tsx": "f81d6e5f18c22d1c47d8de38231e1200b9dbcb2ad403d60150516fe7f24e651f",
+      "apps/media-experience-explorer/src/styles.css": "a1e64c2a6e9d5e22a408784ef66bf52437bf71d470bd9591b809151a8922d57c",
+      "apps/media-experience-explorer/src/tools-consumer.ts": "83fbea4611d8909c257f847ab17bb4733027c8739104ef0788b88902719613bf",
+      "apps/media-experience-explorer/src/topology-route.d.ts": "b11972497d0366f571005f58abee479a35838246ee9c4ca7c69917db146fce3d",
+      "apps/media-experience-explorer/src/topology-route.js": "3a1b96d80b65dfb1a8e074a4605af7a6a502c1388000e44139b8d510ebf0eb74",
+      "apps/media-experience-explorer/src/vite-env.d.ts": "ffe0b7abd7983283cd8052d45d270e742d8b0c3f6d15b628e1bc3533a7d7195d",
+      "docs/EXAMPLES.md": "ed0cf0d333762ef26bbaab71d947b300134fda61389f49132835b05a3948f9f1",
+      "docs/implementation/pdp-0-phase-dev-status.json": "3f0dc82741542d2ade3a2b9b0461797cf483c14bb94dae7ef03a1aadbc3170ba",
+      "docs/implementation/pdp-1-phase-dev-status.json": "ee7b68839a6fba3745f27183ce13ec45d9b90e32f0f5df376952f4bde40ae23b",
+      "docs/implementation/pdp-2-phase-dev-status.json": "e88ab1bb828f4f2a7cb759802463b5c3610b8c50bcb716e191bbf1a0b318a3d4",
+      "libs/audio-video-ui/src/components/MediaComponentFamilies.tsx": "12deb81df4b49ba3b4b3b3b2cf67a9f14f72cf811ba40e9a3238c9d7c505bb25",
+      "libs/audio-video-ui/src/components/MediaComponentInputSchemas.ts": "615f7868347083e29f2baa9539845a9d6ab29d11293b81097d5fc13d832d98c0",
+      "libs/audio-video-ui/src/components/MediaComponentRuntimeContracts.ts": "fc21cd018fcc46b59ecfb150c49e84b5b5b109d26c8c3c41d6c256f5f02ce8a7",
+      "libs/audio-video-ui/src/components/MediaComponentSchemaValidation.ts": "35121515b31c92327709d69ca75a8ffd249134fc1627325fabad709cb02efddc",
+      "libs/audio-video-ui/src/components/MediaComponentValueTypes.ts": "ff15cee7126da35f03aca39674541d2a7406151b3009ab0ebf9d445fbff1c4cc",
+      "libs/audio-video-ui/src/components/MediaProgress.test.ts": "64a4a335cdd58064ec7a23496ef21a13f1dd83cf74ea19f48480e8bb564e0989",
+      "libs/audio-video-ui/src/components/MediaProgress.tsx": "fd791e027e0433f5d6916bad25ce77f3b6fab547a08e430540787ed889e15b1d",
+      "libs/audio-video-ui/src/components/MediaTaskFlow.tsx": "32138f5ca429e163c2ae8fcce20021fd43000c3bd9ca429b55996ddd2f2f4bdd",
+      "libs/audio-video-ui/src/components/index.ts": "ee48e62dd7bc409af3b9ab4c1c6e81c477a19158fff037a4da71b9a207c9ac40",
+      "libs/audio-video-ui/src/foundations/index.ts": "11620871d55aaa17a4ba307332428099bc8b176ad54ccf77d2ceccf0b090bbac",
+      "libs/audio-video-ui/src/hooks/audioVideoPlatform.test.ts": "64cfd84403bd5fadb1366eb6f1921b444583ddc4bfc8c8aaa8c825c0cd7e95da",
+      "libs/audio-video-ui/src/hooks/audioVideoPlatform.ts": "28fc93979a99e4d15d1924320a4dd1dbd412bf955fbfc247431ea39e5fa90d6a",
+      "libs/audio-video-ui/src/hooks/index.ts": "ba80771437ed28c5e1c4307bb399e3422755503de06d5c67ebf8cf7895936117",
+      "libs/audio-video-ui/src/hooks/useMemoryPressure.ts": "1c735fabf538b5563c9858e1579222318b27f27e3a05fce6e624040cc0f7fe56",
+      "libs/audio-video-ui/src/hooks/useSpeechRecognition.ts": "34a099b5f9c81746dbd108bdd74a0a94a6172b1b09835bb17cc4b92a986155f1",
+      "libs/audio-video-ui/src/hooks/useSpeechSynthesis.ts": "7007f8d564079e6c00c700a501ef53227e58c7784ead8be9098c896a3fbfeeb9",
+      "libs/audio-video-ui/src/index.tsx": "df2cf417d60952ce134a509cb5378111deb0dac7ed9de8296f52ba1427e5c457",
+      "libs/audio-video-ui/src/ports/index.ts": "911337216569e9732e933d45fe28e8c7ef76539826146180f62ee6d7e40951c8",
+      "libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx": "ae7378707c941efd78f227709a4f3fc1b7fd3cd47705619213524be3e77ec42d",
+      "libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx": "9ccd716bf8ca482a6d5ed8ceea0313c274ef7106bd03d74bc5623ebb63d36838",
+      "libs/audio-video-ui/src/screens/JobRecoveryScreen.tsx": "4b3a85e15cf64015cc39b24f2a15e29fba236214fed58e2e91725483d2352388",
+      "libs/audio-video-ui/src/screens/MediaActionDispatchGuard.ts": "3b8f5728b17aa56c48182036495af1ec8dbd724a20fe049bf2c8089cd47b2033",
+      "libs/audio-video-ui/src/screens/MediaContractScreen.test.ts": "f9489c63ae7f7035f7b83367ab2dfdd0730675ee16bdc978fd401327725c7fc1",
+      "libs/audio-video-ui/src/screens/MediaContractScreen.tsx": "266e107dc8438d315124d4e034a6fd7bd83a08c16ac66d56f6ae9be634e45532",
+      "libs/audio-video-ui/src/screens/MediaLocalActionContracts.ts": "6d007332257ed4063c6df228e680882d0d9af78bae56950918e02a226cf6adb7",
+      "libs/audio-video-ui/src/screens/MediaProductRenderer.test.ts": "538209c8bb5797430a86f2606073a5b98db836e04fc88e9b91b29f3a5e39ee7c",
+      "libs/audio-video-ui/src/screens/MediaProductRenderer.tsx": "665c888da246d69347eb96e8f1054bc48899a82823d2e9949ade8d865296c14c",
+      "libs/audio-video-ui/src/screens/MediaTaskScreen.tsx": "879e667995f78e0b10693a3d5bcb598ad88b35d6ca09afc60cbe7b4e2338ec2c",
+      "libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx": "298229ec5101c181981eb4e4c3b9c79fb61b4c2ce4b1e7ca602964faaca91776",
+      "libs/audio-video-ui/src/screens/index.ts": "03035c195715dd4ea08dd28c640575c6b5dee1681e6b0fb3f66fea90ef986a78",
+      "libs/audio-video-ui/src/screens/shared-control-reuse.test.ts": "31f4930a18d93e1ae3c5df23ef0477e0176e83b909cbc8b594477d0441288b6f",
+      "libs/audio-video-ui/src/styles.css": "05c239af22315b64c24e331717df9b899a1fe40ef8668b195bda9e95b57263b3",
+      "libs/audio-video-ui/src/styles.test.ts": "d9427695685fc6767612bd812a75d37dacba33c92ea67712ccd7d379aefd380b",
+      "libs/media-experience-simulation/src/cli.ts": "e44fb50cb9a8e86b246858e9503217fe143dd1363bf977515932a8b16911eb8a",
+      "libs/media-experience-simulation/src/definition-oracles.ts": "805de67527ece2c18cf5db06eca86b2172c426de3f9f7c07a2d232577aa7b968",
+      "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
+      "libs/media-experience-simulation/src/index.ts": "0f770cf5318477818b5c33ece1fc82b48893ea81869978697a6ab00149cbce8a",
+      "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01",
+      "libs/media-experience-simulation/src/product-experience-package.ts": "8275d98d343a27a198c8d65d5fa3e271b306a4142c78e115ef6a7a5137a8ee5b",
+      "libs/media-experience-simulation/src/retry-eligibility-definition.ts": "ffe4a05a306d9d5a3a71951e5f2b6885d00f50d1531ad1355ed77411165ad875",
+      "libs/media-experience-simulation/src/search-inspection-definition.ts": "97e3baf241e47156fe5b7339fef8115b7c490459b9b8fb789a68d25d427c4231",
+      "libs/media-experience-simulation/src/stream-recovery-definition.ts": "91f94ca8b229cadb5dc2ed7b28b5aac8dabae9b9827df4799335affb126ae0db",
+      "libs/media-experience-simulation/tests/pdp-experience-scenario-inventory.test.mjs": "416524c87727f8a6f013508cb633a7aaf7334881a1f75054b8024f56065e3dc9",
+      "libs/media-experience-simulation/tests/pdp-experience-step-oracles.test.mjs": "a8a55364b4a26efbc90e3ae4a1537d0eda1ef46d2da4dbbe3a321985602cc855",
+      "scripts/check-media-presentation-architecture.mjs": "265a93260409a1faf4dada917310b0c944bd6aac75f1e74d9d3fa7c27eb52808",
+      "scripts/generate-media-phase-projections.mjs": "977a0f8fff2c08ba1a11e075742b5494a1e8fd34cb8b429874ab63e378df6a94",
+      "scripts/generate-media-product-manifest.mjs": "f2546d314c7a461a0464d43b16b55528306a5a547aec371bd4dae834e8dfa29f",
+      "scripts/lib/pdp3-journey-operation-binding.mjs": "50a53dfb18f5c0457193be05a8701b2b462a2b4ec3086b6fc4d66d65b5dd2e8a",
+      "scripts/lib/pdp3-step-capability-purpose.mjs": "07d65ac87dbf0cf6cfdf350bf41704706218648d21aeaf9e91959c56570eedbd",
+      "scripts/lib/pdp3-step-definition-oracle.mjs": "37894610fb69d8e4c0bcfe6c0f52562a9b98e6b6f9640bacc03e62c9c618f43a",
+      "scripts/report-media-pdp-readiness.mjs": "6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c",
+      "tests/media-agent-tool-contracts.test.mjs": "6b538362a0ac2143a36bc38976293e35580f3a6945b70543141e80963c6d4fd4",
+      "tests/media-agent-tool-definition-contracts.test.mjs": "436a97babff05d4f605f0fa592f7783c758328ef14a0edf2e31fdab1be971686",
+      "tests/media-agent-tool-untrusted-media.test.mjs": "734b2ae47b2ca855cdfef8cec1b7446e0b10d61abfa7b124a7bac4e6bd7c168a",
+      "tests/media-caption-version-experience-definitions.test.mjs": "bc98b9c628ce8f632db7200e375b2d1da2d6290ee96a63f8dd33e5886c41fdfe",
+      "tests/media-contract-parity-definition-only-cli.test.mjs": "fb5844bcafe7e5d6dfbc6ce19dfbbd68c84476855089ce17b0a353d31ae663e4",
+      "tests/media-contract-parity.test.mjs": "3b2ebd2a9dcbe68f1afb86438fa55953851596a5d5c359a888bc94bb95eb4cc4",
+      "tests/media-event-interface-owner-bindings.test.mjs": "d25165409fb1c9d68ec3e23926be52e0ccad9747fbd148046603a8785d14e6b7",
+      "tests/media-event-source-parity.test.mjs": "b1c7cbc0b3250fc624c57b964634cd7fffea11a0fcd25f41e46f7ce9df25a74a",
+      "tests/media-fixture-cli-current-definition-bindings.test.mjs": "d5604de755d120add2d9b9039057d59d5f30c56e46020a3cfb61e2a9fee3a972",
+      "tests/media-j01-definition-semantics.test.mjs": "219498b7e1831161ff0b1d23fc52f9ef670e5ac06093f8fb9f56063ff3d7f953",
+      "tests/media-j02-definition-semantics.test.mjs": "f17e95fd8c4de390971e444cd1a22994aa6aab8b2e5a0912c3c7ece251bfa75f",
+      "tests/media-pdp-p3-dev-status.test.mjs": "a1c982374428dcc0f1f420196d44b81058a7701edd65f8982ef076d947725982",
+      "tests/media-presentation-architecture.test.mjs": "4d6a01af7a27870c3fc4a45c762743ea261cfd861ee5873a4082a554339ca7c7",
+      "tests/media-sdk-legacy-interface-dispositions.test.mjs": "3c69397a52248369ade860e5c4a4bdcf4270e15806b1cc04a30e9c0679384dea",
+      "tests/media-search-inspection-contracts.test.mjs": "e4f8a9f611a35003dd141fe29e534f7e5a5611330a127f553df8c228e90fff8c",
+      "tests/media-transcript-review-definition.test.mjs": "c8112190dce3c16674b48551d3db7437e8779b98466955070ed4c1a7de788458",
+      "tests/media-transcription-submission-experience-definition.test.mjs": "f6f61badf5322608c28637fc049321300290219225a8915cb62e843c402cebb5",
+      "tests/pdp-3-07-machine-contract-fixtures.test.mjs": "8953fcda507da39da0501b15f27ac494958096480594e01c93837da2fc0a890d",
+      "tests/pdp-3-definition-branch-coverage.test.mjs": "714dc39cd2c0603a00d764b05b2a05edf2f545efef02e24ef662c05910be3701",
+      "tests/pdp-3-examples.test.mjs": "02306f4099ffd6836b767f30cbd11411f8ba85139e40dcd072d0b33aa570a8bf",
+      "tests/pdp-3-overview-denominator.test.mjs": "8203acb8f6f827acd0f8c7dbfcd198cf3247fafe2d08e9121ce76d68f259bed1",
+      "tests/pdp-3-scenario-fixture-coverage.test.mjs": "8ef7c57695cf6534873f063c01c46343082b6dea8ac400a78f806828bc778a92",
+      "tests/pdp-3-scenario-start-state-integrity.test.mjs": "b5435f22e34759f56d62404aa464af476c0029164db97b732924d16ebbb05e53",
+      "tests/pdp-3-screen-journey-crosslinks.test.mjs": "f65c02fe5cf362fa1edbc2d7209ca2ca89c8636d07f343a84195da16a3571b29",
+      "tests/pdp-3-screen-source-bindings.test.mjs": "0b05fb1b44d77aba92cfbac75a51f2cbee49f65af633625f89c992cc5f5c5b9c",
+      "tests/pdp-api-error-semantics.test.mjs": "afdbbe5d3899f75605dfa788cd9b978f1680c5220b5a5863f161d0a5cbefd5b5",
+      "tests/pdp-design-accessibility-text-spacing-target-size.test.mjs": "664a07652fc3aef0c9b1a6ce17c1ebbd05ddacce0517e3377bb07a62f4beea10",
+      "tests/pdp-design-responsive-comprehension.test.mjs": "2425420ad5e587125c3ed312d34d9bae40b132afeabb9f533d6285afc80b86e1",
+      "tests/pdp-design-responsive-rendered-references.test.mjs": "fa9bfe8e4603f4f73066b0430d3d3456da32e6b389a0c9486e7696b3e3a956ea",
+      "tests/pdp-events-owner-definition.test.mjs": "92932c9d9b5eb40a28d936ec6a5058e355f58cb05ade123cce7986593384a88c",
+      "tests/pdp-experience-254-guard-step-fixture-corpus.test.mjs": "eb58caab8a0e4e24a23aeb42ff5f8538bed4ab3627b5d50730c554b22f7fd2f8",
+      "tests/pdp-experience-action-inventory.test.mjs": "a7f1ad51c3512910d0c6e294d366dece02adee73f2ebb933736b7f3956cc0d35",
+      "tests/pdp-experience-action-reconciliation-contract.test.mjs": "ca97a461b595c81a16bf544075a7508b1a0e69c6faeca0a548648b510c223c3b",
+      "tests/pdp-experience-component-projection.test.mjs": "d876d45666df6e1367601ebc24d0f5d1991ed041041c61a7b30b73675810dbdd",
+      "tests/pdp-experience-component-source-dispositions.test.mjs": "b74a4d4e9984b2d610bb0a172849f6faeca57c5e4181a98caaa84ea304462032",
+      "tests/pdp-experience-default-navigation.test.mjs": "15aae3573f92e825a61c4f2ac0ca2f2d56cfa85fa7c448051c0a2e3ac9a1262b",
+      "tests/pdp-experience-definition-mapping.test.mjs": "752d12258d0d31c306098bf0d236b653c2c8b7ec6f3cb04913c8fcee8e90a2fa",
+      "tests/pdp-experience-generic-journey-step-projection.test.mjs": "7a6ec4e2fc0d0401bca4d2f2a5f9ad14ca2e44111de63e72e879cfc7da795554",
+      "tests/pdp-experience-identity-handoff.test.mjs": "d33186bd27852ef247a45ee89294b3ad2541a1ec28f634a44e9e79b953f3b431",
+      "tests/pdp-experience-immediate-result-sources.test.mjs": "05edd68278512e9d673d54aacd836f0507b9e7e0febe05c4f8f4f4e84917138a",
+      "tests/pdp-experience-journey-operation-bindings.test.mjs": "cf9ddce9f1cb31cb97c61b265f22f33169409818fcb5bb899036721b59f739d2",
+      "tests/pdp-experience-journey-purpose-bindings.test.mjs": "12397fc260c812f52bcb6ad50ab2c95f2d2cdeedc81d19476d5d298e94c013de",
+      "tests/pdp-experience-journey-scenario-bindings.test.mjs": "45f78b9cc29668d620a48abb1eeb2b88f91c7e9a00cc07a33493dd80a92552a0",
+      "tests/pdp-experience-local-step-effect-definition.test.mjs": "335b97895309cc730ee890a4c5f6fa002ff9878505a9187632d0c00128523b76",
+      "tests/pdp-experience-rights-guard-fact-evaluator.test.mjs": "b80310dd2d79701c455d1ced31c7f45df9378f3d0696e98d152d88d0be0ec99e",
+      "tests/pdp-experience-scenario-local-context-bindings.test.mjs": "ff5b0b406b6d4689432d14dcca7e0ea3ac8b1e63ea63c08dac4d9ff79237064f",
+      "tests/pdp-experience-step-definition-oracle.test.mjs": "d895162ddafaed9ecd5815b8423ae836e3d9524e04fc405a821264cf23c93e94",
+      "tests/pdp-experience-step-guard-fact-contracts.test.mjs": "1c77ec13e4ce669976471d59f68ce31afb0adc5275eef67a9b4c478ea2b3d607",
+      "tests/pdp-experience-step-semantics.test.mjs": "73d683f88d5581725a453280ed9aad093e7ddf3a44f30ab9c3924c598b859f9e",
+      "tests/pdp-experience-step-version-binding-contracts.test.mjs": "1ccccb71ee5293c3f2b6b8399857c718777eaaff5914a9ca79357de93ac4b402",
+      "tests/pdp-experience-transition-edge-bindings.test.mjs": "f0f100c7021d67462052d90fdf0b5366d848f0678c580bdc8749f5ed70e303f4",
+      "tests/pdp-experience-transition-projection.test.mjs": "e62179f3dc58c9687ecd255f6d6c9e75600db72e987eeddca03090930ea5d67f",
+      "tests/pdp-experience-transition-trigger-semantics.test.mjs": "06158ed5b7b4f9134c09208ff9402b8fb5bdbcf41967fb976563f27921e73f9d",
+      "tests/pdp-experience-typed-guard-fact-evaluator.test.mjs": "bb07001e965c02efbbaf135659ba0724319707426716c65213c0ea04d1b068c6",
+      "tests/pdp-experience-view-observation-predicates.test.mjs": "e341de598928d1fa8f682b42832a2c737566601df4ce3f81e77fca2cea7eb293",
+      "tests/pdp-experience-view-observation-state-projection.test.mjs": "0a47b474f80818dea1e98ddbf719dd22ad33962bd3730427251af1a785f0d78e",
+      "tests/pdp-experience-view-state-binding.test.mjs": "035ef225944d8862f8be10e1bcc761d971d62d505204924cb6cea051faf025c0",
+      "tests/pdp-job-status-screen-definition.test.mjs": "fa02695780b624b2ebc9b73fdacc2fc4a5c2d3fd0295b3278e019b64dd59922a",
+      "tests/pdp-truth-domain-event-delivery.test.mjs": "29fa77ca218a2a6e03367a07cdcb53394f4679b253683359348da6cacf16b22d",
+      "tests/pdp2-media-renderer-dom.test.mjs": "f3bb65382b8d8e40826883e6673e373626a498f68073c8a49a4ba3c669f58065",
+      "tests/pdp3-j03-decision-crosswalk.test.mjs": "2efb185d473270fb215a30f7b6cf11245e5062e7504318d98891d6a13692ad44"
+    }
+  },
+  "definitionPopulation": {
+    "screens": {
+      "total": 47,
+      "registryScreens": 41,
+      "contextualSpecializations": 6
+    },
+    "journeys": {
+      "total": 30,
+      "orderedSteps": 130,
+      "contractFiles": 30
+    },
+    "actions": {
+      "total": 147,
+      "registryActions": 146,
+      "ownerDefinedActions": 1
+    },
+    "scenarios": {
+      "total": 31,
+      "seededJourneys": [
+        "J-01",
+        "J-02",
+        "J-03",
+        "J-20"
+      ],
+      "boundedUnseededJourneys": 26
+    },
+    "recoveryOracles": {
+      "uniqueJourneyStepRefs": 105,
+      "allResolve": true
+    },
+    "stepOracles": {
+      "total": 130,
+      "intentBound": 130,
+      "purposeBound": 130,
+      "versionBound": 130,
+      "deniedBranches": 121,
+      "unknownBranches": 130
+    },
+    "runtimeAdmission": "NOT_ADMITTED",
+    "ownerAcceptedOutcomeOracles": 0,
+    "conditionalRetryScenario": "media.scenario.job-retry-eligible is explicitly conditional/non-executable and is not Explorer-indexed."
+  },
+  "findings": [
+    {
+      "id": "MDC30-CHANNEL-BINDING-COMPLETENESS",
+      "severity": "BLOCKER",
+      "phaseOwner": "media-experience owner with the accountable consumer/channel owners",
+      "summary": "The current sources do not provide complete, source-supported per-journey channel bindings across all 30 journeys.",
+      "evidence": {
+        "unboundJourneyCount": 24,
+        "unboundJourneyIds": [
+          "J-04",
+          "J-05",
+          "J-06",
+          "J-07",
+          "J-08",
+          "J-09",
+          "J-10",
+          "J-11",
+          "J-12",
+          "J-13",
+          "J-14",
+          "J-15",
+          "J-16",
+          "J-17",
+          "J-18",
+          "J-19",
+          "J-21",
+          "J-22",
+          "J-23",
+          "J-24",
+          "J-25",
+          "J-26",
+          "J-27",
+          "J-28"
+        ],
+        "commonDeclaration": "PDP-0 proposed channels only; per-channel operation, state, transport, and accessibility equivalence remain unbound.",
+        "declarationSource": ".product-experience/pdp-3-product-experience/journey-contracts/",
+        "customDispositionJourneys": [
+          "J-01",
+          "J-02",
+          "J-03",
+          "J-20"
+        ],
+        "missingTopLevelChannelListJourneys": [
+          "J-03",
+          "J-20"
+        ],
+        "channelListedButNoCommonBindingStateJourneys": [
+          "J-01",
+          "J-02"
+        ],
+        "registriesInspected": [
+          ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
+          ".product-experience/pdp-3-product-experience/api/api-registry.yaml",
+          ".product-experience/pdp-3-product-experience/api-experience-mapping.yaml",
+          ".product-experience/pdp-3-product-experience/grpc/service-registry.yaml",
+          ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+          ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml",
+          ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml",
+          ".product-experience/pdp-3-product-experience/events/event-registry.yaml"
+        ],
+        "limitation": "These authorities leave HTTP route identity, gRPC wire/version crosswalk, SDK parity, CLI production mapping, and per-journey channel equivalence unresolved. Completing those links now would require invented semantics, routes, runtime admission, or owner approval.",
+        "definitionClassification": "PDP-3 definition/source-linkage gap for MDC-30; not a Build or runtime-admission substitute."
+      },
+      "acceptance": "Each applicable journey/channel relation is explicitly bound to source-supported operation, state, transport, version, accessibility, negative/finality, and recovery semantics; unresolved relations retain exact authority and owner without implying admission."
+    },
+    {
+      "id": "MDC30-INTEGRATIONS-APPLICABILITY-UNKNOWN",
+      "severity": "BLOCKER",
+      "phaseOwner": "media-runtime and integration-owners",
+      "summary": "The integrations consumer PDP-3 applicability is unresolved and cannot be counted as applicable or N/A.",
+      "evidence": {
+        "sourceRegistryRef": ".product-experience/surface-registry.yaml#/surfaces/12",
+        "applicablePdpArtifacts": [
+          "PDP-0",
+          "PDP-1",
+          "PDP-2"
+        ],
+        "applicabilityDisposition": "OWNER_DECISION_PENDING",
+        "rationale": "Each external handoff requires its own owner-approved contract and availability evidence.",
+        "topologyRef": ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/12",
+        "topologyBindingState": "HOST_DEPENDENT",
+        "pdp3ContractAuthority": ".product-experience/pdp-3-product-experience/services/service-registry.yaml",
+        "journeyReferences": [
+          {
+            "id": "J-09",
+            "file": ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml"
+          },
+          {
+            "id": "J-26",
+            "file": ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml"
+          },
+          {
+            "id": "J-22",
+            "file": ".product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml"
+          },
+          {
+            "id": "J-14",
+            "file": ".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml"
+          },
+          {
+            "id": "J-28",
+            "file": ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml"
+          }
+        ],
+        "disposition": "UNKNOWN_OWNER_DECISION_PENDING; retain in the 17-consumer denominator; do not mark applicable or N/A."
+      },
+      "acceptance": "An authoritative, explicit PDP-3 applicability decision and rationale reconciles the registry with the service/journey references; no runtime/availability acceptance is implied."
+    },
+    {
+      "id": "MDC30-STEP-STATE-BINDING-REVIEW",
+      "severity": "BLOCKER",
+      "phaseOwner": "media-experience owner with PDP-1 domain owners",
+      "summary": "The bounded step-level review is complete and precisely classifies passive, read-only, external, and consequential cases; the 14 consequential command/workflow bindings still lack accepted exact state-transition mappings, so current PDP-3 completion remains blocked.",
+      "evidence": {
+        "transitionEdgeCount": 165,
+        "transitionRecordCount": 55,
+        "exactPdp3JourneyActionOperationBindings": 1,
+        "transitionRecordsPendingOrUnbound": 54,
+        "purposeBindingsWithNullStateBindingDisposition": 118,
+        "stepOraclesWithEmptyCanonicalStateRefs": 115,
+        "reviewBoundary": "The exact 54 transition rows and 118 null purpose dispositions were classified. This closes the classification review only; it does not close owner mapping, acceptance, route/transport, or state-transition definition tasks.",
+        "sources": [
+          ".product-experience/pdp-3-product-experience/journey-transition-edge-bindings.yaml",
+          ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+          ".product-experience/pdp-3-product-experience/step-definition-oracles.yaml",
+          ".product-experience/pdp-3-product-experience/step-purpose-bindings.yaml",
+          ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml",
+          ".product-experience/pdp-1-domain-data/transitions.yaml",
+          ".product-experience/pdp-1-domain-data/states.yaml"
+        ],
+        "boundedReviewStatus": "CLASSIFICATION_COMPLETE; EXACT_OWNER_MAPPING_AND_ACCEPTANCE_REMAIN_OPEN",
+        "transitionRecordDispositionCounts": {
+          "P1_OPERATION_FAMILY_PROPOSAL_ONLY; NO_EXACT_ACTION_INVOCATION": 3,
+          "P1_EVENT_TRIGGER_PENDING; NO_EXACT_PUBLIC_OPERATION_OR_JOURNEY_ACTION": 44,
+          "P1_EXPLICITLY_NO_VERIFICATION_OPERATION_IDENTITY; NO_ROUTE_OR_RUNTIME_ADMISSION": 1,
+          "AUTHORITY_SOURCE_EVENT_REQUIRED; PUBLIC_OPERATION_AND_TRANSPORT_EXPLICITLY_UNBOUND": 6
+        },
+        "unboundTransitionRecordIdsByDisposition": {
+          "P1_OPERATION_FAMILY_PROPOSAL_ONLY; NO_EXACT_ACTION_INVOCATION": [
+            "media.transition-step-binding.media-job-t01.v1",
+            "media.transition-step-binding.media-job-t03.v1",
+            "media.transition-step-binding.media-job-t04.v1"
+          ],
+          "P1_EVENT_TRIGGER_PENDING; NO_EXACT_PUBLIC_OPERATION_OR_JOURNEY_ACTION": [
+            "media.transition-step-binding.media-job-t02.v1",
+            "media.transition-step-binding.media-job-t05.v1",
+            "media.transition-step-binding.media-attempt-t01.v1",
+            "media.transition-step-binding.media-attempt-t02.v1",
+            "media.transition-step-binding.media-attempt-t03.v1",
+            "media.transition-step-binding.media-attempt-t04.v1",
+            "media.transition-step-binding.media-attempt-t05.v1",
+            "media.transition-step-binding.media-upload-and-artifact-t03.v1",
+            "media.transition-step-binding.media-upload-and-artifact-t04.v1",
+            "media.transition-step-binding.media-upload-and-artifact-t05.v1",
+            "media.transition-step-binding.media-upload-and-artifact-t06.v1",
+            "media.transition-step-binding.media-upload-and-artifact-t07.v1",
+            "media.transition-step-binding.media-upload-and-artifact-t08.v1",
+            "media.transition-step-binding.media-upload-and-artifact-t09.v1",
+            "media.transition-step-binding.media-stream-session-t01.v1",
+            "media.transition-step-binding.media-stream-session-t02.v1",
+            "media.transition-step-binding.media-stream-session-t03.v1",
+            "media.transition-step-binding.media-stream-session-t04.v1",
+            "media.transition-step-binding.media-review-t01.v1",
+            "media.transition-step-binding.media-review-t02.v1",
+            "media.transition-step-binding.media-review-t03.v1",
+            "media.transition-step-binding.media-review-t04.v1",
+            "media.transition-step-binding.media-review-t05.v1",
+            "media.transition-step-binding.media-delivery-t01.v1",
+            "media.transition-step-binding.media-delivery-t02.v1",
+            "media.transition-step-binding.media-delivery-t03.v1",
+            "media.transition-step-binding.media-delivery-t04.v1",
+            "media.transition-step-binding.media-delivery-t05.v1",
+            "media.transition-step-binding.media-delivery-t06.v1",
+            "media.transition-step-binding.media-delivery-t07.v1",
+            "media.transition-step-binding.media-quality-disposition-t01.v1",
+            "media.transition-step-binding.media-quality-disposition-t02.v1",
+            "media.transition-step-binding.media-quality-disposition-t03.v1",
+            "media.transition-step-binding.media-project-t01.v1",
+            "media.transition-step-binding.media-project-t02.v1",
+            "media.transition-step-binding.media-project-version-t01.v1",
+            "media.transition-step-binding.media-project-version-t02.v1",
+            "media.transition-step-binding.media-project-version-t03.v1",
+            "media.transition-step-binding.media-project-version-t04.v1",
+            "media.transition-step-binding.media-project-membership-t01.v1",
+            "media.transition-step-binding.media-project-membership-t02.v1",
+            "media.transition-step-binding.media-project-membership-t03.v1",
+            "media.transition-step-binding.media-project-membership-t04.v1",
+            "media.transition-step-binding.media-project-membership-t05.v1"
+          ],
+          "P1_EXPLICITLY_NO_VERIFICATION_OPERATION_IDENTITY; NO_ROUTE_OR_RUNTIME_ADMISSION": [
+            "media.transition-step-binding.media-upload-and-artifact-t02.v1"
+          ],
+          "AUTHORITY_SOURCE_EVENT_REQUIRED; PUBLIC_OPERATION_AND_TRANSPORT_EXPLICITLY_UNBOUND": [
+            "media.transition-step-binding.media-rights-and-consent-rightsassertion-t01.v1",
+            "media.transition-step-binding.media-rights-and-consent-rightsassertion-t02.v1",
+            "media.transition-step-binding.media-rights-and-consent-rightsassertion-t03.v1",
+            "media.transition-step-binding.media-rights-and-consent-rightsassertion-t04.v1",
+            "media.transition-step-binding.media-rights-and-consent-consent-t01.v1",
+            "media.transition-step-binding.media-rights-and-consent-consent-t02.v1"
+          ]
+        },
+        "exactPdp3JourneyActionOperationBindingIds": [
+          "media.transition-step-binding.media-upload-and-artifact-t01.v1"
+        ],
+        "purposeBindingClassification": {
+          "localOrPassiveNoDomainStateChange": 33,
+          "readOnlyStateProjection": 70,
+          "consequentialCommandOrWorkflow": 14,
+          "externalSharedIdentityHandoffObservationWithoutMediaMutation": 1,
+          "threeNullDispositionRowsWithNonemptyOracleRefs": [
+            "J-01:02",
+            "J-29:01",
+            "J-29:02"
+          ],
+          "consequentialStepRefs": [
+            {
+              "step": "J-09:09",
+              "operation": "deliver-exact-version"
+            },
+            {
+              "step": "J-22:02",
+              "operation": "deliver-exact-version"
+            },
+            {
+              "step": "J-01:03",
+              "operation": "create-project"
+            },
+            {
+              "step": "J-20:05",
+              "operation": "cancel-job"
+            },
+            {
+              "step": "J-20:06",
+              "operation": "retry-job"
+            },
+            {
+              "step": "J-06:01",
+              "operation": "multimodal-observe-source-grounded"
+            },
+            {
+              "step": "J-02:02",
+              "operation": "begin-upload"
+            },
+            {
+              "step": "J-03:02",
+              "operation": "transcription-submission",
+              "operationAuthority": "PDP-1"
+            },
+            {
+              "step": "J-03:05",
+              "operation": "caption-draft-write",
+              "operationAuthority": "PDP-1"
+            },
+            {
+              "step": "J-03:06",
+              "operation": "caption-draft-write",
+              "operationAuthority": "PDP-1"
+            },
+            {
+              "step": "J-03:07",
+              "operation": "caption-version-write",
+              "operationAuthority": "PDP-1"
+            },
+            {
+              "step": "J-16:03",
+              "operation": "caption-draft-write",
+              "operationAuthority": "PDP-1"
+            },
+            {
+              "step": "J-18:04",
+              "operation": "caption-draft-write",
+              "operationAuthority": "PDP-1"
+            },
+            {
+              "step": "J-02:03",
+              "operation": [
+                "append-upload-chunk",
+                "complete-upload"
+              ],
+              "classification": "ordered-two-command-workflow"
+            }
+          ],
+          "sourceOnlyDispositionGuidance": {
+            "localOrPassive": "NO_DOMAIN_STATE_CHANGE; observation-only where referenced",
+            "readOnly": "READ_ONLY_STATE_PROJECTION; NO_STATE_TRANSITION",
+            "consequential": "EFFECT_DEFINED; TRANSITION_UNBOUND_OR_UNKNOWN until exact owner mapping is accepted",
+            "externalHandoff": "NO_MEDIA_DOMAIN_MUTATION; EXTERNAL_RECEIPT_UNBOUND"
+          },
+          "acceptedMappingStatus": "NOT_ESTABLISHED: state-transition-bindings.yaml is selected-lane proposal; P0-010 acceptance remains pending",
+          "reviewIntegrity": "Source-only classification; no owner acceptance, independent signoff, route, runtime admission, or accepted state mapping is claimed."
+        }
+      },
+      "acceptance": "Every consequential stateful step has an exact applicable P0/P1 state/transition and action/operation binding accepted by its accountable owner, or a source-backed explicit no-domain-state rationale; all other transition rows carry precise pending/unbound source-only dispositions. No proposal is promoted to accepted mapping."
+    },
+    {
+      "id": "MDC30-EXTERNAL-SOURCE-OBSERVATION-STALE",
+      "severity": "PROVENANCE_LIMITATION",
+      "phaseOwner": "external repository owners; Media source-manifest owner",
+      "summary": "The local source-manifest externalOwnerObservations do not match current sibling checkout revisions/worktree state.",
+      "evidence": {
+        "ghatana": {
+          "capturedRevision": "c83e3bbf119234c88ebd340a2cd5bcfa06f2e1db",
+          "liveHead": "c83e3bbf119234c88ebd340a2cd5bcfa06f2e1db",
+          "liveStatus": "CLEAN"
+        },
+        "ghatanaProducts": {
+          "capturedRevision": "5fc2a366eda1657c3678628381565f6a4929b2dc",
+          "liveHead": "e33e0e2c1c5091cda825d248126fdd0936f6168a",
+          "liveStatus": "MODIFIED"
+        },
+        "gharbatai": {
+          "capturedRevision": "7e3884205e2b75072d12c07e206d54288a53263e",
+          "liveHead": "7e3884205e2b75072d12c07e206d54288a53263e",
+          "liveStatus": "UNTRACKED_FILES"
+        },
+        "ghatanaTools": {
+          "capturedRevision": "d84189b423a8f150dbf18108871088e1ab900341",
+          "liveHead": "d84189b423a8f150dbf18108871088e1ab900341",
+          "liveStatus": "CLEAN"
+        },
+        "ghatanaLifecycle": {
+          "capturedRevision": "86e0703521295b26fd925001b057fdb5a2c4c8e7",
+          "liveHead": "744e65e6b8727c6a0ba3e1fcb23eac0c0a0d4387",
+          "liveStatus": "MODIFIED"
+        },
+        "ghatanaShared": {
+          "capturedRevision": "0c816bed7b8f39f6a9595e54d8f5c74ead089373",
+          "liveHead": "60f5698423ca18b5209e11ad2ce95e6fe7768d57",
+          "liveStatus": "MODIFIED"
+        },
+        "interpretation": "The source-manifest labels these as SOURCE_OBSERVATION_ONLY; they do not establish current owner acceptance. No external checkout was modified."
+      }
+    }
+  ],
+  "requiredChecks": [
+    {
+      "command": "node --test tests/media-pdp-p3-dev-status.test.mjs tests/pdp-3-overview-denominator.test.mjs tests/pdp-3-screen-source-bindings.test.mjs tests/pdp-3-definition-branch-coverage.test.mjs tests/pdp3-api-experience-source-bindings.test.mjs",
+      "status": "PASS",
+      "tests": 19,
+      "passed": 19,
+      "failed": 0,
+      "skipped": 0,
+      "note": "Prescribed MDC-30 source-definition suite; passing checks do not clear channel-binding or applicability findings and are not a PDP-3 exit."
+    },
+    {
+      "command": "node --test tests/media-discovery-phase-cell-plan.test.mjs",
+      "status": "PASS",
+      "tests": 8,
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "note": "Plan/matrix consistency regression including exact PDP-3 consumer owner/applicability bindings and MDC-30 transition/state classification without acceptance promotion."
+    }
+  ],
+  "phaseDisposition": {
+    "historicalPdp3Status": "DEV_COMPLETE_ZERO_OUTSTANDING_AT_HISTORICAL_CUT",
+    "currentPdp3Status": "REOPENED_FOR_MDC30_RECONCILIATION; NOT_CURRENT; NO_PHASE_EXIT",
+    "currentSourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+    "sourceCurrentness": "PARTIAL_REVIEW_WITH_5_CLASSIFIED_PIN_DRIFTS",
+    "phaseLocalDefinitionStatus": "BLOCKED",
+    "currentPhaseExit": "NOT_PUBLISHED",
+    "currentPhaseExitRef": null,
+    "ownerAcceptance": "NOT_RECORDED_FOR_EXACT_CURRENT_PDP3_SOURCE_SET",
+    "independentSignoff": "NOT_CLAIMED",
+    "explorerBrowserValidation": "NOT_RUN; MDC-31 GATED",
+    "nativePdpClosure": "NOT_ENTERED",
+    "build": "NOT_ENTERED",
+    "delivery": "BLOCKED"
+  },
+  "perSurfacePdp3Matrix": [
+    {
+      "surfaceId": "media.physical.adapters-ledger",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "pdp3Applicability": "TOOLING_OR_SUPPORT",
+      "owner": "media-platform",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.adapters-ledger. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.apps-media-experience-explorer",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "pdp3Applicability": "TOOLING_OR_SUPPORT",
+      "owner": "media-product-engineering",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.apps-media-experience-explorer. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.audio-video-observability",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "pdp3Applicability": "CONSUMER_CONTRACT",
+      "owner": "media-platform",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.audio-video-observability. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.integration-tests",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "pdp3Applicability": "TOOLING_OR_SUPPORT",
+      "owner": "media-platform",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.integration-tests. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.launcher",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "pdp3Applicability": "CONSUMER_CONTRACT",
+      "owner": "media-runtime",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.launcher. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.libs-audio-video-client",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "pdp3Applicability": "CONSUMER_CONTRACT",
+      "owner": "media-client-owner",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.libs-audio-video-client. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.libs-audio-video-types",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "pdp3Applicability": "CONSUMER_CONTRACT",
+      "owner": "media-types-owner",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.libs-audio-video-types. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.libs-audio-video-ui",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "pdp3Applicability": "CONSUMER_CONTRACT",
+      "owner": "media-ui-owner",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.libs-audio-video-ui. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.libs-common",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUBSUMED",
+      "pdp3Applicability": "TOOLING_OR_SUPPORT",
+      "owner": "media-runtime",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.libs-common. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.libs-java-common",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUBSUMED",
+      "pdp3Applicability": "TOOLING_OR_SUPPORT",
+      "owner": "media-runtime",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.libs-java-common. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.libs-media-experience-simulation",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "pdp3Applicability": "TOOLING_OR_SUPPORT",
+      "owner": "media-product-engineering",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.libs-media-experience-simulation. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.modules-audio-streaming",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "pdp3Applicability": "CONSUMER_CONTRACT",
+      "owner": "media-runtime",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.modules-audio-streaming. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-cache",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "pdp3Applicability": "TOOLING_OR_SUPPORT",
+      "owner": "media-platform",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.modules-infrastructure-cache. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-messaging",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "pdp3Applicability": "TOOLING_OR_SUPPORT",
+      "owner": "media-platform",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.modules-infrastructure-messaging. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-persistence",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "pdp3Applicability": "CONSUMER_CONTRACT",
+      "owner": "media-platform",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.modules-infrastructure-persistence. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-security",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "pdp3Applicability": "CONSUMER_CONTRACT",
+      "owner": "media-platform",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.modules-infrastructure-security. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.modules-integration-tests",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "pdp3Applicability": "TOOLING_OR_SUPPORT",
+      "owner": "media-platform",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.modules-integration-tests. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "pdp3Applicability": "HOST_DEPENDENT_EXPERIENCE",
+      "owner": "media-ui-owner",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.modules-intelligence-multimodal-service",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "pdp3Applicability": "CONSUMER_CONTRACT",
+      "owner": "media-runtime",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.modules-intelligence-multimodal-service. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "pdp3Applicability": "CONSUMER_CONTRACT",
+      "owner": "media-runtime",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.modules-intelligence-speech-libs-speech-audio-rust. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.modules-speech-stt-service",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "pdp3Applicability": "CONSUMER_CONTRACT",
+      "owner": "media-runtime",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.modules-speech-stt-service. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.modules-speech-tts-service",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "pdp3Applicability": "CONSUMER_CONTRACT",
+      "owner": "media-runtime",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.modules-speech-tts-service. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.modules-video-streaming",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "pdp3Applicability": "CONSUMER_CONTRACT",
+      "owner": "media-runtime",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.modules-video-streaming. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.modules-vision-vision-service",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "pdp3Applicability": "CONSUMER_CONTRACT",
+      "owner": "media-runtime",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.modules-vision-vision-service. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.providers-aws-postgresql",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "pdp3Applicability": "HOST_DEPENDENT_EXPERIENCE",
+      "owner": "media-runtime",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.providers-aws-postgresql. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.physical.runtime-contracts",
+      "surfaceType": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "pdp3Applicability": "CONSUMER_CONTRACT",
+      "owner": "media-runtime",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/grpc/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.physical.runtime-contracts. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.composition.repository-root",
+      "surfaceType": "REPOSITORY_ROOT",
+      "physicalDisposition": null,
+      "pdp3Applicability": "ROOT_AUTHORITY_REFERENCE",
+      "owner": "media",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.composition.repository-root. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.composition.ingestion-and-versioned-artifacts",
+      "surfaceType": "SEMANTIC_COMPOSITION",
+      "physicalDisposition": null,
+      "pdp3Applicability": "CROSS_CHILD_JOURNEY_DISCOVERY",
+      "owner": "media",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.composition.ingestion-and-versioned-artifacts. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.composition.governed-job-execution",
+      "surfaceType": "SEMANTIC_COMPOSITION",
+      "physicalDisposition": null,
+      "pdp3Applicability": "CROSS_CHILD_JOURNEY_DISCOVERY",
+      "owner": "media",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.composition.governed-job-execution. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.composition.speech-and-caption-workflows",
+      "surfaceType": "SEMANTIC_COMPOSITION",
+      "physicalDisposition": null,
+      "pdp3Applicability": "CROSS_CHILD_JOURNEY_DISCOVERY",
+      "owner": "media",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.composition.speech-and-caption-workflows. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.composition.vision-and-multimodal-analysis",
+      "surfaceType": "SEMANTIC_COMPOSITION",
+      "physicalDisposition": null,
+      "pdp3Applicability": "CROSS_CHILD_JOURNEY_DISCOVERY",
+      "owner": "media",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.composition.vision-and-multimodal-analysis. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.composition.creation-composition-and-delivery",
+      "surfaceType": "SEMANTIC_COMPOSITION",
+      "physicalDisposition": null,
+      "pdp3Applicability": "CROSS_CHILD_JOURNEY_DISCOVERY",
+      "owner": "media",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.composition.creation-composition-and-delivery. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.composition.client-and-machine-interfaces",
+      "surfaceType": "SEMANTIC_COMPOSITION",
+      "physicalDisposition": null,
+      "pdp3Applicability": "CROSS_CHILD_JOURNEY_DISCOVERY",
+      "owner": "media",
+      "applicabilityAuthorityRefs": [],
+      "contractAuthorityRefs": [
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.composition.client-and-machine-interfaces. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.surface.web",
+      "surfaceType": "CONSUMER_BINDING",
+      "physicalDisposition": null,
+      "pdp3Applicability": "APPLICABLE_CONSUMER_BINDING",
+      "owner": [
+        "media-product",
+        "ghatana-shared-design-system"
+      ],
+      "applicabilityAuthorityRefs": [
+        ".product-experience/surface-registry.yaml#/surfaces/0",
+        ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/0"
+      ],
+      "contractAuthorityRefs": [
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        ".product-experience/pdp-3-product-experience/screen-contracts/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.surface.web. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.surface.embedded",
+      "surfaceType": "CONSUMER_BINDING",
+      "physicalDisposition": null,
+      "pdp3Applicability": "APPLICABLE_CONSUMER_BINDING",
+      "owner": [
+        "media-product",
+        "ghatana-shared-design-system",
+        "integrating-product-owner"
+      ],
+      "applicabilityAuthorityRefs": [
+        ".product-experience/surface-registry.yaml#/surfaces/1",
+        ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/1"
+      ],
+      "contractAuthorityRefs": [
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        ".product-experience/pdp-3-product-experience/screen-contracts/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.surface.embedded. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.surface.public-http",
+      "surfaceType": "CONSUMER_BINDING",
+      "physicalDisposition": null,
+      "pdp3Applicability": "APPLICABLE_CONSUMER_BINDING",
+      "owner": [
+        "media-runtime",
+        "media-api-owner"
+      ],
+      "applicabilityAuthorityRefs": [
+        ".product-experience/surface-registry.yaml#/surfaces/2",
+        ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/2"
+      ],
+      "contractAuthorityRefs": [
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        "contracts/openapi/media.yaml"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.surface.public-http. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.surface.service-grpc",
+      "surfaceType": "CONSUMER_BINDING",
+      "physicalDisposition": null,
+      "pdp3Applicability": "APPLICABLE_CONSUMER_BINDING",
+      "owner": [
+        "media-runtime",
+        "provider-owners"
+      ],
+      "applicabilityAuthorityRefs": [
+        ".product-experience/surface-registry.yaml#/surfaces/3",
+        ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/3"
+      ],
+      "contractAuthorityRefs": [
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        "modules/*/src/main/proto/*.proto"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.surface.service-grpc. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.surface.grpc.stt",
+      "surfaceType": "CONSUMER_BINDING",
+      "physicalDisposition": null,
+      "pdp3Applicability": "APPLICABLE_CONSUMER_BINDING",
+      "owner": [
+        "media-runtime",
+        "speech-service-owner"
+      ],
+      "applicabilityAuthorityRefs": [
+        ".product-experience/surface-registry.yaml#/surfaces/4",
+        ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/4"
+      ],
+      "contractAuthorityRefs": [
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        "modules/speech/stt-service/src/main/proto/stt_service.proto"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.surface.grpc.stt. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.surface.grpc.tts",
+      "surfaceType": "CONSUMER_BINDING",
+      "physicalDisposition": null,
+      "pdp3Applicability": "APPLICABLE_CONSUMER_BINDING",
+      "owner": [
+        "media-runtime",
+        "speech-service-owner"
+      ],
+      "applicabilityAuthorityRefs": [
+        ".product-experience/surface-registry.yaml#/surfaces/5",
+        ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/5"
+      ],
+      "contractAuthorityRefs": [
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        "modules/speech/tts-service/src/main/proto/tts_service.proto"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.surface.grpc.tts. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.surface.grpc.vision",
+      "surfaceType": "CONSUMER_BINDING",
+      "physicalDisposition": null,
+      "pdp3Applicability": "APPLICABLE_CONSUMER_BINDING",
+      "owner": [
+        "media-runtime",
+        "vision-service-owner"
+      ],
+      "applicabilityAuthorityRefs": [
+        ".product-experience/surface-registry.yaml#/surfaces/6",
+        ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/6"
+      ],
+      "contractAuthorityRefs": [
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        "modules/vision/vision-service/src/main/proto/vision_service.proto"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.surface.grpc.vision. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.surface.grpc.multimodal",
+      "surfaceType": "CONSUMER_BINDING",
+      "physicalDisposition": null,
+      "pdp3Applicability": "APPLICABLE_CONSUMER_BINDING",
+      "owner": [
+        "media-runtime",
+        "multimodal-service-owner"
+      ],
+      "applicabilityAuthorityRefs": [
+        ".product-experience/surface-registry.yaml#/surfaces/7",
+        ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/7"
+      ],
+      "contractAuthorityRefs": [
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.surface.grpc.multimodal. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.surface.sdk",
+      "surfaceType": "CONSUMER_BINDING",
+      "physicalDisposition": null,
+      "pdp3Applicability": "APPLICABLE_CONSUMER_BINDING",
+      "owner": [
+        "media-client-owner",
+        "media-runtime"
+      ],
+      "applicabilityAuthorityRefs": [
+        ".product-experience/surface-registry.yaml#/surfaces/8",
+        ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/8"
+      ],
+      "contractAuthorityRefs": [
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        "libs/audio-video-client/src/operations.ts"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.surface.sdk. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.surface.cli",
+      "surfaceType": "CONSUMER_BINDING",
+      "physicalDisposition": null,
+      "pdp3Applicability": "APPLICABLE_CONSUMER_BINDING",
+      "owner": [
+        "media-cli-owner"
+      ],
+      "applicabilityAuthorityRefs": [
+        ".product-experience/surface-registry.yaml#/surfaces/9",
+        ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/9"
+      ],
+      "contractAuthorityRefs": [
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.surface.cli. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.surface.agent-tools",
+      "surfaceType": "CONSUMER_BINDING",
+      "physicalDisposition": null,
+      "pdp3Applicability": "APPLICABLE_CONSUMER_BINDING",
+      "owner": [
+        "media-agent-tool-owner",
+        "ghatana-tools-owner"
+      ],
+      "applicabilityAuthorityRefs": [
+        ".product-experience/surface-registry.yaml#/surfaces/10",
+        ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/10"
+      ],
+      "contractAuthorityRefs": [
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.surface.agent-tools. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.surface.events",
+      "surfaceType": "CONSUMER_BINDING",
+      "physicalDisposition": null,
+      "pdp3Applicability": "APPLICABLE_CONSUMER_BINDING",
+      "owner": [
+        "media-runtime"
+      ],
+      "applicabilityAuthorityRefs": [
+        ".product-experience/surface-registry.yaml#/surfaces/11",
+        ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/11"
+      ],
+      "contractAuthorityRefs": [
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        ".product-experience/pdp-3-product-experience/events/event-registry.yaml"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.surface.events. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.surface.integrations",
+      "surfaceType": "CONSUMER_BINDING",
+      "physicalDisposition": null,
+      "pdp3Applicability": "UNKNOWN_OWNER_DECISION_PENDING",
+      "owner": [
+        "media-runtime",
+        "integration-owners"
+      ],
+      "applicabilityAuthorityRefs": [
+        ".product-experience/surface-registry.yaml#/surfaces/12",
+        ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/12"
+      ],
+      "contractAuthorityRefs": [
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        ".product-experience/pdp-3-product-experience/services/service-registry.yaml"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-INTEGRATIONS-APPLICABILITY-UNKNOWN",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: obtain the authoritative PDP-3 applicability decision for integrations and reconcile the linked journeys. Keep this cell UNKNOWN_OWNER_DECISION_PENDING; MDC-31 and MDC-32 remain gated."
+    },
+    {
+      "surfaceId": "media.surface.types-library",
+      "surfaceType": "CONSUMER_BINDING",
+      "physicalDisposition": null,
+      "pdp3Applicability": "APPLICABLE_CONSUMER_BINDING",
+      "owner": [
+        "media-types-owner",
+        "media-product"
+      ],
+      "applicabilityAuthorityRefs": [
+        ".product-experience/surface-registry.yaml#/surfaces/13",
+        ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/13"
+      ],
+      "contractAuthorityRefs": [
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        "libs/audio-video-types/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.surface.types-library. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.surface.ui-library",
+      "surfaceType": "CONSUMER_BINDING",
+      "physicalDisposition": null,
+      "pdp3Applicability": "APPLICABLE_CONSUMER_BINDING",
+      "owner": [
+        "media-ui-owner",
+        "ghatana-shared-design-system"
+      ],
+      "applicabilityAuthorityRefs": [
+        ".product-experience/surface-registry.yaml#/surfaces/14",
+        ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/14"
+      ],
+      "contractAuthorityRefs": [
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        "libs/audio-video-ui/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.surface.ui-library. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.surface.explorer",
+      "surfaceType": "CONSUMER_BINDING",
+      "physicalDisposition": null,
+      "pdp3Applicability": "APPLICABLE_CONSUMER_BINDING",
+      "owner": [
+        "media-product",
+        "ghatana-tools-owner"
+      ],
+      "applicabilityAuthorityRefs": [
+        ".product-experience/surface-registry.yaml#/surfaces/15",
+        ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/15"
+      ],
+      "contractAuthorityRefs": [
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        "apps/media-experience-explorer/specification-artifacts.json"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.surface.explorer. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    },
+    {
+      "surfaceId": "media.surface.desktop-archive",
+      "surfaceType": "CONSUMER_BINDING",
+      "physicalDisposition": null,
+      "pdp3Applicability": "NOT_APPLICABLE_ARCHIVED",
+      "owner": [
+        "media-product"
+      ],
+      "applicabilityAuthorityRefs": [
+        ".product-experience/surface-registry.yaml#/surfaces/16",
+        ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/16"
+      ],
+      "contractAuthorityRefs": [
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        "archive/media-desktop-apps/"
+      ],
+      "sourceReviewStatus": "MDC30_REVIEWED_WITH_DEFINITION_GAPS",
+      "sourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+      "remainingTaskIds": [
+        "MDC-30",
+        "MDC-31",
+        "MDC-32"
+      ],
+      "blockerRefs": [
+        "MDC30-CHANNEL-BINDING-COMPLETENESS",
+        "MDC30-STEP-STATE-BINDING-REVIEW"
+      ],
+      "acceptanceCriteria": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
+      "nextLegalAction": "MDC-30 remains open: reconcile current source bindings and journey semantics for media.surface.desktop-archive. Do not start MDC-31 or MDC-32 until every PDP-3 cell passes source-currentness and phase-local acceptance."
+    }
+  ],
+  "decision": {
+    "discoveryBarrier": "FAIL",
+    "buildLane": "NOT_ENTERED",
+    "pdpClosureLane": "NOT_ENTERED",
+    "deliveryGate": "BLOCKED",
+    "nextAllowedPhase": "Continue PDP-3 MDC-30 only; MDC-31 remains gated until MDC-30 acceptance.",
+    "noPhaseExitClaimed": true,
+    "noOwnerDecisionOrAcceptanceFabricated": true
+  }
+}

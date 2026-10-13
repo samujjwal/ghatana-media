@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "media.discovery-pdp2-task-disposition.v1",
+  "observationId": "MEDIA-PDP2-MDC20-2026-10-13-R1",
+  "observedAt": "2026-10-13T21:20:48.626Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "branch": "main",
+    "observedHead": "2aaa15f5a15ce9d05726cc133885b6415317efff",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-2",
+    "taskId": "MDC-20",
+    "historicalStatusMainSha": "81386992d273a98237451702c2daf618c77c8e51"
+  },
+  "predecessor": {
+    "phase": "PDP-1",
+    "exitRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json",
+    "status": "PASS"
+  },
+  "scope": {
+    "surfaceDenominator": 50,
+    "physicalCandidates": 26,
+    "semanticCompositions": 6,
+    "repositoryRoots": 1,
+    "consumerBindings": 17
+  },
+  "historicalStatus": {
+    "developmentStatus": "DEV_COMPLETE",
+    "outstandingMeaningIds": [],
+    "sourcePinCount": 154
+  },
+  "pinReview": {
+    "changedPins": [
+      {
+        "path": ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
+        "classification": "DEFINITION_STATUS_AND_POPULATION_DOCUMENTATION_ONLY",
+        "meaningChange": "NONE_IDENTIFIED",
+        "owner": "media-design-owner",
+        "impactIds": [
+          "media.component.*",
+          "PDP-2 source population"
+        ],
+        "detail": "The revised header states the existing 31 component-family, 13 template, 11 layout, 13 recipe, 42 composition-rule, and 19 pattern populations and records DEV_COMPLETE at the historical cut. Catalogs already held those populations; no normative rule changed.",
+        "resultingLane": "DISCOVERY_CURRENTNESS",
+        "historicalSha256": "sha256:5f5aa8a85d9c0fab195eada9d143b1e6fa045d170c381980f5ba224472b34a79",
+        "currentSha256": "sha256:76287b8d49b3aff679b1d5cf4b26352544bfdc9eee5a7dee86d75f14f7d59753",
+        "pinChanged": true
+      },
+      {
+        "path": "apps/media-experience-explorer/specification-artifacts.json",
+        "classification": "EXPLORER_SOURCE_DISCOVERY_PROJECTION",
+        "meaningChange": "NONE_IDENTIFIED",
+        "owner": "media-product-engineering",
+        "impactIds": [
+          "media.surface.explorer",
+          "PDP-3 observation sources"
+        ],
+        "detail": "Adds index entries for runtime disposition and governance source artifacts. The Explorer remains a read-only projection; this does not change PDP-2 interface meaning.",
+        "resultingLane": "DISCOVERY_PROJECTION",
+        "historicalSha256": "sha256:aa7e92e74819d86a54a2a9737ab03c2bd6557e08ac8b17a7bc37f4cf93ec5890",
+        "currentSha256": "sha256:ec1616ced628be48ae395d974803e4caebcb5399b1cc88b1eb4ba38d7efc0a30",
+        "pinChanged": true
+      },
+      {
+        "path": "libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx",
+        "classification": "BUILD_IMPLEMENTATION_BEHAVIOR",
+        "meaningChange": "NONE_IDENTIFIED",
+        "owner": "media-ui-owner",
+        "impactIds": [
+          "media.component.transcript-review",
+          "media.component.caption-track-editor"
+        ],
+        "detail": "Adds source/version-bound action context, serializes pending payload actions, and presents denied, failed, unavailable, accepted, acknowledged, and unknown outcomes. These behaviors align with existing exact-source and action-finality contracts; no normative contradiction or new PDP-2 authoring task was found.",
+        "resultingLane": "BUILD_HANDOFF_ONLY_IF_REMAINING_IMPLEMENTATION_GAP_IS_LATER_ESTABLISHED",
+        "historicalSha256": "sha256:1311af4d6c97fb4a32e822d975f4fa36ccb9e802992a0c98912156d042ef37b3",
+        "currentSha256": "sha256:298229ec5101c181981eb4e4c3b9c79fb61b4c2ce4b1e7ca602964faaca91776",
+        "pinChanged": true
+      },
+      {
+        "path": "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/index.ts",
+        "classification": "PACKAGE_SCOPE_DOCUMENTATION_ONLY",
+        "meaningChange": "NONE_IDENTIFIED",
+        "owner": "media-ui-owner",
+        "impactIds": [
+          "media.component.voice-production-workflow",
+          "media.component.waveform-spectrogram",
+          "media.component.timeline-keyframe-editor"
+        ],
+        "detail": "The package comment clarifies that the React UI workflow is host-dependent, consistent with the source package and existing GUI_LIBRARY_HOST_DEPENDENT applicability. It does not establish a production host or admission.",
+        "resultingLane": "DISCOVERY_CURRENTNESS",
+        "historicalSha256": "sha256:740ada211bf443404f5d54550f34b4d42a23747e73dcd76b0f2c5d37a7ace5b4",
+        "currentSha256": "sha256:af12e13337b3b106679c0899ae18e1652d3bf2cc81f34b4f8daa6da1f6f53f75",
+        "pinChanged": true
+      }
+    ],
+    "changedCount": 4,
+    "currentOtherPins": 150,
+    "unclassifiedChangedPins": []
+  },
+  "readOnlyReview": {
+    "reviewerKind": "AI_SUBAGENT_READ_ONLY_SOURCE_AUDIT",
+    "independentProfessionalCertification": "NOT_CLAIMED",
+    "findings": [
+      "No changed file introduces a PDP-2 normative meaning defect.",
+      "The TranscriptCaptionScreen changes are runtime implementation behavior consistent with exact-source and action-finality contracts.",
+      "The AI Voice package remains host-dependent GUI; no production host or admission is inferred.",
+      "Explorer specification additions remain a read-only source projection."
+    ]
+  },
+  "phaseLocalMeaningTasks": {
+    "status": "ZERO_IDENTIFIED",
+    "taskIds": []
+  },
+  "crossStageHandoff": {
+    "status": "NO_NEW_BUILD_TASK_IDENTIFIED",
+    "note": "The TranscriptCaptionScreen behavior is already present and consistent with source contracts. Any later implementation verification belongs to Build after the Discovery barrier; this disposition does not move work into Build or establish runtime acceptance."
+  },
+  "accessibilityEvidenceBoundary": {
+    "definitionSource": "DEFINITION_ONLY_NOT_MEASURED",
+    "renderedOrAssistiveTechnologyAcceptance": "NOT_RUN_NOT_CLAIMED",
+    "independentCertification": "NOT_CLAIMED"
+  },
+  "result": {
+    "status": "PASS",
+    "blockingFindings": [],
+    "nextLegalAction": "MDC-21: validate all 50 PDP-2 cells and publish a source-bound current phase exit."
+  }
+}

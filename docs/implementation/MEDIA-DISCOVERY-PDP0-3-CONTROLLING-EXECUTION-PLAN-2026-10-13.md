@@ -1,27 +1,27 @@
 # Ghatana Media — controlling PDP-0–3 Discovery DEV_COMPLETE execution plan
 
-**Campaign:** samujjwal/ghatana-media, whole-repo Media Discovery. **Source baseline:** `14643ce933d0fe23cf68937e9d3bf88e887db894`, current PDP-0 material `sha256:3373ed962440640a0437d454877b34e06ae72bc9fa764d469413835a29529a3a`.  
-**Current macro stage / exact phase:** **DISCOVERY / PDP-0**. PDP-1–3 details are a *future gated worklist*, not retrospective or prospective phase acceptance.  
+**Campaign:** samujjwal/ghatana-media, whole-repo Media Discovery. **Source baseline:** HEAD `2aaa15f5a15ce9d05726cc133885b6415317efff`; observed PDP-3 source-set fingerprint `sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9` over the 337 paths pinned by the historical PDP-3 status.
+**Current macro stage / exact phase:** **DISCOVERY / PDP-3 MDC-30**. PDP-0 R2, PDP-1 R3 and PDP-2 R2 have source-bound current phase exits. Current-cut PDP-3 reconciliation is blocked by journey channel-binding gaps, an unresolved integrations applicability decision, and unfinished consequential state/transition binding review. MDC-31 and MDC-32 remain gated. The Discovery barrier remains **FAIL**.
 **Denominator:** 26 physical manifest candidates (12 physical, 12 support-only, 2 subsumed), six semantic compositions, one root, 17 non-physical consumer bindings: 50 review identities × four PDP phases = **200 phase-review cells**. Four archived source locations remain separately referenced; archived desktop consumer is among the 17 and is not physically closable.  
-**Authoritative owner decision:** [2026-10-13 delegated decision](../../.product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md). **Canonical worklist:** [17-task ledger](media-discovery-reconciliation-worklist-2026-10-13.json). **Per-cell implementation detail:** [200-cell matrix](media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json). **Grounding:** [P0 capture](observations/media-discovery-pdp0-currentness-2026-10-13.json) and [owner evidence](observations/media-discovery-delegated-owner-evidence-2026-10-13.json).
+**Authoritative owner decision:** [2026-10-13 delegated decision](../../.product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md). **Canonical worklist:** [17-task ledger](media-discovery-reconciliation-worklist-2026-10-13.json). **Per-cell implementation detail:** [200-cell matrix](media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json). **Grounding:** historical [P0 capture](observations/media-discovery-pdp0-currentness-2026-10-13.json), [owner evidence](observations/media-discovery-delegated-owner-evidence-2026-10-13.json), and current [PDP-0 R2 phase exit](observations/media-discovery-pdp0-exit-2026-10-13-r2.json) at commit `2aaa15f`, material fingerprint `sha256:7a7a0f700890915863e9f93eafa30edc2f6d856adbf7944c17fecc0aadd8031b`.
 
 ## Current decision and goal
 
-**Owner APPROVED WITH COMMENTS.** PDP-0–3 were already `DEV_COMPLETE` with zero open authored-meaning tasks at their historic source cuts; this plan does not reopen them wholesale. There is no remaining known PDP meaning-authoring backlog. Their *currentness* and complete phase-by-surface applicability must still be verified sequentially: PDP-0 technical currentness was observed PASS (50/50) and a **bounded delegated owner acceptance is now recorded at its exact fingerprint**, while its phase-exit record is not yet published. PDP-1/2/3 fresh source-currentness have not yet been validated. Therefore Discovery barrier remains **FAIL**; Build NOT_ENTERED; native PDP closure NOT_ENTERED; Delivery BLOCKED.
+**Owner APPROVED WITH COMMENTS.** The prior PDP-0–3 `DEV_COMPLETE` claims remain historical source-cut statements. PDP-0 has a published R2 phase exit with exact-fingerprint delegated owner acceptance and required checks. PDP-1 R3 and PDP-2 R2 current exits each cover 50 cells and preserve separate owner-acceptance and independent-signoff status. Current-cut PDP-3 review found new definition/linkage gaps and reopened PDP-3 for MDC-30; this does not rewrite the historical status file. The Discovery barrier remains **FAIL**; Build NOT_ENTERED; native PDP closure NOT_ENTERED; Delivery BLOCKED. See [MDC-30 observation](observations/media-discovery-pdp3-mdc30-currentness-2026-10-13-r1.json).
 
 **Critical rule:** The owner decisions and implementation prescriptions here are **already selected**. The implementer must execute them without reopening the decision queue for unchanged material. Never claim test runs, Browser Explorer quality, independent human attestations, Lifecycle receipts, runtime or deployment until performed/approved by the real owner. Each actual current-cut phase exit is a distinct source-bound record. Never rewrite historical `mainSha`, source hashes, skipped tests or acceptance facts.
 
-## Precise unfinished task inventory (11 tasks)
+## Precise unfinished task inventory (5 remaining tasks)
 
 | Unit | Historical authoring status | Remaining Discovery work IDs | Phase source-current / owner |
 | --- | --- | --- | --- |
-| PDP-0 Product Truth | `DEV_COMPLETE`, 0 open meaning IDs | `MDC-06` | 50 current observed; **Media owner approved for exact fingerprint**; rerun actual checks and publish exit |
-| PDP-1 Canonical Domain & Data | `DEV_COMPLETE`, 0 open meaning IDs | `MDC-10`, `MDC-11`, `MDC-12` | Not revalidated; after P0 exit |
-| PDP-2 Design & Interface | `DEV_COMPLETE`, 0 open meaning IDs | `MDC-20`, `MDC-21` | Not revalidated; after P1 exit |
-| PDP-3 Complete Experience | `DEV_COMPLETE`, 0 open meaning IDs | `MDC-30`, `MDC-31`, `MDC-32` | Not revalidated; after P2 exit |
+| PDP-0 Product Truth | `DEV_COMPLETE`, 0 open meaning IDs | **0** | R2 exit PASS at `sha256:7a7a0f700890915863e9f93eafa30edc2f6d856adbf7944c17fecc0aadd8031b`; technical currentness, exact-fingerprint owner acceptance and required checks pass |
+| PDP-1 Canonical Domain & Data | `DEV_COMPLETE`, 0 open meaning IDs | **0** | Current 50-cell exit R3 PASS at `sha256:53352578058a5deb1ab8faef43857848e9bbab2b8ad0d81a8bb6b6d73bef0baa`; historical status preserved |
+| PDP-2 Design & Interface | `DEV_COMPLETE`, 0 open meaning IDs | **0** | Current 50-cell exit R2 PASS at `sha256:954c8930f3e9cc4e68570bfca29ac586be7474869b785a9b8c59ea9beeff4cea`; 154 historical pins reviewed; historical status preserved |
+| PDP-3 Complete Experience | `DEV_COMPLETE`, 0 open meaning IDs at historical cut | `MDC-30`, `MDC-31`, `MDC-32` | Current cut reopened at MDC-30; channel binding and applicability gaps block currentness; no current exit |
 | Discovery exit/handoff | — | `MDC-40`, `MDC-41` | Both gated behind actual current phase exits |
 
-`MDC-00` through `MDC-05` are **complete** at the previous source capture with focused evidence; do not rerun as a speculative rewrite. If the documentation commit changes root repository membership, recapture currentness and affected tests under `MDC-06`; never let stale zero-work eligibility substitute for the new capture. **No new human internal approval is needed** for the scoped Media owner choices; only materially changed inputs or true nondelegable external authority require specific follow-up.
+`MDC-00` through `MDC-05` are **complete** at the previous source capture with focused evidence; MDC-06 is complete at the R2 source cut recorded above. Do not reopen completed work without an affected material input change; never let stale zero-work eligibility substitute for a current capture. **No new human internal approval is needed** for the scoped Media owner choices; only materially changed inputs or true nondelegable external authority require specific follow-up.
 
 ## Owner-selected architecture and specialist review rules
 
@@ -37,21 +37,15 @@
 
 ### MDC-06 — PDP-0 · Media Product Truth/status
 
-**Decision/status:** READY FOR EXECUTION — scoped Media owner approval recorded, actual phase exit NOT published. **Predecessor:** MDC-05.
+**Decision/status:** COMPLETED — R2 source-bound phase exit PASS at commit `2aaa15f`; exact material fingerprint `sha256:7a7a0f700890915863e9f93eafa30edc2f6d856adbf7944c17fecc0aadd8031b`. **Predecessor:** MDC-05.
 
-**What:** Publish real current-source PDP-0 DEV_COMPLETE phase exit now that the internal owner has made the exact-fingerprint decision.
+**Evidence:** [Immutable R2 phase exit](observations/media-discovery-pdp0-exit-2026-10-13-r2.json). Technical source currentness, exact-fingerprint delegated owner acceptance, required checks and phase exit are PASS; no changed or outstanding meaning IDs. Checks recorded: physical-topology check PASS; topology tests 13/13; product-definition authority and local product-experience checks PASS; combined Discovery/PDP-0 tests 49/49; phase-exit tests 4/4; zero skips.
 
-**Where:** `docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json`; `.product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md`; `scripts/record-media-discovery-pdp0-currentness.mjs`; `docs/implementation/pdp-0-phase-dev-status.json (read-only)`.
+**Disposition:** Historical phase status and prior observations remain unchanged. PDP-0 and PDP-1 each have zero remaining phase-local tasks and current source-bound exits. PDP-1 R3 validates 50/50 cells, 30/30 external contract digests and the prescribed 68 tests with zero skips; strict parity still exposes its proposal-only owner-mapping finding, while exact-cut owner acceptance and independent signoff remain unrecorded. Next legal action is PDP-2 MDC-20/MDC-21. Discovery remains FAIL until PDP-2/PDP-3 exits and final barrier requirements pass; Build and native closure remain NOT_ENTERED; Delivery remains BLOCKED.
 
-**How:** Recapture source state after this review commit; compare exact 50 cells, 146 material paths, contract digest set, topology/owner/provider fingerprints and actual changed meaning IDs; rerun relevant P0 validators and tests; publish *new* immutable current-cut observation. Do not edit old technical observation to replace NOT_OBTAINED with fabricated retrospective value.
+### MDC-10 — PDP-1 · Media domain/interface owners — completed
 
-**Checks:** `pnpm check:physical-topology`; `pnpm test:physical-topology`; `pnpm check:product-definition-authority`; `pnpm check:product-experience-local`; `node --test tests/media-discovery-currentness.test.mjs tests/pdp-0-final.test.mjs tests/product-definition-authority.test.mjs`
-
-**Acceptance:** A genuinely observed fresh 50-cell P0 PASS at unchanged accepted material or a newly reviewed material change; owner acceptance bound to same source fingerprint, zero new meaning IDs, real test outcomes. New P0 exit published. No skipped-as-run assertions.
-
-### MDC-10 — PDP-1 · Media domain/interface owners
-
-**Decision/status:** APPROVED DIRECTION — gated; not validated or authorized to claim phase exit. **Predecessor:** MDC-06.
+**Decision/status:** COMPLETED WITH STRICT OWNER-ADMISSION FINDING; this is a task disposition, not a PDP-1 phase exit. **Predecessor:** MDC-06.
 
 **What:** Reconcile contract-parity checker/test drift and classify four Agent Tool exclusions versus canonical domain semantics.
 
@@ -59,13 +53,13 @@
 
 **How:** Diff checker against pinned historical definition; run strict and definition-only modes; assign every discrepancy to logical PDP-1 meaning, transport admission/Build, external owner acceptance or projection. Preserve four NOT_ADMITTED tools and source-only contracts.
 
-**Checks:** `pnpm check:contract-parity`; `node --test tests/media-pdp-p1-dev-status.test.mjs tests/media-contract-parity.test.mjs tests/media-contract-parity-definition-only-cli.test.mjs tests/pdp1-owner-action-wire-contracts.test.mjs tests/pdp1-transition-guard-definition-evaluator.test.mjs`
+**Evidence:** [MDC-10 observation](observations/media-discovery-pdp1-mdc10-contract-parity-2026-10-13-r1.json). `pnpm check:contract-parity` exits 1 with 46/47 current findings dispositioned and one proposal-only owner-mapping finding unresolved. `node scripts/check-media-contract-parity.mjs --definition-only` passes and explicitly defers owner acceptance/runtime admission. The prescribed focused suite passes 68/68 with zero skips. The four Agent Tool boundaries remain `NOT_ADMITTED`; no logical domain defect or runtime admission is claimed. J-05/J-06/J-08 source crosswalk findings are handed to PDP-3 MDC-30.
 
-**Acceptance:** No unclassified logical/domain discrepancies; exact parity IDs, owner/source refs and test results; never admit tool execution without its actual host/typed authority.
+**Acceptance:** All discrepancies are classified to definition validation, owner acceptance/runtime admission, or the PDP-3 handoff; no Agent Tool is admitted without its actual host/typed authority. The strict owner-admission finding remains visible.
 
 ### MDC-11 — PDP-1 · Media domain/surface owners
 
-**Decision/status:** APPROVED DIRECTION — gated; not validated or authorized to claim phase exit. **Predecessor:** MDC-10.
+**Decision/status:** COMPLETED — all 50 PDP-1 cells are source-current; no phase-local meaning tasks remain. **Predecessor:** MDC-10. **Evidence:** [PDP-1 current exit R3](observations/media-discovery-pdp1-exit-2026-10-13-r3.json).
 
 **What:** Validate canonical PDP-1 domain/state/action/contracts across the full 50-record surface scope.
 
@@ -79,7 +73,7 @@
 
 ### MDC-12 — PDP-1 · Media domain/status owner
 
-**Decision/status:** APPROVED DIRECTION — gated; not validated or authorized to claim phase exit. **Predecessor:** MDC-11.
+**Decision/status:** COMPLETED — immutable PDP-1 phase exit R3 PASS; historical status preserved. **Predecessor:** MDC-11. **Evidence:** [PDP-1 current exit R3](observations/media-discovery-pdp1-exit-2026-10-13-r3.json).
 
 **What:** Publish new source-current PDP-1 DEV_COMPLETE phase-exit record without rewriting its historical cut.
 
@@ -93,7 +87,7 @@
 
 ### MDC-20 — PDP-2 · Media design/interface owner
 
-**Decision/status:** APPROVED DIRECTION — gated; not validated or authorized to claim phase exit. **Predecessor:** MDC-12.
+**Decision/status:** COMPLETED — four historical pin changes classified; no PDP-2 meaning defect identified. **Predecessor:** MDC-12. **Evidence:** [MDC-20 drift observation](observations/media-discovery-pdp2-mdc20-design-drift-2026-10-13-r1.json).
 
 **What:** Classify design and executable-projection drift accurately; retain proper GUI/headless semantics.
 
@@ -107,7 +101,7 @@
 
 ### MDC-21 — PDP-2 · Media design/status owner
 
-**Decision/status:** APPROVED DIRECTION — gated; not validated or authorized to claim phase exit. **Predecessor:** MDC-20.
+**Decision/status:** COMPLETED — immutable PDP-2 R2 phase exit PASS with all 50 cells current and zero phase-local meaning tasks. **Predecessor:** MDC-20. **Evidence:** [PDP-2 current exit R2](observations/media-discovery-pdp2-exit-2026-10-13-r2.json).
 
 **What:** Validate 50 PDP-2 phase cells and publish current design/interface cut.
 
@@ -117,11 +111,11 @@
 
 **Checks:** `pnpm check:product-experience-local`; `node --test tests/media-pdp-p2-dev-status.test.mjs tests/pdp-design-interface-parity.test.mjs tests/pdp-design-accessibility-text-spacing-target-size.test.mjs tests/pdp-design-responsive-rendered-references.test.mjs`
 
-**Acceptance:** 50 explicit current/justified N/A records, exact source membership and phase owner disposition, zero missing definition IDs, new immutable PDP-2 exit; no false external a11y certification.
+**Acceptance:** PASSED. The 50 explicit current/justified N/A records bind exact registry/topology owners and source applicability; source membership and required populations match, no definition IDs remain, and the immutable R2 exit is current. The prescribed suites validate source definitions, not rendered or assistive-technology acceptance; no external accessibility certification, Shared package acceptance, exact-cut owner acceptance or independent signoff is claimed.
 
 ### MDC-30 — PDP-3 · Media product experience owner
 
-**Decision/status:** APPROVED DIRECTION — gated; not validated or authorized to claim phase exit. **Predecessor:** MDC-21.
+**Decision/status:** **BLOCKED IN PROGRESS** — active after PDP-2 R2; currentness and phase exit are not validated. **Predecessor:** MDC-21.
 
 **What:** Reconcile complete consumer journeys, screens and headless machine experiences at PDP-3.
 
@@ -132,6 +126,8 @@
 **Checks:** `node --test tests/media-pdp-p3-dev-status.test.mjs tests/pdp-3-overview-denominator.test.mjs tests/pdp-3-screen-source-bindings.test.mjs tests/pdp-3-definition-branch-coverage.test.mjs tests/pdp3-api-experience-source-bindings.test.mjs`
 
 **Acceptance:** Every applicable PDP-3 cell has inspectable complete contract and meaningful negative/recovery paths; consumer mapping and runtime non-admission truthful.
+
+**MDC-30 observation:** [Current-cut source and definition review](observations/media-discovery-pdp3-mdc30-currentness-2026-10-13-r1.json). The 337 historical source pins were reviewed; five differ and are classified there. Canonical counts reconcile (47 screens, 30 journeys/130 steps, 147 actions, 31 scenarios, 105 recovery-oracle links); the prescribed suite passes 19/19 and the matrix/transition audit regression passes 8/8, both with zero skips. This does not establish current PDP-3 completion: 24 journey contracts explicitly leave per-channel operation/state/transport/accessibility equivalence unbound; J-01/J-02 lack the common binding-state declaration and J-03/J-20 lack top-level channel lists; the bounded state/transition review classified 54 unbound transition records and 118 null state dispositions (33 local/passive, 70 read-only, 14 consequential command/workflow, one external handoff); exact owner-accepted state mappings remain open for the 14 consequential records; `media.surface.integrations` remains `UNKNOWN_OWNER_DECISION_PENDING` because its registry omits PDP-3 while five journeys reference it. External source-manifest snapshots are also stale for exact sibling-repository currentness. **Do not start MDC-31** until these MDC-30 blockers are resolved and every cell is current.
 
 ### MDC-31 — PDP-3 · Media Explorer and interaction design owners
 
@@ -191,7 +187,7 @@
 
 ## Per-surface phase applicability and task routing
 
-The complete machine-readable 200-cell matrix specifies **owner, manifest/boundary, exact files to inspect, applicability, rationale, predecessor, source currentness as observed, remaining task IDs, what/how, acceptance and next legal action** for every row. This table is a human quick index, not a second editable authority. Every PDP-0 row's remaining work is `MDC-06`; P1 uses `MDC-10/11/12`; P2 `MDC-20/21`; P3 `MDC-30/31/32`. Compositions/root are not duplicated physical leaves.
+The complete machine-readable 200-cell matrix specifies **owner, manifest/boundary, exact files to inspect, applicability, rationale, predecessor, source currentness, remaining task IDs, what/how, acceptance and next legal action** for every row. This table is a human quick index, not a second editable authority. PDP-0, PDP-1 and PDP-2 rows are current under their R2/R3/R2 exits with zero remaining phase-local tasks; PDP-3 is active at MDC-30. P3 continues through `MDC-30/31/32`; Discovery exit uses `MDC-40/41`. Compositions/root are not duplicated physical leaves.
 
 | Surface identity | Kind/disposition | PDP-0 / PDP-1 / PDP-2 / PDP-3 applicability |
 | --- | --- | --- |
@@ -240,7 +236,7 @@ The complete machine-readable 200-cell matrix specifies **owner, manifest/bounda
 | `media.surface.cli` | CONSUMER_BINDING | CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE |
 | `media.surface.agent-tools` | CONSUMER_BINDING | CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE |
 | `media.surface.events` | CONSUMER_BINDING | CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE |
-| `media.surface.integrations` | CONSUMER_BINDING | CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE |
+| `media.surface.integrations` | CONSUMER_BINDING | CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE · **UNKNOWN_OWNER_DECISION_PENDING** |
 | `media.surface.types-library` | CONSUMER_BINDING | CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE |
 | `media.surface.ui-library` | CONSUMER_BINDING | CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE |
 | `media.surface.explorer` | CONSUMER_BINDING | CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE · CONSUMER_BINDING_VALIDATE |
@@ -261,7 +257,7 @@ Produce **new immutable observations**, one per phase and one Discovery barrier,
 
 | Finding | Current classification | Owner/action | Discovery effect |
 | --- | --- | --- | --- |
-| PDP-0 owner selection | **RESOLVED** by [delegated decision](../../.product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md) for exact fingerprint | Implementer recaptures and publishes MDC-06 with real checks | Prevents false manual-decision stall; NOT itself phase-exit evidence |
+| PDP-0 source-current phase exit | **RESOLVED** by delegated decision and [R2 exit evidence](observations/media-discovery-pdp0-exit-2026-10-13-r2.json) at exact fingerprint | No remaining PDP-0 task; reopen only for affected material change | PDP-0 exit PASS; does not pass the whole Discovery barrier |
 | PDP-1–3 owner design choices | **PREAUTHORIZED** at historical definition scope | Media delegated owner directions; implementer performs technical verification | Avoid repeated design discussion; not prospective currentness |
 | Historical 4 Agent Tools without typed execution | Intent/source complete, **NOT_ADMITTED** | External/public owner and later Build | No phantom runtime or PDP definition reopening |
 | API/public-owner strict parity | Owner transport/admission disposition required when changed | External contract owner/Build; create PDP meaning ID only if real schema gap | Not a generic PDP authoring blocker |
@@ -271,22 +267,22 @@ Produce **new immutable observations**, one per phase and one Discovery barrier,
 | Lifecycle receipts, convergence and deployment | **NOT ENTERED** | Lifecycle native closure and Build/Delivery owners | Not required to author PDP definitions; required later at real gates |
 | Material source changes after this plan commit | **RECAPTURE REQUIRED** | MDC-06 and affected later phase owner; compare exact semantic digests | Never reuse stale `CURRENT` unexamined |
 
-## MDC-06 machine-readable owner-acceptance join — implementation contract
+## MDC-06 machine-readable owner-acceptance join — completed evidence
 
 **Approved owner input:** [PDP-0 delegated owner acceptance](observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13.json). The implementer does **not** choose this approval or seek it again for an unchanged material fingerprint.
 
 **Observed implementation detail:** `scripts/record-media-discovery-pdp0-currentness.mjs` still emits `phaseDisposition.ownerAcceptance = NOT_OBTAINED` and `pdp0Exit = BLOCKED_PENDING_OWNER_ACCEPTANCE` (the historical technical-observation view at capture time). Treat these as **technical-observer output only**, not a veto on this separate, later owner input. Do **not** edit the old capture's JSON to imply an approval existed then.
 
-**Precisely implement the join under MDC-06:** read the machine owner input and capture **new** technical currentness. Validate owner-role/phase/decision ID, the accepted `materialSourceSetFingerprint`, exact 26+6+1+17 scope, zero changed/outstanding meaning IDs and actual required checks. Publish a *new* phase-exit record with separate `technicalCurrentness`, `delegatedOwnerAcceptance`, `testOutcomes` and `phaseExit` axes; PASS only if all prerequisites independently pass. A material fingerprint mismatch must yield `STALE_APPROVAL_FOR_CHANGED_MATERIAL` and a targeted owner-change review, not silently reinterpret the old acceptance. If only the root repository's membership changed because planning docs/tests were added and material PDP semantics did not, recompute the current cut through Lifecycle continuity rules and retain this scoped owner decision after verifying the identical material fingerprint.
+**Completed join:** the immutable R2 phase-exit record joins the machine owner input with fresh technical currentness. Validate owner-role/phase/decision ID, the accepted `materialSourceSetFingerprint`, exact 26+6+1+17 scope, zero changed/outstanding meaning IDs and actual required checks. The published record keeps separate `technicalCurrentness`, `delegatedOwnerAcceptance`, `testOutcomes` and `phaseExit` axes; each prerequisite passed independently. A material fingerprint mismatch must yield `STALE_APPROVAL_FOR_CHANGED_MATERIAL` and a targeted owner-change review, not silently reinterpret the old acceptance. If only the root repository's membership changed because planning docs/tests were added and material PDP semantics did not, recompute the current cut through Lifecycle continuity rules and retain this scoped owner decision after verifying the identical material fingerprint.
 
-**Do not rewrite the existing fixed-name observation in place.** The current observer uses a fixed output path and preserves `observedAt`; choose a new immutable capture filename or a separate owned phase-exit artifact. An observer change must avoid self-recursive hashing and count actual tests (including skips) accurately. The assistant did not run pnpm, Node test suites or browser tests in this approval pass.
+**Do not rewrite the existing fixed-name observation in place.** The current observer uses a fixed output path and preserves `observedAt`; choose a new immutable capture filename or a separate owned phase-exit artifact. An observer change must avoid self-recursive hashing and count actual tests (including skips) accurately. The R2 evidence records the required pnpm and Node test outcomes; no independent human signature or qualified external specialist signoff is claimed or waived.
 
 
 ## Immediate implementer instructions
 
 1. Read this plan, [owner decision](../../.product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md), [evidence](observations/media-discovery-delegated-owner-evidence-2026-10-13.json) and [200-cell matrix](media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json). Treat their internal choices as decided, not a request for implementer to impersonate the owner.
-2. Use a clean, current `main` and exact affected source digests; run `MDC-06` checks; publish new current P0 exit only on true PASS. Keep historical snapshots read-only and preserve actual skipped tests.
-3. Continue **one phase at a time**: MDC-10/11/12 → MDC-20/21 → MDC-30/31/32 → MDC-40/41. Produce honest observations and targeted tests; no runtime feature implementation, source migration, native closure or production delivery under Discovery.
+2. Preserve the completed R2 PDP-0 exit and all historical snapshots. Do not reopen MDC-06 absent a material input change.
+3. Continue **one phase at a time**: MDC-30/31/32 → MDC-40/41. Produce honest observations and targeted tests; no runtime feature implementation, source migration, native closure or production delivery under Discovery.
 4. If a new material meaning contradiction emerges, state owning phase/physical ID, expected/actual bytes/semantic change, exact proposed disposition and affected dependents. Do not ask for reconsideration of any unchanged decision made above.
 5. Final answer must include 200-cell phase matrix outcome, exact remaining IDs (zero authoring tasks on a completed phase), Discovery PASS/FAIL, Build status, native PDP closure status, Delivery gate and the permitted next phase.
 

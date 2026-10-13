@@ -4,33 +4,28 @@
   "source": {
     "repository": "samujjwal/ghatana-media",
     "branch": "main",
-    "reviewedSha": "14643ce933d0fe23cf68937e9d3bf88e887db894",
+    "reviewedSha": "2aaa15f5a15ce9d05726cc133885b6415317efff",
     "date": "2026-10-13",
     "priorReviewedSha": "90065c229debe88ca2143e58cad708d5ebc83cf5",
     "ownerDecisionAtHead": ".product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md",
     "originalObservationCaptureHead": "ceaf96ca9b5bcc0094335377bfec07cd86a87fe1",
-    "controllingMaterialFingerprint": "sha256:3373ed962440640a0437d454877b34e06ae72bc9fa764d469413835a29529a3a"
+    "controllingMaterialFingerprint": "sha256:3373ed962440640a0437d454877b34e06ae72bc9fa764d469413835a29529a3a",
+    "pdp3ObservedSourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
   },
   "campaign": {
     "stage": "DISCOVERY",
-    "activePhase": "PDP-0",
-    "discoveryBarrier": "FAIL_PDP0_EXIT_NOT_PUBLISHED_AND_PDP1_PDP3_NOT_VALIDATED",
-    "sourceMeaningStatus": "DEV_COMPLETE_AT_HISTORICAL_CUT",
-    "sourceCurrentness": "PDP0_TECHNICALLY_CURRENT_AT_PRECOMMIT_CAPTURE_PDP1_PDP3_NOT_VALIDATED",
+    "activePhase": "PDP-3",
+    "discoveryBarrier": "FAIL_PDP3_MDC30_DEFINITION_AND_APPLICABILITY_GAPS",
+    "sourceMeaningStatus": "PDP0_PDP1_PDP2_HISTORICAL_DEV_COMPLETE_WITH_CURRENT_EXITS; PDP3_REOPENED_AT_CURRENT_CUT",
+    "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PHASE_EXITS_PASS_PDP3_MDC30_BLOCKED",
     "implementationLane": "NOT_ENTERED",
     "closureLane": "NOT_ENTERED",
     "delivery": "BLOCKED",
-    "statusObservationRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json#phaseDisposition",
+    "statusObservationRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-currentness-2026-10-13-r1.json",
     "ownerAcceptance": "PDP0_INTERNAL_DELEGATED_APPROVED_AT_EXACT_FINGERPRINT",
     "planEvidenceRef": "docs/implementation/observations/media-discovery-delegated-owner-evidence-2026-10-13.json",
     "phaseCellExecutionMatrixRef": "docs/implementation/media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json",
     "remainingDiscoveryTaskIds": [
-      "MDC-06",
-      "MDC-10",
-      "MDC-11",
-      "MDC-12",
-      "MDC-20",
-      "MDC-21",
       "MDC-30",
       "MDC-31",
       "MDC-32",
@@ -43,10 +38,33 @@
       "MDC-02",
       "MDC-03",
       "MDC-04",
-      "MDC-05"
+      "MDC-05",
+      "MDC-06",
+      "MDC-10",
+      "MDC-11",
+      "MDC-12",
+      "MDC-20",
+      "MDC-21"
     ],
-    "currentPhaseExitPublished": false,
-    "machineOwnerAcceptanceRef": "docs/implementation/observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13.json"
+    "currentPhaseExitPublished": true,
+    "currentPhaseExitPhase": "PDP-2",
+    "machineOwnerAcceptanceRef": "docs/implementation/observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13.json",
+    "lastCompletedPhaseExit": {
+      "phase": "PDP-2",
+      "ref": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json",
+      "materialFingerprint": "sha256:954c8930f3e9cc4e68570bfca29ac586be7474869b785a9b8c59ea9beeff4cea",
+      "observedHead": "2aaa15f5a15ce9d05726cc133885b6415317efff",
+      "status": "PASS"
+    },
+    "activePhaseTaskId": "MDC-30",
+    "currentPhaseReviewRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-currentness-2026-10-13-r1.json",
+    "currentPhaseSourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+    "currentPhaseBlockerIds": [
+      "MDC30-CHANNEL-BINDING-COMPLETENESS",
+      "MDC30-INTEGRATIONS-APPLICABILITY-UNKNOWN",
+      "MDC30-STEP-STATE-BINDING-REVIEW",
+      "MDC30-EXTERNAL-SOURCE-OBSERVATION-STALE"
+    ]
   },
   "denominator": {
     "physicalCandidateCount": 26,
@@ -73,7 +91,9 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.apps-media-experience-explorer",
@@ -85,7 +105,9 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.audio-video-observability",
@@ -97,7 +119,9 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.integration-tests",
@@ -109,7 +133,9 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.launcher",
@@ -121,7 +147,9 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.libs-audio-video-client",
@@ -133,7 +161,9 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.libs-audio-video-types",
@@ -145,7 +175,9 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.libs-audio-video-ui",
@@ -157,7 +189,9 @@
           "PDP-2": "GUI_LIBRARY",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.libs-common",
@@ -169,7 +203,9 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.libs-java-common",
@@ -181,7 +217,9 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.libs-media-experience-simulation",
@@ -193,7 +231,9 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.modules-audio-streaming",
@@ -205,7 +245,9 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.modules-infrastructure-cache",
@@ -217,7 +259,9 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.modules-infrastructure-messaging",
@@ -229,7 +273,9 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.modules-infrastructure-persistence",
@@ -241,7 +287,9 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.modules-infrastructure-security",
@@ -253,7 +301,9 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.modules-integration-tests",
@@ -265,7 +315,9 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
@@ -277,7 +329,9 @@
           "PDP-2": "GUI_LIBRARY_HOST_DEPENDENT",
           "PDP-3": "HOST_DEPENDENT_EXPERIENCE"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.modules-intelligence-multimodal-service",
@@ -289,7 +343,9 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
@@ -301,7 +357,9 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.modules-speech-stt-service",
@@ -313,7 +371,9 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.modules-speech-tts-service",
@@ -325,7 +385,9 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.modules-video-streaming",
@@ -337,7 +399,9 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.modules-vision-vision-service",
@@ -349,7 +413,9 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.providers-aws-postgresql",
@@ -361,7 +427,9 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "HOST_DEPENDENT_EXPERIENCE"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.physical.runtime-contracts",
@@ -373,7 +441,9 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       }
     ],
     "compositions": [
@@ -395,7 +465,9 @@
           "media.physical.modules-integration-tests",
           "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.composition.ingestion-and-versioned-artifacts",
@@ -410,7 +482,9 @@
           "media.physical.providers-aws-postgresql",
           "media.physical.adapters-ledger"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.composition.governed-job-execution",
@@ -423,7 +497,9 @@
           "media.physical.modules-infrastructure-security",
           "media.physical.modules-infrastructure-cache"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.composition.speech-and-caption-workflows",
@@ -434,7 +510,9 @@
           "media.physical.modules-audio-streaming",
           "media.physical.modules-intelligence-speech-libs-speech-audio-rust"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.composition.vision-and-multimodal-analysis",
@@ -445,7 +523,9 @@
           "media.physical.modules-video-streaming",
           "media.physical.runtime-contracts"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.composition.creation-composition-and-delivery",
@@ -459,7 +539,9 @@
           "media.physical.libs-audio-video-client",
           "media.physical.libs-audio-video-ui"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.composition.client-and-machine-interfaces",
@@ -475,7 +557,9 @@
           "media.physical.modules-intelligence-multimodal-service",
           "media.physical.apps-media-experience-explorer"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       }
     ],
     "consumers": [
@@ -486,7 +570,9 @@
         "physicalRefs": [
           "media.physical.libs-audio-video-ui"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.surface.embedded",
@@ -495,7 +581,9 @@
         "physicalRefs": [
           "media.physical.libs-audio-video-ui"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.surface.public-http",
@@ -505,7 +593,9 @@
           "media.physical.launcher",
           "media.physical.runtime-contracts"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.surface.service-grpc",
@@ -518,7 +608,9 @@
           "media.physical.modules-vision-vision-service",
           "media.physical.modules-intelligence-multimodal-service"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.surface.grpc.stt",
@@ -527,7 +619,9 @@
         "physicalRefs": [
           "media.physical.modules-speech-stt-service"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.surface.grpc.tts",
@@ -536,7 +630,9 @@
         "physicalRefs": [
           "media.physical.modules-speech-tts-service"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.surface.grpc.vision",
@@ -545,7 +641,9 @@
         "physicalRefs": [
           "media.physical.modules-vision-vision-service"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.surface.grpc.multimodal",
@@ -554,7 +652,9 @@
         "physicalRefs": [
           "media.physical.modules-intelligence-multimodal-service"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.surface.sdk",
@@ -564,7 +664,9 @@
           "media.physical.libs-audio-video-client",
           "media.physical.libs-audio-video-types"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.surface.cli",
@@ -574,7 +676,9 @@
           "media.physical.libs-audio-video-client",
           "media.physical.libs-media-experience-simulation"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.surface.agent-tools",
@@ -584,7 +688,9 @@
           "media.physical.runtime-contracts",
           "media.physical.libs-common"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.surface.events",
@@ -594,7 +700,9 @@
           "media.physical.modules-infrastructure-messaging",
           "media.physical.runtime-contracts"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.surface.integrations",
@@ -608,7 +716,9 @@
           "media.physical.modules-infrastructure-cache",
           "media.physical.modules-infrastructure-messaging"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.surface.types-library",
@@ -617,7 +727,9 @@
         "physicalRefs": [
           "media.physical.libs-audio-video-types"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.surface.ui-library",
@@ -627,7 +739,9 @@
           "media.physical.libs-audio-video-ui",
           "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.surface.explorer",
@@ -637,14 +751,18 @@
           "media.physical.apps-media-experience-explorer",
           "media.physical.libs-media-experience-simulation"
         ],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
       {
         "id": "media.surface.desktop-archive",
         "consumerType": "OBSOLETE",
         "bindingState": "ARCHIVED",
         "physicalRefs": [],
-        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
+        "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PDP3_MDC30_BLOCKED",
+        "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
+        "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       }
     ]
   },
@@ -772,9 +890,9 @@
         "docs/implementation/observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13.json"
       ],
       "done": "Historical DEV_COMPLETE stays intact; new source-bound status asserts current=TRUE only after every applicable P0 row validates and zero actual outstanding meaning IDs; otherwise stage barrier FAIL.",
-      "status": "READY_INTERNAL_OWNER_ACCEPTED_AWAITING_FRESH_VALIDATION_AND_PUBLISH",
-      "executionEvidence": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json#phaseDisposition; docs/implementation/observations/media-discovery-delegated-owner-evidence-2026-10-13.json; .product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md; docs/implementation/observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13.json",
-      "executionNote": "Delegated Media Product Truth owner has now approved the exact observed PDP-0 material fingerprint; this resolves the internal decision request, not the remaining actual recapture/tests/publication. The historical technical observation remains immutable with its then-correct NOT_OBTAINED. MDC-06 must publish a separate current source-cut exit after fresh checks; PDP-1 remains gated. Binding contract: read exact machine owner acceptance JSON and join with fresh currentness; the fixed historical technical observer still says NOT_OBTAINED because it must not retroactively invent an owner decision. Publish separate new exit.",
+      "status": "COMPLETED",
+      "executionEvidence": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json",
+      "executionNote": "R2 PDP-0 exit passed at commit 2aaa15f on exact material source fingerprint sha256:7a7a0f700890915863e9f93eafa30edc2f6d856adbf7944c17fecc0aadd8031b. Technical source currentness, delegated owner acceptance at the exact fingerprint, required checks, and phase exit all PASS; changedMeaningIds and outstandingMeaningIds are empty. Required topology check and 13 tests, authority and local product-experience checks, 49 combined Discovery/PDP-0 tests, and 4 PDP-0 phase-exit tests passed with zero skips. Historical baseline and older observations remain unchanged. Next legal action is PDP-1 MDC-10; PDP-1–3 remain unvalidated, so Discovery FAIL, Build/closure NOT_ENTERED, Delivery BLOCKED.",
       "ownerDecisionRef": ".product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md",
       "ownerAcceptanceInput": "docs/implementation/observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13.json",
       "technicalObserverDoesNotJoinOwnerRecord": true
@@ -794,7 +912,9 @@
         ".product-experience/pdp-3-product-experience/agent-tools/runtime-dispositions.json"
       ],
       "done": "Recheck changed Agent Tool fail-closed disposition, preserve four NOT_ADMITTED and unresolved strict owner parity; distinguish validation code changes from domain meaning.",
-      "status": "PLANNED_NOT_PERFORMED"
+      "status": "COMPLETED_WITH_STRICT_OWNER_ADMISSION_FINDING",
+      "executionEvidence": "docs/implementation/observations/media-discovery-pdp1-mdc10-contract-parity-2026-10-13-r1.json",
+      "executionNote": "Strict parity intentionally remains NON_GREEN: 46/47 current source findings are dispositioned and one exact finding remains because the 14-row operations inventory is proposal-only and structural identities are not owner-accepted mappings. Definition-only parity PASSES and defers owner acceptance/runtime admission. The four Agent Tool boundaries remain NOT_ADMITTED. Focused MDC-10 tests passed 68/68 with zero skips. This classifies acceptance/admission separately from PDP-1 meaning; no domain meaning change or runtime admission is claimed. The J-05/J-06/J-08 source crosswalk is handed to PDP-3 MDC-30."
     },
     {
       "id": "MDC-11",
@@ -809,7 +929,9 @@
         ".product-experience/interface-parity/"
       ],
       "done": "Exact source-current typed 448 canonical operations plus 14 bindings, 79 owner-action wires, 55 guards and applicable state/event/identity/tenant/time/provenance semantics across physical and consumer rows; report material deviations only.",
-      "status": "PLANNED_NOT_PERFORMED"
+      "status": "COMPLETED_CURRENTNESS_PASS",
+      "executionEvidence": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json",
+      "executionNote": "All 50 PDP-1 cells are source-current on the exact current material fingerprint; applicable domain operations, owner wires, guards, identity, tenancy, version, event, provenance and negative/unknown semantics are complete. No PDP-1 meaning defects were found and no phase-local tasks remain. Strict external/owner acceptance and four Agent Tool runtime admission remain distinct and are not claimed."
     },
     {
       "id": "MDC-12",
@@ -823,7 +945,9 @@
         "docs/implementation/ (current-cut view)"
       ],
       "done": "All applicable PDP-1 cells source-current, historical status preserved, zero outstanding definition meaning IDs; strict external approval remains separate.",
-      "status": "PLANNED_NOT_PERFORMED"
+      "status": "COMPLETED_PHASE_EXIT_PASS",
+      "executionEvidence": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json",
+      "executionNote": "Published immutable source-bound PDP-1 exit R3: 50/50 cells current, predecessor PDP-0 exit valid, zero outstanding meaning IDs, 30/30 external public contract digests match, required tests 68/68 with zero skips, definition-only parity PASS. Strict parity retains the proposal-only owner-mapping finding. Exact-cut owner acceptance and independent signoff are NOT_RECORDED/NOT_CLAIMED. Historical PDP-1 status was preserved. Next legal action is PDP-2 MDC-20."
     },
     {
       "id": "MDC-20",
@@ -839,7 +963,9 @@
         "libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx"
       ],
       "done": "Classify changed React screen behavior as Build code unless it contradicts normative design; validate GUI library host-dependence and appropriate headless grammar, without requiring phantom UI for API/CLI.",
-      "status": "PLANNED_NOT_PERFORMED"
+      "status": "COMPLETED_DRIFT_CLASSIFICATION_PASS",
+      "executionEvidence": "docs/implementation/observations/media-discovery-pdp2-mdc20-design-drift-2026-10-13-r1.json",
+      "executionNote": "Classified all four changed historical source pins to non-meaning documentation/projection drift or Build implementation behavior; owner and design impact identities are retained. No new PDP-2 meaning ID was found. The Explorer remains a read-only projection, the AI Voice UI remains host-dependent, and the TranscriptCaptionScreen changes match exact-source/action-finality definitions."
     },
     {
       "id": "MDC-21",
@@ -854,7 +980,9 @@
         "docs/implementation/ (current-cut view)"
       ],
       "done": "31 component families and 13 templates/11 layouts/13 recipes/42 rules/19 patterns remain traceable, machine channels have typed error/finality/concurrency/security conventions, and each applicable surface cell is current or legitimately N/A.",
-      "status": "PLANNED_NOT_PERFORMED"
+      "status": "COMPLETED_PHASE_EXIT_PASS",
+      "executionEvidence": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json",
+      "executionNote": "Published immutable PDP-2 exit R2: all 50 cells current with exact owner/applicability/crosswalk trace, 154 historical pins reviewed with four source-bound non-meaning dispositions, 31 component families and all template/layout/recipe/composition/pattern populations matched, and prescribed local check plus tests passed with zero skips. External public contract digests match 30/30. Rendered/assistive technology accessibility acceptance, Shared package acceptance, exact-cut owner acceptance, and independent certification remain not claimed. Historical PDP-2 status remains unchanged."
     },
     {
       "id": "MDC-30",
@@ -869,7 +997,8 @@
         "libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx"
       ],
       "done": "47 screen IDs, 30 journeys/130 steps, 147 UI actions and 31 scenarios plus 105 bounded recovery oracles keep exact version/outcome/negative states; 17 consumer channels have discoverable headless/GUI contracts and explicit non-admission.",
-      "status": "PLANNED_NOT_PERFORMED"
+      "status": "BLOCKED_IN_PROGRESS",
+      "executionNote": "Prescribed MDC-30 suite passes 19/19 and matrix/transition audit regression passes 8/8, both with zero skips and the 337 historical P3 source pins were reviewed (five drift paths classified). Current definition is not complete: 24 journey contracts leave per-channel operation/state/transport/accessibility equivalence unbound; J-01/J-02 lack the common channel-binding state and J-03/J-20 lack top-level channel lists; bounded state/transition review is complete: 54 transition records are precisely categorized, while 14 consequential command/workflow records still lack accepted exact state mappings; integrations applicability remains UNKNOWN_OWNER_DECISION_PENDING; external source-manifest snapshots are stale. See docs/implementation/observations/media-discovery-pdp3-mdc30-currentness-2026-10-13-r1.json. MDC-31 and MDC-32 remain gated."
     },
     {
       "id": "MDC-31",

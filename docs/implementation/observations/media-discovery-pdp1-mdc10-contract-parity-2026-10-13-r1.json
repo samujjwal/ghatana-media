@@ -1,0 +1,168 @@
+{
+  "schemaVersion": "media.discovery-phase-task-observation.v1",
+  "recordId": "MEDIA-PDP1-MDC10-2026-10-13-R1",
+  "observedAt": "2026-10-13T20:41:55.692Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "scope": "whole-repo Media Discovery",
+    "phase": "PDP-1",
+    "taskId": "MDC-10"
+  },
+  "sourceBaseline": {
+    "commit": "2aaa15f5a15ce9d05726cc133885b6415317efff",
+    "sourceDigests": {
+      "scripts/check-media-contract-parity.mjs": "c443ba57cc5273864cc90ebdd111114eef764629080ff4979cfb734da8d25485",
+      "tests/media-contract-parity.test.mjs": "3b2ebd2a9dcbe68f1afb86438fa55953851596a5d5c359a888bc94bb95eb4cc4",
+      "tests/media-contract-parity-definition-only-cli.test.mjs": "fb5844bcafe7e5d6dfbc6ce19dfbbd68c84476855089ce17b0a353d31ae663e4",
+      ".product-experience/pdp-3-product-experience/agent-tools/runtime-dispositions.json": "2f0e495a97c39a9f871a58acc5676982856692f6e9c6b59869b0bed5456e4ed6",
+      ".product-experience/pdp-1-domain-data/operations.yaml": "11d51ef9cdc69e2dde09b3a72241a19a321be40372b19850e4d29c3ec2fb3e04",
+      ".product-experience/pdp-1-domain-data/operations-current-source-review.json": "c73e44c375c9b20a120e63200065484775ded0d4749057b45a2aa7d773f54c69",
+      ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml": "f6155c1bf0a1851b0fa45f631ce09eb459d2b8d5d8df6cd03a3dd6d634be19cf",
+      "docs/implementation/pdp-1-phase-dev-status.json": "ee7b68839a6fba3745f27183ce13ec45d9b90e32f0f5df376952f4bde40ae23b"
+    }
+  },
+  "predecessor": {
+    "taskId": "MDC-06",
+    "pdp0ExitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json",
+    "pdp0MaterialFingerprint": "sha256:7a7a0f700890915863e9f93eafa30edc2f6d856adbf7944c17fecc0aadd8031b",
+    "status": "PASS"
+  },
+  "performedWork": [
+    "Compared the contract-parity checker and tests with the PDP-1 source-pinned baseline.",
+    "Reconciled strict and definition-only behavior against source-owned operation and Agent Tool dispositions.",
+    "Preserved all four Agent Tool boundaries as NOT_ADMITTED; no operation mapping, runtime admission, or transport admission was created."
+  ],
+  "checks": [
+    {
+      "command": "pnpm check:contract-parity",
+      "exitCode": 1,
+      "status": "NON_GREEN_EXPECTED_OWNER_ADMISSION_FINDING",
+      "structuralInventory": {
+        "openapiRoutes": 27,
+        "runtimeRoutes": 27,
+        "httpRegistryRoutes": 27,
+        "grpcRegistryRpcs": 43,
+        "protobufRpcs": 43,
+        "typescriptTypes": 20,
+        "typescriptSchemas": 21,
+        "agentTools": 4,
+        "sdkOperationIds": 30,
+        "sdkHttpCallSites": 20
+      },
+      "sourceFindings": {
+        "audited": 47,
+        "dispositioned": 46,
+        "unresolved": 1
+      },
+      "historicalFindings": {
+        "audited": 52,
+        "dispositioned": 51,
+        "unresolved": 1,
+        "retiredRoutes": 5
+      },
+      "unresolvedFinding": "PDP-1 operations remain proposal-only; structural identities are not accepted mappings"
+    },
+    {
+      "command": "node scripts/check-media-contract-parity.mjs --definition-only",
+      "exitCode": 0,
+      "status": "PASS",
+      "sourceFindings": {
+        "audited": 47,
+        "dispositioned": 45,
+        "unresolved": 0,
+        "deferredForDevelopmentCompletion": 2
+      },
+      "historicalFindings": {
+        "audited": 52,
+        "dispositioned": 50,
+        "unresolved": 2,
+        "retiredRoutes": 5
+      },
+      "deferredFindings": [
+        {
+          "id": "agent-tool-runtime-and-shared-admission",
+          "status": "DEFERRED_NOT_REQUIRED_FOR_DEVELOPMENT_COMPLETION"
+        },
+        {
+          "id": "pdp1-owner-acceptance-and-runtime-admission",
+          "status": "DEFERRED_NOT_REQUIRED_FOR_DEVELOPMENT_COMPLETION"
+        }
+      ]
+    },
+    {
+      "command": "node --test tests/media-pdp-p1-dev-status.test.mjs tests/media-contract-parity.test.mjs tests/media-contract-parity-definition-only-cli.test.mjs tests/pdp1-owner-action-wire-contracts.test.mjs tests/pdp1-transition-guard-definition-evaluator.test.mjs",
+      "exitCode": 0,
+      "status": "PASS",
+      "testCount": 68,
+      "passed": 68,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "discrepancyClassification": [
+    {
+      "id": "MDC10-OPERATION-PROPOSAL-INVENTORY",
+      "classification": "OWNER_ACCEPTANCE_AND_RUNTIME_ADMISSION",
+      "where": ".product-experience/pdp-1-domain-data/operations.yaml#operations",
+      "meaning": "The exact 14-row operation inventory is explicitly proposal-only. Its source-current review validates the operations source and all 79 owner wires; strict parity correctly refuses to treat structural identities as accepted mappings. Definition-only mode defers this acceptance/admission finding. No canonical operation meaning defect was identified by this check."
+    },
+    {
+      "id": "MDC10-AGENT-TOOL-BOUNDARIES",
+      "classification": "RUNTIME_AND_SHARED_ADMISSION",
+      "where": ".product-experience/pdp-3-product-experience/agent-tools/runtime-dispositions.json",
+      "meaning": "All four tools retain source-pinned NOT_ADMITTED status with unsupported no-dispatch boundaries for request/result/authority and a non-admitted operation mapping."
+    },
+    {
+      "id": "MDC10-J05-J06-J08-CROSS-STAGE",
+      "classification": "PDP3_CONSUMER_HANDOFF",
+      "where": "docs/implementation/pdp-1-phase-dev-status.json#deferredDownstreamFindings",
+      "meaning": "Current source status classifies these consumer crosswalk observations as PDP-3; keep them for MDC-30 and do not expand PDP-1 findings."
+    }
+  ],
+  "historicalPdp1PinChanges": {
+    "baselineStatus": "docs/implementation/pdp-1-phase-dev-status.json",
+    "historicalPinCount": 113,
+    "currentMatchingCount": 109,
+    "changedCount": 4,
+    "missingCount": 0,
+    "changes": [
+      {
+        "path": ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md",
+        "classification": "DOCUMENTATION_STATUS_ONLY",
+        "meaningChange": "NONE_IDENTIFIED",
+        "note": "Only the status paragraph changed to state DEV_COMPLETE at its recorded cut; no canonical PDP-1 YAML definitions changed."
+      },
+      {
+        "path": "scripts/check-media-contract-parity.mjs",
+        "classification": "VALIDATION_LOGIC_CLASSIFICATION",
+        "meaningChange": "NONE",
+        "note": "Updated checker behavior separates definition completion from strict acceptance/admission."
+      },
+      {
+        "path": "tests/media-contract-parity.test.mjs",
+        "classification": "REGRESSION_COVERAGE",
+        "meaningChange": "NONE"
+      },
+      {
+        "path": "tests/media-contract-parity-definition-only-cli.test.mjs",
+        "classification": "REGRESSION_COVERAGE",
+        "meaningChange": "NONE"
+      }
+    ]
+  },
+  "taskDisposition": {
+    "status": "COMPLETED_WITH_STRICT_OWNER_ADMISSION_FINDING",
+    "phaseLocalMeaningDefects": "NONE_IDENTIFIED",
+    "fourAgentTools": "NOT_ADMITTED",
+    "strictMode": "RETAINED_NON_GREEN",
+    "definitionOnlyMode": "PASS",
+    "nextLegalAction": "PDP-1 MDC-11 full 50-cell current-source review"
+  },
+  "stageState": {
+    "discovery": "FAIL_PDP1_PDP3_NOT_VALIDATED",
+    "build": "NOT_ENTERED",
+    "pdpClosure": "NOT_ENTERED",
+    "delivery": "BLOCKED",
+    "independentHumanOrQualifiedSignoff": "NOT_CLAIMED"
+  }
+}
