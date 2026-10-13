@@ -17,6 +17,10 @@ test("compatibility ledger preserves canonical-source and unverified-cutover bou
   assert.equal(ledger.cutover.remoteReleaseAndBranchCoverage, "UNKNOWN");
   assert.match(read("BOUNDARY.md"), /Current canonical source:.*ghatana:services\/media/u);
   assert.match(read("config/repo-boundary.json"), /"status": "canonical-until-cutover"/u);
+  const boundary = JSON.parse(read("config/repo-boundary.json"));
+  assert.equal(boundary.productDefinitionAuthority.repository, "ghatana-media");
+  assert.equal(boundary.currentAuthority.repository, "ghatana");
+  assert.match(boundary.authorityInvariant, /distinct/u);
 });
 
 test("ledger records every observed local Gradle and Docker compatibility path", () => {
@@ -29,12 +33,21 @@ test("ledger records every observed local Gradle and Docker compatibility path",
 
   const docker = ledger.observations.find((item) => item.id === "docker-build-context-paths");
   assert.ok(docker);
+  // The ledger is an October 7 source snapshot; its five old missing-input
+  // findings must remain auditable without requiring the defects to reappear
+  // in the current repository after the October 12 container consolidation.
   assert.equal(docker.findings.length, 5);
   assert.ok(docker.findings.every((item) => item.status === "REVIEW_REQUIRED_CONTEXT_OR_SOURCE_MISSING"));
   for (const finding of docker.findings) {
-    const source = read(finding.path);
-    assert.ok(source.includes(finding.reference), `missing observed Docker reference ${finding.path}: ${finding.reference}`);
     assert.equal(finding.checkoutPresence, "ABSENT");
+    if (!existsSync(resolve(root, finding.path))) {
+      assert.equal(finding.path, "docker/Dockerfile.ai-voice", "only the retired AI Voice mock image is absent");
+      continue;
+    }
+    const source = read(finding.path);
+    assert.ok(!source.includes(finding.reference),
+      `obsolete context dependency must not return: ${finding.path}: ${finding.reference}`);
+    assert.match(source, /COPY --chown=10001:10001 modules\/[^\n]+\/build\/install\//u);
   }
   assert.equal(docker.findingLimit.includes("context"), true);
 });

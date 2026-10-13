@@ -24,6 +24,8 @@ The Helm service templates now explicitly inject each server's `*_GRPC_PORT` and
 
 The root Gradle `buildAll` task now delegates to the actual full Media build rather than silently invoking only the root `build` task. `buildMediaJvm` selects Media Java subprojects with real build scripts; the pnpm build scopes itself to Media apps/libs/modules instead of rebuilding linked Shared/Tools/Lifecycle siblings. The Rust workspace remains under its own Cargo build. This is a **source-level build graph correction**; it is not a recorded success of running the full polyglot build.
 
+The historical `docs/migration/compatibility-cutover-observation.json` intentionally preserves five obsolete Docker build-context findings from the October 7 snapshot. Its regression test now checks that these problems have been **removed from current files** rather than demanding that unsafe source content be restored. Repository boundary metadata also distinguishes the already complete Media product-definition authority from the still-external canonical runtime writer.
+
 The dependency inventory explicitly lists the four `installDist` output prerequisites required by the Docker runtime images. Those generated binaries are **not** source-pinned or admitted release artifacts. `.dockerignore` is a tracked, pinned build input and the container audit must not confuse a Dockerfile with an available distribution.
 
 ## Intent-based naming and preservation

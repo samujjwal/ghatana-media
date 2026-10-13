@@ -2,11 +2,10 @@ plugins {
     id("base")
 }
 
-// Audio-Video Product Root
-// This build file coordinates the polyglot build system:
-// - Java/Gradle: ./gradlew build
-// - TypeScript/PNPM: pnpm -r build
-// - Rust/Cargo: cargo build
+// Ghatana Media build root (audio-video is a retained compatibility coordinate).
+// Build only this product: ./gradlew buildAll (alias for buildFull).
+// buildMediaJvm compiles its actual JVM subprojects; buildPnpm restricts pnpm
+// work to Media packages and buildCargo builds the declared Rust workspace.
 
 group = "com.ghatana.audio-video"
 version = "0.1.0-SNAPSHOT"

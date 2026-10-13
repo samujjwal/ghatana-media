@@ -3,7 +3,7 @@
   "repo": "ghatana-media",
   "kind": "standalone-product",
   "description": "Standalone Media product repository; migration-only until an admitted source cutover.",
-  "lastUpdated": "2026-10-04",
+  "lastUpdated": "2026-10-12",
   "ownsAfterCutover": [
     "Media product semantics and media-specific runtime implementation",
     "Media artifact, upload, job, stream, consent, privacy, speech, vision, scene-text, and lifecycle contracts",
@@ -12,13 +12,16 @@
   "currentAuthority": {
     "repository": "ghatana",
     "path": "services/media",
-    "status": "canonical-until-cutover"
+    "status": "canonical-until-cutover",
+    "role": "canonical-executable-runtime-source-writer-until-cutover"
   },
   "mayConsumePublicContractsFrom": [
     "ghatana",
     "ghatana-shared",
     "ghatana-tools",
-    "ghatana-kernel"
+    "ghatana-kernel",
+    "ghatana-lifecycle",
+    "ghatana-toolchain"
   ],
   "mayCallOverNetwork": [
     "ghatana/services/ai-inference",
@@ -37,7 +40,19 @@
     "ghatana-kernel",
     "ghatana-shared",
     "ghatana-tools",
-    "ghatana-yappc"
+    "ghatana-yappc",
+    "ghatana-lifecycle",
+    "ghatana-toolchain"
   ],
-  "authorityInvariant": "Exactly one editable semantic/runtime authority exists at every migration stage."
+  "authorityInvariant": "Media product meaning and executable runtime have distinct, exclusive authoritative owners; product meaning is authored in ghatana-media, executable runtime in ghatana/services/media until approved cutover.",
+  "productDefinitionAuthority": {
+    "repository": "ghatana-media",
+    "path": ".product-experience",
+    "status": "PDP_0_TO_3_DEV_COMPLETE_ZERO_PDP_TASKS",
+    "scope": "Media product truth, canonical domain, interface grammar and complete experience definitions"
+  },
+  "ownsNow": [
+    "Media normative PDP-0 through PDP-3 product and experience definitions",
+    "Media client packages, screens and product-owned interface types"
+  ]
 }
