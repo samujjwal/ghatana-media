@@ -294,6 +294,7 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
     : null;
   const historicalDriftClassifications = [
     { path: '.product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md', classification: 'STATUS TEXT AND DOC LINK ONLY OBSERVED', authorityRef: 'MDO-02' },
+    { path: '.product-experience/pdp-0-product-truth/generated/product-definition.candidate.json', classification: 'GENERATED PRODUCT DEFINITION CANDIDATE SOURCE DIGEST AND BYTE COUNT PROJECTION ONLY', authorityRef: 'MDO-03' },
     { path: 'docs/PRODUCT-DEFINITION-COVERAGE.md', classification: 'STATUS AND COVERAGE PROJECTION ONLY OBSERVED', authorityRef: 'MDO-03' },
     { path: '.product-experience/artifact-identities.yaml', classification: 'SOURCE INVENTORY ADDITIONS OBSERVED', authorityRef: 'MDO-03' },
     { path: '.product-experience/gaps.yaml', classification: 'DATED DISPOSITION AND HISTORICAL GAP WORDING OBSERVED', authorityRef: 'MDO-03' },
