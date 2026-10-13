@@ -1,22 +1,16 @@
-# Owner: Audio-Video
+# Ghatana Media — ownership
 
-**Team:** Media Platform Team  
-**Slack:** #platform-audio-video  
-**On-call:** Media Platform on-call rotation  
-**Architecture lead:** Media Platform Tech Lead  
-**Boundary audit score:** 8/10 (2026-03-21) — reference implementation  
+**Product and semantic owner:** Media product/platform engineering  
+**Canonical Media product meaning:** `ghatana-media/.product-experience/`  
+**Canonical executable runtime (until transfer):** `ghatana/services/media`  
+**Product-definition state:** PDP-0…PDP-3 `DEV_COMPLETE`, remaining PDP tasks **0**
 
-## Responsibility
+## Responsibilities
 
-The Audio-Video product provides **media streaming and processing capabilities**:
+Media owns audio/video/image/speech/timeline product meaning: governed artifact and job versions, captions/revisions, streaming, scene and temporal interpretation, media-specific quality/uncertainty, user experience and public Media consumer contracts.
 
-- Real-time audio/video streaming
-- Media transcoding and format conversion
-- Live session management
-- Recording and playback
+Media does **not** own Shared generic identity/workflow/messaging/UI primitives, generic Document Intelligence/OCR, generic AI Inference model governance, platform Data Cloud read models or Event Plane delivery, or Lifecycle proof issuance. [BOUNDARY.md](BOUNDARY.md) records authoritative ownership and migration conditions.
 
-**Domain boundary:** Audio-Video owns all media domain logic. It uses Data-Cloud for event streaming and platform observability for health monitoring.
+Route real implementation defects to the [Build program](docs/implementation/MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md). Changes to normative product meaning require a separately approved, versioned request. Transfer/release requires its actual accountable source and release owners. Do not invent an on-call address, named maintainer, or audit score.
 
-## Best Practice Note
-
-Audio-Video is one of two **reference implementations** for product boundary hygiene (alongside Finance). Clean domain separation, clear ownership, no platform leakage.
+Legacy `audio-video` package coordinates are retained where consumer compatibility requires them; new local names should express domain intent.

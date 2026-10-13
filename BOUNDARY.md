@@ -17,10 +17,12 @@ separate execution gates; no runtime cutover is implied here.
 See `docs/migration/decisions/MDI-001-document-intelligence-ownership.md` for
 the supplemental ownership decision that narrows the master-plan transfer scope.
 
-Until an admitted cutover manifest is executed, `ghatana/services/media` is the
-only editable runtime and semantic authority. Any prepared content in this
-repository is migration-only and must not be used to publish competing runtime
-state, production endpoints, or readiness claims.
+Until an admitted cutover manifest is executed, `ghatana/services/media` is
+the sole **canonical executable runtime and source-writer** authority.
+Independently, `ghatana-media/.product-experience/` is the sole **Media
+product-definition and experience-semantic** authority. The prepared runtime
+copy here is migration-only and must not publish competing production state,
+endpoints or readiness claims.
 
 Ghatana Media owns media-specific artifact, upload, job, stream, speech, vision,
 scene-text recognition, consent and lifecycle semantics after cutover. Platform
@@ -50,6 +52,8 @@ handover, production deployment, provider activation, or a readiness promotion.
 
 This boundary slice is approved for migration preparation under the user's
 explicit requests on 2026-10-04, including the supplemental Document
-Intelligence ownership instruction. It does not accept the remaining Phase 0
-requirements or Phase 1–3 artifacts. Source authority changes only through the
+Intelligence ownership instruction. This narrowly approves migration preparation, **not** runtime source cutover,
+deployment or commercial release. The four independent PDP **development**
+definitions are now `DEV_COMPLETE` (zero PDP tasks); that development fact does
+not replace separate external or formal acceptance. Source authority changes only through the
 cross-repository cutover protocol and its recorded manifest.

@@ -1,120 +1,61 @@
 # Ghatana Media
 
-This repository is the standalone destination for Ghatana's multimodal media
-runtime, clients, contracts, tests, fixtures, and product-owned operations
-material. It is being prepared from `ghatana/services/media` under the
-[expert-reviewed migration plan](docs/migration/expert-reviewed-master-plan.md).
+**Ghatana Media** defines governed audio, video, image, speech, and time-based product experiences—from exact source ingestion to review, creation, transformation, and authorized delivery.
 
-> **Current development status (2026-10-12):** PDP-0 through PDP-3 are
-> `DEV_COMPLETE` at source cut `adc9aa6` (status records refreshed at
-> `0837fef`). This records completion of the four definition-development
-> gates; independent semantic acceptance, external package acceptance,
-> Lifecycle receipts, runtime qualification, migration cutover, and release
-> authorization remain separate and open. See the [current status view](docs/implementation/post-pdp-current-status.json).
+## Current state
 
-Start with the [documentation overview](docs/README.md), [vision](docs/VISION.md),
-[requirements](docs/REQUIREMENTS.md), [design](docs/DESIGN.md), and
-[examples](docs/EXAMPLES.md). The user's Four-Phase Product Definition Hardening
-Plan governs the minimum completion requirements and ordered tasks recorded in
-the requirements document.
+- **PDP-0 Product Truth, PDP-1 Domain/Data, PDP-2 Design/Interface, and PDP-3 Product Experience are all `DEV_COMPLETE`. Remaining PDP development tasks: 0.**
+- **Build → Integrate/Test → Deliver** is the active product-development workstream. See the [Build handoff](docs/implementation/MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md).
+- The **Media product-definition authority** is [`.product-experience/`](.product-experience/). The **canonical executable runtime** remains `ghatana/services/media` until an authorized source/writer transfer. This repository's runtime copy is not an independent live production service.
+- Independent acceptance, public dependency admission, real provider availability, source cutover, and release are separate downstream matters, not unfinished PDP tasks.
 
-## Intended consumers and non-goals
+## Start here
 
-Consumers include product and runtime owners, integrating products, HTTP/gRPC
-callers, SDK and embedded UI consumers, and reviewers using the local Explorer.
-Web, production CLI, agent-tool, event, and system integration experiences need
-their own admitted contracts. Media does not own generic identity, model routing,
-Document Intelligence, Data Cloud read models, platform event delivery, or
-privileged effect authority. Archived desktop apps are outside the active scope.
+Read the [documentation index](docs/README.md) for product, architecture, testing, integration, operations and migration references. The primary contract owners are:
 
-## Quick usage
+- [Product Truth](.product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md): outcomes, capability scope, rights, trust, quality and requirements.
+- [Domain/Data](.product-experience/pdp-1-domain-data/DOMAIN-MODEL.md): exact identities, operations, states, guards, versions, events and finality.
+- [Design/Interface](.product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md): accessible GUI/headless grammar, components, presentation and API/CLI/SDK/event semantics.
+- [Product Experience](.product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md): 47 screens, 30 journeys, 130 steps and supported/unsupported interaction definitions.
+- [Experience Explorer](apps/media-experience-explorer/README.md): a separate source-linked review tool, **not** a fifth PDP or production host.
 
-With Node.js and the declared `pnpm@10.33.0` available, run these read-only local
-checks from the repository root:
+The [recorded phase statuses](docs/implementation/post-pdp-current-status.json) distinguish completed definition development from implementation, independent review, production qualification and release.
+
+## Architecture and ownership
+
+Media owns media-specific artifacts and immutable versions, consent/rights-sensitive jobs, stream/timeline, speech/caption, vision, composition, quality/uncertainty and user/machine experience *meaning*. Shared owns reusable identity, policy, messaging, UI and observability; Tools owns generic development/experience contracts; Lifecycle owns its own verification machinery; Data Cloud/Event/Action Plane and AI Inference own generic platform mechanisms; Document Intelligence owns generic OCR/document extraction.
+
+Media can integrate with other owners through admitted public contracts. It must not copy their engines or claim ownership because a compatibility/legacy source file exists. See [BOUNDARY.md](BOUNDARY.md) and [architecture](docs/ARCHITECTURE.md).
+
+## Local development
+
+With the declared pnpm/Node.js toolchain available, the following commands inspect source-owned product representations:
 
 ```sh
 pnpm check:product-experience-local
 pnpm test:product-experience-local
+pnpm check:physical-topology
+pnpm check:screen-status-matrix
 ```
 
-They check the existing local model and reference denominators. Four-phase
-completeness and acceptance require the broader checks in
-[TESTING](docs/TESTING.md) and owner-native [EVIDENCE](docs/EVIDENCE.md).
-See [EXAMPLES](docs/EXAMPLES.md) for the fixture CLI and browser preview.
+These are source checks, not live-runtime or release qualification. For implementation-specific and JVM tests, follow [testing](docs/TESTING.md) and the canonical runtime in `ghatana/services/media`. Do not claim an unfiltered build passed when a module or compile task was excluded.
 
-## API / config / contracts
+## Repository structure
 
-The present HTTP wire source is [OpenAPI](contracts/openapi/media.yaml), compared
-with the committed [route manifest](config/route-manifest.json). Speech, vision,
-and multimodal protobufs live with their owning modules. The complete family
-inventory and exact paths are in [docs/README.md](docs/README.md).
-Runtime configuration and its local defaults are documented in
-[OPERATIONS](docs/OPERATIONS.md); the runtime is disabled by default. There is no
-aggregate `service-contract.yaml`: CLEAN-2/GAP-06 selects the source-specific
-OpenAPI, route-manifest, protobuf, and provider-manifest authorities. Existing
-wire source still does not settle the canonical PDP-1/PDP-3 operation model.
+| Directory | Current purpose |
+| --- | --- |
+| `.product-experience/` | Single Media normative PDP definition root, surface references, decision history and Explorer source projections |
+| `apps/media-experience-explorer/` | Source-linked developer inspection |
+| `libs/audio-video-ui/`, `libs/audio-video-client/`, `libs/audio-video-types/` | Media React UI, SDK client and typed interface packages |
+| `modules/`, `launcher/`, `runtime-contracts/`, `providers/`, `adapters/` | Prepared source copy of runtime modules, pending owner-approved transfer |
+| `contracts/`, `config/` | OpenAPI, runtime route/provider source and configuration contracts |
+| `tests/`, module-local tests | Definition and implementation regression suites |
+| `docs/implementation/` | Current Build handoff plus explicitly dated historical review/verification records |
+| `migration/`, `docs/migration/` | Source/consumer comparisons and still-unauthorized migration preparation |
+| `archive/media-desktop-apps/` | Inactive, intentionally archived desktops referenced by migration provenance; not active product apps |
 
-## Migration status
+**Naming:** New domain concepts should say **Media** and use intent-based names. Existing `audio-video` external paths, binary IDs and Gradle/package coordinates require compatibility review before renaming. Never mechanically rename stable PDP identities to improve aesthetics.
 
-The files here remain a migration-preparation copy. The source Media service
-remains canonical until a reviewed parity report and cutover manifest satisfy
-the migration gates. This checkout is not a qualified runtime: its current
-Gradle settings and several dependency contracts still rely on Ghatana
-workspace projects ([GAP-02](.product-experience/gaps.yaml)).
+## What not to restart
 
-The four canonical PDPs have completed their source-development gates. Formal
-semantic acceptance and the evidence-backed runtime, migration, and release
-gates remain pending. The Explorer is a projection outside those phases. The
-local simulation includes synthetic project, upload, verification-job, and
-transcription states; it does not establish runtime availability, qualification,
-licensing, or production readiness. Current source, path, and consumer records
-are under [`migration/`](migration/) and [`.product-experience/`](.product-experience/).
-
-## Product boundary
-
-Media owns media-specific artifact and job semantics, streaming, speech, vision,
-multimodal processing, consent and lifecycle behavior, and provenance. The
-general OCR and Document Intelligence runtime is a Ghatana platform service at
-`ghatana/services/document-intelligence`; it is excluded from the intended
-product transfer. Prepared `OcrService` and `KernelOcrProviderAdapter` code still
-contradict this boundary and require PDP0-003/IMP-01 reconciliation. Shared
-remains the owner of `@ghatana/documents` and
-`@ghatana/document-extraction`. Media may consume the public Document
-Intelligence API for temporal and scene-text semantics while keeping those
-semantics on the Media side.
-
-Data Cloud remains the owner of its media read models and consumer integrations.
-This repository does not claim ownership of Data Cloud implementation code,
-runtime activation, data handover, model admission, or production qualification.
-
-## Runtime documentation
-
-The transferred source documentation describes the Media runtime and its
-existing local and internal-preview capabilities. Those instructions are not
-currently a standalone build or deployment guarantee for this repository.
-
-- [Architecture](docs/ARCHITECTURE.md)
-- [Operations](docs/OPERATIONS.md)
-- [Testing](docs/TESTING.md)
-- [Privacy and retention policy](docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md)
-- [Repository boundary](BOUNDARY.md)
-
-## Product experience work
-
-The local [Media Experience Explorer](apps/media-experience-explorer/README.md)
-and its deterministic simulation support artifact-intake scenarios and one
-transcript/caption workflow. The target phases are PDP-0 Product Truth, PDP-1
-Canonical Domain & Data Model, PDP-2 Design Language & Interface System, and
-PDP-3 Complete Product Experience. Explorer is a projection outside those phases.
-The canonical product-definition tree is `.product-experience/pdp-0-product-truth/`
-through `pdp-3-product-experience/`, with `.product-experience/explorer/` outside
-the PDP phases. The generated source manifest and surface registry are the
-cross-phase indexes; acceptance limits and gaps are tracked under
-[`.product-experience/`](.product-experience/).
-
-## Repository layout
-
-Runtime modules and providers are at the repository root, with shared runtime
-contracts under `runtime-contracts/`. Older desktop applications are preserved
-under `archive/media-desktop-apps/` for archival review; they are not represented
-as active product capabilities.
+The old `EXECUTE-MEDIA-PDP` and `PDP-0-3-SEQUENTIAL` plans, historical verification logs and the [withdrawn “remaining PDP” task list](docs/implementation/MEDIA-PDP-0-3-DEV-ONLY-REMAINING-2026-10-12.md) are not active work instructions. A new normative product requirement requires a **separate versioned change decision**; implementation or source-projection defects are repaired during Build.
