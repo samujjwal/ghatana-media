@@ -1,0 +1,1516 @@
+{
+  "schemaVersion": "media.pdp3-owner-directions.v1",
+  "decisionId": "MEDIA-PDP3-MDC30-OWNER-DIRECTIONS-2026-10-13",
+  "authority": "DELEGATED_INTERNAL_MEDIA_OWNER_CHOICES; NO_INDEPENDENT_HUMAN_CERTIFICATION; NO_EXTERNAL_OWNER_SIGNOFF",
+  "reviewedRepo": "samujjwal/ghatana-media",
+  "reviewedHead": "58fb822179f782175b6025d37f63a631f4fe66a6",
+  "reviewedObservation": "docs/implementation/observations/media-discovery-pdp3-mdc30-currentness-2026-10-13-r1.json",
+  "pdp3MaterialFingerprintAtReview": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+  "phase": "PDP-3",
+  "activeTaskId": "MDC-30",
+  "pastCurrentExits": {
+    "PDP0": {
+      "status": "CURRENT_PHASE_EXIT_PASS",
+      "ref": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json",
+      "fingerprint": "sha256:7a7a0f700890915863e9f93eafa30edc2f6d856adbf7944c17fecc0aadd8031b"
+    },
+    "PDP1": {
+      "status": "CURRENT_PHASE_EXIT_PASS",
+      "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json",
+      "fingerprint": "sha256:53352578058a5deb1ab8faef43857848e9bbab2b8ad0d81a8bb6b6d73bef0baa"
+    },
+    "PDP2": {
+      "status": "CURRENT_PHASE_EXIT_PASS",
+      "ref": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json",
+      "fingerprint": "sha256:954c8930f3e9cc4e68570bfca29ac586be7474869b785a9b8c59ea9beeff4cea"
+    },
+    "PDP3HistoricalStatus": {
+      "status": "DEV_COMPLETE",
+      "mainSha": "81386992d273a98237451702c2daf618c77c8e51",
+      "outstandingMeaningIds": [],
+      "sourcePinCount": 337
+    }
+  },
+  "status": "OWNER_DECISIONS_APPROVED_IMPLEMENTATION_UNVERIFIED_PDP3_EXIT_NOT_PUBLISHED",
+  "integration": {
+    "surfaceId": "media.surface.integrations",
+    "ownerApprovedApplicability": "PDP3_APPLICABLE_CONTRACT_ONLY_HOST_DEPENDENT",
+    "observedRegistryStatus": "OWNER_DECISION_PENDING",
+    "sourceRegistry": ".product-experience/surface-registry.yaml",
+    "requiredEdits": {
+      "applicablePdpArtifacts": [
+        "PDP-0",
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "applicabilityDisposition": "TARGET_HOST_CONTRACT_PENDING",
+      "semanticStatus": "PROPOSED",
+      "implementationStatus": "SOURCE_ONLY",
+      "qualificationStatus": "PENDING",
+      "contractAuthority": ".product-experience/pdp-3-product-experience/services/service-registry.yaml"
+    },
+    "relatedJourneys": [
+      "J-09",
+      "J-14",
+      "J-22",
+      "J-25",
+      "J-26",
+      "J-28"
+    ],
+    "ownerDecisionRecordedNotCanonicalUpdate": true
+  },
+  "channelDesign": {
+    "canonicalNewEdgeRegistry": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+    "definitionEdgeFields": [
+      "journeyId",
+      "channelRef",
+      "consumerSurfaceId",
+      "pdp1OperationRefs",
+      "pdp1StateOrObservationRefs",
+      "pdp2GrammarRef",
+      "typedRequestResultErrors",
+      "authorityAndVersion",
+      "deniedUnknownRecovery",
+      "finality",
+      "transportRefOrUnbound",
+      "runtimeAdmission",
+      "fixtureIds"
+    ],
+    "notes": "Mapping edge authority only; journeys own authored product behavior, P1 owns domain, P2 owns grammar. NOT_ADMITTED host is compatible with complete source contracts, but unresolved logical behavior is not."
+  },
+  "journeyChannelTasks": [
+    {
+      "taskId": "MDC30-C-01",
+      "journeyId": "J-01",
+      "title": "First use, authentication, context, and project creation",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml",
+      "observedChannelDeclaration": "channels (common binding-state missing)",
+      "approvedIntendedChannels": [
+        "media.channel.web"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-02",
+      "journeyId": "J-02",
+      "title": "Upload/import, inspect, and produce a usable artifact",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
+      "observedChannelDeclaration": "channels (common binding-state missing)",
+      "approvedIntendedChannels": [
+        "media.channel.web",
+        "media.channel.http-api",
+        "media.channel.sdk"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.http-api",
+          "consumerSurfaceId": "media.surface.public-http",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/api/api-registry.yaml",
+            "contracts/openapi/media.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.sdk",
+          "consumerSurfaceId": "media.surface.sdk",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-03",
+      "journeyId": "J-03",
+      "title": "Audio/video transcription through corrected captions",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
+      "observedChannelDeclaration": "channelEquivalents (requires top-level canonical channels)",
+      "approvedIntendedChannels": [
+        "media.channel.web",
+        "media.channel.cli",
+        "media.channel.grpc-api",
+        "media.channel.sdk"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.cli",
+          "consumerSurfaceId": "media.surface.cli",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml",
+            ".product-experience/pdp-3-product-experience/cli/command-registry.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.grpc-api",
+          "consumerSurfaceId": "media.surface.service-grpc",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/grpc/service-registry.yaml",
+            ".product-experience/pdp-3-product-experience/grpc/operations/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.sdk",
+          "consumerSurfaceId": "media.surface.sdk",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-04",
+      "journeyId": "J-04",
+      "title": "Authorized text-to-speech to approved audio",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web",
+        "media.channel.grpc-api",
+        "media.channel.sdk"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.grpc-api",
+          "consumerSurfaceId": "media.surface.service-grpc",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/grpc/service-registry.yaml",
+            ".product-experience/pdp-3-product-experience/grpc/operations/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.sdk",
+          "consumerSurfaceId": "media.surface.sdk",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-05",
+      "journeyId": "J-05",
+      "title": "Image/video analysis, geometry, and tracks",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web",
+        "media.channel.grpc-api",
+        "media.channel.sdk"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.grpc-api",
+          "consumerSurfaceId": "media.surface.service-grpc",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/grpc/service-registry.yaml",
+            ".product-experience/pdp-3-product-experience/grpc/operations/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.sdk",
+          "consumerSurfaceId": "media.surface.sdk",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-06",
+      "journeyId": "J-06",
+      "title": "Multimodal or document consumer request to grounded typed result",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.http-api",
+        "media.channel.grpc-api",
+        "media.channel.product-integration"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.http-api",
+          "consumerSurfaceId": "media.surface.public-http",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/api/api-registry.yaml",
+            "contracts/openapi/media.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.grpc-api",
+          "consumerSurfaceId": "media.surface.service-grpc",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/grpc/service-registry.yaml",
+            ".product-experience/pdp-3-product-experience/grpc/operations/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.product-integration",
+          "consumerSurfaceId": "media.surface.integrations",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/services/service-registry.yaml",
+            ".product-experience/pdp-0-product-truth/dependency-contracts.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-07",
+      "journeyId": "J-07",
+      "title": "Noisy/clipped interview cleanup with preservation and comparison",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-08",
+      "journeyId": "J-08",
+      "title": "Low-quality video repair with measured comparison",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-09",
+      "journeyId": "J-09",
+      "title": "Prompt/brief to storyboard, composition, render, review, and delivery",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web",
+        "media.channel.product-integration"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.product-integration",
+          "consumerSurfaceId": "media.surface.integrations",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/services/service-registry.yaml",
+            ".product-experience/pdp-0-product-truth/dependency-contracts.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-10",
+      "journeyId": "J-10",
+      "title": "Controlled generation with references and continuity review",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-11",
+      "journeyId": "J-11",
+      "title": "Region mask/tracking edit with comparison and undo",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-12",
+      "journeyId": "J-12",
+      "title": "Deterministic 2D/vector/procedural animation",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-13",
+      "journeyId": "J-13",
+      "title": "3D character, rig, path, or control animation",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-14",
+      "journeyId": "J-14",
+      "title": "Explore a domain simulation and its measurements",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web",
+        "media.channel.product-integration"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.product-integration",
+          "consumerSurfaceId": "media.surface.integrations",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/services/service-registry.yaml",
+            ".product-experience/pdp-0-product-truth/dependency-contracts.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-15",
+      "journeyId": "J-15",
+      "title": "Simulation/procedural passes with protected semantic validation",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web",
+        "media.channel.product-integration"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.product-integration",
+          "consumerSurfaceId": "media.surface.integrations",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/services/service-registry.yaml",
+            ".product-experience/pdp-0-product-truth/dependency-contracts.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-16",
+      "journeyId": "J-16",
+      "title": "Existing-video translation/dubbing and voice/timing review",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web",
+        "media.channel.grpc-api"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.grpc-api",
+          "consumerSurfaceId": "media.surface.service-grpc",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/grpc/service-registry.yaml",
+            ".product-experience/pdp-3-product-experience/grpc/operations/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-17",
+      "journeyId": "J-17",
+      "title": "Music, effects, Foley, stems, mix, and mastering",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-18",
+      "journeyId": "J-18",
+      "title": "Compose clips, captions, exact graphics, color, and audio master",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-19",
+      "journeyId": "J-19",
+      "title": "Review media quality and improve it within declared limits",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-20",
+      "journeyId": "J-20",
+      "title": "Observe a long-running job and check its outcome",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml",
+      "observedChannelDeclaration": "channelEquivalents (requires top-level canonical channels)",
+      "approvedIntendedChannels": [
+        "media.channel.web",
+        "media.channel.cli"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.cli",
+          "consumerSurfaceId": "media.surface.cli",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml",
+            ".product-experience/pdp-3-product-experience/cli/command-registry.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-21",
+      "journeyId": "J-21",
+      "title": "Review/comment/approve exact version and re-review changed material",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web",
+        "media.channel.product-integration"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.product-integration",
+          "consumerSurfaceId": "media.surface.integrations",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/services/service-registry.yaml",
+            ".product-experience/pdp-0-product-truth/dependency-contracts.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-22",
+      "journeyId": "J-22",
+      "title": "Export/download/publish with destination acknowledgement",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web",
+        "media.channel.http-api",
+        "media.channel.cli",
+        "media.channel.product-integration"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.http-api",
+          "consumerSurfaceId": "media.surface.public-http",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/api/api-registry.yaml",
+            "contracts/openapi/media.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.cli",
+          "consumerSurfaceId": "media.surface.cli",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml",
+            ".product-experience/pdp-3-product-experience/cli/command-registry.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.product-integration",
+          "consumerSurfaceId": "media.surface.integrations",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/services/service-registry.yaml",
+            ".product-experience/pdp-0-product-truth/dependency-contracts.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-23",
+      "journeyId": "J-23",
+      "title": "Private/local workflow while disconnected and reconnect",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web",
+        "media.channel.cli"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.cli",
+          "consumerSurfaceId": "media.surface.cli",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml",
+            ".product-experience/pdp-3-product-experience/cli/command-registry.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-24",
+      "journeyId": "J-24",
+      "title": "CLI batch/JSON plan through verified outputs",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.cli",
+        "media.channel.http-api"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.cli",
+          "consumerSurfaceId": "media.surface.cli",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml",
+            ".product-experience/pdp-3-product-experience/cli/command-registry.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.http-api",
+          "consumerSurfaceId": "media.surface.public-http",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/api/api-registry.yaml",
+            "contracts/openapi/media.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-25",
+      "journeyId": "J-25",
+      "title": "Agent or product integration with bounded delegated Media action",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.product-integration",
+        "media.channel.http-api"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.product-integration",
+          "consumerSurfaceId": "media.surface.integrations",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/services/service-registry.yaml",
+            ".product-experience/pdp-0-product-truth/dependency-contracts.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.http-api",
+          "consumerSurfaceId": "media.surface.public-http",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/api/api-registry.yaml",
+            "contracts/openapi/media.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-26",
+      "journeyId": "J-26",
+      "title": "Delete/revoke/retention/hold and visible lifecycle",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web",
+        "media.channel.http-api",
+        "media.channel.product-integration"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.http-api",
+          "consumerSurfaceId": "media.surface.public-http",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/api/api-registry.yaml",
+            "contracts/openapi/media.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.product-integration",
+          "consumerSurfaceId": "media.surface.integrations",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/services/service-registry.yaml",
+            ".product-experience/pdp-0-product-truth/dependency-contracts.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-27",
+      "journeyId": "J-27",
+      "title": "Continue safely when processing is unavailable",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web",
+        "media.channel.http-api",
+        "media.channel.cli"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.http-api",
+          "consumerSurfaceId": "media.surface.public-http",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/api/api-registry.yaml",
+            "contracts/openapi/media.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.cli",
+          "consumerSurfaceId": "media.surface.cli",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml",
+            ".product-experience/pdp-3-product-experience/cli/command-registry.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-28",
+      "journeyId": "J-28",
+      "title": "Spatial/360/interactive/synthetic-data export to declared consumer",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml",
+      "observedChannelDeclaration": "channels (proposal-only)",
+      "approvedIntendedChannels": [
+        "media.channel.web",
+        "media.channel.product-integration"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.product-integration",
+          "consumerSurfaceId": "media.surface.integrations",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/services/service-registry.yaml",
+            ".product-experience/pdp-0-product-truth/dependency-contracts.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-29",
+      "journeyId": "J-29",
+      "title": "Live session loss, consent change, and bounded recovery",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml",
+      "observedChannelDeclaration": "channelRefs",
+      "approvedIntendedChannels": [
+        "media.channel.web",
+        "media.channel.grpc-api"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.grpc-api",
+          "consumerSurfaceId": "media.surface.service-grpc",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/grpc/service-registry.yaml",
+            ".product-experience/pdp-3-product-experience/grpc/operations/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    },
+    {
+      "taskId": "MDC30-C-30",
+      "journeyId": "J-30",
+      "title": "Check which processing options are eligible",
+      "contractSource": ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml",
+      "observedChannelDeclaration": "channelRefs",
+      "approvedIntendedChannels": [
+        "media.channel.web",
+        "media.channel.http-api",
+        "media.channel.cli"
+      ],
+      "channelBindingsToAuthor": [
+        {
+          "channelRef": "media.channel.web",
+          "consumerSurfaceId": "media.surface.web",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.http-api",
+          "consumerSurfaceId": "media.surface.public-http",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/api/api-registry.yaml",
+            "contracts/openapi/media.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        },
+        {
+          "channelRef": "media.channel.cli",
+          "consumerSurfaceId": "media.surface.cli",
+          "sourceAuthorities": [
+            ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml",
+            ".product-experience/pdp-3-product-experience/cli/command-registry.yaml"
+          ],
+          "transportStatus": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED",
+          "logicalOperationAndStateBinding": "TO_BE_VALIDATED_FROM_CANONICAL_PDP1_AND_JOURNEY_STEPS",
+          "typedErrorUnknownFinalityAndRecovery": "MANDATORY"
+        }
+      ],
+      "ownerDecision": "APPROVED_INTENDED_CHANNEL_SCOPE",
+      "how": "Author PDP3 canonical journey×channel binding edges with exact P1 operation/state/owner observation and P2 interface grammar; preserve asserted negative/finality/version/accessibility or headless error/recovery; explicit non-admission is allowed only with defined logical semantics; never invent endpoints or copy normative meaning.",
+      "accept": "Exact source-linked edge per intended channel or source-backed no-equivalence; no fictitious wire/host, no missing logical semantics, negative fixtures pass."
+    }
+  ],
+  "consequentialStepTasks": [
+    {
+      "taskId": "MDC30-S-01",
+      "stepRef": "J-09:09",
+      "journeyId": "J-09",
+      "ordinal": 9,
+      "sourceStepRef": ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/8",
+      "actionRef": "media.action.deliver-exact-version",
+      "exactOrLogicalOperationRefs": [
+        "media.operation.action.deliver-exact-version"
+      ],
+      "p1TargetStateFamilyOrObject": "media-delivery",
+      "approvedEffectFinalityInterpretation": "REQUEST_NOT_DESTINATION_ACK",
+      "decisionRationale": "Request/receipt is not destination success; require later exact acknowledged delivery/unknown.",
+      "exactPdp1TransitionId": "NOT_ESTABLISHED_REQUIRE_EXACT_SOURCE_PROOF_OR_NO_MACHINE_TRANSITION",
+      "how": "Read P1 states/transitions/guards and P3 action/step/owner semantics. Use exact existing transition/state identities only when supported, otherwise source-backed NO_P1_MACHINE_TRANSITION or owner-observation-pending; guard denied, unknown, retry, finality and version.",
+      "accept": "One exact action/P1-operation join and owner-approved effect, P1 state/edge or defensible no-transition, tests, no fabricated runtime."
+    },
+    {
+      "taskId": "MDC30-S-02",
+      "stepRef": "J-22:02",
+      "journeyId": "J-22",
+      "ordinal": 2,
+      "sourceStepRef": ".product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/steps/1",
+      "actionRef": "media.action.deliver-exact-version",
+      "exactOrLogicalOperationRefs": [
+        "media.operation.action.deliver-exact-version"
+      ],
+      "p1TargetStateFamilyOrObject": "media-delivery",
+      "approvedEffectFinalityInterpretation": "REQUEST_NOT_DESTINATION_ACK",
+      "decisionRationale": "Reuses J09 delivery grammar; no effect finality until destination ACK.",
+      "exactPdp1TransitionId": "NOT_ESTABLISHED_REQUIRE_EXACT_SOURCE_PROOF_OR_NO_MACHINE_TRANSITION",
+      "how": "Read P1 states/transitions/guards and P3 action/step/owner semantics. Use exact existing transition/state identities only when supported, otherwise source-backed NO_P1_MACHINE_TRANSITION or owner-observation-pending; guard denied, unknown, retry, finality and version.",
+      "accept": "One exact action/P1-operation join and owner-approved effect, P1 state/edge or defensible no-transition, tests, no fabricated runtime."
+    },
+    {
+      "taskId": "MDC30-S-03",
+      "stepRef": "J-01:03",
+      "journeyId": "J-01",
+      "ordinal": 3,
+      "sourceStepRef": ".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/2",
+      "actionRef": "media.action.create-project",
+      "exactOrLogicalOperationRefs": [
+        "media.operation-slice.create-project"
+      ],
+      "p1TargetStateFamilyOrObject": "media-project",
+      "approvedEffectFinalityInterpretation": "INITIAL_STATE_CREATION_NOT_TRANSITION",
+      "decisionRationale": "Owner receipt may establish project ACTIVE and version COMMITTED; no fictitious prior state.",
+      "exactPdp1TransitionId": "NOT_ESTABLISHED_REQUIRE_EXACT_SOURCE_PROOF_OR_NO_MACHINE_TRANSITION",
+      "how": "Read P1 states/transitions/guards and P3 action/step/owner semantics. Use exact existing transition/state identities only when supported, otherwise source-backed NO_P1_MACHINE_TRANSITION or owner-observation-pending; guard denied, unknown, retry, finality and version.",
+      "accept": "One exact action/P1-operation join and owner-approved effect, P1 state/edge or defensible no-transition, tests, no fabricated runtime."
+    },
+    {
+      "taskId": "MDC30-S-04",
+      "stepRef": "J-20:05",
+      "journeyId": "J-20",
+      "ordinal": 5,
+      "sourceStepRef": ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/4",
+      "actionRef": "media.action.request-cancellation",
+      "exactOrLogicalOperationRefs": [
+        "media.operation-slice.cancel-job"
+      ],
+      "p1TargetStateFamilyOrObject": "media-job,media-attempt",
+      "approvedEffectFinalityInterpretation": "REQUEST_NOT_CANCELLED_FINALITY",
+      "decisionRationale": "Cancelled only after owner evidence; cancellation request/attempt distinct from job finality.",
+      "exactPdp1TransitionId": "NOT_ESTABLISHED_REQUIRE_EXACT_SOURCE_PROOF_OR_NO_MACHINE_TRANSITION",
+      "how": "Read P1 states/transitions/guards and P3 action/step/owner semantics. Use exact existing transition/state identities only when supported, otherwise source-backed NO_P1_MACHINE_TRANSITION or owner-observation-pending; guard denied, unknown, retry, finality and version.",
+      "accept": "One exact action/P1-operation join and owner-approved effect, P1 state/edge or defensible no-transition, tests, no fabricated runtime."
+    },
+    {
+      "taskId": "MDC30-S-05",
+      "stepRef": "J-20:06",
+      "journeyId": "J-20",
+      "ordinal": 6,
+      "sourceStepRef": ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/5",
+      "actionRef": "media.action.retry-job",
+      "exactOrLogicalOperationRefs": [
+        "media.operation-slice.retry-job"
+      ],
+      "p1TargetStateFamilyOrObject": "media-job,media-attempt",
+      "approvedEffectFinalityInterpretation": "GUARDED_RETRY_NOT_BLIND_REPLAY",
+      "decisionRationale": "Check prior classified retryable outcome, budget, authority, exact job/attempt, policy; unknown forbids resubmit.",
+      "exactPdp1TransitionId": "NOT_ESTABLISHED_REQUIRE_EXACT_SOURCE_PROOF_OR_NO_MACHINE_TRANSITION",
+      "how": "Read P1 states/transitions/guards and P3 action/step/owner semantics. Use exact existing transition/state identities only when supported, otherwise source-backed NO_P1_MACHINE_TRANSITION or owner-observation-pending; guard denied, unknown, retry, finality and version.",
+      "accept": "One exact action/P1-operation join and owner-approved effect, P1 state/edge or defensible no-transition, tests, no fabricated runtime."
+    },
+    {
+      "taskId": "MDC30-S-06",
+      "stepRef": "J-06:01",
+      "journeyId": "J-06",
+      "ordinal": 1,
+      "sourceStepRef": ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0",
+      "actionRef": "media.action.submit-validated-request",
+      "exactOrLogicalOperationRefs": [
+        "media.operation.capability.media-multimodal-observe-source-grounded"
+      ],
+      "p1TargetStateFamilyOrObject": "media-job",
+      "approvedEffectFinalityInterpretation": "SUBMIT_INTENT_NOT_RESULT",
+      "decisionRationale": "Only owner-issued receipt can establish job identity; do not infer successful grounded result.",
+      "exactPdp1TransitionId": "NOT_ESTABLISHED_REQUIRE_EXACT_SOURCE_PROOF_OR_NO_MACHINE_TRANSITION",
+      "how": "Read P1 states/transitions/guards and P3 action/step/owner semantics. Use exact existing transition/state identities only when supported, otherwise source-backed NO_P1_MACHINE_TRANSITION or owner-observation-pending; guard denied, unknown, retry, finality and version.",
+      "accept": "One exact action/P1-operation join and owner-approved effect, P1 state/edge or defensible no-transition, tests, no fabricated runtime."
+    },
+    {
+      "taskId": "MDC30-S-07",
+      "stepRef": "J-02:02",
+      "journeyId": "J-02",
+      "ordinal": 2,
+      "sourceStepRef": ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/1",
+      "actionRef": "media.action.begin-artifact-upload",
+      "exactOrLogicalOperationRefs": [
+        "media.operation-slice.begin-upload"
+      ],
+      "p1TargetStateFamilyOrObject": "media-upload-and-artifact",
+      "approvedEffectFinalityInterpretation": "INITIAL_SESSION_RECEIVING_AFTER_RECEIPT",
+      "decisionRationale": "Upload receipt/RECEIVING is not byte verification or available artifact.",
+      "exactPdp1TransitionId": "NOT_ESTABLISHED_REQUIRE_EXACT_SOURCE_PROOF_OR_NO_MACHINE_TRANSITION",
+      "how": "Read P1 states/transitions/guards and P3 action/step/owner semantics. Use exact existing transition/state identities only when supported, otherwise source-backed NO_P1_MACHINE_TRANSITION or owner-observation-pending; guard denied, unknown, retry, finality and version.",
+      "accept": "One exact action/P1-operation join and owner-approved effect, P1 state/edge or defensible no-transition, tests, no fabricated runtime."
+    },
+    {
+      "taskId": "MDC30-S-08",
+      "stepRef": "J-03:02",
+      "journeyId": "J-03",
+      "ordinal": 2,
+      "sourceStepRef": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/1",
+      "actionRef": "media.action.request-transcription",
+      "exactOrLogicalOperationRefs": [
+        "media.operation.transcription-submission"
+      ],
+      "p1TargetStateFamilyOrObject": "media-job",
+      "approvedEffectFinalityInterpretation": "TRANSCRIPTION_SUBMISSION_NOT_SUCCESS",
+      "decisionRationale": "Queued/accepted distinct from attempt/running and caption version effect.",
+      "exactPdp1TransitionId": "NOT_ESTABLISHED_REQUIRE_EXACT_SOURCE_PROOF_OR_NO_MACHINE_TRANSITION",
+      "how": "Read P1 states/transitions/guards and P3 action/step/owner semantics. Use exact existing transition/state identities only when supported, otherwise source-backed NO_P1_MACHINE_TRANSITION or owner-observation-pending; guard denied, unknown, retry, finality and version.",
+      "accept": "One exact action/P1-operation join and owner-approved effect, P1 state/edge or defensible no-transition, tests, no fabricated runtime."
+    },
+    {
+      "taskId": "MDC30-S-09",
+      "stepRef": "J-03:05",
+      "journeyId": "J-03",
+      "ordinal": 5,
+      "sourceStepRef": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/4",
+      "actionRef": "media.action.correct-caption",
+      "exactOrLogicalOperationRefs": [
+        "media.operation.caption-draft-write"
+      ],
+      "p1TargetStateFamilyOrObject": "session-caption-draft",
+      "approvedEffectFinalityInterpretation": "SESSION_LOCAL_EDIT_IF_SOURCE_CONFIRMS",
+      "decisionRationale": "No canonical lifecycle transition for local revision; preserve parent/source, session revision and no immutable registration.",
+      "exactPdp1TransitionId": "NOT_ESTABLISHED_REQUIRE_EXACT_SOURCE_PROOF_OR_NO_MACHINE_TRANSITION",
+      "how": "Read P1 states/transitions/guards and P3 action/step/owner semantics. Use exact existing transition/state identities only when supported, otherwise source-backed NO_P1_MACHINE_TRANSITION or owner-observation-pending; guard denied, unknown, retry, finality and version.",
+      "accept": "One exact action/P1-operation join and owner-approved effect, P1 state/edge or defensible no-transition, tests, no fabricated runtime."
+    },
+    {
+      "taskId": "MDC30-S-10",
+      "stepRef": "J-03:06",
+      "journeyId": "J-03",
+      "ordinal": 6,
+      "sourceStepRef": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/5",
+      "actionRef": "media.action.align-caption-timing",
+      "exactOrLogicalOperationRefs": [
+        "media.operation.caption-draft-write"
+      ],
+      "p1TargetStateFamilyOrObject": "session-caption-draft",
+      "approvedEffectFinalityInterpretation": "SESSION_LOCAL_EDIT_IF_SOURCE_CONFIRMS",
+      "decisionRationale": "Bound explicit timing to exact source clock and draft revision; not immutable version.",
+      "exactPdp1TransitionId": "NOT_ESTABLISHED_REQUIRE_EXACT_SOURCE_PROOF_OR_NO_MACHINE_TRANSITION",
+      "how": "Read P1 states/transitions/guards and P3 action/step/owner semantics. Use exact existing transition/state identities only when supported, otherwise source-backed NO_P1_MACHINE_TRANSITION or owner-observation-pending; guard denied, unknown, retry, finality and version.",
+      "accept": "One exact action/P1-operation join and owner-approved effect, P1 state/edge or defensible no-transition, tests, no fabricated runtime."
+    },
+    {
+      "taskId": "MDC30-S-11",
+      "stepRef": "J-03:07",
+      "journeyId": "J-03",
+      "ordinal": 7,
+      "sourceStepRef": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/6",
+      "actionRef": "media.action.save-caption-version",
+      "exactOrLogicalOperationRefs": [
+        "media.operation.caption-version-write"
+      ],
+      "p1TargetStateFamilyOrObject": "caption-version identity",
+      "approvedEffectFinalityInterpretation": "IMMUTABLE_VERSION_REGISTRATION_NOT_APPROVAL",
+      "decisionRationale": "New exact source-bound version is not rights, formal review approval or delivery.",
+      "exactPdp1TransitionId": "NOT_ESTABLISHED_REQUIRE_EXACT_SOURCE_PROOF_OR_NO_MACHINE_TRANSITION",
+      "how": "Read P1 states/transitions/guards and P3 action/step/owner semantics. Use exact existing transition/state identities only when supported, otherwise source-backed NO_P1_MACHINE_TRANSITION or owner-observation-pending; guard denied, unknown, retry, finality and version.",
+      "accept": "One exact action/P1-operation join and owner-approved effect, P1 state/edge or defensible no-transition, tests, no fabricated runtime."
+    },
+    {
+      "taskId": "MDC30-S-12",
+      "stepRef": "J-16:03",
+      "journeyId": "J-16",
+      "ordinal": 3,
+      "sourceStepRef": ".product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/steps/2",
+      "actionRef": "media.action.correct-caption",
+      "exactOrLogicalOperationRefs": [
+        "media.operation.caption-draft-write"
+      ],
+      "p1TargetStateFamilyOrObject": "session-caption-draft",
+      "approvedEffectFinalityInterpretation": "SESSION_LOCAL_EDIT_IF_SOURCE_CONFIRMS",
+      "decisionRationale": "Language/timing edit is draft-only until authoritatively saved.",
+      "exactPdp1TransitionId": "NOT_ESTABLISHED_REQUIRE_EXACT_SOURCE_PROOF_OR_NO_MACHINE_TRANSITION",
+      "how": "Read P1 states/transitions/guards and P3 action/step/owner semantics. Use exact existing transition/state identities only when supported, otherwise source-backed NO_P1_MACHINE_TRANSITION or owner-observation-pending; guard denied, unknown, retry, finality and version.",
+      "accept": "One exact action/P1-operation join and owner-approved effect, P1 state/edge or defensible no-transition, tests, no fabricated runtime."
+    },
+    {
+      "taskId": "MDC30-S-13",
+      "stepRef": "J-18:04",
+      "journeyId": "J-18",
+      "ordinal": 4,
+      "sourceStepRef": ".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/3",
+      "actionRef": "media.action.correct-caption",
+      "exactOrLogicalOperationRefs": [
+        "media.operation.caption-draft-write"
+      ],
+      "p1TargetStateFamilyOrObject": "session-caption-draft",
+      "approvedEffectFinalityInterpretation": "SESSION_LOCAL_EDIT_IF_SOURCE_CONFIRMS",
+      "decisionRationale": "Composition caption draft cannot imply rendered or delivered output.",
+      "exactPdp1TransitionId": "NOT_ESTABLISHED_REQUIRE_EXACT_SOURCE_PROOF_OR_NO_MACHINE_TRANSITION",
+      "how": "Read P1 states/transitions/guards and P3 action/step/owner semantics. Use exact existing transition/state identities only when supported, otherwise source-backed NO_P1_MACHINE_TRANSITION or owner-observation-pending; guard denied, unknown, retry, finality and version.",
+      "accept": "One exact action/P1-operation join and owner-approved effect, P1 state/edge or defensible no-transition, tests, no fabricated runtime."
+    },
+    {
+      "taskId": "MDC30-S-14",
+      "stepRef": "J-02:03",
+      "journeyId": "J-02",
+      "ordinal": 3,
+      "sourceStepRef": ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/2",
+      "actionRef": "media.action.resume-artifact-upload",
+      "exactOrLogicalOperationRefs": [
+        "media.operation-slice.append-upload-chunk",
+        "media.operation-slice.complete-upload"
+      ],
+      "p1TargetStateFamilyOrObject": "media-upload-and-artifact",
+      "approvedEffectFinalityInterpretation": "ORDERED_APPEND_COMPLETE_THEN_VERIFICATION",
+      "decisionRationale": "Inspect existing upload, append idempotent exact chunks, complete -> VERIFYING only; AVAILABLE needs verification evidence.",
+      "exactPdp1TransitionId": "NOT_ESTABLISHED_REQUIRE_EXACT_SOURCE_PROOF_OR_NO_MACHINE_TRANSITION",
+      "how": "Read P1 states/transitions/guards and P3 action/step/owner semantics. Use exact existing transition/state identities only when supported, otherwise source-backed NO_P1_MACHINE_TRANSITION or owner-observation-pending; guard denied, unknown, retry, finality and version.",
+      "accept": "One exact action/P1-operation join and owner-approved effect, P1 state/edge or defensible no-transition, tests, no fabricated runtime."
+    }
+  ],
+  "unboundTransitionRecords": {
+    "count": 54,
+    "dispositions": {
+      "P1_OPERATION_FAMILY_PROPOSAL_ONLY; NO_EXACT_ACTION_INVOCATION": 3,
+      "P1_EVENT_TRIGGER_PENDING; NO_EXACT_PUBLIC_OPERATION_OR_JOURNEY_ACTION": 44,
+      "P1_EXPLICITLY_NO_VERIFICATION_OPERATION_IDENTITY; NO_ROUTE_OR_RUNTIME_ADMISSION": 1,
+      "AUTHORITY_SOURCE_EVENT_REQUIRED; PUBLIC_OPERATION_AND_TRANSPORT_EXPLICITLY_UNBOUND": 6
+    },
+    "action": "Preserve precise source-only dispositions; never invent 54 action-to-transition mappings; only 14 consequential steps require adjudication with exact proof or explicit no-domain-state.",
+    "sourceRef": ".product-experience/pdp-3-product-experience/journey-transition-edge-bindings.yaml"
+  },
+  "stepDispositionClassification": {
+    "localOrPassive": 33,
+    "readOnly": 70,
+    "consequential": 14,
+    "externalNoMediaMutation": 1
+  },
+  "externalSource": {
+    "status": "STALE_REVISION_OR_WORKTREE_OBSERVATIONS_NOT_PROOF_OF_CHANGED_MATERIAL_CONTRACT",
+    "rule": "Reobserve exact declared Media-facing external file content digests. Git SHA/dirty/untracked state diagnostic; contract path content mismatch material. No external repo mutations/owner signatures authorized.",
+    "observationRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-currentness-2026-10-13-r1.json"
+  },
+  "approvalRules": {
+    "humanIndependentApproval": false,
+    "qualifiedSpecialistSignoff": false,
+    "externalOwnerAcceptance": false,
+    "meaningChoiceMade": true,
+    "technicalMappingsCompleted": false,
+    "newMdc30ExitPublished": false,
+    "pdp3DevCompleteAtCurrentCut": false,
+    "discoveryExit": false,
+    "build": "NOT_ENTERED",
+    "nativeClosure": "NOT_ENTERED",
+    "delivery": "BLOCKED"
+  },
+  "remainingTasks": [
+    "MDC-30",
+    "MDC-31",
+    "MDC-32",
+    "MDC-40",
+    "MDC-41"
+  ],
+  "selectiveInvalidation": "Canonically amending integration applicability or channel definitions requires exact downstream and any affected PDP0/1/2 currentness recheck before P3 exit; no blanket reopen absent material impact."
+}
