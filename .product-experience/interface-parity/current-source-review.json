@@ -9,7 +9,7 @@
     },
     {
       "path": ".product-experience/pdp-1-domain-data/operations.yaml",
-      "sha256": "11d51ef9cdc69e2dde09b3a72241a19a321be40372b19850e4d29c3ec2fb3e04"
+      "sha256": "317878be9ebe9c978f356a4e81060620fcb69af02ea25c2ff1d47bd20180c069"
     },
     {
       "path": ".product-experience/pdp-3-product-experience/action-registry.yaml",
@@ -355,11 +355,11 @@
   },
   "currentSourceCutDeltaReview": {
     "status": "RECONCILED_CURRENT_SOURCE_CUT",
-    "reviewedOn": "2026-10-11",
-    "operationsSha256": "11d51ef9cdc69e2dde09b3a72241a19a321be40372b19850e4d29c3ec2fb3e04",
+    "reviewedOn": "2026-10-13",
+    "operationsSha256": "317878be9ebe9c978f356a4e81060620fcb69af02ea25c2ff1d47bd20180c069",
     "actionRegistrySha256": "da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2",
     "operationParitySha256": "8b95782fe47cb7e44ec159c168399f78a674dbc1c6f72065881c278f7e3c13d6",
-    "meaning": "Re-reviewed the current operations source against exact interface identities and action crosswalks. The preceding reviewed operations bytes are not available in the checked-out Git history, so this is a full current-cut parity review, not a reconstructed byte-exact delta. The inspect-source action retains its exact current PDP-3 preconditions and one matching PDP-1 QUERY inventory identity. Logical operation identity remains separate from route/transport identity; runtime and transport admission remain NOT_ADMITTED.",
+    "meaning": "Re-reviewed the current operations source against exact interface identities and action crosswalks. The preceding reviewed operations bytes are not available in the checked-out Git history, so this is a full current-cut parity review, not a reconstructed byte-exact delta. The inspect-source action retains its exact current PDP-3 preconditions and one matching PDP-1 QUERY inventory identity. Four additional owner-defined typed QUERY observations cover destination delivery acknowledgement, delegated integration result context, processing parameter reads, and effective processing constraints; they remain proposal-only definitions with no accepted public-interface identity or transport/runtime admission. Logical operation identity remains separate from route/transport identity.",
     "outstandingMeaningIds": [],
     "runtimeAdmission": "NOT_ADMITTED",
     "typedUiActionSemanticRecordCount": 146,
@@ -368,7 +368,7 @@
     "previousReviewedOperationsBytesAvailableInGit": false,
     "operationsSourceReinspection": {
       "status": "REINSPECTED_CURRENT_SOURCE_CUT",
-      "sourceSha256": "11d51ef9cdc69e2dde09b3a72241a19a321be40372b19850e4d29c3ec2fb3e04",
+      "sourceSha256": "317878be9ebe9c978f356a4e81060620fcb69af02ea25c2ff1d47bd20180c069",
       "previousReviewedSourceSha256": "2ea3da8af4d332be51c7322060641de5f59a13e3b00833e03105f5d13049d55c",
       "previousSourceBytesAvailableInGit": false,
       "populations": {
@@ -384,7 +384,14 @@
         "tests/media-sdk-legacy-interface-dispositions.test.mjs"
       ],
       "runtimeAdmission": "NOT_ADMITTED",
-      "transportAdmission": "NOT_ADMITTED"
+      "transportAdmission": "NOT_ADMITTED",
+      "additionalOwnerTypedObservationContractIds": [
+        "media.observation-contract.destination-delivery-acknowledgment.v1",
+        "media.observation-contract.delegated-integration-result-context.v1",
+        "media.observation-contract.processing-parameter-read.v1",
+        "media.observation-contract.effective-processing-constraints.v1"
+      ],
+      "additionalObservationDisposition": "DEFINITION_ONLY_NO_INTERFACE_MAPPING_ACCEPTED_NO_TRANSPORT_OR_RUNTIME_ADMISSION"
     }
   }
 }

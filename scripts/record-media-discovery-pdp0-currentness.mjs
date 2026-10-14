@@ -14,6 +14,8 @@ import { observeMediaDiscoveryCurrentness, resolveMediaPdp0Cells } from './media
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outputPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json';
 const supplementalImpactPath = 'docs/implementation/observations/media-discovery-predecessor-impact-pdp3-status-guard-2026-10-14-r1.json';
+const currentCutImpactPath = 'docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r1.json';
+const currentCutPdp0PredecessorPath = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r2.json';
 const externalRoots = {
   ghatana: '../ghatana',
   'ghatana-products': '../ghatana-products',
@@ -198,6 +200,92 @@ export function classifySupplementalPdp0PinChange(pinComparisons, decision) {
   };
 }
 
+export function classifyCurrentCutPdp0PinChange(pinComparisons, decision) {
+  const reporter = decision?.sourceDeltas?.find((entry) => entry.path === 'scripts/report-media-pdp-readiness.mjs');
+  const interfaceReview = decision?.sourceDeltas?.find((entry) => entry.path === '.product-experience/interface-parity/current-source-review.json');
+  const regressionTest = decision?.sourceDeltas?.find((entry) => entry.path === 'tests/media-pdp-p1-dev-status.test.mjs');
+  const exact = decision?.schemaVersion === 'media.discovery-current-cut-source-impact.v1'
+    && decision?.recordId === 'MEDIA-DISCOVERY-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R1'
+    && decision?.campaign?.repository === 'samujjwal/ghatana-media'
+    && decision?.campaign?.stage === 'DISCOVERY'
+    && decision?.campaign?.activePhase === 'PDP-0'
+    && decision?.authority?.delegate === 'AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION'
+    && decision?.authority?.userAuthorization === 'Authorize scoped impact disposition (Recommended)'
+    && decision?.authority?.decisionRole === 'SCOPED_INTERNAL_MEDIA_SOURCE_IMPACT_REVIEW'
+    && decision?.authority?.humanIndependentSignatureProvided === false
+    && decision?.authority?.qualifiedExternalSpecialistSignoffProvided === false
+    && decision?.authority?.externalContractOwnerAcceptanceProvided === false
+    && decision?.authority?.nativeLifecycleReceiptProvided === false
+    && decision?.decision?.status === 'APPROVED_INTERNAL_IMPACT_DISPOSITION_FOR_EXACT_SOURCE_DELTAS'
+    && decision?.decision?.pdp0MeaningDisposition === 'NO_MEANING_CHANGE_FOR_EXACT_REVIEWED_SOURCE_DELTAS'
+    && decision?.decision?.independentApproval === 'NOT_CLAIMED_AND_NOT_WAIVED'
+    && decision?.decision?.externalContractOwnerAcceptance === 'NOT_CLAIMED'
+    && decision?.decision?.nativeLifecycleClosure === 'NOT_ENTERED'
+    && decision?.decision?.runtimeAdmission === 'NOT_ADMITTED'
+    && decision?.decision?.delivery === 'BLOCKED'
+    && JSON.stringify(decision?.decision?.requiresOrderedTechnicalCurrentnessRecapture) === JSON.stringify(['PDP-0', 'PDP-1'])
+    && decision?.sourceDeltas?.length === 3
+    && interfaceReview?.predecessorSha256 === 'sha256:14cf6c3d9ea948e39e41ffa2de3453c08b7b6a23267f407f3504c5462b7428fc'
+    && interfaceReview?.observedSha256 === 'sha256:62765cbb335572f28570fe650b3955aaa028f314322490e17e466d3ca9234abf'
+    && interfaceReview?.classification === 'PDP1_REVIEW_ARTIFACT_REFRESH_FOR_SEPARATELY_REVIEWED_OPERATION_DELTA'
+    && interfaceReview?.additionalMeaningIds?.length === 0
+    && regressionTest?.predecessorSha256 === 'sha256:5a007a561cc96659d7da63d2470727237d1496c3a50c80682253a9d542846599'
+    && regressionTest?.observedSha256 === 'sha256:3ff1576a4a3987f5b1e05d15ae77e35a62745260e127ebcb28c1bb49ef7ef82e'
+    && regressionTest?.classification === 'REGRESSION_COVERAGE'
+    && regressionTest?.meaningIdsChanged?.length === 0
+    && reporter?.phases?.includes('PDP-0')
+    && reporter?.classification === 'PDP_STATUS_TEST_REPORTER_SELECTION_ONLY'
+    && reporter?.historicalPdp0MaterialSha256 === 'sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c'
+    && reporter?.predecessorSha256 === 'sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1'
+    && reporter?.observedSha256 === 'sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573'
+    && reporter?.meaningIdsChanged?.length === 0
+    && reporter?.requiresFreshCurrentness === true
+    && reporter?.predecessorChain?.length === 1
+    && reporter.predecessorChain[0].receiptRef === supplementalImpactPath
+    && reporter.predecessorChain[0].receiptSha256 === hashBytes(fs.readFileSync(path.join(root, supplementalImpactPath)))
+    && reporter.predecessorChain[0].fromSha256 === 'sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c'
+    && reporter.predecessorChain[0].toSha256 === reporter.predecessorSha256
+    && decision?.predecessorCuts?.some((cut) => cut.phase === 'PDP-0'
+      && cut.receiptRef === currentCutPdp0PredecessorPath
+      && cut.receiptSha256 === 'sha256:3f9b401f36ed23a50cf40a70670414e92327a71cffe80274d96d4006b55a39a3'
+      && cut.receiptSha256 === hashBytes(fs.readFileSync(path.join(root, currentCutPdp0PredecessorPath)))
+      && cut.materialSourceSetFingerprint === 'sha256:20e8a999b36e7fb61662183200f1e8c83eebb39523c5ab8835bea311af1f31e8'
+      && cut.materialPathCount === 146 && cut.reporterSha256 === reporter.predecessorSha256);
+  if (!exact) return null;
+  const pin = pinComparisons?.find((entry) => entry.path === reporter.path);
+  if (pin?.recordedDigest !== reporter.historicalPdp0MaterialSha256
+      || pin?.currentDigest !== reporter.observedSha256 || pin?.disposition !== 'CHANGED') return null;
+  return {
+    path: reporter.path,
+    classification: 'PDP STATUS REPORTER SELECTION CHANGE; EXACT PDP-0 SEMANTIC NON-IMPACT; FRESH CURRENTNESS REQUIRED',
+    authorityRef: currentCutImpactPath,
+  };
+}
+
+export function buildMediaPdp0CurrentnessPhaseDisposition(sourceCurrent, exactImpactDispositionCurrent) {
+  const pdp0Exit = sourceCurrent
+    ? exactImpactDispositionCurrent ? 'PASS_INTERNAL_IMPACT_DISPOSITION_ONLY' : 'BLOCKED_PENDING_OWNER_ACCEPTANCE'
+    : 'FAIL_SOURCE_CURRENTNESS';
+  const discoveryBarrier = !sourceCurrent
+    ? 'FAIL_PDP0_SOURCE_CURRENTNESS_AND_PDP1_PDP3_NOT_VALIDATED'
+    : exactImpactDispositionCurrent
+      ? 'FAIL_PDP1_PDP3_NOT_VALIDATED'
+      : 'FAIL_PDP0_OWNER_ACCEPTANCE_PENDING_AND_PDP1_PDP3_NOT_VALIDATED';
+  return {
+    historicalDefinitionStatus: 'DEV_COMPLETE',
+    historicalOutstandingMeaningIds: [],
+    currentSourceCurrentness: sourceCurrent ? 'PASS' : 'FAIL',
+    sourceCurrent,
+    ownerAcceptance: 'NOT_OBTAINED',
+    ownerAcceptanceClaim: 'NOT_CLAIMED',
+    pdp0Exit,
+    discoveryBarrier,
+    build: 'NOT_ENTERED',
+    pdpClosure: 'NOT_ENTERED',
+    delivery: 'BLOCKED',
+  };
+}
+
 function buildFingerprints(topology, registryBytes, external) {
   const registryDigest = hashBytes(registryBytes);
   const ownerGraph = {
@@ -339,6 +427,9 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
   ];
   const supplementalClassification = classifySupplementalPdp0PinChange(p0Comparison.pinComparisons, supplementalDecision);
   if (supplementalClassification) historicalDriftClassifications.push(supplementalClassification);
+  const currentCutImpact = JSON.parse(fs.readFileSync(path.join(root, currentCutImpactPath), 'utf8'));
+  const currentCutClassification = classifyCurrentCutPdp0PinChange(p0Comparison.pinComparisons, currentCutImpact);
+  if (currentCutClassification) historicalDriftClassifications.push(currentCutClassification);
   const classifiedPdp0Paths = new Set(historicalDriftClassifications.map((entry) => entry.path));
   const unclassifiedHistoricalPdp0PinChanges = p0Comparison.pinComparisons
     .filter((entry) => entry.disposition !== 'MATCH' && !classifiedPdp0Paths.has(entry.path));
@@ -402,18 +493,7 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
     sourceContentDigests,
     physicalCompositeConsumerCells: currentCellRecords.map((cell) => compactCellEvidence(cell, sharedPathSet)),
     materialSourceSetFingerprint,
-    phaseDisposition: {
-      historicalDefinitionStatus: 'DEV_COMPLETE',
-      historicalOutstandingMeaningIds: [],
-      currentSourceCurrentness: sourceCurrent ? 'PASS' : 'FAIL',
-      sourceCurrent,
-      ownerAcceptance: 'NOT_OBTAINED',
-      pdp0Exit: sourceCurrent ? 'BLOCKED_PENDING_OWNER_ACCEPTANCE' : 'FAIL_SOURCE_CURRENTNESS',
-      discoveryBarrier: 'FAIL_PDP0_OWNER_ACCEPTANCE_PENDING_AND_PDP1_PDP3_NOT_VALIDATED',
-      build: 'NOT_ENTERED',
-      pdpClosure: 'NOT_ENTERED',
-      delivery: 'BLOCKED',
-    },
+    phaseDisposition: buildMediaPdp0CurrentnessPhaseDisposition(sourceCurrent, currentCutClassification !== null),
     limitations: [
       'The historical PDP-0 DEV_COMPLETE record remains anchored at its recorded source cut and is not rewritten.',
       'This observation does not assert independent semantic acceptance, Lifecycle closure, Build entry, or Delivery readiness.',

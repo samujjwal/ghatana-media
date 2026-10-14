@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
@@ -7,10 +8,14 @@ import { typedObservationRequestFingerprint, validateRetryPolicyCurrentRead } fr
 
 const root=resolve(new URL("..",import.meta.url).pathname);
 const parse=createRequire(resolve(root,"../ghatana-tools/package.json"))("yaml").parse;
-const operations=parse(readFileSync(resolve(root,".product-experience/pdp-1-domain-data/operations.yaml"),"utf8"));
+const operationSourceBytes=readFileSync(resolve(root,".product-experience/pdp-1-domain-data/operations.yaml"));
+const operations=parse(operationSourceBytes.toString("utf8"));
+const operationSourceReview=JSON.parse(readFileSync(resolve(root,".product-experience/pdp-1-domain-data/operations-current-source-review.json"),"utf8"));
+const semanticReview=JSON.parse(readFileSync(resolve(root,"docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json"),"utf8"));
 const contracts=operations.ownerTypedObservationContracts;
 const rules=operations.ownerTypedObservationValidationRules;
 const byId=new Map(contracts.records.map(row=>[row.id,row]));
+const validationByContractId=new Map(rules.records.map(row=>[row.observationContractRef.split("@id=").at(-1),row]));
 const scalarTypes=new Set(Object.keys(operations.capabilityOperationContracts.scalarTypes));
 const operationIds=new Set([
   ...operations.operations.map(row=>row.id),
@@ -33,12 +38,82 @@ function schemaWalk(schema,path){
   // declared by sibling/base schemas.
 }
 
-test("eight observation schemas are stable typed query definitions and never imply runtime binding",()=>{
-  assert.equal(contracts.records.length,8);
+test("current PDP-1 semantic review binds the exact owner typed observation delta without claiming admission",()=>{
+  const sha256=createHash("sha256").update(operationSourceBytes).digest("hex");
+  const delta=operationSourceReview.currentSourceCutDeltaReview.supplementalPdp1DefinitionDelta;
+  const expectedIds=[
+    "media.observation-contract.rights-decision.v1",
+    "media.observation-contract.destination-delivery-acknowledgment.v1",
+    "media.observation-contract.delegated-integration-result-context.v1",
+    "media.observation-contract.processing-parameter-read.v1",
+    "media.observation-contract.effective-processing-constraints.v1",
+  ];
+  const expectedProposalOperationIds=[
+    "media.operation.artifact-ingest",
+    "media.operation.job-lifecycle",
+    "media.operation.transcription",
+    "media.operation.transcription-submission",
+    "media.operation.transcript-version-read",
+    "media.operation.caption-draft-write",
+    "media.operation.caption-version-write",
+    "media.operation.caption-version-read",
+    "media.operation.synthesis",
+    "media.operation.vision-analysis",
+    "media.operation.multimodal-analysis",
+    "media.operation.stream-session",
+    "media.operation.consent",
+    "media.operation.health-capability",
+  ];
+  assert.equal(operationSourceReview.currentSourceSha256,sha256);
+  assert.match(operations.scopeStatus,/^proposal-only;/u);
+  assert.equal(operations.operations.length,14);
+  assert.deepEqual(operations.operations.map(record=>record.id),expectedProposalOperationIds);
+  assert.equal(delta.status,"REVIEWED_CURRENT_SOURCE_SEMANTIC_DELTA");
+  assert.equal(delta.predecessorSourceSha256,"11d51ef9cdc69e2dde09b3a72241a19a321be40372b19850e4d29c3ec2fb3e04");
+  assert.equal(delta.currentSourceSha256,sha256);
+  assert.match(delta.reviewAuthority,/explicit user delegation/u);
+  assert.match(delta.reviewAuthority,/not a human owner signature/u);
+  assert.deepEqual(delta.reviewedRecords.map(record=>record.id),expectedIds);
+  for(const record of delta.reviewedRecords){
+    const contract=byId.get(record.id);
+    const validation=validationByContractId.get(record.id);
+    assert.ok(contract,`${record.id} resolves to the exact current owner typed query`);
+    assert.ok(validation,`${record.id} resolves to its exact validator`);
+    assert.equal(contract.operationKind,"QUERY");
+    assert.deepEqual(record.operationRefs,contract.operationRefs);
+    assert.equal(record.bindingStatus,contract.bindingStatus);
+    assert.equal(record.validationRuleId,validation.id);
+    assert.equal(record.selector,`.product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=${record.id}`);
+    assert.equal(record.validationSelector,`.product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationValidationRules/records/@id=${validation.id}`);
+    assert.ok(record.meaning.length>40);
+  }
+  assert.equal(delta.preservedBoundaries.runtimeAdmission,"NOT_ADMITTED");
+  assert.equal(delta.preservedBoundaries.transportAdmission,"NOT_ADMITTED");
+  assert.equal(delta.preservedBoundaries.externalContractOwnerAcceptance,"NOT_CLAIMED");
+  assert.equal(delta.preservedBoundaries.independentSpecialistAttestation,"NOT_CLAIMED");
+  assert.equal(delta.preservedBoundaries.proposalOperationRecordCount,14);
+  const reviewedIdentityIds=semanticReview.reviewedIdentityIds;
+  const reviewedIdentitySet=new Set(reviewedIdentityIds);
+  assert.equal(reviewedIdentityIds.length,2023);
+  assert.equal(reviewedIdentitySet.size,2023);
+  assert.deepEqual(createHash("sha256").update(JSON.stringify([...reviewedIdentitySet].sort())).digest("hex"),"842fc763764f09c291d4eb1ec5aba4ca30386e9f0b793ee19334bbd47b055b88");
+  assert.equal(semanticReview.outstandingMeaningIds.length,0);
+  assert.equal(semanticReview.sourceFingerprints[".product-experience/pdp-1-domain-data/operations.yaml"],sha256);
+  assert.equal(semanticReview.currentCutReview.supplementalDefinitionDeltaReview.sourceSha256,sha256);
+  assert.equal(semanticReview.currentCutReview.supplementalDefinitionDeltaReview.identitySetChanged,false);
+  assert.deepEqual(semanticReview.currentCutReview.supplementalDefinitionDeltaReview.reviewedRecordIds,expectedIds);
+});
+
+test("twelve observation schemas are stable typed query definitions and never imply runtime binding",()=>{
+  assert.equal(contracts.records.length,12);
   assert.match(contracts.status,/existing-runtime-binding-NOT_ESTABLISHED/);
   assert.deepEqual([...byId.keys()].sort(),[
     "media.observation-contract.declared-options.v1",
+    "media.observation-contract.delegated-integration-result-context.v1",
+    "media.observation-contract.destination-delivery-acknowledgment.v1",
+    "media.observation-contract.effective-processing-constraints.v1",
     "media.observation-contract.language-uncertainty.v1",
+    "media.observation-contract.processing-parameter-read.v1",
     "media.observation-contract.profile-qualification.v1",
     "media.observation-contract.provenance-completeness.v1",
     "media.observation-contract.quality-action-plan.v1",
@@ -84,10 +159,39 @@ test("eight observation schemas are stable typed query definitions and never imp
 
 test("raw rights, quality, profile and provenance observations retain their fail-closed material predicates",()=>{
   const validation=new Map(rules.records.map(row=>[row.observationContractRef,row]));
-  assert.equal(validation.size,8);
-  assert.equal(rules.records.length,8, "each observation contract has exactly one unique validator");
+  assert.equal(validation.size,12);
+  assert.equal(rules.records.length,12, "each observation contract has exactly one unique validator");
+  assert.deepEqual([...new Set(rules.records.map(row=>row.id))].sort(),[
+    "media.observation-validation.declared-options.v1",
+    "media.observation-validation.delegated-integration-result-context.v1",
+    "media.observation-validation.destination-delivery-acknowledgment.v1",
+    "media.observation-validation.effective-processing-constraints.v1",
+    "media.observation-validation.language-uncertainty.v1",
+    "media.observation-validation.processing-parameter-read.v1",
+    "media.observation-validation.profile-qualification.v1",
+    "media.observation-validation.provenance-completeness.v1",
+    "media.observation-validation.quality-action-plan.v1",
+    "media.observation-validation.quality-evidence.v1",
+    "media.observation-validation.retry-policy-current-read.v1",
+    "media.observation-validation.rights-decision.v1",
+  ]);
+  assert.deepEqual(rules.records.map(row=>row.observationContractRef).sort(),[...byId.keys()].sort(),"every observation contract has exactly one validator");
   const rights=byId.get("media.observation-contract.rights-decision.v1");
-  assert.deepEqual(rights.requestSchema.required,["queryId","subjectArtifactVersionRef","decisionKind","purposeRef","useRef","regionRef","retentionPolicyRef"]);
+  assert.ok(rights.operationRefs.includes("media.operation.action.inspect-voice-authorization"),"voice authorization query is explicitly allowlisted by the rights-decision observation");
+  const selectedVoiceProfileVersion=key=>/selected.*voice.*profile.*version|voice.*profile.*version/i.test(key);
+  const requestVoiceProfileVersion=Object.keys(rights.requestSchema.properties).find(selectedVoiceProfileVersion);
+  const resultVoiceProfileVersion=Object.keys(rights.resultSchema.properties.decision.properties).find(selectedVoiceProfileVersion);
+  assert.ok(requestVoiceProfileVersion,"rights request binds the exact selected voice-profile version");
+  assert.equal(rights.requestSchema.required.includes(requestVoiceProfileVersion),false,"voice-profile version is not required for general rights, consent, or approval queries");
+  const voiceRequestBranch=rights.requestSchema.allOf?.find(branch=>branch.if?.properties?.decisionKind?.const==="VOICE_AUTHORIZATION");
+  assert.ok(voiceRequestBranch,"voice-profile requirement is conditional on a VOICE_AUTHORIZATION request");
+  assert.ok(voiceRequestBranch.then?.required?.includes(requestVoiceProfileVersion),"VOICE_AUTHORIZATION requires the selected voice-profile version");
+  assert.ok(resultVoiceProfileVersion,"rights decision binds the exact selected voice-profile version");
+  assert.equal(rights.resultSchema.properties.decision.required.includes(resultVoiceProfileVersion),false,"voice-profile version is not unconditionally required on non-voice decisions");
+  const rightsPredicates=JSON.stringify(validation.get(rights.id).predicates);
+  assert.match(rightsPredicates,/VOICE_AUTHORIZATION[\s\S]*?voice.{0,30}profile.{0,30}version|VOICE_AUTHORIZATION[\s\S]*?profile.{0,30}version.{0,30}voice/iu,"rights validation conditionally requires the selected voice-profile version");
+  assert.match(rightsPredicates,/exact(ly)?[\s\S]*?voice.{0,30}profile.{0,30}version|voice.{0,30}profile.{0,30}version[\s\S]*?exact(ly)?/iu,"rights validation binds the exact selected voice-profile version in the decision");
+  assert.deepEqual([...rights.requestSchema.required].sort(),["queryId","subjectArtifactVersionRef","decisionKind","purposeRef","useRef","regionRef","retentionPolicyRef"].sort());
   assert.ok(rights.resultSchema.properties.observationStatus.enum.includes("UNKNOWN"));
   for(const state of ["REVIEW_REQUIRED","APPROVAL_REQUIRED","CONSENT_REQUIRED","VOICE_AUTHORIZATION_REQUIRED"])assert.ok(rights.resultSchema.properties.observationStatus.enum.includes(state));
   assert.ok(rights.resultSchema.properties.decision.properties.effectDisposition.enum.includes("PENDING_REVIEW"));
@@ -114,6 +218,113 @@ test("raw rights, quality, profile and provenance observations retain their fail
   const provenance=byId.get("media.observation-contract.provenance-completeness.v1");
   assert.deepEqual(provenance.resultSchema.properties.completeness.enum.includes("UNKNOWN"),true);
   assert.ok(validation.get(provenance.id).predicates.some(x=>JSON.stringify(x).includes("accessDisposition == FULL")));
+});
+
+test("delivery acknowledgment, delegated result, parameter and constraint reads stay exact and fail closed",()=>{
+  const validation=new Map(rules.records.map(row=>[row.observationContractRef,row]));
+  const delivery=byId.get("media.observation-contract.destination-delivery-acknowledgment.v1");
+  const deliveryObservation=delivery.resultSchema.properties.observation;
+  const deliveryFields=deliveryObservation.properties;
+  assert.ok(delivery.resultSchema.required.includes("observation"));
+  for(const field of ["originalRequestId","originalRequestFingerprint","artifactVersionRef","destinationRef","acknowledgmentStatus"]){
+    assert.ok(deliveryObservation.required.includes(field),`delivery observation binds ${field}`);
+    assert.ok(Object.hasOwn(deliveryFields,field),`delivery observation declares ${field}`);
+  }
+  assert.ok(deliveryObservation.required.includes("observedAt"));
+  assert.ok(deliveryFields.evidenceRefs,"delivery observation carries source evidence references");
+  assert.ok(deliveryFields.acknowledgmentStatus.enum.includes("UNKNOWN"));
+  assert.ok(deliveryFields.acknowledgmentStatus.enum.includes("ACKNOWLEDGED"));
+  assert.notEqual(deliveryFields.acknowledgmentStatus.enum.indexOf("UNKNOWN"),deliveryFields.acknowledgmentStatus.enum.indexOf("ACKNOWLEDGED"));
+  assert.match(JSON.stringify(validation.get(delivery.id).predicates),/UNKNOWN[\s\S]*?(cannot|never|no)[\s\S]*?(success|acknowledg)/iu);
+  assert.match(JSON.stringify(validation.get(delivery.id).predicates),/originalRequestFingerprint[\s\S]*?artifactVersionRef[\s\S]*?destinationRef/iu);
+
+  const integration=byId.get("media.observation-contract.delegated-integration-result-context.v1");
+  const integrationObservation=integration.resultSchema.properties.observation;
+  const integrationFields=integrationObservation.properties;
+  assert.ok(integration.resultSchema.required.includes("observation"));
+  const integrationRequired=integrationObservation.required.join(" ");
+  for(const semantic of [/original.*request/i,/fingerprint/i])assert.match(integrationRequired,semantic,"delegated context binds the original request identity");
+  for(const semantic of [/delegat/i,/purpose/i,/budget/i,/deadline/i])assert.ok(Object.keys(integrationFields).some(field=>semantic.test(field)),`delegated context declares ${semantic}`,"trusted delegated references are conditional on returned context");
+  assert.ok(Object.keys(integrationFields).some(field=>/budget/i.test(field)&&/ref/i.test(field)),"delegated context preserves an opaque budget reference");
+  assert.ok(Object.keys(integrationFields).some(field=>/deadline/i.test(field)&&/ref/i.test(field)),"delegated context preserves an opaque deadline reference");
+  assert.ok(Object.keys(integrationFields).every(field=>!/(numeric|threshold|recursionDepth)/i.test(field)),"delegated context adds no numeric policy or recursion depth");
+  assert.match(JSON.stringify(integrationObservation),/recursive[^"]*(false|disallowed|prohibited)|(?:false|disallowed|prohibited)[^"]*recursive/iu);
+  assert.match(JSON.stringify(validation.get(integration.id).predicates),/originalRequestFingerprint[\s\S]*?delegationRef[\s\S]*?purposeRef/iu);
+  assert.match(JSON.stringify(integration),/no recursive (tool )?invocation/iu);
+
+  const parameters=byId.get("media.observation-contract.processing-parameter-read.v1");
+  const parameterObservation=parameters.resultSchema.properties.observation;
+  const parameterItem=parameterObservation.properties.observations.items;
+  const parameterRequired=parameterItem.required.join(" ");
+  assert.match(parameterRequired,/parameter|measurement/i,"parameter observation identifies the exact parameter or measurement");
+  assert.ok(Object.hasOwn(parameterItem.properties,"schemaRef"),"parameter observation can bind its exact schema");
+  assert.ok(Object.hasOwn(parameterItem.properties,"value"),"parameter observation can carry a source-validated value");
+  assert.ok(Object.keys(parameterItem.properties).some(field=>/version/i.test(field)),"parameter observation identifies the exact parameter or source version");
+  assert.match(JSON.stringify(validation.get(parameters.id).predicates),/missing[\s\S]*?(not a (negative|zero|failure)|never a (negative|zero|failure))/iu);
+  assert.doesNotMatch(JSON.stringify(parameters),/threshold|minimum|maximum|pass.?fail/iu);
+
+  const constraints=byId.get("media.observation-contract.effective-processing-constraints.v1");
+  const constraintObservation=constraints.resultSchema.properties.observation;
+  const dimensions=constraintObservation.properties.dimensions;
+  assert.deepEqual(new Set(dimensions.items.properties.dimension.enum),new Set(["qualification","license","health","capability","rights"]));
+  assert.ok(dimensions.items.properties.evidenceRef,"constraint dimensions can carry opaque owner evidence when established");
+  assert.ok(dimensions.items.properties.evidenceRef.scalarTypeRef.endsWith("/opaque-versioned-reference"));
+  assert.equal(Object.hasOwn(constraintObservation.properties,"eligible"),false);
+  assert.equal(Object.hasOwn(constraintObservation.properties,"ready"),false);
+  assert.equal(Object.hasOwn(constraintObservation.properties,"eligibility"),false);
+  assert.match(JSON.stringify(validation.get(constraints.id).predicates),/UNKNOWN[\s\S]*?(cannot|never)[\s\S]*?(eligible|ready)/iu);
+});
+
+test("parameter, constraint, and delegated observations have mutually exclusive status branches",()=>{
+  const validation=new Map(rules.records.map(row=>[row.observationContractRef,row]));
+  const parameter=byId.get("media.observation-contract.processing-parameter-read.v1");
+  const parameterItem=parameter.resultSchema.properties.observation.properties.observations.items;
+  const parameterBranches=parameterItem.allOf??[];
+  const valueObserved=parameterBranches.find(branch=>branch.if?.properties?.observationStatus?.const==="VALUE_OBSERVED");
+  const parameterUnknown=parameterBranches.find(branch=>branch.if?.properties?.observationStatus?.enum?.includes("UNKNOWN"));
+  assert.ok(valueObserved&&parameterUnknown,"parameter result defines observed and unknown status branches");
+  assert.ok(!parameterItem.required.includes("value"),"value is not required unconditionally for unknown parameter reads");
+  assert.ok(valueObserved.then?.required?.includes("value"));
+  assert.ok(valueObserved.then?.required?.includes("evidenceRef"));
+  assert.ok(valueObserved.then?.not?.required?.includes("unknownReasonRef"),"observed values cannot carry the unknown-only reason branch");
+  assert.ok(parameterUnknown.then?.required?.includes("unknownReasonRef"));
+  assert.ok(parameterUnknown.then?.not?.required?.includes("evidenceRef"),"unknown and not-found values cannot carry observed evidence");
+  const observedValueSchema=valueObserved.then?.properties?.value;
+  assert.ok(observedValueSchema,"VALUE_OBSERVED has a status-specific value schema");
+  assert.ok(observedValueSchema.not?.type==="null"||observedValueSchema.type&&observedValueSchema.type!=="null"||observedValueSchema.const!==null,"VALUE_OBSERVED excludes a null placeholder");
+  const unknownValueSchema=parameterUnknown.then?.properties?.value;
+  assert.ok(!unknownValueSchema||unknownValueSchema.type==="null"||unknownValueSchema.const===null,"UNKNOWN/NOT_FOUND permits only an omitted or null value placeholder");
+
+  const constraints=byId.get("media.observation-contract.effective-processing-constraints.v1");
+  const dimension=constraints.resultSchema.properties.observation.properties.dimensions.items;
+  const dimensionBranches=dimension.allOf??[];
+  const unknownDimension=dimensionBranches.find(branch=>branch.if?.properties?.dimensionStatus?.const==="UNKNOWN");
+  const notApplicable=dimensionBranches.find(branch=>branch.if?.properties?.dimensionStatus?.const==="NOT_APPLICABLE");
+  assert.ok(unknownDimension&&notApplicable,"constraint dimensions distinguish UNKNOWN from NOT_APPLICABLE");
+  assert.ok(!dimension.required.includes("evidenceRef"),"UNKNOWN dimensions may omit unavailable evidence");
+  assert.ok(unknownDimension.then?.required?.includes("reasonRef"));
+  assert.ok(!unknownDimension.then?.required?.includes("evidenceRef"));
+  const unknownForbiddenFields=unknownDimension.then?.not?.required??[];
+  assert.ok(unknownForbiddenFields.includes("evidenceRef"),"UNKNOWN dimensions cannot claim positive evidence");
+  for(const field of ["sourceAuthorityRef","sourceVersionRef","reasonRef"])assert.ok(notApplicable.then?.required?.includes(field),`NOT_APPLICABLE requires ${field}`);
+
+  const integration=byId.get("media.observation-contract.delegated-integration-result-context.v1");
+  const context=integration.resultSchema.properties.observation;
+  const contextBranches=context.allOf??[];
+  const bounded=contextBranches.find(branch=>branch.if?.properties?.contextStatus?.const==="BOUNDED_CONTEXT_RETURNED");
+  const contextUnknown=contextBranches.find(branch=>branch.if?.properties?.contextStatus?.const==="UNKNOWN");
+  assert.ok(bounded&&contextUnknown,"delegated context distinguishes bounded return from unknown");
+  assert.ok(!context.required.includes("delegationRef")&&!context.required.includes("purposeRef")&&!context.required.includes("budgetRef")&&!context.required.includes("deadlineRef")&&!context.required.includes("resultRefs"),"unavailable delegated references are not unconditional requirements");
+  for(const field of ["delegationRef","purposeRef","budgetRef","deadlineRef","resultRefs"])assert.ok(bounded.then?.required?.includes(field),`bounded context requires ${field}`);
+  assert.ok(contextUnknown.then?.required?.includes("unknownReasonRef"));
+  for(const field of ["delegationRef","purposeRef","budgetRef","deadlineRef","resultRefs"])assert.ok(!contextUnknown.then?.required?.includes(field),`unknown context may omit ${field}`);
+
+  const rights=byId.get("media.observation-contract.rights-decision.v1");
+  const voiceVersion=Object.keys(rights.requestSchema.properties).find(key=>/voice.*profile.*version/i.test(key));
+  const voicePredicate=validation.get(rights.id).predicates.find(row=>/decisionKind\s*==\s*VOICE_AUTHORIZATION/.test(row.when));
+  assert.ok(voicePredicate,"voice selector equality is conditional on VOICE_AUTHORIZATION");
+  assert.match(voicePredicate.require,new RegExp(`request\\.${voiceVersion} exactly equals result\\.${voiceVersion}`,"iu"),"voice predicate requires exact request-to-result equality");
+  assert.match(voicePredicate.require,new RegExp(`exactly equals decision\\.${voiceVersion}`,"iu"),"voice predicate requires exact request-to-returned-decision equality");
 });
 
 test("new declared-options and quality-plan queries have explicit positive and negative branches",()=>{

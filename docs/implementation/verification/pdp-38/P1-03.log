@@ -2,127 +2,127 @@ TAP version 13
 # Subtest: job submission parameters are dynamically validated against the exact selected capability operation
 ok 1 - job submission parameters are dynamically validated against the exact selected capability operation
   ---
-  duration_ms: 1681.438268
+  duration_ms: 464.837625
   type: 'test'
   ...
 # Subtest: job submission typed inputs bind exact target slot count, order, and closed slot schemas
 ok 2 - job submission typed inputs bind exact target slot count, order, and closed slot schemas
   ---
-  duration_ms: 42.927583
+  duration_ms: 8.493375
   type: 'test'
   ...
 # Subtest: job-submit accepts the canonical preservation policy through target mapping before submission validation
 ok 3 - job-submit accepts the canonical preservation policy through target mapping before submission validation
   ---
-  duration_ms: 114.471358
+  duration_ms: 27.270083
   type: 'test'
   ...
 # Subtest: artifact import and derive reconstruct exact direct target requests before acceptance
 ok 4 - artifact import and derive reconstruct exact direct target requests before acceptance
   ---
-  duration_ms: 128.386075
+  duration_ms: 23.8905
   type: 'test'
   ...
 # Subtest: all 24 intent-authored animation jobs permit omitted optional references without shifting typed slots
 ok 5 - all 24 intent-authored animation jobs permit omitted optional references without shifting typed slots
   ---
-  duration_ms: 1368.286045
+  duration_ms: 328.370084
   type: 'test'
   ...
 # Subtest: job-submit operation requires the dynamic validator before fingerprinting, acceptance, or dispatch
 ok 6 - job-submit operation requires the dynamic validator before fingerprinting, acceptance, or dispatch
   ---
-  duration_ms: 0.436372
+  duration_ms: 0.170667
   type: 'test'
   ...
 # Subtest: all finite capability bindings explicitly distinguish submit commands, queries, workflows, versions, and parameter schemas
 ok 7 - all finite capability bindings explicitly distinguish submit commands, queries, workflows, versions, and parameter schemas
   ---
-  duration_ms: 8778.521023
+  duration_ms: 2636.903958
   type: 'test'
   ...
 # Subtest: PDP-1 adjudicates exactly 38 product identities and retains legacy transcription as noncanonical evidence
 ok 8 - PDP-1 adjudicates exactly 38 product identities and retains legacy transcription as noncanonical evidence
   ---
-  duration_ms: 200.948204
+  duration_ms: 61.811334
   type: 'test'
   ...
 # Subtest: PDP-1 state meanings and transitions preserve all source dimensions, guards, and endpoints
 ok 9 - PDP-1 state meanings and transitions preserve all source dimensions, guards, and endpoints
   ---
-  duration_ms: 3294.095179
+  duration_ms: 929.200542
   type: 'test'
   ...
 # Subtest: all 146 action identities have a source-backed operation or non-operation disposition
 ok 10 - all 146 action identities have a source-backed operation or non-operation disposition
   ---
-  duration_ms: 14777.358089
+  duration_ms: 4257.833875
   type: 'test'
   ...
 # Subtest: PDP-1 exact operation bindings resolve only fully classified P0 capability slices
 ok 11 - PDP-1 exact operation bindings resolve only fully classified P0 capability slices
   ---
-  duration_ms: 17714.504082
+  duration_ms: 5830.416917
   type: 'test'
   ...
 # Subtest: PDP-1 consumes P0 capability intents with exact typed operations, bounds, and honest admission dimensions
 ok 12 - PDP-1 consumes P0 capability intents with exact typed operations, bounds, and honest admission dimensions
   ---
-  duration_ms: 23981.45858
+  duration_ms: 6659.870875
   type: 'test'
   ...
 # Subtest: P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
 ok 13 - P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
   ---
-  duration_ms: 8412.085026
+  duration_ms: 1895.266417
   type: 'test'
   ...
 # Subtest: P1-08 distinguishes nine durable event definitions from fifteen local notifications
 ok 14 - P1-08 distinguishes nine durable event definitions from fifteen local notifications
   ---
-  duration_ms: 97.984147
+  duration_ms: 26.205041
   type: 'test'
   ...
 # Subtest: P0-06 maps all measures to stable capability meaning without inventing measured results
 ok 15 - P0-06 maps all measures to stable capability meaning without inventing measured results
   ---
-  duration_ms: 6482.306526
+  duration_ms: 1590.673291
   type: 'test'
   ...
 # Subtest: PDP-1 operation, profile, and domain projections preserve P0 metric applicability references
 ok 16 - PDP-1 operation, profile, and domain projections preserve P0 metric applicability references
   ---
-  duration_ms: 22648.431674
+  duration_ms: 5767.818125
   type: 'test'
   ...
 # Subtest: PDP-1 action schemas use closed typed payloads, scalar validators, and the exact flat request envelope
 ok 17 - PDP-1 action schemas use closed typed payloads, scalar validators, and the exact flat request envelope
   ---
-  duration_ms: 15195.271233
+  duration_ms: 4258.2205
   type: 'test'
   ...
 # Subtest: PDP-1 canonical capability requests accept typed inputs and reject malformed or over-posted requests
 ok 18 - PDP-1 canonical capability requests accept typed inputs and reject malformed or over-posted requests
   ---
-  duration_ms: 14713.897051
+  duration_ms: 3395.936458
   type: 'test'
   ...
 # Subtest: P1-10 owner boundaries fail closed while leaving enforcement and qualification unclaimed
 ok 19 - P1-10 owner boundaries fail closed while leaving enforcement and qualification unclaimed
   ---
-  duration_ms: 41.29954
+  duration_ms: 14.063875
   type: 'test'
   ...
 # Subtest: P0 model acquisition and reuse policy separates package licenses from model and asset terms
 ok 20 - P0 model acquisition and reuse policy separates package licenses from model and asset terms
   ---
-  duration_ms: 56.858929
+  duration_ms: 12.244958
   type: 'test'
   ...
 # Subtest: P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
 ok 21 - P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
   ---
-  duration_ms: 575.519146
+  duration_ms: 98.215458
   type: 'test'
   ...
 1..21
@@ -133,367 +133,367 @@ ok 21 - P0 channel and dependency update semantics define bounded CLI and promot
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 128548.846276
+# duration_ms 34984.464334
 
 TAP version 13
 # Subtest: begin-upload success carries the exact owner-acknowledged upload state payload
 ok 1 - begin-upload success carries the exact owner-acknowledged upload state payload
   ---
-  duration_ms: 5.726232
+  duration_ms: 3.623292
   type: 'test'
   ...
 # Subtest: artifact byte fields use the selected 2 GiB PDP-1 limit while request bodies stay 65,536 bytes
 ok 2 - artifact byte fields use the selected 2 GiB PDP-1 limit while request bodies stay 65,536 bytes
   ---
-  duration_ms: 119.838713
+  duration_ms: 31.916291
   type: 'test'
   ...
 # Subtest: required request leaves include every alternative and conditional branch
 ok 3 - required request leaves include every alternative and conditional branch
   ---
-  duration_ms: 4.08724
+  duration_ms: 3.303458
   type: 'test'
   ...
 # Subtest: source selectors reject accidental character indexing into scalar preconditions
 ok 4 - source selectors reject accidental character indexing into scalar preconditions
   ---
-  duration_ms: 1.040235
+  duration_ms: 0.661708
   type: 'test'
   ...
 # Subtest: workspace precondition context resolves to the canonical trusted context object
 ok 5 - workspace precondition context resolves to the canonical trusted context object
   ---
-  duration_ms: 1.393498
+  duration_ms: 1.2055
   type: 'test'
   ...
 # Subtest: required wire leaves include headers as a distinct request section
 ok 6 - required wire leaves include headers as a distinct request section
   ---
-  duration_ms: 0.478219
+  duration_ms: 0.398125
   type: 'test'
   ...
 # Subtest: success output proof rejects an unconstrained alternative item branch
 ok 7 - success output proof rejects an unconstrained alternative item branch
   ---
-  duration_ms: 1.356394
+  duration_ms: 0.738917
   type: 'test'
   ...
 # Subtest: direct input mappings reject mismatched parameter names and primitive shapes
 ok 8 - direct input mappings reject mismatched parameter names and primitive shapes
   ---
-  duration_ms: 0.517691
+  duration_ms: 0.239292
   type: 'test'
   ...
 # Subtest: required P0 parameters cannot bind to optional wire fields
 ok 9 - required P0 parameters cannot bind to optional wire fields
   ---
-  duration_ms: 21911.255049
+  duration_ms: 10008.721416
   type: 'test'
   ...
 # Subtest: optional P0 slots cannot be made required by their wire target
 ok 10 - optional P0 slots cannot be made required by their wire target
   ---
-  duration_ms: 712.212085
+  duration_ms: 358.388209
   type: 'test'
   ...
 # Subtest: request-field dispositions require resolvable, origin-appropriate evidence
 ok 11 - request-field dispositions require resolvable, origin-appropriate evidence
   ---
-  duration_ms: 1110.994551
+  duration_ms: 527.8805
   type: 'test'
   ...
 # Subtest: required generated upload idempotency header is separately covered by owner replay identity
 ok 12 - required generated upload idempotency header is separately covered by owner replay identity
   ---
-  duration_ms: 1076.685109
+  duration_ms: 480.497291
   type: 'test'
   ...
 # Subtest: upload digest normalization is bound to PXD-146 and the exact bare-hex wire field
 ok 13 - upload digest normalization is bound to PXD-146 and the exact bare-hex wire field
   ---
-  duration_ms: 1305.377539
+  duration_ms: 478.924917
   type: 'test'
   ...
 # Subtest: acknowledgment adapters preserve source-backed identity and exact deferred outputs
 ok 14 - acknowledgment adapters preserve source-backed identity and exact deferred outputs
   ---
-  duration_ms: 7462.546514
+  duration_ms: 2122.750958
   type: 'test'
   ...
 # Subtest: optional transcription profile mapping is required only on its explicit present branch
 ok 15 - optional transcription profile mapping is required only on its explicit present branch
   ---
-  duration_ms: 2212.349707
+  duration_ms: 861.119334
   type: 'test'
   ...
 # Subtest: receipt and lifecycle projections reject unsupported source fields, branches, and target refs
 ok 16 - receipt and lifecycle projections reject unsupported source fields, branches, and target refs
   ---
-  duration_ms: 1696.838344
+  duration_ms: 516.839291
   type: 'test'
   ...
 # Subtest: additional success mappings cover each required P0 output exactly once
 ok 17 - additional success mappings cover each required P0 output exactly once
   ---
-  duration_ms: 4505.218059
+  duration_ms: 1508.956
   type: 'test'
   ...
 # Subtest: begin-upload wire output branches match their canonical typed output payloads
 ok 18 - begin-upload wire output branches match their canonical typed output payloads
   ---
-  duration_ms: 146.941172
+  duration_ms: 51.246291
   type: 'test'
   ...
 # Subtest: resume workflow maps inspect and append progress to distinct exact P0 outputs
 ok 19 - resume workflow maps inspect and append progress to distinct exact P0 outputs
   ---
-  duration_ms: 1214.608393
+  duration_ms: 352.534625
   type: 'test'
   ...
 # Subtest: NOT_EMPTY parameter semantics survive exact schema normalization
 ok 20 - NOT_EMPTY parameter semantics survive exact schema normalization
   ---
-  duration_ms: 0.561781
+  duration_ms: 0.254791
   type: 'test'
   ...
 # Subtest: job cancel and retry mappings bind exact job, attempt, and command identities
 ok 21 - job cancel and retry mappings bind exact job, attempt, and command identities
   ---
-  duration_ms: 645.934788
+  duration_ms: 177.297167
   type: 'test'
   ...
 # Subtest: project inspect binds its P0 intent to the open-project action without inventing an ID
 ok 22 - project inspect binds its P0 intent to the open-project action without inventing an ID
   ---
-  duration_ms: 638.466801
+  duration_ms: 183.713917
   type: 'test'
   ...
 # Subtest: project review carries its exact declared purpose, scopes, and action parameters
 ok 23 - project review carries its exact declared purpose, scopes, and action parameters
   ---
-  duration_ms: 243.763686
+  duration_ms: 73.619667
   type: 'test'
   ...
 # Subtest: project create maps its title and explicitly binds authority and replay identity
 ok 24 - project create maps its title and explicitly binds authority and replay identity
   ---
-  duration_ms: 728.914029
+  duration_ms: 166.881
   type: 'test'
   ...
 # Subtest: source asset attachment maps exact project head and immutable source version
 ok 25 - source asset attachment maps exact project head and immutable source version
   ---
-  duration_ms: 640.056283
+  duration_ms: 175.312334
   type: 'test'
   ...
 # Subtest: artifact inspection maps one exact versioned reference to both identity fields
 ok 26 - artifact inspection maps one exact versioned reference to both identity fields
   ---
-  duration_ms: 2042.455677
+  duration_ms: 517.409833
   type: 'test'
   ...
 # Subtest: project search returns its bounded page identity with optional opaque continuation
 ok 27 - project search returns its bounded page identity with optional opaque continuation
   ---
-  duration_ms: 1895.510469
+  duration_ms: 486.568709
   type: 'test'
   ...
 # Subtest: capability discovery returns bounded declared compatibility pages
 ok 28 - capability discovery returns bounded declared compatibility pages
   ---
-  duration_ms: 727.433852
+  duration_ms: 198.105042
   type: 'test'
   ...
 # Subtest: streaming synthesis returns the exact P0 speech artifact instead of a stream-session claim
 ok 29 - streaming synthesis returns the exact P0 speech artifact instead of a stream-session claim
   ---
-  duration_ms: 617.772614
+  duration_ms: 210.2255
   type: 'test'
   ...
 # Subtest: audio analysis outputs retain exact P0 identities with reference-only closed payloads
 ok 30 - audio analysis outputs retain exact P0 identities with reference-only closed payloads
   ---
-  duration_ms: 736.17325
+  duration_ms: 284.084625
   type: 'test'
   ...
 # Subtest: artifact search and list page wrappers enforce pageSize without collapsing empty success
 ok 31 - artifact search and list page wrappers enforce pageSize without collapsing empty success
   ---
-  duration_ms: 328.504669
+  duration_ms: 92.523792
   type: 'test'
   ...
 # Subtest: image-to-image requires an exact source image reference and owner-resolved image kind
 ok 32 - image-to-image requires an exact source image reference and owner-resolved image kind
   ---
-  duration_ms: 365.667448
+  duration_ms: 105.788334
   type: 'test'
   ...
 # Subtest: image reference requires an exact source image and carries success lineage
 ok 33 - image reference requires an exact source image and carries success lineage
   ---
-  duration_ms: 302.444461
+  duration_ms: 94.36725
   type: 'test'
   ...
 # Subtest: seven image, video, and audio source slots require exact immutable artifact references
 ok 34 - seven image, video, and audio source slots require exact immutable artifact references
   ---
-  duration_ms: 624.277457
+  duration_ms: 174.242667
   type: 'test'
   ...
 # Subtest: project create, inspect, and attach preserve exact project receipt variants
 ok 35 - project create, inspect, and attach preserve exact project receipt variants
   ---
-  duration_ms: 3806.10033
+  duration_ms: 1225.644083
   type: 'test'
   ...
 # Subtest: all 462 PDP-1 mappings preserve P0 capability input, parameter, and success-output meaning
 ok 36 - all 462 PDP-1 mappings preserve P0 capability input, parameter, and success-output meaning
   ---
-  duration_ms: 4728.406351
+  duration_ms: 1246.686041
   type: 'test'
   ...
 # Subtest: PXD-144 delete, keyframe, attestation, dub, and clone outputs preserve exact source identities
 ok 37 - PXD-144 delete, keyframe, attestation, dub, and clone outputs preserve exact source identities
   ---
-  duration_ms: 444.702944
+  duration_ms: 112.982792
   type: 'test'
   ...
 # Subtest: PXD-145 exact required inputs preserve P0 source types, identity, and alternatives
 ok 38 - PXD-145 exact required inputs preserve P0 source types, identity, and alternatives
   ---
-  duration_ms: 1426.274284
+  duration_ms: 400.81025
   type: 'test'
   ...
 # Subtest: job.submit carries executable typed request values and maps every required wire field
 ok 39 - job.submit carries executable typed request values and maps every required wire field
   ---
-  duration_ms: 21615.126356
+  duration_ms: 9296.298834
   type: 'test'
   ...
 # Subtest: job.submit wrapper preserves the canonical preservation policy and requires consent for authorized enhancement
 ok 40 - job.submit wrapper preserves the canonical preservation policy and requires consent for authorized enhancement
   ---
-  duration_ms: 12996.342725
+  duration_ms: 4282.018666
   type: 'test'
   ...
 # Subtest: job read projections preserve the Java/OpenAPI record and fail closed on unmapped state/finality
 ok 41 - job read projections preserve the Java/OpenAPI record and fail closed on unmapped state/finality
   ---
-  duration_ms: 28628.82747
+  duration_ms: 14035.347291
   type: 'test'
   ...
 # Subtest: provider and recovery populations include exact local compute and unknown asynchronous operations
 ok 42 - provider and recovery populations include exact local compute and unknown asynchronous operations
   ---
-  duration_ms: 24117.896986
+  duration_ms: 10182.193875
   type: 'test'
   ...
 # Subtest: provenance request union is aligned with the exact typed P0 input and canonical identities
 ok 43 - provenance request union is aligned with the exact typed P0 input and canonical identities
   ---
-  duration_ms: 7.047257
+  duration_ms: 3.723667
   type: 'test'
   ...
 # Subtest: execution lookup is restricted to the canonical identity allowlist and result binding
 ok 44 - execution lookup is restricted to the canonical identity allowlist and result binding
   ---
-  duration_ms: 1.180804
+  duration_ms: 0.519958
   type: 'test'
   ...
 # Subtest: exclusive branches, malformed references, scope failures, and result mismatches fail closed
 ok 45 - exclusive branches, malformed references, scope failures, and result mismatches fail closed
   ---
-  duration_ms: 0.883943
+  duration_ms: 0.298583
   type: 'test'
   ...
 # Subtest: result identity is required only for resolved execution references and cannot leak into other outcomes
 ok 46 - result identity is required only for resolved execution references and cannot leak into other outcomes
   ---
-  duration_ms: 1.664131
+  duration_ms: 0.513792
   type: 'test'
   ...
 # Subtest: rejected provenance results bind the request and unresolved execution is never NOT_FOUND
 ok 47 - rejected provenance results bind the request and unresolved execution is never NOT_FOUND
   ---
-  duration_ms: 483.167856
+  duration_ms: 184.533792
   type: 'test'
   ...
 # Subtest: execution-reference lookup key uses the bounded opaque reference wire format
 ok 48 - execution-reference lookup key uses the bounded opaque reference wire format
   ---
-  duration_ms: 11.405337
+  duration_ms: 3.294042
   type: 'test'
   ...
 # Subtest: source-lineage input mapping preserves the exact artifact-version or execution-reference union
 ok 49 - source-lineage input mapping preserves the exact artifact-version or execution-reference union
   ---
-  duration_ms: 34081.733046
+  duration_ms: 16181.393334
   type: 'test'
   ...
 # Subtest: canonical P0/P1 input slots preserve requiredness and rights evidence payload requiredness
 ok 50 - canonical P0/P1 input slots preserve requiredness and rights evidence payload requiredness
   ---
-  duration_ms: 6.946498
+  duration_ms: 65.711459
   type: 'test'
   ...
 # Subtest: transcription submit preserves every required P0 parameter in typed wire fields and fingerprint
 ok 51 - transcription submit preserves every required P0 parameter in typed wire fields and fingerprint
   ---
-  duration_ms: 2.96489
+  duration_ms: 1.876917
   type: 'test'
   ...
 # Subtest: transcription policy inputs preserve exact purpose and ordered rights references
 ok 52 - transcription policy inputs preserve exact purpose and ordered rights references
   ---
-  duration_ms: 0.610013
+  duration_ms: 0.283375
   type: 'test'
   ...
 # Subtest: optional policy references and processing location resolve only through trusted owner context
 ok 53 - optional policy references and processing location resolve only through trusted owner context
   ---
-  duration_ms: 0.37589
+  duration_ms: 0.287458
   type: 'test'
   ...
 # Subtest: optional profile absence remains a pre-request rejection and success maps only the stable job reference
 ok 54 - optional profile absence remains a pre-request rejection and success maps only the stable job reference
   ---
-  duration_ms: 0.569312
+  duration_ms: 0.44075
   type: 'test'
   ...
 # Subtest: the specialized wire response carries the atomic acknowledgment tuple and keeps failure outcomes distinct
 ok 55 - the specialized wire response carries the atomic acknowledgment tuple and keeps failure outcomes distinct
   ---
-  duration_ms: 0.811484
+  duration_ms: 0.411125
   type: 'test'
   ...
 # Subtest: all P0 success identities are represented by an acknowledgment adapter or an explicit later observation
 ok 56 - all P0 success identities are represented by an acknowledgment adapter or an explicit later observation
   ---
-  duration_ms: 0.460075
+  duration_ms: 0.219709
   type: 'test'
   ...
 # Subtest: typed input mapping covers all slots and parameters through resolvable request fields
 ok 57 - typed input mapping covers all slots and parameters through resolvable request fields
   ---
-  duration_ms: 0.600176
+  duration_ms: 0.900291
   type: 'test'
   ...
 # Subtest: P0 keeps input2 optional while binding absence is a pre-request negative
 ok 58 - P0 keeps input2 optional while binding absence is a pre-request negative
   ---
-  duration_ms: 2.55673
+  duration_ms: 1.4315
   type: 'test'
   ...
 # Subtest: a present mapping is explicit, exact, and qualified
 ok 59 - a present mapping is explicit, exact, and qualified
   ---
-  duration_ms: 2.13102
+  duration_ms: 1.140625
   type: 'test'
   ...
 # Subtest: absent slot never defaults to AUTO_REQUESTED; AUTO_REQUESTED requires explicit intent and exact qualification
 ok 60 - absent slot never defaults to AUTO_REQUESTED; AUTO_REQUESTED requires explicit intent and exact qualification
   ---
-  duration_ms: 0.50637
+  duration_ms: 0.20375
   type: 'test'
   ...
 1..60
@@ -504,79 +504,79 @@ ok 60 - absent slot never defaults to AUTO_REQUESTED; AUTO_REQUESTED requires ex
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 95295.467107
+# duration_ms 37303.359375
 
 TAP version 13
 # Subtest: closed schema checks inspect conditional branches and negated schemas
 ok 1 - closed schema checks inspect conditional branches and negated schemas
   ---
-  duration_ms: 3.497002
+  duration_ms: 1.077959
   type: 'test'
   ...
 # Subtest: closed schema checks reject external and dangling references
 ok 2 - closed schema checks reject external and dangling references
   ---
-  duration_ms: 0.473276
+  duration_ms: 0.133333
   type: 'test'
   ...
 # Subtest: all 79 owner wire definitions retain exact source identity and domain role
 ok 3 - all 79 owner wire definitions retain exact source identity and domain role
   ---
-  duration_ms: 2.667418
+  duration_ms: 1.013167
   type: 'test'
   ...
 # Subtest: source projection proves zero mismatches across all 78 action-bound schemas plus the owner-only query
 ok 4 - source projection proves zero mismatches across all 78 action-bound schemas plus the owner-only query
   ---
-  duration_ms: 44.78315
+  duration_ms: 8.626083
   type: 'test'
   ...
 # Subtest: opaque owner evidence and destination references reject empty or non-string values without adding grammar
 ok 5 - opaque owner evidence and destination references reject empty or non-string values without adding grammar
   ---
-  duration_ms: 85.336514
+  duration_ms: 27.651417
   type: 'test'
   ...
 # Subtest: source projection rejects schema drift, unsafe fields, wrong bindings, and weakened outcomes
 ok 6 - source projection rejects schema drift, unsafe fields, wrong bindings, and weakened outcomes
   ---
-  duration_ms: 5214.91669
+  duration_ms: 2543.496708
   type: 'test'
   ...
 # Subtest: wire requests and results are closed, tenant-bound, and distinguish effects from unknown outcomes
 ok 7 - wire requests and results are closed, tenant-bound, and distinguish effects from unknown outcomes
   ---
-  duration_ms: 89.633059
+  duration_ms: 36.110666
   type: 'test'
   ...
 # Subtest: all 79 closed result variants accept a schema-valid payload and reject extensions
 ok 8 - all 79 closed result variants accept a schema-valid payload and reject extensions
   ---
-  duration_ms: 8138.664952
+  duration_ms: 3080.1765
   type: 'test'
   ...
 # Subtest: view-job-status distinguishes CURRENT and STALE observations from unavailable UNKNOWN
 ok 9 - view-job-status distinguishes CURRENT and STALE observations from unavailable UNKNOWN
   ---
-  duration_ms: 93.988601
+  duration_ms: 45.096042
   type: 'test'
   ...
 # Subtest: negative cases reject role, operation, scope, effect, finality, and fabricated UI identity drift
 ok 10 - negative cases reject role, operation, scope, effect, finality, and fabricated UI identity drift
   ---
-  duration_ms: 2.219245
+  duration_ms: 1.752334
   type: 'test'
   ...
 # Subtest: operation-only retry-policy wire contract binds exact inputs and typed current-read semantics
 ok 11 - operation-only retry-policy wire contract binds exact inputs and typed current-read semantics
   ---
-  duration_ms: 1.160818
+  duration_ms: 1.76725
   type: 'test'
   ...
 # Subtest: retry-policy wire rejects omitted selectors, caller authority/version, weakened versioning, and unsafe unknown recovery
 ok 12 - retry-policy wire rejects omitted selectors, caller authority/version, weakened versioning, and unsafe unknown recovery
   ---
-  duration_ms: 4.588638
+  duration_ms: 3.859458
   type: 'test'
   ...
 1..12
@@ -587,4 +587,4 @@ ok 12 - retry-policy wire rejects omitted selectors, caller authority/version, w
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 24352.889398
+# duration_ms 9948.723291

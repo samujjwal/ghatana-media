@@ -153,6 +153,7 @@ test('P1-03 preserves all test cases in all three groups', () => {
   const boundedArgs = buildP103TestArgs('bounded-owner-contracts');
   const mappingArgs = buildP103TestArgs('capability-intent-mapping');
   const wireArgs = buildP103TestArgs('owner-action-wire-contracts');
+  for (const args of [boundedArgs, mappingArgs, wireArgs]) assert.ok(args.includes('--test-reporter=tap'));
   assert.ok(boundedArgs.includes(path.resolve('tests/pdp-truth-domain.test.mjs')));
   assert.ok(boundedArgs.includes(path.resolve('tests/pdp-job-submit-parameter-contract.test.mjs')));
   assert.ok(mappingArgs.includes(path.resolve('tests/pdp1-capability-intent-operation-mapping.test.mjs')));
@@ -177,6 +178,7 @@ test('P1-03 preserves all test cases in all three groups', () => {
 test('P1-01 includes the lane-A current-source identity review', () => {
   const statusScript = fs.readFileSync('scripts/report-media-pdp-readiness.mjs', 'utf8');
   assert.match(statusScript, /'P1-01':[^\n]*pdp1-lane-a-current-source-review\.test\.mjs/u);
+  assert.match(statusScript, /const testArgs=\['--test-reporter=tap',\s*'--test'/u);
 });
 
 test('PDP-1 current identity census matches the normative owner registry denominator', () => {

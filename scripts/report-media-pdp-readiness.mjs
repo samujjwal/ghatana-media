@@ -1272,7 +1272,7 @@ export function writePdp3DevStatus(status, repositoryRoot = root) {
 export function buildP103TestArgs(groupName, repositoryRoot = root) {
   const group = p103VerificationSuites[groupName];
   if (!group) throw new Error(`Unknown P1-03 verification group: ${groupName}`);
-  return ['--test', ...(group.testNamePattern ? [`--test-name-pattern=${group.testNamePattern}`] : []),
+  return ['--test-reporter=tap', '--test', ...(group.testNamePattern ? [`--test-name-pattern=${group.testNamePattern}`] : []),
     ...group.files.map(file => path.resolve(repositoryRoot,file))];
 }
 export function buildCurrentDefinitionCensus(repositoryRoot) {
@@ -1377,7 +1377,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     }
     const missing=files.filter(f=>!fs.existsSync(path.join(root,f)));
     if(missing.length) {verification[id]={status:'NOT_RUN',reason:`Missing test sources: ${missing.join(', ')}`};continue;}
-    const testArgs=['--test', ...(directTestNames[id] ? [`--test-name-pattern=${directTestNames[id]}`] : []), ...files.map(file=>path.resolve(root,file))];
+    // The verification parser below consumes Node's TAP summary. Pin the reporter
+    // explicitly because Node versions may choose a different default format.
+    const testArgs=['--test-reporter=tap', '--test', ...(directTestNames[id] ? [`--test-name-pattern=${directTestNames[id]}`] : []), ...files.map(file=>path.resolve(root,file))];
     const before = sourceCut(files);
     const testEnv={...process.env};
     if(id==='P0-03'||id==='P0-08') testEnv.PDP_MIGRATION_CANDIDATE_PHASE='PDP-0';

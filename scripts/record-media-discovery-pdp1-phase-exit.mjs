@@ -43,7 +43,7 @@ const COMMON_PDP1_REFS = [
   'tests/pdp1-owner-action-wire-contracts.test.mjs',
   'tests/pdp1-transition-guard-definition-evaluator.test.mjs',
 ];
-const REQUIRED_TEST_COMMAND = 'node --test tests/media-pdp-p1-dev-status.test.mjs tests/media-contract-parity.test.mjs tests/media-contract-parity-definition-only-cli.test.mjs tests/pdp1-owner-action-wire-contracts.test.mjs tests/pdp1-transition-guard-definition-evaluator.test.mjs';
+const REQUIRED_TEST_COMMAND = 'node --test tests/media-pdp-p1-dev-status.test.mjs tests/media-contract-parity.test.mjs tests/media-contract-parity-definition-only-cli.test.mjs tests/pdp1-owner-action-wire-contracts.test.mjs tests/pdp1-transition-guard-definition-evaluator.test.mjs tests/pdp-truth-domain-typed-observations.test.mjs';
 const REQUIRED_DEFINITION_ONLY_COMMAND = 'node scripts/check-media-contract-parity.mjs --definition-only';
 const REQUIRED_STRICT_COMMAND = 'pnpm check:contract-parity';
 const REQUIRED_LOCAL_EXPERIENCE_COMMAND = 'pnpm check:product-experience-local';
@@ -58,12 +58,56 @@ const PDP1_ADAPTER_TEST_PATH = 'tests/pdp-experience-capability-invocation-adapt
 const PDP1_ADAPTER_TEST_PREDECESSOR_DIGEST = 'sha256:b3fed6206114180160768270461e0c0175adfd0938e3029238a265ae6ef843b5';
 const PDP1_ADAPTER_TEST_OBSERVED_DIGEST = 'sha256:a062b06080d9aeb0b3bd0695aaa2affca0aca8583fe020bdcadcaa2a5b98e5ed';
 const PDP1_ADAPTER_TEST_COMMAND = 'node --test tests/pdp-experience-capability-invocation-adapters.test.mjs';
+const PDP1_OPERATIONS_PATH = '.product-experience/pdp-1-domain-data/operations.yaml';
+const PDP1_OPERATIONS_REVIEW_PATH = '.product-experience/pdp-1-domain-data/operations-current-source-review.json';
+const PDP1_OPERATIONS_PREDECESSOR_DIGEST = 'sha256:11d51ef9cdc69e2dde09b3a72241a19a321be40372b19850e4d29c3ec2fb3e04';
+const PDP1_OPERATIONS_REVIEW_PREDECESSOR_DIGEST = 'sha256:c73e44c375c9b20a120e63200065484775ded0d4749057b45a2aa7d773f54c69';
+const PDP1_OPERATIONS_OBSERVED_DIGEST = 'sha256:317878be9ebe9c978f356a4e81060620fcb69af02ea25c2ff1d47bd20180c069';
+const PDP1_OPERATIONS_REVIEW_OBSERVED_DIGEST = 'sha256:71a27400d00faccba8643393259c1322861593783015426b6eeddbcf068afaf2';
+const CURRENT_CUT_OWNER_DIRECTIONS_DIGEST = 'sha256:4dc505154364b4ef98836e327cc556f1d24adf937d964913caba09c49c4176a4';
+const CURRENT_CUT_PDP1_OWNER_CHANGE_PATHS = [
+  '.product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md',
+  '.product-experience/source-manifest.yaml',
+  '.product-experience/surface-registry.yaml',
+  'apps/media-experience-explorer/specification-artifacts.json',
+];
+const PDP1_OPERATION_DELTA_IDS = [
+  'media.observation-contract.rights-decision.v1',
+  'media.observation-contract.destination-delivery-acknowledgment.v1',
+  'media.observation-contract.delegated-integration-result-context.v1',
+  'media.observation-contract.processing-parameter-read.v1',
+  'media.observation-contract.effective-processing-constraints.v1',
+];
+const PDP1_PARITY_TEST_IMPACT_PATH = 'docs/implementation/observations/media-discovery-pdp1-parity-test-pin-impact-2026-10-14-r1.json';
+const CURRENT_CUT_SOURCE_IMPACT_PATH = 'docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r1.json';
+const CURRENT_CUT_PDP0_SUCCESSOR_PATH = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r5.json';
+const CURRENT_CUT_SOURCE_PATHS = [
+  'scripts/report-media-pdp-readiness.mjs',
+  '.product-experience/interface-parity/current-source-review.json',
+  'tests/media-pdp-p1-dev-status.test.mjs',
+];
+const CURRENT_CUT_SOURCE_PREDECESSOR_DIGESTS = {
+  'scripts/report-media-pdp-readiness.mjs': 'sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1',
+  '.product-experience/interface-parity/current-source-review.json': 'sha256:14cf6c3d9ea948e39e41ffa2de3453c08b7b6a23267f407f3504c5462b7428fc',
+  'tests/media-pdp-p1-dev-status.test.mjs': 'sha256:5a007a561cc96659d7da63d2470727237d1496c3a50c80682253a9d542846599',
+};
+const CURRENT_CUT_SOURCE_OBSERVED_DIGESTS = {
+  'scripts/report-media-pdp-readiness.mjs': 'sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573',
+  '.product-experience/interface-parity/current-source-review.json': 'sha256:62765cbb335572f28570fe650b3955aaa028f314322490e17e466d3ca9234abf',
+  'tests/media-pdp-p1-dev-status.test.mjs': 'sha256:3ff1576a4a3987f5b1e05d15ae77e35a62745260e127ebcb28c1bb49ef7ef82e',
+};
+const CURRENT_CUT_PDP1_TEST_COMMAND = REQUIRED_TEST_COMMAND;
+const PDP1_PARITY_TEST_PATHS = [
+  'tests/media-contract-parity.test.mjs',
+  'tests/media-contract-parity-definition-only-cli.test.mjs',
+];
 const REQUIRED_TEST_FILES = [
   'tests/media-pdp-p1-dev-status.test.mjs',
   'tests/media-contract-parity.test.mjs',
   'tests/media-contract-parity-definition-only-cli.test.mjs',
   'tests/pdp1-owner-action-wire-contracts.test.mjs',
   'tests/pdp1-transition-guard-definition-evaluator.test.mjs',
+  'tests/pdp-truth-domain-typed-observations.test.mjs',
 ];
 
 function sha256(value) {
@@ -262,6 +306,128 @@ function validateReporterImpactRecord(impact, observedDigests, historicalDigests
   return { valid, impact, path: PDP1_GUARD_PATH, predecessorSha256: PDP1_GUARD_PREDECESSOR_DIGEST, observedSha256: PDP1_GUARD_OBSERVED_DIGEST };
 }
 
+export function validateCurrentCutSourceImpactRecord(impact, observedDigests, historicalDigests, statusPins, semanticPins, testRun) {
+  const impactDigest = sha256(fs.readFileSync(path.join(root, CURRENT_CUT_SOURCE_IMPACT_PATH)));
+  const deltas = impact.sourceDeltas ?? [];
+  const byPath = new Map(deltas.map((delta) => [delta.path, delta]));
+  const oldGuardImpact = readJson(PDP3_STATUS_GUARD_IMPACT_PATH);
+  const oldGuardImpactDigest = sha256(fs.readFileSync(path.join(root, PDP3_STATUS_GUARD_IMPACT_PATH)));
+  const chainedReporter = deltas.find((delta) => delta.path === PDP1_GUARD_PATH);
+  const oldGuardStep = chainedReporter?.predecessorChain?.[0];
+  const oldReporterStatusPins = { ...statusPins, [PDP1_GUARD_PATH]: PDP1_GUARD_PREDECESSOR_DIGEST.slice('sha256:'.length) };
+  const oldReporterSemanticPins = { ...semanticPins, [PDP1_GUARD_PATH]: PDP1_GUARD_PREDECESSOR_DIGEST.slice('sha256:'.length) };
+  const oldReporterCheck = validateReporterImpactRecord(
+    oldGuardImpact,
+    { ...observedDigests, [PDP1_GUARD_PATH]: PDP1_GUARD_OBSERVED_DIGEST },
+    historicalDigests,
+    oldReporterStatusPins,
+    oldReporterSemanticPins,
+  );
+  const requiredOutcome = (testRun?.outcomes ?? testRun?.testOutcomes)?.find((entry) => entry.command === CURRENT_CUT_PDP1_TEST_COMMAND);
+  const requiredInputDigests = testRun?.testInputContentDigests ?? testRun?.sourceBinding?.testInputContentDigests ?? {};
+  const testEvidenceValid = testRun?.sourceBinding?.stable === true
+    && testRun?.startedHead === testRun?.completedHead
+    && requiredOutcome?.status === 'PASS'
+    && requiredOutcome?.exitCode === 0
+    && Number.isInteger(requiredOutcome?.testCount)
+    && requiredOutcome.testCount > 0
+    && requiredOutcome.passedCount === requiredOutcome.testCount
+    && requiredOutcome.failedCount === 0
+    && requiredOutcome.skippedCount === 0
+    && REQUIRED_TEST_FILES.every((sourcePath) => requiredInputDigests[sourcePath]
+      === sha256(fs.readFileSync(path.join(root, sourcePath))));
+  const interfacePath = '.product-experience/interface-parity/current-source-review.json';
+  const statusTestPath = 'tests/media-pdp-p1-dev-status.test.mjs';
+  const reporter = byPath.get(PDP1_GUARD_PATH);
+  const interfaceReview = byPath.get(interfacePath);
+  const statusTest = byPath.get(statusTestPath);
+  const exactPaths = deltas.length === CURRENT_CUT_SOURCE_PATHS.length
+    && deltas.every((delta, index) => delta.path === CURRENT_CUT_SOURCE_PATHS[index])
+    && new Set(deltas.map((delta) => delta.path)).size === CURRENT_CUT_SOURCE_PATHS.length;
+  const exactHashes = CURRENT_CUT_SOURCE_PATHS.every((sourcePath) => {
+    const delta = byPath.get(sourcePath);
+    return delta
+      && delta.predecessorSha256 === CURRENT_CUT_SOURCE_PREDECESSOR_DIGESTS[sourcePath]
+      && delta.observedSha256 === CURRENT_CUT_SOURCE_OBSERVED_DIGESTS[sourcePath]
+      && delta.observedSha256 === (observedDigests[sourcePath]?.digest ?? observedDigests[sourcePath])
+      && historicalDigests[sourcePath] === (sourcePath === PDP1_GUARD_PATH
+        ? PDP1_GUARD_PREDECESSOR_DIGEST : CURRENT_CUT_SOURCE_PREDECESSOR_DIGESTS[sourcePath])
+      && `sha256:${String(statusPins[sourcePath] ?? '').replace(/^sha256:/u, '')}` === delta.observedSha256
+      && `sha256:${String(semanticPins[sourcePath] ?? '').replace(/^sha256:/u, '')}` === delta.observedSha256;
+  });
+  const valid = impact.schemaVersion === 'media.discovery-current-cut-source-impact.v1'
+    && impact.recordId === 'MEDIA-DISCOVERY-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R1'
+    && impact.campaign?.repository === 'samujjwal/ghatana-media'
+    && impact.campaign?.stage === 'DISCOVERY'
+    && impact.authority?.delegate === 'AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION'
+    && impact.authority?.authorityRef === '.product-experience/reviews/2026-10-13-discovery-current-cut-delegated-owner-review.md#Authority-and-attribution'
+    && impact.authority?.decisionRole === 'SCOPED_INTERNAL_MEDIA_SOURCE_IMPACT_REVIEW'
+    && impact.authority?.humanIndependentSignatureProvided === false
+    && impact.authority?.qualifiedExternalSpecialistSignoffProvided === false
+    && impact.authority?.externalContractOwnerAcceptanceProvided === false
+    && impact.authority?.nativeLifecycleReceiptProvided === false
+    && exactPaths && exactHashes
+    && reporter?.classification === 'PDP_STATUS_TEST_REPORTER_SELECTION_ONLY'
+    && Array.isArray(reporter.changedFunctions)
+    && JSON.stringify(reporter.changedFunctions) === JSON.stringify(['buildP103TestArgs', 'runRequiredChecks'])
+    && Array.isArray(reporter.meaningIdsChanged) && reporter.meaningIdsChanged.length === 0
+    && reporter.predecessorChain?.length === 1
+    && oldGuardStep?.receiptRef === PDP3_STATUS_GUARD_IMPACT_PATH
+    && oldGuardStep?.receiptSha256 === oldGuardImpactDigest
+    && oldGuardStep?.fromSha256 === PDP1_GUARD_PREDECESSOR_DIGEST
+    && oldGuardStep?.toSha256 === PDP1_GUARD_OBSERVED_DIGEST
+    && oldReporterCheck.valid
+    && interfaceReview?.classification === 'PDP1_REVIEW_ARTIFACT_REFRESH_FOR_SEPARATELY_REVIEWED_OPERATION_DELTA'
+    && interfaceReview.relatedDefinitionSource === PDP1_OPERATIONS_PATH
+    && interfaceReview.relatedDefinitionSha256 === PDP1_OPERATIONS_OBSERVED_DIGEST
+    && interfaceReview.relatedDefinitionReviewSource === PDP1_OPERATIONS_REVIEW_PATH
+    && interfaceReview.relatedDefinitionReviewSha256 === PDP1_OPERATIONS_REVIEW_OBSERVED_DIGEST
+    && JSON.stringify(interfaceReview.relatedReviewedDefinitionIds) === JSON.stringify(PDP1_OPERATION_DELTA_IDS)
+    && Array.isArray(interfaceReview.additionalMeaningIds) && interfaceReview.additionalMeaningIds.length === 0
+    && interfaceReview.meaningChange === 'NO_ADDITIONAL_MEANING_BEYOND_SEPARATELY_REVIEWED_PDP1_OPERATION_DELTA'
+    && interfaceReview.requiresFreshCurrentness === true
+    && statusTest?.classification === 'REGRESSION_COVERAGE'
+    && statusTest?.meaningChange === 'NONE'
+    && Array.isArray(statusTest.meaningIdsChanged) && statusTest.meaningIdsChanged.length === 0
+    && statusTest.requiresFreshCurrentness === true
+    && testEvidenceValid
+    && impact.requiredEvidence?.command === CURRENT_CUT_PDP1_TEST_COMMAND
+    && impact.requiredEvidence?.status === 'PASS_AT_R10_AND_RERUN_DURING_SUCCESSOR_CURRENTNESS_CAPTURE'
+    && impact.requiredEvidence?.referenceStatus === 'PASS'
+    && impact.requiredEvidence?.referenceTestCount === 75
+    && impact.requiredEvidence?.referencePassedCount === 75
+    && impact.requiredEvidence?.referenceFailedCount === 0
+    && impact.requiredEvidence?.referenceSkippedCount === 0
+    && impact.decision?.status === 'APPROVED_INTERNAL_IMPACT_DISPOSITION_FOR_EXACT_SOURCE_DELTAS'
+    && impact.decision?.pdp0MeaningDisposition === 'NO_MEANING_CHANGE_FOR_EXACT_REVIEWED_SOURCE_DELTAS'
+    && impact.decision?.pdp1MeaningDisposition === 'NO_ADDITIONAL_MEANING_IDS_IN_THESE_THREE_PATH_CHANGES; OPERATIONS_YAML_DELTA_REMAINS_SEPARATELY_REVIEWED'
+    && JSON.stringify(impact.decision?.requiresOrderedTechnicalCurrentnessRecapture) === JSON.stringify(['PDP-0', 'PDP-1'])
+    && impact.decision?.preserveHistoricalReceipts === true
+    && impact.decision?.independentApproval === 'NOT_CLAIMED_AND_NOT_WAIVED'
+    && impact.decision?.externalContractOwnerAcceptance === 'NOT_CLAIMED'
+    && impact.decision?.nativeLifecycleClosure === 'NOT_ENTERED'
+    && impact.decision?.runtimeAdmission === 'NOT_ADMITTED'
+    && impact.decision?.delivery === 'BLOCKED';
+  return { valid, impactRef: CURRENT_CUT_SOURCE_IMPACT_PATH, impactDigest, impactRecordId: impact.recordId, testEvidenceValid,
+    validationDetails: { exactPaths, exactHashes, oldReporterImpactValid: oldReporterCheck.valid, testEvidenceValid,
+      hashMatches: CURRENT_CUT_SOURCE_PATHS.map((sourcePath) => ({
+        path: sourcePath,
+        predecessor: historicalDigests[sourcePath] === (sourcePath === PDP1_GUARD_PATH
+          ? PDP1_GUARD_PREDECESSOR_DIGEST : CURRENT_CUT_SOURCE_PREDECESSOR_DIGESTS[sourcePath]),
+        observed: (observedDigests[sourcePath]?.digest ?? observedDigests[sourcePath]) === CURRENT_CUT_SOURCE_OBSERVED_DIGESTS[sourcePath],
+        statusPin: `sha256:${String(statusPins[sourcePath] ?? '').replace(/^sha256:/u, '')}` === CURRENT_CUT_SOURCE_OBSERVED_DIGESTS[sourcePath],
+        semanticPin: `sha256:${String(semanticPins[sourcePath] ?? '').replace(/^sha256:/u, '')}` === CURRENT_CUT_SOURCE_OBSERVED_DIGESTS[sourcePath],
+      })),
+      testInputsMatch: REQUIRED_TEST_FILES.map((sourcePath) => ({ path: sourcePath,
+        expected: sha256(fs.readFileSync(path.join(root, sourcePath))), actual: requiredInputDigests[sourcePath],
+        matches: requiredInputDigests[sourcePath] === sha256(fs.readFileSync(path.join(root, sourcePath))) })),
+      outcome: requiredOutcome ?? null,
+      testSourceStable: testRun?.sourceBinding?.stable === true,
+      headStable: testRun?.startedHead === testRun?.completedHead,
+      exactAuthority: impact.authority?.decisionRole === 'SCOPED_INTERNAL_MEDIA_SOURCE_IMPACT_REVIEW',
+      exactDecision: impact.decision?.pdp1MeaningDisposition === 'NO_ADDITIONAL_MEANING_IDS_IN_THESE_THREE_PATH_CHANGES; OPERATIONS_YAML_DELTA_REMAINS_SEPARATELY_REVIEWED' } };
+}
+
 function validateAdapterTestImpactRecord(impact, statusPins, semanticPins, fileDigests) {
   const delta = impact.sourceDelta;
   const evidence = impact.testEvidence;
@@ -311,29 +477,270 @@ function validateAdapterTestImpactRecord(impact, statusPins, semanticPins, fileD
   return { valid, impact, path: PDP1_ADAPTER_TEST_PATH, predecessorSha256: PDP1_ADAPTER_TEST_PREDECESSOR_DIGEST, observedSha256: PDP1_ADAPTER_TEST_OBSERVED_DIGEST };
 }
 
+export function validatePdp1OperationDefinitionDelta(
+  fileDigests,
+  historicalDigests,
+  semanticReview = readJson('docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json'),
+  { sourceText = readText(PDP1_OPERATIONS_PATH), reviewText = readText(PDP1_OPERATIONS_REVIEW_PATH) } = {},
+) {
+  const review = JSON.parse(reviewText);
+  const delta = review.currentSourceCutDeltaReview?.supplementalPdp1DefinitionDelta;
+  const sourceDigest = fileDigests[PDP1_OPERATIONS_PATH]?.digest ?? null;
+  const reviewDigest = fileDigests[PDP1_OPERATIONS_REVIEW_PATH]?.digest ?? null;
+  const source = parseYaml(sourceText);
+  const contracts = new Map((source.ownerTypedObservationContracts?.records ?? []).map((record) => [record.id, record]));
+  const validations = new Map((source.ownerTypedObservationValidationRules?.records ?? [])
+    .map((record) => [record.observationContractRef?.split('@id=').at(-1), record]));
+  const reviewedRecords = delta?.reviewedRecords ?? [];
+  const recordsResolveExactly = reviewedRecords.length === PDP1_OPERATION_DELTA_IDS.length
+    && reviewedRecords.map((record) => record.id).every((id, index) => id === PDP1_OPERATION_DELTA_IDS[index])
+    && reviewedRecords.every((record) => {
+      const contract = contracts.get(record.id);
+      const validation = validations.get(record.id);
+      const expectedSelector = `${PDP1_OPERATIONS_PATH}#ownerTypedObservationContracts/records/@id=${record.id}`;
+      const expectedValidationSelector = validation
+        ? `${PDP1_OPERATIONS_PATH}#ownerTypedObservationValidationRules/records/@id=${validation.id}` : null;
+      return contract && validation
+        && record.selector === expectedSelector
+        && record.validationRuleId === validation.id
+        && record.validationSelector === expectedValidationSelector
+        && record.operationKind === 'QUERY'
+        && record.bindingStatus === contract.bindingStatus
+        && JSON.stringify(record.operationRefs) === JSON.stringify(contract.operationRefs)
+        && typeof record.meaning === 'string' && record.meaning.length > 40;
+    });
+  const semanticSupplement = (semanticReview.supplementaryReviews ?? [])
+    .find((record) => record.id === 'P1-current-owner-typed-observation-definition-delta-2026-10-14');
+  const currentReview = semanticReview.currentCutReview?.supplementalDefinitionDeltaReview;
+  const checks = {
+    reviewSchema: review.schemaVersion === 'media.pdp1-operation-current-source-review.v1'
+      && review.sourcePath === PDP1_OPERATIONS_PATH,
+    sourcePins: sourceDigest === PDP1_OPERATIONS_OBSERVED_DIGEST
+      && sourceDigest === sha256(sourceText)
+      && review.currentSourceSha256 === sourceDigest?.replace(/^sha256:/u, '')
+      && review.currentSourceCutDeltaReview?.currentSourceSha256 === review.currentSourceSha256
+      && delta?.currentSourceSha256 === sourceDigest?.replace(/^sha256:/u, '')
+      && sourceDigest === `sha256:${review.currentSourceSha256}`,
+    semanticDeltaDeclaration: delta?.schemaVersion === 'media.pdp1-operation-definition-delta-review.v1'
+      && delta.status === 'REVIEWED_CURRENT_SOURCE_SEMANTIC_DELTA'
+      && delta.predecessorSourceSha256 === PDP1_OPERATIONS_PREDECESSOR_DIGEST.replace(/^sha256:/u, '')
+      && delta.reviewAuthority === 'AI assistant acting under explicit user delegation for internal Media source-definition review; this is not a human owner signature, external contract-owner acceptance, independent specialist attestation, or phase-exit receipt.'
+      && delta.materiality === 'PDP1_NORMATIVE_DEFINITION_CHANGE_REQUIRING_OWNING_PHASE_REVIEW_AND_FRESH_CURRENTNESS',
+    exactCurrentContracts: recordsResolveExactly,
+    reviewArtifactLineage: delta.sourceReviewArtifactPath === PDP1_OPERATIONS_REVIEW_PATH
+      && delta.predecessorReviewArtifactSha256 === PDP1_OPERATIONS_REVIEW_PREDECESSOR_DIGEST
+      && delta.reviewArtifactDisposition === 'SOURCE_REVIEW_EVIDENCE_REFRESH_FOR_THE_EXACT_PDP1_SEMANTIC_DELTA'
+      && delta.reviewArtifactRequiresFreshCurrentness === true
+      && reviewDigest === PDP1_OPERATIONS_REVIEW_OBSERVED_DIGEST
+      && reviewDigest === sha256(reviewText)
+      && historicalDigests[PDP1_OPERATIONS_REVIEW_PATH] === PDP1_OPERATIONS_REVIEW_PREDECESSOR_DIGEST
+      && reviewDigest !== null,
+    currentnessAndHistory: delta.freshCurrentnessRequired === true
+      && delta.historicalReceiptsPreserved === true
+      && historicalDigests[PDP1_OPERATIONS_PATH] === PDP1_OPERATIONS_PREDECESSOR_DIGEST,
+    boundaries: delta.preservedBoundaries?.ownerTypedObservationsRemainQueries === true
+      && delta.preservedBoundaries?.runtimeAdmission === 'NOT_ADMITTED'
+      && delta.preservedBoundaries?.transportAdmission === 'NOT_ADMITTED'
+      && delta.preservedBoundaries?.externalContractOwnerAcceptance === 'NOT_CLAIMED'
+      && delta.preservedBoundaries?.independentSpecialistAttestation === 'NOT_CLAIMED'
+      && delta.preservedBoundaries?.unknownEvidenceRemainsUnknown === true
+      && delta.preservedBoundaries?.noEndpointOrProductionBehaviorAdded === true
+      && delta.preservedBoundaries?.proposalOperationInventoryRemainsUnaccepted === true
+      && delta.preservedBoundaries?.proposalOperationRecordCount === 14,
+    fullIdentityReview: semanticReview.sourceCutStable === true
+      && semanticReview.outstandingMeaningIds?.length === 0
+      && semanticReview.reviewedIdentityIds?.length === 2023
+      && semanticReview.sourceFingerprints?.[PDP1_OPERATIONS_PATH] === review.currentSourceSha256
+      && semanticReview.sourceFingerprints?.[PDP1_OPERATIONS_REVIEW_PATH] === reviewDigest.replace(/^sha256:/u, ''),
+    supplementarySemanticReview: currentReview?.sourceSha256 === review.currentSourceSha256
+      && currentReview?.sourceReviewArtifactSha256 === reviewDigest
+      && currentReview?.identitySetChanged === false
+      && currentReview?.existingIdentityCountPreserved === 2023
+      && JSON.stringify(currentReview?.reviewedRecordIds) === JSON.stringify(PDP1_OPERATION_DELTA_IDS)
+      && currentReview?.independentApproval === 'NOT_CLAIMED_AND_NOT_WAIVED'
+      && currentReview?.externalContractOwnerAcceptance === 'NOT_CLAIMED'
+      && currentReview?.runtimeAdmission === 'NOT_ADMITTED'
+      && currentReview?.transportAdmission === 'NOT_ADMITTED'
+      && semanticSupplement?.sourceSha256 === review.currentSourceSha256
+      && semanticSupplement?.reviewedPopulationIdsPreserved === 2023
+      && semanticSupplement?.externalOwnerAcceptance === 'NOT_CLAIMED'
+      && semanticSupplement?.independentSpecialistAttestation === 'NOT_CLAIMED'
+      && semanticSupplement?.runtimeAdmission === 'NOT_ADMITTED'
+      && semanticSupplement?.transportAdmission === 'NOT_ADMITTED'
+      && semanticSupplement?.lifecycleClosure === 'NOT_ENTERED',
+  };
+  const valid = Object.values(checks).every(Boolean);
+  return {
+    valid,
+    sourcePath: PDP1_OPERATIONS_PATH,
+    sourceReviewPath: PDP1_OPERATIONS_REVIEW_PATH,
+    predecessorSha256: PDP1_OPERATIONS_PREDECESSOR_DIGEST,
+    observedSha256: sourceDigest,
+    reviewArtifactPredecessorSha256: PDP1_OPERATIONS_REVIEW_PREDECESSOR_DIGEST,
+    reviewArtifactObservedSha256: reviewDigest,
+    reviewedDefinitionIds: reviewedRecords.map((record) => record.id),
+    validationChecks: checks,
+    classification: 'PDP1_DEFINITION_SEMANTIC_DELTA_REVIEWED_UNDER_USER_DELEGATION',
+    requiresFreshCurrentness: true,
+    limitation: 'Internal definition review only; no human owner signature, external acceptance, independent attestation, runtime admission, or phase receipt is asserted.',
+  };
+}
+
+export function pdp1SemanticDefinitionPinDisposition(sourcePath, semanticDelta) {
+  if (semanticDelta?.valid !== true) return null;
+  if (sourcePath === PDP1_OPERATIONS_PATH) {
+    return {
+      classification: 'PDP1_DEFINITION_SEMANTIC_DELTA_REVIEWED_UNDER_USER_DELEGATION',
+      meaningChange: 'PDP1_MEANING_CHANGED_AND_REVIEWED',
+      note: `Reviewed exact PDP-1 definition delta ${semanticDelta.reviewedDefinitionIds.join(', ')} under explicit user-delegated internal source-definition authority.`,
+      sourceReviewPath: semanticDelta.sourceReviewPath,
+      requiresFreshCurrentness: semanticDelta.requiresFreshCurrentness,
+      externalContractOwnerAcceptance: 'NOT_CLAIMED',
+      independentApproval: 'NOT_CLAIMED_AND_NOT_WAIVED',
+    };
+  }
+  if (sourcePath === PDP1_OPERATIONS_REVIEW_PATH) {
+    return {
+      classification: 'PDP1_SEMANTIC_REVIEW_ARTIFACT_REFRESH',
+      meaningChange: 'REVIEW_ARTIFACT_FOR_REVIEWED_PDP1_SEMANTIC_DELTA',
+      note: `This exact current-source review artifact records the reviewed PDP-1 definition delta ${semanticDelta.reviewedDefinitionIds.join(', ')}; it is evidence for the source change, not a separate product-definition change.`,
+      sourceReviewPath: semanticDelta.sourceReviewPath,
+      requiresFreshCurrentness: semanticDelta.requiresFreshCurrentness,
+      externalContractOwnerAcceptance: 'NOT_CLAIMED',
+      independentApproval: 'NOT_CLAIMED_AND_NOT_WAIVED',
+    };
+  }
+  return null;
+}
+
+function validateParityTestPinImpactRecord(impact, statusPins, semanticPins, fileDigests, historicalDigests, testRun) {
+  const expected = [
+    {
+      path: PDP1_PARITY_TEST_PATHS[0],
+      predecessorSha256: 'sha256:582b43c7ef832f14a3c8db30b004ecb4e50c13640d12b7df51245240453dc03e',
+      historicalMaterialSha256: 'sha256:3b2ebd2a9dcbe68f1afb86438fa55953851596a5d5c359a888bc94bb95eb4cc4',
+    },
+    {
+      path: PDP1_PARITY_TEST_PATHS[1],
+      predecessorSha256: 'sha256:61e516a75c72196c697f7480af8a9ab0805796af1ec4fd3b7f6606c51fb7c3c1',
+      historicalMaterialSha256: 'sha256:fb5844bcafe7e5d6dfbc6ce19dfbbd68c84476855089ce17b0a353d31ae663e4',
+    },
+  ];
+  const rows = impact.sourceDeltas ?? [];
+  const outcome = testRun?.testOutcomes?.find((entry) => entry.command === REQUIRED_TEST_COMMAND);
+  const sourceInputsMatch = expected.every(({ path: sourcePath }) =>
+    testRun?.sourceBinding?.testInputContentDigests?.[sourcePath] === fileDigests[sourcePath]?.digest);
+  const evidencePasses = impact.requiredEvidence?.command === REQUIRED_TEST_COMMAND
+    && impact.requiredEvidence?.status === 'REQUIRED_FOR_DISPOSITION'
+    && outcome?.status === 'PASS' && outcome.exitCode === 0
+    && Number.isInteger(outcome.testCount) && outcome.testCount > 0
+    && outcome.passedCount === outcome.testCount && outcome.failedCount === 0 && outcome.skippedCount === 0
+    && testRun?.sourceBinding?.stable === true
+    && testRun.startedHead === testRun.completedHead
+    && sourceInputsMatch;
+  const authorized = impact.schemaVersion === 'media.discovery-pdp1-parity-test-pin-impact.v1'
+    && impact.recordId === 'MEDIA-DISCOVERY-PDP1-PARITY-TEST-PIN-IMPACT-2026-10-14-R1'
+    && impact.campaign?.repository === 'samujjwal/ghatana-media'
+    && impact.campaign?.stage === 'DISCOVERY'
+    && impact.campaign?.phase === 'PDP-1'
+    && impact.authority?.delegate === 'AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION'
+    && impact.authority?.decisionRole === 'SCOPED_INTERNAL_MEDIA_SOURCE_IMPACT_REVIEW'
+    && impact.authority?.humanIndependentSignatureProvided === false
+    && impact.authority?.qualifiedExternalSpecialistSignoffProvided === false
+    && impact.authority?.externalContractOwnerAcceptanceProvided === false
+    && impact.authority?.nativeLifecycleReceiptProvided === false
+    && rows.length === expected.length
+    && expected.every((expectedRow, index) => {
+      const row = rows[index];
+      const observed = fileDigests[expectedRow.path]?.digest;
+      const statusPin = `sha256:${String(statusPins[expectedRow.path] ?? '').replace(/^sha256:/u, '')}`;
+      const semanticPin = String(semanticPins[expectedRow.path] ?? '').replace(/^sha256:/u, '');
+      return row?.path === expectedRow.path
+        && row.predecessorSha256 === expectedRow.predecessorSha256
+        && row.observedSha256 === observed
+        && row.historicalPinSets?.length === 2
+        && row.historicalPinSets.includes('PDP1_DEVELOPMENT_STATUS_SOURCE_SHA_SET')
+        && row.historicalPinSets.includes('PDP1_SEMANTIC_REVIEW_SOURCE_FINGERPRINTS')
+        && row.historicalPdp1MaterialSourceContainsPath === true
+        && row.historicalPdp1MaterialSourceSha256 === expectedRow.historicalMaterialSha256
+        && row.classification === 'REGRESSION_COVERAGE'
+        && row.meaningChange === 'NONE'
+        && Array.isArray(row.meaningIdsChanged) && row.meaningIdsChanged.length === 0
+        && row.expectedAssertions?.length > 0
+        && row.requiresFreshCurrentness === true
+        && statusPin === expectedRow.predecessorSha256
+        && historicalDigests[expectedRow.path] === expectedRow.historicalMaterialSha256
+        && semanticPin === observed?.replace(/^sha256:/u, '')
+        && observed !== null && observed !== undefined;
+    })
+    && impact.decision?.status === 'SCOPED_INTERNAL_TEST_PIN_RECONCILIATION'
+    && impact.decision?.meaningDisposition === 'TEST_COVERAGE_ONLY'
+    && impact.decision?.requiresFreshPdp1Currentness === true
+    && impact.decision?.preserveHistoricalReceipts === true
+    && impact.decision?.independentApproval === 'NOT_CLAIMED_AND_NOT_WAIVED'
+    && impact.decision?.nativeLifecycleClosure === 'NOT_ENTERED'
+    && impact.decision?.runtimeAdmission === 'NOT_ADMITTED'
+    && impact.decision?.delivery === 'BLOCKED';
+  const valid = authorized && evidencePasses;
+  return expected.map((expectedRow, index) => {
+    const row = rows[index] ?? {};
+    return {
+      valid,
+      impact,
+      path: expectedRow.path,
+      predecessorSha256: expectedRow.predecessorSha256,
+      observedSha256: fileDigests[expectedRow.path]?.digest ?? null,
+      classification: 'REGRESSION_COVERAGE',
+      meaningChange: 'NONE',
+      freshCurrentnessRequired: true,
+      testEvidence: outcome ?? null,
+      impactRef: PDP1_PARITY_TEST_IMPACT_PATH,
+      impactRecordId: impact.recordId ?? null,
+      sourceDelta: row,
+    };
+  });
+}
+
 export function validatePdp1SupplementalPinDispositions({
   reporterImpact = readJson(PDP3_STATUS_GUARD_IMPACT_PATH),
   adapterTestImpact = readJson(PDP1_ADAPTER_TEST_IMPACT_PATH),
+  parityTestImpact = readJson(PDP1_PARITY_TEST_IMPACT_PATH),
   statusPins = readJson('docs/implementation/pdp-1-phase-dev-status.json').sourceShaSet,
   semanticPins = readJson('docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json').sourceFingerprints,
   fileDigests = {},
   historicalDigests = readJson(HISTORICAL_PDP1_EXIT_PATH).sourceCurrentness?.sourceContentDigests ?? {},
+  testRun = null,
 } = {}) {
   const reporter = validateReporterImpactRecord(reporterImpact, fileDigests, historicalDigests, statusPins, semanticPins);
   const adapterTest = validateAdapterTestImpactRecord(adapterTestImpact, statusPins, semanticPins, fileDigests);
+  const parityTests = validateParityTestPinImpactRecord(parityTestImpact, statusPins, semanticPins, fileDigests, historicalDigests, testRun);
   return [
     { ...reporter, impactRef: PDP3_STATUS_GUARD_IMPACT_PATH, impactDigest: sha256(fs.readFileSync(path.join(root, PDP3_STATUS_GUARD_IMPACT_PATH))),
       classification: 'PDP3_STATUS_GUARD_ONLY; PDP1_NO_MEANING_CHANGE', meaningChange: 'NONE', freshCurrentnessRequired: true },
     { ...adapterTest, impactRef: PDP1_ADAPTER_TEST_IMPACT_PATH, impactDigest: sha256(fs.readFileSync(path.join(root, PDP1_ADAPTER_TEST_IMPACT_PATH))),
       classification: 'PDP3_CONSUMER_TEST_ONLY; PDP1_DEFERRED_EVIDENCE_STATUS_PIN_REFRESH_REQUIRED; NO_PDP1_DEFINITION_MEANING_CHANGE', meaningChange: 'NONE', freshCurrentnessRequired: true,
       testEvidence: adapterTestImpact.testEvidence },
+    ...parityTests,
   ];
 }
 
-export function pdp1OwnerStatusJoinObservation(observedDigests, freshMaterialSourceSetFingerprint) {
+export function validateCurrentCutOwnerDirections(ownerDirections, observedDigest) {
+  const impactReview = ownerDirections?.predecessorImpactReviews?.find((review) => review.phase === 'PDP-1');
+  const sourceChanges = impactReview?.sourceChanges ?? [];
+  return observedDigest === CURRENT_CUT_OWNER_DIRECTIONS_DIGEST
+    && ownerDirections.schemaVersion === 'media.discovery-current-cut-owner-directions.v2'
+    && ownerDirections.decisionId === 'MEDIA-DISCOVERY-CURRENT-CUT-OWNER-2026-10-13-R2'
+    && impactReview?.sourceCut === HISTORICAL_PDP1_EXIT_PATH
+    && sourceChanges.length === CURRENT_CUT_PDP1_OWNER_CHANGE_PATHS.length
+    && sourceChanges.every((change, index) => change.path === CURRENT_CUT_PDP1_OWNER_CHANGE_PATHS[index]);
+}
+
+export function pdp1OwnerStatusJoinObservation(observedDigests, freshMaterialSourceSetFingerprint, testRun = null) {
   const historical = readJson(HISTORICAL_PDP1_EXIT_PATH);
   const ownerDirections = readJson(CURRENT_CUT_OWNER_DIRECTIONS_PATH);
+  const ownerDirectionsDigest = sha256(fs.readFileSync(path.join(root, CURRENT_CUT_OWNER_DIRECTIONS_PATH)));
   const impactSupplement = readJson(PDP3_STATUS_GUARD_IMPACT_PATH);
+  const semanticReview = readJson('docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json');
   const impactReview = ownerDirections.predecessorImpactReviews?.find((review) => review.phase === 'PDP-1');
   const historicalDigests = historical.sourceCurrentness?.sourceContentDigests ?? {};
   const sourceChanges = impactReview?.sourceChanges ?? [];
@@ -349,14 +756,32 @@ export function pdp1OwnerStatusJoinObservation(observedDigests, freshMaterialSou
   }));
   const changedPaths = pathComparisons.filter((entry) => !entry.matches);
   const reviewedChanges = new Map(sourceChanges.map((change) => [change.path, change]));
+  const currentImpact = readJson(CURRENT_CUT_SOURCE_IMPACT_PATH);
+  const byCurrentImpactPath = new Map((currentImpact.sourceDeltas ?? []).map((delta) => [delta.path, delta]));
   const reporterImpact = validateReporterImpactRecord(
     impactSupplement,
+    { ...observedDigests, [PDP1_GUARD_PATH]: PDP1_GUARD_OBSERVED_DIGEST },
+    historicalDigests,
+    { ...readJson('docs/implementation/pdp-1-phase-dev-status.json').sourceShaSet,
+      [PDP1_GUARD_PATH]: PDP1_GUARD_PREDECESSOR_DIGEST.slice('sha256:'.length) },
+    { ...readJson('docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json').sourceFingerprints,
+      [PDP1_GUARD_PATH]: PDP1_GUARD_PREDECESSOR_DIGEST.slice('sha256:'.length) },
+  );
+  const currentImpactReview = validateCurrentCutSourceImpactRecord(
+    currentImpact,
     observedDigests,
     historicalDigests,
     readJson('docs/implementation/pdp-1-phase-dev-status.json').sourceShaSet,
-    readJson('docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json').sourceFingerprints,
+    semanticReview.sourceFingerprints,
+    testRun,
   );
-  const supplementValid = reporterImpact.valid;
+  const supplementValid = reporterImpact.valid && currentImpactReview.valid;
+  const operationDeltaReview = validatePdp1OperationDefinitionDelta(
+    Object.fromEntries(Object.entries(observedDigests).map(([sourcePath, digest]) => [sourcePath, { digest }])),
+    historicalDigests,
+    semanticReview,
+  );
+  const operationDeltaValid = operationDeltaReview.valid;
   const reviewedChangesValid = supplementValid && sourceChanges.length === 4
     && new Set(sourceChanges.map((change) => change.path)).size === 4
     && sourceChanges.every((change) => observedDigests[change.path] === change.observedSha256
@@ -364,22 +789,33 @@ export function pdp1OwnerStatusJoinObservation(observedDigests, freshMaterialSou
       && Array.isArray(change.meaningIdsChangedAtReviewedCut)
       && change.meaningIdsChangedAtReviewedCut.length === 0
       && change.requiresFreshCurrentness === true)
-    && changedPaths.length === 5
-    && changedPaths.every((entry) => reviewedChanges.has(entry.path) || entry.path === PDP1_GUARD_PATH);
+    && changedPaths.length === 9
+    && changedPaths.every((entry) => reviewedChanges.has(entry.path)
+      || CURRENT_CUT_SOURCE_PATHS.includes(entry.path)
+      || entry.path === PDP1_OPERATIONS_PATH && operationDeltaValid
+      || entry.path === PDP1_OPERATIONS_REVIEW_PATH && operationDeltaValid);
+  const approvedChangedPaths = new Set([
+    ...reviewedChanges.keys(),
+    ...(currentImpactReview.valid ? CURRENT_CUT_SOURCE_PATHS : []),
+    ...(operationDeltaValid ? [PDP1_OPERATIONS_PATH, PDP1_OPERATIONS_REVIEW_PATH] : []),
+  ]);
+  const exactChangedPathSet = changedPaths.length === approvedChangedPaths.size
+    && changedPaths.every((entry) => approvedChangedPaths.has(entry.path));
   const valid = historical.phase === 'PDP-1'
     && historical.phaseExit?.status === 'PASS'
-    && ownerDirections.schemaVersion === 'media.discovery-current-cut-owner-directions.v2'
-    && ownerDirections.decisionId === 'MEDIA-DISCOVERY-CURRENT-CUT-OWNER-2026-10-13-R2'
+    && validateCurrentCutOwnerDirections(ownerDirections, ownerDirectionsDigest)
     && impactReview?.sourceCut === HISTORICAL_PDP1_EXIT_PATH
     && impactReview?.previousMaterialFingerprint === historical.sourceCurrentness?.materialSourceSetFingerprint
     && DIGEST.test(freshMaterialSourceSetFingerprint ?? '')
     && predecessorPaths.length === 329
     && observedPaths.length === 329
-    && pathComparisons.filter((entry) => entry.matches).length === 324
-    && changedPaths.length === 5
+    && pathComparisons.filter((entry) => entry.matches).length === 320
+    && changedPaths.length === 9
     && missingPaths.length === 0
     && additionalPaths.length === 0
     && reviewedChangesValid
+    && operationDeltaValid
+    && exactChangedPathSet
     && impactReview?.historicalRequiredPathCount === 329
     && impactReview.pinComparison?.matching === 325
     && impactReview.pinComparison?.changed === 4
@@ -391,21 +827,24 @@ export function pdp1OwnerStatusJoinObservation(observedDigests, freshMaterialSou
     historicalExitRef: HISTORICAL_PDP1_EXIT_PATH,
     historicalExitDigest: sha256(fs.readFileSync(path.join(root, HISTORICAL_PDP1_EXIT_PATH))),
     ownerDirectionsRef: CURRENT_CUT_OWNER_DIRECTIONS_PATH,
-    ownerDirectionsDigest: sha256(fs.readFileSync(path.join(root, CURRENT_CUT_OWNER_DIRECTIONS_PATH))),
+    ownerDirectionsDigest,
     ownerDecisionId: ownerDirections.decisionId ?? null,
+    supplementalPdp1DefinitionReview: operationDeltaReview,
     predecessorMaterialSourceSetFingerprint: historical.sourceCurrentness?.materialSourceSetFingerprint ?? null,
     freshMaterialSourceSetFingerprint,
     predecessorPathCount: predecessorPaths.length,
     observedPathCount: observedPaths.length,
     unchangedPathCount: pathComparisons.filter((entry) => entry.matches).length,
-    ownerApprovedChangedPathCount: changedPaths.filter((entry) => reviewedChanges.has(entry.path) || (entry.path === PDP1_GUARD_PATH && supplementValid)).length,
-    unapprovedChangedPathCount: changedPaths.filter((entry) => !reviewedChanges.has(entry.path) && entry.path !== PDP1_GUARD_PATH).length
-      + (changedPaths.some((entry) => entry.path === PDP1_GUARD_PATH) && !supplementValid ? 1 : 0),
+    ownerApprovedChangedPathCount: changedPaths.filter((entry) => approvedChangedPaths.has(entry.path)).length,
+    unapprovedChangedPathCount: changedPaths.filter((entry) => !approvedChangedPaths.has(entry.path)).length,
+    unapprovedChangedPaths: changedPaths.filter((entry) => !approvedChangedPaths.has(entry.path)).map((entry) => entry.path),
     missingPathCount: missingPaths.length,
     additionalPathCount: additionalPaths.length,
-    meaningIdsChangedCount: sourceChanges.reduce((total, change) => total + (change.meaningIdsChangedAtReviewedCut?.length ?? 0), 0),
+    meaningIdsChangedCount: sourceChanges.reduce((total, change) => total + (change.meaningIdsChangedAtReviewedCut?.length ?? 0), 0)
+      + operationDeltaReview.reviewedDefinitionIds.length,
     allChangesRequireFreshCurrentness: sourceChanges.length === 4 && sourceChanges.every((change) => change.requiresFreshCurrentness === true)
-      && impactSupplement.sourceDelta?.freshCurrentnessRequired === true,
+      && CURRENT_CUT_SOURCE_PATHS.every((sourcePath) => byCurrentImpactPath.get(sourcePath)?.requiresFreshCurrentness === true)
+      && operationDeltaReview.requiresFreshCurrentness === true,
     sourceChanges: sourceChanges.map((change) => ({
       path: change.path,
       predecessorSha256: historicalDigests[change.path] ?? null,
@@ -415,22 +854,67 @@ export function pdp1OwnerStatusJoinObservation(observedDigests, freshMaterialSou
       requiresFreshCurrentness: change.requiresFreshCurrentness === true,
       matches: historicalDigests[change.path] === change.recordedSha256
         && observedDigests[change.path] === change.observedSha256,
-    })).concat({
-      path: PDP1_GUARD_PATH,
-      predecessorSha256: historicalDigests[PDP1_GUARD_PATH] ?? null,
-      ownerReviewedSha256: impactSupplement.sourceDelta?.observedSha256 ?? null,
-      observedSha256: observedDigests[PDP1_GUARD_PATH] ?? null,
-      meaningIdsChangedAtReviewedCut: impactSupplement.sourceDelta?.changedMeaningIds ?? [],
-      requiresFreshCurrentness: impactSupplement.sourceDelta?.freshCurrentnessRequired === true,
-      matches: supplementValid,
-      impactRef: PDP3_STATUS_GUARD_IMPACT_PATH,
-      impactRecordId: impactSupplement.recordId ?? null,
-      authorityRef: impactSupplement.authority?.authorityRef ?? null,
-      decisionRole: impactSupplement.authority?.decisionRole ?? null,
-      independentApproval: impactSupplement.decision?.independentApproval ?? null,
-    }),
-    supplementalImpactReviewRef: PDP3_STATUS_GUARD_IMPACT_PATH,
-    supplementalImpactReviewDigest: sha256(fs.readFileSync(path.join(root, PDP3_STATUS_GUARD_IMPACT_PATH))),
+    })).concat(
+      ...CURRENT_CUT_SOURCE_PATHS.map((sourcePath) => {
+        const delta = byCurrentImpactPath.get(sourcePath);
+        return {
+          path: sourcePath,
+          predecessorSha256: historicalDigests[sourcePath] ?? null,
+          ownerReviewedSha256: delta?.observedSha256 ?? null,
+          observedSha256: observedDigests[sourcePath] ?? null,
+          meaningIdsChangedAtReviewedCut: delta?.meaningIdsChanged ?? delta?.additionalMeaningIds ?? [],
+          classification: delta?.classification ?? null,
+          requiresFreshCurrentness: delta?.requiresFreshCurrentness === true,
+          matches: historicalDigests[sourcePath] === delta?.predecessorSha256
+            && observedDigests[sourcePath] === delta?.observedSha256,
+          impactRef: CURRENT_CUT_SOURCE_IMPACT_PATH,
+          authorityRef: currentImpact.authority?.authorityRef ?? null,
+          independentApproval: currentImpact.decision?.independentApproval ?? null,
+        };
+      }),
+      {
+        path: PDP1_OPERATIONS_PATH,
+        predecessorSha256: historicalDigests[PDP1_OPERATIONS_PATH] ?? null,
+        ownerReviewedSha256: operationDeltaReview.observedSha256,
+        observedSha256: observedDigests[PDP1_OPERATIONS_PATH] ?? null,
+          meaningIdsChangedAtReviewedCut: operationDeltaReview.reviewedDefinitionIds,
+        reviewedDefinitionIds: operationDeltaReview.reviewedDefinitionIds,
+        classification: operationDeltaReview.classification,
+        requiresFreshCurrentness: operationDeltaReview.requiresFreshCurrentness,
+        matches: operationDeltaValid && historicalDigests[PDP1_OPERATIONS_PATH] === operationDeltaReview.predecessorSha256
+          && observedDigests[PDP1_OPERATIONS_PATH] === operationDeltaReview.observedSha256,
+        authority: 'AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION_FOR_INTERNAL_DEFINITION_REVIEW',
+        independentApproval: 'NOT_CLAIMED_AND_NOT_WAIVED',
+        externalContractOwnerAcceptance: 'NOT_CLAIMED',
+      },
+      {
+        path: PDP1_OPERATIONS_REVIEW_PATH,
+        predecessorSha256: historicalDigests[PDP1_OPERATIONS_REVIEW_PATH] ?? null,
+        ownerReviewedSha256: operationDeltaReview.reviewArtifactObservedSha256,
+        observedSha256: observedDigests[PDP1_OPERATIONS_REVIEW_PATH] ?? null,
+        meaningIdsChangedAtReviewedCut: [],
+        classification: 'PDP1_SEMANTIC_REVIEW_ARTIFACT_REFRESH',
+        requiresFreshCurrentness: true,
+        matches: operationDeltaValid && historicalDigests[PDP1_OPERATIONS_REVIEW_PATH] === operationDeltaReview.reviewArtifactPredecessorSha256
+          && observedDigests[PDP1_OPERATIONS_REVIEW_PATH] === operationDeltaReview.reviewArtifactObservedSha256,
+        authority: 'AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION_FOR_INTERNAL_DEFINITION_REVIEW',
+        independentApproval: 'NOT_CLAIMED_AND_NOT_WAIVED',
+        externalContractOwnerAcceptance: 'NOT_CLAIMED',
+      },
+    ),
+    supplementalImpactReviewRef: CURRENT_CUT_SOURCE_IMPACT_PATH,
+    supplementalImpactReviewDigest: currentImpactReview.impactDigest,
+    predecessorReporterImpactRef: PDP3_STATUS_GUARD_IMPACT_PATH,
+    predecessorReporterImpactDigest: sha256(fs.readFileSync(path.join(root, PDP3_STATUS_GUARD_IMPACT_PATH))),
+    currentCutSourceImpactReview: currentImpactReview,
+    testEvidence: currentImpactReview.testEvidenceValid ? {
+      command: CURRENT_CUT_PDP1_TEST_COMMAND,
+      status: 'PASS',
+      testCount: (testRun?.outcomes ?? testRun?.testOutcomes)?.find((entry) => entry.command === CURRENT_CUT_PDP1_TEST_COMMAND)?.testCount ?? null,
+      passedCount: (testRun?.outcomes ?? testRun?.testOutcomes)?.find((entry) => entry.command === CURRENT_CUT_PDP1_TEST_COMMAND)?.passedCount ?? null,
+      failedCount: (testRun?.outcomes ?? testRun?.testOutcomes)?.find((entry) => entry.command === CURRENT_CUT_PDP1_TEST_COMMAND)?.failedCount ?? null,
+      skippedCount: (testRun?.outcomes ?? testRun?.testOutcomes)?.find((entry) => entry.command === CURRENT_CUT_PDP1_TEST_COMMAND)?.skippedCount ?? null,
+    } : { status: 'MISSING_OR_INVALID' },
     limitation: 'Scoped internal owner materiality join for the exact reviewed delta; it is not exact-cut owner acceptance, independent approval, lifecycle closure, or release qualification.',
   };
 }
@@ -682,17 +1166,24 @@ function phasePinReview(status, semanticReview, mdc10, fileDigests, testRun) {
   ]);
   const rawDispositions = new Map((mdc10.historicalPdp1PinChanges?.changes ?? []).map((entry) => [entry.path, entry]));
   const p1TestEvidence = (testRun?.testOutcomes ?? []).find((outcome) => outcome.command === REQUIRED_TEST_COMMAND);
+  const historicalDigests = readJson(HISTORICAL_PDP1_EXIT_PATH).sourceCurrentness?.sourceContentDigests ?? {};
   const supplementalPinDispositions = validatePdp1SupplementalPinDispositions({
     reporterImpact: readJson(PDP3_STATUS_GUARD_IMPACT_PATH),
     adapterTestImpact: readJson(PDP1_ADAPTER_TEST_IMPACT_PATH),
+    parityTestImpact: readJson(PDP1_PARITY_TEST_IMPACT_PATH),
     statusPins: status.sourceShaSet ?? {},
     semanticPins: semanticReview.sourceFingerprints ?? {},
     fileDigests,
-    historicalDigests: readJson(HISTORICAL_PDP1_EXIT_PATH).sourceCurrentness?.sourceContentDigests ?? {},
+    historicalDigests,
+    testRun,
   });
   const validSupplementalDispositions = new Map(supplementalPinDispositions
     .filter((entry) => entry.valid)
     .map((entry) => [entry.path, entry]));
+  const semanticDefinitionDelta = validatePdp1OperationDefinitionDelta(fileDigests, historicalDigests, semanticReview);
+  const semanticDefinitionDispositions = new Map([PDP1_OPERATIONS_PATH, PDP1_OPERATIONS_REVIEW_PATH]
+    .map((sourcePath) => [sourcePath, pdp1SemanticDefinitionPinDisposition(sourcePath, semanticDefinitionDelta)])
+    .filter(([, disposition]) => disposition !== null));
   const isNonMeaningDisposition = (entry) => entry
     && allowedClassifications.has(entry.classification)
     && ['NONE', 'NONE_IDENTIFIED'].includes(entry.meaningChange)
@@ -701,13 +1192,24 @@ function phasePinReview(status, semanticReview, mdc10, fileDigests, testRun) {
         && p1TestEvidence?.status === 'PASS' && p1TestEvidence.exitCode === 0
         && p1TestEvidence.testCount > 0 && p1TestEvidence.skippedCount === 0);
   const dispositions = new Map([...rawDispositions].filter(([, entry]) => isNonMeaningDisposition(entry)));
-  const hasDisposition = (sourcePath) => dispositions.has(sourcePath) || validSupplementalDispositions.has(sourcePath);
+  const hasDisposition = (sourcePath) => dispositions.has(sourcePath)
+    || validSupplementalDispositions.has(sourcePath)
+    || semanticDefinitionDispositions.has(sourcePath);
   const unclassifiedStatusPins = staleStatusPins.filter((entry) => !hasDisposition(entry.path));
   const unclassifiedSemanticPins = staleSemanticPins.filter((entry) => !hasDisposition(entry.path));
   const pinChangeDisposition = (entry) => {
     const supplemental = validSupplementalDispositions.get(entry.path);
+    const semanticDefinition = semanticDefinitionDispositions.get(entry.path);
     const ordinary = dispositions.get(entry.path);
-    return supplemental ? {
+    return semanticDefinition ? {
+      classification: semanticDefinition.classification,
+      meaningChange: semanticDefinition.meaningChange,
+      note: semanticDefinition.note,
+      sourceReviewPath: semanticDefinition.sourceReviewPath,
+      requiresFreshCurrentness: semanticDefinition.requiresFreshCurrentness,
+      externalContractOwnerAcceptance: 'NOT_CLAIMED',
+      independentApproval: 'NOT_CLAIMED_AND_NOT_WAIVED',
+    } : supplemental ? {
       classification: supplemental.classification,
       meaningChange: supplemental.meaningChange,
       note: supplemental.impact.sourceDelta?.changeSummary ?? supplemental.impact.sourceDelta?.classification ?? null,
@@ -733,13 +1235,15 @@ function phasePinReview(status, semanticReview, mdc10, fileDigests, testRun) {
     invalidDispositionPaths: [
       ...[...rawDispositions].filter(([, entry]) => !isNonMeaningDisposition(entry)).map(([sourcePath]) => sourcePath),
       ...supplementalPinDispositions.filter((entry) => !entry.valid).map((entry) => entry.path),
+      ...(!semanticDefinitionDelta.valid ? [PDP1_OPERATIONS_PATH] : []),
     ],
     dispositionObservationDigest: sha256(readText('docs/implementation/observations/media-discovery-pdp1-mdc10-contract-parity-2026-10-13-r1.json')),
     supplementalPinDispositions,
+    semanticDefinitionDeltaReview: semanticDefinitionDelta,
     unclassifiedStatusPins,
     unclassifiedSemanticPins,
     continuityDecision: unclassifiedStatusPins.length === 0 && unclassifiedSemanticPins.length === 0
-      ? 'CARRY_FORWARD_SEMANTIC_REVIEW_WITH_EXACT_NON_MEANING_PIN_CLASSIFICATIONS'
+      ? 'CARRY_FORWARD_PRIOR_IDENTITY_REVIEW_WITH_EXACT_PDP1_SEMANTIC_DELTA_AND_TEST_DISPOSITIONS'
       : 'BLOCKED_UNCLASSIFIED_HISTORICAL_PIN_CHANGES',
   };
 }
@@ -791,7 +1295,8 @@ export function validatePdp0Predecessor(p0Exit, p0ExitPath, p0Digest, p0Currentn
   const uniqueCellIds = new Set(cells.map((cell) => cell.cellId));
   const fingerprint = p0Exit.developmentStatus?.currentMaterialSourceSetFingerprint;
   const ownerStatusJoin = p0Exit.ownerStatusJoin;
-  const valid = p0Exit.schemaVersion === 'media.discovery-phase-exit.v1'
+  const valid = p0ExitPath === CURRENT_CUT_PDP0_SUCCESSOR_PATH
+    && p0Exit.schemaVersion === 'media.discovery-phase-exit.v1'
     && p0Exit.phase === 'PDP-0'
     && p0Exit.recordId === `MEDIA-PDP0-EXIT-${fingerprint?.slice(-12)}`
     && p0Exit.sourceCurrentness?.status === 'PASS'
@@ -802,12 +1307,15 @@ export function validatePdp0Predecessor(p0Exit, p0ExitPath, p0Digest, p0Currentn
     && ownerStatusJoin?.freshMaterialSourceSetFingerprint === fingerprint
     && ownerStatusJoin?.predecessorPathCount === 146
     && ownerStatusJoin?.observedPathCount === 146
-    && ownerStatusJoin?.supplementalImpactRef === PDP3_STATUS_GUARD_IMPACT_PATH
-    && ownerStatusJoin?.supplementalDecisionId === 'MEDIA-DISCOVERY-PREDECESSOR-IMPACT-PDP3-STATUS-GUARD-2026-10-14-R1'
+    && ownerStatusJoin?.predecessorExitRef === 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r2.json'
+    && ownerStatusJoin?.predecessorMaterialSourceSetFingerprint === 'sha256:20e8a999b36e7fb61662183200f1e8c83eebb39523c5ab8835bea311af1f31e8'
+    && ownerStatusJoin?.supplementalImpactRef === CURRENT_CUT_SOURCE_IMPACT_PATH
+    && ownerStatusJoin?.supplementalDecisionId === 'MEDIA-DISCOVERY-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R1'
+    && ownerStatusJoin?.supplementalImpactSha256 === sha256(fs.readFileSync(path.join(root, CURRENT_CUT_SOURCE_IMPACT_PATH)))
     && ownerStatusJoin?.unchangedPathCount + ownerStatusJoin?.ownerApprovedChangedPathCount === ownerStatusJoin?.predecessorPathCount
     && ownerStatusJoin?.predecessorPathCount === ownerStatusJoin?.observedPathCount
-    && ownerStatusJoin?.unchangedPathCount === 141
-    && ownerStatusJoin?.ownerApprovedChangedPathCount === 5
+    && ownerStatusJoin?.unchangedPathCount === 145
+    && ownerStatusJoin?.ownerApprovedChangedPathCount === 1
     && ownerStatusJoin?.unapprovedChangedPathCount === 0
     && ownerStatusJoin?.missingPathCount === 0
     && ownerStatusJoin?.additionalPathCount === 0
@@ -936,6 +1444,7 @@ function makeObservation({ suffix, testRun, p0ExitPath }) {
     && semanticReview.sourceCutStable === true
     && semanticReview.outstandingMeaningIds?.length === 0
     && censusIdentitySetMatches
+    && pinReview.semanticDefinitionDeltaReview?.valid === true
     && pinReview.unclassifiedStatusPins.length === 0
     && pinReview.unclassifiedSemanticPins.length === 0;
   const ownerDirection = delegatedOwnerDirectionObservation();
@@ -1036,7 +1545,7 @@ function makeObservation({ suffix, testRun, p0ExitPath }) {
     cells: currentCells.map((cell) => ({ cellId: cell.cellId, sourceSetFingerprint: cell.sourceSetFingerprint }))
       .sort((left, right) => left.cellId.localeCompare(right.cellId)),
   });
-  const ownerStatusJoin = pdp1OwnerStatusJoinObservation(sourceSetByPath, materialSourceSetFingerprint);
+  const ownerStatusJoin = pdp1OwnerStatusJoinObservation(sourceSetByPath, materialSourceSetFingerprint, testRun);
   const lifecycleBlockers = [...new Set([
     ...technical.blockers,
     ...consistencySummary.flatMap((capture, index) => capture.status === 'UNKNOWN' ? [`CONSISTENCY_CAPTURE_${index + 1}_UNKNOWN`] : []),

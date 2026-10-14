@@ -1,9 +1,14 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { joinMediaPdp0PhaseExit, mediaPdp0RequiredCommands } from '../scripts/lib/media-discovery-pdp0-phase-exit.mjs';
+import {
+  buildMediaPdp0CurrentnessPhaseDisposition,
+  classifyCurrentCutPdp0PinChange,
+} from '../scripts/record-media-discovery-pdp0-currentness.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -87,6 +92,10 @@ const testOutcomes = mediaPdp0RequiredCommands.map((command) => ({
 
 const currentCutOwnerDirections = JSON.parse(fs.readFileSync(path.join(root, 'docs/implementation/observations/media-discovery-current-cut-owner-directions-2026-10-13-r2.json'), 'utf8'));
 const historicalPdp0Exit = JSON.parse(fs.readFileSync(path.join(root, 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json'), 'utf8'));
+const currentCutPdp0Predecessor = JSON.parse(fs.readFileSync(path.join(root, 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r2.json'), 'utf8'));
+const currentCutImpact = JSON.parse(fs.readFileSync(path.join(root, 'docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r1.json'), 'utf8'));
+const currentCutImpactPath = 'docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r1.json';
+const currentCutImpactDigest = `sha256:${createHash('sha256').update(fs.readFileSync(path.join(root, currentCutImpactPath))).digest('hex')}`;
 
 function currentCutTechnical() {
   const result = technical();
@@ -185,6 +194,130 @@ test('the current-cut owner direction fails closed when predecessor path members
   assert.equal(exit.phaseExit.status, 'FAIL');
   assert.equal(exit.ownerStatusJoin.status, 'BLOCKED');
   assert.ok(exit.delegatedOwnerAcceptance.blockers.includes('PDP0_MATERIAL_PATH_MEMBERSHIP_CHANGED'));
+});
+
+function currentCutImpactTechnical() {
+  const result = technical();
+  result.sourceContentDigests = { ...currentCutPdp0Predecessor.sourceCurrentness.sourceContentDigests };
+  result.sourceContentDigests['scripts/report-media-pdp-readiness.mjs'] = 'sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573';
+  return result;
+}
+
+test('the current-cut impact disposition joins only the exact PDP0 R2 predecessor and one reporter change', () => {
+  const exit = joinMediaPdp0PhaseExit({
+    technicalCurrentness: currentCutImpactTechnical(),
+    ownerAcceptance: currentCutImpact,
+    historicalPdp0Exit: currentCutPdp0Predecessor,
+    testOutcomes,
+  });
+  assert.equal(exit.phaseExit.status, 'PASS');
+  assert.equal(exit.ownerStatusJoin.status, 'ACCEPTED_FOR_EXACT_CURRENT_FINGERPRINT_WITH_REVIEWED_DELTA');
+  assert.equal(exit.ownerStatusJoin.predecessorExitRef, 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r2.json');
+  assert.equal(exit.ownerStatusJoin.supplementalImpactRef, 'docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r1.json');
+  assert.equal(exit.ownerStatusJoin.supplementalDecisionId, 'MEDIA-DISCOVERY-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R1');
+  assert.equal(exit.ownerStatusJoin.supplementalImpactSha256, currentCutImpactDigest);
+  assert.equal(exit.ownerStatusJoin.predecessorPathCount, 146);
+  assert.equal(exit.ownerStatusJoin.observedPathCount, 146);
+  assert.equal(exit.ownerStatusJoin.unchangedPathCount, 145);
+  assert.equal(exit.ownerStatusJoin.ownerApprovedChangedPathCount, 1);
+  assert.equal(exit.ownerStatusJoin.unapprovedChangedPathCount, 0);
+  assert.equal(exit.ownerStatusJoin.missingPathCount, 0);
+  assert.equal(exit.ownerStatusJoin.additionalPathCount, 0);
+  assert.equal(exit.independentApproval, 'NOT_CLAIMED_AND_NOT_WAIVED');
+  assert.equal(exit.delegatedOwnerAcceptance.status, 'INTERNAL_IMPACT_DISPOSITION_ONLY_NOT_OWNER_ACCEPTANCE');
+  assert.equal(exit.delegatedOwnerAcceptance.acceptedMaterialSourceSetFingerprint, null);
+  assert.equal(exit.delegatedOwnerAcceptance.impactDispositionRecordId, currentCutImpact.recordId);
+  assert.equal(exit.phaseExit.delegatedOwnerAcceptance, 'NOT_CLAIMED_IMPACT_DISPOSITION_ONLY');
+  assert.equal(exit.phaseExit.sourceCurrentness, 'PASS');
+});
+
+test('PDP0 currentness classifies the exact sourceShaSet pin through its historical digest and the separate R2 chain', () => {
+  const pin = {
+    path: 'scripts/report-media-pdp-readiness.mjs',
+    recordedDigest: 'sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c',
+    currentDigest: 'sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573',
+    disposition: 'CHANGED',
+  };
+  assert.equal(classifyCurrentCutPdp0PinChange([pin], currentCutImpact)?.path, pin.path);
+  assert.equal(classifyCurrentCutPdp0PinChange([{ ...pin, recordedDigest: 'sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1' }], currentCutImpact), null);
+  assert.equal(classifyCurrentCutPdp0PinChange([{ ...pin, currentDigest: 'sha256:' + 'f'.repeat(64) }], currentCutImpact), null);
+});
+
+test('PDP0 technical currentness records impact-only disposition without claiming owner acceptance or passing Discovery', () => {
+  const disposition = buildMediaPdp0CurrentnessPhaseDisposition(true, true);
+  assert.equal(disposition.currentSourceCurrentness, 'PASS');
+  assert.equal(disposition.pdp0Exit, 'PASS_INTERNAL_IMPACT_DISPOSITION_ONLY');
+  assert.equal(disposition.ownerAcceptance, 'NOT_OBTAINED');
+  assert.equal(disposition.ownerAcceptanceClaim, 'NOT_CLAIMED');
+  assert.equal(disposition.discoveryBarrier, 'FAIL_PDP1_PDP3_NOT_VALIDATED');
+  assert.equal(disposition.build, 'NOT_ENTERED');
+  assert.equal(disposition.pdpClosure, 'NOT_ENTERED');
+  assert.equal(disposition.delivery, 'BLOCKED');
+});
+
+test('PDP0 technical currentness remains blocked without exact impact disposition and fails on stale sources', () => {
+  const pendingOwner = buildMediaPdp0CurrentnessPhaseDisposition(true, false);
+  assert.equal(pendingOwner.pdp0Exit, 'BLOCKED_PENDING_OWNER_ACCEPTANCE');
+  assert.equal(pendingOwner.ownerAcceptance, 'NOT_OBTAINED');
+  assert.equal(pendingOwner.ownerAcceptanceClaim, 'NOT_CLAIMED');
+  assert.equal(pendingOwner.discoveryBarrier, 'FAIL_PDP0_OWNER_ACCEPTANCE_PENDING_AND_PDP1_PDP3_NOT_VALIDATED');
+  const stale = buildMediaPdp0CurrentnessPhaseDisposition(false, true);
+  assert.equal(stale.currentSourceCurrentness, 'FAIL');
+  assert.equal(stale.pdp0Exit, 'FAIL_SOURCE_CURRENTNESS');
+  assert.equal(stale.discoveryBarrier, 'FAIL_PDP0_SOURCE_CURRENTNESS_AND_PDP1_PDP3_NOT_VALIDATED');
+});
+
+test('the current-cut impact disposition rejects an unexpected PDP0 path digest', () => {
+  const changed = currentCutImpactTechnical();
+  const otherPath = Object.keys(changed.sourceContentDigests).find((sourcePath) => sourcePath !== 'scripts/report-media-pdp-readiness.mjs');
+  changed.sourceContentDigests[otherPath] = `sha256:${'f'.repeat(64)}`;
+  const exit = joinMediaPdp0PhaseExit({
+    technicalCurrentness: changed,
+    ownerAcceptance: currentCutImpact,
+    historicalPdp0Exit: currentCutPdp0Predecessor,
+    testOutcomes,
+  });
+  assert.equal(exit.phaseExit.status, 'FAIL');
+  assert.ok(exit.delegatedOwnerAcceptance.blockers.includes(`PDP0_SOURCE_DIGEST_NOT_OWNER_REVIEWED:${otherPath}`));
+});
+
+test('the current-cut impact disposition rejects an incorrect reporter digest', () => {
+  const changed = currentCutImpactTechnical();
+  changed.sourceContentDigests['scripts/report-media-pdp-readiness.mjs'] = `sha256:${'f'.repeat(64)}`;
+  const exit = joinMediaPdp0PhaseExit({
+    technicalCurrentness: changed,
+    ownerAcceptance: currentCutImpact,
+    historicalPdp0Exit: currentCutPdp0Predecessor,
+    testOutcomes,
+  });
+  assert.equal(exit.phaseExit.status, 'FAIL');
+  assert.ok(exit.delegatedOwnerAcceptance.blockers.includes('PDP0_REPORTER_DIGEST_NOT_AUTHORIZED'));
+});
+
+test('the current-cut impact disposition rejects a changed authorized path', () => {
+  const invalidImpact = structuredClone(currentCutImpact);
+  invalidImpact.sourceDeltas.find((entry) => entry.path === 'scripts/report-media-pdp-readiness.mjs').path = 'scripts/other-readiness-script.mjs';
+  const exit = joinMediaPdp0PhaseExit({
+    technicalCurrentness: currentCutImpactTechnical(),
+    ownerAcceptance: invalidImpact,
+    historicalPdp0Exit: currentCutPdp0Predecessor,
+    testOutcomes,
+  });
+  assert.equal(exit.phaseExit.status, 'FAIL');
+  assert.ok(exit.delegatedOwnerAcceptance.blockers.includes('CURRENT_CUT_IMPACT_PATH_SET_INVALID'));
+});
+
+test('the current-cut impact disposition rejects changed authority attribution', () => {
+  const invalidImpact = structuredClone(currentCutImpact);
+  invalidImpact.authority.userAuthorization = 'NOT_AUTHORIZED';
+  const exit = joinMediaPdp0PhaseExit({
+    technicalCurrentness: currentCutImpactTechnical(),
+    ownerAcceptance: invalidImpact,
+    historicalPdp0Exit: currentCutPdp0Predecessor,
+    testOutcomes,
+  });
+  assert.equal(exit.phaseExit.status, 'FAIL');
+  assert.ok(exit.delegatedOwnerAcceptance.blockers.includes('CURRENT_CUT_IMPACT_AUTHORITY_INVALID'));
 });
 
 const REVIEWED_PATHS = new Set([

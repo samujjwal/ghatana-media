@@ -1,0 +1,131 @@
+{
+  "schemaVersion": "media.discovery-current-cut-source-impact.v1",
+  "recordId": "MEDIA-DISCOVERY-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R1",
+  "observedAt": "2026-10-14T04:12:55.000Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "stage": "DISCOVERY",
+    "activePhase": "PDP-0",
+    "reviewedSourceBaseline": "f5ae3461c53eb1d490362a9bb8818ce74573147c",
+    "scope": "Exact source-impact disposition for the three PDP-1 current-cut paths rejected by the R10 owner-status join and the reporter digest they share with PDP-0."
+  },
+  "authority": {
+    "delegate": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION",
+    "authorityRef": ".product-experience/reviews/2026-10-13-discovery-current-cut-delegated-owner-review.md#Authority-and-attribution",
+    "decisionRole": "SCOPED_INTERNAL_MEDIA_SOURCE_IMPACT_REVIEW",
+    "userAuthorization": "Authorize scoped impact disposition (Recommended)",
+    "authorizationContext": "The user explicitly authorized this exact bounded impact disposition in response to the current-cut PDP-1 owner-status join blocker.",
+    "humanIndependentSignatureProvided": false,
+    "qualifiedExternalSpecialistSignoffProvided": false,
+    "externalContractOwnerAcceptanceProvided": false,
+    "nativeLifecycleReceiptProvided": false
+  },
+  "predecessorCuts": [
+    {
+      "phase": "PDP-0",
+      "receiptRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r2.json",
+      "receiptSha256": "sha256:3f9b401f36ed23a50cf40a70670414e92327a71cffe80274d96d4006b55a39a3",
+      "materialSourceSetFingerprint": "sha256:20e8a999b36e7fb61662183200f1e8c83eebb39523c5ab8835bea311af1f31e8",
+      "materialPathCount": 146,
+      "reporterSha256": "sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1"
+    },
+    {
+      "phase": "PDP-1",
+      "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json",
+      "receiptSha256": "sha256:66c8d902c73cd6c5eb5e4136413567175a5a7d224bfb5f48b1205a1c9189a957",
+      "materialSourceSetFingerprint": "sha256:53352578058a5deb1ab8faef43857848e9bbab2b8ad0d81a8bb6b6d73bef0baa",
+      "materialPathCount": 329
+    },
+    {
+      "phase": "PDP-1",
+      "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r10.json",
+      "receiptSha256": "sha256:f16e6a417151e06ac2879e4f72b2c6ee3689a5de5d6e275a99ced6f7bd27f0ae",
+      "materialSourceSetFingerprint": "sha256:6ae63551e152a19d36a0766f510a1f993e0509bb7a5f8b6837f860806409b19a",
+      "materialPathCount": 329,
+      "receiptStatus": "FAIL_OWNER_STATUS_JOIN_ONLY"
+    }
+  ],
+  "sourceDeltas": [
+    {
+      "path": "scripts/report-media-pdp-readiness.mjs",
+      "phases": ["PDP-0", "PDP-1"],
+      "historicalPdp0MaterialSha256": "sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c",
+      "historicalPdp1MaterialSha256": "sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c",
+      "predecessorSha256": "sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1",
+      "observedSha256": "sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573",
+      "predecessorChain": [
+        {
+          "receiptRef": "docs/implementation/observations/media-discovery-predecessor-impact-pdp3-status-guard-2026-10-14-r1.json",
+          "receiptSha256": "sha256:67ac10b13b933ee84dc4a3bf9cdbd00cd020a0c8427f7b83e5963e36467a58e7",
+          "fromSha256": "sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c",
+          "toSha256": "sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1"
+        }
+      ],
+      "classification": "PDP_STATUS_TEST_REPORTER_SELECTION_ONLY",
+      "changedFunctions": ["buildP103TestArgs", "runRequiredChecks"],
+      "changeSummary": "Pins Node's TAP reporter for the two readiness-script test invocations so the status collector parses deterministic output; no product-definition behavior changes.",
+      "meaningIdsChanged": [],
+      "requiresFreshCurrentness": true
+    },
+    {
+      "path": ".product-experience/interface-parity/current-source-review.json",
+      "phases": ["PDP-1"],
+      "historicalPdp1MaterialSha256": "sha256:14cf6c3d9ea948e39e41ffa2de3453c08b7b6a23267f407f3504c5462b7428fc",
+      "predecessorSha256": "sha256:14cf6c3d9ea948e39e41ffa2de3453c08b7b6a23267f407f3504c5462b7428fc",
+      "observedSha256": "sha256:62765cbb335572f28570fe650b3955aaa028f314322490e17e466d3ca9234abf",
+      "classification": "PDP1_REVIEW_ARTIFACT_REFRESH_FOR_SEPARATELY_REVIEWED_OPERATION_DELTA",
+      "changeSummary": "Refreshes the interface-parity review's operations source pin and records four proposal-only typed QUERY observations. This review artifact adds no separate product meaning beyond the exact operations.yaml delta reviewed below; proposal associations remain unaccepted and runtime/transport remain not admitted.",
+      "relatedDefinitionSource": ".product-experience/pdp-1-domain-data/operations.yaml",
+      "relatedDefinitionSha256": "sha256:317878be9ebe9c978f356a4e81060620fcb69af02ea25c2ff1d47bd20180c069",
+      "relatedDefinitionReviewSource": ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
+      "relatedDefinitionReviewSha256": "sha256:71a27400d00faccba8643393259c1322861593783015426b6eeddbcf068afaf2",
+      "relatedReviewedDefinitionIds": [
+        "media.observation-contract.rights-decision.v1",
+        "media.observation-contract.destination-delivery-acknowledgment.v1",
+        "media.observation-contract.delegated-integration-result-context.v1",
+        "media.observation-contract.processing-parameter-read.v1",
+        "media.observation-contract.effective-processing-constraints.v1"
+      ],
+      "additionalMeaningIds": [],
+      "meaningChange": "NO_ADDITIONAL_MEANING_BEYOND_SEPARATELY_REVIEWED_PDP1_OPERATION_DELTA",
+      "requiresFreshCurrentness": true
+    },
+    {
+      "path": "tests/media-pdp-p1-dev-status.test.mjs",
+      "phases": ["PDP-1"],
+      "historicalPdp1MaterialSha256": "sha256:5a007a561cc96659d7da63d2470727237d1496c3a50c80682253a9d542846599",
+      "predecessorSha256": "sha256:5a007a561cc96659d7da63d2470727237d1496c3a50c80682253a9d542846599",
+      "observedSha256": "sha256:3ff1576a4a3987f5b1e05d15ae77e35a62745260e127ebcb28c1bb49ef7ef82e",
+      "classification": "REGRESSION_COVERAGE",
+      "changeSummary": "Adds regression assertions that PDP1-03 test invocations explicitly select TAP output and that the status runner pins that reporter.",
+      "meaningChange": "NONE",
+      "meaningIdsChanged": [],
+      "requiresFreshCurrentness": true
+    }
+  ],
+  "requiredEvidence": {
+    "command": "node --test tests/media-pdp-p1-dev-status.test.mjs tests/media-contract-parity.test.mjs tests/media-contract-parity-definition-only-cli.test.mjs tests/pdp1-owner-action-wire-contracts.test.mjs tests/pdp1-transition-guard-definition-evaluator.test.mjs tests/pdp-truth-domain-typed-observations.test.mjs",
+    "status": "PASS_AT_R10_AND_RERUN_DURING_SUCCESSOR_CURRENTNESS_CAPTURE",
+    "referenceReceipt": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r10.json",
+    "referenceReceiptSha256": "sha256:f16e6a417151e06ac2879e4f72b2c6ee3689a5de5d6e275a99ced6f7bd27f0ae",
+    "referenceStatus": "PASS",
+    "referenceTestCount": 75,
+    "referencePassedCount": 75,
+    "referenceFailedCount": 0,
+    "referenceSkippedCount": 0,
+    "acceptance": "Successor capture must rerun this exact suite with stable source binding, matching current test input digests, zero failures and zero skipped tests."
+  },
+  "decision": {
+    "status": "APPROVED_INTERNAL_IMPACT_DISPOSITION_FOR_EXACT_SOURCE_DELTAS",
+    "pdp0MeaningDisposition": "NO_MEANING_CHANGE_FOR_EXACT_REVIEWED_SOURCE_DELTAS",
+    "pdp1MeaningDisposition": "NO_ADDITIONAL_MEANING_IDS_IN_THESE_THREE_PATH_CHANGES; OPERATIONS_YAML_DELTA_REMAINS_SEPARATELY_REVIEWED",
+    "requiresOrderedTechnicalCurrentnessRecapture": ["PDP-0", "PDP-1"],
+    "preserveHistoricalReceipts": true,
+    "independentApproval": "NOT_CLAIMED_AND_NOT_WAIVED",
+    "externalContractOwnerAcceptance": "NOT_CLAIMED",
+    "nativeLifecycleClosure": "NOT_ENTERED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "delivery": "BLOCKED"
+  },
+  "limitation": "This is an internal, user-delegated source-impact disposition for the exact paths and hashes above. It does not approve the separately reviewed PDP-1 operation meanings, accept external contracts, provide independent specialist signoff, establish PDP closure, admit runtime transports, or authorize delivery."
+}

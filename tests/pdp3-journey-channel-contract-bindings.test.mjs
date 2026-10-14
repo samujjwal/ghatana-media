@@ -255,8 +255,8 @@ test("MDC30-C channel binding registry covers the owner-approved 61-edge set wit
   assert.equal(registry.status, "SOURCE_BOUND_LOGICAL_DEFINITIONS_PARTIAL; CHANNEL_TRANSPORT_EQUIVALENCE_UNBOUND; RUNTIME_NOT_ADMITTED");
   assert.equal(registry.counts.sourceBoundDefinitionOnlyOperationMappings, 6);
   assert.equal(registry.counts.sourceBoundHttpOperationMappings, 6);
-  assert.equal(registry.counts.logicalDefinitionOnlyEdges, 40);
-  assert.equal(registry.counts.incompleteP1StateOrObservationEdges, 21);
+  assert.equal(registry.counts.logicalDefinitionOnlyEdges, 43);
+  assert.equal(registry.counts.incompleteP1StateOrObservationEdges, 18);
   assert.equal(registry.counts.transportEquivalenceUnboundEdges, 61);
   assert.equal(registry.adversarialFixtureCases.length, 14);
   assert.deepEqual(registry.adversarialFixtureCases.slice(-7).map((fixture) => fixture.id), [
@@ -268,6 +268,59 @@ test("MDC30-C channel binding registry covers the owner-approved 61-edge set wit
     "MDC30-CHANNEL-NEG-013-PARTIAL-OPERATION-PROOF-COVERAGE",
     "MDC30-CHANNEL-NEG-014-FORGED-LOCAL-SESSION-NO-TRANSITION",
   ]);
+});
+
+test("MDC30-C-30 binds exact effective-constraint observations and the local no-dispatch step", () => {
+  const registry = readYaml(registryPath);
+  const observationRef = ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.effective-processing-constraints.v1";
+  const localProofSource = ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-30.step-04.v1";
+  const observation = sources.operations.ownerTypedObservationContracts.records.find((record) => record.id === "media.observation-contract.effective-processing-constraints.v1");
+  const expectedDimensions = ["qualification", "license", "health", "capability", "rights"];
+  assert.deepEqual(observation.operationRefs, ["media.operation.action.inspect-effective-processing-constraints"]);
+  assert.deepEqual(observation.requestSchema.properties.dimensionRefs.items.enum, expectedDimensions);
+  assert.deepEqual(observation.resultSchema.properties.observation.properties.dimensions.items.properties.dimension.enum, expectedDimensions);
+  assert.deepEqual(observation.resultSchema.properties.observation.properties.dimensions.items.properties.dimensionStatus.enum, ["SATISFIED", "NOT_SATISFIED", "UNKNOWN", "NOT_APPLICABLE"]);
+  assert.ok(observation.bindingRules.some((rule) => rule.id === "media.observation-binding.effective-constraints.dimension-set" && rule.operator === "EXACT_SET_EQUAL"));
+  assert.ok(observation.resultRules.some((rule) => /no aggregate eligible, ready, qualified, or executable result is defined/u.test(rule)));
+  assert.ok(observation.resultRules.some((rule) => /Missing, stale, mismatched, untrusted, or unavailable dimension evidence is UNKNOWN/u.test(rule)));
+  const edges = registry.edges.filter((edge) => edge.taskId === "MDC30-C-30");
+  assert.equal(edges.length, 3);
+  assertValid(registry, sources);
+  for (const edge of edges) {
+    assert.deepEqual(edge.pdp1StateOrObservationRefs, [observationRef]);
+    assert.equal(edge.p1OperationStateProofs[0].observationRef, observationRef);
+    assert.equal(edge.p1OperationStateProofs[0].operationRef, "media.operation.action.inspect-effective-processing-constraints");
+    assert.deepEqual(edge.p1OperationStateProofs[0].purposeBindingRefs.map((ref) => ref.split("@id=")[1]), [
+      "media.pdp3.step-purpose-binding.j30-step-01.v1",
+      "media.pdp3.step-purpose-binding.j30-step-02.v1",
+      "media.pdp3.step-purpose-binding.j30-step-03.v1",
+    ]);
+    assert.equal(edge.localStepNoP1MachineProofs[0].localEffectContractRef, localProofSource);
+    assert.equal(edge.localStepNoP1MachineProofs[0].stepIndex, 3);
+    assert.ok(edge.localStepNoP1MachineProofs[0].sourceRefs.includes(`${localProofSource}/inputContract/effectBoundary`));
+    assert.equal(edge.transportRefOrUnbound, "UNBOUND");
+    assert.equal(edge.runtimeAdmission, "NOT_ADMITTED");
+  }
+
+  const wrongObservation = structuredClone(registry);
+  const wrongEdge = wrongObservation.edges.find((edge) => edge.taskId === "MDC30-C-30");
+  wrongEdge.p1OperationStateProofs[0].observationRef = ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1";
+  assert.throws(() => assertValid(wrongObservation, sources), /typed observation must bind the exact operation/);
+
+  const wrongPurpose = structuredClone(registry);
+  const wrongPurposeEdge = wrongPurpose.edges.find((edge) => edge.taskId === "MDC30-C-30");
+  wrongPurposeEdge.p1OperationStateProofs[0].purposeBindingRefs = [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j30-step-04.v1"];
+  assert.throws(() => assertValid(wrongPurpose, sources), /wrong purpose-to-operation join/);
+
+  const missingLocalProof = structuredClone(registry);
+  const localEdge = missingLocalProof.edges.find((edge) => edge.taskId === "MDC30-C-30");
+  localEdge.localStepNoP1MachineProofs = [];
+  assert.throws(() => assertValid(missingLocalProof, sources), /requires one exact local-step no-P1-state proof/);
+
+  const alteredLocalSource = structuredClone(registry);
+  const alteredEdge = alteredLocalSource.edges.find((edge) => edge.taskId === "MDC30-C-30");
+  alteredEdge.localStepNoP1MachineProofs[0].localEffectContractRef = localProofSource.replace("step-04", "step-03");
+  assert.throws(() => assertValid(alteredLocalSource, sources), /local-step proof must preserve the exact source-defined local-only effect/);
 });
 
 test("MDC30-C adversarial fixtures reject missing and duplicate edges", () => {

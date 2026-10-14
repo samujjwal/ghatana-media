@@ -1,0 +1,357 @@
+{
+  "schemaVersion": "media.discovery.pdp3-mdc30-implementation-progress.v1",
+  "recordKind": "IMPLEMENTATION_PROGRESS_SOURCE_GAP_AUDIT_ONLY_NOT_PHASE_EXIT",
+  "observationId": "MEDIA-PDP3-MDC30-IMPLEMENTATION-PROGRESS-2026-10-14-R4",
+  "observedAt": "2026-10-14T05:26:06Z",
+  "authority": "CURRENT_SOURCE_GAP_AND_FOCUSED_IMPLEMENTATION_PROGRESS_ONLY_NOT_PDP3_CURRENTNESS_ACCEPTANCE_CLOSURE_OR_ADMISSION",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "branch": "main",
+    "baseHead": "a50a729974bc0ee2125d7b5b3842d746beae44d6",
+    "worktreeState": "DIRTY_WORKTREE; exact audited source digests are listed below",
+    "macroStage": "DISCOVERY",
+    "exactPhase": "PDP-3",
+    "exactTask": "MDC-30",
+    "reviewedCampaignBaseline": "f5ae3461c53eb1d490362a9bb8818ce74573147c",
+    "scope": {
+      "physicalCandidates": 26,
+      "physicalDispositions": {
+        "PHYSICAL": 12,
+        "SUPPORT_ONLY": 12,
+        "SUBSUMED": 2
+      },
+      "semanticCompositions": 6,
+      "rootAggregates": 1,
+      "consumerCrosswalks": 17,
+      "pdp3Cells": 50,
+      "campaignCells": 200
+    }
+  },
+  "sourceAuthority": {
+    "executionPlanRef": "docs/implementation/MEDIA-DISCOVERY-REMAINING-CURRENT-CUT-EXECUTION-2026-10-13.md",
+    "priorProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
+    "channelBindingRegistryRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+    "journeyPurposeBindingsRef": ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+    "p1OperationDefinitionsRef": ".product-experience/pdp-1-domain-data/operations.yaml",
+    "predecessorReceipts": [
+      {
+        "phase": "PDP-0",
+        "exitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r5.json",
+        "sourceCurrentnessRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r5.json",
+        "status": "PASS",
+        "developmentStatus": "DEV_COMPLETE",
+        "materialSourceSetFingerprint": "sha256:760ed4560854a37063f69eb47daf9d6bb62f1752450b38f9654c91a3f4d8809e",
+        "observedHead": "a50a729974bc0ee2125d7b5b3842d746beae44d6",
+        "exactCutOwnerAcceptance": "NOT_CLAIMED_IMPACT_DISPOSITION_ONLY"
+      },
+      {
+        "phase": "PDP-1",
+        "exitRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r13.json",
+        "sourceCurrentnessRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r13.json#sourceCurrentness",
+        "status": "PASS",
+        "developmentStatus": "DEV_COMPLETE",
+        "materialSourceSetFingerprint": "sha256:819e2bc95c437c228e70d245fcb6337c974adc9caa579e1f359dcaa1bb56a08b",
+        "observedHead": "a50a729974bc0ee2125d7b5b3842d746beae44d6",
+        "exactCutOwnerAcceptance": "NOT_RECORDED"
+      },
+      {
+        "phase": "PDP-2",
+        "exitRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r6.json",
+        "sourceCurrentnessRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r6.json#sourceCurrentness",
+        "status": "PASS",
+        "developmentStatus": "DEV_COMPLETE",
+        "materialSourceSetFingerprint": "sha256:9dc06d64aa11cbfc1ffe5dc91fecd1d1634fe6e3cadb1d8b163a7d52d2cc4ba0",
+        "observedHead": "a50a729974bc0ee2125d7b5b3842d746beae44d6",
+        "exactCutOwnerAcceptance": "NOT_RECORDED"
+      }
+    ]
+  },
+  "sourceDigests": {
+    "algorithm": "SHA-256",
+    "exactObservedFiles": {
+      ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml": "sha256:2ee0ba85f2a12ccd00ed0ffae97a7da6fe49cda941f17e3cbe2ea0ca17ad7a1a",
+      ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml": "sha256:984150c773eb70654a92edcfb592ebe61f19c3da82fdbcd0f7eaffb6696ae85d",
+      ".product-experience/pdp-1-domain-data/operations.yaml": "sha256:317878be9ebe9c978f356a4e81060620fcb69af02ea25c2ff1d47bd20180c069",
+      "tests/pdp3-journey-channel-contract-bindings.test.mjs": "sha256:01561345211e83a2cf9340705ba5bffa8f42ffe8a9c2652be51d0b99cf116c22"
+    }
+  },
+  "logicalChannelProgress": {
+    "totalEdges": 61,
+    "sourceBoundDefinitionOnly": 43,
+    "incomplete": 18,
+    "sourceBoundTaskIds": [
+      "MDC30-C-06",
+      "MDC30-C-07",
+      "MDC30-C-11",
+      "MDC30-C-12",
+      "MDC30-C-15",
+      "MDC30-C-17",
+      "MDC30-C-21",
+      "MDC30-C-30"
+    ],
+    "incompleteTaskEdgeCounts": {
+      "MDC30-C-03": 4,
+      "MDC30-C-04": 3,
+      "MDC30-C-16": 2,
+      "MDC30-C-22": 4,
+      "MDC30-C-25": 2,
+      "MDC30-C-27": 3
+    },
+    "incompleteEdges": [
+      {
+        "id": "media.pdp3.channel-binding.j03.web.v1",
+        "journeyId": "J-03",
+        "channel": "media.channel.web",
+        "ownerTaskId": "MDC30-C-03"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j03.cli.v1",
+        "journeyId": "J-03",
+        "channel": "media.channel.cli",
+        "ownerTaskId": "MDC30-C-03"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j03.grpc-api.v1",
+        "journeyId": "J-03",
+        "channel": "media.channel.grpc-api",
+        "ownerTaskId": "MDC30-C-03"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j03.sdk.v1",
+        "journeyId": "J-03",
+        "channel": "media.channel.sdk",
+        "ownerTaskId": "MDC30-C-03"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j04.web.v1",
+        "journeyId": "J-04",
+        "channel": "media.channel.web",
+        "ownerTaskId": "MDC30-C-04"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j04.grpc-api.v1",
+        "journeyId": "J-04",
+        "channel": "media.channel.grpc-api",
+        "ownerTaskId": "MDC30-C-04"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j04.sdk.v1",
+        "journeyId": "J-04",
+        "channel": "media.channel.sdk",
+        "ownerTaskId": "MDC30-C-04"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j16.web.v1",
+        "journeyId": "J-16",
+        "channel": "media.channel.web",
+        "ownerTaskId": "MDC30-C-16"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j16.grpc-api.v1",
+        "journeyId": "J-16",
+        "channel": "media.channel.grpc-api",
+        "ownerTaskId": "MDC30-C-16"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j22.web.v1",
+        "journeyId": "J-22",
+        "channel": "media.channel.web",
+        "ownerTaskId": "MDC30-C-22"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j22.http-api.v1",
+        "journeyId": "J-22",
+        "channel": "media.channel.http-api",
+        "ownerTaskId": "MDC30-C-22"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j22.cli.v1",
+        "journeyId": "J-22",
+        "channel": "media.channel.cli",
+        "ownerTaskId": "MDC30-C-22"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j22.product-integration.v1",
+        "journeyId": "J-22",
+        "channel": "media.channel.product-integration",
+        "ownerTaskId": "MDC30-C-22"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j25.product-integration.v1",
+        "journeyId": "J-25",
+        "channel": "media.channel.product-integration",
+        "ownerTaskId": "MDC30-C-25"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j25.http-api.v1",
+        "journeyId": "J-25",
+        "channel": "media.channel.http-api",
+        "ownerTaskId": "MDC30-C-25"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j27.web.v1",
+        "journeyId": "J-27",
+        "channel": "media.channel.web",
+        "ownerTaskId": "MDC30-C-27"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j27.http-api.v1",
+        "journeyId": "J-27",
+        "channel": "media.channel.http-api",
+        "ownerTaskId": "MDC30-C-27"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j27.cli.v1",
+        "journeyId": "J-27",
+        "channel": "media.channel.cli",
+        "ownerTaskId": "MDC30-C-27"
+      }
+    ],
+    "transportEquivalenceUnboundEdges": 61
+  },
+  "journeyGapAudit": [
+    {
+      "taskId": "MDC30-C-03",
+      "owner": "Media speech/transcription and caption-interface owners",
+      "disposition": "BLOCKED_PDP1_OWNER_OPERATION_AND_TYPED_RESULT_DEFINITIONS",
+      "missingMeaning": "The complete six-operation chain still lacks exact owner-defined joins for submission receipt, transcription completion, editable caption draft, and immutable caption-version reads/writes across every named channel.",
+      "nextOwnerAction": "Define the missing exact P1 operation/result joins and typed denied, unknown, timeout, and recovery meanings; then reassess the four J03 edges."
+    },
+    {
+      "taskId": "MDC30-C-04",
+      "owner": "Media speech/TTS, rights and consent owners",
+      "disposition": "BLOCKED_PDP1_OWNER_CONSENT_AUTHORIZATION_AND_RESULT_DEFINITIONS",
+      "missingMeaning": "Current owner sources do not join consent scope, selected voice profile, exact source, synthesis authority, and typed later output/approval observation across the three J04 edges.",
+      "nextOwnerAction": "Define those exact P1 owner operation/result sources; do not infer rights, output, or approval from submission or voice selection."
+    },
+    {
+      "taskId": "MDC30-C-16",
+      "owner": "Media dubbing/localization and caption owner",
+      "disposition": "BLOCKED_PDP1_OWNER_OPERATION_COVERAGE",
+      "missingMeaning": "The current source set does not provide a full exact source join for every listed J16 operation across both channels while preserving source, locale, draft, immutable-version, approval, and delivery distinctions.",
+      "nextOwnerAction": "Author the missing exact P1 operation/result joins; reassess only the two J16 edges and affected dependents."
+    },
+    {
+      "taskId": "MDC30-C-22",
+      "owner": "Media delivery and destination acknowledgement owner",
+      "disposition": "BLOCKED_DELIVERY_REQUEST_FINGERPRINT_JOIN",
+      "missingMeaning": "The destination-acknowledgment query requires deliveryRequestFingerprint, but the current deliver-exact-version result/profile does not expose that value or an exact derivation from the same request identity. requestId does not prove the required fingerprint.",
+      "nextOwnerAction": "Define an owner-authored P1 result or exact identity-resolution contract carrying the deliveryRequestFingerprint; do not infer it in PDP-3."
+    },
+    {
+      "taskId": "MDC30-C-25",
+      "owner": "Media integration/agent delegated authority owner",
+      "disposition": "BLOCKED_TYPED_JOB_STATUS_AND_OUTPUT_RESULT_SOURCES",
+      "missingMeaning": "Delegated-result-context provides bounded delegation context but not job-status or output-preview/version payloads; those P1 operations still return generic receipts and do not bind delegated resultRefs to typed outputs.",
+      "nextOwnerAction": "Define exact typed P1 current-job/current-attempt and output-preview/version results plus their binding to delegated resultRefs."
+    },
+    {
+      "taskId": "MDC30-C-27",
+      "owner": "Media runtime resilience and support-experience owner",
+      "disposition": "BLOCKED_TYPED_JOB_STATUS_AND_FALLBACK_GUARDS",
+      "missingMeaning": "Typed processing-parameter and quality observations exist, but J27 lacks typed job-status dimensions and exact fallback resource checks and explicit opt-in operation mapping. Similar labels do not join J27 rights or eligibility evidence.",
+      "nextOwnerAction": "Define the exact P1 job-status and fallback rights/licensing/quality/resource/opt-in operation and result sources."
+    }
+  ],
+  "completedWork": {
+    "mdc30C30": {
+      "status": "SOURCE_BOUND_DEFINITION_ONLY",
+      "edgeCount": 3,
+      "observationRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.effective-processing-constraints.v1",
+      "localStepProofRef": ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-30.step-04.v1",
+      "runtimeAdmission": "NOT_ADMITTED",
+      "transport": "UNBOUND"
+    },
+    "consequentialSteps": {
+      "total": 14,
+      "complete": 14,
+      "completeTaskIds": [
+        "MDC30-S-01",
+        "MDC30-S-02",
+        "MDC30-S-03",
+        "MDC30-S-04",
+        "MDC30-S-05",
+        "MDC30-S-06",
+        "MDC30-S-07",
+        "MDC30-S-08",
+        "MDC30-S-09",
+        "MDC30-S-10",
+        "MDC30-S-11",
+        "MDC30-S-12",
+        "MDC30-S-13",
+        "MDC30-S-14"
+      ],
+      "s06Disposition": "SOURCE_BOUND_DEFINITION_ONLY_EXACT_ASYNC_SUBMIT_WRAPPER_NO_QUEUED_OR_EXECUTION_CLAIM"
+    }
+  },
+  "verification": {
+    "focusedChecks": [
+      {
+        "command": "node --test tests/pdp3-journey-channel-contract-bindings.test.mjs",
+        "testCount": 17,
+        "passedCount": 17,
+        "failedCount": 0,
+        "skippedCount": 0,
+        "status": "PASS"
+      },
+      {
+        "command": "node --test tests/media-pdp3-mdc30-s-step-bindings.test.mjs tests/pdp-experience-step-definition-oracle.test.mjs tests/pdp-experience-step-version-binding-contracts.test.mjs",
+        "testCount": 21,
+        "passedCount": 21,
+        "failedCount": 0,
+        "skippedCount": 0,
+        "status": "PASS"
+      },
+      {
+        "command": "node --test tests/media-discovery-phase-cell-plan.test.mjs",
+        "testCount": 8,
+        "passedCount": 8,
+        "failedCount": 0,
+        "skippedCount": 0,
+        "status": "PASS"
+      },
+      {
+        "command": "git diff --check",
+        "status": "PASS"
+      }
+    ],
+    "mdc30V01": {
+      "status": "NOT_RUN_BLOCKED",
+      "blocker": "18 channel edges still require owner-authored PDP-1 result/operation source definitions."
+    },
+    "mdc31": {
+      "status": "NOT_RUN_GATED",
+      "blocker": "MDC-30 and V-01 predecessors are incomplete; current-cut Explorer browser evidence does not exist."
+    },
+    "mdc32": {
+      "status": "NOT_STARTED_GATED",
+      "blocker": "MDC-30, V-01, and current MDC-31 evidence are prerequisites."
+    },
+    "mdc40": {
+      "status": "FAIL",
+      "blocker": "Discovery has unresolved PDP-3 source definitions and no current PDP-3 exit."
+    },
+    "mdc41": {
+      "status": "NOT_ENTERED",
+      "blocker": "MDC-40 Discovery barrier is FAIL."
+    }
+  },
+  "phaseCurrentness": {
+    "pdp0": "PASS_SOURCE_CURRENT_DEV_COMPLETE",
+    "pdp1": "PASS_SOURCE_CURRENT_DEV_COMPLETE",
+    "pdp2": "PASS_SOURCE_CURRENT_DEV_COMPLETE",
+    "pdp3": "NOT_ESTABLISHED",
+    "discoveryBarrier": "FAIL"
+  },
+  "claimsBoundary": {
+    "exactCutOwnerAcceptance": "NOT_CLAIMED",
+    "independentApproval": "NOT_CLAIMED",
+    "lifecycleClosure": "NOT_ENTERED",
+    "build": "NOT_ENTERED",
+    "delivery": "BLOCKED",
+    "channelRuntime": "NOT_ADMITTED",
+    "channelTransportEquivalence": "UNBOUND",
+    "browserEvidenceForCurrentCut": "NOT_AVAILABLE"
+  },
+  "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, MDC30-C-04, MDC30-C-16, MDC30-C-22, MDC30-C-25, and MDC30-C-27. If any definition changes PDP-1 meaning, reopen the exact PDP-1 owner work and recapture affected PDP-2 and PDP-3 sources in order. Then finish affected PDP-3 bindings and negative tests before V-01; keep MDC-31, MDC-32, MDC-40, and MDC-41 gated until their prescribed predecessors pass."
+}

@@ -1082,6 +1082,7 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/0
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-effective-processing-constraints
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.effective-processing-constraints.v1
   mappingBasis: Read or navigate using the exact selected context; do not mutate a source object or infer permission
     from its presence.
   runtimeAdmission: NOT_ADMITTED
@@ -1137,6 +1138,7 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/1
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-effective-processing-constraints
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.effective-processing-constraints.v1
   mappingBasis: Read or navigate using the exact selected context; do not mutate a source object or infer permission
     from its presence.
   runtimeAdmission: NOT_ADMITTED
@@ -1192,6 +1194,7 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/2
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-effective-processing-constraints
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.effective-processing-constraints.v1
   mappingBasis: Read or navigate using the exact selected context; do not mutate a source object or infer permission
     from its presence.
   runtimeAdmission: NOT_ADMITTED

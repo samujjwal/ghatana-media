@@ -18,9 +18,9 @@
   "sourceBoundDefinitionOnlyOperationMappings": 6
   "allRuntimeAdmission": "NOT_ADMITTED"
   "sourceBoundHttpOperationMappings": 6
-  "logicalDefinitionOnlyEdges": 40
+  "logicalDefinitionOnlyEdges": 43
   "transportEquivalenceUnboundEdges": 61
-  "incompleteP1StateOrObservationEdges": 21
+  "incompleteP1StateOrObservationEdges": 18
 "channelGrammar":
   "media.channel.web":
     "consumerSurfaceId": "media.surface.web"
@@ -14108,7 +14108,7 @@
           - ".product-experience/pdp-3-product-experience/action-registry.yaml"
         "reason": "No exact source-proven channel-equivalent operation binding in the reviewed channel inventory."
     "p1StateRefs": []
-    "stateOrObservationDisposition": "NO_P1_STATE_REF_AUTHORED; JOURNEY PURPOSE AND STEP OBSERVATIONS REMAIN SOURCE-BOUND"
+    "stateOrObservationDisposition": "EXACT_TYPED_OBSERVATION_FOR_QUERY; LOCAL_DRAFT_STEP_HAS_NO_DOMAIN_OPERATION"
     "p1ObservationRefs":
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-effective-processing-constraints"
       - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints"
@@ -14116,6 +14116,7 @@
       - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/1"
       - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/2"
       - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.effective-processing-constraints.v1"
     "p1AuthorityRefs":
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
@@ -14171,12 +14172,37 @@
     "unresolvedOperationRefs":
       - "media.operation.action.inspect-effective-processing-constraints"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-30"
     "pdp1OperationRefs":
       - "media.operation.action.inspect-effective-processing-constraints"
-    "pdp1StateOrObservationRefs": []
+    "pdp1StateOrObservationRefs":
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.effective-processing-constraints.v1"
+    "p1OperationStateProofs":
+      - operationRef: media.operation.action.inspect-effective-processing-constraints
+        disposition: EXACT_TYPED_OBSERVATION_SOURCE_REF
+        purposeBindingRefs:
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j30-step-01.v1
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j30-step-02.v1
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j30-step-03.v1
+        observationRef: ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.effective-processing-constraints.v1"
+    "localStepNoP1MachineProofs":
+      - stepIndex: 3
+        stepRef: ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3"
+        actionRef: media.action.select-eligible-processing-profile
+        disposition: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+        purposeBindingRefs:
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j30-step-04.v1"
+        localEffectContractRef: ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-30.step-04.v1"
+        sourceRefs:
+          - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3/stepDefinitionSemantics/action"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3/stepDefinitionSemantics/transitionApplicability"
+          - ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-30.step-04.v1"
+          - ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-30.step-04.v1/inputContract/effectBoundary"
+          - ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-30.step-04.v1/effect"
+          - ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-30.step-04.v1/finality"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/GUI"
     "typedRequestResultErrors":
       "sourceRefs":
@@ -14222,7 +14248,7 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-30.j-30.step-01"
@@ -14252,7 +14278,7 @@
           - ".product-experience/pdp-3-product-experience/api/api-registry.yaml"
         "reason": "No exact API-registry PDP-1 operation crosslink for this journey operation."
     "p1StateRefs": []
-    "stateOrObservationDisposition": "NO_P1_STATE_REF_AUTHORED; JOURNEY PURPOSE AND STEP OBSERVATIONS REMAIN SOURCE-BOUND"
+    "stateOrObservationDisposition": "EXACT_TYPED_OBSERVATION_FOR_QUERY; LOCAL_DRAFT_STEP_HAS_NO_DOMAIN_OPERATION"
     "p1ObservationRefs":
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-effective-processing-constraints"
       - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints"
@@ -14260,6 +14286,7 @@
       - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/1"
       - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/2"
       - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.effective-processing-constraints.v1"
     "p1AuthorityRefs":
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
@@ -14323,12 +14350,37 @@
     "unresolvedOperationRefs":
       - "media.operation.action.inspect-effective-processing-constraints"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-30"
     "pdp1OperationRefs":
       - "media.operation.action.inspect-effective-processing-constraints"
-    "pdp1StateOrObservationRefs": []
+    "pdp1StateOrObservationRefs":
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.effective-processing-constraints.v1"
+    "p1OperationStateProofs":
+      - operationRef: media.operation.action.inspect-effective-processing-constraints
+        disposition: EXACT_TYPED_OBSERVATION_SOURCE_REF
+        purposeBindingRefs:
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j30-step-01.v1
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j30-step-02.v1
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j30-step-03.v1
+        observationRef: ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.effective-processing-constraints.v1"
+    "localStepNoP1MachineProofs":
+      - stepIndex: 3
+        stepRef: ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3"
+        actionRef: media.action.select-eligible-processing-profile
+        disposition: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+        purposeBindingRefs:
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j30-step-04.v1"
+        localEffectContractRef: ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-30.step-04.v1"
+        sourceRefs:
+          - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3/stepDefinitionSemantics/action"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3/stepDefinitionSemantics/transitionApplicability"
+          - ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-30.step-04.v1"
+          - ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-30.step-04.v1/inputContract/effectBoundary"
+          - ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-30.step-04.v1/effect"
+          - ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-30.step-04.v1/finality"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/HTTP"
     "typedRequestResultErrors":
       "sourceRefs":
@@ -14378,7 +14430,7 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-30.j-30.step-01"
@@ -14408,7 +14460,7 @@
           - ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml"
         "reason": "No exact production CLI command P1 operation crosslink for this journey operation; fixture commands do not count."
     "p1StateRefs": []
-    "stateOrObservationDisposition": "NO_P1_STATE_REF_AUTHORED; JOURNEY PURPOSE AND STEP OBSERVATIONS REMAIN SOURCE-BOUND"
+    "stateOrObservationDisposition": "EXACT_TYPED_OBSERVATION_FOR_QUERY; LOCAL_DRAFT_STEP_HAS_NO_DOMAIN_OPERATION"
     "p1ObservationRefs":
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-effective-processing-constraints"
       - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints"
@@ -14416,6 +14468,7 @@
       - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/1"
       - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/2"
       - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.effective-processing-constraints.v1"
     "p1AuthorityRefs":
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
@@ -14471,12 +14524,37 @@
     "unresolvedOperationRefs":
       - "media.operation.action.inspect-effective-processing-constraints"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-30"
     "pdp1OperationRefs":
       - "media.operation.action.inspect-effective-processing-constraints"
-    "pdp1StateOrObservationRefs": []
+    "pdp1StateOrObservationRefs":
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.effective-processing-constraints.v1"
+    "p1OperationStateProofs":
+      - operationRef: media.operation.action.inspect-effective-processing-constraints
+        disposition: EXACT_TYPED_OBSERVATION_SOURCE_REF
+        purposeBindingRefs:
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j30-step-01.v1
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j30-step-02.v1
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j30-step-03.v1
+        observationRef: ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.effective-processing-constraints.v1"
+    "localStepNoP1MachineProofs":
+      - stepIndex: 3
+        stepRef: ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3"
+        actionRef: media.action.select-eligible-processing-profile
+        disposition: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+        purposeBindingRefs:
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j30-step-04.v1"
+        localEffectContractRef: ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-30.step-04.v1"
+        sourceRefs:
+          - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3/stepDefinitionSemantics/action"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3/stepDefinitionSemantics/transitionApplicability"
+          - ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-30.step-04.v1"
+          - ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-30.step-04.v1/inputContract/effectBoundary"
+          - ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-30.step-04.v1/effect"
+          - ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-30.step-04.v1/finality"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/CLI"
     "typedRequestResultErrors":
       "sourceRefs":
@@ -14522,7 +14600,7 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-30.j-30.step-01"

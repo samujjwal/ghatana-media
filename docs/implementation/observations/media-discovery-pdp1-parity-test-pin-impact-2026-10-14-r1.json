@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "media.discovery-pdp1-parity-test-pin-impact.v1",
+  "recordId": "MEDIA-DISCOVERY-PDP1-PARITY-TEST-PIN-IMPACT-2026-10-14-R1",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "stage": "DISCOVERY",
+    "phase": "PDP-1",
+    "scope": "Exact historical status and semantic-review test pins for definition-only versus strict parity behavior."
+  },
+  "authority": {
+    "delegate": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION",
+    "authorityRef": ".product-experience/reviews/2026-10-13-discovery-current-cut-delegated-owner-review.md#Authority-and-attribution",
+    "decisionRole": "SCOPED_INTERNAL_MEDIA_SOURCE_IMPACT_REVIEW",
+    "humanIndependentSignatureProvided": false,
+    "qualifiedExternalSpecialistSignoffProvided": false,
+    "externalContractOwnerAcceptanceProvided": false,
+    "nativeLifecycleReceiptProvided": false
+  },
+  "sourceDeltas": [
+    {
+      "path": "tests/media-contract-parity.test.mjs",
+      "predecessorSha256": "sha256:582b43c7ef832f14a3c8db30b004ecb4e50c13640d12b7df51245240453dc03e",
+      "observedSha256": "sha256:3b2ebd2a9dcbe68f1afb86438fa55953851596a5d5c359a888bc94bb95eb4cc4",
+      "historicalPdp1MaterialSourceSha256": "sha256:3b2ebd2a9dcbe68f1afb86438fa55953851596a5d5c359a888bc94bb95eb4cc4",
+      "historicalPinSets": [
+        "PDP1_DEVELOPMENT_STATUS_SOURCE_SHA_SET",
+        "PDP1_SEMANTIC_REVIEW_SOURCE_FINGERPRINTS"
+      ],
+      "historicalPdp1MaterialSourceContainsPath": true,
+      "classification": "REGRESSION_COVERAGE",
+      "meaningChange": "NONE",
+      "meaningIdsChanged": [],
+      "expectedAssertions": [
+        "Definition-only parity passes only when the exact proposal inventory is deferred; strict parity retains the owner-admission finding.",
+        "Stale operation and wire source pins still reject definition-only parity."
+      ],
+      "requiresFreshCurrentness": true
+    },
+    {
+      "path": "tests/media-contract-parity-definition-only-cli.test.mjs",
+      "predecessorSha256": "sha256:61e516a75c72196c697f7480af8a9ab0805796af1ec4fd3b7f6606c51fb7c3c1",
+      "observedSha256": "sha256:fb5844bcafe7e5d6dfbc6ce19dfbbd68c84476855089ce17b0a353d31ae663e4",
+      "historicalPdp1MaterialSourceSha256": "sha256:fb5844bcafe7e5d6dfbc6ce19dfbbd68c84476855089ce17b0a353d31ae663e4",
+      "historicalPinSets": [
+        "PDP1_DEVELOPMENT_STATUS_SOURCE_SHA_SET",
+        "PDP1_SEMANTIC_REVIEW_SOURCE_FINGERPRINTS"
+      ],
+      "historicalPdp1MaterialSourceContainsPath": true,
+      "classification": "REGRESSION_COVERAGE",
+      "meaningChange": "NONE",
+      "meaningIdsChanged": [],
+      "expectedAssertions": [
+        "CLI definition-only mode passes while default strict parity remains non-green for the expected owner-admission finding."
+      ],
+      "requiresFreshCurrentness": true
+    }
+  ],
+  "requiredEvidence": {
+    "command": "node --test tests/media-pdp-p1-dev-status.test.mjs tests/media-contract-parity.test.mjs tests/media-contract-parity-definition-only-cli.test.mjs tests/pdp1-owner-action-wire-contracts.test.mjs tests/pdp1-transition-guard-definition-evaluator.test.mjs tests/pdp-truth-domain-typed-observations.test.mjs",
+    "status": "REQUIRED_FOR_DISPOSITION",
+    "acceptance": "A new exact source-bound required suite result must PASS with exitCode 0, all tests passed, zero failures, zero skipped, stable source binding, and captured digests matching both changed test inputs."
+  },
+  "decision": {
+    "status": "SCOPED_INTERNAL_TEST_PIN_RECONCILIATION",
+    "meaningDisposition": "TEST_COVERAGE_ONLY",
+    "requiresFreshPdp1Currentness": true,
+    "preserveHistoricalReceipts": true,
+    "independentApproval": "NOT_CLAIMED_AND_NOT_WAIVED",
+    "nativeLifecycleClosure": "NOT_ENTERED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "delivery": "BLOCKED"
+  },
+  "limitation": "This classifies only the exact two test-only pin changes, after the exact source-bound required PDP-1 suite passes. It is not a no-meaning disposition for operations.yaml, exact-cut owner acceptance, external approval, independent review, PDP closure, runtime admission, or release qualification."
+}

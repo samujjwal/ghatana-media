@@ -244157,7 +244157,11 @@ ownerTypedObservationContracts:
     evidenceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference
   records:
     - id: media.observation-contract.rights-decision.v1
-      operationRefs: [ media.operation.action.inspect-consent-and-permitted-use ]
+      operationRefs:
+        [
+          media.operation.action.inspect-consent-and-permitted-use,
+          media.operation.action.inspect-voice-authorization
+        ]
       operationKind: QUERY
       bindingStatus: DEFINITION_ONLY_NO_EXISTING_ENDPOINT_OR_RUNTIME_BINDING
       readAuthorityRefs:
@@ -244209,6 +244213,17 @@ ownerTypedObservationContracts:
               type: string,
               scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference
             }
+          voiceProfileVersionRef:
+            {
+              type: string,
+              scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference
+            }
+        allOf:
+          - if:
+              properties: { decisionKind: { const: VOICE_AUTHORIZATION } }
+              required: [ decisionKind ]
+            then:
+              required: [ voiceProfileVersionRef ]
       resultSchema:
         type: object
         additionalProperties: false
@@ -244242,7 +244257,14 @@ ownerTypedObservationContracts:
               type: string,
               scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
             }
-          operationRef: { enum: [ media.operation.action.inspect-consent-and-permitted-use ] }
+          operationRef:
+            {
+              enum:
+                [
+                  media.operation.action.inspect-consent-and-permitted-use,
+                  media.operation.action.inspect-voice-authorization
+                ]
+            }
           requestFingerprint: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
           readAuthorityRef:
             {
@@ -244279,6 +244301,11 @@ ownerTypedObservationContracts:
             {
               type: string,
               scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-version-id
+            }
+          voiceProfileVersionRef:
+            {
+              type: string,
+              scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference
             }
           decision:
             type: object
@@ -244336,6 +244363,11 @@ ownerTypedObservationContracts:
                   type: string,
                   scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference
                 }
+              voiceProfileVersionRef:
+                {
+                  type: string,
+                  scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference
+                }
               authorityRef:
                 {
                   type: string,
@@ -244387,6 +244419,11 @@ ownerTypedObservationContracts:
               scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-reference
             }
         allOf:
+          - if:
+              properties: { decisionKind: { const: VOICE_AUTHORIZATION } }
+              required: [ decisionKind ]
+            then:
+              required: [ voiceProfileVersionRef ]
           - if:
               properties:
                 observationStatus: { const: DENIED }
@@ -244447,11 +244484,24 @@ ownerTypedObservationContracts:
               required: [ observationStatus ]
             then:
               not: { required: [ decision ] }
+          - if:
+              type: object
+              properties: { decisionKind: { const: VOICE_AUTHORIZATION } }
+              required: [ decisionKind, decision ]
+            then:
+              properties:
+                decision:
+                  type: object
+                  required: [ voiceProfileVersionRef ]
       resultRules:
         - ALLOWED_FOR_DECLARED_SCOPE requires decision.effectDisposition
           PERMITTED, decisionKind exact request equality, exact requested
           subject/purpose/use/region/retention tuple equality, current authority
           version and observedAt within validity interval.
+        - VOICE_AUTHORIZATION decisions require voiceProfileVersionRef in both
+          request and result, plus in any returned decision, with exact equality
+          across all present values; that selector is forbidden as an implication
+          for RIGHTS, CONSENT or HUMAN_REVIEW_APPROVAL.
         - REVIEW_REQUIRED, APPROVAL_REQUIRED, CONSENT_REQUIRED,
           VOICE_AUTHORIZATION_REQUIRED, DENIED, RESTRICTED, EXPIRED and REVOKED
           are exact non-permitted decisions and can never be normalized to
@@ -246195,6 +246245,303 @@ ownerTypedObservationContracts:
       scopeStatus: OWNER_DEFINED_QUERY_DEFINITION_ONLY; retry execution, endpoint,
         current policy publication, and runtime observation remain
         NOT_ADMITTED_OR_UNKNOWN
+    - id: media.observation-contract.destination-delivery-acknowledgment.v1
+      operationRefs: [ media.operation.action.reconcile-delivery-acknowledgment ]
+      operationKind: QUERY
+      bindingStatus: DEFINITION_ONLY_NO_EXISTING_ENDPOINT_OR_RUNTIME_BINDING
+      readAuthorityRefs:
+        [ .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation ]
+      requestSchema:
+        type: object
+        additionalProperties: false
+        required: [ queryId, deliveryRequestId, deliveryRequestFingerprint, artifactVersionRef, destinationRef ]
+        properties:
+          queryId: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id }
+          deliveryRequestId: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id }
+          deliveryRequestFingerprint: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+          artifactVersionRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+          destinationRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+      resultSchema:
+        type: object
+        additionalProperties: false
+        required: [ tenantScopeRef, principalRef, queryId, operationRef, requestFingerprint, readAuthorityRef, currentness, observedAt, readVersion, observationStatus, accessDisposition, observation ]
+        properties:
+          tenantScopeRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id }
+          principalRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-reference }
+          queryId: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id }
+          operationRef: { enum: [ media.operation.action.reconcile-delivery-acknowledgment ] }
+          requestFingerprint: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+          readAuthorityRef: { enum: [ .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation ] }
+          currentness: { enum: [ CURRENT, STALE, UNKNOWN ] }
+          observedAt: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/RFC3339-UTC }
+          readVersion: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-version-id }
+          observationStatus: { enum: [ OBSERVED, UNKNOWN, NOT_FOUND ] }
+          accessDisposition: { enum: [ FULL, LIMITED, DENIED, UNKNOWN ] }
+          observation:
+            type: object
+            additionalProperties: false
+            required: [ originalRequestId, originalRequestFingerprint, artifactVersionRef, destinationRef, acknowledgmentStatus, observedAt, evidenceRefs ]
+            properties:
+              originalRequestId: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id }
+              originalRequestFingerprint: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+              artifactVersionRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+              destinationRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+              acknowledgmentStatus: { enum: [ ACKNOWLEDGED, NOT_ACKNOWLEDGED, UNKNOWN ] }
+              observedAt: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/RFC3339-UTC }
+              evidenceRefs:
+                type: array
+                items: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+              acknowledgmentAuthorityRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-reference }
+              unknownReasonRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-reference }
+            allOf:
+              - if: { properties: { acknowledgmentStatus: { const: ACKNOWLEDGED } }, required: [ acknowledgmentStatus ] }
+                then: { required: [ acknowledgmentAuthorityRef ], properties: { evidenceRefs: { minItems: 1 } } }
+              - if: { properties: { acknowledgmentStatus: { const: UNKNOWN } }, required: [ acknowledgmentStatus ] }
+                then: { required: [ unknownReasonRef ] }
+      bindingRules:
+        - { id: media.observation-binding.destination-ack.query-id, leftRef: $.request.queryId, rightRef: $.result.queryId, operator: EXACT_EQUAL }
+        - { id: media.observation-binding.destination-ack.delivery-request-id, leftRef: $.request.deliveryRequestId, rightRef: $.result.observation.originalRequestId, operator: EXACT_EQUAL }
+        - { id: media.observation-binding.destination-ack.delivery-request-fingerprint, leftRef: $.request.deliveryRequestFingerprint, rightRef: $.result.observation.originalRequestFingerprint, operator: EXACT_EQUAL }
+        - { id: media.observation-binding.destination-ack.artifact-version, leftRef: $.request.artifactVersionRef, rightRef: $.result.observation.artifactVersionRef, operator: EXACT_EQUAL }
+        - { id: media.observation-binding.destination-ack.destination, leftRef: $.request.destinationRef, rightRef: $.result.observation.destinationRef, operator: EXACT_EQUAL }
+      resultRules:
+        - observation.acknowledgmentStatus == ACKNOWLEDGED requires a current owner-issued acknowledgmentAuthorityRef and nonempty evidenceRefs tied to the exact original request, artifact version, and destination; this records destination receipt only.
+        - NOT_ACKNOWLEDGED is valid only when the current owner source explicitly establishes that disposition; missing, stale, denied, timed-out, mismatched, or unavailable evidence is UNKNOWN.
+        - Non-CURRENT currentness can never support ACKNOWLEDGED or NOT_ACKNOWLEDGED; UNKNOWN cannot be success or acknowledged and does not authorize retry, and a destination receipt does not prove processing quality or job completion.
+        - The result requestFingerprint is server-computed for this query and remains distinct from deliveryRequestFingerprint.
+      scopeStatus: OWNER_DEFINED_QUERY_DEFINITION_ONLY; destination source, runtime receipt, endpoint, and retry admission remain UNKNOWN; transport/runtime NOT_ADMITTED
+    - id: media.observation-contract.delegated-integration-result-context.v1
+      operationRefs:
+        [ media.operation.action.review-processing-parameters, media.operation.action.view-job-status, media.operation.action.inspect-output-preview-and-version ]
+      operationKind: QUERY
+      bindingStatus: DEFINITION_ONLY_NO_EXISTING_ENDPOINT_OR_RUNTIME_BINDING
+      readAuthorityRefs:
+        [ .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation ]
+      requestSchema:
+        type: object
+        additionalProperties: false
+        required: [ queryId, operationRef, originalRequestId, originalRequestFingerprint ]
+        properties:
+          queryId: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id }
+          operationRef: { enum: [ media.operation.action.review-processing-parameters, media.operation.action.view-job-status, media.operation.action.inspect-output-preview-and-version ] }
+          originalRequestId: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id }
+          originalRequestFingerprint: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+      resultSchema:
+        type: object
+        additionalProperties: false
+        required: [ tenantScopeRef, principalRef, queryId, operationRef, requestFingerprint, readAuthorityRef, currentness, observedAt, readVersion, observationStatus, accessDisposition, observation ]
+        properties:
+          tenantScopeRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id }
+          principalRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-reference }
+          queryId: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id }
+          operationRef: { enum: [ media.operation.action.review-processing-parameters, media.operation.action.view-job-status, media.operation.action.inspect-output-preview-and-version ] }
+          requestFingerprint: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+          readAuthorityRef: { enum: [ .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation ] }
+          currentness: { enum: [ CURRENT, STALE, UNKNOWN ] }
+          observedAt: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/RFC3339-UTC }
+          readVersion: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-version-id }
+          observationStatus: { enum: [ OBSERVED, UNKNOWN, NOT_FOUND ] }
+          accessDisposition: { enum: [ FULL, LIMITED, DENIED, UNKNOWN ] }
+          observation:
+            type: object
+            additionalProperties: false
+            required: [ originalRequestId, originalRequestFingerprint, contextStatus, recursiveInvocationAllowed ]
+            properties:
+              originalRequestId: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id }
+              originalRequestFingerprint: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+              contextStatus: { enum: [ BOUNDED_CONTEXT_RETURNED, UNKNOWN ] }
+              delegationRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+              purposeRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+              budgetRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+              deadlineRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+              resultRefs:
+                type: array
+                minItems: 1
+                items: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+              recursiveInvocationAllowed: { const: false, description: recursive invocation is false and prohibited }
+              unknownReasonRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-reference }
+            allOf:
+              - if: { properties: { contextStatus: { const: BOUNDED_CONTEXT_RETURNED } }, required: [ contextStatus ] }
+                then: { required: [ delegationRef, purposeRef, budgetRef, deadlineRef, resultRefs ] }
+              - if: { properties: { contextStatus: { const: UNKNOWN } }, required: [ contextStatus ] }
+                then:
+                  required: [ unknownReasonRef ]
+                  not:
+                    anyOf:
+                      - { required: [ delegationRef ] }
+                      - { required: [ purposeRef ] }
+                      - { required: [ budgetRef ] }
+                      - { required: [ deadlineRef ] }
+                      - { required: [ resultRefs ] }
+      bindingRules:
+        - { id: media.observation-binding.delegated-context.query-id, leftRef: $.request.queryId, rightRef: $.result.queryId, operator: EXACT_EQUAL }
+        - { id: media.observation-binding.delegated-context.operation, leftRef: $.request.operationRef, rightRef: $.result.operationRef, operator: EXACT_EQUAL }
+        - { id: media.observation-binding.delegated-context.original-request-id, leftRef: $.request.originalRequestId, rightRef: $.result.observation.originalRequestId, operator: EXACT_EQUAL }
+        - { id: media.observation-binding.delegated-context.original-request-fingerprint, leftRef: $.request.originalRequestFingerprint, rightRef: $.result.observation.originalRequestFingerprint, operator: EXACT_EQUAL }
+      resultRules:
+        - tenantScopeRef and principalRef are derived only from authenticated host context; caller assertions never establish identity, delegation, purpose, or workspace authority.
+        - BOUNDED_CONTEXT_RETURNED requires the exact delegation, purpose, budget, deadline, and result references; no recursive tool invocation is permitted and no new action is authorized.
+        - Missing, stale, mismatched, incomplete, or truncated context is UNKNOWN; UNKNOWN grants no authority and does not authorize dispatch or retry.
+        - The budget and deadline references carry their owner-defined bounds; this contract defines no numeric limits or recursion depth.
+      scopeStatus: OWNER_DEFINED_QUERY_DEFINITION_ONLY; no delegated tool, runtime binding, endpoint, or identity provider is admitted
+    - id: media.observation-contract.processing-parameter-read.v1
+      operationRefs: [ media.operation.action.review-processing-parameters ]
+      operationKind: QUERY
+      bindingStatus: DEFINITION_ONLY_NO_EXISTING_ENDPOINT_OR_RUNTIME_BINDING
+      readAuthorityRefs:
+        [ .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation ]
+      requestSchema:
+        type: object
+        additionalProperties: false
+        required: [ queryId, subjectVersionRef, parameterRefs ]
+        properties:
+          queryId: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id }
+          subjectVersionRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+          parameterRefs:
+            type: array
+            minItems: 1
+            uniqueItems: true
+            items: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-reference }
+      resultSchema:
+        type: object
+        additionalProperties: false
+        required: [ tenantScopeRef, principalRef, queryId, operationRef, requestFingerprint, readAuthorityRef, currentness, observedAt, readVersion, observationStatus, accessDisposition, observation ]
+        properties:
+          tenantScopeRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id }
+          principalRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-reference }
+          queryId: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id }
+          operationRef: { enum: [ media.operation.action.review-processing-parameters ] }
+          requestFingerprint: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+          readAuthorityRef: { enum: [ .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation ] }
+          currentness: { enum: [ CURRENT, STALE, UNKNOWN ] }
+          observedAt: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/RFC3339-UTC }
+          readVersion: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-version-id }
+          observationStatus: { enum: [ OBSERVED, UNKNOWN, NOT_FOUND ] }
+          accessDisposition: { enum: [ FULL, LIMITED, DENIED, UNKNOWN ] }
+          observation:
+            type: object
+            additionalProperties: false
+            required: [ subjectVersionRef, observations ]
+            properties:
+              subjectVersionRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+              observations:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: false
+                  required: [ parameterRef, observationStatus ]
+                  properties:
+                    parameterRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-reference }
+                    observationStatus: { enum: [ VALUE_OBSERVED, UNKNOWN, NOT_FOUND ] }
+                    parameterVersionRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+                    schemaRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+                    value:
+                      oneOf:
+                        - { type: string }
+                        - { type: number }
+                        - { type: boolean }
+                        - { type: 'null' }
+                        - type: object
+                          additionalProperties: false
+                          required: [ valueRef ]
+                          properties:
+                            valueRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+                    evidenceRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+                    unknownReasonRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-reference }
+                  allOf:
+                    - if: { properties: { observationStatus: { const: VALUE_OBSERVED } }, required: [ observationStatus ] }
+                      then:
+                        required: [ parameterVersionRef, schemaRef, value, evidenceRef ]
+                        properties:
+                          value:
+                            not: { type: 'null' }
+                        not: { required: [ unknownReasonRef ] }
+                    - if: { properties: { observationStatus: { enum: [ UNKNOWN, NOT_FOUND ] } }, required: [ observationStatus ] }
+                      then:
+                        required: [ value, unknownReasonRef ]
+                        properties:
+                          value: { type: 'null' }
+                        not: { required: [ evidenceRef ] }
+      bindingRules:
+        - { id: media.observation-binding.parameter-read.query-id, leftRef: $.request.queryId, rightRef: $.result.queryId, operator: EXACT_EQUAL }
+        - { id: media.observation-binding.parameter-read.subject-version, leftRef: $.request.subjectVersionRef, rightRef: $.result.observation.subjectVersionRef, operator: EXACT_EQUAL }
+        - { id: media.observation-binding.parameter-read.parameter-set, leftRef: "$.request.parameterRefs", rightRef: "$.result.observation.observations[*].parameterRef", operator: EXACT_SET_EQUAL }
+      resultRules:
+        - Each VALUE_OBSERVED value is validated by its exact schemaRef and tied to the exact observation.subjectVersionRef, parameter version, and evidence.
+        - Missing or stale observations are UNKNOWN; NOT_FOUND is valid only when the current owner source explicitly reports that exact requested parameter absent.
+        - Missing data is not a negative, zero, or failure result, a default, or permission to change processing; this query is read-only.
+      scopeStatus: OWNER_DEFINED_QUERY_DEFINITION_ONLY; parameter source values, runtime observation, and endpoint remain UNKNOWN; transport/runtime NOT_ADMITTED
+    - id: media.observation-contract.effective-processing-constraints.v1
+      operationRefs: [ media.operation.action.inspect-effective-processing-constraints ]
+      operationKind: QUERY
+      bindingStatus: DEFINITION_ONLY_NO_EXISTING_ENDPOINT_OR_RUNTIME_BINDING
+      readAuthorityRefs:
+        [ .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation ]
+      requestSchema:
+        type: object
+        additionalProperties: false
+        required: [ queryId, exactTargetRef, dimensionRefs ]
+        properties:
+          queryId: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id }
+          exactTargetRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+          dimensionRefs:
+            type: array
+            minItems: 1
+            uniqueItems: true
+            items: { enum: [ qualification, license, health, capability, rights ] }
+      resultSchema:
+        type: object
+        additionalProperties: false
+        required: [ tenantScopeRef, principalRef, queryId, operationRef, requestFingerprint, readAuthorityRef, currentness, observedAt, readVersion, observationStatus, accessDisposition, observation ]
+        properties:
+          tenantScopeRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id }
+          principalRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-reference }
+          queryId: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id }
+          operationRef: { enum: [ media.operation.action.inspect-effective-processing-constraints ] }
+          requestFingerprint: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+          readAuthorityRef: { enum: [ .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation ] }
+          currentness: { enum: [ CURRENT, STALE, UNKNOWN ] }
+          observedAt: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/RFC3339-UTC }
+          readVersion: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-version-id }
+          observationStatus: { enum: [ OBSERVED, UNKNOWN, NOT_FOUND ] }
+          accessDisposition: { enum: [ FULL, LIMITED, DENIED, UNKNOWN ] }
+          observation:
+            type: object
+            additionalProperties: false
+            required: [ exactTargetRef, dimensions ]
+            properties:
+              exactTargetRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+              dimensions:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: false
+                  required: [ dimension, dimensionStatus ]
+                  properties:
+                    dimension: { enum: [ qualification, license, health, capability, rights ] }
+                    dimensionStatus: { enum: [ SATISFIED, NOT_SATISFIED, UNKNOWN, NOT_APPLICABLE ] }
+                    sourceAuthorityRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-reference }
+                    sourceVersionRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+                    evidenceRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference }
+                    reasonRef: { type: string, scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-reference }
+                  allOf:
+                    - if: { properties: { dimensionStatus: { enum: [ SATISFIED, NOT_SATISFIED ] } }, required: [ dimensionStatus ] }
+                      then: { required: [ sourceAuthorityRef, sourceVersionRef, evidenceRef ] }
+                    - if: { properties: { dimensionStatus: { const: NOT_APPLICABLE } }, required: [ dimensionStatus ] }
+                      then: { required: [ sourceAuthorityRef, sourceVersionRef, reasonRef ] }
+                    - if: { properties: { dimensionStatus: { const: UNKNOWN } }, required: [ dimensionStatus ] }
+                      then:
+                        required: [ reasonRef ]
+                        not: { required: [ evidenceRef ] }
+      bindingRules:
+        - { id: media.observation-binding.effective-constraints.query-id, leftRef: $.request.queryId, rightRef: $.result.queryId, operator: EXACT_EQUAL }
+        - { id: media.observation-binding.effective-constraints.target, leftRef: $.request.exactTargetRef, rightRef: $.result.observation.exactTargetRef, operator: EXACT_EQUAL }
+        - { id: media.observation-binding.effective-constraints.dimension-set, leftRef: "$.request.dimensionRefs", rightRef: "$.result.observation.dimensions[*].dimension", operator: EXACT_SET_EQUAL }
+      resultRules:
+        - Each dimension is an independent source-bound fact; no aggregate eligible, ready, qualified, or executable result is defined.
+        - Missing, stale, mismatched, untrusted, or unavailable dimension evidence is UNKNOWN and cannot satisfy a positive predicate; NOT_APPLICABLE requires its owner source and reason.
+        - This observation is read-only and nonretrying; it does not admit an operation or promise future availability.
+      scopeStatus: OWNER_DEFINED_QUERY_DEFINITION_ONLY; current owner evidence and runtime observation remain UNKNOWN; transport/runtime NOT_ADMITTED
 ownerTypedObservationValidationRules:
   id: media.pdp1.typed-observation-validation-rules.v1
   status: OWNER_DEFINED_DEFINITION_ONLY; query-schema-runtime-NOT_ADMITTED
@@ -246215,6 +246562,12 @@ ownerTypedObservationValidationRules:
     - id: media.observation-validation.rights-decision.v1
       observationContractRef: media.observation-contract.rights-decision.v1
       predicates:
+        - when: decisionKind == VOICE_AUTHORIZATION
+          require: request.voiceProfileVersionRef is required only for this decisionKind;
+            request.voiceProfileVersionRef exactly equals result.voiceProfileVersionRef
+            and, when decision is present, exactly equals decision.voiceProfileVersionRef;
+            no voice profile is required or implied for RIGHTS, CONSENT, or
+            HUMAN_REVIEW_APPROVAL.
         - when: observationStatus == ALLOWED_FOR_DECLARED_SCOPE
           require: decision exists; decision.effectDisposition == PERMITTED; request and
             decision
@@ -246346,6 +246699,65 @@ ownerTypedObservationValidationRules:
             any retry.
       scopeStatus: SOURCE_DEFINITION_ONLY; current policy publication and runtime
         receipt remain UNKNOWN; execution NOT_ADMITTED
+    - id: media.observation-validation.destination-delivery-acknowledgment.v1
+      observationContractRef: media.observation-contract.destination-delivery-acknowledgment.v1
+      predicates:
+        - when: observationStatus == OBSERVED and accessDisposition == FULL and currentness == CURRENT
+          require: nested observation binds exact originalRequestId and originalRequestFingerprint,
+            artifactVersionRef and destinationRef; acknowledgmentStatus is owner-source
+            defined and ACKNOWLEDGED requires nonempty evidenceRefs.
+        - when: observation.acknowledgmentStatus == NOT_ACKNOWLEDGED
+          require: a current owner source explicitly establishes non-acknowledgment;
+            absence, timeout, denial, stale or mismatched evidence is UNKNOWN.
+        - when: observationStatus in [UNKNOWN, NOT_FOUND] or accessDisposition != FULL or currentness != CURRENT or observation.acknowledgmentStatus == UNKNOWN
+          require: truth is UNKNOWN and retry is prohibited until the same request is
+            reconciled; no destination receipt is inferred.
+        - when: result.requestFingerprint is evaluated
+          require: it is the server-computed fingerprint for this query and is distinct
+            from deliveryRequestFingerprint.
+    - id: media.observation-validation.delegated-integration-result-context.v1
+      observationContractRef: media.observation-contract.delegated-integration-result-context.v1
+      predicates:
+        - when: observationStatus == OBSERVED and accessDisposition == FULL and currentness == CURRENT and observation.contextStatus == BOUNDED_CONTEXT_RETURNED
+          require: exact originalRequestId and originalRequestFingerprint and operationRef match the
+            request; tenant/principal are host-attested; delegationRef, purposeRef,
+            budgetRef, deadlineRef and resultRefs are present; recursiveInvocationAllowed
+            is false.
+        - when: observationStatus == UNKNOWN or accessDisposition != FULL or currentness != CURRENT or observation.contextStatus == UNKNOWN
+          require: truth is UNKNOWN; no delegated authority, dispatch, or retry is inferred.
+        - when: observation.contextStatus == UNKNOWN
+          require: unknownReasonRef is explicit; delegationRef, purposeRef, budgetRef,
+            deadlineRef, and resultRefs are absent, so UNKNOWN cannot carry authority
+            or authorize an effect.
+        - when: any required identity, delegation, purpose, budget, deadline, or result reference is caller-asserted, stale, mismatched, incomplete, or truncated
+          result: UNKNOWN; never admit a tool or infer authority from generic identity.
+    - id: media.observation-validation.processing-parameter-read.v1
+      observationContractRef: media.observation-contract.processing-parameter-read.v1
+      predicates:
+        - when: observationStatus == OBSERVED and accessDisposition == FULL and currentness == CURRENT
+          require: output observation.observations parameterRefs exactly equal the requested set; subject version,
+            parameterVersionRef, schemaRef, value and evidenceRef are exact and the
+            value validates against its schemaRef.
+        - when: any observation.observations item has observationStatus in [UNKNOWN, NOT_FOUND] or currentness != CURRENT or observationStatus in [UNKNOWN, NOT_FOUND] or accessDisposition != FULL
+          require: value null is an unknown placeholder, not a parameter value; no default is inferred; missing, stale or mismatched result is
+            UNKNOWN, and NOT_FOUND is allowed only as an exact current owner observation; a missing value is never a negative, zero, failed, or measured result.
+        - when: processing parameter values are used to assess eligibility or quality
+          result: no qualification or execution permission is inferred.
+    - id: media.observation-validation.effective-processing-constraints.v1
+      observationContractRef: media.observation-contract.effective-processing-constraints.v1
+      predicates:
+        - when: observationStatus == OBSERVED and accessDisposition == FULL and currentness == CURRENT
+          require: each requested dimension has its own exact sourceAuthorityRef,
+            sourceVersionRef and evidenceRef; no dimension substitutes for another.
+        - when: a dimensionStatus == UNKNOWN or observationStatus == UNKNOWN or accessDisposition != FULL or currentness != CURRENT
+          require: that dimension remains UNKNOWN with reasonRef; evidenceRef is absent;
+            optional sourceAuthorityRef or sourceVersionRef are genuine partial provenance
+            only and do not count as evidence; UNKNOWN cannot satisfy a positive predicate.
+        - when: a dimensionStatus == NOT_APPLICABLE
+          require: the exact owner source, source version, and reasonRef establish non-applicability.
+        - when: consumers request overall eligibility or readiness
+          result: no aggregate eligible, ready, qualified or executable value is produced;
+            query remains read-only and nonretrying.
 ownerLeafWireContracts:
   id: media.owner-leaf-wire-contracts.v1
   authority: user-delegated-Media-product-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS

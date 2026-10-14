@@ -8,13 +8,17 @@ import { buildMediaPdp0CurrentnessObservation } from './record-media-discovery-p
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const defaultOwnerInput = 'docs/implementation/observations/media-discovery-current-cut-owner-directions-2026-10-13-r2.json';
-const historicalPdp0ExitInput = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json';
+const legacyHistoricalPdp0ExitInput = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json';
+const currentCutHistoricalPdp0ExitInput = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r2.json';
+const currentCutImpactInput = 'docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r1.json';
 const suffix = process.argv[2] ?? '2026-10-13-r2';
 const outcomesPath = process.argv[3];
-const ownerInput = process.argv[4] ?? defaultOwnerInput;
+const currentCutImpactMode = process.argv[4] === '--current-cut-impact';
+const ownerInput = currentCutImpactMode ? currentCutImpactInput : process.argv[4] ?? defaultOwnerInput;
+const historicalPdp0ExitInput = currentCutImpactMode ? currentCutHistoricalPdp0ExitInput : legacyHistoricalPdp0ExitInput;
 
 if (!/^[a-z0-9-]+$/u.test(suffix) || !outcomesPath) {
-  process.stderr.write('Usage: node scripts/record-media-discovery-pdp0-phase-exit.mjs <fresh-cut-suffix> <test-outcomes-json> [owner-directions-json]\n');
+  process.stderr.write('Usage: node scripts/record-media-discovery-pdp0-phase-exit.mjs <fresh-cut-suffix> <test-outcomes-json> [owner-directions-json|--current-cut-impact]\n');
   process.exitCode = 2;
 } else {
   const readJson = (relativePath) => JSON.parse(fs.readFileSync(path.resolve(root, relativePath), 'utf8'));

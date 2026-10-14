@@ -4,8 +4,8 @@
 
 ## Current state
 
-- **PDP-0 Product Truth, PDP-1 Domain/Data, PDP-2 Design/Interface, and PDP-3 Product Experience are all `DEV_COMPLETE`. Remaining PDP development tasks: 0.**
-- **Build → Integrate/Test → Deliver** is the active product-development workstream. See the [Build handoff](docs/implementation/MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md).
+- **Latest source-current exits:** PDP-0, PDP-1, and PDP-2 are `DEV_COMPLETE` for their recorded current cuts. PDP-3's checked-in `DEV_COMPLETE` projection is pinned to an older source cut; current PDP-3 source currentness is not established, and 18 of 61 journey-channel edges still need owner-authored PDP-1 operation/result definitions. See the [current PDP-3 progress audit](docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r4.json) and the [200-cell campaign matrix](docs/implementation/media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json).
+- **Discovery barrier:** `FAIL`. **Build:** `NOT_ENTERED`. **Native PDP closure:** `NOT_ENTERED`. **Delivery:** `BLOCKED`. Continue the ordered Discovery work in the [current-cut execution plan](docs/implementation/MEDIA-DISCOVERY-REMAINING-CURRENT-CUT-EXECUTION-2026-10-13.md); runtime implementation is downstream of the Discovery barrier.
 - The **Media product-definition authority** is [`.product-experience/`](.product-experience/). The **canonical executable runtime** remains `ghatana/services/media` until an authorized source/writer transfer. This repository's runtime copy is not an independent live production service.
 - Independent acceptance, public dependency admission, real provider availability, source cutover, and release are separate downstream matters, not unfinished PDP tasks.
 

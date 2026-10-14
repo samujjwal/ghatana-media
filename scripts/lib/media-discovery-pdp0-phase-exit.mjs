@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,6 +27,8 @@ const REVIEWED_PDP0_CHANGES = new Set([
 ]);
 const SUPPLEMENTAL_IMPACT_PATH = 'docs/implementation/observations/media-discovery-predecessor-impact-pdp3-status-guard-2026-10-14-r1.json';
 const SUPPLEMENTAL_DECISION = JSON.parse(fs.readFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../', SUPPLEMENTAL_IMPACT_PATH), 'utf8'));
+const CURRENT_CUT_IMPACT_PATH = 'docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r1.json';
+const CURRENT_CUT_PREDECESSOR_PATH = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r2.json';
 
 const empty = (value) => Array.isArray(value) && value.length === 0;
 
@@ -166,7 +169,151 @@ function validateCurrentCutOwnerDirections(acceptance, technicalCurrentness, his
   };
 }
 
+function sha256File(relativePath) {
+  const absolutePath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../', relativePath);
+  return `sha256:${createHash('sha256').update(fs.readFileSync(absolutePath)).digest('hex')}`;
+}
+
+function validateCurrentCutImpactDisposition(impact, technicalCurrentness, historicalPdp0Exit) {
+  const blockers = [];
+  const reporterPath = 'scripts/report-media-pdp-readiness.mjs';
+  const deltas = impact?.sourceDeltas ?? [];
+  const reporter = deltas.find((entry) => entry.path === reporterPath);
+  const expectedDeltaPaths = [
+    '.product-experience/interface-parity/current-source-review.json',
+    reporterPath,
+    'tests/media-pdp-p1-dev-status.test.mjs',
+  ].sort();
+  const actualDeltaPaths = deltas.map((entry) => entry.path).sort();
+  const interfaceReview = deltas.find((entry) => entry.path === '.product-experience/interface-parity/current-source-review.json');
+  const regressionTest = deltas.find((entry) => entry.path === 'tests/media-pdp-p1-dev-status.test.mjs');
+  const predecessorCut = impact?.predecessorCuts?.find((entry) => entry.phase === 'PDP-0');
+  const linkedPriorImpact = reporter?.predecessorChain?.[0];
+  const priorImpactPath = 'docs/implementation/observations/media-discovery-predecessor-impact-pdp3-status-guard-2026-10-14-r1.json';
+  let priorImpact = null;
+  try {
+    priorImpact = JSON.parse(fs.readFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../', priorImpactPath), 'utf8'));
+  } catch {
+    blockers.push('PRIOR_IMPACT_RECORD_UNAVAILABLE');
+  }
+  const priorReporter = priorImpact?.sourceDelta;
+  if (impact?.schemaVersion !== 'media.discovery-current-cut-source-impact.v1'
+      || impact?.recordId !== 'MEDIA-DISCOVERY-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R1') blockers.push('CURRENT_CUT_IMPACT_IDENTITY_INVALID');
+  if (impact?.campaign?.repository !== 'samujjwal/ghatana-media'
+      || impact?.campaign?.stage !== 'DISCOVERY'
+      || impact?.campaign?.activePhase !== 'PDP-0'
+      || impact?.campaign?.reviewedSourceBaseline !== 'f5ae3461c53eb1d490362a9bb8818ce74573147c') blockers.push('CURRENT_CUT_IMPACT_SCOPE_INVALID');
+  if (impact?.authority?.delegate !== 'AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION'
+      || impact?.authority?.userAuthorization !== 'Authorize scoped impact disposition (Recommended)'
+      || impact?.authority?.decisionRole !== 'SCOPED_INTERNAL_MEDIA_SOURCE_IMPACT_REVIEW'
+      || impact?.authority?.humanIndependentSignatureProvided !== false
+      || impact?.authority?.qualifiedExternalSpecialistSignoffProvided !== false
+      || impact?.authority?.externalContractOwnerAcceptanceProvided !== false
+      || impact?.authority?.nativeLifecycleReceiptProvided !== false) blockers.push('CURRENT_CUT_IMPACT_AUTHORITY_INVALID');
+  if (impact?.decision?.status !== 'APPROVED_INTERNAL_IMPACT_DISPOSITION_FOR_EXACT_SOURCE_DELTAS'
+      || impact?.decision?.pdp0MeaningDisposition !== 'NO_MEANING_CHANGE_FOR_EXACT_REVIEWED_SOURCE_DELTAS'
+      || impact?.decision?.independentApproval !== 'NOT_CLAIMED_AND_NOT_WAIVED'
+      || impact?.decision?.externalContractOwnerAcceptance !== 'NOT_CLAIMED'
+      || impact?.decision?.nativeLifecycleClosure !== 'NOT_ENTERED'
+      || impact?.decision?.runtimeAdmission !== 'NOT_ADMITTED'
+      || impact?.decision?.delivery !== 'BLOCKED'
+      || JSON.stringify(impact?.decision?.requiresOrderedTechnicalCurrentnessRecapture) !== JSON.stringify(['PDP-0', 'PDP-1'])) blockers.push('CURRENT_CUT_IMPACT_DECISION_INVALID');
+  if (JSON.stringify(actualDeltaPaths) !== JSON.stringify(expectedDeltaPaths)
+      || deltas.length !== 3) blockers.push('CURRENT_CUT_IMPACT_PATH_SET_INVALID');
+  if (reporter?.phases?.join(',') !== 'PDP-0,PDP-1'
+      || reporter?.classification !== 'PDP_STATUS_TEST_REPORTER_SELECTION_ONLY'
+      || reporter?.historicalPdp0MaterialSha256 !== 'sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c'
+      || reporter?.predecessorSha256 !== 'sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1'
+      || reporter?.observedSha256 !== 'sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573'
+      || reporter?.meaningIdsChanged?.length !== 0
+      || reporter?.requiresFreshCurrentness !== true) blockers.push('CURRENT_CUT_REPORTER_DELTA_INVALID');
+  if (interfaceReview?.phases?.join(',') !== 'PDP-1'
+      || interfaceReview?.predecessorSha256 !== 'sha256:14cf6c3d9ea948e39e41ffa2de3453c08b7b6a23267f407f3504c5462b7428fc'
+      || interfaceReview?.observedSha256 !== 'sha256:62765cbb335572f28570fe650b3955aaa028f314322490e17e466d3ca9234abf'
+      || interfaceReview?.classification !== 'PDP1_REVIEW_ARTIFACT_REFRESH_FOR_SEPARATELY_REVIEWED_OPERATION_DELTA'
+      || interfaceReview?.additionalMeaningIds?.length !== 0
+      || interfaceReview?.meaningChange !== 'NO_ADDITIONAL_MEANING_BEYOND_SEPARATELY_REVIEWED_PDP1_OPERATION_DELTA') blockers.push('CURRENT_CUT_INTERFACE_REVIEW_DELTA_INVALID');
+  if (regressionTest?.phases?.join(',') !== 'PDP-1'
+      || regressionTest?.predecessorSha256 !== 'sha256:5a007a561cc96659d7da63d2470727237d1496c3a50c80682253a9d542846599'
+      || regressionTest?.observedSha256 !== 'sha256:3ff1576a4a3987f5b1e05d15ae77e35a62745260e127ebcb28c1bb49ef7ef82e'
+      || regressionTest?.classification !== 'REGRESSION_COVERAGE'
+      || regressionTest?.meaningChange !== 'NONE'
+      || regressionTest?.meaningIdsChanged?.length !== 0) blockers.push('CURRENT_CUT_REGRESSION_TEST_DELTA_INVALID');
+  if (linkedPriorImpact?.receiptRef !== priorImpactPath
+      || linkedPriorImpact?.receiptSha256 !== sha256File(priorImpactPath)
+      || linkedPriorImpact?.fromSha256 !== 'sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c'
+      || linkedPriorImpact?.toSha256 !== reporter?.predecessorSha256
+      || priorReporter?.path !== reporterPath
+      || priorReporter?.predecessorSha256 !== linkedPriorImpact?.fromSha256
+      || priorReporter?.observedSha256 !== linkedPriorImpact?.toSha256) blockers.push('CURRENT_CUT_IMPACT_PREDECESSOR_CHAIN_INVALID');
+  if (predecessorCut?.receiptRef !== CURRENT_CUT_PREDECESSOR_PATH
+      || predecessorCut?.receiptSha256 !== sha256File(CURRENT_CUT_PREDECESSOR_PATH)
+      || predecessorCut?.materialSourceSetFingerprint !== 'sha256:20e8a999b36e7fb61662183200f1e8c83eebb39523c5ab8835bea311af1f31e8'
+      || predecessorCut?.materialPathCount !== 146
+      || predecessorCut?.reporterSha256 !== reporter?.predecessorSha256) blockers.push('CURRENT_CUT_PDP0_PREDECESSOR_INVALID');
+  if (historicalPdp0Exit?.phase !== 'PDP-0'
+      || historicalPdp0Exit?.phaseExit?.status !== 'PASS'
+      || historicalPdp0Exit?.sourceCurrentness?.materialSourceSetFingerprint !== predecessorCut?.materialSourceSetFingerprint
+      || Object.keys(historicalPdp0Exit?.sourceCurrentness?.sourceContentDigests ?? {}).length !== 146) blockers.push('CURRENT_CUT_PDP0_RECEIPT_NOT_EXACT_PREDECESSOR');
+
+  const previous = historicalPdp0Exit?.sourceCurrentness?.sourceContentDigests ?? {};
+  const current = technicalCurrentness?.sourceContentDigests ?? {};
+  const priorPaths = Object.keys(previous).sort();
+  const currentPaths = Object.keys(current).sort();
+  const missingPaths = priorPaths.filter((sourcePath) => !Object.hasOwn(current, sourcePath));
+  const additionalPaths = currentPaths.filter((sourcePath) => !Object.hasOwn(previous, sourcePath));
+  if (priorPaths.length !== 146 || currentPaths.length !== 146 || missingPaths.length || additionalPaths.length) {
+    blockers.push('PDP0_MATERIAL_PATH_MEMBERSHIP_CHANGED');
+  }
+  const comparisons = priorPaths.map((sourcePath) => {
+    const priorDigest = previous[sourcePath];
+    const observedDigest = current[sourcePath];
+    const approved = sourcePath === reporterPath;
+    const expected = approved ? reporter?.observedSha256 : priorDigest;
+    if (observedDigest !== expected) blockers.push(approved
+      ? 'PDP0_REPORTER_DIGEST_NOT_AUTHORIZED'
+      : `PDP0_SOURCE_DIGEST_NOT_OWNER_REVIEWED:${sourcePath}`);
+    return {
+      path: sourcePath,
+      predecessorDigest: priorDigest,
+      ownerReviewedDigest: expected,
+      observedDigest: observedDigest ?? null,
+      disposition: observedDigest === priorDigest ? 'UNCHANGED'
+        : approved && observedDigest === expected ? 'OWNER_APPROVED_DELTA' : 'UNAPPROVED_CHANGE',
+    };
+  });
+  const unchangedCount = comparisons.filter((entry) => entry.disposition === 'UNCHANGED').length;
+  const approvedCount = comparisons.filter((entry) => entry.disposition === 'OWNER_APPROVED_DELTA').length;
+  const unapprovedCount = comparisons.filter((entry) => entry.disposition === 'UNAPPROVED_CHANGE').length;
+  if (unchangedCount !== 145 || approvedCount !== 1 || unapprovedCount !== 0) blockers.push('PDP0_CURRENT_CUT_DELTA_COUNTS_INVALID');
+
+  return {
+    blockers: [...new Set(blockers)],
+    sourceComparison: {
+      predecessorExitRef: predecessorCut?.receiptRef ?? null,
+      predecessorMaterialSourceSetFingerprint: predecessorCut?.materialSourceSetFingerprint ?? null,
+      ownerDirectionsRef: null,
+      supplementalImpactRef: CURRENT_CUT_IMPACT_PATH,
+      supplementalDecisionId: impact?.recordId ?? null,
+      supplementalImpactSha256: sha256File(CURRENT_CUT_IMPACT_PATH),
+      predecessorPathCount: priorPaths.length,
+      observedPathCount: currentPaths.length,
+      unchangedPathCount: unchangedCount,
+      ownerApprovedChangedPathCount: approvedCount,
+      unapprovedChangedPathCount: unapprovedCount,
+      missingPathCount: missingPaths.length,
+      additionalPathCount: additionalPaths.length,
+      missingPaths,
+      additionalPaths,
+      paths: comparisons,
+    },
+  };
+}
+
 function validateOwnerAcceptance(acceptance, technicalCurrentness, historicalPdp0Exit) {
+  if (acceptance?.schemaVersion === 'media.discovery-current-cut-source-impact.v1') {
+    return validateCurrentCutImpactDisposition(acceptance, technicalCurrentness, historicalPdp0Exit);
+  }
   if (acceptance?.recordKind === 'SCOPED_DELEGATED_MEDIA_OWNER_DESIGN_AND_MATERIAL_IMPACT_DECISIONS_NOT_TECHNICAL_CURRENTNESS_NOT_LIFECYCLE_RECEIPT') {
     return validateCurrentCutOwnerDirections(acceptance, technicalCurrentness, historicalPdp0Exit);
   }
@@ -255,10 +402,13 @@ function validateChecks(testOutcomes) {
  */
 export function joinMediaPdp0PhaseExit({ technicalCurrentness, ownerAcceptance, historicalPdp0Exit, testOutcomes, baselineSha, observedAt = new Date().toISOString() }) {
   const technicalBlockers = validateTechnicalCurrentness(technicalCurrentness);
-  const ownerValidation = ownerAcceptance?.recordKind === 'SCOPED_DELEGATED_MEDIA_OWNER_DESIGN_AND_MATERIAL_IMPACT_DECISIONS_NOT_TECHNICAL_CURRENTNESS_NOT_LIFECYCLE_RECEIPT'
+  const ownerValidation = ownerAcceptance?.schemaVersion === 'media.discovery-current-cut-source-impact.v1'
+    ? validateCurrentCutImpactDisposition(ownerAcceptance, technicalCurrentness, historicalPdp0Exit)
+    : ownerAcceptance?.recordKind === 'SCOPED_DELEGATED_MEDIA_OWNER_DESIGN_AND_MATERIAL_IMPACT_DECISIONS_NOT_TECHNICAL_CURRENTNESS_NOT_LIFECYCLE_RECEIPT'
     ? validateCurrentCutOwnerDirections(ownerAcceptance, technicalCurrentness, historicalPdp0Exit)
     : validateOwnerAcceptance(ownerAcceptance, technicalCurrentness, historicalPdp0Exit);
   const ownerBlockers = ownerValidation.blockers;
+  const impactDispositionOnly = ownerAcceptance?.schemaVersion === 'media.discovery-current-cut-source-impact.v1';
   const testBlockers = validateChecks(testOutcomes);
   const blockers = [...technicalBlockers, ...ownerBlockers, ...testBlockers];
   const pass = blockers.length === 0;
@@ -313,16 +463,19 @@ export function joinMediaPdp0PhaseExit({ technicalCurrentness, ownerAcceptance, 
       })),
     },
     delegatedOwnerAcceptance: {
-      decisionId: ownerAcceptance?.decisionId ?? null,
-      decisionStatus: ownerAcceptance?.decisionStatus ?? 'UNKNOWN',
-      ownerInputKind: ownerAcceptance?.recordKind ?? 'UNKNOWN',
-      actorKind: ownerAcceptance?.authority?.actorKind ?? null,
-      acceptedMaterialSourceSetFingerprint: ownerAcceptance?.subject?.materialSourceSetFingerprint ?? null,
+      decisionId: ownerAcceptance?.decisionId ?? ownerAcceptance?.recordId ?? null,
+      decisionStatus: ownerAcceptance?.decisionStatus ?? ownerAcceptance?.decision?.status ?? 'UNKNOWN',
+      ownerInputKind: ownerAcceptance?.recordKind ?? ownerAcceptance?.schemaVersion ?? 'UNKNOWN',
+      actorKind: ownerAcceptance?.authority?.actorKind ?? ownerAcceptance?.authority?.delegate ?? null,
+      acceptedMaterialSourceSetFingerprint: impactDispositionOnly ? null : ownerAcceptance?.subject?.materialSourceSetFingerprint ?? null,
+      impactDispositionRecordId: impactDispositionOnly ? ownerAcceptance.recordId : null,
       changedMeaningIds: ownerAcceptance?.subject?.changedMeaningIds ?? null,
       outstandingMeaningIds: ownerAcceptance?.subject?.outstandingMeaningIds ?? null,
       humanIndependentSignatureProvided: ownerAcceptance?.authority?.humanIndependentSignatureProvided ?? null,
       qualifiedExternalSpecialistSignoffProvided: ownerAcceptance?.authority?.qualifiedExternalSpecialistSignoffProvided ?? null,
-      status: ownerBlockers.length ? 'BLOCKED' : 'ACCEPTED_FOR_EXACT_MATERIAL_FINGERPRINT',
+      status: ownerBlockers.length ? 'BLOCKED' : impactDispositionOnly
+        ? 'INTERNAL_IMPACT_DISPOSITION_ONLY_NOT_OWNER_ACCEPTANCE'
+        : 'ACCEPTED_FOR_EXACT_MATERIAL_FINGERPRINT',
       blockers: ownerBlockers,
     },
     ownerStatusJoin: ownerValidation.sourceComparison ? {
@@ -337,7 +490,9 @@ export function joinMediaPdp0PhaseExit({ technicalCurrentness, ownerAcceptance, 
         ? 'STALE_APPROVAL_FOR_CHANGED_MATERIAL'
         : 'FAIL',
       sourceCurrentness: technicalBlockers.length ? 'FAIL' : 'PASS',
-      delegatedOwnerAcceptance: ownerBlockers.length ? 'FAIL' : 'PASS',
+      delegatedOwnerAcceptance: ownerBlockers.length ? 'FAIL' : impactDispositionOnly
+        ? 'NOT_CLAIMED_IMPACT_DISPOSITION_ONLY'
+        : 'PASS',
       requiredChecks: testBlockers.length ? 'FAIL' : 'PASS',
       blockers,
       nextLegalAction: pass ? 'ADVANCE_TO_PDP1_MDC10' : ownerBlockers.includes('STALE_APPROVAL_FOR_CHANGED_MATERIAL')

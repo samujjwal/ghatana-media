@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "media.discovery-pdp2-current-cut-source-impact.v1",
+  "recordId": "MEDIA-DISCOVERY-PDP2-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R1",
+  "observedAt": "2026-10-14T04:30:00.000Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "stage": "DISCOVERY",
+    "activePhase": "PDP-2",
+    "scope": "Exact source-impact disposition for two PDP-2 R4 baseline paths identified for ordered technical currentness recapture.",
+    "materialSourceSetFingerprint": "sha256:dcd8eb3ac4e8717ed279fc41e859d87f7fd1a938c5660399b8e086639d2b0a70",
+    "materialPathCount": 405
+  },
+  "authority": {
+    "delegate": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION",
+    "decisionRole": "SCOPED_INTERNAL_MEDIA_PDP2_SOURCE_IMPACT_REVIEW",
+    "userAuthorization": "Authorize scoped PDP-2 disposition (Recommended)",
+    "authorizationContext": "The user explicitly authorized this exact bounded disposition: the readiness-script and interface-review paths add no PDP-2 meaning, and PDP-2 is to be recaptured after PDP-1.",
+    "humanIndependentSignatureProvided": false,
+    "qualifiedExternalSpecialistSignoffProvided": false,
+    "externalContractOwnerAcceptanceProvided": false,
+    "nativeLifecycleReceiptProvided": false
+  },
+  "predecessorCut": {
+    "phase": "PDP-2",
+    "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r4.json",
+    "receiptSha256": "sha256:8f490948b9489ec40db997405f69a162c6727586bda1079fd6293033bf705267",
+    "materialSourceSetFingerprint": "sha256:dcd8eb3ac4e8717ed279fc41e859d87f7fd1a938c5660399b8e086639d2b0a70",
+    "materialPathCount": 405,
+    "receiptStatus": "HISTORICAL_BASELINE_FOR_SCOPED_IMPACT_DISPOSITION"
+  },
+  "sourceDeltas": [
+    {
+      "path": ".product-experience/interface-parity/current-source-review.json",
+      "phase": "PDP-2",
+      "predecessorSha256": "sha256:14cf6c3d9ea948e39e41ffa2de3453c08b7b6a23267f407f3504c5462b7428fc",
+      "observedSha256": "sha256:62765cbb335572f28570fe650b3955aaa028f314322490e17e466d3ca9234abf",
+      "classification": "PDP2_INTERFACE_REVIEW_ARTIFACT_REFRESH",
+      "meaningChange": "NO_ADDITIONAL_PDP2_MEANING",
+      "requiresFreshCurrentness": true
+    },
+    {
+      "path": "scripts/report-media-pdp-readiness.mjs",
+      "phase": "PDP-2",
+      "predecessorSha256": "sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1",
+      "observedSha256": "sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573",
+      "classification": "PDP_STATUS_TEST_REPORTER_SELECTION_ONLY",
+      "meaningChange": "NO_PDP2_PRODUCT_DEFINITION_MEANING_CHANGE",
+      "requiresFreshCurrentness": true
+    }
+  ],
+  "scopeLimits": {
+    "onlyTheseExactTwoPathTransitionsAreAuthorized": true,
+    "noOtherPathAuthorizedByThisRecord": true,
+    "pdp2Currentness": "NOT_ESTABLISHED_REQUIRES_FRESH_RECAPTURE_AFTER_PDP1",
+    "preserveEarlierReceipts": true,
+    "externalAcceptance": "NOT_CLAIMED",
+    "independentSignoff": "NOT_CLAIMED",
+    "lifecycleClosure": "NOT_ENTERED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "delivery": "NOT_AUTHORIZED"
+  },
+  "decision": {
+    "status": "APPROVED_INTERNAL_IMPACT_DISPOSITION_FOR_EXACT_SOURCE_DELTAS",
+    "pdp2MeaningDisposition": "NO_ADDITIONAL_PDP2_MEANING_IN_THESE_TWO_EXACT_PATH_CHANGES",
+    "requiresFreshCurrentness": true,
+    "orderedRecapturePrerequisite": "PDP-1 currentness must be established before PDP-2 recapture",
+    "preserveHistoricalReceipts": true
+  },
+  "limitation": "This is an internal, user-delegated source-impact disposition bound only to the exact two paths and hash transitions above and the identified PDP-2 R4 baseline. It does not establish PDP-2 currentness or phase completion, external acceptance, independent signoff, Lifecycle closure, runtime admission, or Delivery."
+}
