@@ -7,12 +7,14 @@ import { joinMediaPdp0PhaseExit } from './lib/media-discovery-pdp0-phase-exit.mj
 import { buildMediaPdp0CurrentnessObservation } from './record-media-discovery-pdp0-currentness.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const defaultOwnerInput = 'docs/implementation/observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13-r2.json';
+const defaultOwnerInput = 'docs/implementation/observations/media-discovery-current-cut-owner-directions-2026-10-13-r2.json';
+const historicalPdp0ExitInput = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json';
 const suffix = process.argv[2] ?? '2026-10-13-r2';
 const outcomesPath = process.argv[3];
+const ownerInput = process.argv[4] ?? defaultOwnerInput;
 
 if (!/^[a-z0-9-]+$/u.test(suffix) || !outcomesPath) {
-  process.stderr.write('Usage: node scripts/record-media-discovery-pdp0-phase-exit.mjs <fresh-cut-suffix> <test-outcomes-json>\n');
+  process.stderr.write('Usage: node scripts/record-media-discovery-pdp0-phase-exit.mjs <fresh-cut-suffix> <test-outcomes-json> [owner-directions-json]\n');
   process.exitCode = 2;
 } else {
   const readJson = (relativePath) => JSON.parse(fs.readFileSync(path.resolve(root, relativePath), 'utf8'));
@@ -49,11 +51,13 @@ if (!/^[a-z0-9-]+$/u.test(suffix) || !outcomesPath) {
     lifecyclePriming,
     purpose: 'Establish a stable post-commit Lifecycle source snapshot before the exact phase-cell capture.',
   };
-  const ownerAcceptance = readJson(defaultOwnerInput);
+  const ownerAcceptance = readJson(ownerInput);
+  const historicalPdp0Exit = readJson(historicalPdp0ExitInput);
   const baselineSha = technicalCurrentness.campaign.observedHead;
   const exit = joinMediaPdp0PhaseExit({
     technicalCurrentness,
     ownerAcceptance,
+    historicalPdp0Exit,
     testOutcomes: outcomeRecord.testOutcomes,
     baselineSha,
   });
@@ -74,6 +78,15 @@ if (!/^[a-z0-9-]+$/u.test(suffix) || !outcomesPath) {
   };
   writeImmutable(technicalPath, technicalCurrentness);
   writeImmutable(exitPath, exit);
-  process.stdout.write(`${JSON.stringify({ technicalPath, exitPath, phaseExit: exit.phaseExit, lifecyclePriming }, null, 2)}\n`);
+  process.stdout.write(`${JSON.stringify({ technicalPath, exitPath, phaseExit: exit.phaseExit, ownerStatusJoin: exit.ownerStatusJoin && {
+    status: exit.ownerStatusJoin.status,
+    predecessorPathCount: exit.ownerStatusJoin.predecessorPathCount,
+    observedPathCount: exit.ownerStatusJoin.observedPathCount,
+    unchangedPathCount: exit.ownerStatusJoin.unchangedPathCount,
+    ownerApprovedChangedPathCount: exit.ownerStatusJoin.ownerApprovedChangedPathCount,
+    unapprovedChangedPathCount: exit.ownerStatusJoin.unapprovedChangedPathCount,
+    missingPathCount: exit.ownerStatusJoin.missingPathCount,
+    additionalPathCount: exit.ownerStatusJoin.additionalPathCount,
+  }, lifecyclePriming }, null, 2)}\n`);
   if (exit.phaseExit.status !== 'PASS') process.exitCode = 1;
 }

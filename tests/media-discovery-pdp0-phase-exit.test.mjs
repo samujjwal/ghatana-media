@@ -85,6 +85,18 @@ const testOutcomes = mediaPdp0RequiredCommands.map((command) => ({
     : {}),
 }));
 
+const currentCutOwnerDirections = JSON.parse(fs.readFileSync(path.join(root, 'docs/implementation/observations/media-discovery-current-cut-owner-directions-2026-10-13-r2.json'), 'utf8'));
+const historicalPdp0Exit = JSON.parse(fs.readFileSync(path.join(root, 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json'), 'utf8'));
+
+function currentCutTechnical() {
+  const result = technical();
+  result.sourceContentDigests = { ...historicalPdp0Exit.sourceCurrentness.sourceContentDigests };
+  for (const change of currentCutOwnerDirections.predecessorImpactReviews[0].sourceChanges) {
+    result.sourceContentDigests[change.path] = change.observedSha256;
+  }
+  return result;
+}
+
 test('PDP-0 phase exit passes only when the source cut, delegated owner input, scope, and required outcomes join', () => {
   const exit = joinMediaPdp0PhaseExit({
     technicalCurrentness: technical(), ownerAcceptance: owner, testOutcomes, baselineSha: 'abc123', observedAt: '2026-10-13T00:00:00.000Z',
@@ -121,3 +133,60 @@ test('the current delegated owner input is explicitly bound to the reviewed PDP-
   assert.deepEqual(currentOwner.subject.outstandingMeaningIds, []);
   assert.equal(currentOwner.authority.humanIndependentSignatureProvided, false);
 });
+
+test('the current-cut owner direction joins only the exact 146-path predecessor cut and four approved deltas', () => {
+  const exit = joinMediaPdp0PhaseExit({
+    technicalCurrentness: currentCutTechnical(),
+    ownerAcceptance: currentCutOwnerDirections,
+    historicalPdp0Exit,
+    testOutcomes,
+  });
+  assert.equal(exit.phaseExit.status, 'PASS');
+  assert.equal(exit.ownerStatusJoin.status, 'ACCEPTED_FOR_EXACT_CURRENT_FINGERPRINT_WITH_REVIEWED_DELTA');
+  assert.equal(exit.ownerStatusJoin.predecessorPathCount, 146);
+  assert.equal(exit.ownerStatusJoin.observedPathCount, 146);
+  assert.equal(exit.ownerStatusJoin.unchangedPathCount, 142);
+  assert.equal(exit.ownerStatusJoin.ownerApprovedChangedPathCount, 4);
+  assert.equal(exit.ownerStatusJoin.unapprovedChangedPathCount, 0);
+  assert.equal(exit.ownerStatusJoin.missingPathCount, 0);
+  assert.equal(exit.ownerStatusJoin.additionalPathCount, 0);
+  assert.equal(exit.delegatedOwnerAcceptance.humanIndependentSignatureProvided, null);
+  assert.equal(exit.independentApproval, 'NOT_CLAIMED_AND_NOT_WAIVED');
+});
+
+test('the current-cut owner direction fails closed on an additional path digest change', () => {
+  const changed = currentCutTechnical();
+  const unchangedPath = Object.keys(changed.sourceContentDigests).find((sourcePath) => !REVIEWED_PATHS.has(sourcePath));
+  changed.sourceContentDigests[unchangedPath] = `sha256:${'f'.repeat(64)}`;
+  const exit = joinMediaPdp0PhaseExit({
+    technicalCurrentness: changed,
+    ownerAcceptance: currentCutOwnerDirections,
+    historicalPdp0Exit,
+    testOutcomes,
+  });
+  assert.equal(exit.phaseExit.status, 'FAIL');
+  assert.equal(exit.ownerStatusJoin.status, 'BLOCKED');
+  assert.ok(exit.delegatedOwnerAcceptance.blockers.includes(`PDP0_SOURCE_DIGEST_NOT_OWNER_REVIEWED:${unchangedPath}`));
+});
+
+test('the current-cut owner direction fails closed when predecessor path membership is incomplete', () => {
+  const incomplete = currentCutTechnical();
+  const missingPath = Object.keys(incomplete.sourceContentDigests)[0];
+  delete incomplete.sourceContentDigests[missingPath];
+  const exit = joinMediaPdp0PhaseExit({
+    technicalCurrentness: incomplete,
+    ownerAcceptance: currentCutOwnerDirections,
+    historicalPdp0Exit,
+    testOutcomes,
+  });
+  assert.equal(exit.phaseExit.status, 'FAIL');
+  assert.equal(exit.ownerStatusJoin.status, 'BLOCKED');
+  assert.ok(exit.delegatedOwnerAcceptance.blockers.includes('PDP0_MATERIAL_PATH_MEMBERSHIP_CHANGED'));
+});
+
+const REVIEWED_PATHS = new Set([
+  '.product-experience/artifact-identities.yaml',
+  '.product-experience/source-manifest.yaml',
+  '.product-experience/surface-registry.yaml',
+  'apps/media-experience-explorer/specification-artifacts.json',
+]);
