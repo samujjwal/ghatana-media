@@ -14,7 +14,11 @@
     "reviewedCampaignBaseline": "f5ae3461c53eb1d490362a9bb8818ce74573147c",
     "scope": {
       "physicalCandidates": 26,
-      "physicalDispositions": { "PHYSICAL": 12, "SUPPORT_ONLY": 12, "SUBSUMED": 2 },
+      "physicalDispositions": {
+        "PHYSICAL": 12,
+        "SUPPORT_ONLY": 12,
+        "SUBSUMED": 2
+      },
       "semanticCompositions": 6,
       "rootAggregates": 1,
       "consumerCrosswalks": 17,
@@ -64,8 +68,13 @@
     "sourceBoundDefinitionOnly": 40,
     "incomplete": 21,
     "sourceBoundTaskIds": [
-      "MDC30-C-06", "MDC30-C-07", "MDC30-C-11", "MDC30-C-12",
-      "MDC30-C-15", "MDC30-C-17", "MDC30-C-21"
+      "MDC30-C-06",
+      "MDC30-C-07",
+      "MDC30-C-11",
+      "MDC30-C-12",
+      "MDC30-C-15",
+      "MDC30-C-17",
+      "MDC30-C-21"
     ],
     "incompleteTaskEdgeCounts": {
       "MDC30-C-03": 4,
@@ -77,27 +86,132 @@
       "MDC30-C-30": 3
     },
     "incompleteEdges": [
-      { "id": "media.pdp3.channel-binding.j03.web.v1", "journeyId": "J-03", "channel": "web", "ownerTaskId": "MDC30-C-03" },
-      { "id": "media.pdp3.channel-binding.j03.cli.v1", "journeyId": "J-03", "channel": "cli", "ownerTaskId": "MDC30-C-03" },
-      { "id": "media.pdp3.channel-binding.j03.grpc-api.v1", "journeyId": "J-03", "channel": "grpc-api", "ownerTaskId": "MDC30-C-03" },
-      { "id": "media.pdp3.channel-binding.j03.sdk.v1", "journeyId": "J-03", "channel": "sdk", "ownerTaskId": "MDC30-C-03" },
-      { "id": "media.pdp3.channel-binding.j04.web.v1", "journeyId": "J-04", "channel": "web", "ownerTaskId": "MDC30-C-04" },
-      { "id": "media.pdp3.channel-binding.j04.grpc-api.v1", "journeyId": "J-04", "channel": "grpc-api", "ownerTaskId": "MDC30-C-04" },
-      { "id": "media.pdp3.channel-binding.j04.sdk.v1", "journeyId": "J-04", "channel": "sdk", "ownerTaskId": "MDC30-C-04" },
-      { "id": "media.pdp3.channel-binding.j16.web.v1", "journeyId": "J-16", "channel": "web", "ownerTaskId": "MDC30-C-16" },
-      { "id": "media.pdp3.channel-binding.j16.grpc-api.v1", "journeyId": "J-16", "channel": "grpc-api", "ownerTaskId": "MDC30-C-16" },
-      { "id": "media.pdp3.channel-binding.j22.web.v1", "journeyId": "J-22", "channel": "web", "ownerTaskId": "MDC30-C-22" },
-      { "id": "media.pdp3.channel-binding.j22.http-api.v1", "journeyId": "J-22", "channel": "http-api", "ownerTaskId": "MDC30-C-22" },
-      { "id": "media.pdp3.channel-binding.j22.cli.v1", "journeyId": "J-22", "channel": "cli", "ownerTaskId": "MDC30-C-22" },
-      { "id": "media.pdp3.channel-binding.j22.product-integration.v1", "journeyId": "J-22", "channel": "product-integration", "ownerTaskId": "MDC30-C-22" },
-      { "id": "media.pdp3.channel-binding.j25.product-integration.v1", "journeyId": "J-25", "channel": "product-integration", "ownerTaskId": "MDC30-C-25" },
-      { "id": "media.pdp3.channel-binding.j25.http-api.v1", "journeyId": "J-25", "channel": "http-api", "ownerTaskId": "MDC30-C-25" },
-      { "id": "media.pdp3.channel-binding.j27.web.v1", "journeyId": "J-27", "channel": "web", "ownerTaskId": "MDC30-C-27" },
-      { "id": "media.pdp3.channel-binding.j27.http-api.v1", "journeyId": "J-27", "channel": "http-api", "ownerTaskId": "MDC30-C-27" },
-      { "id": "media.pdp3.channel-binding.j27.cli.v1", "journeyId": "J-27", "channel": "cli", "ownerTaskId": "MDC30-C-27" },
-      { "id": "media.pdp3.channel-binding.j30.web.v1", "journeyId": "J-30", "channel": "web", "ownerTaskId": "MDC30-C-30" },
-      { "id": "media.pdp3.channel-binding.j30.http-api.v1", "journeyId": "J-30", "channel": "http-api", "ownerTaskId": "MDC30-C-30" },
-      { "id": "media.pdp3.channel-binding.j30.cli.v1", "journeyId": "J-30", "channel": "cli", "ownerTaskId": "MDC30-C-30" }
+      {
+        "id": "media.pdp3.channel-binding.j03.web.v1",
+        "journeyId": "J-03",
+        "channel": "web",
+        "ownerTaskId": "MDC30-C-03"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j03.cli.v1",
+        "journeyId": "J-03",
+        "channel": "cli",
+        "ownerTaskId": "MDC30-C-03"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j03.grpc-api.v1",
+        "journeyId": "J-03",
+        "channel": "grpc-api",
+        "ownerTaskId": "MDC30-C-03"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j03.sdk.v1",
+        "journeyId": "J-03",
+        "channel": "sdk",
+        "ownerTaskId": "MDC30-C-03"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j04.web.v1",
+        "journeyId": "J-04",
+        "channel": "web",
+        "ownerTaskId": "MDC30-C-04"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j04.grpc-api.v1",
+        "journeyId": "J-04",
+        "channel": "grpc-api",
+        "ownerTaskId": "MDC30-C-04"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j04.sdk.v1",
+        "journeyId": "J-04",
+        "channel": "sdk",
+        "ownerTaskId": "MDC30-C-04"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j16.web.v1",
+        "journeyId": "J-16",
+        "channel": "web",
+        "ownerTaskId": "MDC30-C-16"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j16.grpc-api.v1",
+        "journeyId": "J-16",
+        "channel": "grpc-api",
+        "ownerTaskId": "MDC30-C-16"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j22.web.v1",
+        "journeyId": "J-22",
+        "channel": "web",
+        "ownerTaskId": "MDC30-C-22"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j22.http-api.v1",
+        "journeyId": "J-22",
+        "channel": "http-api",
+        "ownerTaskId": "MDC30-C-22"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j22.cli.v1",
+        "journeyId": "J-22",
+        "channel": "cli",
+        "ownerTaskId": "MDC30-C-22"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j22.product-integration.v1",
+        "journeyId": "J-22",
+        "channel": "product-integration",
+        "ownerTaskId": "MDC30-C-22"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j25.product-integration.v1",
+        "journeyId": "J-25",
+        "channel": "product-integration",
+        "ownerTaskId": "MDC30-C-25"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j25.http-api.v1",
+        "journeyId": "J-25",
+        "channel": "http-api",
+        "ownerTaskId": "MDC30-C-25"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j27.web.v1",
+        "journeyId": "J-27",
+        "channel": "web",
+        "ownerTaskId": "MDC30-C-27"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j27.http-api.v1",
+        "journeyId": "J-27",
+        "channel": "http-api",
+        "ownerTaskId": "MDC30-C-27"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j27.cli.v1",
+        "journeyId": "J-27",
+        "channel": "cli",
+        "ownerTaskId": "MDC30-C-27"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j30.web.v1",
+        "journeyId": "J-30",
+        "channel": "web",
+        "ownerTaskId": "MDC30-C-30"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j30.http-api.v1",
+        "journeyId": "J-30",
+        "channel": "http-api",
+        "ownerTaskId": "MDC30-C-30"
+      },
+      {
+        "id": "media.pdp3.channel-binding.j30.cli.v1",
+        "journeyId": "J-30",
+        "channel": "cli",
+        "ownerTaskId": "MDC30-C-30"
+      }
     ]
   },
   "journeyGapAudit": [
@@ -155,8 +269,20 @@
     "total": 14,
     "complete": 14,
     "completeTaskIds": [
-      "MDC30-S-01", "MDC30-S-02", "MDC30-S-03", "MDC30-S-04", "MDC30-S-05", "MDC30-S-06", "MDC30-S-07",
-      "MDC30-S-08", "MDC30-S-09", "MDC30-S-10", "MDC30-S-11", "MDC30-S-12", "MDC30-S-13", "MDC30-S-14"
+      "MDC30-S-01",
+      "MDC30-S-02",
+      "MDC30-S-03",
+      "MDC30-S-04",
+      "MDC30-S-05",
+      "MDC30-S-06",
+      "MDC30-S-07",
+      "MDC30-S-08",
+      "MDC30-S-09",
+      "MDC30-S-10",
+      "MDC30-S-11",
+      "MDC30-S-12",
+      "MDC30-S-13",
+      "MDC30-S-14"
     ],
     "s06Disposition": "SOURCE_BOUND_DEFINITION_ONLY_EXACT_ASYNC_SUBMIT_WRAPPER_NO_QUEUED_OR_EXECUTION_CLAIM"
   },
@@ -181,15 +307,36 @@
   },
   "tasks": {
     "completed": [
-      "RC-P0-01", "RC-P1-01", "RC-P2-01", "MDC30-C-06", "MDC30-C-07", "MDC30-C-11",
-      "MDC30-C-12", "MDC30-C-15", "MDC30-C-17", "MDC30-C-21", "MDC30-S-06"
+      "RC-P0-01",
+      "RC-P1-01",
+      "RC-P2-01",
+      "MDC30-C-06",
+      "MDC30-C-07",
+      "MDC30-C-11",
+      "MDC30-C-12",
+      "MDC30-C-15",
+      "MDC30-C-17",
+      "MDC30-C-21",
+      "MDC30-S-06"
     ],
     "remainingPhaseLocal": [
-      "MDC30-C-03", "MDC30-C-04", "MDC30-C-16", "MDC30-C-22", "MDC30-C-25", "MDC30-C-27", "MDC30-C-30", "MDC30-V-01"
+      "MDC30-C-03",
+      "MDC30-C-04",
+      "MDC30-C-16",
+      "MDC30-C-22",
+      "MDC30-C-25",
+      "MDC30-C-27",
+      "MDC30-C-30",
+      "MDC30-V-01"
     ],
-    "gated": ["MDC-31", "MDC-32", "MDC-40", "MDC-41"]
+    "gated": [
+      "MDC-31",
+      "MDC-32",
+      "MDC-40",
+      "MDC-41"
+    ]
   },
-  "nextLegalAction": "Obtain owner-authored PDP-1 operation/result definitions for the seven named gaps; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Once exact source joins exist, complete the affected PDP-3 bindings and negative tests, then run MDC30-V-01. Keep MDC-31/32/40/41 gated until their prescribed predecessors pass.",
+  "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
   "worktreeAtCapture": {
     "status": "MODIFIED",
     "changedPathCountBeforeObservation": 28,

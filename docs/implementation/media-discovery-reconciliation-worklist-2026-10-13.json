@@ -118,7 +118,7 @@
       "completeConsequential": 14
     },
     "latestMdc30ProgressStatus": "BLOCKED_DEFINITION_RECONCILIATION; 40_OF_61_LOGICAL_EDGES; 21_PDP1_OWNER_SOURCE_GAPS; S06_SOURCE_BOUND; V01_OPEN",
-    "latestNextLegalAction": "Obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31/32/40/41 gated.",
+    "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
     "latestImplementationProgressIsPdp3Currentness": false,
     "pdp3PhaseExitPublished": false,
     "pdp3DefinitionTasksRemaining": 21,
@@ -1061,7 +1061,7 @@
       ],
       "done": "47 screen IDs, 30 journeys/130 steps, 147 UI actions and 31 scenarios plus 105 bounded recovery oracles keep exact version/outcome/negative states; 17 consumer channels have discoverable headless/GUI contracts and explicit non-admission.",
       "status": "IN_PROGRESS_40_OF_61_LOGICAL_EDGES_21_OPEN_14_OF_14_CONSEQUENTIAL_STEPS_S06_SOURCE_BOUND",
-      "executionNote": "Current cut after RC-P0-01, RC-P1-01 and RC-P2-01 successor currentness receipts PASS: 40/61 logical channel edges source-bound, with 21 incomplete edges across seven owner-source-blocked groups (C-03=4, C-04=3, C-16=2, C-22=4, C-25=2, C-27=3, C-30=3). C-06 and all previously completed channel groups are reused. S-06 is source-bound and all 14 consequential steps are complete without a QUEUED/result claim. Focused V01 coverage is being rerun; PDP-3 currentness and phase exit remain NOT_ESTABLISHED. The exact missing owner semantics/observations and lawful owners are recorded in the current-cut direction packet; no transports or runtimes are admitted.",
+      "executionNote": "Current cut after PDP-0 r2, PDP-1 r6 and PDP-2 r4 exact-source currentness receipts PASS: 40/61 logical channel edges source-bound; 21 remain incomplete across seven PDP-1 owner-source gap groups (C-03=4, C-04=3, C-16=2, C-22=4, C-25=2, C-27=3, C-30=3). All 14 consequential steps, including S-06, are source-bound without a QUEUED or execution claim. The read-only edge audit found no authorized exact operation/result meaning for the 21 gaps. V-01 remains OPEN and was not run as a phase exit because its prerequisites fail; PDP-3 currentness and phase exit are NOT_ESTABLISHED. Transport remains UNBOUND and runtime NOT_ADMITTED.",
       "ownerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
       "machineOwnerDecisionRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
       "subtaskIds": [
@@ -1117,7 +1117,8 @@
       "executionEvidenceRefs": [
         "docs/implementation/observations/media-discovery-pdp3-mdc30-execution-2026-10-13-r1.json",
         "docs/implementation/observations/media-discovery-predecessor-currentness-impact-2026-10-13-r1.json",
-        "docs/implementation/observations/media-discovery-current-cut-owner-directions-2026-10-13-r2.json"
+        "docs/implementation/observations/media-discovery-current-cut-owner-directions-2026-10-13-r2.json",
+        "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json"
       ],
       "ownerFollowupDecisionRef": ".product-experience/reviews/2026-10-13-discovery-current-cut-delegated-owner-review.md",
       "effectiveRemainingSubtaskIds": [
@@ -1156,7 +1157,7 @@
         "consequentialSteps": 14,
         "completeConsequential": 14
       },
-      "latestNextLegalAction": "Obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31/32/40/41 gated."
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors."
     },
     {
       "id": "MDC-31",

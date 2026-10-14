@@ -121,7 +121,7 @@
       "pdp3PhaseExitPublished": false,
       "ownerSourceGapGroups": 7,
       "currentnessStatus": "NOT_ESTABLISHED",
-      "nextLegalAction": "Obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31/32/40/41 gated."
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors."
     },
     "pdp0MaterialSourceSetFingerprint": "sha256:20e8a999b36e7fb61662183200f1e8c83eebb39523c5ab8835bea311af1f31e8"
   },
@@ -399,7 +399,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -449,12 +449,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -683,7 +685,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -723,12 +725,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -937,7 +941,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -976,12 +980,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -1190,7 +1196,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -1229,12 +1235,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -1463,7 +1471,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -1512,12 +1520,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -1760,7 +1770,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -1811,12 +1821,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -2060,7 +2072,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -2105,12 +2117,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -2370,7 +2384,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -2438,12 +2452,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -2672,7 +2688,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -2712,12 +2728,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -2926,7 +2944,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -2965,12 +2983,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -3213,7 +3233,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -3261,12 +3281,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -3475,7 +3497,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -3514,12 +3536,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -3748,7 +3772,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -3798,12 +3822,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -4046,7 +4072,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -4096,12 +4122,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -4330,7 +4358,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -4380,12 +4408,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -4614,7 +4644,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -4664,12 +4694,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -4878,7 +4910,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -4917,12 +4949,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -5169,7 +5203,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -5209,12 +5243,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -5458,7 +5494,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -5505,12 +5541,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -5719,7 +5757,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -5758,12 +5796,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -6007,7 +6047,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -6054,12 +6094,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -6303,7 +6345,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -6350,12 +6392,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -6564,7 +6608,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -6603,12 +6647,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -6852,7 +6898,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -6899,12 +6945,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -7133,7 +7181,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -7183,12 +7231,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -7461,7 +7511,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -7515,12 +7565,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -7708,7 +7760,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -7747,12 +7799,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -7952,7 +8006,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -7991,12 +8045,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -8196,7 +8252,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -8235,12 +8291,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -8440,7 +8498,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -8479,12 +8537,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -8684,7 +8744,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -8723,12 +8783,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -8928,7 +8990,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -8967,12 +9029,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -9172,7 +9236,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "observedPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
       "observedPdp3SourcePinCount": 337,
       "observedPdp3SourcePinMismatchCount": 36,
@@ -9211,12 +9275,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -9435,7 +9501,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "phaseApplicabilityAuthorityRefs": [
         ".product-experience/surface-registry.yaml#/surfaces/0",
         ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/0"
@@ -9507,12 +9573,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -9734,7 +9802,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "phaseApplicabilityAuthorityRefs": [
         ".product-experience/surface-registry.yaml#/surfaces/1",
         ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/1"
@@ -9778,12 +9846,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -10015,7 +10085,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "phaseApplicabilityAuthorityRefs": [
         ".product-experience/surface-registry.yaml#/surfaces/2",
         ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/2"
@@ -10068,12 +10138,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -10344,7 +10416,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "phaseApplicabilityAuthorityRefs": [
         ".product-experience/surface-registry.yaml#/surfaces/3",
         ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/3"
@@ -10395,12 +10467,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -10619,7 +10693,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "phaseApplicabilityAuthorityRefs": [
         ".product-experience/surface-registry.yaml#/surfaces/4",
         ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/4"
@@ -10663,12 +10737,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -10887,7 +10963,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "phaseApplicabilityAuthorityRefs": [
         ".product-experience/surface-registry.yaml#/surfaces/5",
         ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/5"
@@ -10931,12 +11007,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -11155,7 +11233,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "phaseApplicabilityAuthorityRefs": [
         ".product-experience/surface-registry.yaml#/surfaces/6",
         ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/6"
@@ -11199,12 +11277,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -11423,7 +11503,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "phaseApplicabilityAuthorityRefs": [
         ".product-experience/surface-registry.yaml#/surfaces/7",
         ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/7"
@@ -11467,12 +11547,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -11704,7 +11786,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "phaseApplicabilityAuthorityRefs": [
         ".product-experience/surface-registry.yaml#/surfaces/8",
         ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/8"
@@ -11753,12 +11835,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -11989,7 +12073,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "phaseApplicabilityAuthorityRefs": [
         ".product-experience/surface-registry.yaml#/surfaces/9",
         ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/9"
@@ -12041,12 +12125,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -12278,7 +12364,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "phaseApplicabilityAuthorityRefs": [
         ".product-experience/surface-registry.yaml#/surfaces/10",
         ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/10"
@@ -12322,12 +12408,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -12556,7 +12644,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "phaseApplicabilityAuthorityRefs": [
         ".product-experience/surface-registry.yaml#/surfaces/11",
         ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/11"
@@ -12600,12 +12688,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -12889,7 +12979,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "phaseApplicabilityAuthorityRefs": [
         ".product-experience/surface-registry.yaml#/surfaces/12",
         ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/12"
@@ -12946,12 +13036,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -13170,7 +13262,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "phaseApplicabilityAuthorityRefs": [
         ".product-experience/surface-registry.yaml#/surfaces/13",
         ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/13"
@@ -13214,12 +13306,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -13451,7 +13545,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "phaseApplicabilityAuthorityRefs": [
         ".product-experience/surface-registry.yaml#/surfaces/14",
         ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/14"
@@ -13495,12 +13589,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -13732,7 +13828,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "phaseApplicabilityAuthorityRefs": [
         ".product-experience/surface-registry.yaml#/surfaces/15",
         ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/15"
@@ -13776,12 +13872,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     },
     {
@@ -13977,7 +14075,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30_21_LOGICAL_EDGE_GAPS",
-      "nextLegalAction": "Re-establish PDP-0 source currentness first, then impacted PDP-1/PDP-2 cuts; resume MDC-30 for 32 edge gaps and J-06:01. Keep MDC-31 and MDC-32 gated until 50/50 PDP-3 cells are source-current and accepted.",
+      "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "phaseApplicabilityAuthorityRefs": [
         ".product-experience/surface-registry.yaml#/surfaces/16",
         ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/16"
@@ -14021,12 +14119,14 @@
         "MDC30-C-30",
         "MDC30-V-01"
       ],
-      "latestNextLegalAction": "PDP-0, PDP-1 and PDP-2 current-cut exits PASS. Resolve the 21 remaining PDP-3 channel-edge gaps in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30, then rerun MDC30-V-01. Keep MDC-31 and MDC-32 gated until all 61 logical edges are complete and the 50 PDP-3 cells are source-current.",
+      "latestNextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
       "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
       "latestMdc30LogicalCount": {
         "totalEdges": 61,
         "sourceBound": 40,
-        "incomplete": 21
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
       }
     }
   ],
