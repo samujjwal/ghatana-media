@@ -78,17 +78,14 @@
   },
   "status": {
     "historicalDefinitionMeaning": "DEV_COMPLETE_ZERO_OUTSTANDING",
-    "pdp0": "CURRENT_PHASE_EXIT_PASS",
-    "pdp1": "CURRENT_PHASE_EXIT_PASS",
-    "pdp2": "CURRENT_PHASE_EXIT_PASS",
+    "pdp0": "PRIOR_EXIT_PASS_CURRENTCUT_RECHECK_REQUIRED",
+    "pdp1": "PRIOR_EXIT_PASS_CURRENTCUT_RECHECK_REQUIRED",
+    "pdp2": "PRIOR_EXIT_PASS_CURRENTCUT_RECHECK_REQUIRED",
     "pdp3": "MDC30_29_OF_61_LOGICAL_32_GAPS_S06_OPEN_NO_CURRENT_EXIT",
     "discovery": "FAIL",
     "build": "NOT_ENTERED",
     "nativePdpClosure": "NOT_ENTERED",
-    "delivery": "BLOCKED",
-    "pdp-0": "PRIOR_EXIT_PASS_CURRENTCUT_RECHECK_REQUIRED",
-    "pdp-1": "PRIOR_EXIT_PASS_CURRENTCUT_RECHECK_REQUIRED",
-    "pdp-2": "PRIOR_EXIT_PASS_CURRENTCUT_RECHECK_REQUIRED"
+    "delivery": "BLOCKED"
   },
   "reviewRule": "Only earliest incomplete phase is active. All other phase rows are future tasks, not premature owner acceptance. A support N/A is explicit and grounded. Prior DEV_COMPLETE does not assert currentness or independent acceptance. Fresh source and tests before phase exit; no rewrite of historical dev status.",
   "phaseTaskMap": {

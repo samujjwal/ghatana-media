@@ -34,7 +34,7 @@ These are **3 prerequisite rechecks + 14 channel subtasks + 1 consequential step
 
 ### RC-P0-01 — PDP-0 source-currentness (earliest dependency)
 
-**Owner:** Media Product Truth/status; internal delegated semantic non-impact **approved at reviewed source**, exact technical currentness still pending. **Preredecessor:** none (start here).
+**Owner:** Media Product Truth/status; internal delegated semantic non-impact **approved at reviewed source**, exact technical currentness still pending. **Predecessor:** none (start here).
 
 **What:** compare all **146** prior-exit material paths; exactly **four** changed and zero missing at the historical handoff. No new product meaning ID has been identified or approved for reauthoring.
 
@@ -53,7 +53,7 @@ These are **3 prerequisite rechecks + 14 channel subtasks + 1 consequential step
 
 ### RC-P1-01 — PDP-1 source-currentness (earliest dependency)
 
-**Owner:** Media domain/status; internal delegated semantic non-impact **approved at reviewed source**, exact technical currentness still pending. **Preredecessor:** RC-P0-01.
+**Owner:** Media domain/status; internal delegated semantic non-impact **approved at reviewed source**, exact technical currentness still pending. **Predecessor:** RC-P0-01.
 
 **What:** compare all **329** prior-exit material paths; exactly **four** changed and zero missing at the historical handoff. No new product meaning ID has been identified or approved for reauthoring.
 
@@ -72,7 +72,7 @@ These are **3 prerequisite rechecks + 14 channel subtasks + 1 consequential step
 
 ### RC-P2-01 — PDP-2 source-currentness (earliest dependency)
 
-**Owner:** Media design/interface-status; internal delegated semantic non-impact **approved at reviewed source**, exact technical currentness still pending. **Preredecessor:** RC-P1-01.
+**Owner:** Media design/interface-status; internal delegated semantic non-impact **approved at reviewed source**, exact technical currentness still pending. **Predecessor:** RC-P1-01.
 
 **What:** compare all **405** prior-exit material paths; exactly **four** changed and zero missing at the historical handoff. No new product meaning ID has been identified or approved for reauthoring.
 
