@@ -13,7 +13,7 @@ const ownerEvidence = read('docs/implementation/observations/media-discovery-del
 const pdp1Exit = read('docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json');
 const pdp1CurrentCutExit = read('docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r4.json');
 const pdp1FailedAttempt = read('docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r3.json');
-const pdp2Exit = read('docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json');
+const pdp2Exit = read('docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r3.json');
 const phases = ['PDP-0', 'PDP-1', 'PDP-2', 'PDP-3'];
 const requireTools = createRequire(path.resolve(root, '../ghatana-tools/package.json'));
 const parseYaml = requireTools('yaml').parse;
@@ -81,12 +81,27 @@ test('Discovery plan binds fresh PDP-0 and PDP-1 exits while PDP-2 and PDP-3 rem
   assert.equal(pdp2Exit.independentApproval, 'NOT_CLAIMED_AND_NOT_WAIVED');
   assert.equal(pdp2Exit.sourceCurrentness.cells.length, 50);
   assert.equal(pdp2Exit.sourceCurrentness.cells.filter(c => c.sourceCurrentness === 'CURRENT').length, 50);
+  assert.equal(pdp2Exit.sourceCurrentness.denominators.materialPaths, 405);
+  assert.equal(pdp2Exit.sourceCurrentness.denominators.observedMaterialPaths, 405);
+  assert.equal(pdp2Exit.ownerStatusJoin.status, 'PASS');
+  assert.deepEqual([
+    pdp2Exit.ownerStatusJoin.historicalPathCount,
+    pdp2Exit.ownerStatusJoin.currentPathCount,
+    pdp2Exit.ownerStatusJoin.unchangedPathCount,
+    pdp2Exit.ownerStatusJoin.changedPathCount,
+    pdp2Exit.ownerStatusJoin.unapprovedChangedPathCount,
+    pdp2Exit.ownerStatusJoin.missingPathCount,
+    pdp2Exit.ownerStatusJoin.additionalPathCount,
+    pdp2Exit.ownerStatusJoin.meaningIdCount,
+  ], [405, 405, 401, 4, 0, 0, 0, 0]);
+  assert.equal(pdp2Exit.authority.exactPdp2SourceCutOwnerAcceptance, 'NOT_RECORDED');
+  assert.equal(pdp2Exit.authority.independentHumanOrQualifiedSignoff, 'NOT_CLAIMED');
   assert.equal(pdp2Exit.historicalPinReview.changedPinCount, 4);
   assert.equal(pdp2Exit.catalogPopulations.matchesHistoricalStatus, true);
   assert.equal(pdp2Exit.requiredChecks.status, 'PASS');
   assert.equal(pdp2Exit.requiredChecks.outcomes.find(o => o.command.startsWith('node --test'))?.skippedCount, 0);
   assert.equal(pdp2Exit.accessibilityEvidenceBoundary.renderedAndAssistiveTechnologyAcceptance, 'NOT_RUN_NOT_CLAIMED');
-  assert.equal(matrix.currentCut.pdp2PhaseExit, 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json');
+  assert.equal(matrix.currentCut.pdp2PhaseExit, 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r3.json');
   assert.equal(matrix.currentCut.pdp1PhaseExit, 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r4.json');
   assert.equal(matrix.currentCut.pdp1CurrentnessObservation, 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r4.json#sourceCurrentness');
   assert.equal(matrix.currentCut.pdp1PhaseExitRecordId, 'MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R4');
@@ -156,10 +171,10 @@ test('Discovery plan binds fresh PDP-0 and PDP-1 exits while PDP-2 and PDP-3 rem
   assert.equal(matrix.status.pdp0, 'CURRENT_PHASE_EXIT_PASS');
   assert.equal(matrix.status.discovery, 'FAIL');
   assert.equal(matrix.status.pdp1, 'CURRENT_PHASE_EXIT_PASS');
-  assert.equal(matrix.currentCut.latestPhaseCurrentnessStatus, 'PDP0_PDP1_CURRENT_PDP2_PDP3_NOT_REESTABLISHED');
-  assert.equal(matrix.status.pdp2, 'PRIOR_EXIT_PASS_CURRENTCUT_RECHECK_REQUIRED');
+  assert.equal(matrix.currentCut.latestPhaseCurrentnessStatus, 'PDP0_PDP1_PDP2_CURRENT_PDP3_NOT_REESTABLISHED');
+  assert.equal(matrix.status.pdp2, 'CURRENT_PHASE_EXIT_PASS');
   assert.ok(matrix.cells.filter(c => c.phase === 'PDP-2').every(c => c.currentCutReviewedHead !== pdp1CurrentCutExit.campaign.observedHead));
-  assert.equal(matrix.currentCut.pdp2PhaseExit, 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json');
+  assert.equal(matrix.currentCut.pdp2PhaseExit, 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r3.json');
   assert.equal(matrix.status.pdp3, 'MDC30_29_OF_61_LOGICAL_32_GAPS_S06_OPEN_NO_CURRENT_EXIT');
   assert.equal(matrix.status.build, 'NOT_ENTERED');
   assert.equal(matrix.status.nativePdpClosure, 'NOT_ENTERED');
