@@ -46,6 +46,9 @@ const COMMON_PDP1_REFS = [
 const REQUIRED_TEST_COMMAND = 'node --test tests/media-pdp-p1-dev-status.test.mjs tests/media-contract-parity.test.mjs tests/media-contract-parity-definition-only-cli.test.mjs tests/pdp1-owner-action-wire-contracts.test.mjs tests/pdp1-transition-guard-definition-evaluator.test.mjs';
 const REQUIRED_DEFINITION_ONLY_COMMAND = 'node scripts/check-media-contract-parity.mjs --definition-only';
 const REQUIRED_STRICT_COMMAND = 'pnpm check:contract-parity';
+const REQUIRED_LOCAL_EXPERIENCE_COMMAND = 'pnpm check:product-experience-local';
+const HISTORICAL_PDP1_EXIT_PATH = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json';
+const CURRENT_CUT_OWNER_DIRECTIONS_PATH = 'docs/implementation/observations/media-discovery-current-cut-owner-directions-2026-10-13-r2.json';
 const REQUIRED_TEST_FILES = [
   'tests/media-pdp-p1-dev-status.test.mjs',
   'tests/media-contract-parity.test.mjs',
@@ -134,10 +137,12 @@ function snapshotPdp1Logs() {
 
 function runRequiredChecks(dimensions) {
   const startedHead = git(['rev-parse', 'HEAD']);
+  const localCheckInputBefore = sha256(fs.readFileSync(path.join(root, 'scripts/check-product-experience-local.mjs')));
   const priming = [captureRepositorySourceCurrentness(root, dimensions), captureRepositorySourceCurrentness(root, dimensions)];
   const before = captureRepositorySourceCurrentness(root, dimensions);
   const pdp1LogsBefore = snapshotPdp1Logs();
   const testResult = runCommand(process.execPath, ['--test', ...REQUIRED_TEST_FILES]);
+  const localExperienceResult = runCommand('pnpm', ['check:product-experience-local']);
   const strictResult = runCommand('pnpm', ['check:contract-parity']);
   const definitionResult = runCommand(process.execPath, ['scripts/check-media-contract-parity.mjs', '--definition-only']);
   const generatedLogChanges = [];
@@ -162,9 +167,11 @@ function runRequiredChecks(dimensions) {
     && before.pathMembershipDigest === after.pathMembershipDigest;
   const testOutcomes = [
     parseTestOutcome(REQUIRED_TEST_COMMAND, testResult),
+    parseTestOutcome(REQUIRED_LOCAL_EXPERIENCE_COMMAND, localExperienceResult),
     parseTestOutcome(REQUIRED_STRICT_COMMAND, strictResult),
     parseTestOutcome(REQUIRED_DEFINITION_ONLY_COMMAND, definitionResult),
   ];
+  const localCheckInputAfter = sha256(fs.readFileSync(path.join(root, 'scripts/check-product-experience-local.mjs')));
   return {
     runner: 'scripts/record-media-discovery-pdp1-phase-exit.mjs',
     startedHead,
@@ -182,8 +189,93 @@ function runRequiredChecks(dimensions) {
       lifecyclePriming: priming.map(summarizeCapture),
       generatedLogsRestored: generatedLogChanges,
       testInputContentDigests: Object.fromEntries(REQUIRED_TEST_FILES.map((sourcePath) => [sourcePath, sha256(fs.readFileSync(path.join(root, sourcePath)))])),
+      localExperienceCheckInput: {
+        path: 'scripts/check-product-experience-local.mjs',
+        sha256Before: localCheckInputBefore,
+        sha256After: localCheckInputAfter,
+        stable: localCheckInputBefore === localCheckInputAfter,
+      },
     },
     testOutcomes,
+  };
+}
+
+function pdp1OwnerStatusJoinObservation(observedDigests, freshMaterialSourceSetFingerprint) {
+  const historical = readJson(HISTORICAL_PDP1_EXIT_PATH);
+  const ownerDirections = readJson(CURRENT_CUT_OWNER_DIRECTIONS_PATH);
+  const impactReview = ownerDirections.predecessorImpactReviews?.find((review) => review.phase === 'PDP-1');
+  const historicalDigests = historical.sourceCurrentness?.sourceContentDigests ?? {};
+  const sourceChanges = impactReview?.sourceChanges ?? [];
+  const observedPaths = Object.keys(observedDigests).sort();
+  const predecessorPaths = Object.keys(historicalDigests).sort();
+  const missingPaths = predecessorPaths.filter((sourcePath) => !Object.hasOwn(observedDigests, sourcePath));
+  const additionalPaths = observedPaths.filter((sourcePath) => !Object.hasOwn(historicalDigests, sourcePath));
+  const pathComparisons = predecessorPaths.map((sourcePath) => ({
+    path: sourcePath,
+    predecessorSha256: historicalDigests[sourcePath],
+    observedSha256: observedDigests[sourcePath] ?? null,
+    matches: observedDigests[sourcePath] === historicalDigests[sourcePath],
+  }));
+  const changedPaths = pathComparisons.filter((entry) => !entry.matches);
+  const reviewedChanges = new Map(sourceChanges.map((change) => [change.path, change]));
+  const reviewedChangesValid = sourceChanges.length === 4
+    && new Set(sourceChanges.map((change) => change.path)).size === 4
+    && sourceChanges.every((change) => observedDigests[change.path] === change.observedSha256
+      && historicalDigests[change.path] === change.recordedSha256
+      && Array.isArray(change.meaningIdsChangedAtReviewedCut)
+      && change.meaningIdsChangedAtReviewedCut.length === 0
+      && change.requiresFreshCurrentness === true)
+    && changedPaths.length === 4
+    && changedPaths.every((entry) => reviewedChanges.has(entry.path));
+  const valid = historical.phase === 'PDP-1'
+    && historical.phaseExit?.status === 'PASS'
+    && ownerDirections.schemaVersion === 'media.discovery-current-cut-owner-directions.v2'
+    && ownerDirections.decisionId === 'MEDIA-DISCOVERY-CURRENT-CUT-OWNER-2026-10-13-R2'
+    && impactReview?.sourceCut === HISTORICAL_PDP1_EXIT_PATH
+    && impactReview?.previousMaterialFingerprint === historical.sourceCurrentness?.materialSourceSetFingerprint
+    && DIGEST.test(freshMaterialSourceSetFingerprint ?? '')
+    && predecessorPaths.length === 329
+    && observedPaths.length === 329
+    && pathComparisons.filter((entry) => entry.matches).length === 325
+    && changedPaths.length === 4
+    && missingPaths.length === 0
+    && additionalPaths.length === 0
+    && reviewedChangesValid
+    && impactReview?.historicalRequiredPathCount === 329
+    && impactReview.pinComparison?.matching === 325
+    && impactReview.pinComparison?.changed === 4
+    && impactReview.pinComparison?.missing === 0
+    && impactReview.ownerDesignDisposition === 'APPROVE_REUSE_OF_PRIOR_PHASE_MEANING_FOR_EXACT_REVIEWED_DELTA_WITH_NO_NEW_MEANING_IDS';
+  return {
+    status: valid ? 'ACCEPTED_FOR_EXACT_CURRENT_FINGERPRINT_WITH_REVIEWED_DELTA' : 'BLOCKED_OWNER_STATUS_JOIN_MISMATCH',
+    valid,
+    historicalExitRef: HISTORICAL_PDP1_EXIT_PATH,
+    historicalExitDigest: sha256(fs.readFileSync(path.join(root, HISTORICAL_PDP1_EXIT_PATH))),
+    ownerDirectionsRef: CURRENT_CUT_OWNER_DIRECTIONS_PATH,
+    ownerDirectionsDigest: sha256(fs.readFileSync(path.join(root, CURRENT_CUT_OWNER_DIRECTIONS_PATH))),
+    ownerDecisionId: ownerDirections.decisionId ?? null,
+    predecessorMaterialSourceSetFingerprint: historical.sourceCurrentness?.materialSourceSetFingerprint ?? null,
+    freshMaterialSourceSetFingerprint,
+    predecessorPathCount: predecessorPaths.length,
+    observedPathCount: observedPaths.length,
+    unchangedPathCount: pathComparisons.filter((entry) => entry.matches).length,
+    ownerApprovedChangedPathCount: changedPaths.filter((entry) => reviewedChanges.has(entry.path)).length,
+    unapprovedChangedPathCount: changedPaths.filter((entry) => !reviewedChanges.has(entry.path)).length,
+    missingPathCount: missingPaths.length,
+    additionalPathCount: additionalPaths.length,
+    meaningIdsChangedCount: sourceChanges.reduce((total, change) => total + (change.meaningIdsChangedAtReviewedCut?.length ?? 0), 0),
+    allChangesRequireFreshCurrentness: sourceChanges.length === 4 && sourceChanges.every((change) => change.requiresFreshCurrentness === true),
+    sourceChanges: sourceChanges.map((change) => ({
+      path: change.path,
+      predecessorSha256: historicalDigests[change.path] ?? null,
+      ownerReviewedSha256: change.observedSha256,
+      observedSha256: observedDigests[change.path] ?? null,
+      meaningIdsChangedAtReviewedCut: change.meaningIdsChangedAtReviewedCut ?? [],
+      requiresFreshCurrentness: change.requiresFreshCurrentness === true,
+      matches: historicalDigests[change.path] === change.recordedSha256
+        && observedDigests[change.path] === change.observedSha256,
+    })),
+    limitation: 'Scoped internal owner materiality join for the exact reviewed delta; it is not exact-cut owner acceptance, independent approval, lifecycle closure, or release qualification.',
   };
 }
 
@@ -661,17 +753,22 @@ function makeObservation({ suffix, testRun, p0ExitPath }) {
     && status.outstandingMeaningIds.length === 0;
   const testOutcomes = testRun.testOutcomes;
   const requiredTest = testOutcomes.find((outcome) => outcome.command === REQUIRED_TEST_COMMAND);
+  const localExperienceCheck = testOutcomes.find((outcome) => outcome.command === REQUIRED_LOCAL_EXPERIENCE_COMMAND);
   const strictParity = testOutcomes.find((outcome) => outcome.command === REQUIRED_STRICT_COMMAND);
   const definitionOnly = testOutcomes.find((outcome) => outcome.command === REQUIRED_DEFINITION_ONLY_COMMAND);
   const testInputDigestsMatchCapture = REQUIRED_TEST_FILES.every((sourcePath) =>
     testRun.sourceBinding?.testInputContentDigests?.[sourcePath] === fileDigests[sourcePath]?.digest);
+  const localExperienceCheckInputMatchesCurrent = testRun.sourceBinding?.localExperienceCheckInput?.stable === true
+    && testRun.sourceBinding.localExperienceCheckInput.sha256After
+      === sha256(fs.readFileSync(path.join(root, testRun.sourceBinding.localExperienceCheckInput.path)));
   const testsBoundToCurrentCut = testRun.sourceBinding?.stable === true
     && testRun.startedHead === testRun.completedHead
     && testRun.completedHead === git(['rev-parse', 'HEAD'])
     && testRun.sourceBinding?.sourceToken === technical.sourceToken
     && testRun.sourceBinding?.contentFingerprint === technical.contentFingerprint
     && testRun.sourceBinding?.pathMembershipDigest === technical.pathMembershipDigest
-    && testInputDigestsMatchCapture;
+    && testInputDigestsMatchCapture
+    && localExperienceCheckInputMatchesCurrent;
   const testOutcomesValid = requiredTest?.status === 'PASS' && requiredTest.exitCode === 0
     && Number.isInteger(requiredTest.testCount) && requiredTest.testCount > 0
     && requiredTest.passedCount === requiredTest.testCount && requiredTest.failedCount === 0 && requiredTest.skippedCount === 0
@@ -684,6 +781,7 @@ function makeObservation({ suffix, testRun, p0ExitPath }) {
     && definitionOnly?.sourceFindings?.audited === 47
     && definitionOnly.sourceFindings.dispositioned === 45
     && definitionOnly.sourceFindings.unresolved === 0
+    && localExperienceCheck?.status === 'PASS' && localExperienceCheck.exitCode === 0
     && testsBoundToCurrentCut;
   const currentCells = technical.cells.map((cell) => {
     const expectedPaths = cell.expectedPaths ?? [];
@@ -746,6 +844,7 @@ function makeObservation({ suffix, testRun, p0ExitPath }) {
     cells: currentCells.map((cell) => ({ cellId: cell.cellId, sourceSetFingerprint: cell.sourceSetFingerprint }))
       .sort((left, right) => left.cellId.localeCompare(right.cellId)),
   });
+  const ownerStatusJoin = pdp1OwnerStatusJoinObservation(sourceSetByPath, materialSourceSetFingerprint);
   const lifecycleBlockers = [...new Set([
     ...technical.blockers,
     ...consistencySummary.flatMap((capture, index) => capture.status === 'UNKNOWN' ? [`CONSISTENCY_CAPTURE_${index + 1}_UNKNOWN`] : []),
@@ -754,6 +853,7 @@ function makeObservation({ suffix, testRun, p0ExitPath }) {
   const sourceBlockers = [
     ...topologyReview.errors,
     ...(!p0ExitValid ? ['PDP0_PREDECESSOR_EXIT_NOT_PASS'] : []),
+    ...(!ownerStatusJoin.valid ? ['PDP1_CURRENT_CUT_OWNER_STATUS_JOIN_NOT_EXACT'] : []),
     ...(!DIGEST.test(p0SourceSetFingerprint ?? '') ? ['PDP0_PREDECESSOR_MATERIAL_FINGERPRINT_MISSING'] : []),
     ...(predecessorSharedPathMismatches.length ? ['PDP0_PREDECESSOR_SHARED_SOURCE_CHANGED'] : []),
     ...(!consistencyStable ? ['LIFECYCLE_CAPTURE_NOT_STABLE'] : []),
@@ -769,7 +869,7 @@ function makeObservation({ suffix, testRun, p0ExitPath }) {
   ];
   const sourceCurrentnessPass = sourceBlockers.length === 0;
   const currentStatus = sourceCurrentnessPass ? 'DEV_COMPLETE' : 'IN_PROGRESS';
-  const requiredTestOutcomes = [requiredTest, strictParity, definitionOnly].filter(Boolean);
+  const requiredTestOutcomes = [requiredTest, localExperienceCheck, strictParity, definitionOnly].filter(Boolean);
   const observation = {
     schemaVersion: 'media.discovery-pdp1-currentness-observation.v1',
     observationId: `MEDIA-PDP1-CURRENTNESS-${suffix.toUpperCase()}`,
@@ -804,6 +904,7 @@ function makeObservation({ suffix, testRun, p0ExitPath }) {
       sharedSourcePathChecks: predecessorSharedPathChecks,
       sharedSourcePathMismatchCount: predecessorSharedPathMismatches.length,
     },
+    ownerStatusJoin,
     developmentStatus: {
       status: currentStatus,
       historicalStatus: status.status,
