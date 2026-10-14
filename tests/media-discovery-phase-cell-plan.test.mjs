@@ -11,6 +11,7 @@ const matrix = read('docs/implementation/media-discovery-pdp0-3-phase-cell-execu
 const topology = read('.product-experience/surfaces/media-physical-topology.v1.json');
 const ownerEvidence = read('docs/implementation/observations/media-discovery-delegated-owner-evidence-2026-10-13.json');
 const pdp1Exit = read('docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json');
+const pdp1CurrentCutExit = read('docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r2.json');
 const pdp2Exit = read('docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json');
 const phases = ['PDP-0', 'PDP-1', 'PDP-2', 'PDP-3'];
 const requireTools = createRequire(path.resolve(root, '../ghatana-tools/package.json'));
@@ -85,19 +86,38 @@ test('Discovery plan binds current PDP-0 through PDP-2 exits to exact cells whil
   assert.equal(pdp2Exit.requiredChecks.outcomes.find(o => o.command.startsWith('node --test'))?.skippedCount, 0);
   assert.equal(pdp2Exit.accessibilityEvidenceBoundary.renderedAndAssistiveTechnologyAcceptance, 'NOT_RUN_NOT_CLAIMED');
   assert.equal(matrix.currentCut.pdp2PhaseExit, 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json');
-  assert.equal(matrix.currentCut.pdp1PhaseExit, 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json');
-  assert.equal(matrix.currentCut.pdp1MaterialSourceSetFingerprint, pdp1Exit.developmentStatus.currentMaterialSourceSetFingerprint);
-  const observedPdp1 = new Map(pdp1Exit.sourceCurrentness.cells.map(c => [c.surfaceId, c]));
+  assert.equal(matrix.currentCut.pdp1PhaseExit, 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r2.json');
+  assert.equal(matrix.currentCut.pdp1CurrentnessObservation, 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r2.json#sourceCurrentness');
+  assert.equal(matrix.currentCut.pdp1PhaseExitRecordId, 'MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R2');
+  assert.equal(matrix.currentCut.pdp1ObservedHead, '9f388eaaaca2c19601894379ff7b2b602299d523');
+  assert.equal(matrix.currentCut.pdp1MaterialSourceSetFingerprint, 'sha256:ad39e6cbc5a54e8771d76adac18b26c5eb107f3495189992b2e29adcd4681f17');
+  assert.equal(pdp1CurrentCutExit.predecessor.exitRef, matrix.currentCut.phaseExit);
+  assert.equal(pdp1CurrentCutExit.phaseExit.status, 'PASS');
+  assert.equal(pdp1CurrentCutExit.phaseExit.developmentStatus, 'DEV_COMPLETE');
+  assert.equal(pdp1CurrentCutExit.phaseExit.exactCutOwnerAcceptance, 'NOT_RECORDED');
+  assert.equal(pdp1CurrentCutExit.independentApproval, 'NOT_CLAIMED_AND_NOT_WAIVED');
+  assert.equal(pdp1CurrentCutExit.sourceCurrentness.cells.length, 50);
+  assert.equal(pdp1CurrentCutExit.sourceCurrentness.cells.filter(c => c.sourceCurrentness === 'CURRENT').length, 50);
+  assert.equal(pdp1CurrentCutExit.sourceCurrentness.materialPathDenominator.uniquePaths, 329);
+  assert.equal(pdp1CurrentCutExit.sourceCurrentness.externalOwnerContracts.totalFiles, 30);
+  assert.equal(pdp1CurrentCutExit.sourceCurrentness.externalOwnerContracts.digestMatches, 30);
+  const currentCutTests = pdp1CurrentCutExit.testRun.outcomes.find(o => o.command.startsWith('node --test'));
+  assert.deepEqual([currentCutTests.testCount, currentCutTests.passedCount, currentCutTests.failedCount, currentCutTests.skippedCount], [68, 68, 0, 0]);
+  const observedPdp1 = new Map(pdp1CurrentCutExit.sourceCurrentness.cells.map(c => [c.surfaceId, c]));
   assert.ok(matrix.cells.filter(c => c.phase === 'PDP-1').every(c => {
     const observed = observedPdp1.get(c.surfaceId);
     return c.currentnessAtReview === 'CURRENT'
       && c.currentPdp1SourceSetFingerprint === observed?.sourceSetFingerprint
-      && c.sourceMaterialFingerprintAtReview === pdp1Exit.developmentStatus.currentMaterialSourceSetFingerprint
+      && c.sourceMaterialFingerprintAtReview === pdp1CurrentCutExit.developmentStatus.currentMaterialSourceSetFingerprint
       && c.currentPhaseExitPublished === true
       && c.currentPhaseExitRef === matrix.currentCut.pdp1PhaseExit
-      && c.currentPhaseExitRecordId === pdp1Exit.observationId
+      && c.currentPhaseExitRecordId === pdp1CurrentCutExit.observationId
+      && c.priorPassReceiptRemainsHistorical === true
       && c.remainingTaskIds.length === 0
-      && c.nextLegalAction === 'PDP-1 current exit R3 PASS; zero phase-local tasks remain.';
+      && c.nextLegalAction === pdp1CurrentCutExit.phaseExit.nextLegalAction
+      && c.currentCutReviewedHead === pdp1CurrentCutExit.campaign.observedHead
+      && c.latestTechnicalSourceCurrentness === 'CURRENT_TO_EXACT_CUT'
+      && !Object.hasOwn(c, 'currentnessRecheckTaskId');
   }));
   const observedPdp2 = new Map(pdp2Exit.sourceCurrentness.cells.map(c => [c.surfaceId, c]));
   assert.ok(matrix.cells.filter(c => c.phase === 'PDP-2').every(c => {
@@ -118,9 +138,11 @@ test('Discovery plan binds current PDP-0 through PDP-2 exits to exact cells whil
   }
   assert.equal(matrix.status.pdp0, 'CURRENT_PHASE_EXIT_PASS');
   assert.equal(matrix.status.discovery, 'FAIL');
-  assert.equal(matrix.status.pdp1, 'PRIOR_EXIT_PASS_CURRENTCUT_RECHECK_REQUIRED');
+  assert.equal(matrix.status.pdp1, 'CURRENT_PHASE_EXIT_PASS');
+  assert.equal(matrix.currentCut.latestPhaseCurrentnessStatus, 'PDP0_PDP1_CURRENT_PDP2_PDP3_NOT_REESTABLISHED');
   assert.equal(matrix.status.pdp2, 'PRIOR_EXIT_PASS_CURRENTCUT_RECHECK_REQUIRED');
-  assert.ok(matrix.cells.filter(c => c.phase === 'PDP-1' || c.phase === 'PDP-2').every(c => c.currentCutReviewedHead !== phaseExit.campaign.observedHead));
+  assert.ok(matrix.cells.filter(c => c.phase === 'PDP-2').every(c => c.currentCutReviewedHead !== pdp1CurrentCutExit.campaign.observedHead));
+  assert.equal(matrix.currentCut.pdp2PhaseExit, 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json');
   assert.equal(matrix.status.pdp3, 'MDC30_29_OF_61_LOGICAL_32_GAPS_S06_OPEN_NO_CURRENT_EXIT');
   assert.equal(matrix.status.build, 'NOT_ENTERED');
   assert.equal(matrix.status.nativePdpClosure, 'NOT_ENTERED');

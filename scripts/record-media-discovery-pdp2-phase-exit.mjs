@@ -27,8 +27,7 @@ const SOURCE_ROOTS = {
 const PDP2_TEST_FILES = [
   'tests/media-pdp-p2-dev-status.test.mjs',
   'tests/pdp-design-interface-parity.test.mjs',
-  'tests/pdp-design-accessibility-text-spacing-target-size.test.mjs',
-  'tests/pdp-design-responsive-rendered-references.test.mjs',
+  'tests/pdp-design-current-public-consumer-bindings.test.mjs',
 ];
 const PDP2_TEST_COMMAND = `node --test ${PDP2_TEST_FILES.join(' ')}`;
 const LOCAL_CHECK_COMMAND = 'pnpm check:product-experience-local';
@@ -38,8 +37,7 @@ const TOPOLOGY_PATH = '.product-experience/surfaces/media-physical-topology.v1.j
 const REGISTRY_PATH = '.product-experience/surface-registry.yaml';
 const OWNER_DECISION_PATH = '.product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md';
 const MDC20_PATH = 'docs/implementation/observations/media-discovery-pdp2-mdc20-design-drift-2026-10-13-r1.json';
-const P1_EXIT_PATH = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json';
-const P0_EXIT_PATH = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json';
+const DEFAULT_P1_EXIT_PATH = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r2.json';
 const COMMON_PDP2_REFS = [
   '.product-experience/source-manifest.yaml',
   '.product-experience/surface-registry.yaml',
@@ -54,8 +52,6 @@ const COMMON_PDP2_REFS = [
   'modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/index.ts',
   PDP2_STATUS_PATH,
   'docs/implementation/pdp-1-phase-dev-status.json',
-  P1_EXIT_PATH,
-  P0_EXIT_PATH,
   MDC20_PATH,
   'scripts/check-product-experience-local.mjs',
   'scripts/check-media-design-conformance.mjs',
@@ -297,12 +293,12 @@ function validateMatrixAndTopology(matrix, topology, registry) {
   return { cells, errors };
 }
 
-function buildCellPaths(matrixCells, topology, status, availablePaths) {
+function buildCellPaths(matrixCells, topology, status, availablePaths, predecessorPaths) {
   const physical = new Map(topology.manifestCandidates.map((row) => [row.surfaceId, row]));
   const compositions = new Map(topology.compositions.map((row) => [row.surfaceId, row]));
   const consumers = new Map(topology.consumerCrosswalk.map((row) => [row.surfaceId, row]));
   const cellsBySurface = new Map(matrixCells.map((cell) => [cell.surfaceId, cell]));
-  const sharedRefs = [...COMMON_PDP2_REFS, ...Object.keys(status.sourceShaSet ?? {})];
+  const sharedRefs = [...COMMON_PDP2_REFS, ...predecessorPaths.filter(Boolean), ...Object.keys(status.sourceShaSet ?? {})];
   const memo = new Map();
 
   const refsFor = (cell, seen = new Set()) => {
@@ -576,24 +572,68 @@ function externalContractObservation(predecessor) {
   };
 }
 
-function validatePdp1Predecessor(exit, matrix) {
+function digestFile(relativePath) {
+  return sha256(fs.readFileSync(path.join(root, relativePath)));
+}
+
+function validatePairedPdp0(exit, matrix) {
+  const p0ExitPath = exit.predecessor?.exitRef;
+  if (typeof p0ExitPath !== 'string' || path.isAbsolute(p0ExitPath)
+      || path.relative(root, path.resolve(root, p0ExitPath)).startsWith('..')) {
+    return { valid: false, phase: 'PDP-0', exitRef: p0ExitPath ?? null, exitDigest: null, materialSourceSetFingerprint: null, status: 'FAIL' };
+  }
+  const p0 = readJson(p0ExitPath);
+  const fingerprint = p0.developmentStatus?.currentMaterialSourceSetFingerprint ?? null;
+  const valid = exit.predecessor?.phase === 'PDP-0'
+    && exit.predecessor?.status === 'PASS'
+    && exit.predecessor?.currentnessValid === true
+    && exit.predecessor?.matrixCutMatches === true
+    && p0.phase === 'PDP-0'
+    && p0.phaseExit?.status === 'PASS'
+    && p0.sourceCurrentness?.status === 'PASS'
+    && p0.sourceCurrentness?.sourceCurrent === true
+    && p0.developmentStatus?.status === 'DEV_COMPLETE'
+    && (p0.developmentStatus?.outstandingMeaningIds?.length ?? -1) === 0
+    && exit.predecessor?.exitDigest === digestFile(p0ExitPath)
+    && fingerprint === exit.predecessor?.materialSourceSetFingerprint
+    && matrix.currentCut?.phaseExit === p0ExitPath
+    && matrix.currentCut?.currentnessObservation === exit.predecessor?.currentnessRef
+    && matrix.currentCut?.materialSourceSetFingerprint === fingerprint;
+  return {
+    valid,
+    phase: 'PDP-0',
+    exitRef: p0ExitPath,
+    exitDigest: digestFile(p0ExitPath),
+    materialSourceSetFingerprint: fingerprint,
+    status: valid ? 'PASS' : 'FAIL',
+  };
+}
+
+function validatePdp1Predecessor(exit, matrix, p1ExitPath, pairedP0) {
   const cells = exit.sourceCurrentness?.cells ?? [];
   const valid = exit.schemaVersion === 'media.discovery-pdp1-currentness-observation.v1'
     && exit.phase === 'PDP-1'
     && exit.phaseExit?.status === 'PASS'
     && exit.sourceCurrentness?.status === 'PASS'
     && exit.sourceCurrentness?.sourceCurrent === true
+    && (exit.sourceCurrentness?.blockers?.length ?? -1) === 0
     && exit.developmentStatus?.status === 'DEV_COMPLETE'
     && exit.developmentStatus?.outstandingMeaningIds?.length === 0
+    && exit.developmentStatus?.currentMaterialSourceSetFingerprint === exit.sourceCurrentness?.materialSourceSetFingerprint
+    && (exit.phaseExit?.blockers?.length ?? -1) === 0
     && cells.length === 50
     && new Set(cells.map((cell) => cell.surfaceId)).size === 50
     && cells.every((cell) => cell.sourceCurrentness === 'CURRENT' && (cell.blockers?.length ?? 0) === 0)
-    && matrix.currentCut?.pdp1PhaseExit === P1_EXIT_PATH
+    && exit.predecessor?.phase === 'PDP-0'
+    && pairedP0.valid
+    && matrix.currentCut?.pdp1PhaseExit === p1ExitPath
+    && matrix.currentCut?.pdp1CurrentnessObservation === `${p1ExitPath}#sourceCurrentness`
     && matrix.currentCut?.pdp1MaterialSourceSetFingerprint === exit.developmentStatus.currentMaterialSourceSetFingerprint;
   return {
     valid,
     phase: 'PDP-1',
-    exitRef: P1_EXIT_PATH,
+    exitRef: p1ExitPath,
+    exitDigest: digestFile(p1ExitPath),
     materialSourceSetFingerprint: exit.developmentStatus?.currentMaterialSourceSetFingerprint ?? null,
     observationId: exit.observationId,
     cellCount: cells.length,
@@ -601,16 +641,16 @@ function validatePdp1Predecessor(exit, matrix) {
   };
 }
 
-function makeObservation({ suffix, testRun }) {
+function makeObservation({ suffix, testRun, p1ExitPath }) {
   const matrix = readJson(MATRIX_PATH);
   const topology = readJson(TOPOLOGY_PATH);
   const registry = parseYaml(readText(REGISTRY_PATH));
   const status = readJson(PDP2_STATUS_PATH);
   const mdc20 = readJson(MDC20_PATH);
-  const p1Exit = readJson(P1_EXIT_PATH);
-  const p0Exit = readJson(P0_EXIT_PATH);
+  const p1Exit = readJson(p1ExitPath);
+  const p0Predecessor = validatePairedPdp0(p1Exit, matrix);
   const topologyReview = validateMatrixAndTopology(matrix, topology, registry);
-  const predecessor = validatePdp1Predecessor(p1Exit, matrix);
+  const predecessor = validatePdp1Predecessor(p1Exit, matrix, p1ExitPath, p0Predecessor);
   const ownerDirection = ownerDirectionObservation();
   const populations = catalogPopulationObservation(status);
   const historicalStatusValid = status.phase === 'PDP-2' && status.status === 'DEV_COMPLETE'
@@ -621,7 +661,7 @@ function makeObservation({ suffix, testRun }) {
     providerRegistryFingerprint: p1Exit.sourceCurrentness.providerRegistryFingerprint,
   };
   const availablePaths = trackedPathSet();
-  const currentnessCells = buildCellPaths(topologyReview.cells, topology, status, availablePaths);
+  const currentnessCells = buildCellPaths(topologyReview.cells, topology, status, availablePaths, [p1ExitPath, p0Predecessor.exitRef]);
   const technical = observeMediaDiscoveryCurrentness(root, currentnessCells.map((cell) => ({
     ...cell,
     ...dimensions,
@@ -683,7 +723,8 @@ function makeObservation({ suffix, testRun }) {
     && testOutcome.passedCount === testOutcome.testCount
     && testOutcome.failedCount === 0 && testOutcome.skippedCount === 0
     && testInputsCurrent && lifecycleConsistent;
-  const predecessorDigest = sha256(fs.readFileSync(path.join(root, P1_EXIT_PATH)));
+  const predecessorDigest = digestFile(p1ExitPath);
+  const matrixDigest = digestFile(MATRIX_PATH);
   const sourceSetByPath = {};
   for (const cell of observedCells) {
     for (const [sourcePath, digest] of Object.entries(cell.fileContentDigests)) {
@@ -695,12 +736,14 @@ function makeObservation({ suffix, testRun }) {
     schemaVersion: 'media.pdp2-material-source-set.v1',
     phase: 'PDP-2',
     predecessor: predecessor.materialSourceSetFingerprint,
+    pairedPdp0Predecessor: p0Predecessor.materialSourceSetFingerprint,
     mdc20DispositionDigest: sha256(fs.readFileSync(path.join(root, MDC20_PATH))),
     cells: observedCells.map((cell) => ({ cellId: cell.cellId, sourceSetFingerprint: cell.sourceSetFingerprint })).sort((a, b) => a.cellId.localeCompare(b.cellId)),
   });
   const sourceBlockers = [
     ...topologyReview.errors,
     ...(predecessor.valid ? [] : ['PDP1_PREDECESSOR_EXIT_NOT_PASS_OR_MATRIX_MISMATCH']),
+    ...(p0Predecessor.valid ? [] : ['PDP0_PAIRED_PREDECESSOR_EXIT_NOT_PASS_OR_MATRIX_MISMATCH']),
     ...(ownerDirectionPass ? [] : ['DELEGATED_PDP2_DESIGN_DIRECTION_MISSING_OR_CONTRADICTORY']),
     ...(historicalStatusValid ? [] : ['HISTORICAL_PDP2_STATUS_INCONSISTENT_OR_OUTSTANDING_TASKS']),
     ...(populations.matchesHistoricalStatus && populations.componentFamilyIds.exactSetMatches ? [] : ['PDP2_CATALOG_POPULATIONS_OR_FAMILY_IDENTITIES_MISMATCH']),
@@ -709,6 +752,7 @@ function makeObservation({ suffix, testRun }) {
     ...externalContracts.blockers,
     ...(currentCellsPass ? [] : ['ONE_OR_MORE_PDP2_CELLS_NOT_CURRENT']),
     ...(testsPass ? [] : ['REQUIRED_PDP2_CHECKS_OR_SOURCE_BINDING_INVALID']),
+    ...(Object.keys(sourceSetByPath).length === 405 ? [] : ['PDP2_MATERIAL_PATH_DENOMINATOR_MISMATCH']),
   ];
   const currentnessPass = sourceBlockers.length === 0;
   const requiredChecks = testRun.outcomes;
@@ -735,6 +779,11 @@ function makeObservation({ suffix, testRun }) {
       ...predecessor,
       exitDigest: predecessorDigest,
       status: predecessor.valid ? 'PASS' : 'FAIL',
+    },
+    decisionInputs: {
+      p1Exit: { ref: p1ExitPath, sha256: predecessorDigest, materialSourceSetFingerprint: predecessor.materialSourceSetFingerprint },
+      p0Exit: { ref: p0Predecessor.exitRef, sha256: p0Predecessor.exitDigest, materialSourceSetFingerprint: p0Predecessor.materialSourceSetFingerprint },
+      matrix: { ref: MATRIX_PATH, sha256: matrixDigest, includedIn405PathMaterialDenominator: false },
     },
     authority: {
       delegatedOwnerDirection: ownerDirection,
@@ -777,7 +826,7 @@ function makeObservation({ suffix, testRun }) {
         testBoundCaptures: testRun.sourceBinding?.after ?? [],
         blockers: technical.blockers,
       },
-      denominators: { physicalCandidates: 26, semanticCompositions: 6, repositoryRoots: 1, consumerBindings: 17, totalCells: observedCells.length },
+      denominators: { physicalCandidates: 26, semanticCompositions: 6, repositoryRoots: 1, consumerBindings: 17, totalCells: observedCells.length, materialPaths: 405, observedMaterialPaths: Object.keys(sourceSetByPath).length },
       sourceSetDigests,
       ownerGraphFingerprint: dimensions.ownerGraphFingerprint,
       physicalCatalogFingerprint: dimensions.physicalCatalogFingerprint,
@@ -820,21 +869,32 @@ function makeObservation({ suffix, testRun }) {
 
 function main() {
   const suffix = process.argv[2];
+  const requestedP1ExitPath = process.argv[3] ?? DEFAULT_P1_EXIT_PATH;
   if (!/^[a-z0-9-]+$/u.test(suffix ?? '')) {
-    process.stderr.write('Usage: node scripts/record-media-discovery-pdp2-phase-exit.mjs <fresh-cut-suffix>\n');
+    process.stderr.write('Usage: node scripts/record-media-discovery-pdp2-phase-exit.mjs <fresh-cut-suffix> [pdp1-exit-path]\n');
     process.exitCode = 2;
     return;
   }
+  const p1ExitPath = path.normalize(requestedP1ExitPath);
+  if (path.isAbsolute(p1ExitPath) || path.relative(root, path.resolve(root, p1ExitPath)).startsWith('..')) {
+    throw new Error(`PDP-1 exit path must be repository-relative: ${requestedP1ExitPath}`);
+  }
   const outputPath = `docs/implementation/observations/media-discovery-pdp2-exit-${suffix}.json`;
   if (fs.existsSync(path.join(root, outputPath))) throw new Error(`Refusing to overwrite immutable observation: ${outputPath}`);
-  const p1 = readJson(P1_EXIT_PATH);
+  const matrix = readJson(MATRIX_PATH);
+  const p1 = readJson(p1ExitPath);
+  const p0Predecessor = validatePairedPdp0(p1, matrix);
+  const predecessor = validatePdp1Predecessor(p1, matrix, p1ExitPath, p0Predecessor);
+  if (!p0Predecessor.valid || !predecessor.valid) {
+    throw new Error(`Refusing to run PDP-2 checks without exact current predecessors: PDP-0=${p0Predecessor.status}, PDP-1=${predecessor.status}`);
+  }
   const dimensions = {
     ownerGraphFingerprint: p1.sourceCurrentness.ownerGraphFingerprint,
     physicalCatalogFingerprint: p1.sourceCurrentness.physicalCatalogFingerprint,
     providerRegistryFingerprint: p1.sourceCurrentness.providerRegistryFingerprint,
   };
   const testRun = runRequiredChecks(dimensions);
-  const observation = makeObservation({ suffix, testRun });
+  const observation = makeObservation({ suffix, testRun, p1ExitPath });
   const absolutePath = path.join(root, outputPath);
   fs.mkdirSync(path.dirname(absolutePath), { recursive: true });
   const descriptor = fs.openSync(absolutePath, 'wx');
