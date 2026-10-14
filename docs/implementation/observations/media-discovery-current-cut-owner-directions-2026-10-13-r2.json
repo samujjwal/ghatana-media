@@ -1,0 +1,898 @@
+{
+  "schemaVersion": "media.discovery-current-cut-owner-directions.v2",
+  "recordKind": "SCOPED_DELEGATED_MEDIA_OWNER_DESIGN_AND_MATERIAL_IMPACT_DECISIONS_NOT_TECHNICAL_CURRENTNESS_NOT_LIFECYCLE_RECEIPT",
+  "decisionId": "MEDIA-DISCOVERY-CURRENT-CUT-OWNER-2026-10-13-R2",
+  "reviewed": {
+    "repository": "samujjwal/ghatana-media",
+    "branch": "main",
+    "head": "f5ae3461c53eb1d490362a9bb8818ce74573147c",
+    "observedPdp3SourceFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
+    "predecessorAuditRef": "docs/implementation/observations/media-discovery-predecessor-currentness-impact-2026-10-13-r1.json",
+    "mdc30ExecutionRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-execution-2026-10-13-r1.json",
+    "externalRecaptureRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-external-contract-recapture-2026-10-13-r2.json"
+  },
+  "authority": {
+    "delegate": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION",
+    "roles": [
+      {
+        "id": "MEDIA-PRODUCT-OWNER",
+        "decision": "APPROVE_NO_NEW_P0_P1_P2_MEANING_ON_EXACT_REVIEWED_DELTA",
+        "qualification": "SCOPED_AI_ASSISTED_INTERNAL_REVIEW_ONLY"
+      },
+      {
+        "id": "MEDIA-DOMAIN-ARCHITECT",
+        "decision": "APPROVE_EXPLICIT_THIRD_BRANCH_FOR_SOURCE_PROVEN_NO_CANONICAL_STATE",
+        "qualification": "SCOPED_AI_ASSISTED_INTERNAL_REVIEW_ONLY"
+      },
+      {
+        "id": "MEDIA-API-SDK-CLI-INTEGRATION",
+        "decision": "APPROVE_NONADMITTED_TRANSPORT_SEPARATE_FROM_LOGICAL_DEFINITION",
+        "qualification": "NO_EXTERNAL_CONTRACT_OWNER_APPROVAL"
+      },
+      {
+        "id": "MEDIA-SECURITY-PRIVACY-DESIGN",
+        "decision": "APPROVE_FAIL_CLOSED_NEGATIVE_UNKNOWN_AUTHORITY_AND_FINALITY_RULES",
+        "qualification": "NO_INDEPENDENT_PROFESSIONAL_CERTIFICATION"
+      },
+      {
+        "id": "MEDIA-UX_ACCESSIBILITY-DESIGN",
+        "decision": "APPROVE_GUIPRESENTATION_AND_HEADLESS_EQUIVALENT_SOURCE_CONTRACT_TESTS",
+        "qualification": "NO_INDEPENDENT_ACCESSIBILITY_CERTIFICATION"
+      },
+      {
+        "id": "MEDIA-LIFECYCLE-ADOPTION",
+        "decision": "APPROVE_OWNING_PHASE_INCREMENTAL_CURRENTNESS_RECAPTURE",
+        "qualification": "NO_LIFECYCLE_NATIVE_RECEIPT"
+      }
+    ],
+    "internalDesignReviewAccepted": true,
+    "independentHumanSpecialistAttestation": false,
+    "externalContractOwnerAcceptance": false,
+    "technicalCurrentnessRecapturedInThisDecision": false,
+    "newPhaseExitPublished": false
+  },
+  "stage": "DISCOVERY",
+  "earliestPhaseRevalidation": "PDP-0",
+  "activeImplementationPhase": "PDP-3",
+  "canonicalMeaningMissingAtPdp3": true,
+  "scope": {
+    "physicalCandidates": 26,
+    "physical": 12,
+    "support": 12,
+    "subsumed": 2,
+    "semanticCompositions": 6,
+    "root": 1,
+    "consumerBindings": 17,
+    "phaseReviewCells": 200,
+    "nonPhysicalConsumerRefsCountedSeparately": true
+  },
+  "decidedPolicy": {
+    "predecessorSemanticNonImpact": "APPROVED_EXACT_DELTA_ONLY_CONDITIONAL_ON_FRESH_FILE_MEMBERSHIP_AND_TECHNICAL_CURRENTNESS",
+    "predecessorTechnicalStatus": "SOURCE_RECHECK_REQUIRED_NOT_CURRENT",
+    "pdp3ChannelContractSemantics": "SOURCE_GROUNDED_LOGICAL_CONTRACTS_REQUIRED_FOR_EVERY_INTENDED_CHANNEL",
+    "nonAdmittedTransport": "61_EXPLICIT_UNBOUND_TRANSPORTS_ARE_ACCEPTABLE_FOR_DISCOVERY_WHEN_LOGICAL_DEFINITION_COMPLETE_AND_DISCLOSED; BUILD_OWNS_RUNTIME_ADMISSION",
+    "validPdp3StateBindingDispositions": [
+      {
+        "kind": "EXACT_P1_STATE",
+        "condition": "Verified existing typed state machine, exact state selector, source action/effect and guards; never infer QUEUED/final state from request."
+      },
+      {
+        "kind": "EXACT_P1_OWNER_TYPED_OBSERVATION",
+        "condition": "Exact observation contract plus complete source purpose/action/operation correspondence for all edge operations; do not use partial overlaps."
+      },
+      {
+        "kind": "EXPLICIT_SOURCE_PROVEN_NO_P1_MACHINE_STATE",
+        "condition": "Only when exact source operation/effect meaning justifies no Media lifecycle state, e.g. query/local draft/initial receipt/external handoff; binds typed result/receipt or explicit absence, authority/finality/UNKNOWN/recovery and stable identity; rejected for stateful command with unresolved owner effects."
+      }
+    ],
+    "noMachineStateFailClosed": "Source-free N/A/null does not count as definition complete. Extend validator with positive proof of no-state plus adversarial false-N/A cases; do not simply delete state checks.",
+    "s06OwnerChoice": "APPROVE_EXACT_ACTION_TO_TARGET_CAPABILITY_TO_JOB_SUBMIT_DEFINITION_ADAPTER_ON_EXISTING_PDP3_SOURCE; NO_JOB_STATE_OR_TARGET_RESULT_BEFORE_OWNER_OBSERVATION",
+    "s06Trace": {
+      "journeyId": "J-06",
+      "step": "J-06:01",
+      "owner": "Media multimodal / canonical async job submission owner",
+      "actionRef": "media.action.submit-validated-request",
+      "actionOperationRef": "media.operation.action.submit-validated-request",
+      "capabilityRef": "media.multimodal.observe.source-grounded",
+      "capabilityOperationRef": "media.operation.capability.media-multimodal-observe-source-grounded",
+      "wrapperRef": "media.operation.job.submit.v1",
+      "adapterRef": "media.pdp3.invocation-adapter.j06-source-grounded.v1",
+      "expectedAsyncInput": "exact immutable source version, selected target capability command/version, typed closed input schema, selected profile, purpose, actor authority, rights/consent, resource budget, stable request identity",
+      "admissionOutcome": "durable owner submit receipt only if authoritative; request intent alone is neither QUEUED nor completed result",
+      "unknownOutcome": "preserve same stable request identity and reconcile before retry",
+      "completion": "requires exact later owner source-grounded typed output observation; never synthesize output from receipt",
+      "where": [
+        ".product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+        ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1",
+        "scripts/lib/pdp3-step-capability-purpose.mjs",
+        "scripts/lib/pdp-job-submit-parameter-contract.mjs",
+        "tests/media-pdp3-mdc30-s-step-bindings.test.mjs"
+      ],
+      "how": "Promote the already authored P3 source-only invocation adapter into an exact authoritative *definition join*: action → exact selected capability operation target → versioned job.submit wrapper. Enforce capabilityRef+target operation+version uniqueness, direct request-field adapter/schema closure, output type, rights/actor/policy resource bounds and no-recursive wrapper. Update J06 step + purpose + adapter refs consistently, invoke existing validatePdp3JobSubmitAdapter and resolveJobSubmitParameterSchema; introduce negative fixtures for wrong target/ref/version, stale source, missing policy/guard and duplicate job. Do not modify P1 canonical meaning unless a true P1 contract defect is found. Preserve NO_P1_MACHINE_TRANSITION/UNKNOWN until actual owner receipt/state observation is explicitly defined.",
+      "acceptance": "Exactly one guarded versioned P3 adapter connects all three operation roles; all typed source/target/goal constraints validate; J06:01 step/owner-purpose source refs reconcile, no invented QUEUED, duplicate submits or runtime admission; focused tests and adversarial cases PASS."
+    },
+    "incrementalInvalidation": "Only real changed normative requirements, operations, consumer contract or owner policy reopens owning PDP and transitive dependencies. Updated generated manifests, revisions, decision pointers and status views alone do not reopen prior semantic meaning. Rehash content and membership for affected cells; never replace historical phase exit.",
+    "formalIndependentApprovals": "NOT_GRANTED_NOR_WAIVED; later independent/native closure/Delivery lane",
+    "noExecutionEffects": "No new Media job, provider, release or tool host is authorized by an owner design record"
+  },
+  "predecessorImpactReviews": [
+    {
+      "phase": "PDP-0",
+      "sourceCut": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json",
+      "historicalExitStatus": "PASS",
+      "previousMaterialFingerprint": "sha256:7a7a0f700890915863e9f93eafa30edc2f6d856adbf7944c17fecc0aadd8031b",
+      "historicalRequiredPathCount": 146,
+      "pinComparison": {
+        "matching": 142,
+        "changed": 4,
+        "missing": 0
+      },
+      "sourceChanges": [
+        {
+          "path": ".product-experience/artifact-identities.yaml",
+          "recordedSha256": "sha256:ed1d0a7ee4ed8422624ff8efb486ea667680532560de1031c01d0531b905f8f8",
+          "observedSha256": "sha256:cd6709b2e3bfff3c0b824f6e7e3c2c12777f688259beabbdbfeb1a261bd568f6",
+          "ownerMaterialityClassification": "ARTIFACT_IDENTITY_REGISTRATION_OF_PDP3_BINDINGS_AND_OWNER_REVIEW",
+          "meaningIdsChangedAtReviewedCut": [],
+          "requiresFreshCurrentness": true
+        },
+        {
+          "path": ".product-experience/source-manifest.yaml",
+          "recordedSha256": "sha256:532e2fc1ace3af61b2fcf9ab7b5e076664cace68e9ad7fdd1e3d5ff882bd21dc",
+          "observedSha256": "sha256:76cdcbff690e6a3439580e0df6fc68dbf67e7105b38d8ad1c9c3e9cb8b36145a",
+          "ownerMaterialityClassification": "GENERATED_INDEX_MEMBERSHIP_AND_EXTERNAL_DIAGNOSTICS; REVERIFY_NO_P0_2_MEANING",
+          "meaningIdsChangedAtReviewedCut": [],
+          "requiresFreshCurrentness": true
+        },
+        {
+          "path": ".product-experience/surface-registry.yaml",
+          "recordedSha256": "sha256:3d4955aa77c9fdd142682df8b247853d98183f56276394dbb6eb6e5954d320f6",
+          "observedSha256": "sha256:b2484d65d897da75ea151b4f08b466ef075aa0d631e5c9f34181b4225eeb40c1",
+          "ownerMaterialityClassification": "CANONICAL_PDP3_INTEGRATION_APPLICABILITY_ONLY; PRIOR_PHASE_INPUT_BYTES_CHANGED",
+          "meaningIdsChangedAtReviewedCut": [],
+          "requiresFreshCurrentness": true
+        },
+        {
+          "path": "apps/media-experience-explorer/specification-artifacts.json",
+          "recordedSha256": "sha256:ec1616ced628be48ae395d974803e4caebcb5399b1cc88b1eb4ba38d7efc0a30",
+          "observedSha256": "sha256:2aadeeffe41ea354f43a0824a069b1e21bfef5a31052e4dca8ceb68da9bcfc75",
+          "ownerMaterialityClassification": "EXPLORER_INDEX_PROJECTION_ONLY",
+          "meaningIdsChangedAtReviewedCut": [],
+          "requiresFreshCurrentness": true
+        }
+      ],
+      "ownerDesignDisposition": "APPROVE_REUSE_OF_PRIOR_PHASE_MEANING_FOR_EXACT_REVIEWED_DELTA_WITH_NO_NEW_MEANING_IDS",
+      "actualTechnicalCurrentnessAtThisCut": "NOT_REESTABLISHED",
+      "ownerApprovalLimit": "Semantic non-impact and source ownership selected; not an automatic current phase exit, external acceptance, independent qualified review, or test result.",
+      "tasks": [
+        "RC-P0-01"
+      ],
+      "how": "Re-run public Lifecycle/Media exact-source currentness for PDP-0 and affected 50-cell projections on the actual current HEAD, binding all 146 declared material paths and four changes; validate owner applicability, root/child/consumer joins, no new meaning IDs, fresh content/membership/external fingerprints and targeted affected tests only. Publish separate immutable PDP-0 successor currentness/owner-status observation if PASS; preserve the old phase exit at its historical input.",
+      "acceptance": "No missing paths or material contradictions; current source digests and explicit scope/owner/applicability agree with reviewed delta, actual required targeted tests PASS and source-bound currentness PASS. If material semantic change appears, halt and reopen only earliest owning phase/affected dependents."
+    },
+    {
+      "phase": "PDP-1",
+      "sourceCut": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json",
+      "historicalExitStatus": "PASS",
+      "previousMaterialFingerprint": "sha256:53352578058a5deb1ab8faef43857848e9bbab2b8ad0d81a8bb6b6d73bef0baa",
+      "historicalRequiredPathCount": 329,
+      "pinComparison": {
+        "matching": 325,
+        "changed": 4,
+        "missing": 0
+      },
+      "sourceChanges": [
+        {
+          "path": ".product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md",
+          "recordedSha256": "sha256:634a5e33b20d65131b2912c80b8e669d271c85b997b2d79c4a1135c4dc0c9ffc",
+          "observedSha256": "sha256:596d3cad8a18296b586094f91bc201ebba4cdb9d41a2e993b324d8e7ff5f5e76",
+          "ownerMaterialityClassification": "DELEGATED_REVIEW_POINTER_ONLY",
+          "meaningIdsChangedAtReviewedCut": [],
+          "requiresFreshCurrentness": true
+        },
+        {
+          "path": ".product-experience/source-manifest.yaml",
+          "recordedSha256": "sha256:532e2fc1ace3af61b2fcf9ab7b5e076664cace68e9ad7fdd1e3d5ff882bd21dc",
+          "observedSha256": "sha256:76cdcbff690e6a3439580e0df6fc68dbf67e7105b38d8ad1c9c3e9cb8b36145a",
+          "ownerMaterialityClassification": "GENERATED_INDEX_MEMBERSHIP_AND_EXTERNAL_DIAGNOSTICS; REVERIFY_NO_P0_2_MEANING",
+          "meaningIdsChangedAtReviewedCut": [],
+          "requiresFreshCurrentness": true
+        },
+        {
+          "path": ".product-experience/surface-registry.yaml",
+          "recordedSha256": "sha256:3d4955aa77c9fdd142682df8b247853d98183f56276394dbb6eb6e5954d320f6",
+          "observedSha256": "sha256:b2484d65d897da75ea151b4f08b466ef075aa0d631e5c9f34181b4225eeb40c1",
+          "ownerMaterialityClassification": "CANONICAL_PDP3_INTEGRATION_APPLICABILITY_ONLY; PRIOR_PHASE_INPUT_BYTES_CHANGED",
+          "meaningIdsChangedAtReviewedCut": [],
+          "requiresFreshCurrentness": true
+        },
+        {
+          "path": "apps/media-experience-explorer/specification-artifacts.json",
+          "recordedSha256": "sha256:ec1616ced628be48ae395d974803e4caebcb5399b1cc88b1eb4ba38d7efc0a30",
+          "observedSha256": "sha256:2aadeeffe41ea354f43a0824a069b1e21bfef5a31052e4dca8ceb68da9bcfc75",
+          "ownerMaterialityClassification": "EXPLORER_INDEX_PROJECTION_ONLY",
+          "meaningIdsChangedAtReviewedCut": [],
+          "requiresFreshCurrentness": true
+        }
+      ],
+      "ownerDesignDisposition": "APPROVE_REUSE_OF_PRIOR_PHASE_MEANING_FOR_EXACT_REVIEWED_DELTA_WITH_NO_NEW_MEANING_IDS",
+      "actualTechnicalCurrentnessAtThisCut": "NOT_REESTABLISHED",
+      "ownerApprovalLimit": "Semantic non-impact and source ownership selected; not an automatic current phase exit, external acceptance, independent qualified review, or test result.",
+      "tasks": [
+        "RC-P1-01"
+      ],
+      "how": "Re-run public Lifecycle/Media exact-source currentness for PDP-1 and affected 50-cell projections on the actual current HEAD, binding all 329 declared material paths and four changes; validate owner applicability, root/child/consumer joins, no new meaning IDs, fresh content/membership/external fingerprints and targeted affected tests only. Publish separate immutable PDP-1 successor currentness/owner-status observation if PASS; preserve the old phase exit at its historical input.",
+      "acceptance": "No missing paths or material contradictions; current source digests and explicit scope/owner/applicability agree with reviewed delta, actual required targeted tests PASS and source-bound currentness PASS. If material semantic change appears, halt and reopen only earliest owning phase/affected dependents."
+    },
+    {
+      "phase": "PDP-2",
+      "sourceCut": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json",
+      "historicalExitStatus": "PASS",
+      "previousMaterialFingerprint": "sha256:954c8930f3e9cc4e68570bfca29ac586be7474869b785a9b8c59ea9beeff4cea",
+      "historicalRequiredPathCount": 405,
+      "pinComparison": {
+        "matching": 401,
+        "changed": 4,
+        "missing": 0
+      },
+      "sourceChanges": [
+        {
+          "path": ".product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md",
+          "recordedSha256": "sha256:634a5e33b20d65131b2912c80b8e669d271c85b997b2d79c4a1135c4dc0c9ffc",
+          "observedSha256": "sha256:596d3cad8a18296b586094f91bc201ebba4cdb9d41a2e993b324d8e7ff5f5e76",
+          "ownerMaterialityClassification": "DELEGATED_REVIEW_POINTER_ONLY",
+          "meaningIdsChangedAtReviewedCut": [],
+          "requiresFreshCurrentness": true
+        },
+        {
+          "path": ".product-experience/source-manifest.yaml",
+          "recordedSha256": "sha256:532e2fc1ace3af61b2fcf9ab7b5e076664cace68e9ad7fdd1e3d5ff882bd21dc",
+          "observedSha256": "sha256:76cdcbff690e6a3439580e0df6fc68dbf67e7105b38d8ad1c9c3e9cb8b36145a",
+          "ownerMaterialityClassification": "GENERATED_INDEX_MEMBERSHIP_AND_EXTERNAL_DIAGNOSTICS; REVERIFY_NO_P0_2_MEANING",
+          "meaningIdsChangedAtReviewedCut": [],
+          "requiresFreshCurrentness": true
+        },
+        {
+          "path": ".product-experience/surface-registry.yaml",
+          "recordedSha256": "sha256:3d4955aa77c9fdd142682df8b247853d98183f56276394dbb6eb6e5954d320f6",
+          "observedSha256": "sha256:b2484d65d897da75ea151b4f08b466ef075aa0d631e5c9f34181b4225eeb40c1",
+          "ownerMaterialityClassification": "CANONICAL_PDP3_INTEGRATION_APPLICABILITY_ONLY; PRIOR_PHASE_INPUT_BYTES_CHANGED",
+          "meaningIdsChangedAtReviewedCut": [],
+          "requiresFreshCurrentness": true
+        },
+        {
+          "path": "apps/media-experience-explorer/specification-artifacts.json",
+          "recordedSha256": "sha256:ec1616ced628be48ae395d974803e4caebcb5399b1cc88b1eb4ba38d7efc0a30",
+          "observedSha256": "sha256:2aadeeffe41ea354f43a0824a069b1e21bfef5a31052e4dca8ceb68da9bcfc75",
+          "ownerMaterialityClassification": "EXPLORER_INDEX_PROJECTION_ONLY",
+          "meaningIdsChangedAtReviewedCut": [],
+          "requiresFreshCurrentness": true
+        }
+      ],
+      "ownerDesignDisposition": "APPROVE_REUSE_OF_PRIOR_PHASE_MEANING_FOR_EXACT_REVIEWED_DELTA_WITH_NO_NEW_MEANING_IDS",
+      "actualTechnicalCurrentnessAtThisCut": "NOT_REESTABLISHED",
+      "ownerApprovalLimit": "Semantic non-impact and source ownership selected; not an automatic current phase exit, external acceptance, independent qualified review, or test result.",
+      "tasks": [
+        "RC-P2-01"
+      ],
+      "how": "Re-run public Lifecycle/Media exact-source currentness for PDP-2 and affected 50-cell projections on the actual current HEAD, binding all 405 declared material paths and four changes; validate owner applicability, root/child/consumer joins, no new meaning IDs, fresh content/membership/external fingerprints and targeted affected tests only. Publish separate immutable PDP-2 successor currentness/owner-status observation if PASS; preserve the old phase exit at its historical input.",
+      "acceptance": "No missing paths or material contradictions; current source digests and explicit scope/owner/applicability agree with reviewed delta, actual required targeted tests PASS and source-bound currentness PASS. If material semantic change appears, halt and reopen only earliest owning phase/affected dependents."
+    }
+  ],
+  "remainingChannelTasks": [
+    {
+      "id": "MDC30-C-03",
+      "journeyId": "J-03",
+      "owner": "Media speech/transcription and caption-interface owners",
+      "exactlyUnresolvedChannelRefs": [
+        "media.channel.cli",
+        "media.channel.grpc-api",
+        "media.channel.sdk",
+        "media.channel.web"
+      ],
+      "remainingEdgeCount": 4,
+      "semantics": "TRANSCRIPTION_SUBMISSION_THEN_EXACT_CAPTION_DRAFT_OR_VERSION",
+      "ownerAcceptedDirection": "A submission receipt is not transcription completion; session caption edits and immutable caption-version registration remain separate, and denied/UNKNOWN retain same source/version.",
+      "where": [
+        ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
+        ".product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "how": "For EACH named channel: read existing p1OperationBindings, purposeBindingRefs, operationKinds and existing explicit P1 stateRefs/ownerTypedObservationContracts; establish full-coverage exact state OR exact typed observation cited by purpose/action/operation OR a source-proven no-P1-state typed result/owner-receipt/no-side-effect disposition. Verify all required operations are covered (not one partial overlap), exact artifact version, authority and fail-closed guards, success/denied/unknown/timeout/recovery, and channel-specific GUI/headless grammar. Keep transport UNBOUND and runtime NOT_ADMITTED until independently admitted. Never add guessed canonical state IDs, hardcoded endpoint, CLI fixture or observation ref without exact join.",
+      "checks": [
+        "node --test tests/pdp3-journey-channel-contract-bindings.test.mjs",
+        "node --test tests/pdp-experience-journey-operation-bindings.test.mjs tests/pdp-experience-step-definition-oracle.test.mjs"
+      ],
+      "acceptance": "Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.",
+      "channelOwnerRoles": [
+        {
+          "channel": "media.channel.cli",
+          "role": "media-cli-owner"
+        },
+        {
+          "channel": "media.channel.grpc-api",
+          "role": "media-runtime / service-owner"
+        },
+        {
+          "channel": "media.channel.sdk",
+          "role": "media-client-owner"
+        },
+        {
+          "channel": "media.channel.web",
+          "role": "media-ui-owner"
+        }
+      ],
+      "status": "UNRESOLVED_TECHNICAL_DEFINITION; MEDIA_DESIGN_CHOICE_RECORDED"
+    },
+    {
+      "id": "MDC30-C-04",
+      "journeyId": "J-04",
+      "owner": "Media speech/TTS, rights and consent owners",
+      "exactlyUnresolvedChannelRefs": [
+        "media.channel.grpc-api",
+        "media.channel.sdk",
+        "media.channel.web"
+      ],
+      "remainingEdgeCount": 3,
+      "semantics": "AUTHORIZED_VOICE_SYNTHESIS_ASYNC_WITH_RIGHTS_GUARDS",
+      "ownerAcceptedDirection": "A voice/license choice or submit receipt cannot prove voice right, generated output, or approval; require consent scope, selected profile, exact source and typed later observation.",
+      "where": [
+        ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml",
+        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "how": "For EACH named channel: read existing p1OperationBindings, purposeBindingRefs, operationKinds and existing explicit P1 stateRefs/ownerTypedObservationContracts; establish full-coverage exact state OR exact typed observation cited by purpose/action/operation OR a source-proven no-P1-state typed result/owner-receipt/no-side-effect disposition. Verify all required operations are covered (not one partial overlap), exact artifact version, authority and fail-closed guards, success/denied/unknown/timeout/recovery, and channel-specific GUI/headless grammar. Keep transport UNBOUND and runtime NOT_ADMITTED until independently admitted. Never add guessed canonical state IDs, hardcoded endpoint, CLI fixture or observation ref without exact join.",
+      "checks": [
+        "node --test tests/pdp3-journey-channel-contract-bindings.test.mjs",
+        "node --test tests/pdp-experience-journey-operation-bindings.test.mjs tests/pdp-experience-step-definition-oracle.test.mjs"
+      ],
+      "acceptance": "Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.",
+      "channelOwnerRoles": [
+        {
+          "channel": "media.channel.grpc-api",
+          "role": "media-runtime / service-owner"
+        },
+        {
+          "channel": "media.channel.sdk",
+          "role": "media-client-owner"
+        },
+        {
+          "channel": "media.channel.web",
+          "role": "media-ui-owner"
+        }
+      ],
+      "status": "UNRESOLVED_TECHNICAL_DEFINITION; MEDIA_DESIGN_CHOICE_RECORDED"
+    },
+    {
+      "id": "MDC30-C-06",
+      "journeyId": "J-06",
+      "owner": "Media multimodal/capability operation owner",
+      "exactlyUnresolvedChannelRefs": [
+        "media.channel.grpc-api",
+        "media.channel.http-api",
+        "media.channel.product-integration"
+      ],
+      "remainingEdgeCount": 3,
+      "semantics": "EXACT_TARGET_COMMAND_IN_BOUNDED_JOB_SUBMIT_WRAPPER",
+      "ownerAcceptedDirection": "Media action → exact capability target → owner job.submit wrapper are three different IDs; retain exact purpose/version, no QUEUED before owner receipt or output before owner observation.",
+      "where": [
+        ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml",
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "how": "For EACH named channel: read existing p1OperationBindings, purposeBindingRefs, operationKinds and existing explicit P1 stateRefs/ownerTypedObservationContracts; establish full-coverage exact state OR exact typed observation cited by purpose/action/operation OR a source-proven no-P1-state typed result/owner-receipt/no-side-effect disposition. Verify all required operations are covered (not one partial overlap), exact artifact version, authority and fail-closed guards, success/denied/unknown/timeout/recovery, and channel-specific GUI/headless grammar. Keep transport UNBOUND and runtime NOT_ADMITTED until independently admitted. Never add guessed canonical state IDs, hardcoded endpoint, CLI fixture or observation ref without exact join.",
+      "checks": [
+        "node --test tests/pdp3-journey-channel-contract-bindings.test.mjs",
+        "node --test tests/pdp-experience-journey-operation-bindings.test.mjs tests/pdp-experience-step-definition-oracle.test.mjs"
+      ],
+      "acceptance": "Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.",
+      "channelOwnerRoles": [
+        {
+          "channel": "media.channel.grpc-api",
+          "role": "media-runtime / service-owner"
+        },
+        {
+          "channel": "media.channel.http-api",
+          "role": "media-runtime / media-api-owner"
+        },
+        {
+          "channel": "media.channel.product-integration",
+          "role": "media-runtime / integration-owners"
+        }
+      ],
+      "status": "UNRESOLVED_TECHNICAL_DEFINITION; MEDIA_DESIGN_CHOICE_RECORDED"
+    },
+    {
+      "id": "MDC30-C-07",
+      "journeyId": "J-07",
+      "owner": "Media audio enhancement and fidelity owner",
+      "exactlyUnresolvedChannelRefs": [
+        "media.channel.web"
+      ],
+      "remainingEdgeCount": 1,
+      "semantics": "SOURCE_PRESERVING_ENHANCEMENT_COMPARISON",
+      "ownerAcceptedDirection": "Comparing or reviewing source/candidate output is read-only; any enhancement command must select explicit version/profile and preserve original source and quality/fidelity disclosures.",
+      "where": [
+        ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "how": "For EACH named channel: read existing p1OperationBindings, purposeBindingRefs, operationKinds and existing explicit P1 stateRefs/ownerTypedObservationContracts; establish full-coverage exact state OR exact typed observation cited by purpose/action/operation OR a source-proven no-P1-state typed result/owner-receipt/no-side-effect disposition. Verify all required operations are covered (not one partial overlap), exact artifact version, authority and fail-closed guards, success/denied/unknown/timeout/recovery, and channel-specific GUI/headless grammar. Keep transport UNBOUND and runtime NOT_ADMITTED until independently admitted. Never add guessed canonical state IDs, hardcoded endpoint, CLI fixture or observation ref without exact join.",
+      "checks": [
+        "node --test tests/pdp3-journey-channel-contract-bindings.test.mjs",
+        "node --test tests/pdp-experience-journey-operation-bindings.test.mjs tests/pdp-experience-step-definition-oracle.test.mjs"
+      ],
+      "acceptance": "Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.",
+      "channelOwnerRoles": [
+        {
+          "channel": "media.channel.web",
+          "role": "media-ui-owner"
+        }
+      ],
+      "status": "UNRESOLVED_TECHNICAL_DEFINITION; MEDIA_DESIGN_CHOICE_RECORDED"
+    },
+    {
+      "id": "MDC30-C-11",
+      "journeyId": "J-11",
+      "owner": "Media editing/undo and version owner",
+      "exactlyUnresolvedChannelRefs": [
+        "media.channel.web"
+      ],
+      "remainingEdgeCount": 1,
+      "semantics": "EXACT_REGION_EDIT_WITH_UNDO_AND_VERSION_GUARDS",
+      "ownerAcceptedDirection": "Preview/compare and local undo must not imply persisted artifact mutation; an actual edit uses exact source version/frame bounds, independent permission and typed conflict/recovery.",
+      "where": [
+        ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "how": "For EACH named channel: read existing p1OperationBindings, purposeBindingRefs, operationKinds and existing explicit P1 stateRefs/ownerTypedObservationContracts; establish full-coverage exact state OR exact typed observation cited by purpose/action/operation OR a source-proven no-P1-state typed result/owner-receipt/no-side-effect disposition. Verify all required operations are covered (not one partial overlap), exact artifact version, authority and fail-closed guards, success/denied/unknown/timeout/recovery, and channel-specific GUI/headless grammar. Keep transport UNBOUND and runtime NOT_ADMITTED until independently admitted. Never add guessed canonical state IDs, hardcoded endpoint, CLI fixture or observation ref without exact join.",
+      "checks": [
+        "node --test tests/pdp3-journey-channel-contract-bindings.test.mjs",
+        "node --test tests/pdp-experience-journey-operation-bindings.test.mjs tests/pdp-experience-step-definition-oracle.test.mjs"
+      ],
+      "acceptance": "Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.",
+      "channelOwnerRoles": [
+        {
+          "channel": "media.channel.web",
+          "role": "media-ui-owner"
+        }
+      ],
+      "status": "UNRESOLVED_TECHNICAL_DEFINITION; MEDIA_DESIGN_CHOICE_RECORDED"
+    },
+    {
+      "id": "MDC30-C-12",
+      "journeyId": "J-12",
+      "owner": "Media animation/composition owner",
+      "exactlyUnresolvedChannelRefs": [
+        "media.channel.web"
+      ],
+      "remainingEdgeCount": 1,
+      "semantics": "ANIMATION_INTENT_PREVIEW_VS_PERSISTED_RENDER_RESULT",
+      "ownerAcceptedDirection": "A source-backed animation plan/preview is not a persisted artifact or final render; timing/geometry/export profile and provenance remain bound to exact selections.",
+      "where": [
+        ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "how": "For EACH named channel: read existing p1OperationBindings, purposeBindingRefs, operationKinds and existing explicit P1 stateRefs/ownerTypedObservationContracts; establish full-coverage exact state OR exact typed observation cited by purpose/action/operation OR a source-proven no-P1-state typed result/owner-receipt/no-side-effect disposition. Verify all required operations are covered (not one partial overlap), exact artifact version, authority and fail-closed guards, success/denied/unknown/timeout/recovery, and channel-specific GUI/headless grammar. Keep transport UNBOUND and runtime NOT_ADMITTED until independently admitted. Never add guessed canonical state IDs, hardcoded endpoint, CLI fixture or observation ref without exact join.",
+      "checks": [
+        "node --test tests/pdp3-journey-channel-contract-bindings.test.mjs",
+        "node --test tests/pdp-experience-journey-operation-bindings.test.mjs tests/pdp-experience-step-definition-oracle.test.mjs"
+      ],
+      "acceptance": "Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.",
+      "channelOwnerRoles": [
+        {
+          "channel": "media.channel.web",
+          "role": "media-ui-owner"
+        }
+      ],
+      "status": "UNRESOLVED_TECHNICAL_DEFINITION; MEDIA_DESIGN_CHOICE_RECORDED"
+    },
+    {
+      "id": "MDC30-C-15",
+      "journeyId": "J-15",
+      "owner": "Media simulation validation and integration owner",
+      "exactlyUnresolvedChannelRefs": [
+        "media.channel.product-integration",
+        "media.channel.web"
+      ],
+      "remainingEdgeCount": 2,
+      "semantics": "SIMULATION_OBSERVATION_VS_PROTECTED_SEMANTIC_CHANGE",
+      "ownerAcceptedDirection": "Simulation quality observation may be a typed read with no Media domain transition; changing protected simulation semantics requires separately authorized owner operation, and quality evidence is not an execution guarantee.",
+      "where": [
+        ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "how": "For EACH named channel: read existing p1OperationBindings, purposeBindingRefs, operationKinds and existing explicit P1 stateRefs/ownerTypedObservationContracts; establish full-coverage exact state OR exact typed observation cited by purpose/action/operation OR a source-proven no-P1-state typed result/owner-receipt/no-side-effect disposition. Verify all required operations are covered (not one partial overlap), exact artifact version, authority and fail-closed guards, success/denied/unknown/timeout/recovery, and channel-specific GUI/headless grammar. Keep transport UNBOUND and runtime NOT_ADMITTED until independently admitted. Never add guessed canonical state IDs, hardcoded endpoint, CLI fixture or observation ref without exact join.",
+      "checks": [
+        "node --test tests/pdp3-journey-channel-contract-bindings.test.mjs",
+        "node --test tests/pdp-experience-journey-operation-bindings.test.mjs tests/pdp-experience-step-definition-oracle.test.mjs"
+      ],
+      "acceptance": "Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.",
+      "channelOwnerRoles": [
+        {
+          "channel": "media.channel.product-integration",
+          "role": "media-runtime / integration-owners"
+        },
+        {
+          "channel": "media.channel.web",
+          "role": "media-ui-owner"
+        }
+      ],
+      "status": "UNRESOLVED_TECHNICAL_DEFINITION; MEDIA_DESIGN_CHOICE_RECORDED"
+    },
+    {
+      "id": "MDC30-C-16",
+      "journeyId": "J-16",
+      "owner": "Media dubbing/localization and caption owner",
+      "exactlyUnresolvedChannelRefs": [
+        "media.channel.grpc-api",
+        "media.channel.web"
+      ],
+      "remainingEdgeCount": 2,
+      "semantics": "SOURCE_AND_LOCALE_BOUND_DUBBING_WITH_DRAFT_VS_VERSION",
+      "ownerAcceptedDirection": "Caption timing, language, authorized voice and source version must be exact; a draft correction is not saved immutable caption, dubbing approval or delivery.",
+      "where": [
+        ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "how": "For EACH named channel: read existing p1OperationBindings, purposeBindingRefs, operationKinds and existing explicit P1 stateRefs/ownerTypedObservationContracts; establish full-coverage exact state OR exact typed observation cited by purpose/action/operation OR a source-proven no-P1-state typed result/owner-receipt/no-side-effect disposition. Verify all required operations are covered (not one partial overlap), exact artifact version, authority and fail-closed guards, success/denied/unknown/timeout/recovery, and channel-specific GUI/headless grammar. Keep transport UNBOUND and runtime NOT_ADMITTED until independently admitted. Never add guessed canonical state IDs, hardcoded endpoint, CLI fixture or observation ref without exact join.",
+      "checks": [
+        "node --test tests/pdp3-journey-channel-contract-bindings.test.mjs",
+        "node --test tests/pdp-experience-journey-operation-bindings.test.mjs tests/pdp-experience-step-definition-oracle.test.mjs"
+      ],
+      "acceptance": "Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.",
+      "channelOwnerRoles": [
+        {
+          "channel": "media.channel.grpc-api",
+          "role": "media-runtime / service-owner"
+        },
+        {
+          "channel": "media.channel.web",
+          "role": "media-ui-owner"
+        }
+      ],
+      "status": "UNRESOLVED_TECHNICAL_DEFINITION; MEDIA_DESIGN_CHOICE_RECORDED"
+    },
+    {
+      "id": "MDC30-C-17",
+      "journeyId": "J-17",
+      "owner": "Media audio mastering/fidelity owner",
+      "exactlyUnresolvedChannelRefs": [
+        "media.channel.web"
+      ],
+      "remainingEdgeCount": 1,
+      "semantics": "MIX_MASTER_QUALITY_OBSERVATION_VS_DELIVERY",
+      "ownerAcceptedDirection": "Loudness and channel-layout measurements are read-only evidence; requested mix/master processing and eventual immutable delivered output are distinct effects and finality.",
+      "where": [
+        ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "how": "For EACH named channel: read existing p1OperationBindings, purposeBindingRefs, operationKinds and existing explicit P1 stateRefs/ownerTypedObservationContracts; establish full-coverage exact state OR exact typed observation cited by purpose/action/operation OR a source-proven no-P1-state typed result/owner-receipt/no-side-effect disposition. Verify all required operations are covered (not one partial overlap), exact artifact version, authority and fail-closed guards, success/denied/unknown/timeout/recovery, and channel-specific GUI/headless grammar. Keep transport UNBOUND and runtime NOT_ADMITTED until independently admitted. Never add guessed canonical state IDs, hardcoded endpoint, CLI fixture or observation ref without exact join.",
+      "checks": [
+        "node --test tests/pdp3-journey-channel-contract-bindings.test.mjs",
+        "node --test tests/pdp-experience-journey-operation-bindings.test.mjs tests/pdp-experience-step-definition-oracle.test.mjs"
+      ],
+      "acceptance": "Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.",
+      "channelOwnerRoles": [
+        {
+          "channel": "media.channel.web",
+          "role": "media-ui-owner"
+        }
+      ],
+      "status": "UNRESOLVED_TECHNICAL_DEFINITION; MEDIA_DESIGN_CHOICE_RECORDED"
+    },
+    {
+      "id": "MDC30-C-21",
+      "journeyId": "J-21",
+      "owner": "Media exact-version review/care rights owner",
+      "exactlyUnresolvedChannelRefs": [
+        "media.channel.product-integration",
+        "media.channel.web"
+      ],
+      "remainingEdgeCount": 2,
+      "semantics": "VERSIONED_REVIEW_NOT_DETERMINED_BY_READ_ONLY_INSPECTION",
+      "ownerAcceptedDirection": "Viewing/commenting and formal APPROVED are not equivalent; only an explicit owner-authorized review operation can change formal review state on exact immutable version.",
+      "where": [
+        ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "how": "For EACH named channel: read existing p1OperationBindings, purposeBindingRefs, operationKinds and existing explicit P1 stateRefs/ownerTypedObservationContracts; establish full-coverage exact state OR exact typed observation cited by purpose/action/operation OR a source-proven no-P1-state typed result/owner-receipt/no-side-effect disposition. Verify all required operations are covered (not one partial overlap), exact artifact version, authority and fail-closed guards, success/denied/unknown/timeout/recovery, and channel-specific GUI/headless grammar. Keep transport UNBOUND and runtime NOT_ADMITTED until independently admitted. Never add guessed canonical state IDs, hardcoded endpoint, CLI fixture or observation ref without exact join.",
+      "checks": [
+        "node --test tests/pdp3-journey-channel-contract-bindings.test.mjs",
+        "node --test tests/pdp-experience-journey-operation-bindings.test.mjs tests/pdp-experience-step-definition-oracle.test.mjs"
+      ],
+      "acceptance": "Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.",
+      "channelOwnerRoles": [
+        {
+          "channel": "media.channel.product-integration",
+          "role": "media-runtime / integration-owners"
+        },
+        {
+          "channel": "media.channel.web",
+          "role": "media-ui-owner"
+        }
+      ],
+      "status": "UNRESOLVED_TECHNICAL_DEFINITION; MEDIA_DESIGN_CHOICE_RECORDED"
+    },
+    {
+      "id": "MDC30-C-22",
+      "journeyId": "J-22",
+      "owner": "Media delivery and destination acknowledgement owner",
+      "exactlyUnresolvedChannelRefs": [
+        "media.channel.cli",
+        "media.channel.http-api",
+        "media.channel.product-integration",
+        "media.channel.web"
+      ],
+      "remainingEdgeCount": 4,
+      "semantics": "DELIVERY_REQUEST_RECEIPT_VS_EXTERNAL_ACK",
+      "ownerAcceptedDirection": "Download/export/publish initiation is not completed delivery; external ACK/uncertainty must be attributable to exact output, destination and request identity, deny unknown retry.",
+      "where": [
+        ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "how": "For EACH named channel: read existing p1OperationBindings, purposeBindingRefs, operationKinds and existing explicit P1 stateRefs/ownerTypedObservationContracts; establish full-coverage exact state OR exact typed observation cited by purpose/action/operation OR a source-proven no-P1-state typed result/owner-receipt/no-side-effect disposition. Verify all required operations are covered (not one partial overlap), exact artifact version, authority and fail-closed guards, success/denied/unknown/timeout/recovery, and channel-specific GUI/headless grammar. Keep transport UNBOUND and runtime NOT_ADMITTED until independently admitted. Never add guessed canonical state IDs, hardcoded endpoint, CLI fixture or observation ref without exact join.",
+      "checks": [
+        "node --test tests/pdp3-journey-channel-contract-bindings.test.mjs",
+        "node --test tests/pdp-experience-journey-operation-bindings.test.mjs tests/pdp-experience-step-definition-oracle.test.mjs"
+      ],
+      "acceptance": "Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.",
+      "channelOwnerRoles": [
+        {
+          "channel": "media.channel.cli",
+          "role": "media-cli-owner"
+        },
+        {
+          "channel": "media.channel.http-api",
+          "role": "media-runtime / media-api-owner"
+        },
+        {
+          "channel": "media.channel.product-integration",
+          "role": "media-runtime / integration-owners"
+        },
+        {
+          "channel": "media.channel.web",
+          "role": "media-ui-owner"
+        }
+      ],
+      "status": "UNRESOLVED_TECHNICAL_DEFINITION; MEDIA_DESIGN_CHOICE_RECORDED"
+    },
+    {
+      "id": "MDC30-C-25",
+      "journeyId": "J-25",
+      "owner": "Media integration/agent delegated authority owner",
+      "exactlyUnresolvedChannelRefs": [
+        "media.channel.http-api",
+        "media.channel.product-integration"
+      ],
+      "remainingEdgeCount": 2,
+      "semantics": "BOUNDED_MACHINE_DELEGATION_NO_RECURSION_OR_UNADMITTED_TOOLS",
+      "ownerAcceptedDirection": "Machine delegated action is bounded by tenant/actor/purpose/budget/recursion and original request identity; a source-only integration does not become an admitted Tool or public API.",
+      "where": [
+        ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml",
+        ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "how": "For EACH named channel: read existing p1OperationBindings, purposeBindingRefs, operationKinds and existing explicit P1 stateRefs/ownerTypedObservationContracts; establish full-coverage exact state OR exact typed observation cited by purpose/action/operation OR a source-proven no-P1-state typed result/owner-receipt/no-side-effect disposition. Verify all required operations are covered (not one partial overlap), exact artifact version, authority and fail-closed guards, success/denied/unknown/timeout/recovery, and channel-specific GUI/headless grammar. Keep transport UNBOUND and runtime NOT_ADMITTED until independently admitted. Never add guessed canonical state IDs, hardcoded endpoint, CLI fixture or observation ref without exact join.",
+      "checks": [
+        "node --test tests/pdp3-journey-channel-contract-bindings.test.mjs",
+        "node --test tests/pdp-experience-journey-operation-bindings.test.mjs tests/pdp-experience-step-definition-oracle.test.mjs"
+      ],
+      "acceptance": "Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.",
+      "channelOwnerRoles": [
+        {
+          "channel": "media.channel.http-api",
+          "role": "media-runtime / media-api-owner"
+        },
+        {
+          "channel": "media.channel.product-integration",
+          "role": "media-runtime / integration-owners"
+        }
+      ],
+      "status": "UNRESOLVED_TECHNICAL_DEFINITION; MEDIA_DESIGN_CHOICE_RECORDED"
+    },
+    {
+      "id": "MDC30-C-27",
+      "journeyId": "J-27",
+      "owner": "Media runtime resilience and support-experience owner",
+      "exactlyUnresolvedChannelRefs": [
+        "media.channel.cli",
+        "media.channel.http-api",
+        "media.channel.web"
+      ],
+      "remainingEdgeCount": 3,
+      "semantics": "ELIGIBILITY_STATUS_AND_UNAVAILABILITY_ARE_READ_ONLY_UNTIL_EXPLICIT_COMMAND",
+      "ownerAcceptedDirection": "Unavailable/stale/unknown status is a scoped observation, not failed job/effect, nor permission to resubmit; fallback requires current rights/licensing/quality/resources and explicit opt-in.",
+      "where": [
+        ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "how": "For EACH named channel: read existing p1OperationBindings, purposeBindingRefs, operationKinds and existing explicit P1 stateRefs/ownerTypedObservationContracts; establish full-coverage exact state OR exact typed observation cited by purpose/action/operation OR a source-proven no-P1-state typed result/owner-receipt/no-side-effect disposition. Verify all required operations are covered (not one partial overlap), exact artifact version, authority and fail-closed guards, success/denied/unknown/timeout/recovery, and channel-specific GUI/headless grammar. Keep transport UNBOUND and runtime NOT_ADMITTED until independently admitted. Never add guessed canonical state IDs, hardcoded endpoint, CLI fixture or observation ref without exact join.",
+      "checks": [
+        "node --test tests/pdp3-journey-channel-contract-bindings.test.mjs",
+        "node --test tests/pdp-experience-journey-operation-bindings.test.mjs tests/pdp-experience-step-definition-oracle.test.mjs"
+      ],
+      "acceptance": "Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.",
+      "channelOwnerRoles": [
+        {
+          "channel": "media.channel.cli",
+          "role": "media-cli-owner"
+        },
+        {
+          "channel": "media.channel.http-api",
+          "role": "media-runtime / media-api-owner"
+        },
+        {
+          "channel": "media.channel.web",
+          "role": "media-ui-owner"
+        }
+      ],
+      "status": "UNRESOLVED_TECHNICAL_DEFINITION; MEDIA_DESIGN_CHOICE_RECORDED"
+    },
+    {
+      "id": "MDC30-C-30",
+      "journeyId": "J-30",
+      "owner": "Media diagnostics/eligibility and CLI/API interface owner",
+      "exactlyUnresolvedChannelRefs": [
+        "media.channel.cli",
+        "media.channel.http-api",
+        "media.channel.web"
+      ],
+      "remainingEdgeCount": 3,
+      "semantics": "READ_ONLY_ELIGIBILITY_OBSERVATION_WITH_DISTINCT_UNAVAILABLE_DIMENSIONS",
+      "ownerAcceptedDirection": "Provider qualification/license/health/capability and rights are separate; observation/readiness is not a command effect nor a future admission promise; unavailable facts remain UNKNOWN.",
+      "where": [
+        ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "how": "For EACH named channel: read existing p1OperationBindings, purposeBindingRefs, operationKinds and existing explicit P1 stateRefs/ownerTypedObservationContracts; establish full-coverage exact state OR exact typed observation cited by purpose/action/operation OR a source-proven no-P1-state typed result/owner-receipt/no-side-effect disposition. Verify all required operations are covered (not one partial overlap), exact artifact version, authority and fail-closed guards, success/denied/unknown/timeout/recovery, and channel-specific GUI/headless grammar. Keep transport UNBOUND and runtime NOT_ADMITTED until independently admitted. Never add guessed canonical state IDs, hardcoded endpoint, CLI fixture or observation ref without exact join.",
+      "checks": [
+        "node --test tests/pdp3-journey-channel-contract-bindings.test.mjs",
+        "node --test tests/pdp-experience-journey-operation-bindings.test.mjs tests/pdp-experience-step-definition-oracle.test.mjs"
+      ],
+      "acceptance": "Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.",
+      "channelOwnerRoles": [
+        {
+          "channel": "media.channel.cli",
+          "role": "media-cli-owner"
+        },
+        {
+          "channel": "media.channel.http-api",
+          "role": "media-runtime / media-api-owner"
+        },
+        {
+          "channel": "media.channel.web",
+          "role": "media-ui-owner"
+        }
+      ],
+      "status": "UNRESOLVED_TECHNICAL_DEFINITION; MEDIA_DESIGN_CHOICE_RECORDED"
+    }
+  ],
+  "observedMdc30": {
+    "previousCompletedChannelLogicalEdges": 29,
+    "previousIncompleteEdges": 32,
+    "previousChannelTaskIds": [
+      "MDC30-C-03",
+      "MDC30-C-04",
+      "MDC30-C-06",
+      "MDC30-C-07",
+      "MDC30-C-11",
+      "MDC30-C-12",
+      "MDC30-C-15",
+      "MDC30-C-16",
+      "MDC30-C-17",
+      "MDC30-C-21",
+      "MDC30-C-22",
+      "MDC30-C-25",
+      "MDC30-C-27",
+      "MDC30-C-30"
+    ],
+    "previousCompletedConsequentialStepCount": 13,
+    "previousOpenStepIds": [
+      "MDC30-S-06"
+    ],
+    "integrationApplicability": "PDP3_APPLICABLE_SOURCE_ONLY_HOST_DEPENDENT_APPLIED",
+    "externalContracts": {
+      "recordedMatches": 30,
+      "total": 30,
+      "immutableSourceObservationRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-external-contract-recapture-2026-10-13-r2.json"
+    },
+    "observedTests": [
+      {
+        "suite": "focused PDP3",
+        "passed": 35,
+        "failed": 0,
+        "skipped": 0,
+        "source": "previous implementer observation"
+      },
+      {
+        "suite": "phase-cell regression",
+        "passed": 8,
+        "failed": 0,
+        "skipped": 0,
+        "source": "previous implementer observation"
+      }
+    ]
+  },
+  "ownerAcceptanceState": {
+    "pdp0": "SOURCE_MEANING_REUSE_ACCEPTED_CURRENTNESS_NOT_RECAPTURED",
+    "pdp1": "SOURCE_MEANING_REUSE_ACCEPTED_CURRENTNESS_NOT_RECAPTURED",
+    "pdp2": "SOURCE_MEANING_REUSE_ACCEPTED_CURRENTNESS_NOT_RECAPTURED",
+    "pdp3": "OWNER_IMPLEMENTATION_DIRECTIVES_APPROVED_NOT_DEV_COMPLETE"
+  },
+  "nextExecution": [
+    "RC-P0-01",
+    "RC-P1-01",
+    "RC-P2-01",
+    "MDC30-C-OPEN-32",
+    "MDC30-S-06",
+    "MDC30-V-01",
+    "MDC-31",
+    "MDC-32",
+    "MDC-40",
+    "MDC-41"
+  ],
+  "stageGates": {
+    "discovery": "FAIL",
+    "build": "NOT_ENTERED",
+    "nativePdpClosure": "NOT_ENTERED",
+    "delivery": "BLOCKED"
+  }
+}
