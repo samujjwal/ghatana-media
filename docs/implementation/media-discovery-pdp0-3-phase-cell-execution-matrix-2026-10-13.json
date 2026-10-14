@@ -14131,7 +14131,7 @@
     }
   ],
   "currentPhase": "PDP-3",
-  "nextLegalAction": "Resolve the 21 owner-source-blocked PDP-3 logical channel edges in MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; then rerun MDC30-V-01. Keep MDC-31/MDC-32 gated until 61/61 logical edges are complete and all 50 PDP-3 cells are source-current.",
+  "nextLegalAction": "MDC-30: obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31 and MDC-32 gated; MDC-40 and MDC-41 require their prescribed predecessors.",
   "ownerDecisionOverlay": {
     "recordKind": "NON_NORMATIVE_OWNER_REVIEW_OVERLAY",
     "decisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
