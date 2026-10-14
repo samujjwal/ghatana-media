@@ -20,10 +20,10 @@
   },
   "campaign": {
     "stage": "DISCOVERY",
-    "activePhase": "PDP-0",
-    "discoveryBarrier": "FAIL_EARLIEST_PDP0_MATERIAL_CURRENTNESS_RECHECK_AND_PDP3_DEFINITION_GAPS",
-    "sourceMeaningStatus": "PDP0_PDP1_PDP2_MEANING_REUSE_SCOPED_OWNER_APPROVED; PDP3_HAS_32_PLUS_1_SOURCE_GAPS",
-    "sourceCurrentness": "PRIOR_PDP0_PDP1_PDP2_PASS_AT_HISTORICAL_CUTS; LATEST_CURRENTNESS_NOT_REESTABLISHED; PDP3_BLOCKED",
+    "activePhase": "PDP-3",
+    "discoveryBarrier": "FAIL_PDP3_MDC30_21_LOGICAL_EDGE_GAPS_AND_CURRENT_EXIT_NOT_REESTABLISHED",
+    "sourceMeaningStatus": "PDP0_PDP1_PDP2_CURRENT_PHASE_EXITS_PASS; PDP3_HAS_21_LOGICAL_CHANNEL_EDGE_GAPS",
+    "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_TO_EXACT_SUCCESSOR_EXITS; PDP3_NOT_REESTABLISHED_WITH_21_OWNER_SOURCE_DEFINITION_GAPS",
     "implementationLane": "NOT_ENTERED",
     "closureLane": "NOT_ENTERED",
     "delivery": "BLOCKED",
@@ -53,57 +53,76 @@
       "MDC-21"
     ],
     "currentPhaseExitPublished": false,
-    "currentPhaseExitPhase": "PDP-2",
+    "currentPhaseExitPhase": "PDP-3",
     "machineOwnerAcceptanceRef": "docs/implementation/observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13.json",
     "lastCompletedPhaseExit": {
       "phase": "PDP-2",
-      "ref": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json",
-      "materialFingerprint": "sha256:954c8930f3e9cc4e68570bfca29ac586be7474869b785a9b8c59ea9beeff4cea",
-      "observedHead": "2aaa15f5a15ce9d05726cc133885b6415317efff",
+      "ref": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r4.json",
+      "materialFingerprint": "sha256:dcd8eb3ac4e8717ed279fc41e859d87f7fd1a938c5660399b8e086639d2b0a70",
+      "observedHead": "0e1006805339955d60c9d2c2efad07c55c048f1b",
       "status": "PASS"
     },
-    "activePhaseTaskId": "RC-P0-01",
-    "currentPhaseReviewRef": "docs/implementation/observations/media-discovery-predecessor-currentness-impact-2026-10-13-r1.json",
+    "activePhaseTaskId": "MDC30-C-03",
+    "currentPhaseReviewRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
     "currentPhaseSourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
     "currentPhaseBlockerIds": [
-      "RC-P0-01",
-      "RC-P1-01",
-      "RC-P2-01",
-      "MDC30-CHANNEL-32-EDGE-DEFINITION_GAPS",
-      "MDC30-S-06",
+      "MDC30-C-03",
+      "MDC30-C-04",
+      "MDC30-C-16",
+      "MDC30-C-22",
+      "MDC30-C-25",
+      "MDC30-C-27",
+      "MDC30-C-30",
       "MDC30-V-01"
     ],
     "currentPhaseOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
     "currentPhaseOwnerPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
     "currentPhaseOwnerChoiceStatus": "APPROVED_ON_EXACT_REVIEWED_INPUTS; TECHNICAL_WORK_AND_CURRENTNESS_PENDING",
     "resumeAfterPredecessorCurrentness": "PDP-3/MDC-30",
-    "requiredPredecessorRecheckTaskIds": [
+    "requiredPredecessorRecheckTaskIds": [],
+    "remainingMDC30SubtaskIds": [
+      "MDC30-C-03",
+      "MDC30-C-04",
+      "MDC30-C-16",
+      "MDC30-C-22",
+      "MDC30-C-25",
+      "MDC30-C-27",
+      "MDC30-C-30",
+      "MDC30-V-01"
+    ],
+    "lastMdc30ExecutionRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
+    "reviewedCurrentHead": "f5ae3461c53eb1d490362a9bb8818ce74573147c",
+    "currentCutOwnerDecisionRef": ".product-experience/reviews/2026-10-13-discovery-current-cut-delegated-owner-review.md",
+    "currentCutOwnerPacketRef": "docs/implementation/observations/media-discovery-current-cut-owner-directions-2026-10-13-r2.json",
+    "completedPredecessorRecheckTaskIds": [
       "RC-P0-01",
       "RC-P1-01",
       "RC-P2-01"
     ],
-    "remainingMDC30SubtaskIds": [
-      "MDC30-C-03",
-      "MDC30-C-04",
+    "completedMDC30SubtaskIds": [
       "MDC30-C-06",
       "MDC30-C-07",
       "MDC30-C-11",
       "MDC30-C-12",
       "MDC30-C-15",
-      "MDC30-C-16",
       "MDC30-C-17",
       "MDC30-C-21",
-      "MDC30-C-22",
-      "MDC30-C-25",
-      "MDC30-C-27",
-      "MDC30-C-30",
-      "MDC30-S-06",
-      "MDC30-V-01"
+      "MDC30-S-06"
     ],
-    "lastMdc30ExecutionRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-execution-2026-10-13-r1.json",
-    "reviewedCurrentHead": "f5ae3461c53eb1d490362a9bb8818ce74573147c",
-    "currentCutOwnerDecisionRef": ".product-experience/reviews/2026-10-13-discovery-current-cut-delegated-owner-review.md",
-    "currentCutOwnerPacketRef": "docs/implementation/observations/media-discovery-current-cut-owner-directions-2026-10-13-r2.json"
+    "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
+    "latestMdc30LogicalCount": {
+      "totalEdges": 61,
+      "sourceBound": 40,
+      "incomplete": 21,
+      "consequentialSteps": 14,
+      "completeConsequential": 14
+    },
+    "latestMdc30ProgressStatus": "BLOCKED_DEFINITION_RECONCILIATION; 40_OF_61_LOGICAL_EDGES; 21_PDP1_OWNER_SOURCE_GAPS; S06_SOURCE_BOUND; V01_OPEN",
+    "latestNextLegalAction": "Obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31/32/40/41 gated.",
+    "latestImplementationProgressIsPdp3Currentness": false,
+    "pdp3PhaseExitPublished": false,
+    "pdp3DefinitionTasksRemaining": 21,
+    "currentPhaseStatusObservationRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json"
   },
   "denominator": {
     "physicalCandidateCount": 26,
@@ -1041,8 +1060,8 @@
         ".product-experience/surface-registry.yaml"
       ],
       "done": "47 screen IDs, 30 journeys/130 steps, 147 UI actions and 31 scenarios plus 105 bounded recovery oracles keep exact version/outcome/negative states; 17 consumer channels have discoverable headless/GUI contracts and explicit non-admission.",
-      "status": "IN_PROGRESS_29_OF_61_LOGICAL_EDGES_32_OPEN_13_OF_14_STEPS",
-      "executionNote": "LATEST f5ae346 review: the previously recorded 47 MDC30 planning subtasks are not all pending. All 61 intended edges are authored, 29 have complete logical source joins and 32 remain incomplete under 14 named C tasks; 13/14 consequential effects complete, S06 remains; integrations scope applied and 30 declared external content bytes matched. Focused 35/35 + 8/8 checks were reported by prior implementer, not rerun here. Owner choices and exact no-state/typed-observation criteria are approved at .product-experience/reviews/2026-10-13-discovery-current-cut-delegated-owner-review.md. Resume only after RC-P0-01/RC-P1-01/RC-P2-01 source-currentness rechecks. Actual technical MDC30 PASS remains unproven.",
+      "status": "IN_PROGRESS_40_OF_61_LOGICAL_EDGES_21_OPEN_14_OF_14_CONSEQUENTIAL_STEPS_S06_SOURCE_BOUND",
+      "executionNote": "Current cut after RC-P0-01, RC-P1-01 and RC-P2-01 successor currentness receipts PASS: 40/61 logical channel edges source-bound, with 21 incomplete edges across seven owner-source-blocked groups (C-03=4, C-04=3, C-16=2, C-22=4, C-25=2, C-27=3, C-30=3). C-06 and all previously completed channel groups are reused. S-06 is source-bound and all 14 consequential steps are complete without a QUEUED/result claim. Focused V01 coverage is being rerun; PDP-3 currentness and phase exit remain NOT_ESTABLISHED. The exact missing owner semantics/observations and lawful owners are recorded in the current-cut direction packet; no transports or runtimes are admitted.",
       "ownerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
       "machineOwnerDecisionRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
       "subtaskIds": [
@@ -1104,39 +1123,40 @@
       "effectiveRemainingSubtaskIds": [
         "MDC30-C-03",
         "MDC30-C-04",
-        "MDC30-C-06",
-        "MDC30-C-07",
-        "MDC30-C-11",
-        "MDC30-C-12",
-        "MDC30-C-15",
         "MDC30-C-16",
-        "MDC30-C-17",
-        "MDC30-C-21",
         "MDC30-C-22",
         "MDC30-C-25",
         "MDC30-C-27",
         "MDC30-C-30",
-        "MDC30-S-06",
         "MDC30-V-01"
       ],
       "actualCompletedSubtaskCount": {
-        "channelEdges": 29,
-        "consequentialSteps": 13,
+        "channelEdges": 40,
+        "consequentialSteps": 14,
         "integrationScope": true,
         "externalContractByteRecapture": true
       },
       "actualPendingSubtaskCount": {
-        "logicalChannelEdges": 32,
-        "journeyGroups": 14,
-        "consequentialStepBindings": 1,
-        "currentnessRechecks": 3
+        "logicalChannelEdges": 21,
+        "journeyGroups": 7,
+        "consequentialStepBindings": 0,
+        "currentnessRechecks": 0
       },
       "prerequisiteCurrentnessTaskIds": [
         "RC-P0-01",
         "RC-P1-01",
         "RC-P2-01"
       ],
-      "worklistLastReviewedHead": "f5ae3461c53eb1d490362a9bb8818ce74573147c"
+      "worklistLastReviewedHead": "f5ae3461c53eb1d490362a9bb8818ce74573147c",
+      "latestImplementationProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r3.json",
+      "latestMdc30LogicalCount": {
+        "totalEdges": 61,
+        "sourceBound": 40,
+        "incomplete": 21,
+        "consequentialSteps": 14,
+        "completeConsequential": 14
+      },
+      "latestNextLegalAction": "Obtain owner-authored PDP-1 operation/result definitions for MDC30-C-03, C-04, C-16, C-22, C-25, C-27 and C-30; if meaning changes, reopen PDP-1 and recapture impacted PDP-2/PDP-3 in order. Then complete the affected PDP-3 bindings and negative tests before V01. Keep MDC-31/32/40/41 gated."
     },
     {
       "id": "MDC-31",

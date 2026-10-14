@@ -5749,13 +5749,12 @@ records:
   - media.domain.processing-job
   - media.domain.provenance-manifest
   stateRefs: []
-  operationBindingBlocker: MDC30-S-06 exact action-to-capability/job.submit wrapper join unresolved; no state ref is asserted.
   transitionRefs: []
   transitionDisposition:
     status: NO_P1_MACHINE_TRANSITION
     transitionRef: null
     reason: >-
-      Blocker MDC30-S-06: the PDP-3 action exact operation is media.operation.action.submit-validated-request, but the purpose binding selects media.operation.capability.media-multimodal-observe-source-grounded. P1 job.submit is not source-linked as the wrapper for this exact action; no state or transition is bound.
+      This exact source-defined submission chain has no P1 state transition in its submit receipt. The wrapper records durable request identity only; QUEUED, execution, completion, and output availability require separate owner-issued state or typed-output observations.
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
@@ -5765,10 +5764,13 @@ records:
   recovery: preserve source version and request identity; reconcile unknown submission before retry; never claim analysis completion from acceptance
   sourceRefs:
   - .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
+  - .product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml#records/@id=media.pdp3.invocation-adapter.j06-source-grounded.v1
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts/records/@id=media.operation.action.submit-validated-request
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request
   - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1
-  mappingBasis: The P1 action operation and capability operation are separately defined; P1 job.submit is a typed wrapper candidate, but this action-to-wrapper join is not explicit in the source and no P1 state is therefore bound.
+  mappingBasis: >-
+    Bind three distinct operation roles: the exact user action operation media.operation.action.submit-validated-request, the explicitly selected and versioned capability operation media.operation.capability.media-multimodal-observe-source-grounded, and the closed-schema async wrapper media.operation.job.submit.v1. The adapter resolves the target request schema and typed inputs from the exact selected capability operation. Trusted tenant, principal and delegation; current source version, rights, consent, purpose, retention, location, profile and policy; deadline and resource bounds remain required effect-boundary checks. UNKNOWN retains the same request identity for authorized reconciliation before retry. A submit receipt does not establish a machine state or output.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
@@ -5876,6 +5878,7 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/2
   - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation-slice.inspect-provenance
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1
   mappingBasis: Read lineage edges and visible manifests only for the exact subject artifact version within current
     caller scope; report completeness and access disposition separately.
   runtimeAdmission: NOT_ADMITTED
@@ -6046,6 +6049,7 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/steps/2
   - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation-slice.inspect-provenance
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1
   mappingBasis: Read lineage edges and visible manifests only for the exact subject artifact version within current
     caller scope; report completeness and access disposition separately.
   runtimeAdmission: NOT_ADMITTED

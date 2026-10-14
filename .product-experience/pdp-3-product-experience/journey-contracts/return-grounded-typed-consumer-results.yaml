@@ -29,7 +29,7 @@ steps:
     screenContractRef: screen-contracts/review-creation-plan.yaml
     viewIntent: Select an exact source version and explicit multimodal observation dimensions before submitting a grounded typed-result request
     actionRef: media.action.submit-validated-request
-    actionBindingState: EXACT_SOURCE_GROUNDED_ASYNC_COMMAND_ADAPTER; explicit capability choice; runtime NOT_ADMITTED
+    actionBindingState: EXACT_ACTION_OPERATION_TO_SELECTED_CAPABILITY_OPERATION_TO_JOB_SUBMIT_WRAPPER; explicit source-grounded capability choice; runtime NOT_ADMITTED
     stateRefs: []
     stateBindingState: state applicability remains separately bounded
     candidateActionRefs: []
@@ -88,12 +88,12 @@ steps:
       transitionRef: null
       decisionRef: .product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md#MD30-03
       reason: >-
-        The PDP-3 action's exact operation is media.operation.action.submit-validated-request, while its capability operation is media.operation.capability.media-multimodal-observe-source-grounded. The canonical job.submit wrapper join is not established for this action; do not infer a P1 state from the requested receipt.
+        The exact source-defined chain is user action media.action.submit-validated-request to action operation media.operation.action.submit-validated-request, explicit capability media.multimodal.observe.source-grounded to versioned capability operation media.operation.capability.media-multimodal-observe-source-grounded, then the closed-schema media.operation.job.submit.v1 wrapper. A durable submit receipt proves request identity only; it does not prove a P1 job state, QUEUED, execution, completion, or output availability. Unknown outcomes retain the same request identity for authorized reconciliation before any retry.
     bindingStatus:
       surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
       objectRefs: pending-explicit-step-domain-object-reference
-      stateRefs: no state bound; submission intent only while operation join is unresolved
-      canonicalOperationRef: media.operation.job.submit.v1; selected target operation remains user-bound
+      stateRefs: no state bound; a submit receipt does not assert a P1 machine transition
+      canonicalOperationRef: media.operation.job.submit.v1; exact capability target is explicitly selected and version-bound
       authorityRef: trusted tenant/principal/delegation context is host-supplied and rechecked
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: NO_P1_MACHINE_TRANSITION; accepted receipt establishes initial job identity only

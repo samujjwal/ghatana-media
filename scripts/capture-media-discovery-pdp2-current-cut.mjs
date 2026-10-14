@@ -41,6 +41,8 @@ const HISTORICAL_P1_EXIT_PATH = 'docs/implementation/observations/media-discover
 const HISTORICAL_P0_EXIT_PATH = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json';
 const HISTORICAL_P2_EXIT_PATH = 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json';
 const OWNER_DIRECTIONS_PATH = 'docs/implementation/observations/media-discovery-current-cut-owner-directions-2026-10-13-r2.json';
+const PDP3_STATUS_GUARD_SUPPLEMENT_PATH = 'docs/implementation/observations/media-discovery-predecessor-impact-pdp3-status-guard-2026-10-14-r1.json';
+const PDP2_SUPPLEMENT_CUT_PATH = 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r3.json';
 const RUNNER_PATH = 'scripts/capture-media-discovery-pdp2-current-cut.mjs';
 const COMMON_PDP2_REFS = [
   '.product-experience/source-manifest.yaml',
@@ -473,7 +475,57 @@ function pdp2OwnerReview(directions) {
   return directions.predecessorImpactReviews?.find((review) => review.phase === 'PDP-2') ?? null;
 }
 
-function sourcePinReview(status, currentDigests, mdc20, ownerChanges) {
+function pdp3StatusGuardSupplement(historicalExit, currentDigests) {
+  const supplement = readJson(PDP3_STATUS_GUARD_SUPPLEMENT_PATH);
+  const impactP2Cut = readJson(PDP2_SUPPLEMENT_CUT_PATH);
+  const delta = supplement.sourceDelta;
+  const pathDigest = currentDigests[delta?.path] ?? null;
+  const valid = supplement.schemaVersion === 'media.discovery-predecessor-source-impact.v1'
+    && supplement.recordId === 'MEDIA-DISCOVERY-PREDECESSOR-IMPACT-PDP3-STATUS-GUARD-2026-10-14-R1'
+    && delta?.path === 'scripts/report-media-pdp-readiness.mjs'
+    && delta.predecessorSha256 === 'sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c'
+    && delta.observedSha256 === 'sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1'
+    && pathDigest === delta.observedSha256
+    && supplement.campaign?.activePhase === 'PDP-0'
+    && supplement.authority?.delegate === 'AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION'
+    && supplement.authority?.humanIndependentSignatureProvided === false
+    && supplement.authority?.qualifiedExternalSpecialistSignoffProvided === false
+    && supplement.authority?.externalContractOwnerAcceptanceProvided === false
+    && supplement.authority?.nativeLifecycleReceiptProvided === false
+    && delta.predecessorPhaseMeaningDisposition?.['PDP-2'] === 'NO_MEANING_CHANGE'
+    && delta.freshCurrentnessRequired === true
+    && supplement.decision?.status === 'APPROVED_INTERNAL_NON_IMPACT_FOR_EXACT_SOURCE_DELTA'
+    && supplement.decision?.requiresOrderedTechnicalCurrentnessRecapture?.length === 3
+    && JSON.stringify(supplement.decision.requiresOrderedTechnicalCurrentnessRecapture) === JSON.stringify(['PDP-0', 'PDP-1', 'PDP-2'])
+    && supplement.decision?.preserveHistoricalReceipts === true
+    && supplement.decision?.independentApproval === 'NOT_CLAIMED_AND_NOT_WAIVED'
+    && supplement.decision?.nativeLifecycleClosure === 'NOT_ENTERED'
+    && supplement.predecessorCuts?.filter((cut) => cut.phase === 'PDP-2').length === 1
+    && supplement.predecessorCuts?.some((cut) => cut.phase === 'PDP-2'
+      && cut.receiptRef === PDP2_SUPPLEMENT_CUT_PATH
+      && cut.receiptSha256 === digestFile(PDP2_SUPPLEMENT_CUT_PATH)
+      && cut.materialSourceSetFingerprint === 'sha256:725bd6097f4ba654569a76f9f5e248d3362c4c5123194796130e8890bf06921b'
+      && cut.materialPathCount === 405
+      && cut.recordedPathDigest === delta.predecessorSha256)
+    && impactP2Cut.sourceCurrentness?.materialSourceSetFingerprint === 'sha256:725bd6097f4ba654569a76f9f5e248d3362c4c5123194796130e8890bf06921b'
+    && impactP2Cut.sourceCurrentness?.sourceSetDigests?.sourceContentDigests?.[delta.path] === delta.predecessorSha256
+    && historicalExit.sourceCurrentness?.sourceSetDigests?.sourceContentDigests?.[delta.path] === delta.predecessorSha256;
+  return {
+    valid,
+    ref: PDP3_STATUS_GUARD_SUPPLEMENT_PATH,
+    path: delta?.path ?? null,
+    predecessorSha256: delta?.predecessorSha256 ?? null,
+    currentSha256: pathDigest,
+    materialSourceSetFingerprint: supplement.predecessorCuts?.find((cut) => cut.phase === 'PDP-2')?.materialSourceSetFingerprint ?? null,
+    materialPathCount: supplement.predecessorCuts?.find((cut) => cut.phase === 'PDP-2')?.materialPathCount ?? null,
+    delegatedAuthority: supplement.authority?.delegate ?? null,
+    predecessorMeaningDisposition: delta?.predecessorPhaseMeaningDisposition?.['PDP-2'] ?? null,
+    freshCurrentnessRequired: delta?.freshCurrentnessRequired === true,
+    independentOrExternalOrLifecycleClaims: false,
+  };
+}
+
+function sourcePinReview(status, currentDigests, mdc20, ownerChanges, supplement) {
   const changes = Object.entries(status.sourceShaSet ?? [])
     .map(([sourcePath, recorded]) => {
       const expected = `sha256:${recorded.replace(/^sha256:/u, '')}`;
@@ -484,6 +536,9 @@ function sourcePinReview(status, currentDigests, mdc20, ownerChanges) {
   const dispositionByPath = new Map((mdc20.pinReview?.changedPins ?? []).map((entry) => [entry.path, entry]));
   const ownerByPath = new Map(ownerChanges.map((entry) => [entry.path, entry]));
   const unclassified = changed.filter((entry) => {
+    if (supplement.valid && entry.path === supplement.path
+        && entry.historicalSha256 === supplement.predecessorSha256
+        && entry.currentSha256 === supplement.currentSha256) return false;
     const disposition = dispositionByPath.get(entry.path);
     if (disposition?.historicalSha256 === entry.historicalSha256
         && disposition.currentSha256 === entry.currentSha256
@@ -504,6 +559,11 @@ function sourcePinReview(status, currentDigests, mdc20, ownerChanges) {
     'libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx',
     'modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/index.ts',
   ]);
+  if (supplement.valid) expected.add(supplement.path);
+  const supplementChanged = changed.filter((entry) => entry.path === supplement.path);
+  const validDeltaCount = supplement.valid && supplementChanged.length === 1
+    && supplementChanged[0].historicalSha256 === supplement.predecessorSha256
+    && supplementChanged[0].currentSha256 === supplement.currentSha256 ? 1 : 0;
   return {
     historicalPinCount: changes.length,
     currentPinCount: changes.length - changed.length,
@@ -514,8 +574,10 @@ function sourcePinReview(status, currentDigests, mdc20, ownerChanges) {
     explorerUsedOwnerDirectionBecauseMdc20HashWasStale: changed.some((entry) => entry.path === 'apps/media-experience-explorer/specification-artifacts.json'
       && dispositionByPath.get(entry.path)?.currentSha256 !== entry.currentSha256
       && ownerByPath.has(entry.path)),
+    supplementalDelta: supplement,
     expectedChangedPathsMatch: changed.length === expected.size && changed.every((entry) => expected.has(entry.path))
       && [...expected].every((sourcePath) => changed.some((entry) => entry.path === sourcePath)),
+    supplementalDeltaCount: validDeltaCount,
   };
 }
 
@@ -531,9 +593,16 @@ function ownerStatusJoin(historicalExit, currentDigests, ownerReview, materialSo
   const additionalPaths = currentPaths.filter((sourcePath) => !historicalSet.has(sourcePath));
   const digestChanges = historicalPaths.filter((sourcePath) => currentSet.has(sourcePath)
     && historicalDigests[sourcePath] !== currentDigests[sourcePath]);
-  const changesByPath = new Map(ownerChanges.map((entry) => [entry.path, entry]));
+  const supplement = pdp3StatusGuardSupplement(historicalExit, currentDigests);
+  const allChanges = [...ownerChanges, ...(supplement.valid ? [{
+    path: supplement.path, recordedSha256: supplement.predecessorSha256,
+    observedSha256: supplement.currentSha256,
+    ownerMaterialityClassification: 'PDP3_STATUS_GUARD_ONLY_NO_PDP2_MEANING_CHANGE',
+    meaningIdsChangedAtReviewedCut: [], requiresFreshCurrentness: true,
+  }] : [])];
+  const changesByPath = new Map(allChanges.map((entry) => [entry.path, entry]));
   const duplicateChangePaths = ownerChanges.filter((entry, index) => ownerChanges.findIndex((candidate) => candidate.path === entry.path) !== index).map((entry) => entry.path);
-  const changedPathChecks = ownerChanges.map((entry) => ({
+  const changedPathChecks = allChanges.map((entry) => ({
     path: entry.path,
     historicalSha256: historicalDigests[entry.path] ?? null,
     currentSha256: currentDigests[entry.path] ?? null,
@@ -546,7 +615,8 @@ function ownerStatusJoin(historicalExit, currentDigests, ownerReview, materialSo
     classification: entry.ownerMaterialityClassification ?? null,
   }));
   const unapprovedChangedPaths = digestChanges.filter((sourcePath) => !changesByPath.has(sourcePath));
-  const changeRecordsValid = ownerChanges.length === 4
+  const changeRecordsValid = ownerChanges.length === 4 && supplement.valid
+    && !ownerChanges.some((entry) => entry.path === supplement.path)
     && duplicateChangePaths.length === 0
     && changedPathChecks.every((entry) => entry.digestsMatch && entry.requiresFreshCurrentness
       && Array.isArray(entry.meaningIdsChangedAtReviewedCut) && entry.meaningIdsChangedAtReviewedCut.length === 0
@@ -567,8 +637,8 @@ function ownerStatusJoin(historicalExit, currentDigests, ownerReview, materialSo
     && currentPaths.length === 405
     && missingPaths.length === 0
     && additionalPaths.length === 0
-    && digestChanges.length === 4
-    && digestChanges.length === ownerChanges.length
+    && digestChanges.length === 5
+    && digestChanges.length === allChanges.length
     && unapprovedChangedPaths.length === 0
     && changeRecordsValid
     && ownerReviewValid
@@ -587,7 +657,8 @@ function ownerStatusJoin(historicalExit, currentDigests, ownerReview, materialSo
     currentPathCount: currentPaths.length,
     unchangedPathCount: digestChanges.length <= historicalPaths.length ? historicalPaths.length - digestChanges.length - missingPaths.length : null,
     changedPathCount: digestChanges.length,
-    expectedChangedPathCount: ownerChanges.length,
+    expectedChangedPathCount: allChanges.length,
+    supplementalDelta: supplement,
     missingPathCount: missingPaths.length,
     additionalPathCount: additionalPaths.length,
     unapprovedChangedPathCount: unapprovedChangedPaths.length,
@@ -595,7 +666,7 @@ function ownerStatusJoin(historicalExit, currentDigests, ownerReview, materialSo
     additionalPaths,
     unapprovedChangedPaths,
     duplicateChangePaths,
-    meaningIdCount: ownerChanges.reduce((count, entry) => count + (entry.meaningIdsChangedAtReviewedCut?.length ?? 0), 0),
+    meaningIdCount: allChanges.reduce((count, entry) => count + (entry.meaningIdsChangedAtReviewedCut?.length ?? 0), 0),
     changedPathChecks,
   };
 }
@@ -787,7 +858,8 @@ function makeObservation({ suffix, testRun, p1ExitPath }) {
   const currentDigests = Object.fromEntries(Object.entries(technical.cells[0]?.fileContentDigests ?? {}));
   const phaseOwnerReview = pdp2OwnerReview(ownerDirections);
   const phaseOwnerChanges = phaseOwnerReview?.sourceChanges ?? [];
-  const pins = sourcePinReview(status, currentDigests, mdc20, phaseOwnerChanges);
+  const supplement = pdp3StatusGuardSupplement(historicalP2Exit, currentDigests);
+  const pins = sourcePinReview(status, currentDigests, mdc20, phaseOwnerChanges, supplement);
   const externalContracts = externalContractObservation(p1Exit);
   const observedCells = technical.cells.map((cell) => {
     const sourceSetFingerprint = hashValue({
@@ -858,12 +930,12 @@ function makeObservation({ suffix, testRun, p1ExitPath }) {
     ...(historicalStatusValid ? [] : ['HISTORICAL_PDP2_STATUS_INCONSISTENT_OR_OUTSTANDING_TASKS']),
     ...(populations.matchesHistoricalStatus && populations.componentFamilyIds.exactSetMatches ? [] : ['PDP2_CATALOG_POPULATIONS_OR_FAMILY_IDENTITIES_MISMATCH']),
     ...(mdc20.result?.status === 'PASS' && mdc20.pinReview?.unclassifiedChangedPins?.length === 0 ? [] : ['MDC20_DRIFT_DISPOSITION_NOT_PASS']),
-    ...(pins.changedPinCount === 4 && pins.expectedChangedPathsMatch && pins.unclassifiedChangedPins.length === 0 && pins.missingPinCount === 0 ? [] : ['PDP2_HISTORICAL_PIN_DRIFT_UNCLASSIFIED_OR_UNEXPECTED']),
+    ...(pins.changedPinCount === 5 && pins.supplementalDeltaCount === 1 && pins.expectedChangedPathsMatch && pins.unclassifiedChangedPins.length === 0 && pins.missingPinCount === 0 ? [] : ['PDP2_HISTORICAL_PIN_DRIFT_UNCLASSIFIED_OR_UNEXPECTED']),
     ...(ownershipJoin.status === 'PASS' ? [] : ['PDP2_OWNER_STATUS_JOIN_NOT_PASS']),
     ...externalContracts.blockers,
     ...(currentCellsPass ? [] : ['ONE_OR_MORE_PDP2_CELLS_NOT_CURRENT']),
     ...(testsPass ? [] : ['REQUIRED_PDP2_CHECKS_OR_SOURCE_BINDING_INVALID']),
-    ...(Object.keys(sourceSetByPath).length === 405 ? [] : ['PDP2_MATERIAL_PATH_DENOMINATOR_MISMATCH']),
+      ...(Object.keys(sourceSetByPath).length === 405 ? [] : ['PDP2_MATERIAL_PATH_DENOMINATOR_MISMATCH']),
   ];
   const currentnessPass = sourceBlockers.length === 0;
   const requiredChecks = testRun.outcomes;

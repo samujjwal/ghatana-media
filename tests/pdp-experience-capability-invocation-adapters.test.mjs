@@ -190,6 +190,8 @@ test("J06 grounded multimodal adapter submits only its selected exact COMMAND le
     jobSubmit,
   }), { valid: true, reason: "EXACT_TARGET_COMMAND_ADAPTER_SOURCE_ONLY" });
   assert.equal(adapter.runtimeAdmission, "NOT_ADMITTED");
+  assert.equal(operationsById.get(adapter.userActionOperationRef).actionRef, adapter.userActionRef);
+  assert.equal(resolveJobSubmitParameterSchema(operations, adapter.allowedCapabilityRefs[0], step.capabilityOptions[0].operationRefs[0], 1).valid, true);
 
   const wrongPurposeStep = structuredClone(step);
   const query = capabilitiesById.get("media.quality.inspect");
@@ -209,6 +211,42 @@ test("J06 grounded multimodal adapter submits only its selected exact COMMAND le
     operationsById,
     jobSubmit,
   }).valid, false);
+});
+
+test("J06 adapter rejects a broken action-operation-capability-wrapper join", () => {
+  const adapter = structuredClone(adapters.find((item) => item.id === "media.pdp3.invocation-adapter.j06-source-grounded.v1"));
+  const step = structuredClone(oracle.journeys.find((item) => item.journeyId === "J-06").steps[0]);
+  const sourceJourney = p0.journeys.find((item) => item.id === "J-06");
+  const context = { step, p0Journey: sourceJourney, capabilitiesById, operationsById, jobSubmit };
+  const wrongActionOperation = structuredClone(adapter);
+  wrongActionOperation.userActionOperationRef = "media.operation.capability.media-multimodal-observe-source-grounded";
+  assert.equal(validatePdp3JobSubmitAdapter(wrongActionOperation, context).valid, false, "the action operation cannot be replaced by the capability operation");
+
+  const ambiguousTargetStep = structuredClone(step);
+  ambiguousTargetStep.capabilityOptions[0].operationRefs.push("media.operation.job.submit.v1");
+  assert.equal(validatePdp3JobSubmitAdapter(adapter, { ...context, step: ambiguousTargetStep }).valid, false, "the selected capability target is exact and non-recursive");
+
+  const missingWrapperGuard = structuredClone(jobSubmit);
+  missingWrapperGuard.preconditions = missingWrapperGuard.preconditions.filter((item) => !item.includes("rights, consent"));
+  assert.equal(validatePdp3JobSubmitAdapter(adapter, { ...context, jobSubmit: missingWrapperGuard }).valid, false, "rights and consent are rechecked at the wrapper effect boundary");
+
+  const missingAuthorityOperations = new Map(operationsById);
+  const changedActionOperation = structuredClone(operationsById.get(adapter.userActionOperationRef));
+  changedActionOperation.authorityRefs = [];
+  missingAuthorityOperations.set(adapter.userActionOperationRef, changedActionOperation);
+  assert.equal(validatePdp3JobSubmitAdapter(adapter, { ...context, operationsById: missingAuthorityOperations }).valid, false, "the action operation retains exact identity and privileged-effect authority owners");
+
+  const duplicateJobSemantics = structuredClone(jobSubmit);
+  duplicateJobSemantics.effect = "Create a second logical job for an identical request key.";
+  assert.equal(validatePdp3JobSubmitAdapter(adapter, { ...context, jobSubmit: duplicateJobSemantics }).valid, false, "same-key replay cannot create a duplicate logical job");
+
+  const unsafeUnknown = structuredClone(adapter);
+  unsafeUnknown.finality.unknownOutcome = "mint a new request id and submit again";
+  assert.equal(validatePdp3JobSubmitAdapter(unsafeUnknown, context).valid, false, "unknown outcomes require same-identity reconciliation");
+
+  const blindRetry = structuredClone(jobSubmit);
+  blindRetry.retry.unknown = "blind retry with a fresh request id";
+  assert.equal(validatePdp3JobSubmitAdapter(adapter, { ...context, jobSubmit: blindRetry }).valid, false, "the wrapper cannot blind-retry ambiguous outcomes");
 });
 
 test("all six source-selected submit steps construct a request against the exact selected target schema", () => {
@@ -250,4 +288,39 @@ test("all six source-selected submit steps construct a request against the exact
     assert.equal(validateJobSubmitParameterContract(operations, wrongVersion).valid, false,
       `${journey.journeyId} cannot substitute another target version`);
   }
+});
+
+test("J06 closed wrapper request rejects missing source or purpose binding, recursion, untrusted labels, and ambiguous schema input", () => {
+  const capabilityRef = "media.multimodal.observe.source-grounded";
+  const operationRef = "media.operation.capability.media-multimodal-observe-source-grounded";
+  const valid = jobRequestFor(capabilityRef, operationRef);
+  assert.equal(validateJobSubmitParameterContract(operations, valid).valid, true);
+
+  const missingSource = structuredClone(valid);
+  missingSource.typedInputs.shift();
+  assert.equal(validateJobSubmitParameterContract(operations, missingSource).valid, false, "the exact immutable source input is required");
+
+  const missingAuthority = structuredClone(valid);
+  delete missingAuthority.purposeRef;
+  assert.equal(validateJobSubmitParameterContract(operations, missingAuthority).valid, false, "the exact purpose reference is required");
+
+  const recursive = structuredClone(valid);
+  recursive.targetOperationRef = "media.operation.job.submit.v1";
+  assert.equal(validateJobSubmitParameterContract(operations, recursive).valid, false, "job.submit cannot recursively target itself");
+
+  const untrustedActor = structuredClone(valid);
+  untrustedActor.actorRef = "media.creator";
+  assert.equal(validateJobSubmitParameterContract(operations, untrustedActor).valid, false, "caller-supplied actor labels are not accepted by the closed wrapper schema");
+
+  const wrongClosedSchema = structuredClone(valid);
+  wrongClosedSchema.parameters.unexpected = true;
+  assert.equal(validateJobSubmitParameterContract(operations, wrongClosedSchema).valid, false, "unknown target parameters reject");
+
+  const duplicateWrapper = structuredClone(operations);
+  duplicateWrapper.ownerDefinedOperationContracts.records.push(structuredClone(jobSubmit));
+  assert.equal(validateJobSubmitParameterContract(duplicateWrapper, valid).valid, false, "the wrapper owner contract must be unique");
+
+  const wrongVersion = structuredClone(valid);
+  wrongVersion.targetOperationVersion += 1;
+  assert.equal(validateJobSubmitParameterContract(operations, wrongVersion).valid, false, "target version substitution rejects");
 });

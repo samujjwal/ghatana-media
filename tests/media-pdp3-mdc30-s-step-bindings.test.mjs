@@ -61,11 +61,21 @@ test('MDC30 S01-S13 retain explicit source-bounded no-transition dispositions', 
   }
   const s06 = getRecord('J06', 1);
   assert.deepEqual(s06.stateRefs, [], 'S06 does not infer QUEUED from the unresolved operation join');
-  assert.match(s06.operationBindingBlocker, /MDC30-S-06/);
+  assert.equal(s06.operationBindingBlocker, undefined, 'the exact source-defined wrapper join is now bound');
+  assert.match(s06.mappingBasis, /three distinct operation roles/u);
+  assert.match(s06.mappingBasis, /media.operation.action.submit-validated-request/u);
+  assert.match(s06.mappingBasis, /media.operation.capability.media-multimodal-observe-source-grounded/u);
+  assert.match(s06.mappingBasis, /media.operation.job.submit.v1/u);
+  assert.match(s06.mappingBasis, /trusted tenant, principal and delegation/i);
+  assert.match(s06.mappingBasis, /rights, consent, purpose/u);
+  assert.match(s06.mappingBasis, /deadline and resource bounds/u);
+  assert.match(s06.mappingBasis, /UNKNOWN retains the same request identity/u);
+  assert.match(s06.mappingBasis, /does not establish a machine state or output/u);
   assert.ok(s06.sourceRefs.some((ref) => ref.includes('media.operation.action.submit-validated-request')));
   assert.ok(s06.sourceRefs.some((ref) => ref.includes('media.operation.capability.media-multimodal-observe-source-grounded')));
   assert.ok(s06.sourceRefs.some((ref) => ref.includes('media.operation.job.submit.v1')));
-  assert.match(getStep('J06', 1).transitionDisposition.reason, /job\.submit.*not established/i);
+  assert.ok(s06.sourceRefs.some((ref) => ref.includes('capability-invocation-adapters.yaml#records/@id=media.pdp3.invocation-adapter.j06-source-grounded.v1')));
+  assert.match(getStep('J06', 1).transitionDisposition.reason, /does not prove a P1 job state, QUEUED, execution, completion, or output availability/i);
 });
 
 test('MDC30 S14 binds T01 only to complete-upload under guarded finalization', () => {

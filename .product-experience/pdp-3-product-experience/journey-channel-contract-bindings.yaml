@@ -18,9 +18,9 @@
   "sourceBoundDefinitionOnlyOperationMappings": 6
   "allRuntimeAdmission": "NOT_ADMITTED"
   "sourceBoundHttpOperationMappings": 6
-  "logicalDefinitionOnlyEdges": 29
+  "logicalDefinitionOnlyEdges": 40
   "transportEquivalenceUnboundEdges": 61
-  "incompleteP1StateOrObservationEdges": 32
+  "incompleteP1StateOrObservationEdges": 21
 "channelGrammar":
   "media.channel.web":
     "consumerSurfaceId": "media.surface.web"
@@ -145,6 +145,14 @@
     "rejects": "Typed request/result/errors, authority/version, denied/unknown recovery, and finality source definitions and dispositions must remain populated."
   - "id": "MDC30-CHANNEL-NEG-010-MALFORMED-OBSERVATION-OPERATION-JOIN"
     "rejects": "A typed observation is source-bound only when its exact P1 operation joins through an owner-authored journey-purpose binding."
+  - "id": "MDC30-CHANNEL-NEG-011-EMPTY-NO-P1-STATE-PROOF"
+    "rejects": "An empty state selector or absent per-operation proof cannot establish the no-P1-state branch."
+  - "id": "MDC30-CHANNEL-NEG-012-COMMAND-MISCLASSIFIED-NO-STATE"
+    "rejects": "A command or stateful operation cannot be represented as NO_P1_MACHINE_STATE."
+  - "id": "MDC30-CHANNEL-NEG-013-PARTIAL-OPERATION-PROOF-COVERAGE"
+    "rejects": "A logical edge requires an exact proof for every listed P1 operation, with no missing, duplicate, or extra operation."
+  - "id": "MDC30-CHANNEL-NEG-014-FORGED-LOCAL-SESSION-NO-TRANSITION"
+    "rejects": "A local session proof must resolve to the exact source step and local effect contract with no PDP-1 transition."
 "edges":
   - "id": "media.pdp3.channel-binding.j01.web.v1"
     "taskId": "MDC30-C-01"
@@ -4082,6 +4090,127 @@
       - ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0"
       - ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/1"
       - ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/2"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"
+      - ".product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml#records/@id=media.pdp3.invocation-adapter.j06-source-grounded.v1"
+    "p1OperationStateProofs":
+      - operationRef: media.operation-slice.inspect-provenance
+        disposition: EXACT_TYPED_OBSERVATION_SOURCE_REF
+        purposeBindingRefs:
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-03.v1
+        observationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1
+      - operationRef: media.operation.action.inspect-output-preview-and-version
+        disposition: NO_P1_MACHINE_STATE
+        purposeBindingRefs:
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-02.v1
+        noP1MachineState:
+          sourceRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality
+          noEffectRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect
+          resultRef: media.operation-profile.scoped-query.v1#resultEnvelope
+          authorityRefs:
+            - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+            - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+          versionRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/contractVersion
+          operationVersion: 1
+          deniedUnknownRecoveryRefs:
+            - .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+            - media.operation-profile.scoped-query.v1#errors
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery
+          finalityRefs:
+            - media.operation-profile.scoped-query.v1#resultEnvelope
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceFinality
+      - operationRef: media.operation.action.submit-validated-request
+        disposition: NO_P1_MACHINE_TRANSITION_TYPED_RESULT
+        purposeBindingRefs:
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1
+        noP1MachineTransition:
+          sourceRefs:
+            - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1/transitionDisposition
+            - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1/stateRefs
+            - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1/transitionRefs
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/contractVersion
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/resultObservationSemantics
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/operationVersion
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/finality
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/errors
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/retry
+            - .product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml#records/@id=media.pdp3.invocation-adapter.j06-source-grounded.v1
+            - .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/sourceFinality
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/errorSchemaRef
+          operationResultRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+          wrapperResultRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema
+          wrapperOperationRef: media.operation.job.submit.v1
+          wrapperOperationVersion: 1
+          operationVersion: 1
+          authorityRefs:
+            - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+            - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+          versionRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/contractVersion
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/operationVersion
+          deniedUnknownRecoveryRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/errors
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/retry
+            - media.operation-profile.async-job-command.v1#errors
+          finalityRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/resultObservationSemantics
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/finality
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/sourceFinality
+          resultDisposition: CONTRACT_ONLY; REQUEST_IDENTITY_RECEIPT_IS_NOT_A_JOB_STATE_OR_TYPED_OUTPUT
+      - operationRef: media.operation.capability.media-multimodal-observe-source-grounded
+        disposition: NO_P1_MACHINE_TRANSITION_TYPED_RESULT
+        purposeBindingRefs:
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1
+        noP1MachineTransition:
+          sourceRefs:
+            - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1/transitionDisposition
+            - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1/stateRefs
+            - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1/transitionRefs
+            - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded
+            - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/resultSchema
+            - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/operationVersion
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/resultObservationSemantics
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/operationVersion
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/finality
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/errors
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/retry
+            - .product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml#records/@id=media.pdp3.invocation-adapter.j06-source-grounded.v1
+            - .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
+            - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/admission
+          operationResultRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/resultSchema
+          wrapperResultRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema
+          wrapperOperationRef: media.operation.job.submit.v1
+          wrapperOperationVersion: 1
+          operationVersion: 1
+          authorityRefs:
+            - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+            - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+          versionRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/operationVersion
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/operationVersion
+          deniedUnknownRecoveryRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/errors
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/retry
+          finalityRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/resultObservationSemantics
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/finality
+            - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/resultSchema
+          resultDisposition: CONTRACT_ONLY; REQUEST_IDENTITY_RECEIPT_IS_NOT_A_JOB_STATE_OR_TYPED_OUTPUT
     "p1AuthorityRefs":
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
@@ -4151,7 +4280,7 @@
       - "media.operation.action.submit-validated-request"
       - "media.operation.capability.media-multimodal-observe-source-grounded"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-06"
     "pdp1OperationRefs":
@@ -4159,7 +4288,8 @@
       - "media.operation.action.inspect-output-preview-and-version"
       - "media.operation.action.submit-validated-request"
       - "media.operation.capability.media-multimodal-observe-source-grounded"
-    "pdp1StateOrObservationRefs": []
+    "pdp1StateOrObservationRefs":
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/HTTP"
     "typedRequestResultErrors":
       "sourceRefs":
@@ -4211,7 +4341,7 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-06.j-06.step-01"
@@ -4294,6 +4424,127 @@
       - ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0"
       - ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/1"
       - ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/2"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"
+      - ".product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml#records/@id=media.pdp3.invocation-adapter.j06-source-grounded.v1"
+    "p1OperationStateProofs":
+      - operationRef: media.operation-slice.inspect-provenance
+        disposition: EXACT_TYPED_OBSERVATION_SOURCE_REF
+        purposeBindingRefs:
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-03.v1
+        observationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1
+      - operationRef: media.operation.action.inspect-output-preview-and-version
+        disposition: NO_P1_MACHINE_STATE
+        purposeBindingRefs:
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-02.v1
+        noP1MachineState:
+          sourceRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality
+          noEffectRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect
+          resultRef: media.operation-profile.scoped-query.v1#resultEnvelope
+          authorityRefs:
+            - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+            - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+          versionRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/contractVersion
+          operationVersion: 1
+          deniedUnknownRecoveryRefs:
+            - .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+            - media.operation-profile.scoped-query.v1#errors
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery
+          finalityRefs:
+            - media.operation-profile.scoped-query.v1#resultEnvelope
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceFinality
+      - operationRef: media.operation.action.submit-validated-request
+        disposition: NO_P1_MACHINE_TRANSITION_TYPED_RESULT
+        purposeBindingRefs:
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1
+        noP1MachineTransition:
+          sourceRefs:
+            - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1/transitionDisposition
+            - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1/stateRefs
+            - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1/transitionRefs
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/contractVersion
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/resultObservationSemantics
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/operationVersion
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/finality
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/errors
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/retry
+            - .product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml#records/@id=media.pdp3.invocation-adapter.j06-source-grounded.v1
+            - .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/sourceFinality
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/errorSchemaRef
+          operationResultRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+          wrapperResultRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema
+          wrapperOperationRef: media.operation.job.submit.v1
+          wrapperOperationVersion: 1
+          operationVersion: 1
+          authorityRefs:
+            - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+            - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+          versionRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/contractVersion
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/operationVersion
+          deniedUnknownRecoveryRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/errors
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/retry
+            - media.operation-profile.async-job-command.v1#errors
+          finalityRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/resultObservationSemantics
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/finality
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/sourceFinality
+          resultDisposition: CONTRACT_ONLY; REQUEST_IDENTITY_RECEIPT_IS_NOT_A_JOB_STATE_OR_TYPED_OUTPUT
+      - operationRef: media.operation.capability.media-multimodal-observe-source-grounded
+        disposition: NO_P1_MACHINE_TRANSITION_TYPED_RESULT
+        purposeBindingRefs:
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1
+        noP1MachineTransition:
+          sourceRefs:
+            - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1/transitionDisposition
+            - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1/stateRefs
+            - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1/transitionRefs
+            - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded
+            - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/resultSchema
+            - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/operationVersion
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/resultObservationSemantics
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/operationVersion
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/finality
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/errors
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/retry
+            - .product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml#records/@id=media.pdp3.invocation-adapter.j06-source-grounded.v1
+            - .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
+            - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/admission
+          operationResultRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/resultSchema
+          wrapperResultRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema
+          wrapperOperationRef: media.operation.job.submit.v1
+          wrapperOperationVersion: 1
+          operationVersion: 1
+          authorityRefs:
+            - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+            - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+          versionRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/operationVersion
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/operationVersion
+          deniedUnknownRecoveryRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/errors
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/retry
+          finalityRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/resultObservationSemantics
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/finality
+            - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/resultSchema
+          resultDisposition: CONTRACT_ONLY; REQUEST_IDENTITY_RECEIPT_IS_NOT_A_JOB_STATE_OR_TYPED_OUTPUT
     "p1AuthorityRefs":
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
@@ -4356,7 +4607,7 @@
       - "media.operation.action.submit-validated-request"
       - "media.operation.capability.media-multimodal-observe-source-grounded"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-06"
     "pdp1OperationRefs":
@@ -4364,7 +4615,8 @@
       - "media.operation.action.inspect-output-preview-and-version"
       - "media.operation.action.submit-validated-request"
       - "media.operation.capability.media-multimodal-observe-source-grounded"
-    "pdp1StateOrObservationRefs": []
+    "pdp1StateOrObservationRefs":
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/gRPC"
     "typedRequestResultErrors":
       "sourceRefs":
@@ -4411,7 +4663,7 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-06.j-06.step-01"
@@ -4486,6 +4738,127 @@
       - ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0"
       - ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/1"
       - ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/2"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"
+      - ".product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml#records/@id=media.pdp3.invocation-adapter.j06-source-grounded.v1"
+    "p1OperationStateProofs":
+      - operationRef: media.operation-slice.inspect-provenance
+        disposition: EXACT_TYPED_OBSERVATION_SOURCE_REF
+        purposeBindingRefs:
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-03.v1
+        observationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1
+      - operationRef: media.operation.action.inspect-output-preview-and-version
+        disposition: NO_P1_MACHINE_STATE
+        purposeBindingRefs:
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-02.v1
+        noP1MachineState:
+          sourceRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality
+          noEffectRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect
+          resultRef: media.operation-profile.scoped-query.v1#resultEnvelope
+          authorityRefs:
+            - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+            - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+          versionRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/contractVersion
+          operationVersion: 1
+          deniedUnknownRecoveryRefs:
+            - .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+            - media.operation-profile.scoped-query.v1#errors
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery
+          finalityRefs:
+            - media.operation-profile.scoped-query.v1#resultEnvelope
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceFinality
+      - operationRef: media.operation.action.submit-validated-request
+        disposition: NO_P1_MACHINE_TRANSITION_TYPED_RESULT
+        purposeBindingRefs:
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1
+        noP1MachineTransition:
+          sourceRefs:
+            - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1/transitionDisposition
+            - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1/stateRefs
+            - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1/transitionRefs
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/contractVersion
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/resultObservationSemantics
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/operationVersion
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/finality
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/errors
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/retry
+            - .product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml#records/@id=media.pdp3.invocation-adapter.j06-source-grounded.v1
+            - .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/sourceFinality
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/errorSchemaRef
+          operationResultRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+          wrapperResultRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema
+          wrapperOperationRef: media.operation.job.submit.v1
+          wrapperOperationVersion: 1
+          operationVersion: 1
+          authorityRefs:
+            - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+            - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+          versionRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/contractVersion
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/operationVersion
+          deniedUnknownRecoveryRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/errors
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/retry
+            - media.operation-profile.async-job-command.v1#errors
+          finalityRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/resultObservationSemantics
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/finality
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/sourceFinality
+          resultDisposition: CONTRACT_ONLY; REQUEST_IDENTITY_RECEIPT_IS_NOT_A_JOB_STATE_OR_TYPED_OUTPUT
+      - operationRef: media.operation.capability.media-multimodal-observe-source-grounded
+        disposition: NO_P1_MACHINE_TRANSITION_TYPED_RESULT
+        purposeBindingRefs:
+          - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1
+        noP1MachineTransition:
+          sourceRefs:
+            - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1/transitionDisposition
+            - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1/stateRefs
+            - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1/transitionRefs
+            - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded
+            - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/resultSchema
+            - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/operationVersion
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/resultObservationSemantics
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/operationVersion
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/finality
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/errors
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/retry
+            - .product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml#records/@id=media.pdp3.invocation-adapter.j06-source-grounded.v1
+            - .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
+            - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/admission
+          operationResultRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/resultSchema
+          wrapperResultRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema
+          wrapperOperationRef: media.operation.job.submit.v1
+          wrapperOperationVersion: 1
+          operationVersion: 1
+          authorityRefs:
+            - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+            - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+          versionRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/operationVersion
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/operationVersion
+          deniedUnknownRecoveryRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/errors
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/retry
+          finalityRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/resultObservationSemantics
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/finality
+            - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/resultSchema
+          resultDisposition: CONTRACT_ONLY; REQUEST_IDENTITY_RECEIPT_IS_NOT_A_JOB_STATE_OR_TYPED_OUTPUT
     "p1AuthorityRefs":
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
@@ -4547,7 +4920,7 @@
       - "media.operation.action.submit-validated-request"
       - "media.operation.capability.media-multimodal-observe-source-grounded"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-06"
     "pdp1OperationRefs":
@@ -4555,7 +4928,8 @@
       - "media.operation.action.inspect-output-preview-and-version"
       - "media.operation.action.submit-validated-request"
       - "media.operation.capability.media-multimodal-observe-source-grounded"
-    "pdp1StateOrObservationRefs": []
+    "pdp1StateOrObservationRefs":
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/headless"
     "typedRequestResultErrors":
       "sourceRefs":
@@ -4603,7 +4977,7 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-06.j-06.step-01"
@@ -4709,7 +5083,7 @@
       - "media.operation.action.compare-candidate-on-metric"
       - "media.operation.action.inspect-output-preview-and-version"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-07"
     "pdp1OperationRefs":
@@ -4762,7 +5136,127 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "p1OperationStateProofs": [
+      {
+        "operationRef": "media.operation.action.compare-candidate-on-metric",
+        "disposition": "NO_P1_MACHINE_STATE",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j07-step-03.v1"
+        ],
+        "noP1MachineState": {
+          "sourceRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceEffect",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+          ],
+          "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceEffect",
+          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
+          ],
+          "versionRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/contractVersion"
+          ],
+          "operationVersion": 1,
+          "deniedUnknownRecoveryRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
+            "media.operation-profile.scoped-query.v1#errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"
+          ],
+          "finalityRefs": [
+            "media.operation-profile.scoped-query.v1#resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceFinality"
+          ]
+        }
+      },
+      {
+        "operationRef": "media.operation.action.inspect-output-preview-and-version",
+        "disposition": "NO_P1_MACHINE_STATE",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j07-step-04.v1"
+        ],
+        "noP1MachineState": {
+          "sourceRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+          ],
+          "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect",
+          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
+          ],
+          "versionRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/contractVersion"
+          ],
+          "operationVersion": 1,
+          "deniedUnknownRecoveryRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
+            "media.operation-profile.scoped-query.v1#errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"
+          ],
+          "finalityRefs": [
+            "media.operation-profile.scoped-query.v1#resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceFinality"
+          ]
+        }
+      }
+    ]
+    "localStepNoP1MachineProofs": [
+      {
+        "stepIndex": 0,
+        "stepRef": ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml#/steps/0",
+        "actionRef": "media.action.choose-admitted-audio-operation",
+        "disposition": "LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j07-step-01.v1"
+        ],
+        "localEffectContractRef": ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-07.step-01.v1",
+        "sourceRefs": [
+          ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml#/steps/0",
+          ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml#/steps/0/stepDefinitionSemantics/action",
+          ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml#/steps/0/stepDefinitionSemantics/transitionApplicability",
+          ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-07.step-01.v1",
+          ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-07.step-01.v1/effect",
+          ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-07.step-01.v1/finality"
+        ]
+      },
+      {
+        "stepIndex": 1,
+        "stepRef": ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml#/steps/1",
+        "actionRef": "media.action.choose-media-improvement-intent",
+        "disposition": "LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j07-step-02.v1"
+        ],
+        "localEffectContractRef": ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-07.step-02.v1",
+        "sourceRefs": [
+          ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml#/steps/1",
+          ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml#/steps/1/stepDefinitionSemantics/action",
+          ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml#/steps/1/stepDefinitionSemantics/transitionApplicability",
+          ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-07.step-02.v1",
+          ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-07.step-02.v1/effect",
+          ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-07.step-02.v1/finality"
+        ]
+      }
+    ]
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-07.j-07.step-01"
@@ -6096,7 +6590,7 @@
     "unresolvedOperationRefs":
       - "media.operation.action.compare-candidate-on-metric"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-11"
     "pdp1OperationRefs":
@@ -6145,7 +6639,87 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "p1OperationStateProofs": [
+      {
+        "operationRef": "media.operation.action.compare-candidate-on-metric",
+        "disposition": "NO_P1_MACHINE_STATE",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j11-step-03.v1"
+        ],
+        "noP1MachineState": {
+          "sourceRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceEffect",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+          ],
+          "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceEffect",
+          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
+          ],
+          "versionRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/contractVersion"
+          ],
+          "operationVersion": 1,
+          "deniedUnknownRecoveryRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
+            "media.operation-profile.scoped-query.v1#errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"
+          ],
+          "finalityRefs": [
+            "media.operation-profile.scoped-query.v1#resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceFinality"
+          ]
+        }
+      }
+    ]
+    "localStepNoP1MachineProofs": [
+      {
+        "stepIndex": 0,
+        "stepRef": ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml#/steps/0",
+        "actionRef": "media.action.edit-admitted-adjustment",
+        "disposition": "LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j11-step-01.v1"
+        ],
+        "localEffectContractRef": ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-11.step-01.v1",
+        "sourceRefs": [
+          ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml#/steps/0",
+          ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml#/steps/0/stepDefinitionSemantics/action",
+          ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml#/steps/0/stepDefinitionSemantics/transitionApplicability",
+          ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-11.step-01.v1",
+          ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-11.step-01.v1/effect",
+          ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-11.step-01.v1/finality"
+        ]
+      },
+      {
+        "stepIndex": 1,
+        "stepRef": ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml#/steps/1",
+        "actionRef": "media.action.edit-mask-boundary",
+        "disposition": "LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j11-step-02.v1"
+        ],
+        "localEffectContractRef": ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-11.step-02.v1",
+        "sourceRefs": [
+          ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml#/steps/1",
+          ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml#/steps/1/stepDefinitionSemantics/action",
+          ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml#/steps/1/stepDefinitionSemantics/transitionApplicability",
+          ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-11.step-02.v1",
+          ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-11.step-02.v1/effect",
+          ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-11.step-02.v1/finality"
+        ]
+      }
+    ]
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-11.j-11.step-01"
@@ -6247,7 +6821,7 @@
       - "media.operation.action.compare-candidate-on-metric"
       - "media.operation.action.inspect-output-preview-and-version"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-12"
     "pdp1OperationRefs":
@@ -6298,7 +6872,109 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "p1OperationStateProofs": [
+      {
+        "operationRef": "media.operation.action.compare-candidate-on-metric",
+        "disposition": "NO_P1_MACHINE_STATE",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j12-step-02.v1"
+        ],
+        "noP1MachineState": {
+          "sourceRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceEffect",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+          ],
+          "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceEffect",
+          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
+          ],
+          "versionRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/contractVersion"
+          ],
+          "operationVersion": 1,
+          "deniedUnknownRecoveryRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
+            "media.operation-profile.scoped-query.v1#errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"
+          ],
+          "finalityRefs": [
+            "media.operation-profile.scoped-query.v1#resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceFinality"
+          ]
+        }
+      },
+      {
+        "operationRef": "media.operation.action.inspect-output-preview-and-version",
+        "disposition": "NO_P1_MACHINE_STATE",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j12-step-03.v1"
+        ],
+        "noP1MachineState": {
+          "sourceRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+          ],
+          "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect",
+          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
+          ],
+          "versionRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/contractVersion"
+          ],
+          "operationVersion": 1,
+          "deniedUnknownRecoveryRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
+            "media.operation-profile.scoped-query.v1#errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"
+          ],
+          "finalityRefs": [
+            "media.operation-profile.scoped-query.v1#resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceFinality"
+          ]
+        }
+      }
+    ]
+    "localStepNoP1MachineProofs": [
+      {
+        "stepIndex": 0,
+        "stepRef": ".product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/0",
+        "actionRef": "media.action.edit-keyframe",
+        "disposition": "LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j12-step-01.v1"
+        ],
+        "localEffectContractRef": ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-12.step-01.v1",
+        "sourceRefs": [
+          ".product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/0",
+          ".product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/0/stepDefinitionSemantics/action",
+          ".product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/0/stepDefinitionSemantics/transitionApplicability",
+          ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-12.step-01.v1",
+          ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-12.step-01.v1/effect",
+          ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-12.step-01.v1/finality"
+        ]
+      }
+    ]
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-12.j-12.step-01"
@@ -6958,7 +7634,7 @@
       - "media.operation.action.inspect-simulation-result"
       - "media.operation.action.review-processing-parameters"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-15"
     "pdp1OperationRefs":
@@ -7015,7 +7691,169 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "p1OperationStateProofs": [
+      {
+        "operationRef": "media.operation.action.compare-candidate-on-metric",
+        "disposition": "NO_P1_MACHINE_STATE",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j15-step-04.v1"
+        ],
+        "noP1MachineState": {
+          "sourceRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceEffect",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+          ],
+          "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceEffect",
+          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
+          ],
+          "versionRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/contractVersion"
+          ],
+          "operationVersion": 1,
+          "deniedUnknownRecoveryRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
+            "media.operation-profile.scoped-query.v1#errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"
+          ],
+          "finalityRefs": [
+            "media.operation-profile.scoped-query.v1#resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceFinality"
+          ]
+        }
+      },
+      {
+        "operationRef": "media.operation.action.inspect-quality-evidence",
+        "disposition": "NO_P1_MACHINE_STATE",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j15-step-03.v1"
+        ],
+        "noP1MachineState": {
+          "sourceRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/sourceEffect",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/resultSchema",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+          ],
+          "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/sourceEffect",
+          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
+          ],
+          "versionRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/contractVersion"
+          ],
+          "operationVersion": 1,
+          "deniedUnknownRecoveryRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
+            "media.operation-profile.scoped-query.v1#errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"
+          ],
+          "finalityRefs": [
+            "media.operation-profile.scoped-query.v1#resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/sourceFinality"
+          ]
+        }
+      },
+      {
+        "operationRef": "media.operation.action.inspect-simulation-result",
+        "disposition": "NO_P1_MACHINE_STATE",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j15-step-01.v1"
+        ],
+        "noP1MachineState": {
+          "sourceRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/sourceEffect",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/resultSchema",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+          ],
+          "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/sourceEffect",
+          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
+          ],
+          "versionRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/contractVersion"
+          ],
+          "operationVersion": 1,
+          "deniedUnknownRecoveryRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
+            "media.operation-profile.scoped-query.v1#errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"
+          ],
+          "finalityRefs": [
+            "media.operation-profile.scoped-query.v1#resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/sourceFinality"
+          ]
+        }
+      },
+      {
+        "operationRef": "media.operation.action.review-processing-parameters",
+        "disposition": "NO_P1_MACHINE_STATE",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j15-step-02.v1"
+        ],
+        "noP1MachineState": {
+          "sourceRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/sourceEffect",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/resultSchema",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+          ],
+          "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/sourceEffect",
+          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
+          ],
+          "versionRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/contractVersion"
+          ],
+          "operationVersion": 1,
+          "deniedUnknownRecoveryRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
+            "media.operation-profile.scoped-query.v1#errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"
+          ],
+          "finalityRefs": [
+            "media.operation-profile.scoped-query.v1#resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/sourceFinality"
+          ]
+        }
+      }
+    ]
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-15.j-15.step-01"
@@ -7156,7 +7994,7 @@
       - "media.operation.action.inspect-simulation-result"
       - "media.operation.action.review-processing-parameters"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-15"
     "pdp1OperationRefs":
@@ -7213,7 +8051,169 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "p1OperationStateProofs": [
+      {
+        "operationRef": "media.operation.action.compare-candidate-on-metric",
+        "disposition": "NO_P1_MACHINE_STATE",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j15-step-04.v1"
+        ],
+        "noP1MachineState": {
+          "sourceRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceEffect",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+          ],
+          "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceEffect",
+          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
+          ],
+          "versionRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/contractVersion"
+          ],
+          "operationVersion": 1,
+          "deniedUnknownRecoveryRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
+            "media.operation-profile.scoped-query.v1#errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"
+          ],
+          "finalityRefs": [
+            "media.operation-profile.scoped-query.v1#resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceFinality"
+          ]
+        }
+      },
+      {
+        "operationRef": "media.operation.action.inspect-quality-evidence",
+        "disposition": "NO_P1_MACHINE_STATE",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j15-step-03.v1"
+        ],
+        "noP1MachineState": {
+          "sourceRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/sourceEffect",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/resultSchema",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+          ],
+          "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/sourceEffect",
+          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
+          ],
+          "versionRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/contractVersion"
+          ],
+          "operationVersion": 1,
+          "deniedUnknownRecoveryRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
+            "media.operation-profile.scoped-query.v1#errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"
+          ],
+          "finalityRefs": [
+            "media.operation-profile.scoped-query.v1#resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/sourceFinality"
+          ]
+        }
+      },
+      {
+        "operationRef": "media.operation.action.inspect-simulation-result",
+        "disposition": "NO_P1_MACHINE_STATE",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j15-step-01.v1"
+        ],
+        "noP1MachineState": {
+          "sourceRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/sourceEffect",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/resultSchema",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+          ],
+          "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/sourceEffect",
+          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
+          ],
+          "versionRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/contractVersion"
+          ],
+          "operationVersion": 1,
+          "deniedUnknownRecoveryRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
+            "media.operation-profile.scoped-query.v1#errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"
+          ],
+          "finalityRefs": [
+            "media.operation-profile.scoped-query.v1#resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/sourceFinality"
+          ]
+        }
+      },
+      {
+        "operationRef": "media.operation.action.review-processing-parameters",
+        "disposition": "NO_P1_MACHINE_STATE",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j15-step-02.v1"
+        ],
+        "noP1MachineState": {
+          "sourceRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/sourceEffect",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/resultSchema",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+          ],
+          "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/sourceEffect",
+          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
+          ],
+          "versionRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/contractVersion"
+          ],
+          "operationVersion": 1,
+          "deniedUnknownRecoveryRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
+            "media.operation-profile.scoped-query.v1#errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"
+          ],
+          "finalityRefs": [
+            "media.operation-profile.scoped-query.v1#resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/sourceFinality"
+          ]
+        }
+      }
+    ]
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-15.j-15.step-01"
@@ -7694,7 +8694,7 @@
       - "media.operation.action.inspect-output-preview-and-version"
       - "media.operation.action.inspect-quality-evidence"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-17"
     "pdp1OperationRefs":
@@ -7747,7 +8747,125 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "p1OperationStateProofs": [
+      {
+        "operationRef": "media.operation.action.inspect-output-preview-and-version",
+        "disposition": "NO_P1_MACHINE_STATE",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j17-step-04.v1"
+        ],
+        "noP1MachineState": {
+          "sourceRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+          ],
+          "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect",
+          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
+          ],
+          "versionRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/contractVersion"
+          ],
+          "operationVersion": 1,
+          "deniedUnknownRecoveryRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
+            "media.operation-profile.scoped-query.v1#errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"
+          ],
+          "finalityRefs": [
+            "media.operation-profile.scoped-query.v1#resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceFinality"
+          ]
+        }
+      },
+      {
+        "operationRef": "media.operation.action.inspect-quality-evidence",
+        "disposition": "NO_P1_MACHINE_STATE",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j17-step-03.v1"
+        ],
+        "noP1MachineState": {
+          "sourceRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/sourceEffect",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/resultSchema",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+          ],
+          "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/sourceEffect",
+          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
+          ],
+          "versionRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/contractVersion"
+          ],
+          "operationVersion": 1,
+          "deniedUnknownRecoveryRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
+            "media.operation-profile.scoped-query.v1#errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"
+          ],
+          "finalityRefs": [
+            "media.operation-profile.scoped-query.v1#resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/sourceFinality"
+          ]
+        }
+      }
+    ]
+    "localStepNoP1MachineProofs": [
+      {
+        "stepIndex": 0,
+        "stepRef": ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml#/steps/0",
+        "actionRef": "media.action.choose-admitted-audio-operation",
+        "disposition": "LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j17-step-01.v1"
+        ],
+        "localEffectContractRef": ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-17.step-01.v1",
+        "sourceRefs": [
+          ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml#/steps/0",
+          ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml#/steps/0/stepDefinitionSemantics/action",
+          ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml#/steps/0/stepDefinitionSemantics/transitionApplicability",
+          ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-17.step-01.v1",
+          ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-17.step-01.v1/inputContract/effectBoundary"
+        ]
+      },
+      {
+        "stepIndex": 1,
+        "stepRef": ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml#/steps/1",
+        "actionRef": "media.action.edit-audio-mix-controls",
+        "disposition": "LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j17-step-02.v1"
+        ],
+        "localEffectContractRef": ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-17.step-02.v1",
+        "sourceRefs": [
+          ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml#/steps/1",
+          ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml#/steps/1/stepDefinitionSemantics/action",
+          ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml#/steps/1/stepDefinitionSemantics/transitionApplicability",
+          ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-17.step-02.v1",
+          ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-17.step-02.v1/inputContract/effectBoundary"
+        ]
+      }
+    ]
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-17.j-17.step-01"
@@ -8682,6 +9800,7 @@
       - ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/steps/0"
       - ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/steps/1"
       - ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/steps/2"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"
     "p1AuthorityRefs":
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
@@ -8741,14 +9860,15 @@
       - "media.operation.action.inspect-output-preview-and-version"
       - "media.operation.action.inspect-version-and-review-scope"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-21"
     "pdp1OperationRefs":
       - "media.operation-slice.inspect-provenance"
       - "media.operation.action.inspect-output-preview-and-version"
       - "media.operation.action.inspect-version-and-review-scope"
-    "pdp1StateOrObservationRefs": []
+    "pdp1StateOrObservationRefs":
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/GUI"
     "typedRequestResultErrors":
       "sourceRefs":
@@ -8795,7 +9915,97 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "p1OperationStateProofs": [
+      {
+        "operationRef": "media.operation-slice.inspect-provenance",
+        "disposition": "EXACT_TYPED_OBSERVATION_SOURCE_REF",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-03.v1"
+        ],
+        "observationRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"
+      },
+      {
+        "operationRef": "media.operation.action.inspect-output-preview-and-version",
+        "disposition": "NO_P1_MACHINE_STATE",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-02.v1"
+        ],
+        "noP1MachineState": {
+          "sourceRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+          ],
+          "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect",
+          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
+          ],
+          "versionRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/contractVersion"
+          ],
+          "operationVersion": 1,
+          "deniedUnknownRecoveryRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
+            "media.operation-profile.scoped-query.v1#errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"
+          ],
+          "finalityRefs": [
+            "media.operation-profile.scoped-query.v1#resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceFinality"
+          ]
+        }
+      },
+      {
+        "operationRef": "media.operation.action.inspect-version-and-review-scope",
+        "disposition": "NO_P1_MACHINE_STATE",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-01.v1"
+        ],
+        "noP1MachineState": {
+          "sourceRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceEffect",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/resultSchema",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+          ],
+          "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceEffect",
+          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
+          ],
+          "versionRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/contractVersion"
+          ],
+          "operationVersion": 1,
+          "deniedUnknownRecoveryRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
+            "media.operation-profile.scoped-query.v1#errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"
+          ],
+          "finalityRefs": [
+            "media.operation-profile.scoped-query.v1#resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceFinality"
+          ]
+        }
+      }
+    ]
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-21.j-21.step-01"
@@ -8859,6 +10069,7 @@
       - ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/steps/0"
       - ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/steps/1"
       - ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/steps/2"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"
     "p1AuthorityRefs":
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
@@ -8918,14 +10129,15 @@
       - "media.operation.action.inspect-output-preview-and-version"
       - "media.operation.action.inspect-version-and-review-scope"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-21"
     "pdp1OperationRefs":
       - "media.operation-slice.inspect-provenance"
       - "media.operation.action.inspect-output-preview-and-version"
       - "media.operation.action.inspect-version-and-review-scope"
-    "pdp1StateOrObservationRefs": []
+    "pdp1StateOrObservationRefs":
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/headless"
     "typedRequestResultErrors":
       "sourceRefs":
@@ -8972,7 +10184,97 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "p1OperationStateProofs": [
+      {
+        "operationRef": "media.operation-slice.inspect-provenance",
+        "disposition": "EXACT_TYPED_OBSERVATION_SOURCE_REF",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-03.v1"
+        ],
+        "observationRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"
+      },
+      {
+        "operationRef": "media.operation.action.inspect-output-preview-and-version",
+        "disposition": "NO_P1_MACHINE_STATE",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-02.v1"
+        ],
+        "noP1MachineState": {
+          "sourceRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+          ],
+          "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect",
+          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
+          ],
+          "versionRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/contractVersion"
+          ],
+          "operationVersion": 1,
+          "deniedUnknownRecoveryRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
+            "media.operation-profile.scoped-query.v1#errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"
+          ],
+          "finalityRefs": [
+            "media.operation-profile.scoped-query.v1#resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceFinality"
+          ]
+        }
+      },
+      {
+        "operationRef": "media.operation.action.inspect-version-and-review-scope",
+        "disposition": "NO_P1_MACHINE_STATE",
+        "purposeBindingRefs": [
+          ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-01.v1"
+        ],
+        "noP1MachineState": {
+          "sourceRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceEffect",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/resultSchema",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+          ],
+          "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceEffect",
+          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+            ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
+          ],
+          "versionRefs": [
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/contractVersion"
+          ],
+          "operationVersion": 1,
+          "deniedUnknownRecoveryRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
+            "media.operation-profile.scoped-query.v1#errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"
+          ],
+          "finalityRefs": [
+            "media.operation-profile.scoped-query.v1#resultEnvelope",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceFinality"
+          ]
+        }
+      }
+    ]
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-21.j-21.step-01"

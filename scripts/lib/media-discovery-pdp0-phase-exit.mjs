@@ -1,3 +1,7 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 const EXPECTED_SCOPE = {
   physicalCandidates: 26,
   semanticCompositions: 6,
@@ -20,10 +24,12 @@ const REVIEWED_PDP0_CHANGES = new Set([
   '.product-experience/surface-registry.yaml',
   'apps/media-experience-explorer/specification-artifacts.json',
 ]);
+const SUPPLEMENTAL_IMPACT_PATH = 'docs/implementation/observations/media-discovery-predecessor-impact-pdp3-status-guard-2026-10-14-r1.json';
+const SUPPLEMENTAL_DECISION = JSON.parse(fs.readFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../', SUPPLEMENTAL_IMPACT_PATH), 'utf8'));
 
 const empty = (value) => Array.isArray(value) && value.length === 0;
 
-function validateCurrentCutOwnerDirections(acceptance, technicalCurrentness, historicalPdp0Exit) {
+function validateCurrentCutOwnerDirections(acceptance, technicalCurrentness, historicalPdp0Exit, supplementalDecision = SUPPLEMENTAL_DECISION) {
   const blockers = [];
   const review = acceptance?.predecessorImpactReviews?.find((entry) => entry.phase === 'PDP-0');
   const expectedScope = {
@@ -65,9 +71,44 @@ function validateCurrentCutOwnerDirections(acceptance, technicalCurrentness, his
   const previousDigests = historicalPdp0Exit?.sourceCurrentness?.sourceContentDigests ?? {};
   const currentDigests = technicalCurrentness?.sourceContentDigests ?? {};
   const sourceChanges = review?.sourceChanges ?? [];
+  const supplemental = supplementalDecision?.sourceDelta;
+  const supplementalValid = supplementalDecision?.schemaVersion === 'media.discovery-predecessor-source-impact.v1'
+    && supplementalDecision?.recordId === 'MEDIA-DISCOVERY-PREDECESSOR-IMPACT-PDP3-STATUS-GUARD-2026-10-14-R1'
+    && supplementalDecision?.campaign?.repository === 'samujjwal/ghatana-media'
+    && supplementalDecision?.campaign?.stage === 'DISCOVERY'
+    && supplementalDecision?.campaign?.activePhase === 'PDP-0'
+    && supplementalDecision?.campaign?.reviewedSourceBaseline === 'f5ae3461c53eb1d490362a9bb8818ce74573147c'
+    && supplementalDecision?.authority?.delegate === 'AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION'
+    && supplementalDecision?.authority?.decisionRole === 'SCOPED_INTERNAL_MEDIA_PRODUCT_AND_ENGINEERING_SOURCE_IMPACT_REVIEW'
+    && supplementalDecision?.authority?.humanIndependentSignatureProvided === false
+    && supplementalDecision?.authority?.qualifiedExternalSpecialistSignoffProvided === false
+    && supplementalDecision?.authority?.externalContractOwnerAcceptanceProvided === false
+    && supplementalDecision?.authority?.nativeLifecycleReceiptProvided === false
+    && supplementalDecision?.decision?.status === 'APPROVED_INTERNAL_NON_IMPACT_FOR_EXACT_SOURCE_DELTA'
+    && supplementalDecision?.decision?.requiresOrderedTechnicalCurrentnessRecapture?.includes('PDP-0')
+    && supplemental?.path === 'scripts/report-media-pdp-readiness.mjs'
+    && supplemental?.predecessorSha256 === 'sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c'
+    && supplemental?.observedSha256 === 'sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1'
+    && supplemental?.freshCurrentnessRequired === true
+    && empty(supplemental?.changedMeaningIds)
+    && empty(supplemental?.outstandingPredecessorMeaningIds)
+    && supplemental?.predecessorPhaseMeaningDisposition?.['PDP-0'] === 'NO_MEANING_CHANGE'
+    && supplementalDecision?.predecessorCuts?.some((cut) => cut.phase === 'PDP-0'
+      && cut.receiptRef === 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r1.json'
+      && cut.receiptSha256 === 'sha256:48f8e6fa4cb7373a66f5a33524ba89a471a1e19ab719aa2800fccec08e82ea49'
+      && cut.materialSourceSetFingerprint === 'sha256:8a60cf8a09e671b09729563039d31aed69b21934a59cade1af9833ca9af86cb9'
+      && cut.materialPathCount === 146 && cut.recordedPathDigest === supplemental.predecessorSha256);
+  if (!supplementalValid) blockers.push('SUPPLEMENTAL_PREDECESSOR_IMPACT_DECISION_INVALID');
   const approvedChanges = new Map(sourceChanges.map((change) => [change.path, change]));
   if (sourceChanges.length !== 4 || [...approvedChanges.keys()].some((sourcePath) => !REVIEWED_PDP0_CHANGES.has(sourcePath))
       || [...REVIEWED_PDP0_CHANGES].some((sourcePath) => !approvedChanges.has(sourcePath))) blockers.push('OWNER_REVIEWED_DELTA_PATH_SET_MISMATCH');
+  approvedChanges.set(supplemental?.path, {
+    path: supplemental?.path,
+    recordedSha256: supplemental?.predecessorSha256,
+    observedSha256: supplemental?.observedSha256,
+    meaningIdsChangedAtReviewedCut: supplemental?.changedMeaningIds,
+    requiresFreshCurrentness: supplemental?.freshCurrentnessRequired,
+  });
 
   const previousPaths = Object.keys(previousDigests).sort();
   const currentPaths = Object.keys(currentDigests).sort();
@@ -107,6 +148,8 @@ function validateCurrentCutOwnerDirections(acceptance, technicalCurrentness, his
       predecessorExitRef: review?.sourceCut ?? null,
       predecessorMaterialSourceSetFingerprint: review?.previousMaterialFingerprint ?? null,
       ownerDirectionsRef: 'docs/implementation/observations/media-discovery-current-cut-owner-directions-2026-10-13-r2.json',
+      supplementalImpactRef: SUPPLEMENTAL_IMPACT_PATH,
+      supplementalDecisionId: supplementalDecision?.recordId ?? null,
       ownerDecisionId: acceptance?.decisionId ?? null,
       ownerReviewedHead: acceptance?.reviewed?.head ?? null,
       predecessorPathCount: previousPaths.length,
@@ -212,7 +255,9 @@ function validateChecks(testOutcomes) {
  */
 export function joinMediaPdp0PhaseExit({ technicalCurrentness, ownerAcceptance, historicalPdp0Exit, testOutcomes, baselineSha, observedAt = new Date().toISOString() }) {
   const technicalBlockers = validateTechnicalCurrentness(technicalCurrentness);
-  const ownerValidation = validateOwnerAcceptance(ownerAcceptance, technicalCurrentness, historicalPdp0Exit);
+  const ownerValidation = ownerAcceptance?.recordKind === 'SCOPED_DELEGATED_MEDIA_OWNER_DESIGN_AND_MATERIAL_IMPACT_DECISIONS_NOT_TECHNICAL_CURRENTNESS_NOT_LIFECYCLE_RECEIPT'
+    ? validateCurrentCutOwnerDirections(ownerAcceptance, technicalCurrentness, historicalPdp0Exit)
+    : validateOwnerAcceptance(ownerAcceptance, technicalCurrentness, historicalPdp0Exit);
   const ownerBlockers = ownerValidation.blockers;
   const testBlockers = validateChecks(testOutcomes);
   const blockers = [...technicalBlockers, ...ownerBlockers, ...testBlockers];

@@ -39,6 +39,13 @@ test("phase verification pins explicit root or package test files without allowi
 test("PDP-3 census consumes the frozen PDP-0/1/2 handoffs and exact 47/30/130 denominators", () => {
   const census = buildPdp3SourceCensus();
   assert.deepEqual(census.integrityIssues, []);
+  assert.deepEqual(census.channelDefinitionCoverage, {
+    totalEdges: 61,
+    completeLogicalEdges: 40,
+    incompleteLogicalEdges: 21,
+    incompleteEdgeIds: census.channelDefinitionCoverage.incompleteEdgeIds,
+  });
+  assert.equal(new Set(census.channelDefinitionCoverage.incompleteEdgeIds).size, 21);
   assert.deepEqual(census.populations, {
     screens: 47,
     baselineScreens: 41,
@@ -79,11 +86,18 @@ test("PDP-3 census consumes the frozen PDP-0/1/2 handoffs and exact 47/30/130 de
 });
 
 test("PDP-3 development status requires every source-pinned suite, stable source cut, and current strict projection", () => {
+  const sourceCensus = buildPdp3SourceCensus();
+  sourceCensus.channelDefinitionCoverage = {
+    totalEdges: 61,
+    completeLogicalEdges: 61,
+    incompleteLogicalEdges: 0,
+    incompleteEdgeIds: [],
+  };
   const status = buildPdp3DevStatus({
     mainSha: "0".repeat(40),
     sourceShaSet: {},
     verification: passingVerification(),
-    sourceCensus: buildPdp3SourceCensus(),
+    sourceCensus,
     sourceCutStable: true,
     projectionCheck: passingProjection(),
   });
@@ -96,7 +110,25 @@ test("PDP-3 development status requires every source-pinned suite, stable source
   ]);
   assert.deepEqual(status.exportedHandoffIds, []);
   assert.equal(status.strictCurrentProjection.status, "PASS");
+  assert.equal(status.channelDefinitionCoverage.incompleteLogicalEdges, 0);
   assert.equal(status.deferredAcceptance.some(item => item.includes("Lifecycle")), true);
+});
+
+test("PDP-3 cannot report DEV_COMPLETE while canonical channel-edge meaning gaps remain", () => {
+  const sourceCensus = buildPdp3SourceCensus();
+  const status = buildPdp3DevStatus({
+    mainSha: "0".repeat(40),
+    verification: passingVerification(),
+    sourceCensus,
+    sourceCutStable: true,
+    projectionCheck: passingProjection(),
+  });
+  assert.equal(status.status, "IN_PROGRESS");
+  assert.equal(status.channelDefinitionCoverage.completeLogicalEdges, 40);
+  assert.equal(status.channelDefinitionCoverage.incompleteLogicalEdges, 21);
+  for (const edgeId of sourceCensus.channelDefinitionCoverage.incompleteEdgeIds) {
+    assert.ok(status.outstandingMeaningIds.includes(`P3-03:channel-logical-edge-incomplete:${edgeId}`));
+  }
 });
 
 test("PDP-3 cannot complete with a skipped test, stale source cut, or non-current projection", () => {

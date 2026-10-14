@@ -966,6 +966,7 @@ export function buildPdp3SourceCensus(repositoryRoot = root) {
   const journeyRegistry = read(`${p3}journey-registry.yaml`);
   const stepOracles = read(`${p3}step-definition-oracles.yaml`);
   const purposeBindings = read(`${p3}journey-purpose-bindings.yaml`);
+  const journeyChannelBindings = read(`${p3}journey-channel-contract-bindings.yaml`);
   const scenarioRegistry = read(`${p3}scenario-fixture-registry.yaml`);
   const actionRegistry = read(`${p3}action-registry.yaml`);
   const p0Status = JSON.parse(fs.readFileSync(path.join(repositoryRoot, 'docs/implementation/pdp-0-phase-dev-status.json'), 'utf8'));
@@ -978,13 +979,31 @@ export function buildPdp3SourceCensus(repositoryRoot = root) {
   // selected lane-specific views. Keep their source populations distinct in
   // the registry, but census and validate their combined canonical identity.
   const screens = [...(screenRegistry.screens ?? []), ...(screenRegistry.laneViews ?? [])];
+  const integrityIssues = [];
+  const channelEdges = journeyChannelBindings.edges ?? [];
+  const logicalChannelEdges = channelEdges.filter(edge => edge.logicalDefinitionDisposition === 'SOURCE_BOUND_DEFINITION_ONLY'
+    && edge.semanticCompleteness === 'SOURCE_BOUND_DEFINITION_ONLY');
+  const incompleteChannelEdgeIds = channelEdges.filter(edge => edge.logicalDefinitionDisposition !== 'SOURCE_BOUND_DEFINITION_ONLY'
+    || edge.semanticCompleteness !== 'SOURCE_BOUND_DEFINITION_ONLY').map(edge => edge.id).filter(Boolean).sort();
+  const channelDefinitionCoverage = {
+    totalEdges: channelEdges.length,
+    completeLogicalEdges: logicalChannelEdges.length,
+    incompleteLogicalEdges: incompleteChannelEdgeIds.length,
+    incompleteEdgeIds: incompleteChannelEdgeIds,
+  };
+  if (channelEdges.length !== 61 || new Set(channelEdges.map(edge => edge.id)).size !== 61
+      || journeyChannelBindings.counts?.intendedEdges !== 61
+      || journeyChannelBindings.counts?.logicalDefinitionOnlyEdges !== logicalChannelEdges.length
+      || journeyChannelBindings.counts?.incompleteP1StateOrObservationEdges !== incompleteChannelEdgeIds.length
+      || logicalChannelEdges.length + incompleteChannelEdgeIds.length !== 61) {
+    integrityIssues.push('pdp3-channel-logical-edge-denominator-invalid');
+  }
   const journeys = journeyRegistry.journeys ?? [];
   const oracleJourneys = stepOracles.journeys ?? [];
   const screenIds = screens.map(row => row?.id).filter(Boolean);
   const journeyIds = journeys.map(row => row?.id).filter(Boolean);
   const oracleJourneyIds = oracleJourneys.map(row => row?.journeyId).filter(Boolean);
   const steps = oracleJourneys.flatMap(row => row.steps ?? []);
-  const integrityIssues = [];
   const importedHandoffIds = [p0Handoff?.id, p1Handoff?.id, p2Handoff?.id].filter(Boolean);
   const expected = {
     p0: 'media.pdp0-pdp1.capability-intent-handoff.v1',
@@ -1159,6 +1178,7 @@ export function buildPdp3SourceCensus(repositoryRoot = root) {
     journeyIds: [...journeyIds].sort(),
     importedHandoffIds,
     exportedHandoffIds: [],
+    channelDefinitionCoverage,
     integrityIssues: [...new Set(integrityIssues)].sort(),
   };
 }
@@ -1187,6 +1207,12 @@ export function buildPdp3DevStatus({mainSha, sourceShaSet = {}, verification = {
     : projectionCheck.fieldMappingBlockers.map(blocker =>
       `P3-01:unresolved-semantic-field:${blocker.field ?? 'unknown'}`);
   const oracleCoverage = census.developmentOracleCoverage ?? {};
+  const channelDefinitionCoverage = census.channelDefinitionCoverage ?? {};
+  const channelDefinitionIssues = channelDefinitionCoverage.totalEdges !== 61
+      || channelDefinitionCoverage.completeLogicalEdges + channelDefinitionCoverage.incompleteLogicalEdges !== 61
+      || !Array.isArray(channelDefinitionCoverage.incompleteEdgeIds)
+    ? ['P3-03:channel-logical-edge-coverage-missing-or-invalid']
+    : channelDefinitionCoverage.incompleteEdgeIds.map(edgeId => `P3-03:channel-logical-edge-incomplete:${edgeId}`);
   const oracleCoverageIssues = [];
   if (oracleCoverage.operationUnknownOutcome?.status !== 'PASS'
       || oracleCoverage.operationUnknownOutcome.uniqueOperationCount !== 44
@@ -1207,6 +1233,7 @@ export function buildPdp3DevStatus({mainSha, sourceShaSet = {}, verification = {
   const outstandingMeaningIds = [...new Set([
     ...(census.integrityIssues ?? []).map(issue => `P3-10:${issue}`), ...testIssues,
     ...fieldMappingBlockerIssues, ...oracleCoverageIssues,
+    ...channelDefinitionIssues,
     ...(!sourceCutStable ? ['P3-10:source-cut-changed-during-verification'] : []),
     ...(!projectionValid ? ['P3-01:strict-current-public-projection-not-green'] : []),
   ])].sort();
@@ -1220,6 +1247,7 @@ export function buildPdp3DevStatus({mainSha, sourceShaSet = {}, verification = {
     sourcePopulations: census.populations, screenIds: census.screenIds, journeyIds: census.journeyIds,
     importedHandoffIds: census.importedHandoffIds, exportedHandoffIds: census.exportedHandoffIds,
     developmentOracleCoverage: census.developmentOracleCoverage ?? null,
+    channelDefinitionCoverage,
     outstandingMeaningIds, testsActuallyRun, directDevelopmentCriteria,
     strictCurrentProjection: projectionCheck ? {
       status: projectionValid ? 'PASS' : 'FAIL',

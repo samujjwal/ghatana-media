@@ -164,6 +164,9 @@ export function validatePdp3StepCapabilityPurpose(step, capabilitiesById, p0Jour
 
 /** Check the source-only job-submit adapter against each exact target COMMAND contract. */
 export function validatePdp3JobSubmitAdapter(adapter, { step, p0Journey, capabilitiesById, operationsById, jobSubmit }) {
+  const actionOperation = operationsById instanceof Map
+    ? operationsById.get(adapter?.userActionOperationRef)
+    : null;
   if (!adapter || !step || !p0Journey || adapter.journeyRef !== p0Journey.id
     || adapter.stepRef !== step.sourceRef || adapter.invocationOperationRef !== "media.operation.job.submit.v1"
     || adapter.invocationOperationVersion !== 1 || jobSubmit?.operationKind !== "COMMAND"
@@ -173,6 +176,9 @@ export function validatePdp3JobSubmitAdapter(adapter, { step, p0Journey, capabil
     || new Set(adapter.allowedCapabilityRefs).size !== adapter.allowedCapabilityRefs.length
     || adapter.userActionRef !== step.actionRef
     || adapter.userActionOperationRef !== "media.operation.action.submit-validated-request"
+    || !actionOperation || actionOperation.id !== adapter.userActionOperationRef
+    || actionOperation.actionRef !== adapter.userActionRef
+    || actionOperation.operationKind !== "COMMAND" || actionOperation.contractVersion !== 1
     || !same(adapter.outcomeRefs, p0Journey.outcomeRefs)
     || !same(adapter.allowedCapabilityRefs, (step.capabilityOptions ?? []).map((option) => option.capabilityRef))) {
     return { valid: false, reason: "JOB_SUBMIT_ADAPTER_SCOPE_MISMATCH" };
@@ -208,6 +214,35 @@ export function validatePdp3JobSubmitAdapter(adapter, { step, p0Journey, capabil
     || construction?.fallbackPolicy?.silentFallback !== "forbidden"
     || construction?.deadlineAndResourceBudget?.absentOrStale !== "HOLD_UNKNOWN") {
     return { valid: false, reason: "JOB_SUBMIT_ADAPTER_REQUEST_CONSTRUCTION_INCOMPLETE" };
+  }
+  if (adapter.id === "media.pdp3.invocation-adapter.j06-source-grounded.v1") {
+    const wrapperConditions = jobSubmit?.preconditions ?? [];
+    const wrapperIdempotency = jobSubmit?.idempotency ?? {};
+    const target = (step.capabilityOptions ?? []).length === 1
+      ? (step.capabilityOptions[0].operationRefs ?? [])
+      : [];
+    if (adapter.purposeClass !== "SOURCE_GROUNDED_MULTIMODAL"
+      || adapter.allowedCapabilityRefs.length !== 1
+      || adapter.allowedCapabilityRefs[0] !== "media.multimodal.observe.source-grounded"
+      || !same(target, ["media.operation.capability.media-multimodal-observe-source-grounded"])
+      || !wrapperConditions.includes("trusted tenant/principal/delegation and current authorization resolved outside caller request")
+      || !wrapperConditions.includes("all source artifact versions, project revisions, rights, consent, purpose, retention, processing location, profile qualification and policy are current at dispatch boundary")
+      || !wrapperConditions.includes("requestFingerprint is computed over canonical typed request, exact source/project revisions, profile digest, fallback, budget and authorization scope")
+      || ![".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+        ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"].every((ref) => (actionOperation.authorityRefs ?? []).includes(ref))
+      || !Array.isArray(wrapperIdempotency.scope)
+      || !wrapperIdempotency.scope.includes("tenantId")
+      || !wrapperIdempotency.scope.includes("principalId")
+      || !wrapperIdempotency.scope.includes("requestId")
+      || !String(jobSubmit?.effect ?? "").includes("never create a second logical job")
+      || !String(wrapperIdempotency.differentPayload ?? "").includes("IDEMPOTENCY_CONFLICT")
+      || !String(jobSubmit?.retry?.unknown ?? "").includes("no blind retry")
+      || !String(jobSubmit?.finality ?? "").includes("QUEUED does not prove provider dispatch")
+      || adapter.finality?.acceptanceMeans !== "durable-job-submit-receipt-only"
+      || adapter.finality?.unknownOutcome !== "retain same request identity and reconcile before any retry"
+      || adapter.finality?.completionMeans !== "exact source-grounded output only after typed output observation") {
+      return { valid: false, reason: "J06_ACTION_CAPABILITY_WRAPPER_JOIN_INCOMPLETE" };
+    }
   }
   return { valid: true, reason: "EXACT_TARGET_COMMAND_ADAPTER_SOURCE_ONLY" };
 }

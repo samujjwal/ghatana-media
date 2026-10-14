@@ -94,6 +94,7 @@ function currentCutTechnical() {
   for (const change of currentCutOwnerDirections.predecessorImpactReviews[0].sourceChanges) {
     result.sourceContentDigests[change.path] = change.observedSha256;
   }
+  result.sourceContentDigests['scripts/report-media-pdp-readiness.mjs'] = 'sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1';
   return result;
 }
 
@@ -134,7 +135,7 @@ test('the current delegated owner input is explicitly bound to the reviewed PDP-
   assert.equal(currentOwner.authority.humanIndependentSignatureProvided, false);
 });
 
-test('the current-cut owner direction joins only the exact 146-path predecessor cut and four approved deltas', () => {
+test('the current-cut owner direction and exact supplement join only the 146-path predecessor cut and five approved deltas', () => {
   const exit = joinMediaPdp0PhaseExit({
     technicalCurrentness: currentCutTechnical(),
     ownerAcceptance: currentCutOwnerDirections,
@@ -145,8 +146,10 @@ test('the current-cut owner direction joins only the exact 146-path predecessor 
   assert.equal(exit.ownerStatusJoin.status, 'ACCEPTED_FOR_EXACT_CURRENT_FINGERPRINT_WITH_REVIEWED_DELTA');
   assert.equal(exit.ownerStatusJoin.predecessorPathCount, 146);
   assert.equal(exit.ownerStatusJoin.observedPathCount, 146);
-  assert.equal(exit.ownerStatusJoin.unchangedPathCount, 142);
-  assert.equal(exit.ownerStatusJoin.ownerApprovedChangedPathCount, 4);
+  assert.equal(exit.ownerStatusJoin.unchangedPathCount, 141);
+  assert.equal(exit.ownerStatusJoin.ownerApprovedChangedPathCount, 5);
+  assert.equal(exit.ownerStatusJoin.supplementalImpactRef, 'docs/implementation/observations/media-discovery-predecessor-impact-pdp3-status-guard-2026-10-14-r1.json');
+  assert.equal(exit.ownerStatusJoin.supplementalDecisionId, 'MEDIA-DISCOVERY-PREDECESSOR-IMPACT-PDP3-STATUS-GUARD-2026-10-14-R1');
   assert.equal(exit.ownerStatusJoin.unapprovedChangedPathCount, 0);
   assert.equal(exit.ownerStatusJoin.missingPathCount, 0);
   assert.equal(exit.ownerStatusJoin.additionalPathCount, 0);
@@ -189,4 +192,5 @@ const REVIEWED_PATHS = new Set([
   '.product-experience/source-manifest.yaml',
   '.product-experience/surface-registry.yaml',
   'apps/media-experience-explorer/specification-artifacts.json',
+  'scripts/report-media-pdp-readiness.mjs',
 ]);

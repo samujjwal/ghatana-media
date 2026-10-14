@@ -13,6 +13,7 @@ import { observeMediaDiscoveryCurrentness, resolveMediaPdp0Cells } from './media
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outputPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json';
+const supplementalImpactPath = 'docs/implementation/observations/media-discovery-predecessor-impact-pdp3-status-guard-2026-10-14-r1.json';
 const externalRoots = {
   ghatana: '../ghatana',
   'ghatana-products': '../ghatana-products',
@@ -163,6 +164,40 @@ function phasePinComparison(currentFiles) {
   });
 }
 
+export function classifySupplementalPdp0PinChange(pinComparisons, decision) {
+  const delta = decision?.sourceDelta;
+  const exact = decision?.schemaVersion === 'media.discovery-predecessor-source-impact.v1'
+    && decision?.recordId === 'MEDIA-DISCOVERY-PREDECESSOR-IMPACT-PDP3-STATUS-GUARD-2026-10-14-R1'
+    && decision?.campaign?.repository === 'samujjwal/ghatana-media'
+    && decision?.campaign?.activePhase === 'PDP-0'
+    && decision?.authority?.delegate === 'AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION'
+    && decision?.authority?.humanIndependentSignatureProvided === false
+    && decision?.authority?.qualifiedExternalSpecialistSignoffProvided === false
+    && decision?.authority?.externalContractOwnerAcceptanceProvided === false
+    && decision?.authority?.nativeLifecycleReceiptProvided === false
+    && decision?.decision?.status === 'APPROVED_INTERNAL_NON_IMPACT_FOR_EXACT_SOURCE_DELTA'
+    && decision?.decision?.requiresOrderedTechnicalCurrentnessRecapture?.includes('PDP-0')
+    && delta?.path === 'scripts/report-media-pdp-readiness.mjs'
+    && delta?.predecessorSha256 === 'sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c'
+    && delta?.observedSha256 === 'sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1'
+    && delta?.freshCurrentnessRequired === true
+    && Array.isArray(delta?.changedMeaningIds) && delta.changedMeaningIds.length === 0
+    && Array.isArray(delta?.outstandingPredecessorMeaningIds) && delta.outstandingPredecessorMeaningIds.length === 0
+    && decision?.predecessorCuts?.some((cut) => cut.phase === 'PDP-0'
+      && cut.receiptRef === 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r1.json'
+      && cut.receiptSha256 === 'sha256:48f8e6fa4cb7373a66f5a33524ba89a471a1e19ab719aa2800fccec08e82ea49'
+      && cut.materialSourceSetFingerprint === 'sha256:8a60cf8a09e671b09729563039d31aed69b21934a59cade1af9833ca9af86cb9'
+      && cut.materialPathCount === 146 && cut.recordedPathDigest === delta.predecessorSha256);
+  if (!exact) return null;
+  const pin = pinComparisons?.find((entry) => entry.path === delta.path);
+  if (pin?.recordedDigest !== delta.predecessorSha256 || pin?.currentDigest !== delta.observedSha256 || pin?.disposition !== 'CHANGED') return null;
+  return {
+    path: delta.path,
+    classification: 'PDP-3 STATUS GUARD DOWNSTREAM SOURCE IMPACT REVIEWED; EXACT PDP-0 SEMANTIC NON-IMPACT; FRESH CURRENTNESS REQUIRED',
+    authorityRef: supplementalImpactPath,
+  };
+}
+
 function buildFingerprints(topology, registryBytes, external) {
   const registryDigest = hashBytes(registryBytes);
   const ownerGraph = {
@@ -292,6 +327,7 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
   const existing = fs.existsSync(path.join(root, outputPath))
     ? JSON.parse(fs.readFileSync(path.join(root, outputPath), 'utf8'))
     : null;
+  const supplementalDecision = JSON.parse(fs.readFileSync(path.join(root, supplementalImpactPath), 'utf8'));
   const historicalDriftClassifications = [
     { path: '.product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md', classification: 'STATUS TEXT AND DOC LINK ONLY OBSERVED', authorityRef: 'MDO-02' },
     { path: '.product-experience/pdp-0-product-truth/generated/product-definition.candidate.json', classification: 'GENERATED PRODUCT DEFINITION CANDIDATE SOURCE DIGEST AND BYTE COUNT PROJECTION ONLY', authorityRef: 'MDO-03' },
@@ -301,6 +337,8 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
     { path: 'apps/media-experience-explorer/specification-artifacts.json', classification: 'GENERATED EXPLORER ARTIFACT INDEX OBSERVED', authorityRef: 'MDO-03' },
     { path: '.product-experience/source-manifest.yaml', classification: 'GENERATED SOURCE INDEX AND EXTERNAL OBSERVATIONS OBSERVED', authorityRef: 'MDO-03' },
   ];
+  const supplementalClassification = classifySupplementalPdp0PinChange(p0Comparison.pinComparisons, supplementalDecision);
+  if (supplementalClassification) historicalDriftClassifications.push(supplementalClassification);
   const classifiedPdp0Paths = new Set(historicalDriftClassifications.map((entry) => entry.path));
   const unclassifiedHistoricalPdp0PinChanges = p0Comparison.pinComparisons
     .filter((entry) => entry.disposition !== 'MATCH' && !classifiedPdp0Paths.has(entry.path));
