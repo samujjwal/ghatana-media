@@ -520,6 +520,7 @@ function sourcePinReview(status, currentDigests, mdc20, ownerChanges) {
 }
 
 function ownerStatusJoin(historicalExit, currentDigests, ownerReview, materialSourceSetFingerprint) {
+  const historicalPhaseExit = historicalExit.currentPhaseExit ?? historicalExit.phaseExit;
   const ownerChanges = ownerReview?.sourceChanges ?? [];
   const historicalDigests = historicalExit.sourceCurrentness?.sourceSetDigests?.sourceContentDigests ?? {};
   const historicalPaths = Object.keys(historicalDigests).sort();
@@ -557,7 +558,9 @@ function ownerStatusJoin(historicalExit, currentDigests, ownerReview, materialSo
     && ownerReview?.pinComparison?.changed === 4
     && ownerReview?.pinComparison?.missing === 0;
   const valid = historicalExit.phase === 'PDP-2'
-    && historicalExit.phaseExit?.status === 'PASS'
+    && historicalPhaseExit?.status === 'PASS'
+    && historicalPhaseExit?.sourceCurrentness === 'PASS'
+    && historicalPhaseExit?.developmentStatus === 'DEV_COMPLETE'
     && historicalExit.sourceCurrentness?.status === 'PASS'
     && historicalExit.sourceCurrentness?.sourceCurrent === true
     && historicalPaths.length === 405
@@ -574,6 +577,8 @@ function ownerStatusJoin(historicalExit, currentDigests, ownerReview, materialSo
     status: valid ? 'PASS' : 'FAIL',
     historicalExitRef: HISTORICAL_P2_EXIT_PATH,
     historicalExitDigest: digestFile(HISTORICAL_P2_EXIT_PATH),
+    historicalPhaseExitStatus: historicalPhaseExit?.status ?? 'UNKNOWN',
+    historicalPhaseExitDevelopmentStatus: historicalPhaseExit?.developmentStatus ?? 'UNKNOWN',
     historicalMaterialSourceSetFingerprint: historicalExit.sourceCurrentness?.materialSourceSetFingerprint ?? null,
     ownerReviewValid,
     materialSourceSetFingerprint,
