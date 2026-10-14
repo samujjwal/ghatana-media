@@ -372,13 +372,13 @@ function buildCellPaths(matrixCells, topology, availablePaths) {
   }));
 }
 
-function externalContractObservation(sourceManifestSha) {
-  const old = readJson('docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13-r2.json');
+function externalContractObservation(sourceManifestSha, predecessorCurrentness) {
+  const currentness = predecessorCurrentness;
   const blockers = [];
   const sourceManifestPath = '.product-experience/source-manifest.yaml';
-  const sourceManifestWasCurrentAtP0 = old.sourceContentDigests?.[sourceManifestPath] === sourceManifestSha;
+  const sourceManifestWasCurrentAtP0 = currentness?.sourceContentDigests?.[sourceManifestPath] === sourceManifestSha;
   if (!sourceManifestWasCurrentAtP0) blockers.push('SOURCE_MANIFEST_CHANGED_AFTER_PDP0_EXIT');
-  const current = old.externalOwnerContracts.repositories.map((repository) => {
+  const current = (currentness?.externalOwnerContracts?.repositories ?? []).map((repository) => {
     const externalRoot = path.resolve(root, SOURCE_ROOTS[repository.repositoryId] ?? '');
     return {
       repositoryId: repository.repositoryId,
@@ -406,7 +406,7 @@ function externalContractObservation(sourceManifestSha) {
     digestMatches: files.length - digestMismatches.length,
     digestMismatches,
     repositories: current,
-    providerRegistryFingerprint: old.externalOwnerContracts.providerRegistryFingerprint,
+    providerRegistryFingerprint: currentness?.externalOwnerContracts?.providerRegistryFingerprint ?? null,
     sourceManifestCurrentAtPdp0Predecessor: sourceManifestWasCurrentAtP0,
     blockers,
   };
@@ -643,7 +643,7 @@ function makeObservation({ suffix, testRun, p0ExitPath }) {
   const p0ExitValid = p0Predecessor.valid;
   const p0SourceSetFingerprint = p0Predecessor.materialSourceSetFingerprint;
   const currentSourceManifestDigest = fileDigests['.product-experience/source-manifest.yaml']?.digest ?? null;
-  const externalContracts = externalContractObservation(currentSourceManifestDigest);
+  const externalContracts = externalContractObservation(currentSourceManifestDigest, p0Currentness);
   const censusIdentitySetMatches = census.identityIds?.length === semanticReview.reviewedIdentityIds?.length
     && new Set(census.identityIds).size === census.identityIds.length
     && census.identityIds.every((identity) => semanticReview.reviewedIdentityIds.includes(identity));
