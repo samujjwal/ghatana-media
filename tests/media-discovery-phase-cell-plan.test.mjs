@@ -37,17 +37,21 @@ test('Discovery execution plan retains physical/composite/consumer denominators 
 });
 
 test('Discovery plan binds current PDP-0 through PDP-2 exits to exact cells while PDP-3 remains gated', () => {
-  const observation = read('docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13-r2.json');
-  const phaseExit = read('docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json');
+  const observation = read('docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r1.json');
+  const phaseExit = read('docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r1.json');
   assert.equal(matrix.baseline.pdp0MaterialSetFingerprint, ownerEvidence.source.materialSetFingerprint);
-  assert.equal(matrix.currentCut.currentnessObservation, 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13-r2.json');
-  assert.equal(matrix.currentCut.phaseExit, 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json');
-  assert.equal(matrix.currentCut.materialSourceSetFingerprint, 'sha256:7a7a0f700890915863e9f93eafa30edc2f6d856adbf7944c17fecc0aadd8031b');
+  assert.equal(matrix.currentCut.currentnessObservation, 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r1.json');
+  assert.equal(matrix.currentCut.phaseExit, 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r1.json');
+  assert.equal(matrix.currentCut.repositoryHead, 'e9dd186786be08c00edd5a418078b8b3e1c8969c');
+  assert.equal(matrix.currentCut.phaseExitRecordId, 'MEDIA-PDP0-EXIT-33ca9af86cb9');
+  assert.equal(matrix.currentCut.materialSourceSetFingerprint, 'sha256:8a60cf8a09e671b09729563039d31aed69b21934a59cade1af9833ca9af86cb9');
   assert.equal(phaseExit.developmentStatus.currentMaterialSourceSetFingerprint, matrix.currentCut.materialSourceSetFingerprint);
   assert.equal(phaseExit.phaseExit.status, 'PASS');
   assert.equal(phaseExit.phaseExit.nextLegalAction, 'ADVANCE_TO_PDP1_MDC10');
   assert.equal(observation.physicalCompositeConsumerCells.length, 50);
   assert.ok(observation.physicalCompositeConsumerCells.every(x => x.sourceCurrentness === 'CURRENT'));
+  assert.equal(phaseExit.sourceCurrentness.materialPathDenominator.uniquePaths, 146);
+  assert.equal(phaseExit.developmentStatus.currentMaterialSourceSetFingerprint, 'sha256:8a60cf8a09e671b09729563039d31aed69b21934a59cade1af9833ca9af86cb9');
   const observedBySurface = new Map(observation.physicalCompositeConsumerCells.map(c => [c.surfaceId, c]));
   const pdp0Cells = matrix.cells.filter(c => c.phase === 'PDP-0');
   assert.ok(pdp0Cells.every(c => {
@@ -56,7 +60,10 @@ test('Discovery plan binds current PDP-0 through PDP-2 exits to exact cells whil
       && c.currentPhaseExitPublished === true
       && c.currentPdp0SourceSetFingerprint === observed?.sourceSetFingerprint
       && c.currentPhaseExitRef === matrix.currentCut.phaseExit
-      && c.currentPhaseExitRecordId === phaseExit.recordId;
+      && c.currentPhaseExitRecordId === phaseExit.recordId
+      && c.priorPassReceiptRemainsHistorical === true
+      && c.nextLegalAction === 'PDP-0 current exit 2026-10-14-current-cut-r1 PASS; zero phase-local tasks remain.'
+      && c.status === 'PDP0_CURRENT_PHASE_EXIT_PASS';
   }));
   assert.equal(pdp1Exit.phaseExit.status, 'PASS');
   assert.equal(pdp1Exit.sourceCurrentness.cells.length, 50);
@@ -109,10 +116,12 @@ test('Discovery plan binds current PDP-0 through PDP-2 exits to exact cells whil
     assert.equal(c.observedPdp3SourceSetFingerprint, matrix.currentCut.pdp3ObservedSourceSetFingerprint);
     assert.deepEqual(c.remainingTaskIds, ['MDC-30', 'MDC-31', 'MDC-32']);
   }
+  assert.equal(matrix.status.pdp0, 'CURRENT_PHASE_EXIT_PASS');
   assert.equal(matrix.status.discovery, 'FAIL');
-  assert.equal(matrix.status.pdp1, 'CURRENT_PHASE_EXIT_PASS');
-  assert.equal(matrix.status.pdp2, 'CURRENT_PHASE_EXIT_PASS');
-  assert.equal(matrix.status.pdp3, 'NOT_REVALIDATED');
+  assert.equal(matrix.status.pdp1, 'PRIOR_EXIT_PASS_CURRENTCUT_RECHECK_REQUIRED');
+  assert.equal(matrix.status.pdp2, 'PRIOR_EXIT_PASS_CURRENTCUT_RECHECK_REQUIRED');
+  assert.ok(matrix.cells.filter(c => c.phase === 'PDP-1' || c.phase === 'PDP-2').every(c => c.currentCutReviewedHead !== phaseExit.campaign.observedHead));
+  assert.equal(matrix.status.pdp3, 'MDC30_29_OF_61_LOGICAL_32_GAPS_S06_OPEN_NO_CURRENT_EXIT');
   assert.equal(matrix.status.build, 'NOT_ENTERED');
   assert.equal(matrix.status.nativePdpClosure, 'NOT_ENTERED');
   assert.equal(matrix.status.delivery, 'BLOCKED');
