@@ -18,6 +18,21 @@ actors:
 channels:
   - media.channel.web
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+channelDefinitionEvidence:
+  status: SOURCE_GROUNDED_PARTIAL; TRANSPORT_UNBOUND; RUNTIME_NOT_ADMITTED
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-image-to-video/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-image-to-video/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-quality-video-video-assess-geometry-continuity
+    - .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/unknownOutcome
+  sourceGroundedInputs: selected-generation-capability-inputs-preserve-exact-immutable-source-version; declared-parameters-are-not-substituted
+  sourceGroundedResult: capability-result-envelope-with-outcome-observedAt-outputs-provenance-implementationState-qualificationState-runtimeAvailability; successful-generation-requires-authoritative-owner-receipt-and-exact-output-version
+  blockedSemantics:
+    - P1 provides exact source-version input and capability-level finality, but this journey does not bind each selected condition/reference geometry to a specific generation request and same-subject result.
+    - Geometry-continuity assessment is a separate read-only observation; P1 does not make it a required action for each J-10 condition or establish a generation-to-assessment join.
+    - Identity continuity remains observational and is not identity proof. AI unavailable or unsupported control cannot imply a generated result or an authorized fallback.
+    - Web remains UNBOUND and NOT_ADMITTED; no channel transport or runtime equivalence is asserted.
+  unknownAndDenied: Preserve missing/partial/stale geometry, identity drift, unsupported controls, AI unavailability, denied requests and ambiguous finality as scoped UNKNOWN/abstention/denial; no retry or fallback is inferred.
 pdp1ResultEvidence:
   status: SOURCE_BOUND_DEFINITION_ONLY; CHANNEL_TRANSPORT_UNBOUND; RUNTIME_NOT_ADMITTED
   sourceRefs:

@@ -3297,6 +3297,23 @@ journeys:
       oracleBoundary: Pure definition oracle. Guard verdicts are explicit fixture
         inputs, not inferred from labels; this does not execute transport/provider
         behavior or establish runtime admission.
+    mdc30SourceJoin:
+      selector: MDC30-S-13
+      status: SOURCE_JOIN_RECONCILED_DEFINITION_ONLY
+      branchProofStatus: NOT_RUN
+      actionRefRef: "#/canonicalBindings/actionRef"
+      operationRefsRef: "#/canonicalBindings/operationRefs"
+      resultSemanticsRef: "#/canonicalBindings/ownerResultSemantics"
+      authorityRefsRef: "#/canonicalBindings/ownerAuthorityRefs"
+      negativeBranchRefsRef: "#/canonicalBindings/failClosedCases"
+      additionalSourceRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/error
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/recovery
+      sourceMeaning: "Exact J18 step is session-local caption editing; no render or delivery result follows."
+      remainingLimitations: JOURNEY_LEVEL_COMPOSITION_RENDER_AND_DELIVERY_FAILURES_STAY_UNALLOCATED; STEP_NEGATIVE_PROOF_PENDING
+      scenarioRefs: []
+      runtimeAdmission: NOT_ADMITTED
     coverageDisposition: SOURCE_BINDING_RECORDED
   - id: J-18.step-05
     ordinal: 5
@@ -4921,6 +4938,23 @@ journeys:
       oracleBoundary: Pure definition oracle. Guard verdicts are explicit fixture
         inputs, not inferred from labels; this does not execute transport/provider
         behavior or establish runtime admission.
+    mdc30SourceJoin:
+      selector: MDC30-S-01
+      status: SOURCE_JOIN_RECONCILED_DEFINITION_ONLY
+      branchProofStatus: NOT_RUN
+      actionRefRef: "#/canonicalBindings/actionRef"
+      operationRefsRef: "#/canonicalBindings/operationRefs"
+      resultSemanticsRef: "#/branchOracles/expectedSemantics"
+      authorityRefsRef: "#/canonicalBindings/authorityRefs"
+      deniedBranchRefsRef: "#/branchOracles/deniedCases"
+      unknownBranchRefsRef: "#/branchOracles/unknownCases"
+      additionalSourceRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1/resultSchema
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationValidationRules/records/@id=media.observation-validation.destination-delivery-acknowledgment.v1
+      sourceMeaning: "Exact delivery request plus separate exact-identity destination ACK; request acceptance is not delivery."
+      remainingLimitations: P1_HAS_NO_LATE_ACK_STATUS_OR_REJECTION_REASON; KEEP_AMBIGUOUS_ACK_UNKNOWN; BRANCH_PROOF_NOT_RUN
+      scenarioRefs: []
+      runtimeAdmission: NOT_ADMITTED
     coverageDisposition: SOURCE_BINDING_RECORDED
 - journeyId: J-26
   sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml
@@ -5479,6 +5513,23 @@ journeys:
       oracleBoundary: Pure definition oracle. Guard verdicts are explicit fixture
         inputs, not inferred from labels; this does not execute transport/provider
         behavior or establish runtime admission.
+    mdc30SourceJoin:
+      selector: MDC30-S-02
+      status: SOURCE_JOIN_RECONCILED_DEFINITION_ONLY
+      branchProofStatus: NOT_RUN
+      actionRefRef: "#/canonicalBindings/actionRef"
+      operationRefsRef: "#/canonicalBindings/operationRefs"
+      resultSemanticsRef: "#/branchOracles/expectedSemantics"
+      authorityRefsRef: "#/canonicalBindings/authorityRefs"
+      deniedBranchRefsRef: "#/branchOracles/deniedCases"
+      unknownBranchRefsRef: "#/branchOracles/unknownCases"
+      additionalSourceRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1/resultSchema
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationValidationRules/records/@id=media.observation-validation.destination-delivery-acknowledgment.v1
+      sourceMeaning: "Exact delivery request plus separate exact-identity destination ACK; request acceptance is not delivery."
+      remainingLimitations: P1_HAS_NO_LATE_ACK_STATUS_OR_REJECTION_REASON; KEEP_AMBIGUOUS_ACK_UNKNOWN; BRANCH_PROOF_NOT_RUN
+      scenarioRefs: []
+      runtimeAdmission: NOT_ADMITTED
     coverageDisposition: SOURCE_BINDING_RECORDED
   - id: J-22.step-03
     ordinal: 3
@@ -7105,6 +7156,19 @@ journeys:
       oracleBoundary: Pure definition oracle. Guard verdicts are explicit fixture
         inputs, not inferred from labels; this does not execute transport/provider
         behavior or establish runtime admission.
+    mdc30SourceJoin:
+      selector: MDC30-S-03
+      status: SOURCE_JOIN_RECONCILED_DEFINITION_ONLY
+      branchProofStatus: NOT_RUN
+      actionRefRef: "#/canonicalBindings/actionRef"
+      operationRefsRef: "#/canonicalBindings/operationRefs"
+      resultSemanticsRef: "#/canonicalBindings/ownerResultSemantics"
+      authorityRefsRef: "#/canonicalBindings/ownerAuthorityRefs"
+      negativeBranchRefsRef: "#/canonicalBindings/failClosedCases"
+      sourceMeaning: "Create result establishes initial ACTIVE project and COMMITTED empty revision; no predecessor transition."
+      remainingLimitations: DENIED_STALE_DUPLICATE_AND_UNAUTHORIZED_BRANCHES_REQUIRE_STEP_LOCAL_NEGATIVE_PROOF
+      scenarioRefs: []
+      runtimeAdmission: NOT_ADMITTED
     coverageDisposition: SOURCE_BINDING_RECORDED
   - id: J-01.step-04
     ordinal: 4
@@ -9552,6 +9616,19 @@ journeys:
       oracleBoundary: Pure definition oracle. Guard verdicts are explicit fixture
         inputs, not inferred from labels; this does not execute transport/provider
         behavior or establish runtime admission.
+    mdc30SourceJoin:
+      selector: MDC30-S-04
+      status: SOURCE_JOIN_RECONCILED_DEFINITION_ONLY
+      branchProofStatus: NOT_RUN
+      actionRefRef: "#/canonicalBindings/actionRef"
+      operationRefsRef: "#/canonicalBindings/operationRefs"
+      resultSemanticsRef: "#/canonicalBindings/ownerResultSemantics"
+      authorityRefsRef: "#/canonicalBindings/ownerAuthorityRefs"
+      negativeBranchRefsRef: "#/canonicalBindings/failClosedCases"
+      sourceMeaning: "Cancellation result is a request receipt; it does not establish terminal CANCELLED state."
+      remainingLimitations: CANCELLATION_REQUEST_IS_NOT_TERMINAL; ALREADY_TERMINAL_DEADLINE_AND_UNKNOWN_NEGATIVES_REQUIRE_PROOF
+      scenarioRefs: []
+      runtimeAdmission: NOT_ADMITTED
     coverageDisposition: SOURCE_BINDING_RECORDED
   - id: J-20.step-06
     ordinal: 6
@@ -9692,6 +9769,19 @@ journeys:
       oracleBoundary: Pure definition oracle. Guard verdicts are explicit fixture
         inputs, not inferred from labels; this does not execute transport/provider
         behavior or establish runtime admission.
+    mdc30SourceJoin:
+      selector: MDC30-S-05
+      status: SOURCE_JOIN_RECONCILED_DEFINITION_ONLY
+      branchProofStatus: NOT_RUN
+      actionRefRef: "#/canonicalBindings/actionRef"
+      operationRefsRef: "#/canonicalBindings/operationRefs"
+      resultSemanticsRef: "#/canonicalBindings/ownerResultSemantics"
+      authorityRefsRef: "#/canonicalBindings/ownerAuthorityRefs"
+      negativeBranchRefsRef: "#/canonicalBindings/failClosedCases"
+      sourceMeaning: "Retry creates at most one fenced attempt after current owner eligibility, authority, policy, budget and prior-effect reconciliation."
+      remainingLimitations: NO_CALLABLE_PRODUCTION_RETRY_ROUTE_OR_EXACT_TRANSITION_ID; NEVER_RETRY_UNKNOWN
+      scenarioRefs: []
+      runtimeAdmission: NOT_ADMITTED
     coverageDisposition: SOURCE_BINDING_RECORDED
   - id: J-20.step-07
     ordinal: 7
@@ -11767,6 +11857,23 @@ journeys:
       oracleBoundary: Pure definition oracle. Guard verdicts are explicit fixture
         inputs, not inferred from labels; this does not execute transport/provider
         behavior or establish runtime admission.
+    mdc30SourceJoin:
+      selector: MDC30-S-06
+      status: SOURCE_JOIN_RECONCILED_DEFINITION_ONLY
+      branchProofStatus: NOT_RUN
+      actionRefRef: "#/canonicalBindings/actionRef"
+      operationRefsRef: "#/canonicalBindings/operationRefs"
+      resultSemanticsRef: "#/branchOracles/expectedSemantics"
+      authorityRefsRef: "#/canonicalBindings/authorityRefs"
+      deniedBranchRefsRef: "#/branchOracles/deniedCases"
+      unknownBranchRefsRef: "#/branchOracles/unknownCases"
+      additionalSourceRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/errors
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/errors
+      sourceMeaning: "Action \u2192 selected capability \u2192 job.submit wrapper receipt; admission is not job state, dispatch, completion or output."
+      remainingLimitations: PUBLIC_API_ADMISSION_GAP_REMAINS; FIVE_CONDITION_BRANCH_FIXTURES_NOT_EXECUTED
+      scenarioRefs: []
+      runtimeAdmission: NOT_ADMITTED
     coverageDisposition: SOURCE_BINDING_RECORDED
   - id: J-06.step-02
     ordinal: 2
@@ -13051,6 +13158,24 @@ journeys:
       oracleBoundary: Pure definition oracle. Guard verdicts are explicit fixture
         inputs, not inferred from labels; this does not execute transport/provider
         behavior or establish runtime admission.
+    mdc30SourceJoin:
+      selector: MDC30-S-08
+      status: SOURCE_JOIN_RECONCILED_DEFINITION_ONLY
+      branchProofStatus: NOT_RUN
+      actionRefRef: "#/canonicalBindings/actionRef"
+      operationRefsRef: "#/canonicalBindings/operationRefs"
+      resultSemanticsRef: "#/canonicalBindings/ownerResultSemantics"
+      authorityRefsRef: "#/canonicalBindings/ownerAuthorityRefs"
+      negativeBranchRefsRef: "#/canonicalBindings/failClosedCases"
+      additionalSourceRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission/requestSchema
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission/outputSemantics
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission/error
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission/recovery
+      sourceMeaning: "Transcription submission records exact request identity/admission only, not processing or transcript completion."
+      remainingLimitations: DISTINCT_DENIAL_DUPLICATE_UNAVAILABLE_AND_AMBIGUOUS_BRANCH_FIXTURES_NOT_EXECUTED
+      scenarioRefs: []
+      runtimeAdmission: NOT_ADMITTED
     coverageDisposition: SOURCE_BINDING_RECORDED
   - id: J-03.step-03
     ordinal: 3
@@ -13448,6 +13573,23 @@ journeys:
       oracleBoundary: Pure definition oracle. Guard verdicts are explicit fixture
         inputs, not inferred from labels; this does not execute transport/provider
         behavior or establish runtime admission.
+    mdc30SourceJoin:
+      selector: MDC30-S-09
+      status: SOURCE_JOIN_RECONCILED_DEFINITION_ONLY
+      branchProofStatus: NOT_RUN
+      actionRefRef: "#/canonicalBindings/actionRef"
+      operationRefsRef: "#/canonicalBindings/operationRefs"
+      resultSemanticsRef: "#/canonicalBindings/ownerResultSemantics"
+      authorityRefsRef: "#/canonicalBindings/ownerAuthorityRefs"
+      negativeBranchRefsRef: "#/canonicalBindings/failClosedCases"
+      additionalSourceRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/error
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/recovery
+      sourceMeaning: "Caption edit returns session-local draft snapshot/revision tied to exact source and typed parent."
+      remainingLimitations: STEP_LOCAL_ACTION_AUTHORITY_AND_DRAFT_SCOPE_NEGATIVE_PROOF_PENDING
+      scenarioRefs: []
+      runtimeAdmission: NOT_ADMITTED
     coverageDisposition: SOURCE_BINDING_RECORDED
   - id: J-03.step-06
     ordinal: 6
@@ -13604,6 +13746,23 @@ journeys:
       oracleBoundary: Pure definition oracle. Guard verdicts are explicit fixture
         inputs, not inferred from labels; this does not execute transport/provider
         behavior or establish runtime admission.
+    mdc30SourceJoin:
+      selector: MDC30-S-10
+      status: SOURCE_JOIN_RECONCILED_DEFINITION_ONLY
+      branchProofStatus: NOT_RUN
+      actionRefRef: "#/canonicalBindings/actionRef"
+      operationRefsRef: "#/canonicalBindings/operationRefs"
+      resultSemanticsRef: "#/canonicalBindings/ownerResultSemantics"
+      authorityRefsRef: "#/canonicalBindings/ownerAuthorityRefs"
+      negativeBranchRefsRef: "#/canonicalBindings/failClosedCases"
+      additionalSourceRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/error
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/recovery
+      sourceMeaning: "Timing edit is session-local draft work, not forced alignment or immutable registration."
+      remainingLimitations: BAD_TIMING_STALE_REVISION_AND_SESSION_LOCAL_UNDO_NEGATIVE_PROOF_PENDING
+      scenarioRefs: []
+      runtimeAdmission: NOT_ADMITTED
     coverageDisposition: SOURCE_BINDING_RECORDED
   - id: J-03.step-07
     ordinal: 7
@@ -13741,6 +13900,23 @@ journeys:
       oracleBoundary: Pure definition oracle. Guard verdicts are explicit fixture
         inputs, not inferred from labels; this does not execute transport/provider
         behavior or establish runtime admission.
+    mdc30SourceJoin:
+      selector: MDC30-S-11
+      status: SOURCE_JOIN_RECONCILED_DEFINITION_ONLY
+      branchProofStatus: NOT_RUN
+      actionRefRef: "#/canonicalBindings/actionRef"
+      operationRefsRef: "#/canonicalBindings/operationRefs"
+      resultSemanticsRef: "#/canonicalBindings/ownerResultSemantics"
+      authorityRefsRef: "#/canonicalBindings/ownerAuthorityRefs"
+      negativeBranchRefsRef: "#/canonicalBindings/failClosedCases"
+      additionalSourceRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/outputSemantics
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/error
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/recovery
+      sourceMeaning: "Receipt registers immutable caption version; it does not imply rights approval or publication."
+      remainingLimitations: CONFLICTING_BASE_VERSION_AND_UNKNOWN_REGISTRATION_RECONCILIATION_PROOF_PENDING
+      scenarioRefs: []
+      runtimeAdmission: NOT_ADMITTED
     coverageDisposition: SOURCE_BINDING_RECORDED
   - id: J-03.step-08
     ordinal: 8
@@ -14212,6 +14388,23 @@ journeys:
       oracleBoundary: Pure definition oracle. Guard verdicts are explicit fixture
         inputs, not inferred from labels; this does not execute transport/provider
         behavior or establish runtime admission.
+    mdc30SourceJoin:
+      selector: MDC30-S-12
+      status: SOURCE_JOIN_RECONCILED_DEFINITION_ONLY
+      branchProofStatus: NOT_RUN
+      actionRefRef: "#/canonicalBindings/actionRef"
+      operationRefsRef: "#/canonicalBindings/operationRefs"
+      resultSemanticsRef: "#/canonicalBindings/ownerResultSemantics"
+      authorityRefsRef: "#/canonicalBindings/ownerAuthorityRefs"
+      negativeBranchRefsRef: "#/canonicalBindings/failClosedCases"
+      additionalSourceRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/error
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/recovery
+      sourceMeaning: "Exact J16 step is a session-local caption draft edit; no machine transition or later dubbing finality."
+      remainingLimitations: JOURNEY_LEVEL_LANGUAGE_CONSENT_AND_TIMING_EXCEPTIONS_STAY_UNALLOCATED; STEP_NEGATIVE_PROOF_PENDING
+      scenarioRefs: []
+      runtimeAdmission: NOT_ADMITTED
     coverageDisposition: SOURCE_BINDING_RECORDED
   - id: J-16.step-04
     ordinal: 4
@@ -14664,6 +14857,19 @@ journeys:
       oracleBoundary: Pure definition oracle. Guard verdicts are explicit fixture
         inputs, not inferred from labels; this does not execute transport/provider
         behavior or establish runtime admission.
+    mdc30SourceJoin:
+      selector: MDC30-S-07
+      status: SOURCE_JOIN_RECONCILED_DEFINITION_ONLY
+      branchProofStatus: NOT_RUN
+      actionRefRef: "#/canonicalBindings/actionRef"
+      operationRefsRef: "#/canonicalBindings/operationRefs"
+      resultSemanticsRef: "#/canonicalBindings/ownerResultSemantics"
+      authorityRefsRef: "#/canonicalBindings/ownerAuthorityRefs"
+      negativeBranchRefsRef: "#/canonicalBindings/failClosedCases"
+      sourceMeaning: "begin-upload creates/replays the initial RECEIVING session; it is not guarded T01."
+      remainingLimitations: ACTION_CAPABILITY_CROSSWALK_AND_DENIED_DUPLICATE_UNKNOWN_NEGATIVES_REQUIRE_CURRENT_VALIDATION
+      scenarioRefs: []
+      runtimeAdmission: NOT_ADMITTED
     coverageDisposition: SOURCE_BINDING_RECORDED
   - id: J-02.step-03
     ordinal: 3
@@ -14822,6 +15028,19 @@ journeys:
       oracleBoundary: Pure definition oracle. Guard verdicts are explicit fixture
         inputs, not inferred from labels; this does not execute transport/provider
         behavior or establish runtime admission.
+    mdc30SourceJoin:
+      selector: MDC30-S-14
+      status: SOURCE_JOIN_RECONCILED_DEFINITION_ONLY
+      branchProofStatus: NOT_RUN
+      actionRefRef: "#/canonicalBindings/actionRef"
+      operationRefsRef: "#/canonicalBindings/operationRefs"
+      resultSemanticsRef: "#/canonicalBindings/ownerResultSemantics"
+      authorityRefsRef: "#/canonicalBindings/ownerAuthorityRefs"
+      negativeBranchRefsRef: "#/canonicalBindings/failClosedCases"
+      sourceMeaning: "Only guarded complete-upload binds RECEIVING \u2192 VERIFYING; AVAILABLE requires separate verification."
+      remainingLimitations: GUARDED_T01_ONLY; ABSENT_CHUNK_CHECKSUM_VERSION_AND_POST_VERIFY_NEGATIVES_REQUIRE_PROOF
+      scenarioRefs: []
+      runtimeAdmission: NOT_ADMITTED
     coverageDisposition: SOURCE_BINDING_RECORDED
   - id: J-02.step-04
     ordinal: 4

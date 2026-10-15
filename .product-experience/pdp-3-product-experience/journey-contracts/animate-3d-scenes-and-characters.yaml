@@ -1266,6 +1266,24 @@ steps:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
     scenarioRefs: []
     capabilityRefs: []
+sourceGap:
+  id: MDC30-C-13-render-completion-and-conversion-observation
+  status: UNKNOWN_NOT_ADMITTED
+  missingOwnerDefinition: >-
+    P1 submit-render binds only requestId, logicalJobId, sourceSnapshotDigest,
+    renderProfileRef, and durableAdmissionReceipt; it establishes job admission,
+    not terminal rendering. The exact-version output-preview/version-lineage
+    observation identifies an observed immutable output but does not join a
+    terminal render result to this journey or provide a typed format/geometry
+    conversion-loss report. Keep the existing submission and preview bindings;
+    do not infer render completion, export success, or conversion fidelity.
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1
+    - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j13-step-03.v1
+    - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j13-step-04.v1
+  boundary: Render completion and typed conversion-loss outcome remain unbound; channel transport and runtime admission remain NOT_ADMITTED.
 stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy
   view maps to one registered intent-based screen. Null actionRef and empty
   stateRefs are deliberate open bindings, not no-op actions or completed

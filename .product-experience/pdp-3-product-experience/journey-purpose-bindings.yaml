@@ -2583,6 +2583,46 @@ records:
     from its presence.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
+  relatedActionBindings:
+  - id: media.pdp3.action-binding.j26-consent-revocation-request.v1
+    bindingKind: RELATED_CONSENT_REVOCATION_REQUEST_NOT_ERASURE_OR_STEP_TRANSITION
+    journeyStepTransition: false
+    actionRef: media.action.revoke-authorized-consent
+    actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.revoke-authorized-consent
+    intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/4
+    operationRef: media.operation.action.revoke-authorized-consent
+    actionExactOperationRefs: [media.operation.action.revoke-authorized-consent]
+    operationKind: COMMAND
+    contractVersion: 1
+    operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent
+    ownerActionWireRef: .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.revoke-authorized-consent.v1
+    resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent/resultSchema
+    authorityRefs:
+    - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+    - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    domainObjectRefs: [media.domain.consent-reference, media.domain.rights-decision]
+    stateRefs: []
+    requestPurpose: Request only the exact authority-issued consent action, named purpose, and validity scope; exact target and current authority decision are rechecked at the effect boundary.
+    requiredRequestFields: [requestId, exactTargetRef, currentAuthorityDecision, explicitConfirmation, declaredScopeRef, consentRef, purposeRef, validityScope, authorityDecisionRef]
+    receiptMeaning: A request or ACKNOWLEDGED response alone is not consent-change confirmation; only the consent authority receipt confirms the scoped consent change. In-flight work requires separate reconciliation.
+    unknownDisposition: UNKNOWN is neither success nor failure; preserve the same request identity and exact target for authorized reconciliation and do not issue a second write while outcome is UNKNOWN.
+    effect: Request only the exact authority-issued consent action, named purpose, and validity scope after fresh authority and target checks.
+    finality: Request or ACKNOWLEDGED response alone is not consent-change finality; only the exact consent authority receipt confirms the scoped change.
+    recovery: Retain the exact consent target and request identity; reconcile the same request while outcome is UNKNOWN and never blindly replay.
+    confirmationRequired: true
+    erasureDisposition: NOT_BOUND; consent revocation does not imply artifact deletion, physical erasure, or ERASURE_CONFIRMED.
+    runtimeAdmission: NOT_ADMITTED
+    externalAcceptance: PENDING
+    acceptanceEffect: none
+    sourceRefs:
+    - .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/0
+    - .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/4
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent/resultSchema
+    - .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.revoke-authorized-consent.v1
+    - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+    - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
   allowedOperationRefs:
   - media.operation.action.inspect-consent-and-permitted-use
 - id: media.pdp3.step-purpose-binding.j26-step-02.v1
@@ -6058,6 +6098,42 @@ records:
     runtimeAdmission: NOT_ADMITTED
     externalAcceptance: PENDING
     acceptanceEffect: none
+  - id: media.pdp3.action-binding.j21-read-rights-observation.v1
+    bindingKind: RELATED_READ_ONLY_RIGHTS_OBSERVATION_NOT_STEP_TRANSITION
+    journeyStepTransition: false
+    actionRef: media.action.review-rights-approval-and-format-effects
+    actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-rights-approval-and-format-effects
+    intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/pdp1ResultEvidence/operationResultBindings/1
+    operationRef: media.operation.action.review-rights-approval-and-format-effects
+    actionExactOperationRefs: [media.operation.action.review-rights-approval-and-format-effects]
+    operationKind: QUERY
+    contractVersion: 1
+    operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-rights-approval-and-format-effects
+    resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1/resultSchema
+    observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1
+    authorityRefs:
+    - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+    - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    domainObjectRefs: [media.domain.artifact-version, media.domain.rights-decision]
+    stateRefs: []
+    decisionKind: HUMAN_REVIEW_APPROVAL
+    exactSubject: Query only the owner-confirmed registered output ArtifactVersionRef corresponding to the exact immutable version reviewed in J-21; preserve exact query/request and decision subject identity and do not substitute a newer version.
+    approvedOnlyWhen: An authoritative typed observation is APPROVED and CURRENT for the exact request and decision subject, with current authority/version, valid interval, and nonempty authoritative evidenceRefs.
+    unknownDisposition: Missing, stale, denied, mismatched, or unavailable evidence remains UNKNOWN; UNKNOWN and NOT_FOUND carry no decision and no approval claim.
+    effect: Read the current rights-decision observation for the exact immutable version; never create or change approval.
+    finality: The typed observation is read-only evidence and does not decide or record human approval.
+    recovery: Preserve the same exact version and query identity; missing, stale, denied, mismatched, or unavailable evidence remains UNKNOWN and requires same-subject re-observation only.
+    observationEffect: Read-only query; this related purpose binding never creates or changes approval.
+    runtimeAdmission: NOT_ADMITTED
+    externalAcceptance: PENDING
+    acceptanceEffect: none
+    sourceRefs:
+    - .product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/pdp1ResultEvidence/operationResultBindings/1
+    - .product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/pdp1ResultEvidence/typedObservationBindings/0
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-rights-approval-and-format-effects
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1
+    - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+    - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
 - id: media.pdp3.step-purpose-binding.j21-step-02.v1
   journeyRef: J-21
   journeySourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-21

@@ -19,6 +19,7 @@ const purposes = parse(readFileSync(`${p3}/journey-purpose-bindings.yaml`, "utf8
 const reviewPurpose = purposes.records.find(({ id }) => id === "media.pdp3.step-purpose-binding.j21-step-01.v1");
 const outputPurpose = purposes.records.find(({ id }) => id === "media.pdp3.step-purpose-binding.j21-step-02.v1");
 const decisionActionBinding = reviewPurpose?.relatedActionBindings?.find(({ id }) => id === "media.pdp3.action-binding.j21-review-decision-receipt.v1");
+const rightsObservationBinding = reviewPurpose?.relatedActionBindings?.find(({ id }) => id === "media.pdp3.action-binding.j21-read-rights-observation.v1");
 
 test("J21 keeps exact-version review request receipt separate from current approval observation", () => {
   assert.equal(journey.steps.length, 3, "J21 source step denominator remains unchanged");
@@ -28,6 +29,11 @@ test("J21 keeps exact-version review request receipt separate from current appro
     "media.operation-slice.inspect-provenance",
   ], "the three ordered step-operation joins remain unchanged");
   assert.equal(evidence.status, "SOURCE_BOUND_DEFINITION_ONLY; PDP3_STEP_ACTION_BINDING_AND_CHANNEL_REVIEW_PENDING");
+  assert.equal(evidence.rightsApprovalActionDisposition.status, "BLOCKED_EXCLUDED");
+  assert.equal(evidence.rightsApprovalActionDisposition.actionRef, null);
+  assert.match(evidence.rightsApprovalActionDisposition.queryBoundary, /read-only query/u);
+  assert.match(evidence.rightsApprovalActionDisposition.disposition, /do not dispatch or infer an approval action/u);
+  assert.ok(evidence.rightsApprovalActionDisposition.sourceRefs.includes(".product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-21/completion"));
 
   const request = evidence.operationResultBindings.find(({ operationRef }) => operationRef === decisionRequest.id);
   assert.ok(request, "the exact P1 review-request command is bound into the journey evidence");
@@ -62,6 +68,7 @@ test("J21 keeps exact-version review request receipt separate from current appro
 
   const observation = evidence.operationResultBindings.find(({ operationRef }) => operationRef === approvalQuery.id);
   assert.ok(observation, "approval is represented by the separate P1 read operation");
+  assert.equal(observation.journeyStepRef, reviewPurpose.stepRef, "the rights query stays attached to the exact-version review purpose");
   assert.equal(observation.operationKind, "QUERY");
   assert.equal(observation.observationContractRef.split("@id=").at(-1), approvalObservation.id);
   assert.ok(approvalObservation.operationRefs.includes(approvalQuery.id));
@@ -76,15 +83,27 @@ test("J21 keeps exact-version review request receipt separate from current appro
   assert.match(observation.observationEffect, /never creates or changes approval/u);
   assert.equal(observation.runtimeAdmission, "NOT_ADMITTED");
 
+  assert.ok(rightsObservationBinding, "the read-only rights observation is related to the first exact-version review purpose");
+  assert.equal(rightsObservationBinding.intentSourceRef, `${p3}/journey-contracts/review-exact-version-and-recheck-changes.yaml#/pdp1ResultEvidence/operationResultBindings/1`);
+  assert.equal(rightsObservationBinding.actionRef, approvalQuery.actionRef);
+  assert.equal(rightsObservationBinding.operationRef, approvalQuery.id);
+  assert.equal(rightsObservationBinding.operationKind, "QUERY");
+  assert.equal(rightsObservationBinding.journeyStepTransition, false);
+  assert.equal(rightsObservationBinding.bindingKind, "RELATED_READ_ONLY_RIGHTS_OBSERVATION_NOT_STEP_TRANSITION");
+  assert.equal(rightsObservationBinding.observationContractRef.split("@id=").at(-1), approvalObservation.id);
+  assert.deepEqual(rightsObservationBinding.stateRefs, []);
+  assert.equal(rightsObservationBinding.runtimeAdmission, "NOT_ADMITTED");
+  assert.equal(rightsObservationBinding.acceptanceEffect, "none");
+  assert.match(rightsObservationBinding.observationEffect, /never creates or changes approval/u);
+
   assert.equal(outputPurpose.journeyRef, "J-21");
   assert.equal(outputPurpose.ordinal, 2);
-  assert.equal((outputPurpose.relatedActionBindings ?? []).some(({ operationRef }) => operationRef === approvalQuery.id), false,
-    "do not invent a J21 approval-purpose join while the registry action omits J21 and this output view");
   const approvalAction = actionRegistry.actions.find(({ id }) => id === approvalQuery.actionRef);
   assert.ok(approvalAction);
-  assert.equal(approvalAction.journeyRefs.includes("J-21"), false);
-  assert.equal(approvalAction.viewRefs.includes("media.view.inspect-output"), false);
-  assert.equal(approvalAction.viewRefs.includes("media.view.review-exact-version"), false);
+  assert.equal(approvalAction.journeyRefs.includes("J-21"), true);
+  assert.equal(approvalAction.viewRefs.includes("media.view.review-exact-version"), true);
+  assert.equal(approvalAction.actionDefinitionSemantics.typedDefinition.canonicalOperationBindings.operationRef, approvalQuery.id);
+  assert.equal(approvalAction.actionDefinitionSemantics.typedDefinition.canonicalOperationBindings.operationKind, "QUERY");
   assert.deepEqual(approvalQuery.stateRefs, [], "the separate approval query remains read-only and adds no step transition");
 
   assert.match(evidence.completionCondition.meaning, /request receipt alone is insufficient/u);

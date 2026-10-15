@@ -326,15 +326,10 @@ steps:
             and artifact version establishes delivery; this request step does
             not assert destination receipt.
         nonhappyBranch:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.criticalNonhappyPaths
-          proposal:
-            - id: phase0-critical-exception
-              condition: Partial package, destination rejection, timeout after effect may have
-                occurred, or approval scope mismatch.
-              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
-                copy, and action bindings remain pending.
+          status: SOURCE_BOUND_P1_STATUS_CLASSIFICATION
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/steps/1/failure
+          branches: [denied-request, owner-confirmed-destination-non-acknowledgment, delayed-or-ambiguous-acknowledgment, wrong-destination-or-identity-mismatch]
+          runtimeAdmission: NOT_ADMITTED
         recoveryBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -509,15 +504,33 @@ steps:
         NOT_ADMITTED and no owner evidence/result is asserted
       laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/terminalSuccess
     failure:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.criticalNonhappyPaths
-      proposal:
-        - id: phase0-critical-exception
-          condition: Partial package, destination rejection, timeout after effect may have
-            occurred, or approval scope mismatch.
-          responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
-            copy, and action bindings remain pending.
+      status: SOURCE_BOUND_REQUEST_AND_ACKNOWLEDGMENT_FAILURE_BRANCHES; LATE_ACK_CATEGORY_UNDEFINED
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
+      operationErrorsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.governed-external-effect.v1/errors
+      branches:
+        - id: denied-request
+          sourceOutcome: ACCESS_DENIED_OR_OWNER_PROFILE_ERROR
+          sourceRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.governed-external-effect.v1/errors
+          disposition: Preserve typed denial/error; no delivery or acknowledgment is claimed.
+        - id: owner-confirmed-destination-non-acknowledgment
+          sourceOutcome: NOT_ACKNOWLEDGED
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1/resultSchema/properties/observation/properties/acknowledgmentStatus
+          disposition: Use only when current owner evidence explicitly reports NOT_ACKNOWLEDGED; the schema does not supply a rejection reason.
+        - id: delayed-or-ambiguous-acknowledgment
+          sourceOutcome: UNKNOWN
+          sourceRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1/resultSchema
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationValidationRules/records/@id=media.observation-validation.destination-delivery-acknowledgment.v1
+          disposition: A late response has no separate P1 status; until current exact-identity owner evidence is observed, retain UNKNOWN and reconcile the same request without replay.
+        - id: wrong-destination-or-identity-mismatch
+          sourceOutcome: UNKNOWN
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationValidationRules/records/@id=media.observation-validation.destination-delivery-acknowledgment.v1
+          disposition: Any destination or original-request identity mismatch is UNKNOWN; never map mismatched evidence to ACKNOWLEDGED or NOT_ACKNOWLEDGED.
+      sourceLimitations:
+        - P1 distinguishes ACKNOWLEDGED, NOT_ACKNOWLEDGED and UNKNOWN, but defines no separate late-ack status or rejection reason.
+        - NOT_ACKNOWLEDGED is a current owner observation, not an inferred timeout, missing receipt, or access denial.
     degradedBehavior:
       status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
       sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
@@ -530,11 +543,9 @@ steps:
       dispatch: NEVER
       ownerAcceptedOutcomeOracle: false
     recovery:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.recovery
-      proposal: Reconcile by effect/idempotency identity before retry; never represent
-        unknown publication as success or failure.
+      status: SOURCE_BOUND_SAME_REQUEST_RECONCILIATION
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.reconcile-delivery-acknowledgment/sourceRecovery
+      disposition: Reconcile the exact deliveryRequestResultRef, deliveryRequestId, deliveryRequestFingerprint, artifactVersionRef and destinationRef; preserve UNKNOWN on missing, stale, denied, unavailable or mismatched evidence; never retry blindly.
     postconditions: []
     requirementRefs: []
     verification:
@@ -634,15 +645,10 @@ steps:
             NOT_ADMITTED and no owner evidence/result is asserted
           laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/terminalSuccess
         failure:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.criticalNonhappyPaths
-          proposal:
-            - id: phase0-critical-exception
-              condition: Partial package, destination rejection, timeout after effect may have
-                occurred, or approval scope mismatch.
-              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
-                copy, and action bindings remain pending.
+          status: SOURCE_BOUND_P1_STATUS_CLASSIFICATION
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/steps/1/failure
+          branches: [denied-request, owner-confirmed-destination-non-acknowledgment, delayed-or-ambiguous-acknowledgment, wrong-destination-or-identity-mismatch]
+          runtimeAdmission: NOT_ADMITTED
         degradedBehavior:
           status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
           sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema

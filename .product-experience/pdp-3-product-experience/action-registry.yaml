@@ -10513,22 +10513,28 @@ actions:
   actorRefs:
     - media.creator
     - media.editor
+    - media.administrator
+    - media.privacy-rights-reviewer
+    - media.reviewer
   capabilityRefs: []
   capabilityBindingState: owner-approved-capability-mapping-pending
   handoffRefs: []
   viewRefs:
     - media.view.deliver-output
+    - media.view.review-exact-version
   journeyRefs:
     - J-09
     - J-22
     - J-28
+    - J-21
   preconditions:
     - resolve-the-current-workspace-and-exact-target-before-access-or-change
     - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
     - preserve-the-requested-context-and-exact-version-across-recovery
-  effect: Read or navigate using the exact selected context; do not mutate a source object or infer
-    permission from its presence.
-  affectedObjects: exact-target-and-current-draft-as-defined-by-the-screen-intent; owner review pending
+  effect: Read or navigate using the exact selected context; do not mutate a
+    source object or infer permission from its presence.
+  affectedObjects: exact-target-and-current-draft-as-defined-by-the-screen-intent;
+    owner review pending
   reversible: true
   finality: read-only-or-navigation; no-write-finality
   outcomes:
@@ -10536,49 +10542,56 @@ actions:
     - partial
     - failure
     - outcome-unknown
-  failure: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+  failure: preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence;
     never-claim-success-from-local-state
   retry: repeat-read-only-inspection-only-when-safe;
     never-dispatch-a-second-write-while-the-first-outcome-is-unknown
   cancellation: owner-bound-cancellation-semantics-pending;
     do-not-claim-remote-cancellation-without-authoritative-confirmation
-  recovery: retain-the-exact-context-and-request-identity; reconcile-unknown-effects-before-retry;
-    never-substitute-a-newer-version
+  recovery: retain-the-exact-context-and-request-identity;
+    reconcile-unknown-effects-before-retry; never-substitute-a-newer-version
   provenance: record-actor-workspace-target-version-operation-capability-decision-and-owner-acknowledgment-when-available
   nextSafeAction: inspect-the-exact-target-or-follow-an-owner-approved-reconciliation-instruction
-  contractState: proposal-derived-from-authored-view-intent; semantic-and-owner-review-pending
+  contractState: proposal-derived-from-authored-view-intent;
+    semantic-and-owner-review-pending
   actionDefinitionSemantics:
     actionRef: media.action.review-rights-approval-and-format-effects
     typedDefinition:
       ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
       semanticRole: DOMAIN_OPERATION
-      effectKind: read-only-observation-query-binding-unresolved
+      effectKind: read-only-observation-query
       reversibilityDisposition: REVERSIBLE
       confirmationDisposition: NOT_REQUIRED
       confirmationRequirement: null
       actorRefs:
         - media.creator
         - media.editor
+        - media.administrator
+        - media.privacy-rights-reviewer
+        - media.reviewer
       applicabilityGuards:
         - resolve-the-current-workspace-and-exact-target-before-access-or-change
         - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
         - preserve-the-requested-context-and-exact-version-across-recovery
-      effect: Read or navigate using the exact selected context; do not mutate a source object or infer
-        permission from its presence.
+      effect: Read or navigate using the exact selected context; do not mutate a
+        source object or infer permission from its presence.
       sourceReversibleValue: true
       finality: read-only-or-navigation; no-write-finality
-      failureRecovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+      failureRecovery: preserve-the-exact-target-and-current-draft;
+        explain-denial-or-incomplete-evidence;
         never-claim-success-from-local-state
       domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
       exactOperationRefs:
         - media.operation.action.review-rights-approval-and-format-effects
       runtimeAdmission: NOT_ADMITTED
-      acceptanceLimit: Identity/effect classification is source definition only; unresolved binding or
-        external contract remains explicit.
+      acceptanceLimit: Exact P1 QUERY and typed observation are source-bound;
+        transport/runtime and independent PDP1/PDP3 review remain NOT_ADMITTED/open.
       canonicalOperationBindings:
         sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.review-rights-approval-and-format-effects
         operationRef: media.operation.action.review-rights-approval-and-format-effects
         operationKind: QUERY
+        contractVersion: 1
         domainObjectRefs:
           - media.domain.artifact-version
           - media.domain.delivery-outcome
@@ -10589,8 +10602,8 @@ actions:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
         profileRef: media.operation-profile.scoped-query.v1
-        scopeStatus: Media-owner-defined exact logical operation; independent PDP1/PDP3 review open;
-          transport/runtime NOT_ADMITTED
+        scopeStatus: Media-owner-defined exact logical operation; independent PDP1/PDP3
+          review open; transport/runtime NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
       operationRef: media.operation.action.review-rights-approval-and-format-effects
       orderedOperationRefs: []
@@ -10598,26 +10611,31 @@ actions:
       actorRefs:
         - media.creator
         - media.editor
+        - media.administrator
+        - media.privacy-rights-reviewer
+        - media.reviewer
       preconditions:
         - resolve-the-current-workspace-and-exact-target-before-access-or-change
         - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
         - preserve-the-requested-context-and-exact-version-across-recovery
-      effect: Read or navigate using the exact selected context; do not mutate a source object or infer
-        permission from its presence.
+      effect: Read or navigate using the exact selected context; do not mutate a
+        source object or infer permission from its presence.
       reversible: true
       finality: read-only-or-navigation; no-write-finality
-      failure: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+      failure: preserve-the-exact-target-and-current-draft;
+        explain-denial-or-incomplete-evidence;
         never-claim-success-from-local-state
       domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
       exactOperationRefs:
         - media.operation.action.review-rights-approval-and-format-effects
-      ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
-        runtime-not-admitted
-      classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed
-        and has no exact canonical ID
+      ownerDefinitionStatus: Media-owner-source-classification;
+        independent-PDP3-and-PDP1-review-open; runtime-not-admitted
+      classificationBasis: P1 defines this exact QUERY and typed rights-decision
+        observation with no stateRefs; transport/runtime remains NOT_ADMITTED.
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
-  capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+  capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+    PROPOSAL_AND_REVIEW_STATUS_PRESERVED
   capabilityCrosswalkSources:
     - sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml
       capabilityRefs: []
@@ -10947,6 +10965,8 @@ actions:
   label: Revoke authorized consent
   intentTexts:
     - apply an authorized restriction or revocation
+    - request revocation for the exact authority-issued consent, purpose, and
+      validity scope
   actorRefs:
     - media.administrator
     - media.creator
@@ -10963,29 +10983,39 @@ actions:
     - resolve-the-current-workspace-and-exact-target-before-access-or-change
     - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
     - preserve-the-requested-context-and-exact-version-across-recovery
-  effect: Request the explicitly named operation for the exact target only after fresh actor,
-    capability, policy, and target checks.
-  affectedObjects: exact-target-and-current-draft-as-defined-by-the-screen-intent; owner review pending
+  effect: Request the exact consent action for the named authority-issued consent,
+    purpose, and validity scope after fresh actor, capability, policy, target,
+    and current-authority checks; no broader subject or purpose is implied.
+  affectedObjects: exact-target-and-current-draft-as-defined-by-the-screen-intent;
+    owner review pending
   reversible: false
-  finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure
+  finality: The request is not confirmation of consent change; only the consent
+    authority receipt confirms the scoped change. UNKNOWN requires
+    same-request reconciliation; in-flight work requires separate
+    reconciliation; no artifact erasure is implied.
   outcomes:
     - success
     - partial
     - failure
     - outcome-unknown
-  failure: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
-    never-claim-success-from-local-state
-  retry: repeat-read-only-inspection-only-when-safe;
-    never-dispatch-a-second-write-while-the-first-outcome-is-unknown
+  failure: Preserve the exact consent target and request identity; explain denial
+    or incomplete evidence; UNKNOWN is neither success nor failure and never
+    claim success from local state.
+  retry: Do not issue a second consent-revocation write while the first result is
+    UNKNOWN; reconcile the same request identity and exact target first.
   cancellation: owner-bound-cancellation-semantics-pending;
     do-not-claim-remote-cancellation-without-authoritative-confirmation
-  recovery: retain-the-exact-context-and-request-identity; reconcile-unknown-effects-before-retry;
-    never-substitute-a-newer-version
+  recovery: Retain exact consent, purpose, validity scope, authority decision, and
+    request identity; reconcile unknown effects before retry; never substitute
+    a newer consent or imply artifact erasure.
   provenance: record-actor-workspace-target-version-operation-capability-decision-and-owner-acknowledgment-when-available
-  nextSafeAction: inspect-the-exact-target-or-follow-an-owner-approved-reconciliation-instruction
-  confirmation: Show the exact target, scope, and external or governed effect; require a separate
-    explicit confirmation before dispatch.
-  contractState: proposal-derived-from-authored-view-intent; semantic-and-owner-review-pending
+  nextSafeAction: Inspect the exact consent authority receipt or follow the
+    owner-authorized reconciliation instruction; report consent change only
+    when the exact receipt confirms it.
+  confirmation: Show the exact target, scope, and external or governed effect;
+    require a separate explicit confirmation before dispatch.
+  contractState: proposal-derived-from-authored-view-intent;
+    semantic-and-owner-review-pending
   actionDefinitionSemantics:
     actionRef: media.action.revoke-authorized-consent
     typedDefinition:
@@ -10994,8 +11024,8 @@ actions:
       effectKind: consequential-operation-unbound
       reversibilityDisposition: NOT_REVERSIBLE
       confirmationDisposition: REQUIRED
-      confirmationRequirement: Show the exact target, scope, and external or governed effect; require a
-        separate explicit confirmation before dispatch.
+      confirmationRequirement: Show the exact target, scope, and external or governed
+        effect; require a separate explicit confirmation before dispatch.
       actorRefs:
         - media.administrator
         - media.creator
@@ -11005,22 +11035,29 @@ actions:
         - resolve-the-current-workspace-and-exact-target-before-access-or-change
         - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
         - preserve-the-requested-context-and-exact-version-across-recovery
-      effect: Request the explicitly named operation for the exact target only after fresh actor,
-        capability, policy, and target checks.
+      effect: Request the exact consent action for the named authority-issued consent,
+        purpose, and validity scope after fresh actor, capability, policy,
+        target, and current-authority checks; no broader subject or purpose is
+        implied.
       sourceReversibleValue: false
-      finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure
-      failureRecovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
-        never-claim-success-from-local-state
+      finality: The request is not confirmation of consent change; only the consent
+        authority receipt confirms the scoped change. UNKNOWN requires
+        same-request reconciliation; in-flight work requires separate
+        reconciliation; no artifact erasure is implied.
+      failureRecovery: Preserve the exact consent target and request identity; explain
+        denial or incomplete evidence; UNKNOWN is neither success nor failure
+        and never claim success from local state.
       domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
       exactOperationRefs:
         - media.operation.action.revoke-authorized-consent
       runtimeAdmission: NOT_ADMITTED
-      acceptanceLimit: Identity/effect classification is source definition only; unresolved binding or
-        external contract remains explicit.
+      acceptanceLimit: Identity/effect classification is source definition only;
+        unresolved binding or external contract remains explicit.
       canonicalOperationBindings:
         sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.revoke-authorized-consent
         operationRef: media.operation.action.revoke-authorized-consent
         operationKind: COMMAND
+        contractVersion: 1
         domainObjectRefs:
           - media.domain.consent-reference
           - media.domain.rights-decision
@@ -11029,8 +11066,8 @@ actions:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
         profileRef: media.operation-profile.governed-external-effect.v1
-        scopeStatus: Media-owner-defined exact logical operation; independent PDP1/PDP3 review open;
-          transport/runtime NOT_ADMITTED
+        scopeStatus: Media-owner-defined exact logical operation; independent PDP1/PDP3
+          review open; transport/runtime NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
       operationRef: media.operation.action.revoke-authorized-consent
       orderedOperationRefs: []
@@ -11044,21 +11081,30 @@ actions:
         - resolve-the-current-workspace-and-exact-target-before-access-or-change
         - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
         - preserve-the-requested-context-and-exact-version-across-recovery
-      effect: Request the explicitly named operation for the exact target only after fresh actor,
-        capability, policy, and target checks.
+      effect: Request the exact consent action for the named authority-issued consent,
+        purpose, and validity scope after fresh actor, capability, policy,
+        target, and current-authority checks; no broader subject or purpose is
+        implied.
       reversible: false
-      finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure
-      failure: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
-        never-claim-success-from-local-state
+      finality: The request is not confirmation of consent change; only the consent
+        authority receipt confirms the scoped change. UNKNOWN requires
+        same-request reconciliation; in-flight work requires separate
+        reconciliation; no artifact erasure is implied.
+      failure: Preserve the exact consent target and request identity; explain denial
+        or incomplete evidence; UNKNOWN is neither success nor failure and
+        never claim success from local state.
       domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
       exactOperationRefs:
         - media.operation.action.revoke-authorized-consent
-      ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
-        runtime-not-admitted
-      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
+      ownerDefinitionStatus: Media-owner-source-classification;
+        independent-PDP3-and-PDP1-review-open; runtime-not-admitted
+      classificationBasis: P1 defines an exact consent-revocation COMMAND request and
+        receipt semantics; this action has no artifact-deletion or all-copy
+        erasure authority.
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
-  capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+  capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+    PROPOSAL_AND_REVIEW_STATUS_PRESERVED
   capabilityCrosswalkSources:
     - sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml
       capabilityRefs: []

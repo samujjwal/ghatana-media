@@ -317,7 +317,14 @@ function assertJourneyTypedResultProof(edge, operation, proof, { purposeById, ex
           item.journeyStepRef === relation.intentSourceRef
             && item.purposeBindingRef === `${match[1]}#records/@id=${match[2]}`
             && item.actionBindingRef === ref
-            && item.operationRef === operation.id)) {
+            && item.operationRef === operation.id)
+        && !(() => {
+          const resultMatch = relation.intentSourceRef.match(/^(.+)#\/pdp1ResultEvidence\/operationResultBindings\/(\d+)$/u);
+          if (!resultMatch || resultMatch[1] !== journeyFile) return false;
+          const result = journeyContract.pdp1ResultEvidence?.operationResultBindings?.[Number(resultMatch[2])];
+          return result?.operationRef === operation.id
+            && (result.journeyPurposeBindingRef ?? result.purposeBindingRef) === `${match[1]}#records/@id=${match[2]}`;
+        })()) {
         throw new Error(`${edge.id} related action intent does not resolve to an exact journey step action`);
       }
     }
@@ -327,7 +334,7 @@ function assertJourneyTypedResultProof(edge, operation, proof, { purposeById, ex
         ? resultBindings[Number(resultMatch[2])]
         : null;
       return binding?.operationRef === operation.id
-        && binding?.purposeBindingRef === `${match[1]}#records/@id=${match[2]}`
+        && (binding?.journeyPurposeBindingRef ?? binding?.purposeBindingRef) === `${match[1]}#records/@id=${match[2]}`
         && typeof (binding.resultSchemaRef ?? binding.typedObservationContractRef) === "string"
         && (binding.resultSchemaRef ?? binding.typedObservationContractRef).startsWith(".product-experience/pdp-1-domain-data/operations.yaml#")
         && Boolean(binding.exactResult || binding.resultMeaning || binding.delegatedResultKind || binding.observationContractRef || binding.typedObservationContractRef)
@@ -615,7 +622,8 @@ function assertJ06NoTransitionTypedResultProof(edge, operation, proof, { purpose
 function purposeBindingRefsResolveObservation(refs, purposeById, observationRef) {
   return refs.some((ref) => {
     const purpose = purposeById.get(ref.split("@id=")[1]?.split(/[&#]/)[0]);
-    return purpose?.sourceRefs?.includes(observationRef);
+    return purpose?.sourceRefs?.includes(observationRef)
+      || purpose?.observationContractRefs?.includes(observationRef);
   });
 }
 

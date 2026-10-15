@@ -2859,6 +2859,30 @@ steps:
             summary: "Exact request result fields are requestId, deliveryRequestId, deliveryRequestResultRef, deliveryRequestFingerprint, exactTargetRef, artifactVersionId, destinationRef, ownerReceipt, and observedAt. Destination acknowledgement requires the separate typed observation bound to the exact immutable request result and identity."
           effect: Request the explicitly named operation for the exact target only after fresh actor, capability, policy, and target checks.
           finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure
+          acknowledgmentCorrelation:
+            status: SEPARATE_TYPED_DESTINATION_OBSERVATION; SOURCE_BOUND_EXACT_IDENTITY
+            observationBindingRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/typedObservationBindings/0
+            observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
+            requiredExactIdentity: [deliveryRequestResultRef, deliveryRequestId, deliveryRequestFingerprint, artifactVersionRef, destinationRef]
+            acknowledgedOnlyWhen: Current owner-issued acknowledgment authority and nonempty evidence match every exact identity field from the original immutable delivery result.
+            unknownDisposition: Missing, denied, stale, timed-out, unavailable, or mismatched evidence remains UNKNOWN; reconcile the same request identity and never retry blindly.
+            nonhappyBranches:
+              - id: denied-delivery-request
+                sourceOutcome: ACCESS_DENIED_OR_OWNER_PROFILE_ERROR
+                sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.governed-external-effect.v1/errors
+                disposition: Preserve typed denial/error; do not claim delivery or acknowledgment.
+              - id: owner-confirmed-destination-rejection
+                sourceOutcome: NOT_ACKNOWLEDGED
+                sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1/resultSchema/properties/observation/properties/acknowledgmentStatus
+                disposition: Report non-acknowledgment only when current owner evidence explicitly returns NOT_ACKNOWLEDGED; P1 supplies no rejection reason.
+              - id: late-or-ambiguous-destination-acknowledgment
+                sourceOutcome: UNKNOWN
+                sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationValidationRules/records/@id=media.observation-validation.destination-delivery-acknowledgment.v1
+                disposition: P1 defines no separate late status; until current exact-identity acknowledgment evidence is observed, preserve UNKNOWN and reconcile the same request.
+              - id: wrong-destination-or-identity-mismatch
+                sourceOutcome: UNKNOWN
+                sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationValidationRules/records/@id=media.observation-validation.destination-delivery-acknowledgment.v1
+                disposition: A destination or request identity mismatch remains UNKNOWN and never establishes ACKNOWLEDGED or NOT_ACKNOWLEDGED.
         nonhappy:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.deliver-exact-version
           guards:
@@ -2896,14 +2920,18 @@ steps:
         noAcceptanceInference: source bindings do not establish independent review,
           runtime admission, or lifecycle receipt
       versionedObjectObservation:
-        status: LOCAL_EDITOR_SESSION_DRAFT_ONLY;
-          CANONICAL_MEDIA_OBJECT_EQUIVALENCE_NOT_ASSERTED
+        status: SOURCE_BOUND_EXACT_DELIVERY_REQUEST_AND_ACKNOWLEDGMENT_OBSERVATION;
+          REQUEST_RECEIPT_IS_NOT_DESTINATION_FINALITY
         operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version
         objectRefs: [ media.domain.artifact-version, media.domain.delivery-outcome ]
         versionIdentityRule: Exact tenant/artifact/version tuple required on the
           request; request receipt alone does not prove destination delivery.
         sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/requestSchema
-        observation: null
+        observation:
+          contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
+          exactIdentityFields: [deliveryRequestResultRef, deliveryRequestId, deliveryRequestFingerprint, artifactVersionRef, destinationRef]
+          successRequires: current-owner-issued-acknowledgment-and-nonempty-evidence-for-the-same-exact-delivery-request
+          mismatchOrUnknown: UNKNOWN; no destination success and no blind retry
         runtimeAdmission: NOT_ADMITTED
         canonicalObjectRefs: [ media.domain.artifact-version, media.domain.delivery-outcome ]
       intentBinding:

@@ -20,6 +20,22 @@ actors:
 channels:
   - media.channel.web
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+channelDefinitionEvidence:
+  status: SOURCE_GROUNDED_PARTIAL; TRANSPORT_UNBOUND; RUNTIME_NOT_ADMITTED
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1/resultSchema
+    - .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/identity
+  sourceGroundedInputs: exact-immutable-subject-version; nonempty-unique-metricRefs-for-quality-observation; scoped-read-only-comparison
+  sourceGroundedResult: typed-quality-observation-with-subjectArtifactVersionRef-metricRefs-evidenceRefs-observedAt-and-currentness
+  blockedSemantics:
+    - compare-candidate-on-metric accepts a generic exact subjectRef and returns a generic owner receipt; it does not define original-versus-candidate version pairing or algorithm context.
+    - The typed quality-evidence query is joined to the exact selected output-version subject and a nonempty unique metricRefs request; no original-versus-candidate version pair, evaluation algorithm context, or matched measured result for every requested metric is joined.
+    - Visual preview is not measured repair evidence; empty, foreign-version, missing, stale and unavailable observations cannot satisfy terminalSuccess.
+    - Web remains UNBOUND and NOT_ADMITTED; no channel transport or runtime equivalence is asserted.
+  unknownAndDenied: Missing/stale/unavailable evidence and ambiguous query results remain UNKNOWN or abstention; preserve exact versions and do not promote a preview or owner receipt to measured improvement.
 pdp1ResultEvidence:
   status: SOURCE_BOUND_DEFINITION_ONLY; CHANNEL_TRANSPORT_UNBOUND; RUNTIME_NOT_ADMITTED
   sourceRefs:
@@ -564,7 +580,17 @@ pdp1ResultEvidence:
       transitionRefs: []
       exactResult: "Exact P1 result schema requires: outcome, observedAt, outputs, provenance, implementationState, qualificationState, runtimeAvailability. Source finality: success requires authoritative owner receipt and exact output version references; transport acknowledgement or dispatch is not completion; ambiguous finality is UNKNOWN_OUTCOME"
       unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: After ambiguous response reconcile same requestId and payload fingerprint; no blind retry; retry only proven non-acceptance with same idempotency identity."
-  typedObservationBindings: []
+  typedObservationBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/3
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-04.v1
+      operationRef: media.operation.action.inspect-quality-evidence
+      observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1/resultSchema
+      requiredExactIdentity: [queryId, requestFingerprint, subjectArtifactVersionRef, metricRefs]
+      subjectBinding: The exact selected output version under review must equal subjectArtifactVersionRef; metricRefs must be nonempty and unique.
+      observationMeaning: Only the source-defined current typed metric observation is measured evidence; NO_OBSERVATIONS, UNKNOWN, SUBJECT_NOT_FOUND, stale evidence, or missing requested metrics do not prove repair quality.
+      comparisonBoundary: This observation does not bind an original-versus-candidate version pair or the evaluation algorithm context; the separate comparison action remains an owner-receipt envelope.
+      unknownDisposition: Missing, stale, denied, foreign-version, empty-metric, partial, or unavailable observations remain unresolved or UNKNOWN; never substitute preview evidence.
   resultCompleteness: Each exact operation-purpose pair cites the P1 result schema and source-defined authority, version, finality, error, and recovery semantics. State and transition arrays are copied exactly from P1; no additional machine state or transition is inferred.
   channelAndRuntimeBoundary:
     intendedChannels:
@@ -1536,13 +1562,13 @@ steps:
         resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/resultSchema
         resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         typedQualityEvidenceObservation:
-          status: CONTRACT_REFERENCE_ONLY; OUTPUT_SUBJECT_AND_METRIC_JOIN_UNDEFINED; DEFINITION_INCOMPLETE; TRANSPORT_AND_RUNTIME_NOT_ADMITTED
+          status: SOURCE_BOUND_TYPED_QUERY_SELECTION; COMPARISON_CONTEXT_AND_MATCHED_RESULT_OPEN; DEFINITION_INCOMPLETE; TRANSPORT_AND_RUNTIME_NOT_ADMITTED
           contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1
           validationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationValidationRules/records/@id=media.observation-validation.quality-evidence.v1
           operationRef: media.operation.action.inspect-quality-evidence
           requestFields: [ queryId, subjectArtifactVersionRef, metricRefs ]
-          subjectBinding: UNRESOLVED; no source-defined selector maps a selected successful capability output identity to subjectArtifactVersionRef; do not substitute a newer version.
-          metricSelection: UNRESOLVED; no source-defined journey selection supplies the nonempty metricRefs for the exact output.
+          subjectBinding: The exact selected successful capability output identity must equal subjectArtifactVersionRef; do not substitute a newer version.
+          metricSelection: The request supplies a nonempty unique metricRefs set for that exact selected output; no default metric set is inferred.
           resultFields:
             - currentness
             - subjectArtifactVersionRef
@@ -1569,7 +1595,7 @@ steps:
             disposition: [ PASS, FAIL, INDETERMINATE, NOT_EVALUATED ]
           limitationPresentation: Source-defined evidence can expose applicability, indeterminate or not-evaluated disposition, uncertainty, abstentionReasonRef, and evidenceRefs. No specific user-facing copy or display layout is defined by this observation schema.
           noEvidenceRule: NO_OBSERVATIONS, UNKNOWN, or SUBJECT_NOT_FOUND must not be projected as zero, pass, or failure; preserve UNKNOWN/currentness and per-metric abstention or non-applicability distinctly.
-          comparisonBoundary: The step 3 comparison query envelope remains separate and does not supply or replace this typed quality-evidence observation.
+          comparisonBoundary: The step 3 comparison query envelope remains separate; it does not define the original-versus-candidate version pair or evaluation algorithm context and does not supply or replace this typed quality-evidence observation.
           runtimeAdmission: NOT_ADMITTED
         success:
           status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY

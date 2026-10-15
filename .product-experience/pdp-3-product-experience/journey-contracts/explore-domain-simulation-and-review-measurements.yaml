@@ -1405,6 +1405,29 @@ steps:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
     scenarioRefs: []
     capabilityRefs: []
+sourceGap:
+  id: MDC30-C-14-terminal-simulation-render-observation
+  status: UNKNOWN_NOT_ADMITTED
+  missingOwnerDefinition: >-
+    P1 inspect-simulation-result is an exact-target scoped read whose immediate
+    envelope is requestId, exactTargetRef, ownerReceipt, and observedAt; this
+    J-14 binding does not join that envelope to a typed simulation-pass result,
+    exact run parameters, or a completed render/measurement result.
+    inspect-quality-evidence returns typed quality evidence for an exact
+    subject version but is not a simulation terminal or render-completion
+    receipt. The submit-render operation is durable admission only. Bind a
+    typed same-subject terminal observation and exact constraints/units/fidelity
+    semantics only when an owner-defined operation/result and purpose binding
+    establish them; otherwise retain UNKNOWN for missing, partial, stale,
+    denied, and unavailable results.
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-simulation-pass-with-produced-versus-estimated-provenance
+    - .product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#ownerDefinedVisualVsScientificFidelityBoundary
+  integrationDisposition: HOST_DEPENDENT; NOT_ADMITTED
+  boundary: Both declared channels remain transport-unbound; product-integration requires host authority and admission evidence not present in this journey contract.
 stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy
   view maps to one registered intent-based screen. Null actionRef and empty
   stateRefs are deliberate open bindings, not no-op actions or completed

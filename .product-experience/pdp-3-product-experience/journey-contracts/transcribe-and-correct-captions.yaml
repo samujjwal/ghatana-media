@@ -572,7 +572,8 @@ steps:
         rule: validate-supported-profile-and-intent-currently; never infer a default
       profileBinding: exact-profileId-profileVersion-profileConfigurationDigest;
         current authoritative qualification is required
-      profilePreconstructionBoundary: absent-incomplete-stale-or-unqualified-optional-P0-profile-language-slot-returns-UNSUPPORTED_PROFILE-before-operation-request-job-receipt-or-dispatch-construction; never-default-or-reinterpret-absence-as-AUTO_REQUESTED
+      profilePreconstructionBoundary: absent-incomplete-stale-or-unqualified-optional-P0-profile-language-slot-returns-UNSUPPORTED_PROFILE-before-operation-request-job-receipt-or-dispatch-construction;
+        never-default-or-reinterpret-absence-as-AUTO_REQUESTED
       policyContext:
         - purposeRef
         - rightsEvidenceRefs
@@ -582,7 +583,8 @@ steps:
       scalarNullability:
         optionalDelegationRef: absent-is-canonical-null;
           if-present-must-be-a-nonempty-trusted-delegation-reference
-        consentRef: optional-exact-reference-locator; omission-resolves-only-from-current-trusted-owner-context;
+        consentRef: optional-exact-reference-locator;
+          omission-resolves-only-from-current-trusted-owner-context;
           canonical-null-only-when-current-authoritative-policy-says-consent-is-not-required
         retentionPolicyRef: optional-exact-reference-locator;
           omission-resolves-only-from-current-trusted-owner-context;
@@ -605,7 +607,8 @@ steps:
         consentRetentionAndPolicyReferences: caller-provided-values-are-exact-locators-only;
           current-authoritative-owner-resolution-controls-effective-values-and-explicit-null;
           caller-cannot-assert-consent-retention-or-policy-authority
-        processingLocation: never-caller-asserted; resolve-only-from-current-trusted-policy-and-qualified-profile-context
+        processingLocation: never-caller-asserted;
+          resolve-only-from-current-trusted-policy-and-qualified-profile-context
         reconcileRequestFingerprint: required-nonnull-lowercase-64-hex-SHA256
         noOtherNulls: reject-null-for-required-fields-and-any-unlisted-nullable-field;
           no-defaulting-or-ignored-payload-fields
@@ -633,9 +636,12 @@ steps:
           - retentionPolicyRef
           - policyDecisionRef
         absentReferenceDisposition: resolve-from-current-authoritative-owner-context-or-canonical-null-only-when-policy-says-not-applicable
-        processingLocationDisposition: resolve-from-current-trusted-policy-and-qualified-profile-context; never-accept-a-caller-asserted-location
+        processingLocationDisposition: resolve-from-current-trusted-policy-and-qualified-profile-context;
+          never-accept-a-caller-asserted-location
         fingerprintUses: exact-owner-resolved-values-including-explicit-null-and-resolvedProcessingLocation
-      fingerprintValueSource: caller-supplied-reference-locators-are-only-input-to-current-owner-resolution; fingerprint-uses-exact-owner-resolved-effective-values-from-the-retained-original-submit-snapshot-under-the-same-P1-field-names; never-substitute-caller-locator-strings-for-resolved-values
+      fingerprintValueSource: caller-supplied-reference-locators-are-only-input-to-current-owner-resolution;
+        fingerprint-uses-exact-owner-resolved-effective-values-from-the-retained-original-submit-snapshot-under-the-same-P1-field-names;
+        never-substitute-caller-locator-strings-for-resolved-values
       requestFingerprint:
         version: media.transcription-submission-fingerprint.v2
         digestField: requestFingerprint; lowercase-64-hex-SHA256
@@ -679,10 +685,11 @@ steps:
           preserve-exact-validated-string-values-and-optional-presence;
           no-trimming-case-folding-default-insertion-or-map-order-dependence
         replay: retain the complete validated canonical submit snapshot, current
-          owner-resolved optional authority values, resolved processing location,
-          and fingerprint before first dispatch; exact same key and fingerprint
-          only after fresh current effect policy; mismatch is IDEMPOTENCY_CONFLICT
-          and does not erase or prove absence of prior receipt
+          owner-resolved optional authority values, resolved processing
+          location, and fingerprint before first dispatch; exact same key and
+          fingerprint only after fresh current effect policy; mismatch is
+          IDEMPOTENCY_CONFLICT and does not erase or prove absence of prior
+          receipt
         reconcileFingerprint: caller supplies nonnull lowercase-64-hex digest; host
           recomputes it from retained original snapshot in the same trusted
           scope; never trust a digest received from a lost response
@@ -701,10 +708,9 @@ steps:
         - observedAt
         - uncertaintyReason
       asynchronousBoundary: REQUEST_ACKNOWLEDGED establishes logical request/job
-        identity and receipt only; acceptedAt proves no job state or worker dispatch;
-        it asserts no provider execution,
-        recognition completion, transcript, quality, caption approval, or
-        publication
+        identity and receipt only; acceptedAt proves no job state or worker
+        dispatch; it asserts no provider execution, recognition completion,
+        transcript, quality, caption approval, or publication
       reconciliation: RECONCILE uses same requestId and full fingerprint in same
         trusted scope under separately rechecked current scoped receipt-read
         authority; it may reconcile after processing authority revocation but
@@ -933,21 +939,51 @@ steps:
           - media.domain.processing-job
         stateRefs: []
         canonicalOperationRef: media.operation.transcription-submission
-        authorityRef: .product-experience/pdp-1-domain-data/operations.yaml#media.operation.transcription-submission
+        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
         transitionRef: null
-        requirementRefs: [ MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION ]
+        requirementRefs:
+          - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-JOB
+          - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION
         scenarioRefs:
           - media.scenario.consent-revoked
           - media.scenario.job-outcome-unknown
         capabilityRefs: [ media.job.submit, media.speech.transcription.file ]
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
       verification:
-        status: not-run
+        status: SOURCE_LINKAGE_CHECKED_BY_LOCAL_REGRESSION; INDEPENDENT_REVIEW_OPEN;
+          RUNTIME_NOT_ADMITTED
         requiredChecks:
-          - duplicate-key-safe-YAML-parse
-          - exact-source-profile-and-policy-fingerprint-binding
-          - same-request-unknown-reconciliation
-          - no-state-or-recognition-finality-claim
-        actualEvidence: []
+          - logical-request-receipt-is-not-job-state-or-recognition-finality
+          - exact-request-id-and-fingerprint-reconciliation-only
+          - definitive-rejection-idempotency-conflict-unavailable-and-unknown-outcome-remain-distinct
+          - no-p1-machine-transition-and-runtime-not-admitted
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/1
+          - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-transcription
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission/outputSemantics
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission/error
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission/recovery
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+          - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-JOB
+          - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION
+          - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-2
+        actualEvidence:
+          - kind: SOURCE_BOUND_CONTRACT_FINDING
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-2
+            finding: Atomically record a logical transcription request and stable acceptance
+              receipt before asynchronous worker execution; acceptance is not a
+              job state, attempt start, provider dispatch, or recognition
+              result.
+          - kind: FOCUSED_REGRESSION
+            sourceRef: tests/media-pdp3-mdc30-s08-s13-journey-local.test.mjs
+            finding: Focused regression node --test
+              tests/media-pdp3-mdc30-s08-s13-journey-local.test.mjs passed 9/9
+              on these current journey and P1 sources; source-bound definitions
+              only, with runtime NOT_ADMITTED and independent review open.
       acceptanceBoundary: Source definition only. Proposal branches, unbound
         object/state/authority/transition/requirement identities, external
         review and lifecycle evidence remain separate.
@@ -1022,26 +1058,28 @@ steps:
             never-submit-duplicate-on-unknown
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: TRANSITION_APPLICABILITY_UNRESOLVED
+        status: NO_P1_MACHINE_TRANSITION
         transitionRef: null
         stateRefs: []
         operationRef: media.operation.transcription-submission
-        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/1
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-2
         runtimeAdmission: NOT_ADMITTED
       canonicalBindingDisposition:
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/1
         fields:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
           objectRefs: SOURCE_STEP_OBJECT_REFS_PRESENT
-          stateRefs: STATE_BINDING_UNRESOLVED
+          stateRefs: NO_PDP1_MACHINE_STATE; SESSION_LOCAL_DRAFT_REVISION_ONLY
           canonicalOperationRef: EXACT_OPERATION_REF
-          authorityRef: EXACT_AUTHORITY_REF
+          authorityRef: EXACT_P1_OWNER_BINDING_AUTHORITY_REFS
           transitionRef: TRANSITION_APPLICABILITY_UNRESOLVED
-          requirementRefs: EXACT_REQUIREMENT_REFS_PRESENT
+          requirementRefs: EXACT_P1_OWNER_BINDING_REQUIREMENT_REFS
           scenarioRefs: EXACT_SCENARIO_FIXTURE_REFS
-        operationContractRef: null
-        authorityRefs: []
-        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+        requirementCrosswalkStatus: SOURCE_BOUND_P1_OWNER_OPERATION_BINDING
         noAcceptanceInference: source bindings do not establish independent review,
           runtime admission, or lifecycle receipt
       versionedObjectObservation:
@@ -2159,13 +2197,17 @@ steps:
             and all other supplied fields.
         failure:
           status: SOURCE_DEFINED; runtime-admission-pending
-          scope: exact-draft-and-parent
+          scope: text-only correction branch; preserve prior snapshot on invalid request,
+            authority, source, parent, segment, or revision
           sourceRef: media.operation.caption-draft-write
-          proposal: Keep the prior snapshot unchanged on policy denial, missing segment,
-            stale source/parent, or revision conflict; retain ACCESS_DENIED,
-            DRAFT_NOT_FOUND_IN_CALLER_SCOPE, SOURCE_IDENTITY_MISMATCH,
-            PARENT_VERSION_STALE, DRAFT_REVISION_CONFLICT, and UNAVAILABLE as
-            distinct outcomes.
+          proposal: Keep the prior snapshot unchanged on INVALID_REQUEST, ACCESS_DENIED,
+            DRAFT_NOT_FOUND_IN_CALLER_SCOPE, DRAFT_INITIALIZATION_BLOCKED,
+            SOURCE_IDENTITY_MISMATCH, PARENT_VERSION_STALE,
+            DRAFT_REVISION_CONFLICT, DRAFT_REVISION_EXHAUSTED,
+            CAPTION_SEGMENT_NOT_FOUND, UNAVAILABLE. These operation errors
+            remain distinct; UNKNOWN_OUTCOME is ambiguous, not a rejection, and
+            must be reconciled by inspecting the same draft before another
+            explicit edit.
         degradedBehavior: Missing or unqualified timing remains explicitly unavailable;
           never infer language, speaker, confidence, timing, source clock, or
           scientific correctness.
@@ -2173,12 +2215,11 @@ steps:
           status: SOURCE_DEFINED; runtime-admission-pending
           scope: same-session-local-draft
           sourceRef: media.operation.caption-draft-write
-          proposal: After uncertain observation, inspect the same active-session draft and
-            revision before a user explicitly submits another edit; stale parent
-            requires host-prepared revision zero under fresh current policy with
-            a new draftId and exact new typed parent; preserve the old stale
-            draft until explicit discard, never reparent or reuse its revision,
-            and never silently overwrite.
+          proposal: After an uncertain local result, inspect the same draftId and current
+            draftRevision before applying any edit again; never blindly reapply
+            or increment again. For stale parent, explicitly prepare a distinct
+            revision-zero draft under fresh policy and retain the old stale
+            draft until explicit discard.
         postconditions:
           - immutable-source-unchanged
           - immutable-parent-unchanged
@@ -2210,20 +2251,49 @@ steps:
           - media.domain.caption-version
         stateRefs: []
         canonicalOperationRef: media.operation.caption-draft-write
-        authorityRef: current-trusted-tenant-principal-and-source-read-plus-derived-content-edit-policy
+        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
         transitionRef: null
-        requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
+        requirementRefs:
+          - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT
         scenarioRefs:
           - media.scenario.caption-corrected
           - media.scenario.caption-conflict
         capabilityRefs: [ media.artifact.derive ]
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
       verification:
-        status: not-run
+        status: SOURCE_LINKAGE_CHECKED_BY_LOCAL_REGRESSION; INDEPENDENT_REVIEW_OPEN;
+          RUNTIME_NOT_ADMITTED
         requiredChecks:
-          - duplicate-key-safe-YAML-parse
-          - exact-text-only-edit-branch
-          - stale-parent-and-revision-conflict-negative-cases
-        actualEvidence: []
+          - text-only-edit-returns-one-session-local-draft-revision
+          - denial-missing-segment-stale-parent-and-revision-conflict-preserve-prior-snapshot
+          - unknown-result-inspects-same-session-draft-before-explicit-resubmit
+          - no-p1-machine-transition-and-runtime-not-admitted
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/4
+          - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.correct-caption
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/error
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/recovery
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+          - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT
+          - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-5
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/idempotency
+        actualEvidence:
+          - kind: SOURCE_BOUND_CONTRACT_FINDING
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-5
+            finding: Apply exactly one validated user text or timing edit to a session-local
+              draft revision using compare-and-swap; immutable source and parent
+              versions remain unchanged.
+          - kind: FOCUSED_REGRESSION
+            sourceRef: tests/media-pdp3-mdc30-s08-s13-journey-local.test.mjs
+            finding: Focused regression node --test
+              tests/media-pdp3-mdc30-s08-s13-journey-local.test.mjs passed 9/9
+              on these current journey and P1 sources; source-bound definitions
+              only, with runtime NOT_ADMITTED and independent review open.
       acceptanceBoundary: Source definition only. Proposal branches, unbound
         object/state/authority/transition/requirement identities, external
         review and lifecycle evidence remain separate.
@@ -2288,32 +2358,45 @@ steps:
             - exact-source-and-typed-parent-readable
             - current-scoped-source-read-and-derived-edit-authority
             - expected-session-draft-revision
-          failure: preserve-prior-draft-snapshot-on-denial-stale-parent-or-revision-conflict
+          failure: Keep the prior snapshot unchanged on INVALID_REQUEST, ACCESS_DENIED,
+            DRAFT_NOT_FOUND_IN_CALLER_SCOPE, DRAFT_INITIALIZATION_BLOCKED,
+            SOURCE_IDENTITY_MISMATCH, PARENT_VERSION_STALE,
+            DRAFT_REVISION_CONFLICT, DRAFT_REVISION_EXHAUSTED,
+            CAPTION_SEGMENT_NOT_FOUND, UNAVAILABLE. These operation errors
+            remain distinct; UNKNOWN_OUTCOME is ambiguous, not a rejection, and
+            must be reconciled by inspecting the same draft before another
+            explicit edit.
         recovery:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.correct-caption
-          recovery: preserve-prior-draft-snapshot-on-denial-stale-parent-or-revision-conflict
+          recovery: After an uncertain local result, inspect the same draftId and current
+            draftRevision before applying any edit again; never blindly reapply
+            or increment again. For stale parent, explicitly prepare a distinct
+            revision-zero draft under fresh policy and retain the old stale
+            draft until explicit discard.
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: TRANSITION_APPLICABILITY_UNRESOLVED
+        status: NO_P1_MACHINE_TRANSITION
         transitionRef: null
         stateRefs: []
         operationRef: media.operation.caption-draft-write
-        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/4
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-5
         runtimeAdmission: NOT_ADMITTED
       canonicalBindingDisposition:
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/4
         fields:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
           objectRefs: SOURCE_STEP_OBJECT_REFS_PRESENT
-          stateRefs: STATE_BINDING_UNRESOLVED
+          stateRefs: NO_PDP1_MACHINE_STATE; SESSION_LOCAL_DRAFT_REVISION_ONLY
           canonicalOperationRef: EXACT_OPERATION_REF
-          authorityRef: EXACT_AUTHORITY_REF
+          authorityRef: EXACT_P1_OWNER_BINDING_AUTHORITY_REFS
           transitionRef: TRANSITION_APPLICABILITY_UNRESOLVED
-          requirementRefs: EXACT_REQUIREMENT_REFS_PRESENT
+          requirementRefs: EXACT_P1_OWNER_BINDING_REQUIREMENT_REFS
           scenarioRefs: EXACT_SCENARIO_FIXTURE_REFS
-        operationContractRef: null
-        authorityRefs: []
-        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+        requirementCrosswalkStatus: SOURCE_BOUND_P1_OWNER_OPERATION_BINDING
         noAcceptanceInference: source bindings do not establish independent review,
           runtime admission, or lifecycle receipt
       versionedObjectObservation:
@@ -2586,14 +2669,17 @@ steps:
             range changed and marked user-edited.
         failure:
           status: SOURCE_DEFINED; runtime-admission-pending
-          scope: exact-source-clock-and-draft
+          scope: explicit timing branch; preserve prior snapshot on invalid clock, tick
+            range, authority, source, parent, or revision
           sourceRef: media.operation.caption-draft-write
-          proposal: Preserve the prior snapshot if clock metadata is absent or unbound,
-            ticks are invalid/out of duration, the target segment is missing,
-            authority is denied, or parent/revision is stale; retain
-            SOURCE_CLOCK_UNAVAILABLE, CAPTION_TIMING_INVALID,
-            PARENT_VERSION_STALE, DRAFT_REVISION_CONFLICT, and UNAVAILABLE
-            distinctly.
+          proposal: Keep the prior snapshot unchanged on INVALID_REQUEST, ACCESS_DENIED,
+            DRAFT_NOT_FOUND_IN_CALLER_SCOPE, SOURCE_IDENTITY_MISMATCH,
+            PARENT_VERSION_STALE, DRAFT_REVISION_CONFLICT,
+            DRAFT_REVISION_EXHAUSTED, CAPTION_SEGMENT_NOT_FOUND,
+            SOURCE_CLOCK_UNAVAILABLE, CAPTION_TIMING_INVALID, UNAVAILABLE. These
+            operation errors remain distinct; UNKNOWN_OUTCOME is ambiguous, not
+            a rejection, and must be reconciled by inspecting the same draft
+            before another explicit edit.
         degradedBehavior: If the exact source clock/rate/duration is unavailable, do not
           offer or apply timing alignment; text correction may remain available
           without timing.
@@ -2601,9 +2687,11 @@ steps:
           status: SOURCE_DEFINED; runtime-admission-pending
           scope: same-session-local-draft
           sourceRef: media.operation.caption-draft-write
-          proposal: Reinspect the same draft and exact source clock under current
-            authority; require explicit user-entered replacement values after
-            conflict or rebase; never estimate or silently reinterpret ticks.
+          proposal: After an uncertain local result, inspect the same draftId and current
+            draftRevision before applying any edit again; never blindly reapply
+            or increment again. For stale parent, explicitly prepare a distinct
+            revision-zero draft under fresh policy and retain the old stale
+            draft until explicit discard.
         postconditions:
           - immutable-source-unchanged
           - immutable-parent-unchanged
@@ -2635,20 +2723,49 @@ steps:
           - media.domain.caption-version
         stateRefs: []
         canonicalOperationRef: media.operation.caption-draft-write
-        authorityRef: current-trusted-tenant-principal-and-source-read-plus-derived-content-edit-policy
+        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
         transitionRef: null
-        requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
+        requirementRefs:
+          - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT
         scenarioRefs:
           - media.scenario.alignment-required
           - media.scenario.caption-conflict
         capabilityRefs: [ media.artifact.derive ]
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
       verification:
-        status: not-run
+        status: SOURCE_LINKAGE_CHECKED_BY_LOCAL_REGRESSION; INDEPENDENT_REVIEW_OPEN;
+          RUNTIME_NOT_ADMITTED
         requiredChecks:
-          - duplicate-key-safe-YAML-parse
-          - exact-clock-binding-and-half-open-tick-bounds
-          - no-forced-alignment-claim-negative-case
-        actualEvidence: []
+          - explicit-half-open-tick-range-requires-exact-source-clock
+          - source-clock-unavailable-and-invalid-timing-preserve-prior-snapshot
+          - manual-timing-is-not-forced-alignment
+          - no-p1-machine-transition-and-runtime-not-admitted
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/5
+          - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.align-caption-timing
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/error
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/recovery
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+          - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT
+          - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-6
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/idempotency
+        actualEvidence:
+          - kind: SOURCE_BOUND_CONTRACT_FINDING
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-6
+            finding: Apply exactly one validated user text or timing edit to a session-local
+              draft revision using compare-and-swap; immutable source and parent
+              versions remain unchanged.
+          - kind: FOCUSED_REGRESSION
+            sourceRef: tests/media-pdp3-mdc30-s08-s13-journey-local.test.mjs
+            finding: Focused regression node --test
+              tests/media-pdp3-mdc30-s08-s13-journey-local.test.mjs passed 9/9
+              on these current journey and P1 sources; source-bound definitions
+              only, with runtime NOT_ADMITTED and independent review open.
       acceptanceBoundary: Source definition only. Proposal branches, unbound
         object/state/authority/transition/requirement identities, external
         review and lifecycle evidence remain separate.
@@ -2713,32 +2830,45 @@ steps:
             - current-scoped-derived-edit-authority
             - explicit-user-tick-values
             - expected-session-draft-revision
-          failure: retain-prior-draft-and-require-authoritative-clock-and-in-range-explicit-ticks
+          failure: Keep the prior snapshot unchanged on INVALID_REQUEST, ACCESS_DENIED,
+            DRAFT_NOT_FOUND_IN_CALLER_SCOPE, SOURCE_IDENTITY_MISMATCH,
+            PARENT_VERSION_STALE, DRAFT_REVISION_CONFLICT,
+            DRAFT_REVISION_EXHAUSTED, CAPTION_SEGMENT_NOT_FOUND,
+            SOURCE_CLOCK_UNAVAILABLE, CAPTION_TIMING_INVALID, UNAVAILABLE. These
+            operation errors remain distinct; UNKNOWN_OUTCOME is ambiguous, not
+            a rejection, and must be reconciled by inspecting the same draft
+            before another explicit edit.
         recovery:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.align-caption-timing
-          recovery: retain-prior-draft-and-require-authoritative-clock-and-in-range-explicit-ticks
+          recovery: After an uncertain local result, inspect the same draftId and current
+            draftRevision before applying any edit again; never blindly reapply
+            or increment again. For stale parent, explicitly prepare a distinct
+            revision-zero draft under fresh policy and retain the old stale
+            draft until explicit discard.
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: TRANSITION_APPLICABILITY_UNRESOLVED
+        status: NO_P1_MACHINE_TRANSITION
         transitionRef: null
         stateRefs: []
         operationRef: media.operation.caption-draft-write
-        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/5
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-6
         runtimeAdmission: NOT_ADMITTED
       canonicalBindingDisposition:
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/5
         fields:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
           objectRefs: SOURCE_STEP_OBJECT_REFS_PRESENT
-          stateRefs: STATE_BINDING_UNRESOLVED
+          stateRefs: NO_PDP1_MACHINE_STATE; SESSION_LOCAL_DRAFT_REVISION_ONLY
           canonicalOperationRef: EXACT_OPERATION_REF
-          authorityRef: EXACT_AUTHORITY_REF
+          authorityRef: EXACT_P1_OWNER_BINDING_AUTHORITY_REFS
           transitionRef: TRANSITION_APPLICABILITY_UNRESOLVED
-          requirementRefs: EXACT_REQUIREMENT_REFS_PRESENT
+          requirementRefs: EXACT_P1_OWNER_BINDING_REQUIREMENT_REFS
           scenarioRefs: EXACT_SCENARIO_FIXTURE_REFS
-        operationContractRef: null
-        authorityRefs: []
-        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+        requirementCrosswalkStatus: SOURCE_BOUND_P1_OWNER_OPERATION_BINDING
         noAcceptanceInference: source bindings do not establish independent review,
           runtime admission, or lifecycle receipt
       versionedObjectObservation:
@@ -3000,20 +3130,47 @@ steps:
           - media.domain.transcription
         stateRefs: []
         canonicalOperationRef: media.operation.caption-version-write
-        authorityRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
         transitionRef: null
-        requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
+        requirementRefs:
+          - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT
         scenarioRefs:
           - media.scenario.caption-corrected
           - media.scenario.caption-conflict
         capabilityRefs: [ media.artifact.output.register ]
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
       verification:
-        status: not-run
+        status: SOURCE_LINKAGE_CHECKED_BY_LOCAL_REGRESSION; INDEPENDENT_REVIEW_OPEN;
+          RUNTIME_NOT_ADMITTED
         requiredChecks:
-          - runtime-registration-authorization
-          - immutable-receipt-finality
-          - same-request-reconciliation
-        actualEvidence: []
+          - successful-result-registers-one-immutable-caption-version-for-exact-source-and-parent
+          - invalid-or-stale-input-and-authority-denial-reject-registration
+          - unknown-registration-reconciles-same-request-id-and-fingerprint
+          - registration-does-not-imply-approval-or-publication-and-runtime-not-admitted
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/6
+          - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.save-caption-version
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/outputSemantics
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/error
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/recovery
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+          - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT
+          - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-7
+        actualEvidence:
+          - kind: SOURCE_BOUND_CONTRACT_FINDING
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-7
+            finding: Append one immutable caption version tied to the exact source version
+              and typed parent after current policy recheck.
+          - kind: FOCUSED_REGRESSION
+            sourceRef: tests/media-pdp3-mdc30-s08-s13-journey-local.test.mjs
+            finding: Focused regression node --test
+              tests/media-pdp3-mdc30-s08-s13-journey-local.test.mjs passed 9/9
+              on these current journey and P1 sources; source-bound definitions
+              only, with runtime NOT_ADMITTED and independent review open.
       acceptanceBoundary: Source definition only. Proposal branches, unbound
         object/state/authority/transition/requirement identities, external
         review and lifecycle evidence remain separate.
@@ -3084,26 +3241,28 @@ steps:
           recovery: keep-draft-and-report-whether-registration-finality-is-known
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: TRANSITION_APPLICABILITY_UNRESOLVED
+        status: NO_P1_MACHINE_TRANSITION
         transitionRef: null
         stateRefs: []
         operationRef: media.operation.caption-version-write
-        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/6
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-7
         runtimeAdmission: NOT_ADMITTED
       canonicalBindingDisposition:
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/6
         fields:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
           objectRefs: SOURCE_STEP_OBJECT_REFS_PRESENT
-          stateRefs: STATE_BINDING_UNRESOLVED
+          stateRefs: NO_PDP1_MACHINE_STATE; SESSION_LOCAL_DRAFT_REVISION_ONLY
           canonicalOperationRef: EXACT_OPERATION_REF
-          authorityRef: EXACT_AUTHORITY_REF
+          authorityRef: EXACT_P1_OWNER_BINDING_AUTHORITY_REFS
           transitionRef: TRANSITION_APPLICABILITY_UNRESOLVED
-          requirementRefs: EXACT_REQUIREMENT_REFS_PRESENT
+          requirementRefs: EXACT_P1_OWNER_BINDING_REQUIREMENT_REFS
           scenarioRefs: EXACT_SCENARIO_FIXTURE_REFS
-        operationContractRef: null
-        authorityRefs: []
-        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+        requirementCrosswalkStatus: SOURCE_BOUND_P1_OWNER_OPERATION_BINDING
         noAcceptanceInference: source bindings do not establish independent review,
           runtime admission, or lifecycle receipt
       versionedObjectObservation:

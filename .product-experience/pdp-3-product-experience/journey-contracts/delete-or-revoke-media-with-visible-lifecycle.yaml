@@ -35,6 +35,12 @@ pdp1ResultEvidence:
     - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact/readSemantics
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1
+    - .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.revoke-authorized-consent.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete
+    - .product-experience/pdp-1-domain-data/privacy.yaml#retentionAndErasure
+    - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/erasureFinality
     - .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
   operationResultBindings:
     - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/0
@@ -65,6 +71,78 @@ pdp1ResultEvidence:
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
       exactResult: Exact-target scoped current job status observation; it does not establish artifact erasure or revocation completion.
       unknownDisposition: Missing, stale, unavailable, or incomplete evidence remains UNKNOWN; absence is scoped only and no lifecycle effect is inferred.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1
+      operationRef: media.operation.artifact.lifecycle.observe.v1
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/contractVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/resultSchema
+      exactResult: Read the lifecycle state for the exact artifactId and immutable artifactVersionId under current read authority; preserve stateRevision, stateAuthorityRef, stateEvidenceRef, and observedAt. This observer is not a mutation receipt or proof of global copy completeness.
+      unknownDisposition: UNKNOWN_OUTCOME, NOT_FOUND_IN_CALLER_SCOPE, UNAVAILABLE, missing lifecycle record, stale authority, or incomplete evidence remains UNKNOWN; do not infer availability, revocation, or erasure.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/0
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-01.v1
+      relatedActionBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-01.v1/relatedActionBindings/@id=media.pdp3.action-binding.j26-consent-revocation-request.v1
+      actionRef: media.action.revoke-authorized-consent
+      operationRef: media.operation.action.revoke-authorized-consent
+      operationKind: COMMAND
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent/contractVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent
+      ownerActionWireRef: .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.revoke-authorized-consent.v1
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent/resultSchema
+      errorSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.governed-external-effect.v1/errors
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+      stateRefs: []
+      transitionRef: null
+      exactResult: The exact scoped request returns request identity, consent reference, requested scope, authority receipt, and observation time; an acknowledgement without the consent authority receipt does not confirm revocation. In-flight work and previously disclosed data require separate reconciliation.
+      finality: Consent change is confirmed only by the consent authority receipt; request acceptance alone is not finality.
+      unknownDisposition: UNKNOWN retains the same request identity and exact consent target for reconciliation; do not blindly replay. No artifact deletion, physical erasure, or all-copy completion is implied.
+      runtimeAdmission: NOT_ADMITTED
+  lifecycleEffectBoundaries:
+    consentRevocation:
+      operationRef: media.operation.action.revoke-authorized-consent
+      ownerActionWireRef: .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.revoke-authorized-consent.v1
+      operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent
+      resultMeaning: A request is not confirmed consent change; only the consent authority receipt confirms the scoped consent change. UNKNOWN retains the same request identity and requires reconciliation.
+      effectBoundary: Revocation blocks new governed dispatch and restricts outputs at the next enforcement point; it does not prove in-flight termination or recall already disclosed data.
+      journeyBindingStatus: SOURCE_BOUND_TO_J26_STEP_01_AS_REQUEST_ONLY; CONSENT_AUTHORITY_RECEIPT_REQUIRED; RUNTIME_NOT_ADMITTED
+    artifactErasure:
+      operationRef: media.operation.capability.media-artifact-delete
+      operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete
+      typedResultRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.artifact-lifecycle-observation-access-revoked-hold-pending-erasure-confirmed-or-external-unknown
+      lifecycleStatesRef: .product-experience/pdp-1-domain-data/privacy.yaml#retentionAndErasure/erasureStates
+      allCopyFinalityRef: .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/erasureFinality
+      resultBoundary: ACCESS_REVOKED, BLOCKED_BY_HOLD, ERASURE_REQUESTED, PHYSICAL_ERASURE_PENDING, ERASURE_CONFIRMED, and EXTERNAL_ERASURE_UNCONFIRMED remain distinct. ERASURE_CONFIRMED is allowed only when the exact current all-copy inventory, hold, deletion, tombstone, and restore-path requirements in the referenced classifier are satisfied.
+      journeyBindingStatus: NOT_BOUND_TO_AN_EXISTING_J26_STEP_PURPOSE; consent revocation is request-only and is not artifact deletion.
+      runtimeAdmission: NOT_ADMITTED
+sourceGap:
+  id: MDC30-C-26-purpose-bound-revocation-and-erasure-effect
+  status: CONSENT_REVOCATION_REQUEST_BOUND; ARTIFACT_DELETE_PURPOSE_AND_ALL_COPY_RECEIPT_UNBOUND; RUNTIME_NOT_ADMITTED
+  missingOwnerDefinition: >-
+    P1 defines the consent-revocation command and owner wire contract, the
+    media-artifact-delete capability command with a typed lifecycle result, and
+    the erasure inventory/tombstone classifier. J-26 now binds consent
+    revocation to its consent-remediation purpose as a request whose authority
+    receipt is required for confirmation. No exact J-26 user action-purpose join
+    exists for the artifact-delete capability, and no current owner/provider
+    evidence supplies an all-copy erasure receipt. Preserve the source-defined
+    result distinctions; do not claim consent revocation, physical deletion, or
+    ERASURE_CONFIRMED from a read receipt, request receipt, purge count, or
+    transport acknowledgement.
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.revoke-authorized-consent.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete
+    - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/erasureFinality
+    - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-01.v1
+    - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1
+    - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-03.v1
+  boundary: Keep current channel declarations and transport UNBOUND; web, HTTP, and host integration receive no mutation or erasure admission from these definitions.
 preconditions:
   - Identity, deletion/revocation authority, retention/hold state, and affected
     artifact/derivative scope are resolved.

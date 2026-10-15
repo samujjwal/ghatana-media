@@ -1689,19 +1689,31 @@ steps:
         NOT_ADMITTED and no owner evidence/result is asserted
       laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/terminalSuccess
     failure:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.criticalNonhappyPaths
-      proposal:
-        - id: browser-or-cli-detaches
-          response: preserve-job-identity-and-status;
-            stopping-observation-is-not-cancellation
-        - id: cancellation-unconfirmed
-          response: retain-running-or-pending-state-until-owner-evidence-confirms-a-final-outcome
-        - id: remote-outcome-unknown
-          response: disable-resubmission-and-check-the-existing-job-outcome
-        - id: progress-unavailable
-          response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
+      status: SOURCE_DEFINED_OPERATION_FAILURE_BRANCHES; DEADLINE_BRANCH_BLOCKED
+      scope: step-05-cancel-job
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition
+      branches:
+        - id: already-terminal
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition/guards
+          condition: terminal-job-is-returned-without-rewriting-history
+          disposition: preserve-the-authoritative-terminal-job-and-attempt-projection; do-not-create-or-imply-a-cancellation-transition
+        - id: denied
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition/errors
+          condition: ACCESS_DENIED-or-current-cancel-authority-is-not-established
+          disposition: no-cancellation-request-effect-is-asserted; retain-last-authoritative-job-state
+        - id: request-unknown-or-lost-ack
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition/retry
+          condition: UNKNOWN_OUTCOME-or-acknowledgement-is-lost
+          disposition: preserve-the-same-requestId-and-reconcile-the-same-job-and-attempt-evidence-before-any-resubmission; automatic-retry-is-forbidden
+        - id: reconciliation-unknown
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition/recovery
+          condition: dispatch-or-effect-finality-remains-unknown
+          disposition: keep-job-current-or-unknown; do-not-claim-CANCELLED; permit-a-racing-terminal-result
+        - id: deadline-semantics-unavailable
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition
+          condition: a-cancellation-deadline-or-deadline-expiry-result-is-requested
+          disposition: BLOCKED_NO_P1_CANCEL_DEADLINE_FIELD_GUARD_OR_RESULT_SEMANTIC; preserve-pending-or-UNKNOWN-and-do-not-infer-timeout-as-cancellation
+          blocker: P1 cancel-job ownerDefinition defines no deadline request field, deadline guard, or deadline-specific error/result; an unrelated retry deadline cannot define cancellation timeout behavior
     degradedBehavior:
       status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
       sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema
@@ -1945,6 +1957,15 @@ steps:
             - stable-job-reference
             - current-cancellation-authority
           failure: keep-job-visible-as-running-or-unknown
+          branchEvidence:
+            sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job
+            sourceResultRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition/resultSchema
+            allocatedBranches:
+              - already-terminal: return-terminal-projection-without-rewriting-history
+              - ACCESS_DENIED: no-effect
+              - UNKNOWN_OUTCOME-or-lost-ack: same-requestId-reconciliation-before-resubmission
+              - unknown-reconciliation: retain-current-or-UNKNOWN; never-claim-CANCELLED
+            deadlineDisposition: BLOCKED_NO_P1_CANCEL_DEADLINE_SEMANTIC
         recovery:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-cancellation
           recovery: keep-job-visible-as-running-or-unknown
@@ -2103,19 +2124,34 @@ steps:
         NOT_ADMITTED and no owner evidence/result is asserted
       laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/terminalSuccess
     failure:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.criticalNonhappyPaths
-      proposal:
-        - id: browser-or-cli-detaches
-          response: preserve-job-identity-and-status;
-            stopping-observation-is-not-cancellation
-        - id: cancellation-unconfirmed
-          response: retain-running-or-pending-state-until-owner-evidence-confirms-a-final-outcome
-        - id: remote-outcome-unknown
-          response: disable-resubmission-and-check-the-existing-job-outcome
-        - id: progress-unavailable
-          response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
+      status: SOURCE_DEFINED_OPERATION_FAILURE_BRANCHES
+      scope: step-06-retry-job
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition
+      branches:
+        - id: denied
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/errors
+          condition: ACCESS_DENIED-or-current-authority-is-not-established
+          disposition: preserve-job-and-prior-attempt; do-not-dispatch-or-claim-a-new-attempt
+        - id: retry-forbidden
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/guards
+          condition: prior-attempt-is-not-owner-classified-retryable-or-prior-outcome-is-UNKNOWN
+          disposition: do-not-dispatch; for-UNKNOWN-run-separate-authoritative-reconciliation-first
+        - id: stale-authority-or-version
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/errors
+          condition: current-authority-or-expected-job-version-does-not-match
+          disposition: reject-without-new-attempt; reread-and-reauthorize-before-a-new-explicit-request
+        - id: exhausted-budget
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/errors
+          condition: RETRY_BUDGET_EXHAUSTED-or-retry-budget-remains-guard-fails
+          disposition: retry-forbidden; no-new-attempt-or-fence-is-created
+        - id: retry-request-unknown-or-lost-ack
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/retry
+          condition: UNKNOWN_OUTCOME-or-acknowledgement-is-lost-after-retry-request
+          disposition: reconcile-the-same-requestId-and-job-before-any-resubmission; never-allocate-a-second-attempt-for-a-matching-request
+        - id: prior-effect-reconciliation-unknown
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/recovery
+          condition: prior-attempt-effect-cannot-be-authoritatively-classified
+          disposition: UNKNOWN-denies-retry; preserve-prior-attempt-history-and-do-not-dispatch
     degradedBehavior:
       status: CONDITIONAL_SOURCE_BACKED_HOLD
       sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema
@@ -2393,6 +2429,17 @@ steps:
             - prior-outcome-is-not-unknown; check-the-existing-job-outcome-first
           failure: preserve-the-job-and-prior-attempt-history;
             do-not-dispatch-when-eligibility-authority-or-budget-is-missing-or-outcome-is-unknown
+          branchEvidence:
+            sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job
+            sourceGuardsRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/guards
+            sourceErrorsRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/errors
+            allocatedBranches:
+              - ACCESS_DENIED: no-effect
+              - ATTEMPT_NOT_RETRYABLE-or-OUTCOME_UNKNOWN: retry-forbidden
+              - stale-authority-or-VERSION_CONFLICT: reject-without-new-attempt
+              - RETRY_BUDGET_EXHAUSTED: no-new-attempt
+              - retry-UNKNOWN-or-lost-ack: reconcile-same-requestId-before-resubmission
+              - prior-effect-reconciliation-UNKNOWN: no-retry-no-dispatch
         recovery:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.retry-job
           recovery: preserve-the-job-and-prior-attempt-history;

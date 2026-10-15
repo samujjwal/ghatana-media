@@ -924,7 +924,7 @@ steps:
       - media.domain.transcript-version
       - media.domain.caption-version
     canonicalOperationRef: media.operation.caption-draft-write
-    authorityRef: null
+    authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
     decisionRef: null
     transitionRef: null
     handoffRef: null
@@ -980,10 +980,12 @@ steps:
       transitionRef: null
       decisionRef: .product-experience/decision-log.md#PXD-068
       reason: >-
-        P1 caption-draft-write returns a session-local draft snapshot and does not register a canonical caption version.
-        The composition step does not imply a rendered or delivered output.
+        P1 caption-draft-write returns a session-local draft snapshot and does
+        not register a canonical caption version. The composition step does not
+        imply a rendered or delivered output.
     bindingStatus:
-      status: SOURCE_BOUND_ACTION_OPERATION_OBJECT_RESULT; JOURNEY_BRANCH_ALLOCATION_OPEN
+      status: SOURCE_BOUND_ACTION_OPERATION_OBJECT_RESULT;
+        JOURNEY_BRANCH_ALLOCATION_OPEN
       candidateFields:
         - surfaceRefs
       sourceBoundFields:
@@ -994,7 +996,8 @@ steps:
         - requirementRefs
         - transitionDisposition
       authorityRefsRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j18-step-04.v1/authorityRefs
-      decisionRef: transitionDisposition remains bound to PXD-068; no separate action decision is inferred
+      decisionRef: transitionDisposition remains bound to PXD-068; no separate action
+        decision is inferred
       handoffRef: no handoff binding is source-defined for this local draft write
       pendingFields:
         - failure
@@ -1002,8 +1005,10 @@ steps:
         - postconditions
       reason: Journey-level channels remain candidate surface refs only; state and
         transition applicability are source-bound to the exact session-local
-        operation; journey exception, recovery, and postcondition allocation remain open.
-      stateRefs: no canonical domain state machine applies to a session-local caption draft
+        operation; journey exception, recovery, and postcondition allocation
+        remain open.
+      stateRefs: no canonical domain state machine applies to a session-local caption
+        draft
       transitionRef: NO_P1_MACHINE_TRANSITION; session-local draft snapshot only
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
@@ -1036,18 +1041,18 @@ steps:
         selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
       stepSourceFacts:
         intent: Edit caption wording, timing, and language for accessibility and review.
-        result: Immediate result is the operation envelope outcome SUCCEEDED, REJECTED,
-          or UNKNOWN_OUTCOME; SUCCEEDED returns the complete session-local draft
-          snapshot and source/parent identifiers, with no persistence or
-          canonical-version claim.
-          [.product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics]
+        result: Return the operation envelope outcome SUCCEEDED, REJECTED, or
+          UNKNOWN_OUTCOME. On SUCCEEDED return exactly one complete
+          session-local draft snapshot with exact source and typed-parent
+          identities and the new draft revision; do not claim persistence, a
+          canonical caption version, render, or delivery.
         resultSourceRef:
           - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics/result
         resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: EXACT_OPERATION_RESULT_DEFINED
-          scope: immediate-step-result
-          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+          status: SOURCE_DEFINED; runtime-admission-pending
+          scope: session-local-caption-draft-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics/result
           resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
           operationRef: media.operation.caption-draft-write
           meaning: Immediate result is the operation envelope outcome SUCCEEDED, REJECTED,
@@ -1056,13 +1061,25 @@ steps:
             canonical-version claim.
           evidenceBoundary: definition-grade operation contract only; runtimeAdmission
             NOT_ADMITTED and no owner evidence/result is asserted
-          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/terminalSuccess
+          proposal: Return the operation envelope outcome SUCCEEDED, REJECTED, or
+            UNKNOWN_OUTCOME. On SUCCEEDED return exactly one complete
+            session-local draft snapshot with exact source and typed-parent
+            identities and the new draft revision; do not claim persistence, a
+            canonical caption version, render, or delivery.
         failure:
-          status: candidate-proposal
-          sourceRef: journey.criticalNonhappyPaths
-          summary:
-            - Stale asset/version, unsupported font/codec, color/alpha
-              interpretation unknown, or rights approval expired.
+          status: SOURCE_DEFINED; runtime-admission-pending
+          scope: text-only correction branch; preserve prior snapshot on invalid request,
+            authority, source, parent, segment, or revision
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/error
+          proposal: Keep the prior snapshot unchanged on INVALID_REQUEST, ACCESS_DENIED,
+            DRAFT_NOT_FOUND_IN_CALLER_SCOPE, DRAFT_INITIALIZATION_BLOCKED,
+            SOURCE_IDENTITY_MISMATCH, PARENT_VERSION_STALE,
+            DRAFT_REVISION_CONFLICT, DRAFT_REVISION_EXHAUSTED,
+            CAPTION_SEGMENT_NOT_FOUND, SOURCE_CLOCK_UNAVAILABLE,
+            CAPTION_TIMING_INVALID, UNAVAILABLE. These operation errors remain
+            distinct; UNKNOWN_OUTCOME is ambiguous, not a rejection, and must be
+            reconciled by inspecting the same draft before another explicit
+            edit.
         degradedBehavior:
           status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
           sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
@@ -1074,10 +1091,14 @@ steps:
           dispatch: NEVER
           ownerAcceptedOutcomeOracle: false
         recovery:
-          status: candidate-proposal
-          sourceRef: journey.recovery
-          summary: Preserve composition and source versions; replace/review only affected
-            assets and regenerate approval where material output changed.
+          status: SOURCE_DEFINED; runtime-admission-pending
+          scope: same-session-local-draft
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/recovery
+          proposal: After an uncertain local result, inspect the same draftId and current
+            draftRevision before applying any edit again; never blindly reapply
+            or increment again. For stale parent, explicitly prepare a distinct
+            revision-zero draft under fresh policy and retain the old stale
+            draft until explicit discard.
         postconditions:
           status: candidate-proposal
           sourceRef: journey.contextPreserved
@@ -1095,42 +1116,83 @@ steps:
           - media.domain.caption-version
         stateRefs: []
         canonicalOperationRef: media.operation.caption-draft-write
-        authorityRef: null
+        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
         transitionRef: null
-        requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
+        requirementRefs:
+          - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT
         scenarioRefs: []
         capabilityRefs: [ media.artifact.derive ]
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
       verification:
-        requiredChecks: []
-        evidenceRefs: []
-        status: not-run
-        reason: Required checks are proposal requirements only; no step-level execution
-          evidence is present.
+        status: SOURCE_LINKAGE_CHECKED_BY_LOCAL_REGRESSION; INDEPENDENT_REVIEW_OPEN;
+          RUNTIME_NOT_ADMITTED
+        requiredChecks:
+          - immediate-result-is-one-session-local-caption-draft-snapshot
+          - draft-write-failures-preserve-prior-snapshot-and-remain-distinct
+          - no-render-or-delivery-success-inferred
+          - no-p1-machine-transition-and-runtime-not-admitted
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/3
+          - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.correct-caption
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/error
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/recovery
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+          - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT
+          - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.compose-and-render-reviewed-media.index-3
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/idempotency
+        actualEvidence:
+          - kind: SOURCE_BOUND_CONTRACT_FINDING
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.compose-and-render-reviewed-media.index-3
+            finding: Apply exactly one validated user text or timing edit to a session-local
+              draft revision using compare-and-swap; immutable source and parent
+              versions remain unchanged.
+          - kind: FOCUSED_REGRESSION
+            sourceRef: tests/media-pdp3-mdc30-s08-s13-journey-local.test.mjs
+            finding: Focused regression node --test
+              tests/media-pdp3-mdc30-s08-s13-journey-local.test.mjs passed 9/9
+              on these current journey and P1 sources; source-bound definitions
+              only, with runtime NOT_ADMITTED and independent review open.
       acceptanceBoundary: Source definition only. Proposal branches, unbound
         object/state/authority/transition/requirement identities, external
         review and lifecycle evidence remain separate.
       fixtureOracle:
-        status: NO_STEP_SCENARIO_BOUND
+        status: NO_STEP_SCENARIO_BOUND; SERIALIZED_ORACLE_RECONCILIATION_PENDING
         sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
         journeyRef: J-18
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          sourceRef: journey.terminalSuccess
-          summary: Versioned composition renders with deterministic exact graphics and
-            declared audiovisual/color profile.
+          status: SOURCE_DEFINED; runtime-admission-pending
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics/result
+          summary: Return the operation envelope outcome SUCCEEDED, REJECTED, or
+            UNKNOWN_OUTCOME. On SUCCEEDED return exactly one complete
+            session-local draft snapshot with exact source and typed-parent
+            identities and the new draft revision; do not claim persistence, a
+            canonical caption version, render, or delivery.
         nonhappyBranch:
-          status: candidate-proposal
-          sourceRef: journey.criticalNonhappyPaths
-          summary:
-            - Stale asset/version, unsupported font/codec, color/alpha
-              interpretation unknown, or rights approval expired.
+          status: SOURCE_DEFINED; runtime-admission-pending
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/error
+          summary: Keep the prior session-local snapshot unchanged on ACCESS_DENIED,
+            DRAFT_NOT_FOUND_IN_CALLER_SCOPE, SOURCE_IDENTITY_MISMATCH,
+            PARENT_VERSION_STALE, DRAFT_REVISION_CONFLICT,
+            CAPTION_SEGMENT_NOT_FOUND, or UNAVAILABLE. Preserve UNKNOWN_OUTCOME
+            as ambiguous; inspect/reconcile the same draft/request identity
+            before any user-directed retry. Do not substitute composition,
+            codec, color, rights-approval, render, or delivery failures for
+            caption-draft operation errors.
         recoveryBranch:
-          status: candidate-proposal
-          sourceRef: journey.recovery
-          summary: Preserve composition and source versions; replace/review only affected
-            assets and regenerate approval where material output changed.
+          status: SOURCE_DEFINED; runtime-admission-pending
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/recovery
+          summary: Inspect the same active-session draft and revision under current
+            authority. If the parent is stale, prepare a new revision-zero draft
+            for the exact new typed parent under fresh policy; preserve the old
+            draft until explicit discard. Never reparent, silently overwrite, or
+            blindly replay.
         executable: false
         ownerOracleAcceptance: pending-independent-review
       stepOutcomeSemantics:
@@ -1138,47 +1200,63 @@ steps:
         sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.correct-caption
         actionRef: media.action.correct-caption
         positive:
-          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.correct-caption
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics/result
           intendedResult:
-            status: candidate-proposal
-            sourceRef: journey.terminalSuccess
-            summary: Versioned composition renders with deterministic exact graphics and
-              declared audiovisual/color profile.
+            status: SOURCE_DEFINED; runtime-admission-pending
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics/result
+            proposal: Return the operation envelope outcome SUCCEEDED, REJECTED, or
+              UNKNOWN_OUTCOME. On SUCCEEDED return exactly one complete
+              session-local draft snapshot with exact source and typed-parent
+              identities and the new draft revision; do not claim persistence, a
+              canonical caption version, render, or delivery.
           effect: apply-an-explicit-text-only-edit-to-one-existing-segment-in-a-session-local-draft-derived-from-the-exact-immutable-source-and-typed-parent
           finality: one-session-local-draft-revision-only;
             no-registration-approval-or-publication
         nonhappy:
-          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.correct-caption
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/error
           guards:
             - exact-source-and-typed-parent-readable
             - current-scoped-source-read-and-derived-edit-authority
             - expected-session-draft-revision
-          failure: preserve-prior-draft-snapshot-on-denial-stale-parent-or-revision-conflict
+          failure: Keep the prior session-local snapshot unchanged on ACCESS_DENIED,
+            DRAFT_NOT_FOUND_IN_CALLER_SCOPE, SOURCE_IDENTITY_MISMATCH,
+            PARENT_VERSION_STALE, DRAFT_REVISION_CONFLICT,
+            CAPTION_SEGMENT_NOT_FOUND, or UNAVAILABLE. Preserve UNKNOWN_OUTCOME
+            as ambiguous; inspect/reconcile the same draft/request identity
+            before any user-directed retry. Do not substitute composition,
+            codec, color, rights-approval, render, or delivery failures for
+            caption-draft operation errors.
         recovery:
-          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.correct-caption
-          recovery: preserve-prior-draft-snapshot-on-denial-stale-parent-or-revision-conflict
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/recovery
+          recovery: Inspect the same active-session draft and revision under current
+            authority. If the parent is stale, prepare a new revision-zero draft
+            for the exact new typed parent under fresh policy; preserve the old
+            draft until explicit discard. Never reparent, silently overwrite, or
+            blindly replay.
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_P1_MACHINE_TRANSITION
+        status: NO_P1_MACHINE_TRANSITION
         transitionRef: null
         stateRefs: []
         operationRef: media.operation.caption-draft-write
-        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/3
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.compose-and-render-reviewed-media.index-3
         runtimeAdmission: NOT_ADMITTED
       canonicalBindingDisposition:
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/3
         fields:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
-          objectRefs: OBJECT_BINDING_UNRESOLVED
+          objectRefs: EXACT_P1_OWNER_OPERATION_BINDING_OBJECT_REFS
           stateRefs: NO_PDP1_MACHINE_STATE; SESSION_LOCAL_DRAFT_REVISION_ONLY
           canonicalOperationRef: EXACT_OPERATION_REF
-          authorityRef: AUTHORITY_BINDING_UNRESOLVED
-          transitionRef: NO_PDP1_MACHINE_TRANSITION; SESSION_LOCAL_DRAFT_REVISION_ONLY
-          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          authorityRef: EXACT_P1_OWNER_BINDING_AUTHORITY_REFS
+          transitionRef: NO_P1_MACHINE_TRANSITION; SESSION_LOCAL_DRAFT_REVISION_ONLY
+          requirementRefs: EXACT_P1_OWNER_BINDING_REQUIREMENT_REFS
           scenarioRefs: NO_STEP_SCENARIO_FIXTURE
-        operationContractRef: null
-        authorityRefs: []
-        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+        requirementCrosswalkStatus: SOURCE_BOUND_P1_OWNER_OPERATION_BINDING
         noAcceptanceInference: source bindings do not establish independent review,
           runtime admission, or lifecycle receipt
       versionedObjectObservation:
@@ -1234,6 +1312,7 @@ steps:
       snapshot and source/parent identifiers, with no persistence or
       canonical-version claim.
       [.product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics]
+    action: media.action.correct-caption
   - view: media.view.prepare-render
     legacyViewRef: M-RENDER
     screenContractRef: screen-contracts/prepare-render.yaml

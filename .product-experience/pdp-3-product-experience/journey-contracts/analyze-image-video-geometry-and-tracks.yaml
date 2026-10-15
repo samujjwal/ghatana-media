@@ -21,6 +21,19 @@ channels:
   - media.channel.grpc-api
   - media.channel.sdk
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+channelDefinitionEvidence:
+  status: SOURCE_GROUNDED_PARTIAL; TRANSPORT_UNBOUND; RUNTIME_NOT_ADMITTED
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect/resultSchema
+    - .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/unknownOutcome
+  sourceGroundedInputs: image-or-video-artifact-with-exact-artifactId-and-versionId; requested-dimensions; optional-opaque-timeRange; one requestId
+  sourceGroundedResult: capability-result-envelope-with-outcome-observedAt-outputs-provenance-implementationState-qualificationState-runtimeAvailability
+  blockedSemantics:
+    - P1 request schema does not bind a selected frame/region or typed geometry/tracks/confidence fields to this journey request/result.
+    - P1 result finality requires an authoritative owner receipt and exact output-version references; no same-job terminal analysis observation identity is established by this journey contract.
+    - P2 channel grammar does not admit web, gRPC, or SDK transport; all three remain UNBOUND and NOT_ADMITTED.
+  unknownAndDenied: Preserve denied, unavailable, stale-frame, missing-region, unsupported-provider and ambiguous-finality outcomes as denied/UNKNOWN/partial according to authoritative evidence; do not infer absence, calibrated confidence or completion from transport acknowledgement.
 pdp1ResultEvidence:
   status: SOURCE_BOUND_DEFINITION_ONLY; CHANNEL_TRANSPORT_UNBOUND; RUNTIME_NOT_ADMITTED
   sourceRefs:

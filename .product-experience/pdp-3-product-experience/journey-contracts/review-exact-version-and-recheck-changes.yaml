@@ -45,24 +45,48 @@ pdp1ResultEvidence:
       finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure
       unknownDisposition: Retain the same request identity and exact reviewed version for authorized reconciliation; never issue a second write while outcome is UNKNOWN.
       runtimeAdmission: NOT_ADMITTED
-    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/steps/1
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/steps/0
       actionRef: media.action.review-rights-approval-and-format-effects
       actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-rights-approval-and-format-effects
       operationRef: media.operation.action.review-rights-approval-and-format-effects
       operationKind: QUERY
       operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-rights-approval-and-format-effects
-      purposeBindingStatus: J21_RELATED_ACTION_BINDING_PENDING
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-01.v1
+      purposeBindingStatus: SOURCE_BOUND_READ_ONLY_RIGHTS_QUERY; APPROVAL_ACTION_BLOCKED_EXCLUDED
       observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1
+      typedObservationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1/resultSchema
       decisionKind: HUMAN_REVIEW_APPROVAL
       exactSubject: Query only the exact owner-confirmed registered output ArtifactVersionRef corresponding to the immutable version reviewed in this journey; do not substitute another version.
       approvedOnlyWhen: observationStatus is APPROVED and currentness is CURRENT, with exact request and decision subject equality, current authority/version, validity interval, and nonempty authoritative evidenceRefs.
       unknownDisposition: Missing, stale, denied, mismatched, or unavailable authority/evidence remains UNKNOWN with no approval claim; UNKNOWN and NOT_FOUND carry no decision.
       observationEffect: Read-only; this query never creates or changes approval.
       runtimeAdmission: NOT_ADMITTED
+  typedObservationBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/steps/0
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-01.v1
+      operationRef: media.operation.action.review-rights-approval-and-format-effects
+      observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1/resultSchema
+      requiredExactIdentity: [queryId, requestFingerprint, decisionSubjectRef, decisionKind]
+      approvedOnlyWhen: A current rights-decision observation reports APPROVED for the exact immutable version, current authority/version, validity interval, and nonempty authoritative evidenceRefs.
+      unknownDisposition: Missing, stale, denied, mismatched, or unavailable authority/evidence remains UNKNOWN; no approval claim is permitted.
+      observationEffect: Read-only query only; it never creates or changes approval.
   completionCondition:
     sourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-21/completion
     status: CONDITIONAL_SOURCE_ALIGNED; NO_OWNER_APPROVAL_OR_RUNTIME_RESULT_ASSERTED
     meaning: The PDP-0 completion outcome is satisfied only when an exact review record is attached to the reviewed immutable version and a separate current typed observation reports the required approval state for that same exact registered output version. A request receipt alone is insufficient; otherwise completion remains pending or UNKNOWN.
+  rightsApprovalActionDisposition:
+    status: BLOCKED_EXCLUDED
+    actionRef: null
+    excludedIntent: HUMAN_REVIEW_APPROVAL_DECISION_OR_RIGHTS_MUTATION
+    sourceRefs:
+      - docs/implementation/MEDIA-DISCOVERY-PDP3-EXECUTION-READY-REMAINING-2026-10-15.md
+      - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-21/completion
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-rights-approval-and-format-effects
+    evidenceRequirement: A real current rights-owner approval record and exact-version typed observation are required before any approval claim; this journey contains neither as an owner decision receipt.
+    queryBoundary: The exact-version J-21 purpose binds the existing review-rights-approval-and-format-effects operation as a read-only query; it never creates or changes approval.
+    disposition: Preserve read-only review and exact-version inspection; do not dispatch or infer an approval action from a query, review record, reviewer role, or request receipt.
 preconditions:
   - Review purpose, exact artifact version, reviewer authority, and scope/expiry
     are explicit.

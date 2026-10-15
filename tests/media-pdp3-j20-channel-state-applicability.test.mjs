@@ -8,6 +8,7 @@ const repositoryRoot = path.resolve(new URL('..', import.meta.url).pathname);
 const requireTools = createRequire(path.resolve(repositoryRoot, '../ghatana-tools/package.json'));
 const { parse } = requireTools('yaml');
 const readYaml = (sourcePath) => parse(readFileSync(path.join(repositoryRoot, sourcePath), 'utf8'));
+const p1 = readYaml('.product-experience/pdp-1-domain-data/operations.yaml');
 const registry = readYaml('.product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml');
 const journeyPath = '.product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml';
 const journey = readYaml(journeyPath);
@@ -60,11 +61,26 @@ test('J20 web and CLI operation proofs project exact cancellation and retry stat
     assert.equal(edge.transportRefOrUnbound, 'UNBOUND');
     assert.equal(edge.channelTransportEquivalence, 'UNBOUND');
     assert.equal(edge.runtimeAdmission, 'NOT_ADMITTED');
-    assert.match(edge.logicalDefinitionBlockers.join(' '), /No exact cancellation or retry transition ID\/finality is defined or joined/u);
-    assert.match(edge.logicalDefinitionBlockers.join(' '), /retry remains conditional on current owner eligibility, and UNKNOWN does not authorize replay/u);
+    assert.match(edge.logicalDefinitionBlockers.join(' '), /no exact cancellation or retry transition ID\/finality is defined or joined/u);
+    assert.match(edge.logicalDefinitionBlockers.join(' '), /Retry remains conditional on current owner eligibility; UNKNOWN does not authorize replay/u);
   }
 
   const retrySemantics = journey.steps[5].stepDefinitionSemantics.transitionApplicability;
   assert.match(retrySemantics.eligibilityDisposition, /Conditional definition only/u);
   assert.match(retrySemantics.eligibilityDisposition, /UNKNOWN prior outcome denies retry/u);
+
+  const cancelOperation = p1.individualOperationContracts.records.find(({ id }) => id === 'media.operation-slice.cancel-job');
+  const retryOperation = p1.individualOperationContracts.records.find(({ id }) => id === 'media.operation-slice.retry-job');
+  assert.ok(cancelOperation && retryOperation);
+  assert.match(cancelOperation.ownerDefinition.stateSemantics.join(' '), /cancellation-request-is-not-CANCELLED/u);
+  assert.match(cancelOperation.ownerDefinition.resultSchema.finality, /durable-request-record-or-terminal-job-observation/u);
+  assert.match(cancelOperation.ownerDefinition.recovery, /never-map-detach-or-timeout-to-cancellation-confirmation/u);
+  assert.ok(retryOperation.ownerDefinition.guards.includes('prior-outcome-is-not-unknown'));
+  assert.match(retryOperation.ownerDefinition.authority, /retry-budget-and-rights-are-authority-read/u);
+  assert.match(retryOperation.ownerDefinition.resultSchema.finality, /durable-new-attempt-identity-and-fence/u);
+  assert.match(retryOperation.ownerDefinition.recovery, /do-not-retry-until-it-classifies-a-safe-retryable-outcome/u);
+  assert.equal(journey.pdp1ResultEvidence.operationResultBindings.find(({ operationRef }) => operationRef === cancelOperation.id).unknownDisposition,
+    'UNKNOWN retains the same request identity and requires reconciliation; no terminal cancellation is inferred.');
+  assert.equal(journey.pdp1ResultEvidence.operationResultBindings.find(({ operationRef }) => operationRef === retryOperation.id).unknownDisposition,
+    'UNKNOWN requires reconciliation of the same request identity before any new request; UNKNOWN does not authorize replay.');
 });

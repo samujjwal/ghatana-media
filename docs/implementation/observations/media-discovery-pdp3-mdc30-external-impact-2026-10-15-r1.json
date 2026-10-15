@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "media.pdp3-source-impact-assessment.v1",
+  "recordKind": "SOURCE_BOUND_IMPACT_ASSESSMENT",
+  "observationId": "MEDIA-PDP3-MDC30-EXTERNAL-IMPACT-2026-10-15-R1",
+  "observedAt": "2026-10-15T17:19:56Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-3",
+    "surfaceId": "media.surface.integrations",
+    "taskId": "MDC30-E-01"
+  },
+  "sourceCut": {
+    "mediaRepositoryHead": "0387a4e1e7b1e243335fb938a8ad9939574671a0",
+    "sourceManifest": ".product-experience/source-manifest.yaml#externalOwnerObservations",
+    "sourceManifestSha256": "3a5c7e92e7470ee11c8bd1779db31a27aba75461c16fef37785901544c0c29fd",
+    "byteRecaptureRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-external-contract-recapture-2026-10-15-r3.json"
+  },
+  "changedInput": {
+    "repositoryId": "ghatana-lifecycle",
+    "repositoryRelativePath": "package.json",
+    "package": "@ghatana/lifecycle",
+    "version": "0.1.0-rc.1",
+    "priorR2Revision": "5b0a7dbd15d3f31467dc584bfdc1cb39bd952dac",
+    "currentR3Revision": "e9fbc210ccf8a25a0d85bbf5fa1b5bc94b1566f0",
+    "priorR2Sha256": "41c42b77f2fa20e1831f32ae116ae49d07ed8150b0b00265cda64e27f55f47bd",
+    "currentDeclaredAndObservedSha256": "6e24f0d78a3ce1521c1e7f3246ae09df4d93f42e75dc9525017b0549ac88ae4f",
+    "exactRepositoryDiff": {
+      "status": "COMPLETE",
+      "change": "Adds package script check:lifecycle:explorer-campaign-conformance, which generates the Lifecycle Explorer pack and runs its campaign-conformance check.",
+      "otherPackageFieldsChanged": false,
+      "diffCommand": "git diff 5b0a7dbd15d3f31467dc584bfdc1cb39bd952dac e9fbc210ccf8a25a0d85bbf5fa1b5bc94b1566f0 -- package.json"
+    }
+  },
+  "affectedMediaAuthority": {
+    "surfaceRegistryRef": ".product-experience/surface-registry.yaml#/surfaces/@id=media.surface.integrations",
+    "topologyRef": ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/@id=media.surface.integrations",
+    "currentMediaDisposition": {
+      "applicablePdpArtifacts": ["PDP-0", "PDP-1", "PDP-2", "PDP-3"],
+      "implementationStatus": "SOURCE_ONLY",
+      "qualificationStatus": "PENDING",
+      "applicabilityDisposition": "TARGET_HOST_CONTRACT_PENDING",
+      "topologyBindingState": "HOST_DEPENDENT"
+    }
+  },
+  "assessment": {
+    "classification": "NO_MEDIA_PDP3_MEANING_DELTA_IN_CHANGED_EXTERNAL_INPUT",
+    "earliestAffectedPdp": "PDP-3",
+    "affectedSurfaceRevalidation": "REVIEWED_FOR_MEDIA.SURFACE.INTEGRATIONS",
+    "rationale": "The only package.json delta is an external Lifecycle Explorer validation script. It adds no Media service endpoint, request/result schema, operation, identity/authority contract, or Media host handoff. The Media integration definition remains source-only and target-host-contract-pending, with integration consumers independently HOST_DEPENDENT and NOT_ADMITTED. The new script does not resolve or change that contract.",
+    "currentnessDisposition": "The changed raw bytes are explicitly classified and the current Media surface declaration was rechecked. Include the R3 byte observation and this scoped impact assessment when evaluating PDP-3 R6; this assessment does not establish the 50-cell PDP-3 exit.",
+    "authorityBoundary": "This is a Media source-impact assessment, not Lifecycle owner acceptance, runtime admission, external signature, or release qualification."
+  }
+}

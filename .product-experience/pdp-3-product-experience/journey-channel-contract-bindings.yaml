@@ -6097,6 +6097,8 @@
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-quality-evidence"
       - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric"
       - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-quality-evidence"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1/resultSchema"
       - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema"
       - ".product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml#records/@id=media.pdp3.invocation-adapter.j08-video-repair.v1"
       - ".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/0"
@@ -6208,7 +6210,7 @@
         "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
         "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-04.v1"]
         "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/operationResultBindings/1"]
-        "typedObservationBindingRefs": []
+        "typedObservationBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/typedObservationBindings/0"]
         "relatedActionBindingRefs": []
         "stateRefs": []
         "transitionRefs": []
@@ -6342,6 +6344,7 @@
         "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/GUI"
     "typedRequestResultErrors":
       "sourceRefs":
@@ -6405,7 +6408,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "The selected enhancement result schemas expose exact successful output identity and step 4 cites the quality-evidence contract, but no formal typed-observation binding joins one selected output version to a nonempty metricRefs request and same-subject result; the exact subject selector and metric selection remain undefined."
+      - "The typed quality-evidence query joins the exact selected output-version subject and a nonempty unique metricRefs request; the original-versus-candidate version pair, evaluation algorithm context, and matched same-subject metric result remain unjoined."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -10664,7 +10667,7 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers": ["Immediate cancel, retry, job-status, and outcome-check results plus state applicability and authority references are source-bound. No exact cancellation or retry transition ID/finality is defined or joined; retry remains conditional on current owner eligibility, and UNKNOWN does not authorize replay."]
+    "logicalDefinitionBlockers": ["Immediate cancel, retry, job-status, and outcome-check results plus state applicability and authority references are source-bound. P1 cancel-job defines no deadline request field, deadline guard, or deadline-specific result/error, and no exact cancellation or retry transition ID/finality is defined or joined. Retry remains conditional on current owner eligibility; UNKNOWN does not authorize replay."]
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -10984,7 +10987,7 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers": ["Immediate cancel, retry, job-status, and outcome-check results plus state applicability and authority references are source-bound. No exact cancellation or retry transition ID/finality is defined or joined; retry remains conditional on current owner eligibility, and UNKNOWN does not authorize replay."]
+    "logicalDefinitionBlockers": ["Immediate cancel, retry, job-status, and outcome-check results plus state applicability and authority references are source-bound. P1 cancel-job defines no deadline request field, deadline guard, or deadline-specific result/error, and no exact cancellation or retry transition ID/finality is defined or joined. Retry remains conditional on current owner eligibility; UNKNOWN does not authorize replay."]
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -11035,6 +11038,16 @@
           - ".product-experience/pdp-3-product-experience/screen-registry.yaml"
           - ".product-experience/pdp-3-product-experience/action-registry.yaml"
         "reason": "No exact source-proven channel-equivalent operation binding in the reviewed channel inventory."
+      - "operationRef": "media.operation.action.review-rights-approval-and-format-effects"
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-rights-approval-and-format-effects"
+        "operationVersion": 1
+        "disposition": "UNBOUND"
+        "transportRef": "UNBOUND"
+        "sourceRefs":
+          - ".product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-rights-approval-and-format-effects"
+          - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/pdp1ResultEvidence/operationResultBindings/1"
+        "reason": "Exact P1 rights-decision QUERY and typed observation join the read-only J-21 purpose; channel transport remains UNBOUND and the approval mutation remains BLOCKED_EXCLUDED."
     "p1StateRefs": []
     "stateOrObservationDisposition": "NO_P1_STATE_REF_AUTHORED; JOURNEY PURPOSE AND STEP OBSERVATIONS REMAIN SOURCE-BOUND"
     "p1ObservationRefs":
@@ -11048,6 +11061,7 @@
       - ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/steps/1"
       - ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/steps/2"
       - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-rights-approval-and-format-effects"
     "p1AuthorityRefs":
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
@@ -11106,12 +11120,14 @@
       - "media.operation-slice.inspect-provenance"
       - "media.operation.action.inspect-output-preview-and-version"
       - "media.operation.action.inspect-version-and-review-scope"
+      - "media.operation.action.review-rights-approval-and-format-effects"
     "runtimeAdmission": "NOT_ADMITTED"
     "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "journeyId": "J-21"
-    "pdp1OperationRefs": ["media.operation-slice.inspect-provenance","media.operation.action.inspect-output-preview-and-version","media.operation.action.inspect-version-and-review-scope"]
+    "pdp1OperationRefs": ["media.operation-slice.inspect-provenance","media.operation.action.inspect-output-preview-and-version","media.operation.action.inspect-version-and-review-scope","media.operation.action.review-rights-approval-and-format-effects"]
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/GUI"
     "typedRequestResultErrors":
       "sourceRefs":
@@ -11158,9 +11174,9 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "p1OperationStateProofs": [{"operationRef":"media.operation-slice.inspect-provenance","disposition":"EXACT_TYPED_OBSERVATION_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-03.v1"],"observationRef":".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"},{"operationRef":"media.operation.action.inspect-output-preview-and-version","disposition":"NO_P1_MACHINE_STATE","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-02.v1"],"noP1MachineState":{"sourceRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"],"noEffectRef":".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect","resultRef":"media.operation-profile.scoped-query.v1#resultEnvelope","authorityRefs":[".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"],"versionRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/contractVersion"],"operationVersion":1,"deniedUnknownRecoveryRefs":[".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME","media.operation-profile.scoped-query.v1#errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"],"finalityRefs":["media.operation-profile.scoped-query.v1#resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceFinality"]}},{"operationRef":"media.operation.action.inspect-version-and-review-scope","disposition":"NO_P1_MACHINE_STATE","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-01.v1"],"noP1MachineState":{"sourceRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceEffect",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/resultSchema",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"],"noEffectRef":".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceEffect","resultRef":"media.operation-profile.scoped-query.v1#resultEnvelope","authorityRefs":[".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"],"versionRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/contractVersion"],"operationVersion":1,"deniedUnknownRecoveryRefs":[".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME","media.operation-profile.scoped-query.v1#errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"],"finalityRefs":["media.operation-profile.scoped-query.v1#resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceFinality"]}}]
+    "p1OperationStateProofs": [{"operationRef":"media.operation-slice.inspect-provenance","disposition":"EXACT_TYPED_OBSERVATION_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-03.v1"],"observationRef":".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"},{"operationRef":"media.operation.action.inspect-output-preview-and-version","disposition":"NO_P1_MACHINE_STATE","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-02.v1"],"noP1MachineState":{"sourceRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"],"noEffectRef":".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect","resultRef":"media.operation-profile.scoped-query.v1#resultEnvelope","authorityRefs":[".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"],"versionRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/contractVersion"],"operationVersion":1,"deniedUnknownRecoveryRefs":[".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME","media.operation-profile.scoped-query.v1#errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"],"finalityRefs":["media.operation-profile.scoped-query.v1#resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceFinality"]}},{"operationRef":"media.operation.action.inspect-version-and-review-scope","disposition":"NO_P1_MACHINE_STATE","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-01.v1"],"noP1MachineState":{"sourceRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceEffect",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/resultSchema",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"],"noEffectRef":".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceEffect","resultRef":"media.operation-profile.scoped-query.v1#resultEnvelope","authorityRefs":[".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"],"versionRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/contractVersion"],"operationVersion":1,"deniedUnknownRecoveryRefs":[".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME","media.operation-profile.scoped-query.v1#errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"],"finalityRefs":["media.operation-profile.scoped-query.v1#resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceFinality"]}},{"operationRef":"media.operation.action.review-rights-approval-and-format-effects","disposition":"EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-01.v1"],"journeyResultBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/pdp1ResultEvidence/operationResultBindings/1"],"typedObservationBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/pdp1ResultEvidence/typedObservationBindings/0"],"relatedActionBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-01.v1/relatedActionBindings/@id=media.pdp3.action-binding.j21-read-rights-observation.v1"],"stateRefs":[],"transitionRefs":[]}]
     "p1JourneyResultRefs": [".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1"]
-    "logicalDefinitionBlockers": ["J21 rights-approval decision has no source-bound P1 operation/purpose/typed-result join; owner approval evidence and exact approval-result source are absent."]
+    "logicalDefinitionBlockers": ["J21 approval mutation remains BLOCKED_EXCLUDED pending genuine rights-owner approval; the exact read-only rights-decision query and typed observation are source-bound, and no approval or channel transport is inferred."]
     "channelTransportEquivalence": "UNBOUND"
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "fixtureIds":
@@ -11213,6 +11229,16 @@
           - ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/@id=media.surface.integrations"
           - ".product-experience/pdp-0-product-truth/dependency-contracts.yaml"
         "reason": "No exact source-proven channel-equivalent operation binding in the reviewed channel inventory."
+      - "operationRef": "media.operation.action.review-rights-approval-and-format-effects"
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-rights-approval-and-format-effects"
+        "operationVersion": 1
+        "disposition": "UNBOUND"
+        "transportRef": "UNBOUND"
+        "sourceRefs":
+          - ".product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-rights-approval-and-format-effects"
+          - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/pdp1ResultEvidence/operationResultBindings/1"
+        "reason": "Exact P1 rights-decision QUERY and typed observation join the read-only J-21 purpose; channel transport remains UNBOUND and the approval mutation remains BLOCKED_EXCLUDED."
     "p1StateRefs": []
     "stateOrObservationDisposition": "NO_P1_STATE_REF_AUTHORED; JOURNEY PURPOSE AND STEP OBSERVATIONS REMAIN SOURCE-BOUND"
     "p1ObservationRefs":
@@ -11226,6 +11252,7 @@
       - ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/steps/1"
       - ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/steps/2"
       - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-rights-approval-and-format-effects"
     "p1AuthorityRefs":
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
@@ -11284,12 +11311,14 @@
       - "media.operation-slice.inspect-provenance"
       - "media.operation.action.inspect-output-preview-and-version"
       - "media.operation.action.inspect-version-and-review-scope"
+      - "media.operation.action.review-rights-approval-and-format-effects"
     "runtimeAdmission": "NOT_ADMITTED"
     "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "journeyId": "J-21"
-    "pdp1OperationRefs": ["media.operation-slice.inspect-provenance","media.operation.action.inspect-output-preview-and-version","media.operation.action.inspect-version-and-review-scope"]
+    "pdp1OperationRefs": ["media.operation-slice.inspect-provenance","media.operation.action.inspect-output-preview-and-version","media.operation.action.inspect-version-and-review-scope","media.operation.action.review-rights-approval-and-format-effects"]
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/headless"
     "typedRequestResultErrors":
       "sourceRefs":
@@ -11336,9 +11365,9 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "p1OperationStateProofs": [{"operationRef":"media.operation-slice.inspect-provenance","disposition":"EXACT_TYPED_OBSERVATION_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-03.v1"],"observationRef":".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"},{"operationRef":"media.operation.action.inspect-output-preview-and-version","disposition":"NO_P1_MACHINE_STATE","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-02.v1"],"noP1MachineState":{"sourceRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"],"noEffectRef":".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect","resultRef":"media.operation-profile.scoped-query.v1#resultEnvelope","authorityRefs":[".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"],"versionRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/contractVersion"],"operationVersion":1,"deniedUnknownRecoveryRefs":[".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME","media.operation-profile.scoped-query.v1#errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"],"finalityRefs":["media.operation-profile.scoped-query.v1#resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceFinality"]}},{"operationRef":"media.operation.action.inspect-version-and-review-scope","disposition":"NO_P1_MACHINE_STATE","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-01.v1"],"noP1MachineState":{"sourceRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceEffect",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/resultSchema",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"],"noEffectRef":".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceEffect","resultRef":"media.operation-profile.scoped-query.v1#resultEnvelope","authorityRefs":[".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"],"versionRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/contractVersion"],"operationVersion":1,"deniedUnknownRecoveryRefs":[".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME","media.operation-profile.scoped-query.v1#errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"],"finalityRefs":["media.operation-profile.scoped-query.v1#resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceFinality"]}}]
+    "p1OperationStateProofs": [{"operationRef":"media.operation-slice.inspect-provenance","disposition":"EXACT_TYPED_OBSERVATION_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-03.v1"],"observationRef":".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"},{"operationRef":"media.operation.action.inspect-output-preview-and-version","disposition":"NO_P1_MACHINE_STATE","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-02.v1"],"noP1MachineState":{"sourceRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"],"noEffectRef":".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect","resultRef":"media.operation-profile.scoped-query.v1#resultEnvelope","authorityRefs":[".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"],"versionRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/contractVersion"],"operationVersion":1,"deniedUnknownRecoveryRefs":[".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME","media.operation-profile.scoped-query.v1#errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"],"finalityRefs":["media.operation-profile.scoped-query.v1#resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceFinality"]}},{"operationRef":"media.operation.action.inspect-version-and-review-scope","disposition":"NO_P1_MACHINE_STATE","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-01.v1"],"noP1MachineState":{"sourceRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceEffect",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/resultSchema",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"],"noEffectRef":".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceEffect","resultRef":"media.operation-profile.scoped-query.v1#resultEnvelope","authorityRefs":[".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"],"versionRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/contractVersion"],"operationVersion":1,"deniedUnknownRecoveryRefs":[".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME","media.operation-profile.scoped-query.v1#errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"],"finalityRefs":["media.operation-profile.scoped-query.v1#resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceFinality"]}},{"operationRef":"media.operation.action.review-rights-approval-and-format-effects","disposition":"EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-01.v1"],"journeyResultBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/pdp1ResultEvidence/operationResultBindings/1"],"typedObservationBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/pdp1ResultEvidence/typedObservationBindings/0"],"relatedActionBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-01.v1/relatedActionBindings/@id=media.pdp3.action-binding.j21-read-rights-observation.v1"],"stateRefs":[],"transitionRefs":[]}]
     "p1JourneyResultRefs": [".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1"]
-    "logicalDefinitionBlockers": ["J21 rights-approval decision has no source-bound P1 operation/purpose/typed-result join; owner approval evidence and exact approval-result source are absent."]
+    "logicalDefinitionBlockers": ["J21 approval mutation remains BLOCKED_EXCLUDED pending genuine rights-owner approval; the exact read-only rights-decision query and typed observation are source-bound, and no approval or channel transport is inferred."]
     "channelTransportEquivalence": "UNBOUND"
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "fixtureIds":
@@ -13311,6 +13340,16 @@
           - ".product-experience/pdp-3-product-experience/screen-registry.yaml"
           - ".product-experience/pdp-3-product-experience/action-registry.yaml"
         "reason": "No exact source-proven channel-equivalent operation binding in the reviewed channel inventory."
+      - "operationRef": "media.operation.action.revoke-authorized-consent"
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent"
+        "operationVersion": 1
+        "disposition": "UNBOUND"
+        "transportRef": "UNBOUND"
+        "sourceRefs":
+          - ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.revoke-authorized-consent.v1"
+          - ".product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.revoke-authorized-consent"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/4"
+        "reason": "Exact P1 consent-revocation COMMAND request/result is joined to J-26 consent-remediation purpose; channel mapping is UNBOUND, authority receipt is not present, and erasure is not implied."
     "p1StateRefs":
       - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ACCESS_REVOKED"
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ACCESS_REVOKED"
@@ -13359,6 +13398,7 @@
       - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/0"
       - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/1"
       - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/2"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent"
     "p1AuthorityRefs":
       - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints/@point=artifact-fetch-and-cache-reuse"
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
@@ -13417,6 +13457,7 @@
       - "media.operation-slice.inspect-artifact"
       - "media.operation.action.inspect-consent-and-permitted-use"
       - "media.operation.action.view-job-status"
+      - "media.operation.action.revoke-authorized-consent"
     "runtimeAdmission": "NOT_ADMITTED"
     "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
@@ -13425,6 +13466,7 @@
       - "media.operation-slice.inspect-artifact"
       - "media.operation.action.inspect-consent-and-permitted-use"
       - "media.operation.action.view-job-status"
+      - "media.operation.action.revoke-authorized-consent"
     "p1OperationStateProofs":
       - "operationRef": "media.operation-slice.inspect-artifact"
         "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
@@ -13456,6 +13498,7 @@
         "relatedActionBindingRefs": []
         "stateRefs": []
         "transitionRefs": []
+      - {"operationRef":"media.operation.action.revoke-authorized-consent","disposition":"EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-01.v1"],"journeyResultBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/4"],"typedObservationBindingRefs":[],"relatedActionBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-01.v1/relatedActionBindings/@id=media.pdp3.action-binding.j26-consent-revocation-request.v1"],"stateRefs":[],"transitionRefs":[]}
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ACCESS_REVOKED"
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/AVAILABLE"
@@ -13516,7 +13559,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "Exact P1 result proofs bind only the consent, artifact, and job-status reads. No source-bound delete/revoke action, mutation authority, terminal lifecycle transition/finality, or handoff is joined; read evidence cannot prove erasure or revocation completion."
+      - "The consent-revocation COMMAND request and exact J-26 purpose/result join are source-bound, but no consent authority receipt is available; artifact-delete still lacks a J-26 action-purpose join and there is no terminal lifecycle transition/finality or all-copy erasure receipt. Request/read evidence cannot prove revocation completion or erasure."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -13567,6 +13610,16 @@
         "sourceRefs":
           - ".product-experience/pdp-3-product-experience/api/api-registry.yaml"
         "reason": "No exact API-registry PDP-1 operation crosslink for this journey operation."
+      - "operationRef": "media.operation.action.revoke-authorized-consent"
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent"
+        "operationVersion": 1
+        "disposition": "UNBOUND"
+        "transportRef": "UNBOUND"
+        "sourceRefs":
+          - ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.revoke-authorized-consent.v1"
+          - ".product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.revoke-authorized-consent"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/4"
+        "reason": "Exact P1 consent-revocation COMMAND request/result is joined to J-26 consent-remediation purpose; channel mapping is UNBOUND, authority receipt is not present, and erasure is not implied."
     "p1StateRefs":
       - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ACCESS_REVOKED"
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ACCESS_REVOKED"
@@ -13615,6 +13668,7 @@
       - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/0"
       - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/1"
       - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/2"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent"
     "p1AuthorityRefs":
       - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints/@point=artifact-fetch-and-cache-reuse"
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
@@ -13680,6 +13734,7 @@
     "unresolvedOperationRefs":
       - "media.operation.action.inspect-consent-and-permitted-use"
       - "media.operation.action.view-job-status"
+      - "media.operation.action.revoke-authorized-consent"
     "runtimeAdmission": "NOT_ADMITTED"
     "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
@@ -13688,6 +13743,7 @@
       - "media.operation-slice.inspect-artifact"
       - "media.operation.action.inspect-consent-and-permitted-use"
       - "media.operation.action.view-job-status"
+      - "media.operation.action.revoke-authorized-consent"
     "p1OperationStateProofs":
       - "operationRef": "media.operation-slice.inspect-artifact"
         "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
@@ -13719,6 +13775,7 @@
         "relatedActionBindingRefs": []
         "stateRefs": []
         "transitionRefs": []
+      - {"operationRef":"media.operation.action.revoke-authorized-consent","disposition":"EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-01.v1"],"journeyResultBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/4"],"typedObservationBindingRefs":[],"relatedActionBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-01.v1/relatedActionBindings/@id=media.pdp3.action-binding.j26-consent-revocation-request.v1"],"stateRefs":[],"transitionRefs":[]}
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ACCESS_REVOKED"
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/AVAILABLE"
@@ -13783,7 +13840,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "Exact P1 result proofs bind only the consent, artifact, and job-status reads. No source-bound delete/revoke action, mutation authority, terminal lifecycle transition/finality, or handoff is joined; read evidence cannot prove erasure or revocation completion."
+      - "The consent-revocation COMMAND request and exact J-26 purpose/result join are source-bound, but no consent authority receipt is available; artifact-delete still lacks a J-26 action-purpose join and there is no terminal lifecycle transition/finality or all-copy erasure receipt. Request/read evidence cannot prove revocation completion or erasure."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -13836,6 +13893,16 @@
           - ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/@id=media.surface.integrations"
           - ".product-experience/pdp-0-product-truth/dependency-contracts.yaml"
         "reason": "No exact source-proven channel-equivalent operation binding in the reviewed channel inventory."
+      - "operationRef": "media.operation.action.revoke-authorized-consent"
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent"
+        "operationVersion": 1
+        "disposition": "UNBOUND"
+        "transportRef": "UNBOUND"
+        "sourceRefs":
+          - ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.revoke-authorized-consent.v1"
+          - ".product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.revoke-authorized-consent"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/4"
+        "reason": "Exact P1 consent-revocation COMMAND request/result is joined to J-26 consent-remediation purpose; channel mapping is UNBOUND, authority receipt is not present, and erasure is not implied."
     "p1StateRefs":
       - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ACCESS_REVOKED"
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ACCESS_REVOKED"
@@ -13884,6 +13951,7 @@
       - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/0"
       - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/1"
       - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/2"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent"
     "p1AuthorityRefs":
       - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints/@point=artifact-fetch-and-cache-reuse"
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
@@ -13942,6 +14010,7 @@
       - "media.operation-slice.inspect-artifact"
       - "media.operation.action.inspect-consent-and-permitted-use"
       - "media.operation.action.view-job-status"
+      - "media.operation.action.revoke-authorized-consent"
     "runtimeAdmission": "NOT_ADMITTED"
     "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
@@ -13950,6 +14019,7 @@
       - "media.operation-slice.inspect-artifact"
       - "media.operation.action.inspect-consent-and-permitted-use"
       - "media.operation.action.view-job-status"
+      - "media.operation.action.revoke-authorized-consent"
     "p1OperationStateProofs":
       - "operationRef": "media.operation-slice.inspect-artifact"
         "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
@@ -13981,6 +14051,7 @@
         "relatedActionBindingRefs": []
         "stateRefs": []
         "transitionRefs": []
+      - {"operationRef":"media.operation.action.revoke-authorized-consent","disposition":"EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-01.v1"],"journeyResultBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/4"],"typedObservationBindingRefs":[],"relatedActionBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-01.v1/relatedActionBindings/@id=media.pdp3.action-binding.j26-consent-revocation-request.v1"],"stateRefs":[],"transitionRefs":[]}
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ACCESS_REVOKED"
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/AVAILABLE"
@@ -14041,7 +14112,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "Exact P1 result proofs bind only the consent, artifact, and job-status reads. No source-bound delete/revoke action, mutation authority, terminal lifecycle transition/finality, or handoff is joined; read evidence cannot prove erasure or revocation completion."
+      - "The consent-revocation COMMAND request and exact J-26 purpose/result join are source-bound, but no consent authority receipt is available; artifact-delete still lacks a J-26 action-purpose join and there is no terminal lifecycle transition/finality or all-copy erasure receipt. Request/read evidence cannot prove revocation completion or erasure."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":

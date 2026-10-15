@@ -1487,8 +1487,11 @@ sourceGap:
     - .product-experience/pdp-1-domain-data/value-objects.yaml#spatialTransformDeclarationContract/transformDeclaration
     - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-03.v1
     - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1
+  integrationDisposition: HOST_DEPENDENT; NOT_ADMITTED
   boundary: Preserve terminalSuccess as an unaccepted intent; no result, receipt,
-    or runtime admission is inferred.
+    or runtime admission is inferred. Destination-host authority and consumer
+    receipt remain separate from Media render submission and are not supplied by
+    this journey contract.
 stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy
   view maps to one registered intent-based screen. Null actionRef and empty
   stateRefs are deliberate open bindings, not no-op actions or completed

@@ -9,6 +9,7 @@ const { parse } = createRequire(resolve(process.cwd(), '../ghatana-tools/package
 const readYaml = (path) => parse(readFileSync(path, 'utf8'));
 const purposePath = '.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml';
 const purpose = readYaml(purposePath);
+const stepOracles = readYaml('.product-experience/pdp-3-product-experience/step-definition-oracles.yaml');
 const journeyCatalog = readYaml('.product-experience/pdp-0-product-truth/journey-catalog.yaml');
 const transitionEdges = readYaml('.product-experience/pdp-3-product-experience/journey-transition-edge-bindings.yaml');
 const sources = {
@@ -82,7 +83,7 @@ test('MDC30 S01-S13 retain explicit source-bounded no-transition dispositions', 
   assert.match(getStep('J06', 1).transitionDisposition.reason, /does not prove a P1 job state, QUEUED, execution, completion, or output availability/i);
 });
 
-test('J06 S01 retains its five journey-level nonhappy conditions as unallocated proposals', () => {
+test('J06 S01 binds its five source conditions without inventing scenarios or admission', () => {
   const step = getStep('J06', 1);
   const semantics = step.stepDefinitionSemantics;
   const fixtureOracle = semantics.fixtureOracle;
@@ -96,18 +97,27 @@ test('J06 S01 retains its five journey-level nonhappy conditions as unallocated 
   ];
 
   assert.ok(conditions.every((condition) => condition.test(sourceJourney.criticalNonhappy)));
-  assert.equal(step.failure.status, 'candidate-proposal');
-  assert.equal(step.failure.scope, 'journey-level-not-allocated-to-this-step');
+  assert.equal(step.failure.status, 'SOURCE_BOUND_CONDITION_DISPOSITIONS_WITH_PUBLIC_API_ADMISSION_GAP');
   assert.equal(step.failure.sourceRef, 'journey.criticalNonhappyPaths');
-  assert.equal(fixtureOracle.status, 'NO_STEP_SCENARIO_BOUND');
-  assert.equal(fixtureOracle.nonhappyBranch.status, 'candidate-proposal');
-  assert.equal(fixtureOracle.nonhappyBranch.scope, 'journey-level-not-allocated-to-this-step');
-  assert.equal(fixtureOracle.nonhappyBranch.sourceRef, 'journey.criticalNonhappyPaths');
+  assert.deepEqual(step.failure.branches.map(({ id }) => id), [
+    'privacy-denial',
+    'unqualified-fallback',
+    'cancellation-boundary',
+    'missing-public-api',
+    'generic-document-request',
+  ]);
+  assert.equal(step.failure.branches.find(({ id }) => id === 'missing-public-api').sourceGap,
+    'P1 defines no distinct MISSING_PUBLIC_API operation error. This is an admission blocker, not a synthesized operation result.');
+  assert.equal(fixtureOracle.status, 'SOURCE_BOUND_BRANCH_ORACLE; FIXTURES_NOT_EXECUTED');
+  assert.equal(fixtureOracle.nonhappyBranch.status, 'SOURCE_BOUND_CONDITION_DISPOSITIONS_WITH_PUBLIC_API_ADMISSION_GAP');
+  assert.equal(fixtureOracle.nonhappyBranch.sourceRef,
+    '.product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0/failure/branches');
+  assert.equal(fixtureOracle.nonhappyBranch.runtimeAdmission, 'NOT_ADMITTED');
   assert.deepEqual(semantics.canonicalBindings.scenarioRefs, []);
   assert.deepEqual(fixtureOracle.scenarioRefs, []);
   assert.deepEqual(fixtureOracle.scenarios, []);
   assert.equal(fixtureOracle.executable, false);
-  assert.match(step.failure.proposal[0].condition, /Privacy denial, unqualified fallback, cancellation boundary, missing public API, or generic document request routed as video OCR by MIME alone/i);
+  assert.equal(fixtureOracle.executable, false);
 });
 
 test('MDC30 S14 binds T01 only to complete-upload under guarded finalization', () => {
@@ -130,4 +140,22 @@ test('MDC30 S14 binds T01 only to complete-upload under guarded finalization', (
     stepId: 'J02-3',
     canonicalOperationRefs: ['media.operation-slice.inspect-upload', 'media.operation-slice.append-upload-chunk', 'media.operation-slice.complete-upload'],
   }]);
+});
+
+test('MDC30 S01-S14 oracle joins stay definition-only and reference canonical bindings', () => {
+  const expectedSelectors = Array.from({ length: 14 }, (_, index) => `MDC30-S-${String(index + 1).padStart(2, '0')}`);
+  const joins = stepOracles.journeys.flatMap(({ steps }) => steps)
+    .filter(({ mdc30SourceJoin }) => mdc30SourceJoin)
+    .map(({ mdc30SourceJoin, canonicalBindings, branchOracles }) => {
+      assert.equal(mdc30SourceJoin.status, 'SOURCE_JOIN_RECONCILED_DEFINITION_ONLY');
+      assert.equal(mdc30SourceJoin.branchProofStatus, 'NOT_RUN');
+      assert.equal(mdc30SourceJoin.runtimeAdmission, 'NOT_ADMITTED');
+      assert.deepEqual(mdc30SourceJoin.scenarioRefs, []);
+      assert.ok(canonicalBindings.actionRef);
+      assert.ok(canonicalBindings.operationRefs.length > 0);
+      assert.ok(branchOracles.deniedCases.length > 0);
+      assert.ok(branchOracles.unknownCases.length > 0);
+      return mdc30SourceJoin.selector;
+    });
+  assert.deepEqual(joins.sort(), expectedSelectors);
 });

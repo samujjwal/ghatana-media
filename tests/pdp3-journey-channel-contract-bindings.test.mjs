@@ -95,8 +95,12 @@ function assertValid(document, sources) {
     return Boolean(machine?.stateDefinitions?.some((state) => state.id === match[2]));
   };
   const exactStateSourceRefExists = (ref) => {
-    const match = /^\.product-experience\/pdp-1-domain-data\/states\.yaml#([^/#]+)$/.exec(ref);
-    return Boolean(match && (states.stateMachines ?? []).some((machine) => machine.machineId === match[1]));
+    const machineRef = /^\.product-experience\/pdp-1-domain-data\/states\.yaml#([^/#]+)$/.exec(ref);
+    if (machineRef) return Boolean((states.stateMachines ?? []).some((machine) => machine.machineId === machineRef[1]));
+    const stateFamilyRef = /^\.product-experience\/pdp-1-domain-data\/states\.yaml#stateMachines\/([^/#]+)\/stateDefinitions$/.exec(ref);
+    if (!stateFamilyRef) return false;
+    const machine = (states.stateMachines ?? []).find((item) => item.machineId === stateFamilyRef[1]);
+    return Boolean(machine?.stateDefinitions?.length);
   };
   const exactObservationRef = (ref) => {
     const match = ref.match(/^\.product-experience\/pdp-1-domain-data\/operations\.yaml#ownerTypedObservationContracts\/records\/@id=(.+)$/);
@@ -225,10 +229,15 @@ function assertValid(document, sources) {
       assert.ok(observation, `${edge.id} observation selector resolves against PDP-1 operations`);
       const citedPurposeRecords = edge.purposeBindingRefs.map((purposeRef) => purposeById.get(purposeRef.split("@id=")[1]?.split(/[&#]/)[0]));
       assert.ok(citedPurposeRecords.some((record) => {
-        const directlyCites = ["authorityRefs", "sourceRefs", "operationRefs"].some((field) => (record?.[field] ?? []).includes(ref));
+        const directlyCites = ["authorityRefs", "sourceRefs", "operationRefs", "observationContractRefs"].some((field) => (record?.[field] ?? []).includes(ref));
         const journeyOperationRefs = [...(record?.operationRefs ?? []), ...(record?.actionExactOperationRefs ?? [])];
         const chainJoins = observation.operationRefs.some((operationRef) => journeyOperationRefs.includes(operationRef) && edge.pdp1OperationRefs.includes(operationRef));
-        return directlyCites && chainJoins;
+        const relatedActionJoin = (record?.relatedActionBindings ?? []).some((binding) =>
+          binding.observationContractRef === ref
+            && observation.operationRefs.includes(binding.operationRef)
+            && edge.pdp1OperationRefs.includes(binding.operationRef)
+            && (binding.sourceRefs ?? []).includes(ref));
+        return (directlyCites && chainJoins) || relatedActionJoin;
       }), `${edge.id} observation has an exact observation → operation → purpose-binding join`);
     }
     const exactStateOrObservationRefs = [...new Set([...stateRefs, ...observationRefs])];
@@ -325,10 +334,16 @@ test("current source gaps remain explicit after operation-result proofs are join
   const j08CapabilityStep = j08.steps[1].stepDefinitionSemantics.stepSourceFacts.terminalResultObservation;
   const j08QualityObservation = j08.steps[3].stepDefinitionSemantics.stepSourceFacts.typedQualityEvidenceObservation;
   assert.deepEqual(j08CapabilityStep.successfulOutput.requiredIdentity, ["artifactId", "versionId"]);
-  assert.deepEqual(j08.pdp1ResultEvidence.typedObservationBindings, [], "J-08 does not claim a typed quality-observation join");
-  assert.match(j08QualityObservation.subjectBinding, /UNRESOLVED/u);
-  assert.match(j08QualityObservation.metricSelection, /UNRESOLVED/u);
-  assert.match(blockerFor("media.pdp3.channel-binding.j08.web.v1"), /no formal typed-observation binding joins one selected output version to a nonempty metricRefs request and same-subject result/u);
+  assert.equal(j08.pdp1ResultEvidence.typedObservationBindings.length, 1, "J-08 binds its source-defined typed quality observation to the selected output and review purpose");
+  const j08TypedObservation = j08.pdp1ResultEvidence.typedObservationBindings[0];
+  assert.equal(j08TypedObservation.operationRef, "media.operation.action.inspect-quality-evidence");
+  assert.deepEqual(j08TypedObservation.requiredExactIdentity, ["queryId", "requestFingerprint", "subjectArtifactVersionRef", "metricRefs"]);
+  assert.match(j08TypedObservation.subjectBinding, /exact selected output version under review/u);
+  assert.match(j08TypedObservation.subjectBinding, /metricRefs must be nonempty and unique/u);
+  assert.match(j08QualityObservation.subjectBinding, /selected successful capability output identity/u);
+  assert.match(j08QualityObservation.metricSelection, /nonempty unique metricRefs/u);
+  assert.match(j08QualityObservation.comparisonBoundary, /original-versus-candidate version pair or evaluation algorithm context/u);
+  assert.match(blockerFor("media.pdp3.channel-binding.j08.web.v1"), /original-versus-candidate version pair, evaluation algorithm context, and matched same-subject metric result remain unjoined/u);
   assert.match(blockerFor("media.pdp3.channel-binding.j10.web.v1"), /per-condition state, copy, action, expected-result, and finality bindings/u);
   assert.match(blockerFor("media.pdp3.channel-binding.j28.web.v1"), /post-render consumer receipt or conversion-report result/u);
   for (const id of [
@@ -356,8 +371,8 @@ test("current source gaps remain explicit after operation-result proofs are join
       edge.p1OperationBindings.filter((binding) => binding.disposition === "UNBOUND").map((binding) => binding.operationRef),
       `${id} retains all operations without channel mappings`,
     );
-    assert.match(edge.logicalDefinitionBlockers.join(" "), /No exact cancellation or retry transition ID\/finality is defined or joined/u);
-    assert.match(edge.logicalDefinitionBlockers.join(" "), /retry remains conditional on current owner eligibility, and UNKNOWN does not authorize replay/u);
+    assert.match(edge.logicalDefinitionBlockers.join(" "), /no exact cancellation or retry transition ID\/finality is defined or joined/u);
+    assert.match(edge.logicalDefinitionBlockers.join(" "), /Retry remains conditional on current owner eligibility; UNKNOWN does not authorize replay/u);
     assert.equal(edge.p1OperationStateProofs.length, 4);
     assert.deepEqual(edge.p1OperationStateProofs.map((proof) => proof.operationRef).sort(), [
       "media.operation-slice.cancel-job", "media.operation-slice.retry-job",
@@ -387,8 +402,14 @@ test("current source gaps remain explicit after operation-result proofs are join
     assert.equal(edge.logicalDefinitionDisposition, "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING");
     assert.equal(edge.channelTransportEquivalence, "UNBOUND");
     assert.equal(edge.runtimeAdmission, "NOT_ADMITTED");
-    assert.equal(edge.p1OperationStateProofs.length, 3);
-    assert.match(edge.logicalDefinitionBlockers.join(" "), /No source-bound delete\/revoke action, mutation authority, terminal lifecycle transition\/finality, or handoff/u);
+    assert.equal(edge.p1OperationStateProofs.length, 4);
+    const revokeProof = edge.p1OperationStateProofs.find((proof) => proof.operationRef === "media.operation.action.revoke-authorized-consent");
+    assert.deepEqual(revokeProof.purposeBindingRefs, [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-01.v1"]);
+    assert.deepEqual(revokeProof.relatedActionBindingRefs, [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-01.v1/relatedActionBindings/@id=media.pdp3.action-binding.j26-consent-revocation-request.v1"]);
+    assert.match(edge.logicalDefinitionBlockers.join(" "), /artifact-delete still lacks a J-26 action-purpose join/u);
+    assert.match(edge.logicalDefinitionBlockers.join(" "), /no terminal lifecycle transition\/finality or all-copy erasure receipt/u);
+    assert.ok(edge.unresolvedOperationRefs.includes("media.operation.action.revoke-authorized-consent"));
+    if (id.endsWith("j26.http-api.v1")) assert.equal(edge.exactTransportMappingCount, 1, "the existing GET route is preserved as the only exact HTTP mapping");
   }
   const j21Edges = registry.edges.filter((edge) => edge.journeyRef === "J-21");
   assert.deepEqual(j21Edges.map((edge) => edge.id).sort(), [
@@ -398,8 +419,13 @@ test("current source gaps remain explicit after operation-result proofs are join
   for (const edge of j21Edges) {
     assert.equal(edge.logicalDefinitionDisposition, "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING");
     assert.equal(edge.channelTransportEquivalence, "UNBOUND");
-    assert.match(edge.logicalDefinitionBlockers.join(" "), /J21 rights-approval decision has no source-bound P1 operation\/purpose\/typed-result join/u);
-    assert.match(edge.logicalDefinitionBlockers.join(" "), /owner approval evidence and exact approval-result source are absent/u);
+    assert.match(edge.logicalDefinitionBlockers.join(" "), /approval mutation remains BLOCKED_EXCLUDED pending genuine rights-owner approval/u);
+    assert.equal(edge.p1OperationStateProofs.length, edge.p1OperationBindings.length);
+    const rightsQuery = edge.p1OperationStateProofs.find((proof) => proof.operationRef === "media.operation.action.review-rights-approval-and-format-effects");
+    assert.deepEqual(rightsQuery.journeyResultBindingRefs, [".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/pdp1ResultEvidence/operationResultBindings/1"]);
+    assert.deepEqual(rightsQuery.typedObservationBindingRefs, [".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/pdp1ResultEvidence/typedObservationBindings/0"]);
+    assert.deepEqual(rightsQuery.relatedActionBindingRefs, [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-01.v1/relatedActionBindings/@id=media.pdp3.action-binding.j21-read-rights-observation.v1"]);
+    assert.ok(edge.unresolvedOperationRefs.includes("media.operation.action.review-rights-approval-and-format-effects"));
   }
 });
 
@@ -482,9 +508,16 @@ test("J-18 submit-render binds machine roots without asserting a current job sta
   const states = sources.states;
   const exactStateRefExists = (ref) => /^\.product-experience\/pdp-1-domain-data\/states\.yaml#stateMachines\/([^/]+)\/stateDefinitions\/([^/]+)$/.test(ref);
   const exactStateSourceRefExists = (ref) => {
-    const match = /^\.product-experience\/pdp-1-domain-data\/states\.yaml#([^/#]+)$/.exec(ref);
-    return Boolean(match && states.stateMachines.some((machine) => machine.machineId === match[1]));
+    const machineRef = /^\.product-experience\/pdp-1-domain-data\/states\.yaml#([^/#]+)$/.exec(ref);
+    if (machineRef) return states.stateMachines.some((machine) => machine.machineId === machineRef[1]);
+    const stateFamilyRef = /^\.product-experience\/pdp-1-domain-data\/states\.yaml#stateMachines\/([^/#]+)\/stateDefinitions$/.exec(ref);
+    if (!stateFamilyRef) return false;
+    const machine = states.stateMachines.find((item) => item.machineId === stateFamilyRef[1]);
+    return Boolean(machine?.stateDefinitions?.length);
   };
+  const stateFamilyRef = ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions";
+  assert.ok(exactStateSourceRefExists(stateFamilyRef), "an exact stateDefinitions family reference resolves only for a declared machine");
+  assert.equal(exactStateSourceRefExists(`${stateFamilyRef}/UNKNOWN`), false, "a family reference cannot admit an undeclared state suffix");
   const run = (proof) => assertOperationStateProofs({ ...edge, p1OperationStateProofs: [proof] }, {
     operationsById: new Map([[operationRef, operation]]), purposeById,
     exactStateRefExists, exactStateSourceRefExists, exactObservationRef: () => undefined, journeyContract,
