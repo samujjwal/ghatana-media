@@ -37,7 +37,11 @@ const pdp0R12ExitPath = 'docs/implementation/observations/media-discovery-pdp0-e
 const pdp0R12CurrentnessPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json';
 const pdp0R12SuccessorImpactPath = 'docs/implementation/observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r1.json';
 const pdp0R12SuccessorImpactR2Path = 'docs/implementation/observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r2.json';
+const pdp0R12SuccessorImpactR3Path = 'docs/implementation/observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r3.json';
 const pdp0R12SuccessorImpactR1Sha256 = 'sha256:e5f837db065f2b6c99e721ee9f748b319266e911de3b21a1e30c055437e18ebe';
+const pdp0R12SuccessorImpactR2Sha256 = 'sha256:7b14877d3103ba63933521c95766114d068d3d450f803ae66e2bc9af422b9d22';
+const lifecycleR12Revision = '7cd80b8a03508f5feb116ee8f6f86b28ac4c8f28';
+const lifecycleExplorerCampaignCheck = 'node scripts/generate-lifecycle-explorer-pack.mjs && node scripts/checks/check-explorer-campaign-conformance.mjs';
 const pdp0R11SuccessorSupportPaths = [
   'scripts/record-media-discovery-pdp0-currentness.mjs',
   'scripts/record-media-discovery-pdp0-phase-exit.mjs',
@@ -63,6 +67,7 @@ export function mediaPdp0R12SuccessorSupportFileHashes() {
 }
 
 export const mediaPdp0R12SuccessorR2SupportFileHashes = mediaPdp0R12SuccessorSupportFileHashes;
+export const mediaPdp0R12SuccessorR3SupportFileHashes = mediaPdp0R12SuccessorSupportFileHashes;
 
 export function resolveMediaPdp0CurrentnessOutputPath(successorImpactMode = false, successorSuffix = null) {
   if (!successorImpactMode) return outputPath;
@@ -76,12 +81,23 @@ export function resolveMediaPdp0SuccessorCurrentnessSuffix(recordId, requestedSu
     'MEDIA-DISCOVERY-PDP0-R11-SUCCESSOR-IMPACT-2026-10-14-R1': '2026-10-14-current-cut-r12',
     'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R1': '2026-10-14-current-cut-r13',
     'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2': '2026-10-14-current-cut-r14',
+    'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R3': '2026-10-14-current-cut-r15',
   };
   const canonicalSuffix = suffixes[recordId] ?? null;
   if (canonicalSuffix && requestedSuffix && requestedSuffix !== canonicalSuffix) {
     throw new Error(`Successor record ${recordId} requires canonical output suffix ${canonicalSuffix}`);
   }
   return canonicalSuffix ?? requestedSuffix ?? null;
+}
+
+export function resolveMediaPdp0SuccessorPredecessorExitPath(record) {
+  if (record?.recordId === 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R1'
+    || record?.recordId === 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2'
+    || record?.recordId === 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R3') return pdp0R12ExitPath;
+  if (record?.recordId === 'MEDIA-DISCOVERY-PDP0-R11-SUCCESSOR-IMPACT-2026-10-14-R1') return pdp0R11ExitPath;
+  if (record?.recordId === 'MEDIA-DISCOVERY-PDP0-PXD164-SUCCESSOR-IMPACT-2026-10-14-R1') return pdp0R10ExitPath;
+  if (record?.recordId === 'MEDIA-DISCOVERY-PDP0-R8-SUCCESSOR-IMPACT-2026-10-14-R2') return pdp0R8ExitPath;
+  return pdp0R6ExitPath;
 }
 
 export function assertMediaPdp0CurrentnessOutputAvailable(relativePath, exists = fs.existsSync) {
@@ -381,6 +397,9 @@ export function classifyPdp0SuccessorImpact(pinComparisons, record, recordPath, 
   }
   if (record?.recordId === 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2') {
     return classifyMediaPdp0R12SuccessorImpactR2(pinComparisons, record, recordPath, technicalCurrentness);
+  }
+  if (record?.recordId === 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R3') {
+    return classifyMediaPdp0R12SuccessorImpactR3(pinComparisons, record, recordPath, technicalCurrentness);
   }
   if (record?.recordId === 'MEDIA-DISCOVERY-PDP0-R11-SUCCESSOR-IMPACT-2026-10-14-R1') {
     return classifyMediaPdp0R11SuccessorImpact(pinComparisons, record, recordPath, technicalCurrentness);
@@ -767,6 +786,189 @@ export function classifyMediaPdp0R12SuccessorImpactR2(pinComparisons, record, re
     authorityRef: recordPath, authoritySha256, predecessorSha256: delta.predecessorSha256, observedSha256: delta.observedSha256,
     meaningIdsChanged: [], ownerAcceptance: 'NOT_CLAIMED', independentSignoff: 'NOT_CLAIMED', lifecycleClosure: 'NOT_ENTERED',
     runtime: 'NOT_ADMITTED', delivery: 'BLOCKED' }));
+}
+
+export function classifyMediaPdp0R12SuccessorImpactR3(pinComparisons, record, recordPath, technicalCurrentness, inputs = {}) {
+  const expectedLocalPaths = [
+    '.product-experience/artifact-identities.yaml',
+    '.product-experience/gaps.yaml',
+    '.product-experience/source-manifest.yaml',
+    'apps/media-experience-explorer/specification-artifacts.json',
+  ];
+  const expectedLifecycleDelta = {
+    repositoryId: 'ghatana-lifecycle',
+    path: 'package.json',
+    classification: 'LIFECYCLE_TOOLING_CHECK_REGISTRATION_NO_PDP0_MEANING',
+    predecessorSha256: 'sha256:41c42b77f2fa20e1831f32ae116ae49d07ed8150b0b00265cda64e27f55f47bd',
+    observedSha256: 'sha256:6e24f0d78a3ce1521c1e7f3246ae09df4d93f42e75dc9525017b0549ac88ae4f',
+    exactChange: 'Adds check:lifecycle:explorer-campaign-conformance only.',
+    pdp0MeaningChange: 'NONE',
+    pdp0MeaningIdsChanged: [],
+    externalOwnerAcceptance: 'NOT_CLAIMED',
+    freshCurrentnessRequired: true,
+  };
+  if (recordPath !== pdp0R12SuccessorImpactR3Path || path.isAbsolute(recordPath)
+      || path.relative(root, path.resolve(root, recordPath)).startsWith('..')) return null;
+  let recordBytes;
+  let priorR2Bytes;
+  let priorR2;
+  let priorExit;
+  let priorCurrentness;
+  try {
+    recordBytes = inputs.recordBytes ?? fs.readFileSync(path.resolve(root, recordPath));
+    priorR2Bytes = inputs.priorR2Bytes ?? fs.readFileSync(path.join(root, pdp0R12SuccessorImpactR2Path));
+    priorR2 = inputs.priorR2 ?? JSON.parse(priorR2Bytes.toString('utf8'));
+    priorExit = inputs.priorExit ?? JSON.parse(fs.readFileSync(path.join(root, pdp0R12ExitPath), 'utf8'));
+    priorCurrentness = inputs.priorCurrentness ?? JSON.parse(fs.readFileSync(path.join(root, pdp0R12CurrentnessPath), 'utf8'));
+  } catch {
+    return null;
+  }
+  let parsedRecord;
+  try { parsedRecord = JSON.parse(recordBytes.toString('utf8')); } catch { return null; }
+
+  const expectedRecord = structuredClone(priorR2);
+  expectedRecord.recordId = 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R3';
+  expectedRecord.supersedes = { recordId: priorR2.recordId, sha256: pdp0R12SuccessorImpactR2Sha256 };
+  expectedRecord.campaign.scope = 'R3 preserves R2 exact four-path GAP-12 census/projection dispositions and adds only the authorized ghatana-lifecycle/package.json check:lifecycle:explorer-campaign-conformance registration; R12 remains the predecessor cut; no PDP-0 meaning change.';
+  expectedRecord.authority.userAuthorization = 'Exact Lifecycle package transition authorized by the user for internal PDP-0 no-meaning impact disposition.';
+  expectedRecord.authority.authorizationEvidence = {
+    source: 'DIRECT_USER_AUTHORIZATION_REPORTED_IN_CURRENT_TASK',
+    userReply: 'The direct user instruction authorizes the exact Lifecycle package transition for internal PDP-0 no-meaning disposition.',
+    authorizedScope: 'Register only the exact Lifecycle package script addition, preserve the four R2 local GAP-12 classifications, and record no PDP-0 meaning change. Do not claim external acceptance or Lifecycle closure.',
+    noMeaningChange: true,
+    externalAcceptance: false,
+  };
+  expectedRecord.sourceDeltas = structuredClone(priorR2.sourceDeltas);
+  expectedRecord.externalSourceDeltas = [expectedLifecycleDelta];
+  expectedRecord.decision.status = 'INTERNAL_SCOPED_NO_PDP0_MEANING_CHANGE_FOR_R2_DELTAS_AND_EXACT_LIFECYCLE_TRANSITION';
+  expectedRecord.decision.externalLifecycleTransition = 'INTERNAL_NO_PDP0_MEANING_CHANGE';
+  expectedRecord.limitations = 'This internal disposition preserves R2 exact four-path local GAP-12 census/projection classifications and covers only the exact Lifecycle package.json addition of check:lifecycle:explorer-campaign-conformance. R12 remains the source predecessor; R3 supersedes the R2 impact record by exact digest. No PDP-0 meaning change, external owner acceptance, independent signoff, native Lifecycle receipt or closure, runtime admission, Delivery readiness, or release authorization is claimed.';
+  expectedRecord.supportFileSha256s = mediaPdp0R12SuccessorR3SupportFileHashes();
+
+  const priorPins = priorExit?.sourceCurrentness?.sourceContentDigests ?? {};
+  const comparisons = [...(pinComparisons ?? [])].sort((a, b) => a.path.localeCompare(b.path));
+  const changed = comparisons.filter((entry) => entry.disposition !== 'MATCH');
+  const exactLocalSet = comparisons.length === 146 && Object.keys(priorPins).length === 146
+    && comparisons.every((entry) => Object.hasOwn(priorPins, entry.path) && entry.recordedDigest === priorPins[entry.path])
+    && changed.length === 4 && changed.map((entry) => entry.path).sort().join('\n') === [...expectedLocalPaths].sort().join('\n')
+    && priorR2.sourceDeltas?.length === 4
+    && priorR2.sourceDeltas.every((delta, index) => delta.path === expectedLocalPaths[index]);
+  const localImpactExact = changed.every((pin) => {
+    const delta = priorR2.sourceDeltas.find((entry) => entry.path === pin.path);
+    return delta && pin.recordedDigest === delta.predecessorSha256 && pin.currentDigest === delta.observedSha256;
+  });
+
+  const oldLifecycle = priorCurrentness?.externalOwnerContracts?.repositories?.find((entry) => entry.repositoryId === 'ghatana-lifecycle');
+  const currentExternal = technicalCurrentness?.externalOwnerContracts;
+  const currentLifecycle = currentExternal?.repositories?.find((entry) => entry.repositoryId === 'ghatana-lifecycle');
+  const priorLifecyclePackage = oldLifecycle?.files?.find((entry) => entry.path === 'package.json');
+  const currentLifecyclePackage = currentLifecycle?.files?.find((entry) => entry.path === 'package.json');
+  let exactPackageTransition = false;
+  try {
+    const lifecycleRoot = path.resolve(root, externalRoots['ghatana-lifecycle']);
+    const oldPackageBytes = execFileSync('git', ['show', `${lifecycleR12Revision}:package.json`], { cwd: lifecycleRoot });
+    const currentPackageBytes = fs.readFileSync(path.join(lifecycleRoot, 'package.json'));
+    const oldPackage = JSON.parse(oldPackageBytes.toString('utf8'));
+    const currentPackage = JSON.parse(currentPackageBytes.toString('utf8'));
+    const expectedPackage = structuredClone(oldPackage);
+    expectedPackage.scripts = { ...expectedPackage.scripts, 'check:lifecycle:explorer-campaign-conformance': lifecycleExplorerCampaignCheck };
+    exactPackageTransition = hashBytes(oldPackageBytes) === expectedLifecycleDelta.predecessorSha256
+      && hashBytes(currentPackageBytes) === expectedLifecycleDelta.observedSha256
+      && isDeepStrictEqual(currentPackage, expectedPackage)
+      && priorLifecyclePackage?.declaredContentSha256 === expectedLifecycleDelta.predecessorSha256
+      && priorLifecyclePackage?.observedContentSha256 === expectedLifecycleDelta.predecessorSha256
+      && currentLifecyclePackage?.declaredContentSha256 === expectedLifecycleDelta.observedSha256
+      && currentLifecyclePackage?.observedContentSha256 === expectedLifecycleDelta.observedSha256
+      && currentLifecyclePackage?.digestMatches === true;
+  } catch {
+    exactPackageTransition = false;
+  }
+  const priorExternal = priorCurrentness?.externalOwnerContracts;
+  const unchangedExternalFiles = currentExternal?.totalFiles === priorExternal?.totalFiles
+    && currentExternal?.repositories?.length === priorExternal?.repositories?.length
+    && currentExternal?.digestMatches === currentExternal?.totalFiles
+    && currentExternal?.digestMismatches?.length === 0
+    && (priorExternal?.repositories ?? []).every((priorRepository) => {
+    const currentRepository = currentExternal?.repositories?.find((entry) => entry.repositoryId === priorRepository.repositoryId);
+    if (!currentRepository || currentRepository.files?.length !== priorRepository.files?.length) return false;
+    return priorRepository.files.every((priorFile) => {
+      const currentFile = currentRepository.files.find((entry) => entry.path === priorFile.path);
+      if (!currentFile || currentFile.package !== priorFile.package || currentFile.version !== priorFile.version) return false;
+      return priorRepository.repositoryId === 'ghatana-lifecycle' && priorFile.path === 'package.json'
+        ? currentFile.declaredContentSha256 === expectedLifecycleDelta.observedSha256
+          && currentFile.observedContentSha256 === expectedLifecycleDelta.observedSha256
+          && currentFile.digestMatches === true
+        : currentFile.declaredContentSha256 === priorFile.declaredContentSha256
+          && currentFile.observedContentSha256 === priorFile.observedContentSha256
+          && currentFile.digestMatches === priorFile.digestMatches;
+    });
+    });
+  const expectedTopology = { physicalCandidates: 26, semanticCompositions: 6, repositoryRoots: 1, consumers: 17, totalCells: 50 };
+  const validRecord = isDeepStrictEqual(parsedRecord, record) && isDeepStrictEqual(record, expectedRecord)
+    && priorR2?.recordId === 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2'
+    && hashBytes(priorR2Bytes) === pdp0R12SuccessorImpactR2Sha256
+    && priorR2?.supersedes?.recordId === 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R1'
+    && priorR2?.supersedes?.sha256 === pdp0R12SuccessorImpactR1Sha256
+    && priorR2?.predecessorCut?.exitRef === pdp0R12ExitPath
+    && priorR2?.predecessorCut?.currentnessRef === pdp0R12CurrentnessPath
+    && isDeepStrictEqual(record?.sourceDeltas, priorR2.sourceDeltas)
+    && record?.externalSourceDeltas?.length === 1
+    && isDeepStrictEqual(record.externalSourceDeltas[0], expectedLifecycleDelta)
+    && record?.predecessorCut?.exitRef === pdp0R12ExitPath
+    && record?.predecessorCut?.currentnessRef === pdp0R12CurrentnessPath
+    && record?.predecessorCut?.materialPathCount === 146
+    && record?.predecessorCut?.topology?.totalCells === expectedTopology.totalCells;
+  const priorCells = priorCurrentness?.physicalCompositeConsumerCells ?? [];
+  const currentCells = technicalCurrentness?.physicalCompositeConsumerCells ?? [];
+  const priorProviderFingerprint = 'sha256:eb509c518832b1978190d1803440256b0da62f8dd93fd1002a91b39ad0c885f4';
+  const currentProviderFingerprint = 'sha256:c4a7fc74dce077154a83ebdb17b494d96ddf6e6d7a3eb0162422d804424d8030';
+  const topologyCurrent = priorCells.length === 50 && currentCells.length === 50 && priorCells.every((cell) => {
+    const current = currentCells.find((candidate) => candidate.cellId === cell.cellId);
+    return current && current.surfaceId === cell.surfaceId && current.cellType === cell.cellType
+      && isDeepStrictEqual(current.applicability, cell.applicability)
+      && current.ownerGraphFingerprint === cell.ownerGraphFingerprint
+      && current.physicalCatalogFingerprint === cell.physicalCatalogFingerprint
+      && cell.providerRegistryFingerprint === priorProviderFingerprint
+      && current.providerRegistryFingerprint === currentProviderFingerprint;
+  }) && technicalCurrentness?.externalOwnerContracts?.providerRegistryFingerprint === currentProviderFingerprint;
+  const valid = validRecord && exactLocalSet && localImpactExact && exactPackageTransition && unchangedExternalFiles && topologyCurrent
+    && priorCurrentness?.materialSourceSetFingerprint === record.predecessorCut.materialSourceSetFingerprint
+    && technicalCurrentness?.denominators?.totalCells === expectedTopology.totalCells
+    && technicalCurrentness?.materialPathDenominator?.uniquePaths === 146;
+  if (!valid) return null;
+  const authoritySha256 = hashBytes(recordBytes);
+  const classifications = priorR2.sourceDeltas.map((delta) => ({
+    path: delta.path,
+    classification: 'INTERNAL_PDP0_SUCCESSOR_IMPACT_DISPOSITION',
+    authorityRef: recordPath,
+    authoritySha256,
+    predecessorSha256: delta.predecessorSha256,
+    observedSha256: delta.observedSha256,
+    meaningIdsChanged: [],
+    ownerAcceptance: 'NOT_CLAIMED',
+    independentSignoff: 'NOT_CLAIMED',
+    lifecycleClosure: 'NOT_ENTERED',
+    runtime: 'NOT_ADMITTED',
+    delivery: 'BLOCKED',
+  }));
+  return {
+    sourceClassifications: classifications,
+    externalContractDisposition: {
+    repositoryId: 'ghatana-lifecycle',
+    path: 'package.json',
+    classification: expectedLifecycleDelta.classification,
+    authorityRef: recordPath,
+    authoritySha256,
+    predecessorSha256: expectedLifecycleDelta.predecessorSha256,
+    observedSha256: expectedLifecycleDelta.observedSha256,
+    externalOwnerAcceptance: 'NOT_CLAIMED',
+    independentSignoff: 'NOT_CLAIMED',
+    lifecycleClosure: 'NOT_ENTERED',
+    runtime: 'NOT_ADMITTED',
+    delivery: 'BLOCKED',
+    release: 'NOT_AUTHORIZED',
+    },
+  };
 }
 
 function classifyPdp0Pxd164SuccessorImpact(pinComparisons, record, recordPath, technicalCurrentness) {
@@ -1216,6 +1418,27 @@ export function buildMediaPdp0CurrentnessPhaseDisposition(sourceCurrent, exactIm
   };
 }
 
+export function buildMediaPdp0SuccessorImpactDisposition(record, recordPath, classified) {
+  const pinClassifications = Array.isArray(classified)
+    ? classified
+    : Array.isArray(classified?.sourceClassifications) ? classified.sourceClassifications : [classified];
+  return {
+    recordId: record?.recordId ?? null,
+    authorityRef: recordPath,
+    authoritySha256: pinClassifications[0]?.authoritySha256 ?? null,
+    localSourceClassifications: pinClassifications.map(({ path: sourcePath, classification, predecessorSha256, observedSha256 }) => ({
+      path: sourcePath, classification, predecessorSha256, observedSha256,
+    })),
+    externalContractDisposition: classified?.externalContractDisposition ?? null,
+    ownerAcceptance: 'NOT_CLAIMED',
+    independentSignoff: 'NOT_CLAIMED',
+    lifecycleClosure: 'NOT_ENTERED',
+    runtime: 'NOT_ADMITTED',
+    delivery: 'BLOCKED',
+    release: 'NOT_AUTHORIZED',
+  };
+}
+
 function buildFingerprints(topology, registryBytes, external) {
   const registryDigest = hashBytes(registryBytes);
   const ownerGraph = {
@@ -1359,13 +1582,15 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
   let isR11Successor = false;
   let isR12Successor = false;
   let isR12R2Successor = false;
+  let isR12R3Successor = false;
   if (successorImpactPath) {
     const successorImpact = JSON.parse(fs.readFileSync(path.resolve(root, successorImpactPath), 'utf8'));
     isPxd164Successor = successorImpact?.recordId === 'MEDIA-DISCOVERY-PDP0-PXD164-SUCCESSOR-IMPACT-2026-10-14-R1';
     isR11Successor = successorImpact?.recordId === 'MEDIA-DISCOVERY-PDP0-R11-SUCCESSOR-IMPACT-2026-10-14-R1';
     isR12Successor = successorImpact?.recordId === 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R1';
     isR12R2Successor = successorImpact?.recordId === 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2';
-    const predecessorObservationPath = isR12Successor || isR12R2Successor ? pdp0R12CurrentnessPath
+    isR12R3Successor = successorImpact?.recordId === 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R3';
+    const predecessorObservationPath = isR12Successor || isR12R2Successor || isR12R3Successor ? pdp0R12CurrentnessPath
       : isPxd164Successor ? pdp0R10CurrentnessPath
         : isR11Successor ? pdp0R11CurrentnessPath : pdp0R8CurrentnessPath;
     const predecessorObservation = JSON.parse(fs.readFileSync(path.join(root, predecessorObservationPath), 'utf8'));
@@ -1384,7 +1609,7 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
       historicalDriftClassifications.splice(0, historicalDriftClassifications.length,
         ...(predecessorObservation.historicalPdp0PinDriftClassifications ?? []));
     }
-    if (isR12Successor || isR12R2Successor) {
+    if (isR12Successor || isR12R2Successor || isR12R3Successor) {
       if (hashBytes(fs.readFileSync(path.join(root, predecessorObservationPath))) !== 'sha256:14882e245fa1676138cfc5bd51ef0403cb96cf2f77542caa2c57dc683ca8b159') {
         throw new Error('PDP-0 R12 successor requires the exact immutable R12 currentness predecessor');
       }
@@ -1408,6 +1633,7 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
   const currentCutClassification = classifyCurrentCutPdp0PinChange(p0Comparison.pinComparisons, currentCutImpact);
   if (currentCutClassification) historicalDriftClassifications.push(currentCutClassification);
   let successorImpactDispositionCurrent = false;
+  let successorImpactDisposition = null;
   if (additionalImpactPath) {
     const normalizedImpactPath = path.relative(root, path.resolve(root, additionalImpactPath)).split(path.sep).join('/');
     if (path.isAbsolute(additionalImpactPath) || normalizedImpactPath === '..' || normalizedImpactPath.startsWith('../')) {
@@ -1423,15 +1649,7 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
       throw new Error('PDP-0 successor impact path must resolve inside the repository');
     }
     const successorImpact = JSON.parse(fs.readFileSync(path.resolve(root, normalizedImpactPath), 'utf8'));
-    const predecessorExitPath = successorImpact?.recordId === 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R1'
-      || successorImpact?.recordId === 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2'
-      ? pdp0R12ExitPath
-      : successorImpact?.recordId === 'MEDIA-DISCOVERY-PDP0-R11-SUCCESSOR-IMPACT-2026-10-14-R1'
-      ? pdp0R11ExitPath
-      : successorImpact?.recordId === 'MEDIA-DISCOVERY-PDP0-PXD164-SUCCESSOR-IMPACT-2026-10-14-R1'
-      ? pdp0R10ExitPath
-      : successorImpact?.recordId === 'MEDIA-DISCOVERY-PDP0-R8-SUCCESSOR-IMPACT-2026-10-14-R2'
-        ? pdp0R8ExitPath : pdp0R6ExitPath;
+    const predecessorExitPath = resolveMediaPdp0SuccessorPredecessorExitPath(successorImpact);
     const predecessorExit = JSON.parse(fs.readFileSync(path.join(root, predecessorExitPath), 'utf8'));
     const predecessorDigests = predecessorExit.sourceCurrentness?.sourceContentDigests ?? {};
     const predecessorPinComparisons = Object.keys(predecessorDigests).sort().map((sourcePath) => ({
@@ -1456,10 +1674,15 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
       },
     });
     if (successorClassification) {
-      historicalDriftClassifications.push(...(Array.isArray(successorClassification) ? successorClassification : [successorClassification]));
+      const pinClassifications = Array.isArray(successorClassification)
+        ? [...successorClassification]
+        : Array.isArray(successorClassification.sourceClassifications)
+          ? successorClassification.sourceClassifications : [successorClassification];
+      historicalDriftClassifications.push(...pinClassifications);
       successorImpactDispositionCurrent = true;
+      successorImpactDisposition = buildMediaPdp0SuccessorImpactDisposition(successorImpact, normalizedImpactPath, successorClassification);
     }
-    if (!isPxd164Successor && !isR11Successor && !isR12Successor && !isR12R2Successor) {
+    if (!isPxd164Successor && !isR11Successor && !isR12Successor && !isR12R2Successor && !isR12R3Successor) {
       const pxd163Impact = JSON.parse(fs.readFileSync(path.join(root, pdp0Pxd163ImpactPath), 'utf8'));
       const pxd163Classification = classifyAdditionalPdp0SourceImpact(p0Comparison.pinComparisons, pxd163Impact, pdp0Pxd163ImpactPath);
       if (pxd163Classification) historicalDriftClassifications.push(pxd163Classification);
@@ -1504,6 +1727,7 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
     denominators: resolved.denominator,
     historicalPhaseStatusComparison: historicalPinComparisons,
     historicalPdp0PinDriftClassifications: projectMediaPdp0PinDriftClassifications(historicalDriftClassifications, p0Comparison.pinComparisons),
+    successorImpactDisposition,
     unclassifiedHistoricalPdp0PinChanges,
     requiredPdp0SourceMembership: requiredPdp0Sources,
     externalOwnerContracts: {

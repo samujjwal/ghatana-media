@@ -318,9 +318,17 @@ test("current source gaps remain explicit after operation-result proofs are join
   for (const id of ["media.pdp3.channel-binding.j05.web.v1", "media.pdp3.channel-binding.j05.grpc-api.v1", "media.pdp3.channel-binding.j05.sdk.v1"]) {
     const edge = registry.edges.find((item) => item.id === id);
     assert.equal(edge.logicalDefinitionDisposition, "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING", `${id} retains terminal-output blocker`);
-    assert.match(edge.logicalDefinitionBlockers.join(" "), /no source-bound terminal output observation/u);
+    assert.match(edge.logicalDefinitionBlockers.join(" "), /frame\/region selectors, model\/provider identity, and confidence evidence unresolved/u);
   }
-  assert.match(blockerFor("media.pdp3.channel-binding.j05.web.v1"), /no source-bound terminal output observation/u);
+  assert.match(blockerFor("media.pdp3.channel-binding.j05.web.v1"), /frame\/region selectors, model\/provider identity, and confidence evidence unresolved/u);
+  const j08 = readYaml(".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml");
+  const j08CapabilityStep = j08.steps[1].stepDefinitionSemantics.stepSourceFacts.terminalResultObservation;
+  const j08QualityObservation = j08.steps[3].stepDefinitionSemantics.stepSourceFacts.typedQualityEvidenceObservation;
+  assert.deepEqual(j08CapabilityStep.successfulOutput.requiredIdentity, ["artifactId", "versionId"]);
+  assert.deepEqual(j08.pdp1ResultEvidence.typedObservationBindings, [], "J-08 does not claim a typed quality-observation join");
+  assert.match(j08QualityObservation.subjectBinding, /UNRESOLVED/u);
+  assert.match(j08QualityObservation.metricSelection, /UNRESOLVED/u);
+  assert.match(blockerFor("media.pdp3.channel-binding.j08.web.v1"), /no formal typed-observation binding joins one selected output version to a nonempty metricRefs request and same-subject result/u);
   assert.match(blockerFor("media.pdp3.channel-binding.j10.web.v1"), /per-condition state, copy, action, expected-result, and finality bindings/u);
   assert.match(blockerFor("media.pdp3.channel-binding.j28.web.v1"), /post-render consumer receipt or conversion-report result/u);
   for (const id of [
@@ -348,8 +356,8 @@ test("current source gaps remain explicit after operation-result proofs are join
       edge.p1OperationBindings.filter((binding) => binding.disposition === "UNBOUND").map((binding) => binding.operationRef),
       `${id} retains all operations without channel mappings`,
     );
-    assert.match(edge.logicalDefinitionBlockers.join(" "), /No cancellation transition\/finality is joined/u);
-    assert.match(edge.logicalDefinitionBlockers.join(" "), /retry eligibility\/authority\/transition remain unresolved/u);
+    assert.match(edge.logicalDefinitionBlockers.join(" "), /No exact cancellation or retry transition ID\/finality is defined or joined/u);
+    assert.match(edge.logicalDefinitionBlockers.join(" "), /retry remains conditional on current owner eligibility, and UNKNOWN does not authorize replay/u);
     assert.equal(edge.p1OperationStateProofs.length, 4);
     assert.deepEqual(edge.p1OperationStateProofs.map((proof) => proof.operationRef).sort(), [
       "media.operation-slice.cancel-job", "media.operation-slice.retry-job",
@@ -357,6 +365,22 @@ test("current source gaps remain explicit after operation-result proofs are join
     ].sort());
     assert.equal(edge.channelTransportEquivalence, "UNBOUND");
     assert.equal(edge.runtimeAdmission, "NOT_ADMITTED");
+  }
+  const j20 = readYaml(".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml");
+  const j20ExpectedAuthorityRefs = [
+    ".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope",
+    ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary",
+    ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention",
+  ];
+  for (const operationRef of ["media.operation-slice.cancel-job", "media.operation-slice.retry-job"]) {
+    const semantics = j20.steps.find((item) => item.stepDefinitionSemantics?.transitionApplicability?.operationRef === operationRef)?.stepDefinitionSemantics;
+    assert.ok(semantics, `${operationRef} has a journey step`);
+    assert.deepEqual(semantics.canonicalBindingDisposition.authorityRefs, j20ExpectedAuthorityRefs);
+    assert.deepEqual(semantics.operationContractBinding.operations[0].authorityRefs, j20ExpectedAuthorityRefs);
+    assert.equal(new Set(semantics.operationContractBinding.operations[0].authorityRefs).size, j20ExpectedAuthorityRefs.length,
+      `${operationRef} records each distinct authority reference once`);
+    assert.equal(semantics.transitionApplicability.transitionRef, null, `${operationRef} does not invent a transition ID`);
+    assert.equal(semantics.operationContractBinding.operations[0].transitionRefs.length, 0, `${operationRef} does not invent a transition ID`);
   }
   for (const id of ["media.pdp3.channel-binding.j26.http-api.v1", "media.pdp3.channel-binding.j26.product-integration.v1", "media.pdp3.channel-binding.j26.web.v1"]) {
     const edge = registry.edges.find((item) => item.id === id);

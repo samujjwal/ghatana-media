@@ -1,0 +1,110 @@
+{
+  "schemaVersion": "media.discovery.pdp1-additional-source-impact.v1",
+  "recordId": "MEDIA-DISCOVERY-PDP1-R27-SUCCESSOR-SOURCE-IMPACT-2026-10-15-R1",
+  "observedAt": "2026-10-15T07:25:12.424Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "stage": "DISCOVERY",
+    "phase": "PDP-1",
+    "reviewedSourceBaseline": "PDP-1 R27",
+    "scope": "User-authorized exact R27-to-live source transitions; no additional PDP-1 meaning. Fresh PDP-1 currentness remains required."
+  },
+  "authority": {
+    "delegate": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_AUTHORIZATION",
+    "decisionRole": "SCOPED_INTERNAL_PDP1_SOURCE_IMPACT_REVIEW",
+    "userAuthorization": "Authorize these exact dispositions (Recommended)",
+    "authorizationEvidence": {
+      "source": "DIRECT_USER_REPLY_IN_CURRENT_TASK",
+      "exactResponse": "Authorize these exact dispositions (Recommended)",
+      "authorizedScope": "Record the three exact source transitions as adding no additional PDP-1 meaning and recapture against PDP-0 R15.",
+      "noAdditionalPdp1Meaning": true,
+      "externalAcceptance": false
+    },
+    "humanIndependentSignatureProvided": false,
+    "externalContractOwnerAcceptanceProvided": false,
+    "qualifiedExternalSpecialistSignoffProvided": false
+  },
+  "predecessorCut": {
+    "phase": "PDP-0",
+    "status": "PASS",
+    "exitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r15.json",
+    "exitSha256": "sha256:d36a318fc159b5060bdca65d4b1e6527b7616bf31c3609854aaa07947e80fa4a",
+    "currentnessRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r15.json",
+    "currentnessSha256": "sha256:82306fcef405fe2df0520a0f84af3cae70f6d3e047d3e96258abb7762b1b7d6f",
+    "materialSourceSetFingerprint": "sha256:eff717cf2537a285cd7a1c1a72b44a75766a0a7e6eef6ea97edbc2befa2e1a95",
+    "materialPathCount": 146,
+    "cellCount": 50
+  },
+  "priorPdp1Receipt": {
+    "phase": "PDP-1",
+    "status": "PASS",
+    "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json",
+    "receiptSha256": "sha256:2f57ace69d389dde7cbe7c5032c5b88d6a6b068c07177d33694fd968aa6c451e",
+    "sourceCurrentness": "PASS",
+    "predecessorExitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json",
+    "predecessorExitSha256": "sha256:91aeae0aad488bc8eb29d40bf955e527ef072ada762948064bc8e50422c5a5c5",
+    "relationshipToCurrentPredecessor": "HISTORICAL_PDP1_RECEIPT_NOT_CHAINED_TO_PDP0_R15; FRESH_PDP1_CAPTURE_REQUIRED"
+  },
+  "pdp0AntecedentDispositions": [
+    {
+      "ref": "docs/implementation/observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r2.json",
+      "recordId": "MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2",
+      "sha256": "sha256:7b14877d3103ba63933521c95766114d068d3d450f803ae66e2bc9af422b9d22",
+      "role": "PDP-0 antecedent disposition only; not a PDP-1 disposition or a substitute for fresh PDP-1 currentness."
+    },
+    {
+      "ref": "docs/implementation/observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r3.json",
+      "recordId": "MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R3",
+      "sha256": "sha256:e58996e977ff63d9099247a7c19370059a8f7466c746d184723708f0feebbd60",
+      "role": "PDP-0 antecedent disposition only; its external Lifecycle tooling classification does not substitute for this PDP-1 review or a fresh PDP-1 capture."
+    }
+  ],
+  "sourceDeltas": [
+    {
+      "path": ".product-experience/source-manifest.yaml",
+      "phase": "PDP-1",
+      "predecessorSha256": "sha256:76cdcbff690e6a3439580e0df6fc68dbf67e7105b38d8ad1c9c3e9cb8b36145a",
+      "observedSha256": "sha256:3a5c7e92e7470ee11c8bd1779db31a27aba75461c16fef37785901544c0c29fd",
+      "classification": "SOURCE_MANIFEST_INVENTORY_AND_PROJECTION_REFRESH",
+      "changeSummary": "Registers and projects the existing delegated owner-review source in the repository source inventory. This inventory refresh adds no PDP-1 product meaning.",
+      "meaningChange": "NO_ADDITIONAL_PDP1_MEANING",
+      "meaningIdsChanged": [],
+      "requiresFreshCurrentness": true
+    },
+    {
+      "path": "apps/media-experience-explorer/specification-artifacts.json",
+      "phase": "PDP-1",
+      "predecessorSha256": "sha256:2aadeeffe41ea354f43a0824a069b1e21bfef5a31052e4dca8ceb68da9bcfc75",
+      "observedSha256": "sha256:6cb5006b07b113dfa5cc1b41a78648be56e76910c60b60bd82f286c1593b8593",
+      "classification": "EXPLORER_SOURCE_INVENTORY_PROJECTION_REFRESH",
+      "changeSummary": "Regenerates the Explorer specification-artifact inventory for the existing delegated owner-review source. The Explorer remains a projection and this inventory refresh adds no PDP-1 product meaning.",
+      "meaningChange": "NO_ADDITIONAL_PDP1_MEANING",
+      "meaningIdsChanged": [],
+      "requiresFreshCurrentness": true
+    },
+    {
+      "repository": "samujjwal/ghatana-lifecycle",
+      "path": "package.json",
+      "phase": "PDP-1",
+      "predecessorSha256": "sha256:41c42b77f2fa20e1831f32ae116ae49d07ed8150b0b00265cda64e27f55f47bd",
+      "observedSha256": "sha256:6e24f0d78a3ce1521c1e7f3246ae09df4d93f42e75dc9525017b0549ac88ae4f",
+      "classification": "LIFECYCLE_CONFORMANCE_CHECK_SCRIPT_REGISTRATION",
+      "changeSummary": "Adds the previously reviewed Explorer campaign-conformance check script. This external tooling registration adds no PDP-1 product meaning.",
+      "meaningChange": "NO_ADDITIONAL_PDP1_MEANING",
+      "meaningIdsChanged": [],
+      "requiresFreshCurrentness": true
+    }
+  ],
+  "decision": {
+    "status": "INTERNAL_SCOPED_PDP1_IMPACT_DISPOSITION",
+    "pdp1MeaningDisposition": "NO_ADDITIONAL_PDP1_MEANING_FOR_THE_THREE_EXACT_TRANSITIONS",
+    "freshTechnicalCurrentness": "REQUIRED",
+    "ownerAcceptance": "NOT_CLAIMED",
+    "independentSignoff": "NOT_CLAIMED",
+    "closure": "NOT_ENTERED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "delivery": "BLOCKED",
+    "release": "NOT_AUTHORIZED"
+  },
+  "limitations": "This internal disposition is limited to the three exact hash transitions listed above. It does not establish or imply external owner acceptance, independent signoff, PDP closure, runtime admission, Delivery, or release. The PDP-0 R2/R3 records are antecedent PDP-0 dispositions only. PDP-1 currentness must be freshly captured against the bound PDP-0 R15 receipt and currentness record."
+}

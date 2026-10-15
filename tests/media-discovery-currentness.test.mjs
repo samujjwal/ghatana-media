@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -8,13 +9,17 @@ import { captureRepositorySourceCurrentness as captureRepository } from '@ghatan
 import { observeMediaDiscoveryCurrentness, resolveMediaPdp0Cells } from '../scripts/media-discovery-currentness.mjs';
 import {
   assertMediaPdp0CurrentnessOutputAvailable,
+  buildMediaPdp0SuccessorImpactDisposition,
   classifyMediaPdp0R12SuccessorImpact,
   classifyMediaPdp0R12SuccessorImpactR2,
+  classifyMediaPdp0R12SuccessorImpactR3,
   classifyMediaPdp0R11SuccessorImpact,
   mediaPdp0R12SuccessorSupportFileHashes,
   mediaPdp0R12SuccessorR2SupportFileHashes,
+  mediaPdp0R12SuccessorR3SupportFileHashes,
   mediaPdp0R11SuccessorSupportFileHashes,
   resolveMediaPdp0CurrentnessOutputPath,
+  resolveMediaPdp0SuccessorPredecessorExitPath,
   resolveMediaPdp0SuccessorCurrentnessSuffix,
 } from '../scripts/record-media-discovery-pdp0-currentness.mjs';
 
@@ -40,20 +45,24 @@ function fixture() {
 
 function digest(char) { return `sha256:${char.repeat(64)}`; }
 
-test('PDP-0 successor currentness selects immutable R10, R12, R13, and R14 outputs', () => {
+test('PDP-0 successor currentness selects immutable R10 and R12 through R15 outputs', () => {
   const legacyPath = resolveMediaPdp0CurrentnessOutputPath(false);
   const successorPath = resolveMediaPdp0CurrentnessOutputPath(true);
   const r11SuccessorPath = resolveMediaPdp0CurrentnessOutputPath(true, '2026-10-14-current-cut-r12');
   const r12SuccessorPath = resolveMediaPdp0CurrentnessOutputPath(true, '2026-10-14-current-cut-r13');
   const r12R2SuccessorPath = resolveMediaPdp0CurrentnessOutputPath(true, '2026-10-14-current-cut-r14');
+  const r12R3SuccessorPath = resolveMediaPdp0CurrentnessOutputPath(true, '2026-10-14-current-cut-r15');
   assert.equal(legacyPath, 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json');
   assert.equal(successorPath, 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r10.json');
   assert.equal(r11SuccessorPath, 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json');
   assert.equal(r12SuccessorPath, 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r13.json');
   assert.equal(r12R2SuccessorPath, 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r14.json');
+  assert.equal(r12R3SuccessorPath, 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r15.json');
   assert.equal(resolveMediaPdp0SuccessorCurrentnessSuffix('MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R1'), '2026-10-14-current-cut-r13');
   assert.equal(resolveMediaPdp0SuccessorCurrentnessSuffix('MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2'), '2026-10-14-current-cut-r14');
+  assert.equal(resolveMediaPdp0SuccessorCurrentnessSuffix('MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R3'), '2026-10-14-current-cut-r15');
   assert.equal(resolveMediaPdp0SuccessorCurrentnessSuffix('MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2', '2026-10-14-current-cut-r14'), '2026-10-14-current-cut-r14');
+  assert.equal(resolveMediaPdp0SuccessorCurrentnessSuffix('MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R3', '2026-10-14-current-cut-r15'), '2026-10-14-current-cut-r15');
   assert.throws(() => resolveMediaPdp0SuccessorCurrentnessSuffix('MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2', 'wrong-suffix'), /requires canonical output suffix 2026-10-14-current-cut-r14/);
   assert.equal(resolveMediaPdp0SuccessorCurrentnessSuffix('UNMAPPED-SUCCESSOR-RECORD', 'caller-suffix'), 'caller-suffix');
   assert.notEqual(successorPath, legacyPath);
@@ -62,7 +71,15 @@ test('PDP-0 successor currentness selects immutable R10, R12, R13, and R14 outpu
   assert.throws(() => assertMediaPdp0CurrentnessOutputAvailable(successorPath, () => true), /Refusing to overwrite immutable observation/);
 });
 
-test('R2 successor CLI rejects a noncanonical output suffix before writing an observation', (t) => {
+test('R3 observation builder selects immutable R12 exit as its predecessor', () => {
+  const r3Record = { recordId: 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R3' };
+  assert.equal(
+    resolveMediaPdp0SuccessorPredecessorExitPath(r3Record),
+    'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json',
+  );
+});
+
+test('R2 and R3 successor CLIs reject noncanonical suffixes before writing observations', (t) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'media-pdp0-r2-suffix-'));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const impactPath = path.join(root, 'r2-impact.json');
@@ -76,6 +93,16 @@ test('R2 successor CLI rejects a noncanonical output suffix before writing an ob
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /requires canonical output suffix 2026-10-14-current-cut-r14/);
   assert.equal(fs.existsSync(outputPath), false);
+  const r3WrongSuffix = '2026-10-14-r3-wrong-suffix';
+  const r3OutputPath = path.join(process.cwd(), 'docs/implementation/observations', `media-discovery-pdp0-currentness-${r3WrongSuffix}.json`);
+  fs.writeFileSync(impactPath, JSON.stringify({ recordId: 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R3' }));
+  const r3Result = spawnSync(process.execPath, [
+    path.resolve('scripts/record-media-discovery-pdp0-currentness.mjs'),
+    '--successor-impact', impactPath, r3WrongSuffix,
+  ], { cwd: process.cwd(), encoding: 'utf8' });
+  assert.notEqual(r3Result.status, 0);
+  assert.match(r3Result.stderr, /requires canonical output suffix 2026-10-14-current-cut-r15/);
+  assert.equal(fs.existsSync(r3OutputPath), false);
 });
 
 test('PDP-0 R12 successor R2 binds the exact R1 record digest and only corrects the gap census pin', () => {
@@ -117,6 +144,89 @@ test('PDP-0 R12 successor R2 binds the exact R1 record digest and only corrects 
   assert.equal(classify({ ...record, decision: { ...record.decision, ownerAcceptance: 'ACCEPTED' } }), null);
   assert.equal(classify(record, 'docs/implementation/observations/wrong-record.json'), null);
   assert.equal(classify(record, r2Path, comparisons.filter(({ path: sourcePath }) => sourcePath !== '.product-experience/gaps.yaml')), null);
+});
+
+test('PDP-0 R12 successor R3 preserves R2 local GAP-12 dispositions and admits only the exact Lifecycle package transition', () => {
+  const exitPath = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json';
+  const currentnessPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json';
+  const r2Path = 'docs/implementation/observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r2.json';
+  const r3Path = 'docs/implementation/observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r3.json';
+  const exit = JSON.parse(fs.readFileSync(path.join(process.cwd(), exitPath), 'utf8'));
+  const priorCurrentness = JSON.parse(fs.readFileSync(path.join(process.cwd(), currentnessPath), 'utf8'));
+  const currentnessR14 = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r14.json'), 'utf8'));
+  const priorR2Bytes = fs.readFileSync(path.join(process.cwd(), r2Path));
+  const priorR2 = JSON.parse(priorR2Bytes.toString('utf8'));
+  const deltas = priorR2.sourceDeltas;
+  const comparisons = Object.keys(exit.sourceCurrentness.sourceContentDigests).sort().map((sourcePath) => {
+    const delta = deltas.find((candidate) => candidate.path === sourcePath);
+    return { path: sourcePath, recordedDigest: exit.sourceCurrentness.sourceContentDigests[sourcePath],
+      currentDigest: delta?.observedSha256 ?? exit.sourceCurrentness.sourceContentDigests[sourcePath],
+      disposition: delta ? 'CHANGED' : 'MATCH' };
+  });
+  const technical = {
+    ...currentnessR14,
+    denominators: { physicalCandidates: 26, semanticCompositions: 6, repositoryRoots: 1, consumers: 17, totalCells: 50 },
+    materialPathDenominator: { uniquePaths: 146 },
+  };
+  const lifecycleDelta = {
+    repositoryId: 'ghatana-lifecycle', path: 'package.json',
+    classification: 'LIFECYCLE_TOOLING_CHECK_REGISTRATION_NO_PDP0_MEANING',
+    predecessorSha256: 'sha256:41c42b77f2fa20e1831f32ae116ae49d07ed8150b0b00265cda64e27f55f47bd',
+    observedSha256: 'sha256:6e24f0d78a3ce1521c1e7f3246ae09df4d93f42e75dc9525017b0549ac88ae4f',
+    exactChange: 'Adds check:lifecycle:explorer-campaign-conformance only.',
+    pdp0MeaningChange: 'NONE', pdp0MeaningIdsChanged: [], externalOwnerAcceptance: 'NOT_CLAIMED', freshCurrentnessRequired: true,
+  };
+  const record = structuredClone(priorR2);
+  record.recordId = 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R3';
+  record.supersedes = { recordId: priorR2.recordId, sha256: 'sha256:7b14877d3103ba63933521c95766114d068d3d450f803ae66e2bc9af422b9d22' };
+  record.campaign.scope = 'R3 preserves R2 exact four-path GAP-12 census/projection dispositions and adds only the authorized ghatana-lifecycle/package.json check:lifecycle:explorer-campaign-conformance registration; R12 remains the predecessor cut; no PDP-0 meaning change.';
+  record.authority.userAuthorization = 'Exact Lifecycle package transition authorized by the user for internal PDP-0 no-meaning impact disposition.';
+  record.authority.authorizationEvidence = {
+    source: 'DIRECT_USER_AUTHORIZATION_REPORTED_IN_CURRENT_TASK',
+    userReply: 'The direct user instruction authorizes the exact Lifecycle package transition for internal PDP-0 no-meaning disposition.',
+    authorizedScope: 'Register only the exact Lifecycle package script addition, preserve the four R2 local GAP-12 classifications, and record no PDP-0 meaning change. Do not claim external acceptance or Lifecycle closure.',
+    noMeaningChange: true, externalAcceptance: false,
+  };
+  record.externalSourceDeltas = [lifecycleDelta];
+  record.decision.status = 'INTERNAL_SCOPED_NO_PDP0_MEANING_CHANGE_FOR_R2_DELTAS_AND_EXACT_LIFECYCLE_TRANSITION';
+  record.decision.externalLifecycleTransition = 'INTERNAL_NO_PDP0_MEANING_CHANGE';
+  record.limitations = 'This internal disposition preserves R2 exact four-path local GAP-12 census/projection classifications and covers only the exact Lifecycle package.json addition of check:lifecycle:explorer-campaign-conformance. R12 remains the source predecessor; R3 supersedes the R2 impact record by exact digest. No PDP-0 meaning change, external owner acceptance, independent signoff, native Lifecycle receipt or closure, runtime admission, Delivery readiness, or release authorization is claimed.';
+  record.supportFileSha256s = mediaPdp0R12SuccessorR3SupportFileHashes();
+  const persistedRecordBytes = fs.readFileSync(path.join(process.cwd(), r3Path));
+  assert.deepEqual(JSON.parse(persistedRecordBytes.toString('utf8')), record);
+  const classify = (changed = record, candidatePath = r3Path, priorBytes = priorR2Bytes, technicalInput = technical) => classifyMediaPdp0R12SuccessorImpactR3(
+    comparisons, changed, candidatePath, technicalInput,
+    { recordBytes: changed === record ? persistedRecordBytes : Buffer.from(JSON.stringify(changed)), priorR2Bytes: priorBytes, priorR2, priorExit: exit, priorCurrentness });
+  const result = classify();
+  assert.deepEqual(result?.sourceClassifications?.map(({ path: sourcePath }) => sourcePath), deltas.map(({ path: sourcePath }) => sourcePath));
+  assert.deepEqual(result?.externalContractDisposition, {
+    repositoryId: 'ghatana-lifecycle', path: 'package.json', classification: lifecycleDelta.classification,
+    authorityRef: r3Path, authoritySha256: `sha256:${createHash('sha256').update(persistedRecordBytes).digest('hex')}`,
+    predecessorSha256: lifecycleDelta.predecessorSha256, observedSha256: lifecycleDelta.observedSha256,
+    externalOwnerAcceptance: 'NOT_CLAIMED', independentSignoff: 'NOT_CLAIMED', lifecycleClosure: 'NOT_ENTERED',
+    runtime: 'NOT_ADMITTED', delivery: 'BLOCKED', release: 'NOT_AUTHORIZED',
+  });
+  const outputDisposition = buildMediaPdp0SuccessorImpactDisposition(record, r3Path, result);
+  const persistedDisposition = JSON.parse(JSON.stringify(outputDisposition));
+  assert.equal(outputDisposition.recordId, record.recordId);
+  assert.equal(outputDisposition.authorityRef, r3Path);
+  assert.equal(outputDisposition.externalContractDisposition.observedSha256, lifecycleDelta.observedSha256);
+  assert.equal(persistedDisposition.externalContractDisposition.predecessorSha256, lifecycleDelta.predecessorSha256);
+  assert.equal(outputDisposition.ownerAcceptance, 'NOT_CLAIMED');
+  assert.equal(outputDisposition.independentSignoff, 'NOT_CLAIMED');
+  assert.equal(outputDisposition.lifecycleClosure, 'NOT_ENTERED');
+  assert.equal(outputDisposition.runtime, 'NOT_ADMITTED');
+  assert.equal(outputDisposition.delivery, 'BLOCKED');
+  assert.equal(outputDisposition.release, 'NOT_AUTHORIZED');
+  assert.equal(classify({ ...record, externalSourceDeltas: [{ ...lifecycleDelta, observedSha256: digest('0') }] }), null);
+  assert.equal(classify({ ...record, externalSourceDeltas: [{ ...lifecycleDelta, exactChange: 'Also changes another script.' }] }), null);
+  assert.equal(classify({ ...record, externalSourceDeltas: [{ ...lifecycleDelta, predecessorSha256: digest('0') }] }), null);
+  assert.equal(classify({ ...record, supersedes: { ...record.supersedes, sha256: digest('0') } }), null);
+  assert.equal(classify(record, 'docs/implementation/observations/wrong-r3.json'), null);
+  assert.equal(classify(record, r3Path, Buffer.from('tampered R2 record')), null);
+  const addedExternal = structuredClone(technical);
+  addedExternal.externalOwnerContracts.repositories.push({ repositoryId: 'unexpected-external', files: [] });
+  assert.equal(classify(record, r3Path, priorR2Bytes, addedExternal), null);
 });
 
 test('PDP-0 R11 successor classifier accepts only the exact PDP-1 generated projection delta', () => {

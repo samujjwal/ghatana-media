@@ -1983,10 +1983,89 @@ terminalSuccess: Candidate sequence is reviewed for continuity with
   uncertainty/provenance exposed.
 criticalNonhappyPaths:
   - id: phase0-critical-exception
-    condition: Identity/geometry drift, unsupported control, AI unavailable, or
-      inferred identity treated as proof.
-    responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
-      copy, and action bindings remain pending.
+    sourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-10/criticalNonhappy
+    status: SOURCE_BOUND_CONDITIONS; BRANCH_STATE_COPY_ACTION_BINDINGS_UNRESOLVED
+    conditions:
+      - condition: Identity drift or inferred identity treated as proof
+        sourceRefs:
+          - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-10/criticalNonhappy
+          - .product-experience/pdp-0-product-truth/domain-model.yaml#ContinuityState/stateBoundary
+        stateRefs: []
+        stateDisposition: No journey-specific state or transition is source-bound.
+        userVisibleCopy: null
+        copyDisposition: No exact branch copy is source-bound; disclose uncertainty and do not claim identity proof.
+        actionRef: null
+        actionDisposition: No branch-specific action is source-bound.
+        expectedResult: Continuity evidence remains an observation and is not identity proof.
+        unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+        unknownDisposition: Preserve UNKNOWN; do not promote missing or uncertain identity evidence to a positive or negative identity result.
+        deniedDispositionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.submit-validated-request/actionDefinitionSemantics/typedDefinition/failureRecovery
+        deniedDisposition: Preserve the exact target and current draft; explain denial or incomplete evidence without claiming success.
+        recoveryRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-10/recovery
+        recovery: Preserve valid source frames and controls; revise or stop under budget and disclose unsupported fidelity.
+        finality: Observation only; no identity determination or committed effect is implied.
+      - condition: Geometry drift
+        sourceRefs:
+          - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-10/criticalNonhappy
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.video.video.assess-geometry-continuity
+        stateRefs: []
+        stateDisposition: The referenced geometry assessment is read-only; no journey state transition is source-bound.
+        userVisibleCopy: null
+        copyDisposition: No exact branch copy is source-bound; expose the observed uncertainty and limitation without inventing a result.
+        actionRef: null
+        actionDisposition: The source defines a read-only geometry observation, but does not bind it as this branch's required action.
+        expectedResult: If the source-defined assessment is available, return its scoped value or abstention with method, applicability, uncertainty, limitations, evidence references, and observation time; it does not modify media.
+        unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+        unknownDisposition: Missing, stale, ambiguous, out-of-scope, or unqualified assessment evidence remains UNKNOWN or an explicit abstention; do not infer drift resolution.
+        deniedDispositionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.submit-validated-request/actionDefinitionSemantics/typedDefinition/failureRecovery
+        deniedDisposition: Preserve source and current draft; report denial or unavailable evidence without claiming success.
+        recoveryRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-10/recovery
+        recovery: Preserve valid source frames and controls; revise or stop under budget and disclose unsupported fidelity.
+        finality: Read-only observation; no correction, generation, or committed result is implied.
+      - condition: Unsupported control
+        sourceRefs:
+          - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-10/criticalNonhappy
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.image-to-video/explicitUnsupportedCases
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.video-to-video/explicitUnsupportedCases
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.text-image-to-video/explicitUnsupportedCases
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.keyframe.start/explicitUnsupportedCases
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.keyframe.end/explicitUnsupportedCases
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.keyframe.intermediate/explicitUnsupportedCases
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.reference-video/explicitUnsupportedCases
+        stateRefs: []
+        stateDisposition: No journey-specific state or transition is source-bound.
+        userVisibleCopy: null
+        copyDisposition: Exact copy is not source-bound; disclose that the control is unsupported and do not imply it was applied.
+        actionRef: null
+        actionDisposition: No branch-specific action is source-bound; no silent substitution is authorized.
+        expectedResult: Block the unsupported request or use only an explicitly policy-permitted fallback; do not claim support or finality.
+        unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+        unknownDisposition: Keep control support and execution UNKNOWN when qualification or availability evidence is absent; do not treat absence as a negative measurement or successful application.
+        deniedDispositionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.submit-validated-request/actionDefinitionSemantics/typedDefinition/failureRecovery
+        deniedDisposition: Preserve the exact target and current draft; explain denial or incomplete evidence without claiming success.
+        recoveryRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-10/recovery
+        recovery: Preserve valid source frames and controls; revise or stop under budget and disclose unsupported fidelity.
+        finality: No generated or committed result is implied.
+      - condition: AI unavailable
+        sourceRefs:
+          - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-10/criticalNonhappy
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.image-to-video/availability
+          - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-image-to-video/errors
+        stateRefs: []
+        stateDisposition: No journey-specific state is source-bound; operation unavailability does not establish a job or attempt state.
+        userVisibleCopy: null
+        copyDisposition: Exact copy is not source-bound; report unavailable generation without describing it as completed or failed beyond authoritative evidence.
+        actionRef: null
+        actionDisposition: No retry, fallback, or alternate operation is bound to this branch.
+        expectedResult: No generated candidate is asserted when the capability is unavailable.
+        unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+        unknownDisposition: If dispatch finality is ambiguous, preserve UNKNOWN_OUTCOME and reconcile the same request identity before any retry; unavailability alone does not prove non-acceptance.
+        deniedDispositionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.submit-validated-request/actionDefinitionSemantics/typedDefinition/failureRecovery
+        deniedDisposition: Preserve the exact target and current draft; explain denial or unavailable capability without claiming success.
+        recoveryRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-10/recovery
+        recovery: Preserve valid source frames and controls; revise or stop under budget and disclose unsupported fidelity.
+        finality: Capability availability is not execution finality; completion requires the authoritative result and exact output-version references.
+    responseIntent: Preserve valid source frames and controls; disclose uncertainty or unsupported fidelity; revise or stop under budget. Exact branch state, user copy, and action binding remain unresolved where listed above.
 recovery: Preserve valid source frames/controls; revise or stop under budget and
   disclose unsupported fidelity.
 contextPreserved:

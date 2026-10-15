@@ -12,7 +12,7 @@ const matrix = read('docs/implementation/media-discovery-pdp0-3-phase-cell-execu
 const topology = read('.product-experience/surfaces/media-physical-topology.v1.json');
 const ownerEvidence = read('docs/implementation/observations/media-discovery-delegated-owner-evidence-2026-10-13.json');
 const pdp1Exit = read('docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json');
-const pdp1CurrentCutExit = read('docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json');
+const pdp1CurrentCutExit = read('docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json');
 const pdp1FailedAttempt = read('docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r3.json');
 const pdp2Exit = read('docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json');
 const pdp2FailedAttempt = read('docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r5.json');
@@ -45,17 +45,41 @@ test('Discovery execution plan retains physical/composite/consumer denominators 
 test('Discovery plan retains predecessor exits and marks PDP-3 R6 source-gap capture pending', () => {
   const observation = read('docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json');
   const p0Exit = read('docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json');
+  const p0R15Observation = read('docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r15.json');
+  const p0R15Exit = read('docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r15.json');
   const p1Exit = pdp1CurrentCutExit;
   const p2CurrentExit = pdp2Exit;
   const p0R13Attempt = read('docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r13.json');
   const p0R14Attempt = read('docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r14.json');
   const p2Impact = read('docs/implementation/observations/media-discovery-pdp2-r16-projection-impact-2026-10-14-r1.json');
   assert.equal(matrix.baseline.pdp0MaterialSetFingerprint, ownerEvidence.source.materialSetFingerprint);
-  assert.equal(matrix.currentCut.repositoryHead, 'e58e67084a4871dc21fb10523f0bcd0df8167d47');
-  assert.equal(matrix.currentCut.phaseExit, 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json');
-  assert.equal(matrix.currentCut.phaseExitRecordId, 'MEDIA-PDP0-EXIT-cc2a6aa45f94');
-  assert.equal(matrix.currentCut.materialSourceSetFingerprint, 'sha256:1a121cf988ba4a34f6b603b1f230fd0494160a3c6142c064d8d5cc2a6aa45f94');
+  assert.equal(matrix.currentCut.repositoryHead, '161634035ed5e570372703809d8518dbf88751f6');
+  assert.equal(matrix.currentCut.phaseExit, 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r15.json');
+  assert.equal(matrix.currentCut.phaseExitRecordId, 'MEDIA-PDP0-EXIT-c2befa2e1a95');
+  assert.equal(matrix.currentCut.materialSourceSetFingerprint, 'sha256:eff717cf2537a285cd7a1c1a72b44a75766a0a7e6eef6ea97edbc2befa2e1a95');
   assert.equal(p0Exit.phaseExit.status, 'PASS');
+  assert.equal(p0R15Exit.phaseExit.status, 'PASS');
+  assert.equal(p0R15Observation.observationId, 'MEDIA-PDP0-CURRENTNESS-2026-10-14-CURRENT-CUT-R15');
+  assert.equal(p0R15Observation.phaseDisposition.pdp0Exit, 'BLOCKED_PENDING_OWNER_ACCEPTANCE');
+  assert.equal(p0R15Observation.phaseDisposition.currentSourceCurrentness, 'PASS');
+  assert.equal(p0R15Observation.phaseDisposition.ownerAcceptanceClaim, 'NOT_CLAIMED');
+  assert.equal(p0R15Observation.materialSourceSetFingerprint, matrix.currentCut.materialSourceSetFingerprint);
+  assert.equal(p0R15Observation.physicalCompositeConsumerCells.length, 50);
+  assert.ok(p0R15Observation.physicalCompositeConsumerCells.every(cell => cell.sourceCurrentness === 'CURRENT'));
+  assert.equal(p0R15Observation.lifecycleSourceCurrentness.continuity, 'CONTINUOUS');
+  assert.equal(p0R15Observation.lifecycleSourceCurrentness.zeroWorkEligibleAtCapture, true);
+  assert.equal(p0R15Observation.materialPathDenominator.uniquePaths, 146);
+  assert.equal(matrix.currentCut.latestPdp0CurrentnessAttempt, 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r15.json');
+  assert.equal(matrix.currentCut.pdp1LatestAttemptRef, 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json');
+  assert.equal(matrix.currentCut.pdp1LatestAttemptStatus, 'PASS');
+  assert.deepEqual(matrix.currentCut.pdp1LatestAttemptBlockers, []);
+  assert.deepEqual(matrix.currentCut.latestPdp0CurrentnessSummary, {
+    totalCells:50,current:50,unknown:0,externalContractDigestsMatched:30,externalContractDigestCount:30,
+    lifecycleContinuity:'CONTINUOUS',zeroWorkEligibleAtCapture:true,
+    r2Ref:'docs/implementation/observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r2.json',r2Applied:true,
+    r3Ref:'docs/implementation/observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r3.json',r3Applied:true,
+    ownerAcceptance:'NOT_CLAIMED_IMPACT_DISPOSITION_ONLY',
+  });
   assert.equal(observation.observationId, 'MEDIA-PDP0-CURRENTNESS-2026-10-14-CURRENT-CUT-R12');
   assert.equal(observation.physicalCompositeConsumerCells.length, 50);
   assert.ok(observation.physicalCompositeConsumerCells.every(cell => cell.sourceCurrentness === 'CURRENT'));
@@ -68,38 +92,40 @@ test('Discovery plan retains predecessor exits and marks PDP-3 R6 source-gap cap
   assert.equal(p0R14Attempt.lifecycleSourceCurrentness.continuity, 'UNKNOWN');
   assert.equal(p0R14Attempt.lifecycleSourceCurrentness.zeroWorkEligibleAtCapture, false);
   assert.deepEqual(p0R14Attempt.lifecycleSourceCurrentness.blockers, ['UNEXPECTED_REPOSITORY_MEMBERSHIP_CHANGE']);
-  assert.equal(matrix.currentCut.latestPdp0CurrentnessAttempt, 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r14.json');
+  assert.equal(matrix.currentCut.latestPdp0CurrentnessAttempt, 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r15.json');
   assert.equal(matrix.currentCut.latestPdp0MaterialSourceSetFingerprint, 'sha256:eff717cf2537a285cd7a1c1a72b44a75766a0a7e6eef6ea97edbc2befa2e1a95');
-  assert.equal(matrix.currentCut.externalLifecyclePackageJsonDisposition, 'AWAITING_EXTERNAL_OWNER_DISPOSITION');
+  assert.equal(matrix.currentCut.externalLifecyclePackageJsonDisposition, 'R3_INTERNAL_NO_PDP0_MEANING_DISPOSITION; exact Lifecycle package.json script addition; external owner acceptance and closure NOT_CLAIMED');
   assert.deepEqual(matrix.currentCut.latestPdp0CurrentnessSummary, {
-    totalCells:50,current:0,unknown:50,externalContractDigestsMatched:30,externalContractDigestCount:30,
-    lifecycleContinuity:'UNKNOWN',zeroWorkEligibleAtCapture:false,
-    r2Ref:'docs/implementation/observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r2.json',r2Applied:false,
+    totalCells:50,current:50,unknown:0,externalContractDigestsMatched:30,externalContractDigestCount:30,
+    lifecycleContinuity:'CONTINUOUS',zeroWorkEligibleAtCapture:true,
+    r2Ref:'docs/implementation/observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r2.json',r2Applied:true,
+    r3Ref:'docs/implementation/observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r3.json',r3Applied:true,
+    ownerAcceptance:'NOT_CLAIMED_IMPACT_DISPOSITION_ONLY',
   });
-  assert.ok(p0Cells.every(cell => cell.currentnessAtReview === 'PRESENT_CUT_NOT_ESTABLISHED_R14_FAIL_SOURCE_CURRENTNESS; 0_CURRENT_50_UNKNOWN'
-    && cell.status.includes('PRESENT_CUT_R14_FAIL_SOURCE_CURRENTNESS_0_CURRENT_50_UNKNOWN')
-    && cell.historicalPhaseExitPublished === true && cell.currentPhaseExitPublished === false
+  assert.ok(p0Cells.every(cell => cell.currentnessAtReview === 'PRESENT_CUT_R15_PASS_SOURCE_CURRENTNESS; 50_OF_50; 146_MATERIAL_PATHS'
+    && cell.status === 'PRESENT_CUT_R15_TECHNICAL_CURRENTNESS_AND_PHASE_EXIT_PASS; INTERNAL_IMPACT_DISPOSITION_ONLY; OWNER_ACCEPTANCE_NOT_CLAIMED'
+    && cell.historicalPhaseExitPublished === true && cell.currentPhaseExitPublished === true
     && cell.currentPhaseExitRef === matrix.currentCut.phaseExit && cell.remainingTaskIds.length === 0));
 
   assert.equal(p1Exit.phaseExit.status, 'PASS');
-  assert.equal(p1Exit.observationId, 'MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R27');
-  assert.equal(p1Exit.predecessor.exitRef, matrix.currentCut.phaseExit);
-  assert.equal(p1Exit.sourceCurrentness.materialSourceSetFingerprint, 'sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa');
+  assert.equal(p1Exit.observationId, 'MEDIA-PDP1-CURRENTNESS-2026-10-15-CURRENT-CUT-R30');
+  assert.equal(p1Exit.predecessor.exitRef, 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r15.json');
+  assert.equal(p1Exit.sourceCurrentness.materialSourceSetFingerprint, 'sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4');
   assert.equal(p1Exit.phaseExit.developmentStatus, 'DEV_COMPLETE');
   assert.deepEqual(p1Exit.developmentStatus.outstandingMeaningIds, []);
   assert.equal(p1Exit.phaseExit.exactCutOwnerAcceptance, 'NOT_RECORDED');
-  assert.equal(matrix.currentCut.pdp1PhaseExit, 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json');
+  assert.equal(matrix.currentCut.pdp1PhaseExit, 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json');
   const p1Cells = matrix.cells.filter(cell => cell.phase === 'PDP-1');
   assert.equal(p1Cells.length, 50);
-  assert.ok(p1Cells.every(cell => cell.currentnessAtReview === 'PRESENT_CUT_BLOCKED_PENDING_PDP0_RECAPTURE'
-    && cell.latestTechnicalSourceCurrentness === 'BLOCKED_PENDING_PDP0_PRESENT_CUT_RECAPTURE'
-    && cell.historicalPhaseExitPublished === true && cell.currentPhaseExitPublished === false
+  assert.ok(p1Cells.every(cell => cell.currentnessAtReview === 'R30_PASS_50_OF_50_CELLS_329_PATHS_ZERO_BLOCKERS_DEV_COMPLETE_EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED'
+    && cell.latestTechnicalSourceCurrentness === 'R30_SOURCE_CURRENTNESS_PASS_50_OF_50_CELLS_329_PATHS; ZERO_BLOCKERS'
+    && cell.historicalPhaseExitPublished === true && cell.currentPhaseExitPublished === true
     && cell.remainingTaskIds.length === 0));
 
   assert.equal(p2CurrentExit.observationId, 'MEDIA-PDP2-CURRENTNESS-2026-10-14-CURRENT-CUT-R17');
   assert.equal(p2CurrentExit.currentPhaseExit.status, 'PASS');
   assert.equal(p2CurrentExit.currentPhaseExit.developmentStatus, 'DEV_COMPLETE');
-  assert.equal(p2CurrentExit.predecessor.exitRef, matrix.currentCut.pdp1PhaseExit);
+  assert.equal(p2CurrentExit.predecessor.exitRef, 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json');
   assert.equal(p2CurrentExit.predecessor.exitDigest, 'sha256:2f57ace69d389dde7cbe7c5032c5b88d6a6b068c07177d33694fd968aa6c451e');
   assert.equal(p2CurrentExit.predecessor.r27SourceMapBridge.r25PathCount, 329);
   assert.equal(p2CurrentExit.predecessor.r27SourceMapBridge.r27PathCount, 329);
@@ -113,15 +139,20 @@ test('Discovery plan retains predecessor exits and marks PDP-3 R6 source-gap cap
   assert.equal(matrix.currentCut.pdp2R16ProjectionImpactRef, 'docs/implementation/observations/media-discovery-pdp2-r16-projection-impact-2026-10-14-r1.json');
   const p2Cells = matrix.cells.filter(cell => cell.phase === 'PDP-2');
   assert.equal(p2Cells.length, 50);
-  assert.ok(p2Cells.every(cell => cell.currentnessAtReview === 'PRESENT_CUT_BLOCKED_PENDING_PDP1_RECAPTURE'
-    && cell.latestTechnicalSourceCurrentness === 'BLOCKED_PENDING_PDP1_PRESENT_CUT_RECAPTURE'
-    && cell.historicalPhaseExitPublished === true && cell.currentPhaseExitPublished === false
+  assert.ok(p2Cells.every(cell => cell.currentnessAtReview === 'R19_PASS_CURRENT_AGAINST_PDP1_R30; 50_OF_50_CELLS_405_PATHS; DEV_COMPLETE_ZERO_OUTSTANDING_MEANING; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED'
+    && cell.latestTechnicalSourceCurrentness === 'R19_PASS_CURRENT_AGAINST_PDP1_R30; 50_OF_50_CELLS_405_PATHS; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED'
+    && cell.historicalPhaseExitPublished === true && cell.currentPhaseExitPublished === true
+    && cell.currentPhaseExitRef === matrix.currentCut.pdp2PhaseExit
     && cell.remainingTaskIds.length === 0));
 
   const p3Cells = matrix.cells.filter(cell => cell.phase === 'PDP-3');
   assert.equal(p3Cells.length, 50);
   assert.ok(p3Cells.every(cell => cell.currentnessAtReview === 'NOT_ESTABLISHED_R6_CAPTURE_PENDING_SOURCE_GAPS_REMAIN'
-    && cell.currentPhaseExitPublished === false && cell.status === 'PDP3_NOT_ESTABLISHED_MDC30_R6_CAPTURE_PENDING'
+    && cell.currentPhaseExitPublished === false && cell.status === 'PDP3_NOT_ESTABLISHED_MDC30_ACTIVE_R6_CAPTURE_PENDING_SOURCE_GAP_RESOLUTION'
+    && cell.preR6HistoricalRemainingTaskIds.length > 0
+    && cell.currentRemainingTaskIds === null
+    && cell.currentRemainingTaskStatus === 'UNKNOWN_AFTER_PDP3_SOURCE_EDITS; R6_REVALIDATION_REQUIRED'
+    && !Object.hasOwn(cell, 'remainingTaskIds')
     && !Object.hasOwn(cell, 'latestProgressObservationRef')));
   assert.equal(pdp3Progress.pendingCaptureTarget, 'docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r6.json');
   assert.equal(pdp3Progress.sourceGapAuditStatus, 'PENDING_R6_CAPTURE');
@@ -130,11 +161,18 @@ test('Discovery plan retains predecessor exits and marks PDP-3 R6 source-gap cap
   assert.equal(Object.hasOwn(matrix, 'latestPdp3ProgressObservationRef'), false);
   assert.equal(Object.hasOwn(matrix, 'latestPdp3AuditReviewedHead'), false);
   assert.equal(Object.hasOwn(matrix, 'latestPdp3ReviewedMaterialInputFingerprint'), false);
-  assert.deepEqual(pdp3Progress.logicalCount, {
-    totalEdges: 61, sourceBound: 43, incomplete: 18, consequentialSteps: 14,
+  assert.deepEqual(pdp3Progress.preR6HistoricalLogicalCount, {
+    totalEdges: 61, sourceBound: 37, incomplete: 24, incompleteGroups: 13, consequentialSteps: 14,
     sourceDefinitionBoundConsequentialSteps: 5, partialConsequentialSteps: 7, gapConsequentialSteps: 2,
-    status: 'R6_CAPTURE_PENDING_SOURCE_GAP_COUNTS_NOT_PHASE_EXIT',
+    status: 'R5_RECEIPT_HISTORICAL_CONFLICTS_WITH_PRIOR_PLAN_SUMMARY; R6_NOT_CAPTURED',
+    observationRef: 'docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r5.json',
+    priorPlanReportedCounts: {
+      sourceBound: 43, incomplete: 18, incompleteGroups: 10,
+      status: 'CONFLICTING_HISTORICAL_SUMMARY; NOT_LIVE',
+    },
   });
+  assert.equal(pdp3Progress.currentLogicalCount, null);
+  assert.equal(Object.hasOwn(pdp3Progress, 'logicalCount'), false);
   assert.equal(pdp3Progress.historicalR5ProgressRef, 'docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r5.json');
   assert.equal(pdp3Progress.historicalR4ProgressRef, 'docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r4.json');
   assert.equal(Object.hasOwn(matrix.currentCut, 'nextLegalAction'), false);
@@ -143,33 +181,37 @@ test('Discovery plan retains predecessor exits and marks PDP-3 R6 source-gap cap
   assert.equal(Object.hasOwn(matrix.currentCut, 'pdp3Mdc30Observation'), false);
   assert.equal(Object.hasOwn(matrix.currentCut, 'pdp3Mdc30ExecutionRef'), false);
   assert.ok(p3Cells.every(cell => !Object.hasOwn(cell, 'latestImplementationProgressRef')));
-  assert.ok(p3Cells.every(cell => !Object.hasOwn(cell, 'latestNextLegalAction')
-    && !Object.hasOwn(cell, 'latestMdc30LogicalCount')));
+  assert.ok(matrix.cells.every(cell => !Object.hasOwn(cell, 'latestNextLegalAction')));
+  assert.ok(p3Cells.every(cell => !Object.hasOwn(cell, 'latestMdc30LogicalCount')
+    && !Object.hasOwn(cell, 'currentCutReviewedHead')
+    && !Object.hasOwn(cell, 'currentCutIncompleteChannelTaskIds')
+    && !Object.hasOwn(cell, 'currentCutPotentiallyAffectedByS06')
+    && !Object.hasOwn(cell, 'currentCutOpenTaskIds')));
   assert.equal(matrix.ownerDecisionOverlay.pdp3IncompleteEdges, 32);
   assert.equal(matrix.ownerDecisionOverlay.pdp3IncompleteConsequentialSteps, 1);
   assert.match(matrix.ownerDecisionOverlay.countScope, /Historical delegated-owner review cut/u);
   assert.match(matrix.ownerDecisionOverlay.sourceNotYetUpdatedScope, /does not establish the current R6 source-gap counts/u);
   assert.equal(Object.hasOwn(matrix.ownerDecisionOverlay, 'currentTechnicalAuditCounts'), false);
   assert.equal(Object.hasOwn(matrix.ownerDecisionOverlay, 'currentTechnicalAuditRef'), false);
-  assert.equal(matrix.currentCut.noCurrentPdp0Pdp1Pdp2ExitAtReviewedHead, true);
-  assert.equal(matrix.currentCut.pdp1CurrentnessStatus, 'BLOCKED_PENDING_PDP0_PRESENT_CUT_RECAPTURE');
-  assert.equal(matrix.currentCut.pdp2CurrentnessStatus, 'BLOCKED_PENDING_PDP1_PRESENT_CUT_RECAPTURE');
+  assert.equal(matrix.currentCut.noCurrentPdp0Pdp1Pdp2ExitAtReviewedHead, false);
+  assert.deepEqual(matrix.status.presentCutRecapturePhaseOrder, []);
+  assert.deepEqual(matrix.currentCut.presentCutRecapturePhaseOrder, []);
+  assert.equal(matrix.currentCut.pdp1CurrentnessStatus, 'R30_PASS_SOURCE_CURRENTNESS_50_OF_50_CELLS_329_PATHS; DEV_COMPLETE_ZERO_OUTSTANDING_MEANING_IDS; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED; EXPECTED_STRICT_ADMISSION_FINDING');
+  assert.equal(matrix.currentCut.pdp2CurrentnessStatus, 'R19_PASS_50_OF_50_405_PATHS_AGAINST_PDP1_R30');
   assert.equal(matrix.currentCut.pdp2R16ProjectionImpactRef, 'docs/implementation/observations/media-discovery-pdp2-r16-projection-impact-2026-10-14-r1.json');
-  assert.equal(matrix.currentCut.pdp3CurrentnessStatus, 'NOT_ESTABLISHED; PDP2_R17_HISTORICAL; R6_CAPTURE_BLOCKED_PENDING_PREDECESSOR_RECAPTURE');
-  assert.equal(matrix.status.pdp0, 'HISTORICAL_R12_PASS_CAPTURED_SOURCE_SET_ONLY; PRIOR_R13_FAIL_SOURCE_CURRENTNESS; PRESENT_CUT_R14_FAIL_SOURCE_CURRENTNESS_0_CURRENT_50_UNKNOWN');
-  assert.equal(matrix.status.pdp1, 'HISTORICAL_R27_PASS_CAPTURED_SOURCE_SET_ONLY; PRESENT_CUT_RECAPTURE_BLOCKED_PENDING_PDP0');
-  assert.equal(matrix.status.pdp2, 'HISTORICAL_R17_PASS_CAPTURED_SOURCE_SET_ONLY; PRESENT_CUT_RECAPTURE_BLOCKED_PENDING_PDP1');
-  assert.equal(matrix.status.pdp3, 'NOT_ESTABLISHED_PREDECESSOR_CURRENTNESS_RECAPTURE_BLOCKED; R6_NOT_CAPTURED');
-  assert.equal(matrix.status.discovery, 'FAIL');
+  assert.equal(matrix.currentCut.pdp3CurrentnessStatus, 'NOT_ESTABLISHED_R6_CAPTURE_PENDING_MDC30_SOURCE_GAPS_REMAIN');
+  assert.equal(matrix.status.pdp0, 'R15_TECHNICAL_PASS_50_OF_50_146_PATHS; INTERNAL_IMPACT_DISPOSITION_ONLY; OWNER_ACCEPTANCE_NOT_CLAIMED');
+  assert.equal(matrix.status.pdp1, 'R30_PASS_50_OF_50_329_PATHS_DEV_COMPLETE_ZERO_OUTSTANDING_MEANING; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED; PASS_WITH_EXPECTED_STRICT_ADMISSION_FINDING');
+  assert.equal(matrix.status.pdp2, 'R19_PASS_50_OF_50_405_PATHS_AGAINST_PDP1_R30; DEV_COMPLETE_ZERO_OUTSTANDING_MEANING; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED');
+  assert.equal(matrix.status.pdp3, 'ACTIVE_MDC30_SOURCE_GAP_RESOLUTION; R6_NOT_CAPTURED; LIVE_RAW_EDGE_REGISTRY_43_OF_61_SOURCE_BOUND_DEFINITION_ONLY_AND_18_INCOMPLETE_ACROSS_10_JOURNEYS; RAW_FIELDS_NOT_R6_VALIDATION_OR_TASK_COMPLETION; 14_STEP_SOURCE_AUDIT_COMPLETE_WITH_DISPOSITIONS_OPEN; J21_EXCLUDED_AND_BLOCKED; ALL_TRANSPORTS_UNBOUND; RUNTIME_NOT_ADMITTED');
+  assert.equal(matrix.status.discovery, 'FAIL_PDP3_DEFINITION_COMPLETION_PENDING');
   assert.equal(matrix.status.build, 'NOT_ENTERED');
   assert.equal(matrix.status.nativePdpClosure, 'NOT_ENTERED');
   assert.equal(matrix.status.delivery, 'BLOCKED');
-  assert.match(matrix.nextLegalAction, /R14’s 0\/50-current, 50\/50-unknown result did not apply the exact existing R2/u);
-  assert.match(matrix.nextLegalAction, /external Lifecycle package.json fingerprint transition through its owner/u);
-  assert.match(matrix.nextLegalAction, /re-establish root-wide Lifecycle continuity/u);
-  assert.match(matrix.nextLegalAction, /Then capture a fresh PDP-0 successor applying R2.*after PDP-0 passes, recapture PDP-1 followed by PDP-2 serially/u);
-  assert.match(matrix.nextLegalAction, /MDC-31 → MDC-32 → MDC-40/u);
-  assert.match(matrix.nextLegalAction, /MDC-41 gated/u);
+  assert.match(matrix.nextLegalAction, /current PDP-0 R15, PDP-1 R30, and PDP-2 R19/u);
+  assert.doesNotMatch(matrix.nextLegalAction, /through its owner|external owner acceptance is claimed/u);
+  assert.match(matrix.nextLegalAction, /live edge registry contains 43 source-bound definition-only edges and 18 incomplete across 10 journeys/u);
+  assert.match(matrix.nextLegalAction, /J21 rights-approval exclusion and blocked status/u);
   const pdp0Cells = matrix.cells.filter(cell => cell.phase === 'PDP-0');
   assert.equal(pdp0Cells.length, 50);
   assert.ok(pdp0Cells.every(cell => /exact successor material fingerprint and generated current manifest/u.test(cell.acceptWhen)));
@@ -270,8 +312,8 @@ test('PDP-3 consumer cells bind registry owners and contracts while preserving u
     assert.ok(cell.parentSourceAuthorityRefs.includes(registered.contractAuthority));
     assert.ok(cell.inspectWhere.includes(registered.contractAuthority));
     assert.equal(cell.phaseApplicabilityDisposition, expectedDisposition);
-    assert.match(cell.nextLegalAction, /PDP-2 R17/u);
-    assert.match(cell.nextLegalAction, /resolve the 18 live-registry incomplete edges/u);
+    assert.match(cell.nextLegalAction, /ACTIVE: Continue MDC-30 source-gap resolution/u);
+    assert.match(cell.nextLegalAction, /capture R6 only after source criteria pass/u);
   }
   const integrations = matrixById.get('media.surface.integrations');
   assert.match(integrations.phaseApplicabilityRationale, /omits PDP-3/u);
@@ -330,9 +372,10 @@ test('PDP-1 composition and consumer cells trace exact canonical authority, owne
     assert.deepEqual(cell.parentSourceAuthorityRefs, [applicability.authorityRef, applicability.objectAuthorityRef]);
     assert.ok(cell.inspectWhere.includes(applicability.authorityRef));
     assert.ok(cell.inspectWhere.includes(applicability.objectAuthorityRef));
-    assert.equal(cell.currentnessAtReview, 'PRESENT_CUT_BLOCKED_PENDING_PDP0_RECAPTURE');
+    assert.equal(cell.currentnessAtReview, 'R30_PASS_50_OF_50_CELLS_329_PATHS_ZERO_BLOCKERS_DEV_COMPLETE_EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED');
     assert.equal(cell.historicalPhaseExitPublished, true);
-    assert.equal(cell.currentPhaseExitPublished, false);
+    assert.equal(cell.currentPhaseExitPublished, true);
+    assert.equal(cell.latestTechnicalSourceCurrentness, 'R30_SOURCE_CURRENTNESS_PASS_50_OF_50_CELLS_329_PATHS; ZERO_BLOCKERS');
   }
 
   const rootSurface = topology.compositions.find(c => c.kind === 'REPOSITORY_ROOT');
@@ -353,11 +396,11 @@ test('PDP-1 composition and consumer cells trace exact canonical authority, owne
     assert.equal(cell.consumerCrosswalkAuthorityRef, `.product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/${crosswalkIndex}`);
     assert.equal(cell.phaseApplicabilityDisposition, archived ? 'NOT_APPLICABLE_ARCHIVED' : 'APPLICABLE_CONSUMER_BINDING');
     assert.equal(applicablePdpArtifacts.includes('PDP-1'), !archived, crosswalk.surfaceId);
-    assert.equal(cell.currentnessAtReview, 'PRESENT_CUT_BLOCKED_PENDING_PDP0_RECAPTURE');
+    assert.equal(cell.currentnessAtReview, 'R30_PASS_50_OF_50_CELLS_329_PATHS_ZERO_BLOCKERS_DEV_COMPLETE_EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED');
     assert.equal(cell.historicalPhaseExitPublished, true);
-    assert.equal(cell.currentPhaseExitPublished, false);
+    assert.equal(cell.currentPhaseExitPublished, true);
     assert.equal(cell.currentPhaseExitRef, matrix.currentCut.pdp1PhaseExit);
-    assert.equal(cell.status, 'HISTORICAL_R27_PASS_CAPTURED_SOURCE_SET_ONLY; PRESENT_CUT_BLOCKED_PENDING_PDP0');
+    assert.equal(cell.status, 'PDP1_R30_PASS; DEV_COMPLETE; 50_OF_50_CELLS_CURRENT; 329_PATHS; ZERO_BLOCKERS; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED; PASS_WITH_EXPECTED_STRICT_ADMISSION_FINDING');
   }
 });
 
@@ -427,9 +470,11 @@ test('PDP-2 cells bind exact surface owners and applicability to topology and co
       assert.equal(registered.applicablePdpArtifacts.includes('PDP-2'), !archived);
       assert.ok(cell.phaseApplicabilityRationale.trim());
     }
-    assert.equal(cell.currentnessAtReview, 'PRESENT_CUT_BLOCKED_PENDING_PDP1_RECAPTURE');
+    assert.equal(cell.currentnessAtReview, 'R19_PASS_CURRENT_AGAINST_PDP1_R30; 50_OF_50_CELLS_405_PATHS; DEV_COMPLETE_ZERO_OUTSTANDING_MEANING; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED');
+    assert.equal(cell.latestTechnicalSourceCurrentness, 'R19_PASS_CURRENT_AGAINST_PDP1_R30; 50_OF_50_CELLS_405_PATHS; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED');
+    assert.equal(cell.status, 'R19_CURRENT_PASS_AGAINST_PDP1_R30; DEV_COMPLETE_ZERO_OUTSTANDING_MEANING; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED');
     assert.equal(cell.historicalPhaseExitPublished, true);
-    assert.equal(cell.currentPhaseExitPublished, false);
+    assert.equal(cell.currentPhaseExitPublished, true);
     assert.equal(cell.currentPhaseExitRef, matrix.currentCut.pdp2PhaseExit);
   }
 });

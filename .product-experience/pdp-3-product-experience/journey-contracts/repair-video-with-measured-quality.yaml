@@ -564,6 +564,7 @@ pdp1ResultEvidence:
       transitionRefs: []
       exactResult: "Exact P1 result schema requires: outcome, observedAt, outputs, provenance, implementationState, qualificationState, runtimeAvailability. Source finality: success requires authoritative owner receipt and exact output version references; transport acknowledgement or dispatch is not completion; ambiguous finality is UNKNOWN_OUTCOME"
       unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: After ambiguous response reconcile same requestId and payload fingerprint; no blind retry; retry only proven non-acceptance with same idempotency identity."
+  typedObservationBindings: []
   resultCompleteness: Each exact operation-purpose pair cites the P1 result schema and source-defined authority, version, finality, error, and recovery semantics. State and transition arrays are copied exactly from P1; no additional machine state or transition is inferred.
   channelAndRuntimeBoundary:
     intendedChannels:
@@ -853,6 +854,21 @@ steps:
         result: "Immediate result is limited to the exact P1 result schema for media.operation.action.submit-validated-request; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
         resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
+        terminalResultObservation:
+          status: SOURCE_BOUND_CAPABILITY_RESULT_IDENTITY_ONLY; QUALITY_EVIDENCE_BOUND_SEPARATELY
+          operationRef: media.operation.capability.media-enhance-video-compression-repair
+          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-compression-repair
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-compression-repair/resultSchema
+          successfulOutput:
+            artifactType: derived-video-candidate-with-source-preserved-and-measurements
+            resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-compression-repair/resultSchema
+            requiredIdentity: [ artifactId, versionId ]
+            versionRule: Preserve the exact owner-issued output version; never infer a latest version.
+          nonSuccessDisposition: REJECTED and UNKNOWN_OUTCOME carry no output claims; UNKNOWN_OUTCOME requires exact same-request reconciliation before any permitted retry.
+          separation: This terminal capability result is distinct from the immediate submit-validated-request submission receipt; submission or transport acknowledgment is not repair completion.
+          qualityMetricDisposition: Not part of this capability result; bind metric evidence separately through the exact PDP-1 quality-evidence observation contract on step 4.
+          comparisonQueryResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+          runtimeAdmission: NOT_ADMITTED
         success:
           status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step
@@ -1191,6 +1207,12 @@ steps:
         result: "Immediate result is limited to the exact P1 result schema for media.operation.action.compare-candidate-on-metric; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
         resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
+        comparisonEvidenceDisposition:
+          status: COMPARISON_QUERY_ENVELOPE_ONLY; QUALITY_METRICS_FROM_SEPARATE_OWNER_OBSERVATION
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+          qualityEvidenceStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/3
+          qualityEvidenceContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1
+          note: The comparison action result is only a request/target/receipt/time envelope; it is not itself a typed metric observation or proof of a quality threshold.
         success:
           status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step
@@ -1513,6 +1535,42 @@ steps:
         result: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-quality-evidence; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/resultSchema
         resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
+        typedQualityEvidenceObservation:
+          status: CONTRACT_REFERENCE_ONLY; OUTPUT_SUBJECT_AND_METRIC_JOIN_UNDEFINED; DEFINITION_INCOMPLETE; TRANSPORT_AND_RUNTIME_NOT_ADMITTED
+          contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1
+          validationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationValidationRules/records/@id=media.observation-validation.quality-evidence.v1
+          operationRef: media.operation.action.inspect-quality-evidence
+          requestFields: [ queryId, subjectArtifactVersionRef, metricRefs ]
+          subjectBinding: UNRESOLVED; no source-defined selector maps a selected successful capability output identity to subjectArtifactVersionRef; do not substitute a newer version.
+          metricSelection: UNRESOLVED; no source-defined journey selection supplies the nonempty metricRefs for the exact output.
+          resultFields:
+            - currentness
+            - subjectArtifactVersionRef
+            - observationStatus
+            - observations
+            - observedAt
+            - readVersion
+          observationFields:
+            - metricRef
+            - modalityRef
+            - methodRef
+            - methodVersionRef
+            - applicability
+            - disposition
+            - value
+            - unitRef
+            - uncertainty
+            - abstentionReasonRef
+            - evidenceRefs
+          statusDistinctions:
+            observationStatus: [ OBSERVATIONS_PRESENT, NO_OBSERVATIONS, UNKNOWN, SUBJECT_NOT_FOUND ]
+            currentness: [ CURRENT, STALE, UNKNOWN ]
+            applicability: [ APPLICABLE, NOT_APPLICABLE, ABSTAINED, NOT_EVALUATED, BLOCKED ]
+            disposition: [ PASS, FAIL, INDETERMINATE, NOT_EVALUATED ]
+          limitationPresentation: Source-defined evidence can expose applicability, indeterminate or not-evaluated disposition, uncertainty, abstentionReasonRef, and evidenceRefs. No specific user-facing copy or display layout is defined by this observation schema.
+          noEvidenceRule: NO_OBSERVATIONS, UNKNOWN, or SUBJECT_NOT_FOUND must not be projected as zero, pass, or failure; preserve UNKNOWN/currentness and per-metric abstention or non-applicability distinctly.
+          comparisonBoundary: The step 3 comparison query envelope remains separate and does not supply or replace this typed quality-evidence observation.
+          runtimeAdmission: NOT_ADMITTED
         success:
           status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step

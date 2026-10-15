@@ -16,10 +16,14 @@ import {
   sourcePinReview,
   pdp2OwnerReview,
   validatePdp1Predecessor,
+  validatePdp1R30SourceMapBridge,
+  validatePdp2R17SuccessorImpact,
   validatePdp1R27SourceMapBridge,
   validatePdp2R16ProjectionImpact,
   composePdp2CurrentnessSourceChains,
   pdp3StatusGuardSupplement,
+  pdp2ScopedImpactBinding,
+  pdp2ObservationImpactPredecessor,
 } from '../scripts/capture-media-discovery-pdp2-current-cut.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -67,12 +71,10 @@ const expectedTransitions = [
 const sha = (sourcePath) => `sha256:${crypto.createHash('sha256').update(fs.readFileSync(path.join(root, sourcePath))).digest('hex')}`;
 const r16ProjectionPath = '.product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json';
 
-function historicalR25Digests(r13) {
-  const digests = Object.fromEntries(Object.keys(r13.sourceCurrentness.sourceSetDigests.sourceContentDigests)
-    .map((sourcePath) => [sourcePath, sha(sourcePath)]));
-  // R25 predates the separately authorized R16-to-live generated projection hop.
-  digests[r16ProjectionPath] = r13.sourceCurrentness.sourceSetDigests.sourceContentDigests[r16ProjectionPath];
-  return digests;
+function historicalR25Digests(r16) {
+  const digests = r16.sourceCurrentness.sourceSetDigests.sourceContentDigests;
+  assert.equal(Object.keys(digests).length, 405, 'R16 preserves the immutable 405-path PDP-2 source snapshot');
+  return structuredClone(digests);
 }
 
 function v2Fixture({ mutateRecord, mutateCurrent, mutateActual } = {}) {
@@ -582,11 +584,14 @@ function fullR25CurrentnessFixture() {
   const r13 = read(r13Path);
   const r5Record = read(r5Path);
   const r22 = read(r22Path);
-  const currentDigests = historicalR25Digests(r13);
-  return { r9Path, r13Path, r5Path, r22Path, r9, r13, r5Record, r22, currentDigests, impact: pdp2CurrentCutImpact(r9, currentDigests, {
-    pdp1ExitPath: 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r25.json',
-    additionalSourceImpactPath: 'docs/implementation/observations/media-discovery-pdp2-additional-source-impact-2026-10-14-r1.json',
-  }) };
+  const r16 = read('docs/implementation/observations/media-discovery-pdp2-exit-r16.json');
+  const currentDigests = historicalR25Digests(r16);
+  const historicalImpact = r16.ownerStatusJoin.pdp2ScopedImpact;
+  return {
+    r9Path, r13Path, r5Path, r22Path, r9, r13, r5Record, r22, r16, currentDigests,
+    historicalR5Impact: historicalImpact.historicalR5Impact,
+    additionalSourceImpact: historicalImpact.additionalSourceImpact,
+  };
 }
 
 test('PDP-2 supplemental v3 joins exact R13-to-live transitions to the current PDP-1 R25 receipt', () => {
@@ -602,20 +607,23 @@ test('PDP-2 supplemental v3 joins exact R13-to-live transitions to the current P
   assert.equal(p1Current.pdp1Proof.developmentStatus, 'DEV_COMPLETE');
 });
 
-test('PDP-2 R25 currentness composes immutable R9→R13 R5 hops, exact R13→live R1 hops, and source work once per path', () => {
-  const r9Path = 'docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json';
-  const r13Path = 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r13.json';
-  const r9 = read(r9Path);
-  const r13 = read(r13Path);
-  const currentDigests = historicalR25Digests(r13);
-  const impact = pdp2CurrentCutImpact(r9, currentDigests, {
-    pdp1ExitPath: 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r25.json',
-    additionalSourceImpactPath: 'docs/implementation/observations/media-discovery-pdp2-additional-source-impact-2026-10-14-r1.json',
+test('historical PDP-2 R16 receipt preserves the R25 R9→R13 impact chain and source work without claiming live currentness', () => {
+  const fixture = fullR25CurrentnessFixture();
+  const { r9, r9Path, r13, r13Path, r16, currentDigests } = fixture;
+  const captured = r16.ownerStatusJoin.composedR9ToR13ToLiveSourceChains;
+  const scopedImpact = r16.ownerStatusJoin.pdp2ScopedImpact;
+  const chains = composePdp2CurrentnessSourceChains({
+    r9Checkpoint: r9, r9ReceiptPath: r9Path, r9ReceiptDigest: sha(r9Path),
+    r13Checkpoint: r13, r13ReceiptPath: r13Path, r13ReceiptDigest: sha(r13Path),
+    historicalR5Impact: fixture.historicalR5Impact,
+    additionalSourceImpact: fixture.additionalSourceImpact,
+    currentDigests,
   });
-  const chains = impact.currentnessSourceChains;
-  assert.equal(impact.valid, true);
-  assert.equal(impact.supplementalSourceWorkValid, true);
-  assert.equal(impact.supplementalSourceWork.length, 2);
+  assert.equal(r16.currentPhaseExit.status, 'PASS');
+  assert.equal(r16.predecessor.exitRef, 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r25.json');
+  assert.equal(r16.sourceCurrentness.status, 'PASS');
+  assert.equal(chains.valid, true);
+  assert.equal(captured.valid, true);
   assert.equal(chains.valid, true);
   assert.equal(chains.materialPathCount, 405);
   assert.equal(chains.changedPathCount, 11);
@@ -631,18 +639,12 @@ test('PDP-2 R25 currentness composes immutable R9→R13 R5 hops, exact R13→liv
   assert.equal(byPath.get(statusPath).r1HopCount, 0);
   assert.equal(byPath.get(decisionLogPath).r5HopCount, 0);
   assert.equal(byPath.get(decisionLogPath).r1HopCount, 1);
-  const sourceWorkPaths = impact.supplementalSourceWork.map(({ path: sourcePath }) => sourcePath);
+  const sourceWorkPaths = scopedImpact.supplementalSourceWork.map(({ path: sourcePath }) => sourcePath);
   assert.equal(new Set([...byPath.keys()]).size, 11);
   assert(sourceWorkPaths.every((sourcePath) => byPath.get(sourcePath).r5HopCount === 1));
-  const projectedSourceWork = sourcePinReview(
-    { sourceShaSet: Object.fromEntries(impact.supplementalSourceWork.map((work) => [work.path, work.predecessorSha256])) },
-    currentDigests, { pinReview: { changedPins: [] } }, [], { valid: false }, impact,
-  );
-  assert.equal(projectedSourceWork.changedPinCount, 2);
-  assert.equal(projectedSourceWork.expectedChangedPaths.filter((sourcePath) => sourceWorkPaths.includes(sourcePath)).length, 2);
-  assert.equal(projectedSourceWork.changedPins[0].disposition?.sourceDerivedFrom, '.product-experience/pdp-2-design-interface-system/component-contracts.yaml');
-  assert.equal(projectedSourceWork.changedPins[1].disposition?.workKind, 'REGRESSION_TEST_FOR_CANONICAL_ACTION_IDENTITY_PROJECTION');
-  assert.deepEqual(projectedSourceWork.unclassifiedChangedPins, []);
+  assert.equal(scopedImpact.supplementalSourceWork.length, 2);
+  assert.equal(scopedImpact.supplementalSourceWork[0].derivedFrom.sourceRef, '.product-experience/pdp-2-design-interface-system/component-contracts.yaml');
+  assert.equal(scopedImpact.supplementalSourceWork[1].workKind, 'REGRESSION_TEST_FOR_CANONICAL_ACTION_IDENTITY_PROJECTION');
 
   const guard = pdp3StatusGuardSupplement(read('docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r2.json'), currentDigests);
   assert.equal(guard.valid, true);
@@ -651,39 +653,32 @@ test('PDP-2 R25 currentness composes immutable R9→R13 R5 hops, exact R13→liv
   const badReporterTerminal = { ...currentDigests, [reporterPath]: 'sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573' };
   assert.equal(pdp3StatusGuardSupplement(read('docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r2.json'), badReporterTerminal).valid, false);
 
-  const join = currentnessOwnerStatusJoin(r13, currentDigests, { sourceChanges: [] }, 'sha256:test', {
-    r9Checkpoint: r9,
-    pdp2CurrentCutOptions: {
-      pdp1ExitPath: 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r25.json',
-      additionalSourceImpactPath: 'docs/implementation/observations/media-discovery-pdp2-additional-source-impact-2026-10-14-r1.json',
-    },
-  });
-  assert.equal(join.status, 'PASS');
-  assert.equal(join.composedR9ToR13ToLiveSourceChains.valid, true);
-  assert.equal(join.changedPathCount, 11);
+  assert.equal(r16.ownerStatusJoin.status, 'PASS');
+  assert.equal(r16.ownerStatusJoin.composedR9ToR13ToLiveSourceChains.valid, true);
+  assert.equal(r16.ownerStatusJoin.changedPathCount, 11);
 });
 
 test('PDP-2 R25 currentness chain rejects reordered, forked, broken, and source-work-mutated hops', () => {
   const fixture = fullR25CurrentnessFixture();
-  const compose = (r5 = fixture.impact.historicalR5Impact, current = fixture.currentDigests, r9 = fixture.r9, r13 = fixture.r13,
+  const compose = (r5 = fixture.historicalR5Impact, current = fixture.currentDigests, r9 = fixture.r9, r13 = fixture.r13,
     r9ReceiptPath = fixture.r9Path, r9ReceiptDigest = sha(fixture.r9Path),
     r13ReceiptPath = fixture.r13Path, r13ReceiptDigest = sha(fixture.r13Path)) => composePdp2CurrentnessSourceChains({
     r9Checkpoint: r9, r9ReceiptPath, r9ReceiptDigest, r13Checkpoint: r13, r13ReceiptPath, r13ReceiptDigest,
-    historicalR5Impact: r5, additionalSourceImpact: fixture.impact.additionalSourceImpact, currentDigests: current,
+    historicalR5Impact: r5, additionalSourceImpact: fixture.additionalSourceImpact, currentDigests: current,
   });
-  const interfaceR5 = fixture.impact.historicalR5Impact.scopedTransitions.filter(({ path: sourcePath }) => sourcePath === interfaceReviewPath);
+  const interfaceR5 = fixture.historicalR5Impact.scopedTransitions.filter(({ path: sourcePath }) => sourcePath === interfaceReviewPath);
   assert.equal(interfaceR5.length, 2);
 
-  const reordered = structuredClone(fixture.impact.historicalR5Impact);
+  const reordered = structuredClone(fixture.historicalR5Impact);
   const indexes = reordered.scopedTransitions.map((hop, index) => hop.path === interfaceReviewPath ? index : -1).filter((index) => index >= 0);
   [reordered.scopedTransitions[indexes[0]], reordered.scopedTransitions[indexes[1]]] = [reordered.scopedTransitions[indexes[1]], reordered.scopedTransitions[indexes[0]]];
   assert.equal(compose(reordered).valid, false);
 
-  const broken = structuredClone(fixture.impact.historicalR5Impact);
+  const broken = structuredClone(fixture.historicalR5Impact);
   broken.scopedTransitions.find((hop) => hop.path === interfaceReviewPath && hop.predecessorSha256 !== fixture.r9.sourceCurrentness.sourceSetDigests.sourceContentDigests[interfaceReviewPath]).predecessorSha256 = `sha256:${'a'.repeat(64)}`;
   assert.equal(compose(broken).valid, false);
 
-  const forked = structuredClone(fixture.impact.historicalR5Impact);
+  const forked = structuredClone(fixture.historicalR5Impact);
   forked.scopedTransitions.find((hop) => hop.path === interfaceReviewPath).observedSha256 = `sha256:${'b'.repeat(64)}`;
   assert.equal(compose(forked).valid, false);
 
@@ -708,32 +703,29 @@ test('PDP-2 R25 currentness chain rejects reordered, forked, broken, and source-
   assert.equal(badDerivationValidation.supplementalSourceWorkValid, false);
   assert.equal(compose(badDerivationValidation).valid, false);
 
-  assert.equal(compose(fixture.impact.historicalR5Impact, fixture.currentDigests, fixture.r9, fixture.r13,
+  assert.equal(compose(fixture.historicalR5Impact, fixture.currentDigests, fixture.r9, fixture.r13,
     `${fixture.r9Path}.mutated`).r9ReceiptValid, false);
-  assert.equal(compose(fixture.impact, fixture.currentDigests, fixture.r9, fixture.r13,
+  assert.equal(compose(fixture.historicalR5Impact, fixture.currentDigests, fixture.r9, fixture.r13,
     fixture.r9Path, `sha256:${'d'.repeat(64)}`).r9ReceiptValid, false);
-  assert.equal(compose(fixture.impact.historicalR5Impact, fixture.currentDigests, fixture.r9, fixture.r13,
+  assert.equal(compose(fixture.historicalR5Impact, fixture.currentDigests, fixture.r9, fixture.r13,
     fixture.r9Path, sha(fixture.r9Path), `${fixture.r13Path}.mutated`).r13ReceiptValid, false);
-  assert.equal(compose(fixture.impact, fixture.currentDigests, fixture.r9, fixture.r13,
+  assert.equal(compose(fixture.historicalR5Impact, fixture.currentDigests, fixture.r9, fixture.r13,
     fixture.r9Path, sha(fixture.r9Path), fixture.r13Path, `sha256:${'e'.repeat(64)}`).r13ReceiptValid, false);
   const terminalMutation = { ...fixture.currentDigests, [semanticReviewPath]: `sha256:${'f'.repeat(64)}` };
-  assert.equal(compose(fixture.impact, terminalMutation).valid, false);
+  assert.equal(compose(fixture.historicalR5Impact, terminalMutation).valid, false);
 });
 
-test('PDP-2 R25 source pin review joins all 14 changes to exact R9/R5/R1 chain dispositions', () => {
+test('historical PDP-2 R16 receipt binds all 14 R25-era source pin changes and preserves their classifications', () => {
   const fixture = fullR25CurrentnessFixture();
-  const status = read('docs/implementation/pdp-2-phase-dev-status.json');
-  const ownerDirections = read('docs/implementation/observations/media-discovery-current-cut-owner-directions-2026-10-13-r2.json');
-  const ownerReview = pdp2OwnerReview(ownerDirections);
-  const supplement = pdp3StatusGuardSupplement(read('docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r2.json'), fixture.currentDigests);
-  const review = (impact) => sourcePinReview(status, fixture.currentDigests,
-    read('docs/implementation/observations/media-discovery-pdp2-mdc20-design-drift-2026-10-13-r1.json'),
-    ownerReview?.sourceChanges ?? [], supplement, impact);
-  const result = review(fixture.impact);
+  const result = fixture.r16.historicalPinReview;
+  assert.equal(result.historicalPinCount, 154);
+  assert.equal(result.currentPinCount, 140);
   assert.equal(result.changedPinCount, 14);
   assert.equal(result.expectedChangedPathCount, 14);
   assert.equal(result.expectedChangedPathsMatch, true);
+  assert.equal(result.missingPinCount, 0);
   assert.deepEqual(result.unclassifiedChangedPins, []);
+  assert.equal(result.changedPins.length, 14);
   const exactHistoricalChainPaths = [
     '.product-experience/interface-parity/operation-parity.yaml',
     '.product-experience/pdp-1-domain-data/handoff-contracts.yaml',
@@ -749,60 +741,35 @@ test('PDP-2 R25 source pin review joins all 14 changes to exact R9/R5/R1 chain d
   assert(c22.historicalR5Chain.transitions.some((transition) => transition.meaningChange === 'PDP2_DEFINITION_CHANGE_LIMITED_TO_MDC30_C22_DELIVERY_ACK_EVIDENCE_BINDING'));
   const reporterPin = result.changedPins.find(({ path: sourcePath }) => sourcePath === reporterPath);
   assert.equal(reporterPin?.historicalR5Chain?.valid, true);
-
-  const badR5Path = structuredClone(fixture.impact);
-  badR5Path.historicalR5Impact.scopedTransitions.find(({ path: sourcePath }) => sourcePath === exactHistoricalChainPaths[1]).observedSha256 = `sha256:${'7'.repeat(64)}`;
-  const badR5Review = review(badR5Path);
-  assert(badR5Review.unclassifiedChangedPins.some(({ path: sourcePath }) => sourcePath === exactHistoricalChainPaths[1]));
-  assert.equal(badR5Review.expectedChangedPaths.includes(exactHistoricalChainPaths[1]), false);
-
-  const badR9Path = structuredClone(fixture.impact);
-  badR9Path.historicalR9Checkpoint.ownerStatusJoin.pdp2ScopedImpact.scopedTransitions
-    .find(({ path: sourcePath }) => sourcePath === exactHistoricalChainPaths[1]).predecessorSha256 = `sha256:${'8'.repeat(64)}`;
-  const badR9Review = review(badR9Path);
-  assert(badR9Review.unclassifiedChangedPins.some(({ path: sourcePath }) => sourcePath === exactHistoricalChainPaths[1]));
-
-  const reorderedReporterBridge = structuredClone(fixture.impact);
-  reorderedReporterBridge.historicalR9Checkpoint.ownerStatusJoin.supplementalDelta.currentSha256 = `sha256:${'a'.repeat(64)}`;
-  const reorderedReporterReview = review(reorderedReporterBridge);
-  assert.equal(reorderedReporterReview.changedPins.find(({ path: sourcePath }) => sourcePath === reporterPath)?.historicalR5Chain, null);
-  const brokenReporterLink = structuredClone(fixture.impact);
-  brokenReporterLink.historicalR9Checkpoint.ownerStatusJoin.pdp2ScopedImpact.scopedTransitions
-    .find(({ path: sourcePath }) => sourcePath === reporterPath).predecessorSha256 = 'sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573';
-  const brokenReporterReview = review(brokenReporterLink);
-  assert.equal(brokenReporterReview.changedPins.find(({ path: sourcePath }) => sourcePath === reporterPath)?.historicalR5Chain, null);
 });
 
-test('legacy owner-status diagnostic projects mixed R5 and R1 source transitions without looking up missing R5 sourceDeltas', () => {
+test('historical R16 diagnostic and composed chain preserve the mixed R5/R1 interface-review transitions', () => {
   const fixture = fullR25CurrentnessFixture();
-  const historicalR2 = read('docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json');
-  const diagnostic = ownerStatusJoin(historicalR2, fixture.currentDigests, { sourceChanges: [] }, 'sha256:test', {
-    pdp2CurrentCutOptions: {
-      pdp1ExitPath: 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r25.json',
-      additionalSourceImpactPath: 'docs/implementation/observations/media-discovery-pdp2-additional-source-impact-2026-10-14-r1.json',
-    },
-  });
-  assert.equal(diagnostic.pdp2ScopedImpact.currentnessSourceChains.valid, true);
-  const interfaceChain = diagnostic.changedPathChecks.find(({ path: sourcePath }) => sourcePath === interfaceReviewPath
-    && sourcePath === '.product-experience/interface-parity/current-source-review.json'
-    && Array.isArray(diagnostic.pdp2ScopedImpact.scopedTransitions)
-    && diagnostic.pdp2ScopedImpact.scopedTransitions.filter(({ path: transitionPath }) => transitionPath === sourcePath).length > 1);
+  const diagnostic = fixture.r16.ownerStatusJoin.legacyR2HistoricalDiagnostic;
+  assert.equal(diagnostic.status, 'FAIL');
+  assert.equal(diagnostic.changedPathCount, 15);
+  assert.deepEqual(diagnostic.unapprovedChangedPaths, []);
+  const interfaceChain = fixture.r16.ownerStatusJoin.composedR9ToR13ToLiveSourceChains.chains.find(({ path: sourcePath }) => sourcePath === interfaceReviewPath);
   assert(interfaceChain);
-  assert.equal(interfaceChain.transitionChainValid, true);
-  assert.equal(interfaceChain.recordedSha256, 'sha256:0ce764d11912596ee39057db9bd0f2dfbf3c85f6269d55632bda3b3e6e4ad0dd');
-  assert.equal(interfaceChain.observedSha256, 'sha256:64796cfb0db909a36e030041b2d51d02fd19fc115d703cc16bca37116f92ed06');
-  assert.equal(interfaceChain.transitionHops.length, 3);
-  assert.equal(diagnostic.pdp2ScopedImpact.additionalSourceImpact.valid, true);
+  assert.equal(interfaceChain.r5ChainMatchesR13, true);
+  assert.equal(interfaceChain.r1ChainMatchesCurrent, true);
+  assert.equal([...interfaceChain.r5Hops, ...interfaceChain.r1Hops].length, 3);
+  assert.equal(interfaceChain.currentSha256, 'sha256:64796cfb0db909a36e030041b2d51d02fd19fc115d703cc16bca37116f92ed06');
 });
 
-test('PDP-2 predecessor gate accepts only the current matrix-bound PDP-1 R27 receipt', () => {
-  const matrix = read('docs/implementation/media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json');
+test('historical PDP-2 predecessor validation binds PDP-1 R27 only when that exact historical receipt is selected', () => {
+  const matrix = structuredClone(read('docs/implementation/media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json'));
   const p1Path = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json';
   const p1 = read(p1Path);
   const staleP1Path = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r25.json';
   const staleP1 = read(staleP1Path);
+  matrix.currentCut.pdp1PhaseExit = p1Path;
+  matrix.currentCut.pdp1CurrentnessObservation = `${p1Path}#sourceCurrentness`;
+  matrix.currentCut.pdp1PhaseExitRecordId = p1.observationId;
+  matrix.currentCut.pdp1MaterialSourceSetFingerprint = p1.sourceCurrentness.materialSourceSetFingerprint;
+  const r27Pins = Object.fromEntries(Object.keys(p1.sourceCurrentness.sourceContentDigests).map((sourcePath) => [sourcePath, sha(sourcePath)]));
   const pairedP0 = { valid: true, status: 'PASS' };
-  assert.equal(validatePdp1Predecessor(p1, matrix, p1Path, pairedP0).valid, true);
+  assert.equal(validatePdp1Predecessor(p1, matrix, p1Path, pairedP0, { actualCurrentDigests: r27Pins, currentDigests: r27Pins }).valid, true);
   assert.equal(validatePdp1Predecessor(staleP1, matrix, staleP1Path, pairedP0).valid, false);
   const staleMatrix = structuredClone(matrix);
   staleMatrix.currentCut.pdp1PhaseExit = staleP1Path;
@@ -810,29 +777,210 @@ test('PDP-2 predecessor gate accepts only the current matrix-bound PDP-1 R27 rec
   assert.equal(validatePdp1Predecessor(p1, matrix, p1Path, { valid: false, status: 'FAIL' }).valid, false);
 });
 
-test('PDP-2 currentness binds exact PDP-1 R27 with unchanged R25 source map and the separately authorized R16 projection hop', () => {
+test('PDP-2 current-cut bridge accepts exact R30 over P0 R15 and its three scoped R17 source transitions', () => {
+  const matrix = structuredClone(read('docs/implementation/media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json'));
+  const r30Path = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json';
+  const r17Path = 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json';
+  const p0Path = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r15.json';
+  const impactR1Path = 'docs/implementation/observations/media-discovery-pdp2-r17-to-r30-source-impact-2026-10-15-r1.json';
+  const r30 = read(r30Path);
+  const r17 = read(r17Path);
+  const p0 = read(p0Path);
+  const impactR1 = read(impactR1Path);
+  const currentDigests = Object.fromEntries(Object.keys(r30.sourceCurrentness.sourceContentDigests).map((sourcePath) => [sourcePath, sha(sourcePath)]));
+  const bridgeArgs = { r30Exit: r30, r17Exit: r17, p0Exit: p0, matrix, impactRecord: impactR1,
+    pdp1ExitPath: r30Path, pdp1ExitDigest: sha(r30Path), actualCurrentDigests: currentDigests, currentDigests };
+  const bridge = validatePdp1R30SourceMapBridge(bridgeArgs);
+  assert.equal(bridge.valid, true);
+  assert.equal(bridge.r17ReceiptValid, true);
+  assert.equal(bridge.p0PredecessorValid, true);
+  assert.equal(bridge.r30ReceiptValid, true);
+  assert.equal(bridge.matrixMatches, true);
+  assert.equal(bridge.impactRecordValid, true);
+  assert.equal(bridge.exactDeltaSet, true);
+  assert.equal(bridge.exactChangedPaths, true);
+  assert.equal(bridge.exactP1ChangedPaths, true);
+  assert.equal(bridge.transitionsMatchSources, true);
+  assert.equal(bridge.livePinsMatch, true);
+  assert.deepEqual(bridge.changedPaths, [
+    '.product-experience/source-manifest.yaml',
+    'apps/media-experience-explorer/specification-artifacts.json',
+    'scripts/record-media-discovery-pdp2-phase-exit.mjs',
+  ]);
+  assert.equal(bridge.r17PathCount, 405);
+  assert.equal(bridge.r30PathCount, 329);
+  assert.equal(bridge.changedPathCount, 3);
+  assert.deepEqual(bridge.p1ChangedPaths, [
+    '.product-experience/source-manifest.yaml',
+    'apps/media-experience-explorer/specification-artifacts.json',
+  ]);
+  assert.equal(bridge.p1ChangedPathCount, 2);
+  const currentP2Digests = Object.fromEntries(Object.keys(r17.sourceCurrentness.sourceSetDigests.sourceContentDigests)
+    .map((sourcePath) => [sourcePath, sha(sourcePath)]));
+  const r17Impact = validatePdp2R17SuccessorImpact({ predecessor: r17, currentDigests: currentP2Digests,
+    actualCurrentDigests: currentP2Digests, r30Exit: r30, matrix, impactRecord: impactR1 });
+  assert.equal(r17Impact.valid, true);
+  assert.equal(r17Impact.materialPathCount, 405);
+  assert.equal(r17Impact.changedPathCount, 3);
+  assert.equal(r17Impact.transitions.length, 3);
+  assert.equal(r17Impact.ownerAcceptance, 'NOT_CLAIMED');
+  const historicalP2Exit = read('docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json');
+  const observationPredecessor = pdp2ObservationImpactPredecessor(r30, historicalP2Exit, r17);
+  assert.equal(observationPredecessor.observationId, r17.observationId);
+  const observationImpact = pdp2CurrentCutImpact(observationPredecessor, currentP2Digests, { pdp1ExitPath: r30Path });
+  assert.equal(observationImpact.valid, true);
+  assert.equal(observationImpact.r17ToR30SourceImpact.valid, true);
+  assert.equal(observationImpact.r17ToR30SourceImpact.materialPathCount, 405);
+  assert.equal(observationImpact.r17ToR30SourceImpact.transitions.length, 3);
+  assert.ok(observationImpact.r17HistoricalPinReview, 'R17 historical pin review is carried into the R30 comparison');
+  const r30OwnerJoin = currentnessOwnerStatusJoin(historicalP2Exit, currentP2Digests, {}, 'sha256:r30-material-set', {
+    pdp1ExitPath: r30Path,
+    p2PredecessorPath: r17Path,
+  });
+  assert.equal(r30OwnerJoin.status, 'PASS');
+  assert.equal(r30OwnerJoin.denominator, 405);
+  assert.equal(r30OwnerJoin.changedPathCount, 3);
+  assert.equal(r30OwnerJoin.expectedChangedPathCount, 3);
+  assert.equal(r30OwnerJoin.transitionChecks.length, 3);
+  assert.ok(r30OwnerJoin.transitionChecks.every((entry) => entry.chainMatches));
+  assert.equal(r30OwnerJoin.ownerAcceptance, 'NOT_CLAIMED');
+  const wrongPredecessorJoin = currentnessOwnerStatusJoin(historicalP2Exit, currentP2Digests, {}, 'sha256:r30-material-set', {
+    pdp1ExitPath: r30Path,
+    p2PredecessorPath: currentPredecessorPath,
+  });
+  assert.equal(wrongPredecessorJoin.status, 'FAIL');
+  assert.equal(wrongPredecessorJoin.selectedPredecessor.valid, false);
+
+  const status = read('docs/implementation/pdp-2-phase-dev-status.json');
+  const mdc20 = read('docs/implementation/observations/media-discovery-pdp2-mdc20-design-drift-2026-10-13-r1.json');
+  const r17PinReview = sourcePinReview(status, currentP2Digests, mdc20, [],
+    pdp3StatusGuardSupplement(historicalP2Exit, currentP2Digests), observationImpact);
+  assert.equal(r17PinReview.r17HistoricalPinCarryForward.valid, true);
+  assert.equal(r17PinReview.r17HistoricalPinCarryForward.expectedChangedPathCount, 15);
+  assert.equal(r17PinReview.r17HistoricalPinCarryForward.matchedChangedPathCount, 15);
+  assert.equal(r17PinReview.changedPinCount, 15);
+  assert.equal(r17PinReview.expectedChangedPathsMatch, true);
+  assert.deepEqual(r17PinReview.unclassifiedChangedPins, []);
+  for (const prior of observationImpact.r17HistoricalPinReview.changedPins) {
+    const carried = r17PinReview.changedPins.find(({ path: sourcePath }) => sourcePath === prior.path);
+    assert.deepEqual(carried.disposition, prior.disposition, `${prior.path} retains its R17 disposition`);
+    assert.deepEqual(carried.historicalR5Chain, prior.historicalR5Chain, `${prior.path} retains its R17 source chain`);
+  }
+
+  const malformedHistoricalReview = structuredClone(observationImpact);
+  malformedHistoricalReview.r17HistoricalPinReview.expectedChangedPaths.push('unreviewed/path');
+  const malformedCarryForward = sourcePinReview(status, currentP2Digests, mdc20, [],
+    pdp3StatusGuardSupplement(historicalP2Exit, currentP2Digests), malformedHistoricalReview);
+  assert.equal(malformedCarryForward.r17HistoricalPinCarryForward.valid, false);
+  assert.equal(malformedCarryForward.expectedChangedPathsMatch, false);
+
+  const missingHistoricalPath = structuredClone(observationImpact);
+  missingHistoricalPath.r17HistoricalPinReview.expectedChangedPaths.pop();
+  const missingHistoricalPathReview = sourcePinReview(status, currentP2Digests, mdc20, [],
+    pdp3StatusGuardSupplement(historicalP2Exit, currentP2Digests), missingHistoricalPath);
+  assert.equal(missingHistoricalPathReview.r17HistoricalPinCarryForward.valid, false);
+  assert.equal(missingHistoricalPathReview.expectedChangedPathsMatch, false);
+
+  const unclassifiedHistoricalPin = structuredClone(observationImpact);
+  unclassifiedHistoricalPin.r17HistoricalPinReview.changedPins[0].disposition = null;
+  unclassifiedHistoricalPin.r17HistoricalPinReview.changedPins[0].historicalR5Chain = null;
+  const unclassifiedHistoricalPinReview = sourcePinReview(status, currentP2Digests, mdc20, [],
+    pdp3StatusGuardSupplement(historicalP2Exit, currentP2Digests), unclassifiedHistoricalPin);
+  assert.equal(unclassifiedHistoricalPinReview.r17HistoricalPinCarryForward.valid, false);
+  assert.ok(unclassifiedHistoricalPinReview.unclassifiedChangedPins.length > 0);
+
+  const mismatchedSuccessorTransition = structuredClone(observationImpact);
+  mismatchedSuccessorTransition.scopedTransitions.find(({ path: sourcePath }) =>
+    sourcePath === 'apps/media-experience-explorer/specification-artifacts.json').observedSha256 = `sha256:${'0'.repeat(64)}`;
+  const rejectedSuccessorCarryForward = sourcePinReview(status, currentP2Digests, mdc20, [],
+    pdp3StatusGuardSupplement(historicalP2Exit, currentP2Digests), mismatchedSuccessorTransition);
+  assert.equal(rejectedSuccessorCarryForward.r17HistoricalPinCarryForward.valid, false);
+  assert.ok(rejectedSuccessorCarryForward.unclassifiedChangedPins.length > 0);
+
+  const mismatchedSuccessorPredecessor = structuredClone(observationImpact);
+  mismatchedSuccessorPredecessor.scopedTransitions.find(({ path: sourcePath }) =>
+    sourcePath === 'apps/media-experience-explorer/specification-artifacts.json').predecessorSha256 = `sha256:${'0'.repeat(64)}`;
+  const rejectedPredecessorCarryForward = sourcePinReview(status, currentP2Digests, mdc20, [],
+    pdp3StatusGuardSupplement(historicalP2Exit, currentP2Digests), mismatchedSuccessorPredecessor);
+  assert.equal(rejectedPredecessorCarryForward.r17HistoricalPinCarryForward.valid, false);
+
+  const staleObservationImpact = pdp2CurrentCutImpact(
+    pdp2ObservationImpactPredecessor(r30, historicalP2Exit, historicalP2Exit),
+    currentP2Digests,
+    { pdp1ExitPath: r30Path },
+  );
+  assert.equal(staleObservationImpact.valid, false);
+  assert.deepEqual(pdp2ScopedImpactBinding(r30), {
+    ref: impactR1Path,
+    sha256: sha(impactR1Path),
+    includedIn405PathMaterialDenominator: false,
+  });
+  const historicalR27 = read('docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json');
+  assert.deepEqual(pdp2ScopedImpactBinding(historicalR27, impactPath), {
+    ref: impactPath,
+    sha256: sha(impactPath),
+    includedIn405PathMaterialDenominator: false,
+  });
+  const unreviewedChange = { ...currentP2Digests, 'package.json': `sha256:${'3'.repeat(64)}` };
+  assert.equal(validatePdp2R17SuccessorImpact({ predecessor: r17, currentDigests: unreviewedChange,
+    actualCurrentDigests: unreviewedChange, r30Exit: r30, matrix, impactRecord: impactR1 }).valid, false);
+  assert.equal(validatePdp1Predecessor(r30, matrix, r30Path, { valid: true, status: 'PASS' }, {
+    r17Exit: r17, r30SourceImpact: impactR1, actualCurrentDigests: currentDigests, currentDigests,
+  }).valid, true);
+  const p1Evidence = validatePdp1EvidenceRefresh({ predecessor: r17, currentDigests: currentP2Digests,
+    actualCurrentDigests: currentP2Digests, pdp1Exit: r30, pdp1ExitDigest: sha(r30Path), pdp1ExitPath: r30Path });
+  assert.equal(p1Evidence.valid, true);
+  assert.equal(p1Evidence.classification, 'PDP1_R30_CURRENT_SOURCE_SUCCESSOR_WITH_EXACT_PDP2_SOURCE_IMPACT_BRIDGE');
+  assert.equal(p1Evidence.predecessorPathCount, 405);
+  assert.equal(p1Evidence.pdp1Proof.cellCount, 50);
+  assert.equal(p1Evidence.pdp1Proof.materialPathCount, 329);
+
+  const wrongReceipt = validatePdp1R30SourceMapBridge({ ...bridgeArgs, pdp1ExitDigest: `sha256:${'0'.repeat(64)}` });
+  assert.equal(wrongReceipt.valid, false);
+  assert.equal(wrongReceipt.r30ReceiptValid, false);
+  const wrongPredecessor = validatePdp1R30SourceMapBridge({ ...bridgeArgs, p0Exit: read('docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json') });
+  assert.equal(wrongPredecessor.valid, false);
+  assert.equal(wrongPredecessor.p0PredecessorValid, false);
+  const staleMatrix = structuredClone(matrix);
+  staleMatrix.currentCut.pdp1PhaseExit = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json';
+  assert.equal(validatePdp1R30SourceMapBridge({ ...bridgeArgs, matrix: staleMatrix }).valid, false);
+  const wrongTransition = structuredClone(impactR1);
+  wrongTransition.sourceDeltas[0].observedSha256 = `sha256:${'1'.repeat(64)}`;
+  assert.equal(validatePdp1R30SourceMapBridge({ ...bridgeArgs, impactRecord: wrongTransition }).valid, false);
+  const missingDelta = structuredClone(impactR1);
+  missingDelta.sourceDeltas.pop();
+  assert.equal(validatePdp1R30SourceMapBridge({ ...bridgeArgs, impactRecord: missingDelta }).valid, false);
+  const extraDelta = structuredClone(impactR1);
+  extraDelta.sourceDeltas.push({ ...extraDelta.sourceDeltas[0] });
+  assert.equal(validatePdp1R30SourceMapBridge({ ...bridgeArgs, impactRecord: extraDelta }).valid, false);
+  const wrongMeaning = structuredClone(impactR1);
+  wrongMeaning.sourceDeltas[2].meaningChange = 'PDP2_MEANING_CHANGE';
+  assert.equal(validatePdp1R30SourceMapBridge({ ...bridgeArgs, impactRecord: wrongMeaning }).valid, false);
+  const wrongLivePin = { ...currentDigests, '.product-experience/source-manifest.yaml': `sha256:${'2'.repeat(64)}` };
+  assert.equal(validatePdp1R30SourceMapBridge({ ...bridgeArgs, actualCurrentDigests: wrongLivePin, currentDigests: wrongLivePin }).valid, false);
+  const staleR17 = structuredClone(r17);
+  staleR17.sourceCurrentness.sourceSetDigests.sourcePathCount = 404;
+  assert.equal(validatePdp1R30SourceMapBridge({ ...bridgeArgs, r17Exit: staleR17 }).valid, false);
+  assert.equal(validatePdp1Predecessor(r30, staleMatrix, r30Path, { valid: true, status: 'PASS' }, {
+    r17Exit: r17, r30SourceImpact: impactR1, actualCurrentDigests: currentDigests, currentDigests,
+  }).valid, false);
+});
+
+test('PDP-2 preserves the historical PDP-1 R27 receipt but rejects it as current after R30', () => {
   const r27Path = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json';
   const r25Path = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r25.json';
-  const r13Path = 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r13.json';
-  const r9Path = 'docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json';
-  const r1ImpactPath = 'docs/implementation/observations/media-discovery-pdp2-additional-source-impact-2026-10-14-r1.json';
-  const r16ImpactPath = 'docs/implementation/observations/media-discovery-pdp2-r16-projection-impact-2026-10-14-r1.json';
   const r27 = read(r27Path);
-  const r25 = read(r25Path);
-  const r13 = read(r13Path);
-  const r9 = read(r9Path);
-  const matrix = read('docs/implementation/media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json');
-  const currentDigests = Object.fromEntries(Object.keys(r13.sourceCurrentness.sourceSetDigests.sourceContentDigests)
-    .map((sourcePath) => [sourcePath, sha(sourcePath)]));
-  const bridgeArgs = { r27Exit: r27, r25Exit: r25, matrix, pdp1ExitPath: r27Path, pdp1ExitDigest: sha(r27Path),
+  const matrix = structuredClone(read('docs/implementation/media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json'));
+  const currentDigests = Object.fromEntries(Object.keys(r27.sourceCurrentness.sourceContentDigests).map((sourcePath) => [sourcePath, sha(sourcePath)]));
+  const bridgeArgs = { r27Exit: r27, matrix, pdp1ExitPath: r27Path, pdp1ExitDigest: sha(r27Path),
     actualCurrentDigests: currentDigests, currentDigests };
   const bridge = validatePdp1R27SourceMapBridge(bridgeArgs);
-  assert.equal(bridge.valid, true);
+  assert.equal(bridge.valid, false);
   assert.equal(bridge.r27ReceiptValid, true);
   assert.equal(bridge.p0PredecessorValid, true);
-  assert.equal(bridge.matrixMatches, true);
+  assert.equal(bridge.matrixMatches, false);
   assert.equal(bridge.samePathSet, true);
-  assert.deepEqual(bridge.changedPaths, []);
+  assert.equal(bridge.currentPathsMatch, false);
   assert.equal(bridge.r25PathCount, 329);
   assert.equal(bridge.r27PathCount, 329);
   assert.equal(r27.observationId, 'MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R27');
@@ -843,39 +991,6 @@ test('PDP-2 currentness binds exact PDP-1 R27 with unchanged R25 source map and 
   assert.equal(r27.sourceCurrentness.materialPathDenominator.uniquePaths, 329);
   assert.equal(r27.sourceCurrentness.cells.length, 50);
   assert.equal(r27.predecessor.exitRef, 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json');
-
-  const p1Evidence = validatePdp1EvidenceRefresh({ predecessor: r13, currentDigests, actualCurrentDigests: currentDigests,
-    pdp1Exit: r27, pdp1ExitDigest: sha(r27Path), pdp1ExitPath: r27Path });
-  assert.equal(p1Evidence.valid, true);
-  assert.equal(p1Evidence.pdp1Proof.developmentStatus, 'DEV_COMPLETE');
-  const r16ProjectionRecord = read(r16ImpactPath);
-  const r16ProjectionImpact = validatePdp2R16ProjectionImpact({ record: r16ProjectionRecord, recordPath: r16ImpactPath,
-    currentDigests, actualCurrentDigests: currentDigests });
-  assert.equal(r16ProjectionImpact.valid, true);
-  assert.equal(r16ProjectionImpact.digest, 'sha256:230a0a04d46a6000b915c67bca4354418408c41a1bbda63ea62fa1eb9c1b86e5');
-  assert.equal(r16ProjectionImpact.ownerAcceptance, 'NOT_CLAIMED');
-  const p2Impact = pdp2CurrentCutImpact(r9, currentDigests, {
-    pdp1ExitPath: r27Path,
-    additionalSourceImpactPath: r1ImpactPath,
-    additionalProjectionImpactPath: r16ImpactPath,
-  });
-  assert.equal(p2Impact.valid, true);
-  assert.equal(p2Impact.r25ToR27Bridge.valid, true);
-  assert.equal(p2Impact.additionalSourceImpact.valid, true);
-  assert.equal(p2Impact.r16ProjectionImpact.valid, true);
-  assert.equal(p2Impact.r16ProjectionImpact.paths.length, 1);
-  assert.equal(p2Impact.currentnessSourceChains.valid, true);
-  assert.equal(p2Impact.currentnessSourceChains.materialPathCount, 405);
-  assert.equal(p2Impact.currentnessSourceChains.changedPathCount, 12);
-  assert.equal(p2Impact.currentnessSourceChains.uniqueTransitionPathCount, 12);
-  assert.equal(p2Impact.currentnessSourceChains.chains.find(({ path: sourcePath }) => sourcePath
-    === '.product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json')?.r16ChainMatchesCurrent, true);
-  assert.equal(p2Impact.additionalSourceImpact.ownerAcceptance, 'NOT_CLAIMED');
-  assert.equal(p2Impact.r16ProjectionImpact.ownerAcceptance, 'NOT_CLAIMED');
-  assert.equal(p2Impact.combinedSourceRefresh.noOverlappingImpactPaths, true);
-  assert.equal(p2Impact.combinedSourceRefresh.predecessorPathCount, 405);
-  assert.equal(p2Impact.combinedSourceRefresh.changedPathCount, 4);
-  assert.equal(p2Impact.combinedSourceRefresh.changedPaths.length, 4);
 
   const badReceiptDigest = validatePdp1R27SourceMapBridge({ ...bridgeArgs, pdp1ExitDigest: `sha256:${'0'.repeat(64)}` });
   assert.equal(badReceiptDigest.valid, false);

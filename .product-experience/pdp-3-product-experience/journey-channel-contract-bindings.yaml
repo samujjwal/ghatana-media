@@ -3366,7 +3366,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "The invocation adapters define submission receipt only and no completion result; no source-bound terminal output observation binds the source artifact, timestamp/frame/region, model provenance, confidence, and uncertainty."
+      - "Selected analysis capability result schemas and journey operation-result bindings are source-bound, but the J-05 result contract leaves frame/region selectors, model/provider identity, and confidence evidence unresolved; no exact terminal observation binds those fields with source and uncertainty. Submission receipt remains distinct from analysis completion."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -4076,7 +4076,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "The invocation adapters define submission receipt only and no completion result; no source-bound terminal output observation binds the source artifact, timestamp/frame/region, model provenance, confidence, and uncertainty."
+      - "Selected analysis capability result schemas and journey operation-result bindings are source-bound, but the J-05 result contract leaves frame/region selectors, model/provider identity, and confidence evidence unresolved; no exact terminal observation binds those fields with source and uncertainty. Submission receipt remains distinct from analysis completion."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -4672,7 +4672,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "The invocation adapters define submission receipt only and no completion result; no source-bound terminal output observation binds the source artifact, timestamp/frame/region, model provenance, confidence, and uncertainty."
+      - "Selected analysis capability result schemas and journey operation-result bindings are source-bound, but the J-05 result contract leaves frame/region selectors, model/provider identity, and confidence evidence unresolved; no exact terminal observation binds those fields with source and uncertainty. Submission receipt remains distinct from analysis completion."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -6405,7 +6405,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "The video-repair adapter defines submission receipt only and no completion result; no source-bound repaired-output observation binds applicable quality metrics and visible limitations."
+      - "The selected enhancement result schemas expose exact successful output identity and step 4 cites the quality-evidence contract, but no formal typed-observation binding joins one selected output version to a nonempty metricRefs request and same-subject result; the exact subject selector and metric selection remain undefined."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -10377,6 +10377,7 @@
           - ".product-experience/pdp-3-product-experience/screen-registry.yaml"
           - ".product-experience/pdp-3-product-experience/action-registry.yaml"
         "reason": "No exact source-proven channel-equivalent operation binding in the reviewed channel inventory."
+
       - "operationRef": "media.operation-slice.retry-job"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job"
         "operationVersion": null
@@ -10386,6 +10387,7 @@
           - ".product-experience/pdp-3-product-experience/screen-registry.yaml"
           - ".product-experience/pdp-3-product-experience/action-registry.yaml"
         "reason": "No exact source-proven channel-equivalent operation binding in the reviewed channel inventory."
+
       - "operationRef": "media.operation.action.check-job-outcome"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.check-job-outcome"
         "operationVersion": 1
@@ -10431,6 +10433,12 @@
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
       - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RUNNING"
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RUNNING"
+        "disposition": "EXACT_P1_STATE_SOURCE_REF"
+      - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_REQUESTED"
+        "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_REQUESTED"
+        "disposition": "EXACT_P1_STATE_SOURCE_REF"
+      - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CLAIMED"
+        "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CLAIMED"
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
     "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
     "p1ObservationRefs":
@@ -10531,6 +10539,17 @@
         "relatedActionBindingRefs": []
         "stateRefs": []
         "transitionRefs": []
+        "journeyStateApplicability":
+          "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/4/stepDefinitionSemantics/transitionApplicability"
+          "operationStateSemanticsRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition/stateSemantics"
+          "stateRefs":
+            - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_REQUESTED"
+            - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/CANCELLED"
+          "transitionRef": null
+          "authorityRefs":
+            - ".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope"
+            - ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary"
+            - ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention"
       - "operationRef": "media.operation-slice.retry-job"
         "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
         "purposeBindingRefs":
@@ -10541,6 +10560,18 @@
         "relatedActionBindingRefs": []
         "stateRefs": []
         "transitionRefs": []
+        "journeyStateApplicability":
+          "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/5/stepDefinitionSemantics/transitionApplicability"
+          "operationStateSemanticsRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/stateSemantics"
+          "stateRefs":
+            - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CLAIMED"
+            - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RUNNING"
+          "transitionRef": null
+          "authorityRefs":
+            - ".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope"
+            - ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary"
+            - ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention"
+          "eligibilityAuthoritySourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/guards"
       - "operationRef": "media.operation.action.check-job-outcome"
         "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
         "purposeBindingRefs":
@@ -10577,6 +10608,8 @@
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RECONCILING"
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RETRY_PENDING"
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RUNNING"
+      - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_REQUESTED"
+      - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CLAIMED"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/GUI"
     "typedRequestResultErrors":
       "sourceRefs":
@@ -10631,7 +10664,7 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers": ["Exact immediate cancel, retry, job-status, and outcome-check results are source-bound. No cancellation transition/finality is joined, and retry eligibility/authority/transition remain unresolved; UNKNOWN does not authorize replay."]
+    "logicalDefinitionBlockers": ["Immediate cancel, retry, job-status, and outcome-check results plus state applicability and authority references are source-bound. No exact cancellation or retry transition ID/finality is defined or joined; retry remains conditional on current owner eligibility, and UNKNOWN does not authorize replay."]
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -10667,6 +10700,7 @@
         "sourceRefs":
           - ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml"
         "reason": "No exact production CLI command P1 operation crosslink for this journey operation; fixture commands do not count."
+
       - "operationRef": "media.operation-slice.retry-job"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job"
         "operationVersion": null
@@ -10675,6 +10709,7 @@
         "sourceRefs":
           - ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml"
         "reason": "No exact production CLI command P1 operation crosslink for this journey operation; fixture commands do not count."
+
       - "operationRef": "media.operation.action.check-job-outcome"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.check-job-outcome"
         "operationVersion": 1
@@ -10718,6 +10753,12 @@
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
       - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RUNNING"
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RUNNING"
+        "disposition": "EXACT_P1_STATE_SOURCE_REF"
+      - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_REQUESTED"
+        "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_REQUESTED"
+        "disposition": "EXACT_P1_STATE_SOURCE_REF"
+      - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CLAIMED"
+        "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CLAIMED"
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
     "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
     "p1ObservationRefs":
@@ -10818,6 +10859,17 @@
         "relatedActionBindingRefs": []
         "stateRefs": []
         "transitionRefs": []
+        "journeyStateApplicability":
+          "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/4/stepDefinitionSemantics/transitionApplicability"
+          "operationStateSemanticsRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition/stateSemantics"
+          "stateRefs":
+            - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_REQUESTED"
+            - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/CANCELLED"
+          "transitionRef": null
+          "authorityRefs":
+            - ".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope"
+            - ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary"
+            - ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention"
       - "operationRef": "media.operation-slice.retry-job"
         "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
         "purposeBindingRefs":
@@ -10828,6 +10880,18 @@
         "relatedActionBindingRefs": []
         "stateRefs": []
         "transitionRefs": []
+        "journeyStateApplicability":
+          "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/5/stepDefinitionSemantics/transitionApplicability"
+          "operationStateSemanticsRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/stateSemantics"
+          "stateRefs":
+            - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CLAIMED"
+            - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RUNNING"
+          "transitionRef": null
+          "authorityRefs":
+            - ".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope"
+            - ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary"
+            - ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention"
+          "eligibilityAuthoritySourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/guards"
       - "operationRef": "media.operation.action.check-job-outcome"
         "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
         "purposeBindingRefs":
@@ -10864,6 +10928,8 @@
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RECONCILING"
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RETRY_PENDING"
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RUNNING"
+      - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_REQUESTED"
+      - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CLAIMED"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/CLI"
     "typedRequestResultErrors":
       "sourceRefs":
@@ -10918,7 +10984,7 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers": ["Exact immediate cancel, retry, job-status, and outcome-check results are source-bound. No cancellation transition/finality is joined, and retry eligibility/authority/transition remain unresolved; UNKNOWN does not authorize replay."]
+    "logicalDefinitionBlockers": ["Immediate cancel, retry, job-status, and outcome-check results plus state applicability and authority references are source-bound. No exact cancellation or retry transition ID/finality is defined or joined; retry remains conditional on current owner eligibility, and UNKNOWN does not authorize replay."]
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":

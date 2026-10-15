@@ -112,7 +112,7 @@ pdp1ResultEvidence:
         - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED
         - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN
       transitionRefs: []
-      exactResult: "Exact P1 result schema requires: requestId, ownerReceipt, observedExternalOutcome, observedAt. Source finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure"
+      exactResult: "Exact P1 result schema requires requestId, deliveryRequestId, deliveryRequestResultRef, deliveryRequestFingerprint, exactTargetRef, artifactVersionId, destinationRef, ownerReceipt, and observedAt. Source finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure. Destination acknowledgement is a separate typed observation."
       unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: retain-the-exact-context-and-request-identity; reconcile-unknown-effects-before-retry; never-substitute-a-newer-version"
     - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/7
       journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j09-step-08.v1
@@ -2726,24 +2726,13 @@ steps:
       status: NO_EXACT_ACTION_TRANSITION
       transitionRef: null
       reason: >-
-        P1 contains candidate state-machine edges, but none has a source-backed exact action/operation binding for this step. Preserve request/observation semantics; do not infer an effect edge from names or family membership.
-        A delivery request or owner receipt is not destination acknowledgement.
+        No exact P1 action-to-transition reference is defined for delivery. Preserve NO_EXACT_ACTION_TRANSITION; a delivery request result or owner receipt is not destination acknowledgement.
     bindingStatus:
-      status: pending-owner-binding
-      candidateFields:
-        - surfaceRefs
+      status: SOURCE_BOUND_DEFINITION_ONLY; RUNTIME_AND_INDEPENDENT_ACCEPTANCE_OPEN
+      candidateFields: []
       pendingFields:
-        - objectRefs
-        - stateRefs
-        - canonicalOperationRef
-        - authorityRef
-        - decisionRef
-        - transitionRef
-        - handoffRef
-        - requirementRefs
-      reason: Journey-level channels are candidate surface refs only; step-level
-        object/state/operation/authority/decision/transition/handoff/requirement
-        bindings are not declared.
+        - channel-equivalence-and-runtime-admission
+      reason: Exact step objects, operation, authority, and no-transition disposition are source-bound below; channel equivalence and runtime admission remain pending.
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/8
@@ -2768,8 +2757,7 @@ steps:
         finality: external-effect-or-request; owner-acknowledgment-required;
           unknown-is-not-failure
         failureRecovery: preserve-the-exact-target-and-current-draft;
-          explain-denial-or-incomplete-evidence;
-          never-claim-success-from-local-state
+          explain-denial-or-incomplete-evidence; never-claim-success-from-local-state
         domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
         exactOperationRefs: [ media.operation.action.deliver-exact-version ]
         runtimeAdmission: NOT_ADMITTED
@@ -2779,7 +2767,7 @@ steps:
         noMutationReason: null
       stepSourceFacts:
         intent: Destination/format/rights/approval and publication finality
-        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.deliver-exact-version; fields requestId, deliveryRequestId, artifactVersionId, destinationRef, ownerReceipt, observedAt; unknown: submission/acknowledgment is unknown until authoritative destination evidence; never claim delivery from dispatch; no unstated downstream effect or journey completion is implied."
+        result: "Immediate result is limited to the exact P1 result schema: requestId, deliveryRequestId, deliveryRequestResultRef, deliveryRequestFingerprint, exactTargetRef, artifactVersionId, destinationRef, ownerReceipt, observedAt. This is request acceptance only; destination acknowledgement is a separate typed observation bound to the immutable request result, request ID and fingerprint, artifact version, and destination. Missing or non-current evidence remains UNKNOWN."
         resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
         resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
@@ -2803,8 +2791,7 @@ steps:
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
-          summary: Preserve completed scenes and plan; reconcile unknown effects; resume
-            only from an admitted bounded successor plan.
+          summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted bounded successor plan.
         postconditions:
           status: candidate-proposal
           sourceRef: journey.contextPreserved
@@ -2846,7 +2833,7 @@ steps:
         positiveBranch:
           status: SOURCE_BOUND_IMMEDIATE_RESULT
           sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
-          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.deliver-exact-version; fields requestId, deliveryRequestId, artifactVersionId, destinationRef, ownerReceipt, observedAt; unknown: submission/acknowledgment is unknown until authoritative destination evidence; never claim delivery from dispatch; no unstated downstream effect or journey completion is implied."
+          summary: "Exact request result fields are requestId, deliveryRequestId, deliveryRequestResultRef, deliveryRequestFingerprint, exactTargetRef, artifactVersionId, destinationRef, ownerReceipt, and observedAt. Destination acknowledgement requires the separate typed observation bound to the exact immutable request result and identity."
         nonhappyBranch:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
@@ -2869,29 +2856,22 @@ steps:
           intendedResult:
             status: SOURCE_BOUND_IMMEDIATE_RESULT
             sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
-            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.deliver-exact-version; fields requestId, deliveryRequestId, artifactVersionId, destinationRef, ownerReceipt, observedAt; unknown: submission/acknowledgment is unknown until authoritative destination evidence; never claim delivery from dispatch; no unstated downstream effect or journey completion is implied."
-          effect: Request delivery for the exact artifact version and authorized
-            destination; request receipt does not assert destination delivery.
-          finality: request-accepted-or-unknown; destination acknowledgment required for
-            delivery
+            summary: "Exact request result fields are requestId, deliveryRequestId, deliveryRequestResultRef, deliveryRequestFingerprint, exactTargetRef, artifactVersionId, destinationRef, ownerReceipt, and observedAt. Destination acknowledgement requires the separate typed observation bound to the exact immutable request result and identity."
+          effect: Request the explicitly named operation for the exact target only after fresh actor, capability, policy, and target checks.
+          finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure
         nonhappy:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.deliver-exact-version
           guards:
             - resolve-the-current-workspace-and-exact-target-before-access-or-change
             - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
             - preserve-the-requested-context-and-exact-version-across-recovery
-          failure: preserve-the-exact-target-and-current-draft;
-            explain-denial-or-incomplete-evidence;
-            never-claim-success-from-local-state
+          failure: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence; never-claim-success-from-local-state
         recovery:
           sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/sourceRecovery
-          recovery: preserve-the-exact-target-and-current-draft;
-            explain-denial-or-incomplete-evidence;
-            never-claim-success-from-local-state
+          recovery: retain-the-exact-context-and-request-identity; reconcile-unknown-effects-before-retry; never-substitute-a-newer-version
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: EXTERNAL_DELIVERY_REQUEST_ONLY;
-          NO_MEDIA_TRANSITION_OR_DELIVERY_SUCCESS_INFERRED
+        status: NO_EXACT_ACTION_TRANSITION
         transitionRef: null
         stateRefs: []
         operationRef: media.operation.action.deliver-exact-version
@@ -2902,14 +2882,16 @@ steps:
         fields:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
           objectRefs: EXACT_ARTIFACT_VERSION_AND_DELIVERY_OUTCOME_FROM_P1_OPERATION
-          stateRefs: NO_PDP1_TRANSITION; DESTINATION_ACKNOWLEDGMENT_IS_SEPARATE_FINALITY
+          stateRefs: NO_EXACT_ACTION_TRANSITION; DESTINATION_ACKNOWLEDGMENT_IS_SEPARATE_TYPED_OBSERVATION
           canonicalOperationRef: EXACT_DELIVERY_REQUEST_OPERATION
-          authorityRef: HOST_IDENTITY_AND_PRIVILEGED_EFFECT_RECHECK_REQUIRED
-          transitionRef: LOCAL_DRAFT_REVISION_CAS; NO_PDP1_DOMAIN_TRANSITION
-          requirementRefs: LOCAL_SESSION_CONTRACT; NO_DOMAIN_CAPABILITY_REQUIREMENT
+          authorityRef: EXACT_AUTHORITY_REFS_FROM_PURPOSE_BINDING
+          transitionRef: NO_EXACT_ACTION_TRANSITION
+          requirementRefs: []
           scenarioRefs: NO_STEP_SCENARIO_FIXTURE
-        operationContractRef: null
-        authorityRefs: []
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
         requirementCrosswalkStatus: pending-PDP1-capability-operation-index
         noAcceptanceInference: source bindings do not establish independent review,
           runtime admission, or lifecycle receipt

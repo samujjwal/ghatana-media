@@ -116,10 +116,9 @@ steps:
     screenContractRef: screen-contracts/compose-scene.yaml
     viewIntent: Scene entities/material/camera/light and model bindings
     actionRef: media.action.add-scene-entity
-    actionBindingState: journey-specific-action-binding-pending;
-      candidate-refs-come-from-screen-contract-only
+    actionBindingState: NO_PDP1_OPERATION_OR_STATE; LOCAL_DRAFT_EFFECT_ONLY
     stateRefs: []
-    stateBindingState: pending-owner-bound-state-reference-and-transition
+    stateBindingState: NO_PDP1_STATE; LOCAL_SESSION_DRAFT_STATE_ONLY
     candidateActionRefs: []
     surfaceRefs:
       - media.surface.web
@@ -127,7 +126,7 @@ steps:
     objectRefs: []
     canonicalOperationRef: null
     authorityRef: null
-    decisionRef: null
+    decisionRef: .product-experience/decision-log.md#PXD-075
     transitionRef: null
     handoffRef: null
     success:
@@ -170,25 +169,19 @@ steps:
         - Preserve model reference, parameters, solver/version, t_sim,
           checkpoints, observables, and scene binding.
     bindingStatus:
-      surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal;
-        channel admission and step-specific mapping remain pending
-      objectRefs: pending-explicit-domain-object-reference
-      stateRefs: pending-owner-bound-state-reference
-      canonicalOperationRef: pending-canonical-logical-operation-binding; transport
-        routes and action refs are not converted
-      authorityRef: pending-explicit-step-authority-binding
-      decisionRef: pending-explicit-owner-decision-binding
-      transitionRef: pending-legal-transition-binding
-      handoffRef: pending-explicit-step-handoff-binding
-      success: candidate-proposal-only; not accepted step behavior
-      failure: candidate-proposal-only; journey-level exceptions not allocated to this
-        step
-      degradedBehavior: pending-explicit-step-degraded-behavior
-      recovery: candidate-proposal-only; not accepted step recovery
-      postconditions: pending-explicit-step-postconditions
-      requirementRefs: pending-explicit-requirement-crosswalk
-      verification: not-run; no evidence refs recorded
-      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+      status: SOURCE_BOUND_LOCAL_DRAFT_EFFECT; NO_PDP1_TRANSITION; RUNTIME_NOT_ADMITTED
+      surfaceRefs: journey screen surfaces remain source references; channel equivalence is unbound
+      objectRefs: exact purpose binding scope; local session draft only
+      stateRefs: NO_PDP1_STATE; LOCAL_SESSION_DRAFT_STATE_ONLY
+      canonicalOperationRef: no PDP-1 operation; exact local effect contract applies
+      authorityRef: no governed PDP-1 authority applies to this local draft effect
+      decisionRef: PXD-075 source definition; independent review remains open
+      transitionRef: no PDP-1 transition is asserted by this step
+      handoffRef: no step-specific handoff is defined
+      result: exact immediate result and UNKNOWN semantics remain in stepDefinitionSemantics and pdp1ResultEvidence
+      requirementRefs: no additional requirement mapping inferred
+      runtimeAdmission: NOT_ADMITTED
+      channelTransport: UNBOUND
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml#/steps/0
@@ -426,10 +419,9 @@ steps:
     screenContractRef: screen-contracts/explore-simulation.yaml
     viewIntent: Initial conditions, domain fidelity, time control and instruments
     actionRef: media.action.inspect-simulation-result
-    actionBindingState: journey-specific-action-binding-pending;
-      candidate-refs-come-from-screen-contract-only
+    actionBindingState: EXACT_P1_OPERATION_AND_SCOPED_QUERY_RESULT; OBSERVATION_ONLY; RUNTIME_NOT_ADMITTED
     stateRefs: []
-    stateBindingState: pending-owner-bound-state-reference-and-transition
+    stateBindingState: OBSERVATION_ONLY; NO_P1_MUTATING_TRANSITION; SUBJECT_STATE_NOT_CHANGED
     candidateActionRefs: []
     surfaceRefs:
       - media.surface.web
@@ -442,8 +434,8 @@ steps:
       - media.domain.processing-job
       - media.domain.job-attempt
     canonicalOperationRef: media.operation.action.inspect-simulation-result
-    authorityRef: null
-    decisionRef: null
+    authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+    decisionRef: .product-experience/decision-log.md#PXD-075
     transitionRef: null
     handoffRef: null
     success:
@@ -486,25 +478,19 @@ steps:
         - Preserve model reference, parameters, solver/version, t_sim,
           checkpoints, observables, and scene binding.
     bindingStatus:
-      surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal;
-        channel admission and step-specific mapping remain pending
-      objectRefs: pending-explicit-domain-object-reference
-      stateRefs: pending-owner-bound-state-reference
-      canonicalOperationRef: pending-canonical-logical-operation-binding; transport
-        routes and action refs are not converted
-      authorityRef: pending-explicit-step-authority-binding
-      decisionRef: pending-explicit-owner-decision-binding
-      transitionRef: pending-legal-transition-binding
-      handoffRef: pending-explicit-step-handoff-binding
-      success: candidate-proposal-only; not accepted step behavior
-      failure: candidate-proposal-only; journey-level exceptions not allocated to this
-        step
-      degradedBehavior: pending-explicit-step-degraded-behavior
-      recovery: candidate-proposal-only; not accepted step recovery
-      postconditions: pending-explicit-step-postconditions
-      requirementRefs: pending-explicit-requirement-crosswalk
-      verification: not-run; no evidence refs recorded
-      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+      status: SOURCE_BOUND_LOGICAL_MAPPING; ACCEPTANCE_REVIEW_OPEN; RUNTIME_NOT_ADMITTED; CHANNEL_TRANSPORT_AND_AUTH_BINDING_UNBOUND
+      surfaceRefs: journey screen surfaces remain source references; channel equivalence is unbound
+      objectRefs: exact purpose binding scope; PDP-1 operation object scope
+      stateRefs: OBSERVATION_ONLY; NO_P1_MUTATING_TRANSITION; SUBJECT_STATE_NOT_CHANGED
+      canonicalOperationRef: exact purpose-bound PDP-1 operation; transport remains unbound
+      authorityRef: exact PDP-1 identity/privileged-effect authority references; enforcement not admitted
+      decisionRef: PXD-075 source definition; independent review remains open
+      transitionRef: no PDP-1 transition is asserted by this step
+      handoffRef: no step-specific handoff is defined
+      result: exact immediate result and UNKNOWN semantics remain in stepDefinitionSemantics and pdp1ResultEvidence
+      requirementRefs: no additional requirement mapping inferred
+      runtimeAdmission: NOT_ADMITTED
+      channelTransport: UNBOUND
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml#/steps/1
@@ -772,12 +758,9 @@ steps:
     screenContractRef: screen-contracts/review-quality.yaml
     viewIntent: Applicable dimensions, abstentions, defects and repair plan
     actionRef: media.action.inspect-quality-evidence
-    actionBindingState: "Media owner-selected from exact screen action intent:
-      screen review-quality intent: inspect applicable dimensions/evidence;
-      source-lineage query excluded; independent review and runtime admission
-      open"
+    actionBindingState: EXACT_P1_OPERATION_AND_TYPED_OBSERVATIONS; OBSERVATION_ONLY; RUNTIME_NOT_ADMITTED
     stateRefs: []
-    stateBindingState: pending-owner-bound-state-reference-and-transition
+    stateBindingState: OBSERVATION_ONLY; NO_P1_MUTATING_TRANSITION; SUBJECT_STATE_NOT_CHANGED
     candidateActionRefs: []
     surfaceRefs:
       - media.surface.web
@@ -787,8 +770,8 @@ steps:
       - media.domain.artifact-version
       - media.domain.quality-assessment
     canonicalOperationRef: media.operation.action.inspect-quality-evidence
-    authorityRef: null
-    decisionRef: null
+    authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+    decisionRef: .product-experience/decision-log.md#PXD-075
     transitionRef: null
     handoffRef: null
     success:
@@ -831,25 +814,19 @@ steps:
         - Preserve model reference, parameters, solver/version, t_sim,
           checkpoints, observables, and scene binding.
     bindingStatus:
-      surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal;
-        channel admission and step-specific mapping remain pending
-      objectRefs: pending-explicit-domain-object-reference
-      stateRefs: pending-owner-bound-state-reference
-      canonicalOperationRef: pending-canonical-logical-operation-binding; transport
-        routes and action refs are not converted
-      authorityRef: pending-explicit-step-authority-binding
-      decisionRef: pending-explicit-owner-decision-binding
-      transitionRef: pending-legal-transition-binding
-      handoffRef: pending-explicit-step-handoff-binding
-      success: candidate-proposal-only; not accepted step behavior
-      failure: candidate-proposal-only; journey-level exceptions not allocated to this
-        step
-      degradedBehavior: pending-explicit-step-degraded-behavior
-      recovery: candidate-proposal-only; not accepted step recovery
-      postconditions: pending-explicit-step-postconditions
-      requirementRefs: pending-explicit-requirement-crosswalk
-      verification: not-run; no evidence refs recorded
-      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+      status: SOURCE_BOUND_LOGICAL_MAPPING; ACCEPTANCE_REVIEW_OPEN; RUNTIME_NOT_ADMITTED; CHANNEL_TRANSPORT_AND_AUTH_BINDING_UNBOUND
+      surfaceRefs: journey screen surfaces remain source references; channel equivalence is unbound
+      objectRefs: exact purpose binding scope; PDP-1 operation object scope
+      stateRefs: OBSERVATION_ONLY; NO_P1_MUTATING_TRANSITION; SUBJECT_STATE_NOT_CHANGED
+      canonicalOperationRef: exact purpose-bound PDP-1 operation; transport remains unbound
+      authorityRef: exact PDP-1 identity/privileged-effect authority references; enforcement not admitted
+      decisionRef: PXD-075 source definition; independent review remains open
+      transitionRef: no PDP-1 transition is asserted by this step
+      handoffRef: no step-specific handoff is defined
+      result: exact immediate result and UNKNOWN semantics remain in stepDefinitionSemantics and pdp1ResultEvidence
+      requirementRefs: no additional requirement mapping inferred
+      runtimeAdmission: NOT_ADMITTED
+      channelTransport: UNBOUND
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml#/steps/2
@@ -1106,12 +1083,10 @@ steps:
     screenContractRef: screen-contracts/prepare-render.yaml
     viewIntent: Snapshot/profile, validation, cost and submission
     actionRef: media.action.submit-render
-    actionBindingState: journey-specific-action-binding-pending;
-      candidate-refs-come-from-screen-contract-only
+    actionBindingState: EXACT_P1_OPERATION; CHANNEL_TRANSPORT_UNBOUND; RUNTIME_NOT_ADMITTED
     stateRefs:
-      - .product-experience/pdp-1-domain-data/states.yaml#media-job
-      - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
-    stateBindingState: pending-owner-bound-state-reference-and-transition
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED
+    stateBindingState: EXACT_ACCEPTED_JOB_SUBMISSION_RECEIPT_MAPS_TO_QUEUED_ONLY; NO_ATTEMPT_STATE_OR_COMPLETION_INFERRED; NO_TRANSITION_ASSERTED
     candidateActionRefs: []
     surfaceRefs:
       - media.surface.web
@@ -1121,8 +1096,8 @@ steps:
       - media.domain.job-attempt
       - media.domain.resolved-plan
     canonicalOperationRef: media.operation.action.submit-render
-    authorityRef: null
-    decisionRef: null
+    authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+    decisionRef: .product-experience/decision-log.md#PXD-075
     transitionRef: null
     handoffRef: null
     success:
@@ -1165,25 +1140,19 @@ steps:
         - Preserve model reference, parameters, solver/version, t_sim,
           checkpoints, observables, and scene binding.
     bindingStatus:
-      surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal;
-        channel admission and step-specific mapping remain pending
-      objectRefs: pending-explicit-domain-object-reference
-      stateRefs: pending-owner-bound-state-reference
-      canonicalOperationRef: pending-canonical-logical-operation-binding; transport
-        routes and action refs are not converted
-      authorityRef: pending-explicit-step-authority-binding
-      decisionRef: pending-explicit-owner-decision-binding
-      transitionRef: pending-legal-transition-binding
-      handoffRef: pending-explicit-step-handoff-binding
-      success: candidate-proposal-only; not accepted step behavior
-      failure: candidate-proposal-only; journey-level exceptions not allocated to this
-        step
-      degradedBehavior: pending-explicit-step-degraded-behavior
-      recovery: candidate-proposal-only; not accepted step recovery
-      postconditions: pending-explicit-step-postconditions
-      requirementRefs: pending-explicit-requirement-crosswalk
-      verification: not-run; no evidence refs recorded
-      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+      status: SOURCE_BOUND_LOGICAL_MAPPING; ACCEPTANCE_REVIEW_OPEN; RUNTIME_NOT_ADMITTED; CHANNEL_TRANSPORT_AND_AUTH_BINDING_UNBOUND
+      surfaceRefs: journey screen surfaces remain source references; channel equivalence is unbound
+      objectRefs: exact purpose binding scope; PDP-1 operation object scope
+      stateRefs: EXACT_ACCEPTED_JOB_SUBMISSION_RECEIPT_MAPS_TO_QUEUED_ONLY; NO_ATTEMPT_STATE_OR_COMPLETION_INFERRED; NO_TRANSITION_ASSERTED
+      canonicalOperationRef: exact purpose-bound PDP-1 operation; transport remains unbound
+      authorityRef: exact PDP-1 identity/privileged-effect authority references; enforcement not admitted
+      decisionRef: PXD-075 source definition; independent review remains open
+      transitionRef: no PDP-1 transition is asserted by this step
+      handoffRef: no step-specific handoff is defined
+      result: exact immediate result and UNKNOWN semantics remain in stepDefinitionSemantics and pdp1ResultEvidence
+      requirementRefs: no additional requirement mapping inferred
+      runtimeAdmission: NOT_ADMITTED
+      channelTransport: UNBOUND
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml#/steps/3

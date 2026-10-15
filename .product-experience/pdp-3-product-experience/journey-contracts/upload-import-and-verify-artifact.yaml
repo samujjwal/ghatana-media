@@ -481,7 +481,7 @@ steps:
   - view: media.view.import-media
     screenContractRef: screen-contracts/import-media.yaml
     action: media.action.begin-artifact-upload
-    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+    actionBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED; runtime-admission-pending
     capabilityRefs: [ media.artifact.upload, media.artifact.import ]
     result: one-stable-upload-identity-is-established-and-only-acknowledged-transfer-progress-is-reported
     surfaceRefs:
@@ -492,9 +492,6 @@ steps:
       - media.domain.artifact-version
     stateRefs:
       - media-upload-and-artifact/RECEIVING
-      - media-upload-and-artifact/VERIFYING
-      - media-upload-and-artifact/REJECTED
-      - media-upload-and-artifact/EXPIRED
     canonicalOperationRef: media.operation-slice.begin-upload
     authorityRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints.upload-and-import-admission
     decisionRef: .product-experience/decision-log.md#PXD-049
@@ -669,9 +666,6 @@ steps:
           - media.domain.artifact-version
         stateRefs:
           - media-upload-and-artifact/RECEIVING
-          - media-upload-and-artifact/VERIFYING
-          - media-upload-and-artifact/REJECTED
-          - media-upload-and-artifact/EXPIRED
         canonicalOperationRef: media.operation-slice.begin-upload
         authorityRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints.upload-and-import-admission
         transitionRef: null
@@ -844,7 +838,7 @@ steps:
   - view: media.view.import-media
     screenContractRef: screen-contracts/import-media.yaml
     action: media.action.resume-artifact-upload
-    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+    actionBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED; runtime-admission-pending
     capabilityRefs: [ media.artifact.upload.resume ]
     when: an-existing-upload-is-interrupted-and-its-identity-source-metadata-and-current-authority-still-match
     result: resume-the-matching-upload-or-explain-why-it-cannot-resume;
@@ -858,10 +852,6 @@ steps:
     stateRefs:
       - media-upload-and-artifact/RECEIVING
       - media-upload-and-artifact/VERIFYING
-      - media-upload-and-artifact/AVAILABLE
-      - media-upload-and-artifact/QUARANTINED
-      - media-upload-and-artifact/REJECTED
-      - media-upload-and-artifact/EXPIRED
     canonicalOperationRefs:
       - media.operation-slice.inspect-upload
       - media.operation-slice.append-upload-chunk
@@ -878,8 +868,9 @@ steps:
       proposal: Inspect the same upload, recheck current authority/source/request
         binding/retention/state, require explicit confirmation, append only
         remaining contiguous parts, then complete the same unexpired session
-        after expected size/digest verification. Completion enters VERIFYING
-        only.
+        after expected size and full digest verification. Append remains in
+        RECEIVING and has no transition; only successful complete-upload enters
+        VERIFYING under media-upload-and-artifact/T01. AVAILABLE is not claimed.
     failure:
       status: source-defined; runtime-admission-pending
       scope: guarded-compound-action
@@ -1038,8 +1029,9 @@ steps:
           proposal: Inspect the same upload, recheck current authority/source/request
             binding/retention/state, require explicit confirmation, append only
             remaining contiguous parts, then complete the same unexpired session
-            after expected size/digest verification. Completion enters VERIFYING
-            only.
+            after expected size and full digest verification. Append remains in
+            RECEIVING and has no transition; only successful complete-upload enters
+            VERIFYING under media-upload-and-artifact/T01. AVAILABLE is not claimed.
         failure:
           status: source-defined; runtime-admission-pending
           scope: guarded-compound-action
@@ -1086,10 +1078,6 @@ steps:
         stateRefs:
           - media-upload-and-artifact/RECEIVING
           - media-upload-and-artifact/VERIFYING
-          - media-upload-and-artifact/AVAILABLE
-          - media-upload-and-artifact/QUARANTINED
-          - media-upload-and-artifact/REJECTED
-          - media-upload-and-artifact/EXPIRED
         canonicalOperationRef: null
         canonicalOperationRefs:
           - media.operation-slice.inspect-upload

@@ -3538,9 +3538,7 @@ records:
   localEffectContractRef: null
   domainObjectRefs:
   - media.domain.project
-  stateRefs:
-  - media-project/ACTIVE
-  - media-project/ARCHIVED
+  stateRefs: []
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   requirementRefs:

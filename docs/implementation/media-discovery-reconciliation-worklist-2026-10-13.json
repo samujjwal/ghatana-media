@@ -17,28 +17,29 @@
     "currentCutDecisionRef": ".product-experience/reviews/2026-10-13-discovery-current-cut-delegated-owner-review.md",
     "currentCutMachineDirectionsRef": "docs/implementation/observations/media-discovery-current-cut-owner-directions-2026-10-13-r2.json",
     "predecessorImpactRef": "docs/implementation/observations/media-discovery-predecessor-currentness-impact-2026-10-13-r1.json",
-    "currentPdp0MaterialFingerprint": "sha256:1a121cf988ba4a34f6b603b1f230fd0494160a3c6142c064d8d5cc2a6aa45f94",
-    "currentPdp1MaterialFingerprint": "sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa",
-    "currentPdp2MaterialFingerprint": "sha256:a4c43f03c44a5f1844fba5039f146473f7390c02b3a06ce582c095fc5d9e74bd",
+    "ownerReviewBaselinePdp0MaterialFingerprint": "sha256:1a121cf988ba4a34f6b603b1f230fd0494160a3c6142c064d8d5cc2a6aa45f94",
+    "ownerReviewBaselinePdp1MaterialFingerprint": "sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa",
+    "ownerReviewBaselinePdp2MaterialFingerprint": "sha256:a4c43f03c44a5f1844fba5039f146473f7390c02b3a06ce582c095fc5d9e74bd",
     "currentPdp2ImpactRef": "docs/implementation/observations/media-discovery-pdp2-r16-projection-impact-2026-10-14-r1.json",
     "phaseCellExecutionMatrixRef": "docs/implementation/media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json",
-    "reviewedCurrentHead": "e58e67084a4871dc21fb10523f0bcd0df8167d47"
+    "ownerReviewBaselineReviewedHead": "e58e67084a4871dc21fb10523f0bcd0df8167d47"
   },
   "campaign": {
     "stage": "DISCOVERY",
-    "activePhase": "PDP-0",
-    "discoveryBarrier": "FAIL_PDP0_PRESENT_CUT_CURRENTNESS_R14; PDP1_PDP2_BLOCKED; PDP3_NOT_ESTABLISHED",
-    "sourceMeaningStatus": "PDP0_R12_DEV_COMPLETE_AT_CAPTURED_SOURCE_SET_ONLY; PDP1_R27_DEV_COMPLETE_AT_CAPTURED_SOURCE_SET_ZERO_OUTSTANDING_DEFINITION_TASKS; PDP2_R17_DEV_COMPLETE_AT_CAPTURED_SOURCE_SET_ZERO_OUTSTANDING_DEFINITION_TASKS; PDP3_NOT_ESTABLISHED",
-    "sourceCurrentness": "PDP0_R14_FAIL_SOURCE_CURRENTNESS_0_CURRENT_50_UNKNOWN; PDP1_PRESENT_CUT_BLOCKED_PENDING_PDP0; PDP2_PRESENT_CUT_BLOCKED_PENDING_PDP1; R12_R27_R17_PASS_RECEIPTS_CAPTURED_SOURCE_SETS_ONLY; PDP3_CURRENTNESS_NOT_ESTABLISHED_R6_CAPTURE_PENDING",
+    "activePhase": "PDP-3",
+    "discoveryBarrier": "FAIL_PDP3_DEFINITION_COMPLETION_PENDING; PDP0_R15_PDP1_R30_PDP2_R19_TECHNICAL_CURRENTNESS_PASS; PDP3_NOT_ESTABLISHED",
+    "sourceMeaningStatus": "PDP0_R15_DEV_COMPLETE_AT_CURRENT_SOURCE_SET; PDP1_R30_DEV_COMPLETE_ZERO_OUTSTANDING_MEANING_IDS; PDP2_R19_DEV_COMPLETE_AT_CURRENT_SOURCE_SET; PDP3_NOT_ESTABLISHED",
+    "sourceCurrentness": "PDP0_R15_PASS_50_OF_50_146_PATHS_FINGERPRINT_sha256:eff717cf2537a285cd7a1c1a72b44a75766a0a7e6eef6ea97edbc2befa2e1a95; PDP1_R30_PASS_50_OF_50_329_PATHS_FINGERPRINT_sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4; PDP2_R19_PASS_50_OF_50_405_PATHS_FINGERPRINT_sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b_EXACT_PREDECESSOR_PDP1_R30; ZERO_BLOCKERS; TECHNICAL_DEV_COMPLETE; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED; PDP3_NOT_ESTABLISHED_R6_PENDING_SOURCE_GAP_RESOLUTION",
     "implementationLane": "NOT_ENTERED",
     "closureLane": "NOT_ENTERED",
     "delivery": "BLOCKED",
-    "statusObservationRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r14.json",
-    "ownerAcceptance": "PDP0_INTERNAL_DELEGATED_APPROVED_AT_EXACT_FINGERPRINT",
+    "latestPredecessorStatusObservationRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-15-current-cut-r19.json",
+    "latestPredecessorOwnerAcceptance": "PDP2_R19_EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED; TECHNICAL_CURRENTNESS_AND_DEV_COMPLETE_ONLY",
     "planEvidenceRef": "docs/implementation/observations/media-discovery-delegated-owner-evidence-2026-10-13.json",
     "phaseCellExecutionMatrixRef": "docs/implementation/media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json",
     "remainingDiscoveryTaskIds": [
       "MDC-30",
+      "MDC30-V-01",
       "MDC-31",
       "MDC-32",
       "MDC-40",
@@ -56,58 +57,47 @@
       "MDC-11",
       "MDC-12",
       "MDC-20",
-      "MDC-21"
+      "MDC-21",
+      "RC-P2-01",
+      "RC-P0-01",
+      "RC-P1-01"
     ],
     "currentPhaseExitPublished": false,
-    "currentPhaseExitPhase": "PDP-0",
+    "currentPhaseExitPhase": "PDP-3",
     "machineOwnerAcceptanceRef": "docs/implementation/observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13.json",
     "lastCompletedPhaseExit": {
-      "phase": "PDP-1",
-      "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json",
-      "materialFingerprint": "sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa",
-      "observedHead": "e58e67084a4871dc21fb10523f0bcd0df8167d47",
-      "status": "HISTORICAL_PASS_CAPTURED_SOURCE_SET_ONLY"
+      "phase": "PDP-2",
+      "ref": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-15-current-cut-r19.json",
+      "materialFingerprint": "sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b",
+      "observedHead": "161634035ed5e570372703809d8518dbf88751f6",
+      "status": "PASS_DEV_COMPLETE_ZERO_BLOCKERS_EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED"
     },
-    "activePhaseTaskId": "RC-P0-01",
+    "activePhaseTaskId": "MDC-30",
     "currentPhaseSourceSetFingerprint": null,
-    "currentPhaseBlockerIds": [
-      "PDP0_R14_FAIL_SOURCE_CURRENTNESS",
-      "LIFECYCLE_ROOT_CONTINUITY_UNKNOWN",
-      "PDP1_RECAPTURE_BLOCKED_PENDING_PDP0",
-      "PDP2_RECAPTURE_BLOCKED_PENDING_PDP1"
-    ],
+    "currentPhasePredecessorSourceSetFingerprint": "sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b",
+    "currentPhaseBlockerIds": null,
     "currentPhaseOwnerDecisionRef": ".product-experience/reviews/2026-10-13-discovery-current-cut-delegated-owner-review.md",
     "currentPhaseOwnerPacketRef": "docs/implementation/observations/media-discovery-current-cut-owner-directions-2026-10-13-r2.json",
-    "currentPhaseOwnerChoiceStatus": "HISTORICAL_PDP0_DIRECTIONS_FOR_RECORDED_CUT_ONLY; R14_FAIL_SOURCE_CURRENTNESS; EXTERNAL_LIFECYCLE_OWNER_DISPOSITION_AND_ROOT_CONTINUITY_PENDING",
-    "resumeAfterPredecessorCurrentness": "Resolve the external Lifecycle package.json fingerprint transition through its owner and re-establish root-wide Lifecycle continuity; R14\u2019s 0/50-current, 50/50-unknown result did not apply the exact existing R2. Then capture a fresh PDP-0 successor applying R2 and its recorded support hashes; after PDP-0 passes, recapture PDP-1 followed by PDP-2 serially. After predecessor currentness passes, resume preserved MDC-30 source-local work, capture and verify R6 against the current source set, validate all 61 edge dispositions and 14 consequential steps before MDC30-V-01, then continue MDC-31 \u2192 MDC-32 \u2192 MDC-40; keep J21 excluded and blocked, all 61 transports UNBOUND, runtime NOT_ADMITTED, and MDC-41 gated behind a passing Discovery barrier.",
-    "requiredPredecessorRecheckTaskIds": [
-      "RC-P0-01",
-      "RC-P1-01",
-      "RC-P2-01"
-    ],
+    "currentPhaseOwnerChoiceStatus": "PDP2_R19_TECHNICAL_PASS_DEV_COMPLETE; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED; PDP3_MDC30_ACTIVE_PENDING_R6",
+    "resumeAfterPredecessorCurrentness": "PDP-0 R15, PDP-1 R30, and PDP-2 R19 are exact serial technical currentness passes. PDP-3 MDC-30 is active; revalidate source gaps, preserve J21 excluded/blocked, then capture R6. Exact-cut owner acceptance remains separate.",
+    "requiredPredecessorRecheckTaskIds": [],
     "predecessorCurrentnessRecheck": {
-      "status": "PDP0_R14_FAIL_SOURCE_CURRENTNESS_0_CURRENT_50_UNKNOWN_PDP1_PDP2_BLOCKED",
-      "requiredPhaseOrder": [
-        "PDP-0",
-        "PDP-1",
-        "PDP-2"
-      ],
-      "reason": "PDP-0 R14 is the latest immutable failed capture (0/50 current, 50/50 unknown). Its 30/30 external-contract digests match, but Lifecycle continuity is UNKNOWN and zero-work eligibility is false due UNEXPECTED_REPOSITORY_MEMBERSHIP_CHANGE, so R14 did not apply the exact existing R2 classification. The external Lifecycle package transition remains for its owner; PDP-1 and PDP-2 stay blocked until a fresh PDP-0 successor passes.",
-      "receiptScope": "PDP-0 R12, PDP-1 R27, and PDP-2 R17 remain immutable PASS receipts for their exact captured material source sets only; none establishes present-cut currentness.",
+      "status": "PDP0_R15_PASS; PDP1_R30_PASS_DEV_COMPLETE; PDP2_R19_PASS_DEV_COMPLETE_ZERO_BLOCKERS; PDP3_MDC30_ACTIVE; R6_PENDING",
+      "requiredPhaseOrder": [],
+      "reason": "PDP-0 R15 (sha256:eff717cf2537a285cd7a1c1a72b44a75766a0a7e6eef6ea97edbc2befa2e1a95; 50/50 cells, 146 paths), PDP-1 R30 (sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4; 50/50, 329 paths), and PDP-2 R19 (sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b; 50/50, 405 paths) are serial technical currentness passes. PDP-2 R19 binds exact predecessor PDP-1 R30 and has zero blockers/DEV_COMPLETE. Exact-cut owner acceptance remains NOT_RECORDED. PDP-3 currentness is not established; active work is MDC-30 source-gap resolution. The R5 gap snapshot is a historical audit baseline awaiting R6 revalidation.",
+      "receiptScope": "PDP-2 R19 is current PASS against PDP-1 R30. PDP-2 R18 remains immutable failed history (docs/implementation/observations/media-discovery-pdp2-exit-2026-10-15-current-cut-r18.json); R17 remains historical. PDP-3/R6 has not been captured.",
       "previouslyCompletedRecheckTaskIdsApplyTo": "their recorded captured source sets only",
-      "latestAttemptRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r14.json",
-      "latestAttemptStatus": "FAIL_SOURCE_CURRENTNESS",
-      "latestAttemptBlockers": [
-        "UNEXPECTED_REPOSITORY_MEMBERSHIP_CHANGE"
-      ],
-      "externalPinDisposition": "AWAITING_EXTERNAL_OWNER_DISPOSITION",
+      "latestAttemptRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-15-current-cut-r19.json",
+      "latestAttemptStatus": "PASS",
+      "latestAttemptBlockers": [],
+      "externalPinDisposition": "R3_INTERNAL_NO_PDP0_MEANING_DISPOSITION_FOR_FOUR_EXACT_LOCAL_DELTAS_AND_ONE_EXACT_LIFECYCLE_PACKAGE_TRANSITION; OWNER_ACCEPTANCE_NOT_CLAIMED",
       "completedRecheckTaskIdsApplyTo": "their recorded captured source sets only",
-      "nextLegalAction": "Resolve the external Lifecycle package.json fingerprint transition through its owner and re-establish root-wide Lifecycle continuity; R14\u2019s 0/50-current, 50/50-unknown result did not apply the exact existing R2. Then capture a fresh PDP-0 successor applying R2 and its recorded support hashes; after PDP-0 passes, recapture PDP-1 followed by PDP-2 serially. After predecessor currentness passes, resume preserved MDC-30 source-local work, capture and verify R6 against the current source set, validate all 61 edge dispositions and 14 consequential steps before MDC30-V-01, then continue MDC-31 \u2192 MDC-32 \u2192 MDC-40; keep J21 excluded and blocked, all 61 transports UNBOUND, runtime NOT_ADMITTED, and MDC-41 gated behind a passing Discovery barrier.",
+      "nextLegalAction": "PDP-3 MDC-30: revalidate the R5 audit baseline against live sources; resolve source-confirmed edge and consequential-step definition gaps with negative coverage; preserve J21 rights-approval exclusion/blocked state and all 61 transports unbound; capture R6 only when source criteria pass. Discovery remains FAIL; Build and PDP closure are NOT_ENTERED; Delivery is BLOCKED. Exact-cut owner acceptance remains NOT_RECORDED.",
       "historicalPassReceiptsRef": "historicalCapturedPassReceipts",
-      "resumeBlocker": "External Lifecycle package.json transition awaits its owner; Lifecycle root continuity must be re-established after R14 reported UNEXPECTED_REPOSITORY_MEMBERSHIP_CHANGE.",
+      "resumeBlocker": "No PDP-0, PDP-1, or PDP-2 currentness blocker remains. PDP-3 MDC-30 source-gap resolution and R6 revalidation/capture remain before Discovery can complete.",
       "postR13GapDenominatorCorrection": {
         "path": ".product-experience/gaps.yaml",
-        "status": "R2_RECORDED_NOT_APPLIED_R14_CURRENTNESS_FAILED",
+        "status": "R2_CONSUMED_BY_PDP0_R15_PASS",
         "recordRef": "docs/implementation/observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r2.json",
         "scope": "GAP-12 source/Explorer denominator correction only; preserve immutable R13, R1 and R2",
         "liveDenominators": {
@@ -122,38 +112,16 @@
         "apps/media-experience-explorer/specification-artifacts.json"
       ],
       "latestAttemptCellCurrentness": {
-        "current": 0,
-        "unknown": 50,
-        "total": 50
+        "total": 50,
+        "current": 50,
+        "unknown": 0,
+        "materialPaths": 405,
+        "blockers": []
       },
-      "latestAttemptExternalContractDigests": {
-        "matched": 30,
-        "total": 30
-      },
-      "latestAttemptLifecycleContinuity": "UNKNOWN",
-      "latestAttemptZeroWorkEligible": false
+      "latestAttemptDigest": "sha256:0e0212343e6029c027135e91493b95a35f9fec460c6c9a00684c89458f0145e6",
+      "latestAttemptFingerprint": "sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b",
+      "latestAttemptObservationId": "MEDIA-PDP2-CURRENTNESS-2026-10-15-CURRENT-CUT-R19"
     },
-    "remainingMDC30SubtaskIds": [
-      "MDC30-C-05",
-      "MDC30-C-08",
-      "MDC30-C-10",
-      "MDC30-C-13",
-      "MDC30-C-14",
-      "MDC30-C-19",
-      "MDC30-C-20",
-      "MDC30-C-21",
-      "MDC30-C-26",
-      "MDC30-C-28",
-      "MDC30-S-01",
-      "MDC30-S-03",
-      "MDC30-S-04",
-      "MDC30-S-05",
-      "MDC30-S-06",
-      "MDC30-S-07",
-      "MDC30-S-12",
-      "MDC30-S-13",
-      "MDC30-S-14"
-    ],
     "currentCutOwnerDecisionRef": ".product-experience/reviews/2026-10-13-discovery-current-cut-delegated-owner-review.md",
     "currentCutOwnerPacketRef": "docs/implementation/observations/media-discovery-current-cut-owner-directions-2026-10-13-r2.json",
     "completedPredecessorRecheckTaskIds": [
@@ -163,7 +131,7 @@
     ],
     "latestImplementationProgressIsPdp3Currentness": false,
     "pdp3PhaseExitPublished": false,
-    "pdp3CurrentnessStatus": "NOT_ESTABLISHED_PREDECESSOR_PDP0_PDP1_PDP2_PRESENT_CUT_RECAPTURE_BLOCKED",
+    "pdp3CurrentnessStatus": "NOT_ESTABLISHED; PDP2_R19_PREDECESSOR_CURRENT; R6_NOT_CAPTURED_PENDING_MDC30_SOURCE_GAP_RESOLUTION",
     "pdp2PriorPhaseExitAttempts": [
       {
         "ref": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r7.json",
@@ -194,33 +162,29 @@
         "supersededBy": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json",
         "materialSourceSetFingerprint": "sha256:e79fcff81f3a52f120afb55ce4ad8ac9f0229fa6e57e6c830094e3021b5c85a6",
         "reason": "R17 captured the authorized projection transition and current PDP-1 R27 predecessor; R16 remains immutable historical evidence."
+      },
+      {
+        "ref": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-15-current-cut-r18.json",
+        "status": "FAIL",
+        "supersededBy": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-15-current-cut-r19.json",
+        "observedHead": "161634035ed5e570372703809d8518dbf88751f6",
+        "materialSourceSetFingerprint": "sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b",
+        "blockers": [
+          "PDP2_HISTORICAL_PIN_DRIFT_UNCLASSIFIED_OR_UNEXPECTED",
+          "PDP2_OWNER_STATUS_JOIN_NOT_PASS"
+        ],
+        "reason": "Immutable R18 failed source-currentness and owner-status joins; R19 repaired the exact source-map bridge and passed."
       }
     ],
     "pdp3HistoricalMdc30ObservationRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r4.json",
-    "currentPhaseImpactDispositionRef": null,
-    "currentPhaseImpactDispositionStatus": "NOT_APPLICABLE_PDP0_PRESENT_CUT_RECAPTURE_FAILED_PDP3_NOT_ADVANCED",
-    "pdp2MaterialFingerprint": "sha256:a4c43f03c44a5f1844fba5039f146473f7390c02b3a06ce582c095fc5d9e74bd",
-    "pdp2ReceiptDigest": "sha256:2f57ace69d389dde7cbe7c5032c5b88d6a6b068c07177d33694fd968aa6c451e",
-    "pdp3R4CountsCurrent": false,
-    "pdp3R4HistoricalCounts": {
-      "totalEdges": 61,
-      "sourceBound": 43,
-      "incomplete": 18,
-      "incompleteGroups": [
-        "MDC30-C-03",
-        "MDC30-C-04",
-        "MDC30-C-16",
-        "MDC30-C-22",
-        "MDC30-C-25",
-        "MDC30-C-27"
-      ],
-      "consequentialSteps": 14,
-      "completeConsequential": 14
-    },
+    "lastPredecessorImpactDispositionRef": "docs/implementation/observations/media-discovery-pdp2-r17-to-r30-source-impact-2026-10-15-r1.json",
+    "lastPredecessorImpactDispositionStatus": "PDP2_R17_TO_R30_INTERNAL_SOURCE_IMPACT_R1_CONSUMED_BY_R19; PDP2_R19_CURRENTNESS_RECAPTURE_PASS",
+    "pdp2MaterialFingerprint": "sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b",
+    "pdp2ReceiptDigest": "sha256:0e0212343e6029c027135e91493b95a35f9fec460c6c9a00684c89458f0145e6",
     "currentMDC30RequiredWork": [
-      "Resolve 18 live-registry incomplete edges across C-05, C-08, C-10, C-13, C-14, C-19, C-20, C-21, C-26, C-28; keep J21 rights-approval excluded and blocked.",
-      "Resolve the 9 partial/gap consequential steps with exact source definitions and negative tests.",
-      "Capture R6 from finalized current material sources; verify all 61 edge dispositions and 14 consequential steps before MDC30-V-01."
+      "Revalidate the 61-edge R5 audit baseline against current live sources; resolve source-confirmed incomplete definition edges, keeping all 61 transports unbound.",
+      "Revalidate 14 consequential steps against current sources (R5 baseline: 5 source-bound, 7 partial, 2 gaps); resolve source-confirmed PDP-3 definition gaps with negative tests.",
+      "Preserve J21 rights-approval query excluded and blocked; capture PDP-3 R6 only after MDC-30 source criteria pass."
     ],
     "historicalR4IncompleteTaskIds": [
       "MDC30-C-03",
@@ -242,24 +206,31 @@
       "MDC30-C-30",
       "MDC30-S-06"
     ],
-    "predecessorExitsObservedHead": "e58e67084a4871dc21fb10523f0bcd0df8167d47",
-    "currentPhaseChoiceStatus": "HISTORICAL_PDP3_OWNER_DIRECTIONS_ONLY; MDC-30_EXECUTION_BLOCKED_PENDING_PDP0_R14_CURRENTNESS",
-    "pendingCurrentPhaseReviewTarget": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r6.json",
+    "predecessorExitsObservedHead": "161634035ed5e570372703809d8518dbf88751f6",
+    "currentPhaseChoiceStatus": "PDP0_R15_PDP1_R30_PDP2_R19_TECHNICAL_CURRENTNESS_PASS; PDP3_MDC30_ACTIVE; R6_NOT_CAPTURED_PENDING_SOURCE_GAP_RESOLUTION",
     "preR6SourceRegistryCounts": {
       "totalEdges": 61,
-      "sourceBound": 43,
-      "incomplete": 18,
+      "sourceBound": 37,
+      "incomplete": 24,
+      "incompleteGroups": 13,
       "consequentialSteps": 14,
       "sourceDefinitionBoundConsequentialSteps": 5,
       "partialConsequentialSteps": 7,
       "gapConsequentialSteps": 2,
-      "status": "R6_CAPTURE_PENDING_SOURCE_GAP_COUNTS_NOT_PHASE_EXIT"
+      "status": "R5_RECEIPT_HISTORICAL_CONFLICTS_WITH_PRIOR_PLAN_SUMMARY; R6_NOT_CAPTURED",
+      "observationRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r5.json",
+      "priorPlanReportedCounts": {
+        "sourceBound": 43,
+        "incomplete": 18,
+        "incompleteGroups": 10,
+        "status": "CONFLICTING_HISTORICAL_SUMMARY; NOT_LIVE"
+      }
     },
-    "mdc30SourceGapStatus": "PRE_R6_LIVE_REGISTRY; 43_OF_61_DEFINITION_ONLY; 18_INCOMPLETE; 5_OF_14_DEFINITION_BOUND; 7_PARTIAL; 2_GAPS; ALL_61_TRANSPORTS_UNBOUND; RUNTIME_NOT_ADMITTED; PDP3_CURRENTNESS_NOT_ESTABLISHED",
-    "nextLegalAction": "Resolve the external Lifecycle package.json fingerprint transition through its owner and re-establish root-wide Lifecycle continuity; R14\u2019s 0/50-current, 50/50-unknown result did not apply the exact existing R2. Then capture a fresh PDP-0 successor applying R2 and its recorded support hashes; after PDP-0 passes, recapture PDP-1 followed by PDP-2 serially. After predecessor currentness passes, resume preserved MDC-30 source-local work, capture and verify R6 against the current source set, validate all 61 edge dispositions and 14 consequential steps before MDC30-V-01, then continue MDC-31 \u2192 MDC-32 \u2192 MDC-40; keep J21 excluded and blocked, all 61 transports UNBOUND, runtime NOT_ADMITTED, and MDC-41 gated behind a passing Discovery barrier.",
+    "mdc30SourceGapStatus": "R6_NOT_CAPTURED; R5_RECEIPT_HISTORICAL_COUNTS_PRESERVED_IN_PRE_R6_FIELD; LIVE_RAW_EDGE_REGISTRY_43_OF_61_SOURCE_BOUND_DEFINITION_ONLY_AND_18_INCOMPLETE_ACROSS_10_JOURNEYS; RAW_FIELDS_NOT_R6_VALIDATION_OR_TASK_COMPLETION; 14_STEP_SOURCE_AUDIT_COMPLETE_WITH_DISPOSITIONS_OPEN; J21_EXCLUDED_AND_BLOCKED; ALL_61_TRANSPORTS_UNBOUND; PDP3_CURRENTNESS_NOT_ESTABLISHED",
+    "nextLegalAction": "PDP-3 MDC-30: resolve source-confirmed gaps in the current 61-edge registry and finish the 14 audited consequential-step dispositions; the raw registry count is 43 source-bound definition-only and 18 incomplete across 10 journeys, not R6 validation or task completion. Candidate no-transition evidence for S03, S07, and S09–S13 does not by itself satisfy owner action/capability joins. S01/S02 delivery acknowledgment/failure branches, S04/S05 transition/finality and retry authority, S06/S08 result/denial/unknown/idempotency branches, and S14 compound workflow mapping remain open. Capture R6 only after current source gaps and focused proofs are reconciled. Keep the J21 rights-approval edge excluded and blocked, transports UNBOUND, and runtime NOT_ADMITTED. Discovery remains FAIL while definition tasks remain.",
     "completedPredecessorRecheckTaskIdsApplyToCapturedSourceSetsOnly": true,
     "pdp3SourceBindingComplete": false,
-    "sourceCurrentnessEvidenceScope": "R12_R27_R17_PASS_CAPTURED_SOURCE_SET_ONLY",
+    "sourceCurrentnessEvidenceScope": "PDP0_R15_TECHNICAL_PASS; PDP1_R30_TECHNICAL_PASS_AGAINST_PDP0_R15; PDP2_R19_TECHNICAL_PASS_AGAINST_PDP1_R30; PDP3_MDC30_SOURCE_GAP_WORK_ACTIVE_R6_NOT_CAPTURED",
     "historicalCapturedPassReceipts": [
       {
         "phase": "PDP-0",
@@ -284,33 +255,139 @@
         "materialSourceSetFingerprint": "sha256:a4c43f03c44a5f1844fba5039f146473f7390c02b3a06ce582c095fc5d9e74bd",
         "observedHead": "e58e67084a4871dc21fb10523f0bcd0df8167d47",
         "status": "PASS_CAPTURED_SOURCE_SET_ONLY"
+      },
+      {
+        "phase": "PDP-2",
+        "ref": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-15-current-cut-r19.json",
+        "recordId": "MEDIA-PDP2-CURRENTNESS-2026-10-15-CURRENT-CUT-R19",
+        "materialSourceSetFingerprint": "sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b",
+        "observedHead": "161634035ed5e570372703809d8518dbf88751f6",
+        "predecessorRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json",
+        "status": "PASS_CURRENT_SOURCE_SET_ONLY_EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED"
       }
     ],
-    "latestPhaseCurrentnessStatus": "PDP0_R14_FAIL_SOURCE_CURRENTNESS_0_CURRENT_50_UNKNOWN; PDP1_BLOCKED_PENDING_PDP0; PDP2_BLOCKED_PENDING_PDP1; PDP3_NOT_ESTABLISHED",
-    "pdp0CurrentnessStatus": "R14_FAIL_SOURCE_CURRENTNESS_0_CURRENT_50_UNKNOWN; R13_IMMUTABLE_FAILED_ATTEMPT; R12_PASS_CAPTURED_SOURCE_SET_ONLY",
-    "pdp1CurrentnessStatus": "R27_PASS_CAPTURED_SOURCE_SET_ONLY; PRESENT_CUT_RECAPTURE_BLOCKED_PENDING_PDP0",
-    "pdp2CurrentnessStatus": "R17_PASS_CAPTURED_SOURCE_SET_ONLY; PRESENT_CUT_RECAPTURE_BLOCKED_PENDING_PDP1",
-    "pdp2SourceCurrentnessStatus": "R17_TECHNICAL_PASS_CAPTURED_SOURCE_SET_ONLY; PRESENT_CUT_RECAPTURE_BLOCKED_PENDING_PDP1",
-    "currentPdp0MaterialFingerprintCaptured": "sha256:1a121cf988ba4a34f6b603b1f230fd0494160a3c6142c064d8d5cc2a6aa45f94",
-    "currentPdp1MaterialFingerprintCaptured": "sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa",
-    "currentPdp2MaterialFingerprintCaptured": "sha256:a4c43f03c44a5f1844fba5039f146473f7390c02b3a06ce582c095fc5d9e74bd",
-    "latestPdp0CurrentnessAttempt": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r14.json",
+    "latestPhaseCurrentnessStatus": "PDP0_R15_PASS; PDP1_R30_PASS_50_OF_50_329_PATHS_DEV_COMPLETE; PDP2_R19_PASS_50_OF_50_405_PATHS_DEV_COMPLETE; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED; PDP3_MDC30_ACTIVE_R6_NOT_CAPTURED",
+    "pdp0CurrentnessStatus": "R15_PASS_SOURCE_CURRENTNESS_50_OF_50_146_PATHS; R14_IMMUTABLE_FAILURE; R12_HISTORICAL_PASS_CAPTURED_SOURCE_SET_ONLY",
+    "pdp1CurrentnessStatus": "R30_PASS_SOURCE_CURRENTNESS_50_OF_50_CELLS_329_PATHS_FINGERPRINT_sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4; DEV_COMPLETE_ZERO_OUTSTANDING_MEANING_IDS; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED; EXPECTED_STRICT_ADMISSION_FINDING",
+    "pdp2CurrentnessStatus": "R19_PASS_SOURCE_CURRENTNESS_50_OF_50_CELLS_405_PATHS_FINGERPRINT_sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b_EXACT_PREDECESSOR_PDP1_R30; ZERO_BLOCKERS; TECHNICAL_DEV_COMPLETE; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED",
+    "pdp2SourceCurrentnessStatus": "R19_PASS_SOURCE_CURRENTNESS_50_OF_50_CELLS_405_PATHS; EXACT_PREDECESSOR_PDP1_R30; ZERO_BLOCKERS; DEV_COMPLETE; OWNER_ACCEPTANCE_NOT_RECORDED",
+    "currentPdp0MaterialFingerprintCaptured": "sha256:eff717cf2537a285cd7a1c1a72b44a75766a0a7e6eef6ea97edbc2befa2e1a95",
+    "currentPdp1MaterialFingerprintCaptured": "sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4",
+    "pdp2HistoricalMaterialFingerprintCaptured": "sha256:a4c43f03c44a5f1844fba5039f146473f7390c02b3a06ce582c095fc5d9e74bd",
+    "latestPdp0CurrentnessAttempt": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r15.json",
     "latestPdp0CurrentnessFingerprint": "sha256:eff717cf2537a285cd7a1c1a72b44a75766a0a7e6eef6ea97edbc2befa2e1a95",
-    "latestPdp0CurrentnessObservedAt": "2026-10-15T06:27:09.850Z",
+    "latestPdp0CurrentnessObservedAt": "2026-10-15T07:25:12.029Z",
     "latestPdp0CurrentnessCounts": {
       "totalCells": 50,
-      "current": 0,
-      "unknown": 50,
+      "current": 50,
+      "unknown": 0,
       "externalContractDigestsMatched": 30,
       "externalContractDigestCount": 30,
-      "lifecycleContinuity": "UNKNOWN",
-      "zeroWorkEligibleAtCapture": false,
-      "blockers": [
-        "UNEXPECTED_REPOSITORY_MEMBERSHIP_CHANGE"
-      ]
+      "lifecycleContinuity": "CONTINUOUS",
+      "zeroWorkEligibleAtCapture": true,
+      "blockers": []
     },
-    "pdp0PresentCutAttemptRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r14.json",
-    "pendingCurrentPhaseReviewTargetStatus": "BLOCKED_UNTIL_PDP0_R14_SUCCESSOR_CURRENTNESS_PASSES"
+    "pdp0PresentCutAttemptRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r15.json",
+    "pendingCurrentPhaseReviewTargetStatus": "PDP0_R15_PASS; PDP1_R30_PASS; PDP2_R19_PASS_50_OF_50_405_PATHS_FINGERPRINT_sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b; PDP3_NOT_ESTABLISHED; MDC30_ACTIVE_R6_PENDING",
+    "pdp0PresentCutAttemptStatus": "PASS_SOURCE_CURRENTNESS",
+    "pdp0PresentCutAttemptCurrentness": {
+      "current": 50,
+      "unknown": 0,
+      "total": 50,
+      "externalContractDigestsMatched": 30,
+      "externalContractDigestCount": 30,
+      "lifecycleContinuity": "CONTINUOUS",
+      "zeroWorkEligibleAtCapture": true,
+      "blockers": []
+    },
+    "pdp0PresentCutAttemptBlockers": [],
+    "presentCutRecaptureStatus": "PDP0_R15_PASS_PDP1_R30_PASS_PDP2_R19_PASS; PDP3_MDC30_SOURCE_GAP_RESOLUTION_ACTIVE_R6_PENDING",
+    "pdp1LatestAttemptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json",
+    "pdp1LatestAttemptDigest": "sha256:18ac1cb3631ef545c6790f1ea55038ecdd609264a61276ae10dae8d6304d967e",
+    "pdp1LatestAttemptFingerprint": "sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4",
+    "pdp1LatestAttemptStatus": "PASS",
+    "pdp1LatestAttemptCounts": {
+      "totalCells": 50,
+      "sourceCurrentCells": 50,
+      "materialPaths": 329
+    },
+    "pdp1LatestAttemptBlockers": [],
+    "pdp2LatestAttemptRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-15-current-cut-r19.json",
+    "pdp2LatestAttemptDigest": "sha256:0e0212343e6029c027135e91493b95a35f9fec460c6c9a00684c89458f0145e6",
+    "pdp2LatestAttemptFingerprint": "sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b",
+    "pdp2LatestAttemptStatus": "PASS",
+    "pdp2LatestAttemptCounts": {
+      "totalCells": 50,
+      "sourceCurrentCells": 50,
+      "materialPaths": 405
+    },
+    "pdp2LatestAttemptBlockers": [],
+    "currentPdp2MaterialFingerprintCaptured": "sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b",
+    "latestPdp2CurrentnessAttempt": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-15-current-cut-r19.json",
+    "latestPdp2CurrentnessFingerprint": "sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b",
+    "latestPdp2CurrentnessObservedAt": "2026-10-15T09:14:51.527Z",
+    "latestPdp2CurrentnessCounts": {
+      "totalCells": 50,
+      "current": 50,
+      "unknown": 0,
+      "materialPaths": 405,
+      "blockers": []
+    },
+    "presentCutRecaptureRequiredPhaseOrder": [],
+    "preR6HistoricalBlockerIds": [
+      "media.pdp3.channel-binding.j05.grpc-api.v1",
+      "media.pdp3.channel-binding.j05.sdk.v1",
+      "media.pdp3.channel-binding.j05.web.v1",
+      "media.pdp3.channel-binding.j08.web.v1",
+      "media.pdp3.channel-binding.j09.product-integration.v1",
+      "media.pdp3.channel-binding.j09.web.v1",
+      "media.pdp3.channel-binding.j10.web.v1",
+      "media.pdp3.channel-binding.j13.web.v1",
+      "media.pdp3.channel-binding.j14.product-integration.v1",
+      "media.pdp3.channel-binding.j14.web.v1",
+      "media.pdp3.channel-binding.j19.web.v1",
+      "media.pdp3.channel-binding.j20.cli.v1",
+      "media.pdp3.channel-binding.j20.web.v1",
+      "media.pdp3.channel-binding.j21.product-integration.v1",
+      "media.pdp3.channel-binding.j21.web.v1",
+      "media.pdp3.channel-binding.j23.cli.v1",
+      "media.pdp3.channel-binding.j23.web.v1",
+      "media.pdp3.channel-binding.j24.cli.v1",
+      "media.pdp3.channel-binding.j24.http-api.v1",
+      "media.pdp3.channel-binding.j26.http-api.v1",
+      "media.pdp3.channel-binding.j26.product-integration.v1",
+      "media.pdp3.channel-binding.j26.web.v1",
+      "media.pdp3.channel-binding.j28.product-integration.v1",
+      "media.pdp3.channel-binding.j28.web.v1"
+    ],
+    "currentPhaseBlockerSnapshotStatus": "UNKNOWN_AFTER_PDP3_SOURCE_EDITS; R6_CAPTURE_REQUIRED",
+    "userDirectedBlockedEdgeIds": [
+      "media.pdp3.channel-binding.j21.web.v1",
+      "media.pdp3.channel-binding.j21.product-integration.v1"
+    ],
+    "preR6HistoricalRemainingMDC30SubtaskIds": [
+      "MDC30-C-05",
+      "MDC30-C-08",
+      "MDC30-C-10",
+      "MDC30-C-13",
+      "MDC30-C-14",
+      "MDC30-C-19",
+      "MDC30-C-20",
+      "MDC30-C-21",
+      "MDC30-C-26",
+      "MDC30-C-28",
+      "MDC30-S-01",
+      "MDC30-S-03",
+      "MDC30-S-04",
+      "MDC30-S-05",
+      "MDC30-S-06",
+      "MDC30-S-07",
+      "MDC30-S-12",
+      "MDC30-S-13",
+      "MDC30-S-14"
+    ],
+    "currentRemainingMDC30SubtaskIds": null,
+    "currentRemainingMDC30SubtaskStatus": "UNKNOWN_AFTER_PDP3_SOURCE_EDITS; R6_CAPTURE_REQUIRED"
   },
   "denominator": {
     "physicalCandidateCount": 26,
@@ -337,7 +414,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -351,7 +428,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -365,7 +442,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -379,7 +456,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -393,7 +470,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -407,7 +484,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -421,7 +498,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -435,7 +512,7 @@
           "PDP-2": "GUI_LIBRARY",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -449,7 +526,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -463,7 +540,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -477,7 +554,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -491,7 +568,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -505,7 +582,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -519,7 +596,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -533,7 +610,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -547,7 +624,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -561,7 +638,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -575,7 +652,7 @@
           "PDP-2": "GUI_LIBRARY_HOST_DEPENDENT",
           "PDP-3": "HOST_DEPENDENT_EXPERIENCE"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -589,7 +666,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -603,7 +680,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -617,7 +694,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -631,7 +708,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -645,7 +722,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -659,7 +736,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -673,7 +750,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "HOST_DEPENDENT_EXPERIENCE"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -687,7 +764,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       }
@@ -711,7 +788,7 @@
           "media.physical.modules-integration-tests",
           "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -728,7 +805,7 @@
           "media.physical.providers-aws-postgresql",
           "media.physical.adapters-ledger"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -743,7 +820,7 @@
           "media.physical.modules-infrastructure-security",
           "media.physical.modules-infrastructure-cache"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -756,7 +833,7 @@
           "media.physical.modules-audio-streaming",
           "media.physical.modules-intelligence-speech-libs-speech-audio-rust"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -769,7 +846,7 @@
           "media.physical.modules-video-streaming",
           "media.physical.runtime-contracts"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -785,7 +862,7 @@
           "media.physical.libs-audio-video-client",
           "media.physical.libs-audio-video-ui"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -803,7 +880,7 @@
           "media.physical.modules-intelligence-multimodal-service",
           "media.physical.apps-media-experience-explorer"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       }
@@ -816,7 +893,7 @@
         "physicalRefs": [
           "media.physical.libs-audio-video-ui"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -827,7 +904,7 @@
         "physicalRefs": [
           "media.physical.libs-audio-video-ui"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -839,7 +916,7 @@
           "media.physical.launcher",
           "media.physical.runtime-contracts"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -854,7 +931,7 @@
           "media.physical.modules-vision-vision-service",
           "media.physical.modules-intelligence-multimodal-service"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -865,7 +942,7 @@
         "physicalRefs": [
           "media.physical.modules-speech-stt-service"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -876,7 +953,7 @@
         "physicalRefs": [
           "media.physical.modules-speech-tts-service"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -887,7 +964,7 @@
         "physicalRefs": [
           "media.physical.modules-vision-vision-service"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -898,7 +975,7 @@
         "physicalRefs": [
           "media.physical.modules-intelligence-multimodal-service"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -910,7 +987,7 @@
           "media.physical.libs-audio-video-client",
           "media.physical.libs-audio-video-types"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -922,7 +999,7 @@
           "media.physical.libs-audio-video-client",
           "media.physical.libs-media-experience-simulation"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -934,7 +1011,7 @@
           "media.physical.runtime-contracts",
           "media.physical.libs-common"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -946,7 +1023,7 @@
           "media.physical.modules-infrastructure-messaging",
           "media.physical.runtime-contracts"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -962,7 +1039,7 @@
           "media.physical.modules-infrastructure-cache",
           "media.physical.modules-infrastructure-messaging"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -973,7 +1050,7 @@
         "physicalRefs": [
           "media.physical.libs-audio-video-types"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -985,7 +1062,7 @@
           "media.physical.libs-audio-video-ui",
           "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -997,7 +1074,7 @@
           "media.physical.apps-media-experience-explorer",
           "media.physical.libs-media-experience-simulation"
         ],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       },
@@ -1006,7 +1083,7 @@
         "consumerType": "OBSOLETE",
         "bindingState": "ARCHIVED",
         "physicalRefs": [],
-        "sourceCurrentness": "PDP0_R12_R27_R17_PASS_AT_CAPTURED_SOURCE_SETS_ONLY; PRESENT_CUT_CURRENTNESS_RECHECK_REQUIRED; PDP3_MDC30_BLOCKED",
+        "sourceCurrentness": "PDP0_R15_PASS_AT_CAPTURED_SOURCE_SET; PDP1_R30_PASS_AT_CAPTURED_SOURCE_SET; PDP2_R19_PASS_CURRENT_AGAINST_PDP1_R30; PDP2_R17_HISTORICAL_AGAINST_PDP1_R27; PDP3_NOT_ESTABLISHED",
         "pdp3CurrentnessDisposition": "REVIEWED_WITH_DEFINITION_GAPS",
         "pdp3SourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
       }
@@ -1138,10 +1215,29 @@
       "done": "Historical DEV_COMPLETE stays intact; new source-bound status asserts current=TRUE only after every applicable P0 row validates and zero actual outstanding meaning IDs; otherwise stage barrier FAIL.",
       "status": "COMPLETED",
       "executionEvidence": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json",
-      "executionNote": "R2 PDP-0 exit passed at commit 2aaa15f on exact material source fingerprint sha256:7a7a0f700890915863e9f93eafa30edc2f6d856adbf7944c17fecc0aadd8031b. Technical source currentness, delegated owner acceptance at the exact fingerprint, required checks, and phase exit all PASS; changedMeaningIds and outstandingMeaningIds are empty. Required topology check and 13 tests, authority and local product-experience checks, 49 combined Discovery/PDP-0 tests, and 4 PDP-0 phase-exit tests passed with zero skips. Historical baseline and older observations remain unchanged. Next legal action is PDP-1 MDC-10; PDP-1\u20133 remain unvalidated, so Discovery FAIL, Build/closure NOT_ENTERED, Delivery BLOCKED.",
+      "executionNote": "R2 PDP-0 exit passed at commit 2aaa15f on exact material source fingerprint sha256:7a7a0f700890915863e9f93eafa30edc2f6d856adbf7944c17fecc0aadd8031b. Technical source currentness, delegated owner acceptance at the exact fingerprint, required checks, and phase exit all PASS; changedMeaningIds and outstandingMeaningIds are empty. Required topology check and 13 tests, authority and local product-experience checks, 49 combined Discovery/PDP-0 tests, and 4 PDP-0 phase-exit tests passed with zero skips. Historical baseline and older observations remain unchanged. Next legal action is PDP-1 MDC-10; PDP-1–3 remain unvalidated, so Discovery FAIL, Build/closure NOT_ENTERED, Delivery BLOCKED.",
       "ownerDecisionRef": ".product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md",
       "ownerAcceptanceInput": "docs/implementation/observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13.json",
       "technicalObserverDoesNotJoinOwnerRecord": true
+    },
+    {
+      "id": "RC-P0-01",
+      "phase": "PDP-0",
+      "name": "Recapture PDP-0 currentness on the authorized current cut",
+      "owner": "Media Discovery coordinator",
+      "dependsOn": [
+        "MDC-06"
+      ],
+      "where": [
+        "scripts/record-media-discovery-pdp0-currentness.mjs",
+        "scripts/lib/media-discovery-pdp0-phase-exit.mjs",
+        "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r15.json",
+        "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r15.json"
+      ],
+      "done": "Re-establish technical currentness and the PDP-0 phase exit on the exact authorized 146-path material source set; preserve owner acceptance, independent review, and downstream gates as separate fields.",
+      "status": "COMPLETED_CURRENTNESS_AND_PHASE_EXIT_PASS",
+      "executionEvidence": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r15.json",
+      "summary": "R15 PASS: 50/50 cells, 146 material paths, fingerprint sha256:eff717cf2537a285cd7a1c1a72b44a75766a0a7e6eef6ea97edbc2befa2e1a95. Internal source-impact dispositions only; exact-cut owner acceptance and independent signoff are not claimed."
     },
     {
       "id": "MDC-10",
@@ -1196,6 +1292,23 @@
       "executionNote": "Published immutable source-bound PDP-1 exit R3: 50/50 cells current, predecessor PDP-0 exit valid, zero outstanding meaning IDs, 30/30 external public contract digests match, required tests 68/68 with zero skips, definition-only parity PASS. Strict parity retains the proposal-only owner-mapping finding. Exact-cut owner acceptance and independent signoff are NOT_RECORDED/NOT_CLAIMED. Historical PDP-1 status was preserved. Next legal action is PDP-2 MDC-20."
     },
     {
+      "id": "RC-P1-01",
+      "phase": "PDP-1",
+      "name": "Recapture PDP-1 currentness against PDP-0 R15",
+      "owner": "Media Discovery coordinator",
+      "dependsOn": [
+        "RC-P0-01"
+      ],
+      "where": [
+        "scripts/record-media-discovery-pdp1-phase-exit.mjs",
+        "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json"
+      ],
+      "done": "Re-establish PDP-1 currentness for the exact 329-path source set against PDP-0 R15, with zero outstanding meaning IDs; keep exact-cut owner acceptance and independent signoff separate.",
+      "status": "COMPLETED_CURRENTNESS_AND_PHASE_EXIT_PASS",
+      "executionEvidence": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json",
+      "summary": "R30 PASS: 50/50 cells, 329 material paths, fingerprint sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4, exact predecessor PDP-0 R15, zero blockers and zero outstanding meaning IDs. Exact-cut owner acceptance is NOT_RECORDED."
+    },
+    {
       "id": "MDC-20",
       "phase": "PDP-2",
       "name": "Reconcile design and implementation-projection source drift",
@@ -1231,12 +1344,32 @@
       "executionNote": "Published immutable PDP-2 exit R2: all 50 cells current with exact owner/applicability/crosswalk trace, 154 historical pins reviewed with four source-bound non-meaning dispositions, 31 component families and all template/layout/recipe/composition/pattern populations matched, and prescribed local check plus tests passed with zero skips. External public contract digests match 30/30. Rendered/assistive technology accessibility acceptance, Shared package acceptance, exact-cut owner acceptance, and independent certification remain not claimed. Historical PDP-2 status remains unchanged."
     },
     {
+      "id": "RC-P2-01",
+      "phase": "PDP-2",
+      "name": "Recapture PDP-2 currentness against PDP-1 R30",
+      "owner": "Media Discovery coordinator",
+      "dependsOn": [
+        "RC-P0-01",
+        "RC-P1-01"
+      ],
+      "where": [
+        "scripts/capture-media-discovery-pdp2-current-cut.mjs",
+        "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-15-current-cut-r19.json"
+      ],
+      "status": "COMPLETED_CURRENTNESS_PASS",
+      "summary": "PDP-2 R19 PASS: 50/50 cells, 405 material paths, exact predecessor PDP-1 R30 fingerprint sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4; zero blockers; technical DEV_COMPLETE. Exact-cut owner acceptance NOT_RECORDED. R18 retained as immutable FAIL history.",
+      "latestAttemptRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-15-current-cut-r19.json",
+      "latestAttemptStatus": "PASS",
+      "sourceCurrentnessStatus": "sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b"
+    },
+    {
       "id": "MDC-30",
       "phase": "PDP-3",
       "name": "Reconcile complete journey and interface contracts",
       "owner": "Media experience owner",
       "dependsOn": [
-        "MDC-21"
+        "MDC-21",
+        "RC-P2-01"
       ],
       "where": [
         ".product-experience/pdp-3-product-experience/",
@@ -1248,8 +1381,8 @@
         ".product-experience/surface-registry.yaml"
       ],
       "done": "47 screen IDs, 30 journeys/130 steps, 147 UI actions and 31 scenarios plus 105 bounded recovery oracles keep exact version/outcome/negative states; 17 consumer channels have discoverable headless/GUI contracts and explicit non-admission.",
-      "status": "BLOCKED_PENDING_PDP0_R14_CURRENTNESS_RECAPTURE",
-      "executionNote": "R5 remains the immutable historical audit at HEAD 0526dd5f12c3b4464625abc9909aaecf5ccf5c73; its captured counts were 37 source-bound and 24 incomplete across 13 groups. Subsequent source-bound PDP-3 repairs have been verified against the live binding registry: 43 of 61 edges are now source-bound definition-only and 18 remain incomplete across C-05(3), C-08(1), C-10(1), C-13(1), C-14(2), C-19(1), C-20(2), C-21(2), C-26(3), C-28(2). The 14 consequential-step audit remains 5 definition-bound, 7 partial, and 2 gaps; the 9 partial/gap steps remain listed below. All 61 transports remain UNBOUND and runtime remains NOT_ADMITTED. PDP-3 currentness is not established; R6 has not been captured. Resolve only the current source gaps, keep J21 rights approval excluded and blocked, and run V-01 only after all 61 edge and 14 step definition gaps are resolved.",
+      "status": "ACTIVE_PENDING_MDC30_SOURCE_GAP_RESOLUTION_AND_R6",
+      "executionNote": "A live read of the 61-edge registry finds 43 SOURCE_BOUND_DEFINITION_ONLY entries and 18 incomplete entries across J-05, J-08, J-10, J-13, J-14, J-19, J-20, J-21, J-26, and J-28. These are raw source fields, not R6 validation, current task dispositions, or completion. A read-only source audit reviewed all 14 consequential-step selectors and found candidate no-transition evidence for S03, S07, and S09-S13, but these candidates do not alone satisfy owner action/capability joins. S01/S02 delivery acknowledgment/failure branches; S04/S05 transition/finality and retry authority; S06/S08 result, denial, unknown, and idempotency branches; and S14 compound workflow mapping remain open. R5 step statuses and incomplete IDs remain historical in preR6HistoricalEffectiveSubtaskIds. All transports remain UNBOUND, runtime NOT_ADMITTED, and J21 rights-approval scope remains excluded and blocked. Do not run MDC30-V-01 until MDC-30 source criteria and R6 validate all 61 edge dispositions and 14 steps.",
       "ownerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
       "machineOwnerDecisionRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
       "subtaskIds": [
@@ -1298,8 +1431,7 @@
         "MDC30-S-13",
         "MDC30-S-14",
         "MDC30-I-01",
-        "MDC30-E-01",
-        "MDC30-V-01"
+        "MDC30-E-01"
       ],
       "ownerReviewDisposition": "APPROVED_WITH_IMPLEMENTATION_CORRECTIONS_NOT_EXIT",
       "executionEvidenceRefs": [
@@ -1310,61 +1442,6 @@
         "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r5.json"
       ],
       "ownerFollowupDecisionRef": ".product-experience/reviews/2026-10-13-discovery-current-cut-delegated-owner-review.md",
-      "effectiveRemainingSubtaskIds": [
-        "MDC30-C-05",
-        "MDC30-C-08",
-        "MDC30-C-10",
-        "MDC30-C-13",
-        "MDC30-C-14",
-        "MDC30-C-19",
-        "MDC30-C-20",
-        "MDC30-C-21",
-        "MDC30-C-26",
-        "MDC30-C-28",
-        "MDC30-S-01",
-        "MDC30-S-03",
-        "MDC30-S-04",
-        "MDC30-S-05",
-        "MDC30-S-06",
-        "MDC30-S-07",
-        "MDC30-S-12",
-        "MDC30-S-13",
-        "MDC30-S-14"
-      ],
-      "actualCompletedSubtaskCount": {
-        "currentSourceAuditedEdges": 61,
-        "sourceBoundDefinitionOnlyEdges": 43,
-        "totalConsequentialStepsAudited": 14,
-        "sourceDefinitionBoundConsequentialSteps": 5
-      },
-      "actualPendingSubtaskCount": {
-        "incompleteEdges": 18,
-        "incompleteEdgeTaskIds": [
-          "MDC30-C-05",
-          "MDC30-C-08",
-          "MDC30-C-10",
-          "MDC30-C-13",
-          "MDC30-C-14",
-          "MDC30-C-19",
-          "MDC30-C-20",
-          "MDC30-C-21",
-          "MDC30-C-26",
-          "MDC30-C-28"
-        ],
-        "partialOrGapConsequentialSteps": 9,
-        "partialOrGapStepTaskIds": [
-          "MDC30-S-01",
-          "MDC30-S-03",
-          "MDC30-S-04",
-          "MDC30-S-05",
-          "MDC30-S-06",
-          "MDC30-S-07",
-          "MDC30-S-12",
-          "MDC30-S-13",
-          "MDC30-S-14"
-        ],
-        "mdc30V01": "GATED_UNTIL_ALL_EDGE_AND_STEP_DEFINITION_GAPS_RESOLVED"
-      },
       "prerequisiteCurrentnessTaskIds": [
         "RC-P0-01",
         "RC-P1-01",
@@ -1379,21 +1456,79 @@
         "MDC30-C-25",
         "MDC30-C-27"
       ],
-      "pendingCurrentPhaseReviewTarget": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r6.json",
+      "pendingCurrentPhaseReviewTarget": "docs/implementation/observations/media-discovery-pdp3-currentness-2026-10-15-r6.json",
       "lastCapturedProgressRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r5.json",
       "preR6SourceRegistryCounts": {
         "totalEdges": 61,
-        "sourceBound": 43,
-        "incomplete": 18,
+        "sourceBound": 37,
+        "incomplete": 24,
+        "incompleteGroups": 13,
         "consequentialSteps": 14,
         "sourceDefinitionBoundConsequentialSteps": 5,
         "partialConsequentialSteps": 7,
         "gapConsequentialSteps": 2,
-        "status": "R6_CAPTURE_PENDING_SOURCE_GAP_COUNTS_NOT_PHASE_EXIT"
+        "status": "R5_RECEIPT_HISTORICAL_CONFLICTS_WITH_PRIOR_PLAN_SUMMARY; R6_NOT_CAPTURED",
+        "observationRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r5.json",
+        "priorPlanReportedCounts": {
+          "sourceBound": 43,
+          "incomplete": 18,
+          "incompleteGroups": 10,
+          "status": "CONFLICTING_HISTORICAL_SUMMARY; NOT_LIVE"
+        }
       },
-      "nextLegalAction": "Resolve the external Lifecycle package.json fingerprint transition through its owner and re-establish root-wide Lifecycle continuity; R14\u2019s 0/50-current, 50/50-unknown result did not apply the exact existing R2. Then capture a fresh PDP-0 successor applying R2 and its recorded support hashes; after PDP-0 passes, recapture PDP-1 followed by PDP-2 serially. After predecessor currentness passes, resume preserved MDC-30 source-local work, capture and verify R6 against the current source set, validate all 61 edge dispositions and 14 consequential steps before MDC30-V-01, then continue MDC-31 \u2192 MDC-32 \u2192 MDC-40; keep J21 excluded and blocked, all 61 transports UNBOUND, runtime NOT_ADMITTED, and MDC-41 gated behind a passing Discovery barrier.",
-      "executionEligibility": "BLOCKED_UNTIL_PDP0_SUCCESSOR_PASSES",
-      "pendingCurrentPhaseReviewTargetStatus": "BLOCKED_UNTIL_PDP0_R14_SUCCESSOR_CURRENTNESS_PASSES"
+      "nextLegalAction": "PDP-2 R19 is current against exact PDP-1 R30. Revalidate PDP-3 source gaps from live sources before edits; preserve J21 rights approval excluded and blocked, all 61 transports UNBOUND, and runtime NOT_ADMITTED. Capture R6 only after exact edge and consequential-step definition dispositions are complete.",
+      "executionEligibility": "ELIGIBLE_FOR_PDP3_SOURCE_GAP_REVIEW_AFTER_PDP0_R15_PDP1_R30_PDP2_R19_TECHNICAL_PASSES",
+      "pendingCurrentPhaseReviewTargetStatus": "ACTIVE_PDP3_MDC30_SOURCE_GAP_REVIEW; R6_PENDING",
+      "preR6HistoricalEffectiveSubtaskIds": [
+        "MDC30-C-05",
+        "MDC30-C-08",
+        "MDC30-C-09",
+        "MDC30-C-10",
+        "MDC30-C-13",
+        "MDC30-C-14",
+        "MDC30-C-19",
+        "MDC30-C-20",
+        "MDC30-C-21",
+        "MDC30-C-23",
+        "MDC30-C-24",
+        "MDC30-C-26",
+        "MDC30-C-28",
+        "MDC30-S-01",
+        "MDC30-S-03",
+        "MDC30-S-04",
+        "MDC30-S-05",
+        "MDC30-S-06",
+        "MDC30-S-07",
+        "MDC30-S-12",
+        "MDC30-S-13",
+        "MDC30-S-14"
+      ],
+      "currentEffectiveSubtaskIds": null,
+      "currentEffectiveSubtaskStatus": "UNKNOWN_AFTER_PDP3_SOURCE_EDITS; R6_CAPTURE_REQUIRED",
+      "currentActualSubtaskCounts": null,
+      "currentActualSubtaskCountStatus": "UNKNOWN_AFTER_PDP3_SOURCE_EDITS; R6_CAPTURE_REQUIRED"
+    },
+    {
+      "id": "MDC30-V-01",
+      "phase": "PDP-3",
+      "name": "Validate current MDC-30 definitions and PDP-3 cells",
+      "owner": "Media product-definition verification owner",
+      "parentTaskId": "MDC-30",
+      "dependsOn": [
+        "MDC-30",
+        "RC-P2-01"
+      ],
+      "where": [
+        ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/",
+        "docs/implementation/media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json",
+        "tests/pdp3-journey-channel-contract-bindings.test.mjs",
+        "tests/pdp-experience-step-definition-oracle.test.mjs"
+      ],
+      "done": "Run only after MDC-30 source work is complete and PDP-3 R6 validates all 61 logical edge dispositions and 14 consequential steps against the exact live sources; then run the prescribed focused source-contract tests and validate all 50 PDP-3 cells. This task does not publish PDP-3 phase exit or Discovery completion.",
+      "status": "BLOCKED_UNTIL_MDC30_SOURCE_GAPS_AND_R6_PASS",
+      "executionNote": "Gated by MDC-30 source-gap resolution and R6. No verification result, phase exit, or source-currentness claim is recorded yet."
     },
     {
       "id": "MDC-31",
@@ -1472,22 +1607,41 @@
     }
   ],
   "currentCutPlanRef": "docs/implementation/MEDIA-DISCOVERY-REMAINING-CURRENT-CUT-EXECUTION-2026-10-13.md",
-  "pdp0PresentCutAttemptRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r14.json",
-  "pdp0PresentCutAttemptStatus": "FAIL_SOURCE_CURRENTNESS",
-  "pdp0PresentCutAttemptBlockers": [
-    "UNEXPECTED_REPOSITORY_MEMBERSHIP_CHANGE"
-  ],
-  "presentCutRecaptureRequiredPhaseOrder": [
-    "PDP-0",
-    "PDP-1",
-    "PDP-2"
-  ],
-  "presentCutRecaptureStatus": "PDP0_FAILED_PDP1_PDP2_BLOCKED",
+  "pdp0PresentCutAttemptRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r15.json",
+  "pdp0PresentCutAttemptStatus": "PASS_PHASE_EXIT_AND_SOURCE_CURRENTNESS",
+  "pdp0PresentCutAttemptBlockers": [],
+  "presentCutRecaptureRequiredPhaseOrder": [],
+  "presentCutRecaptureStatus": "PDP0_R15_PASS_PDP1_R30_PASS_PDP2_R19_PASS; PDP3_MDC30_SOURCE_GAP_RESOLUTION_ACTIVE_R6_PENDING",
   "pdp0PresentCutAttemptCurrentness": {
-    "current": 0,
-    "unknown": 50,
+    "current": 50,
+    "unknown": 0,
     "total": 50,
-    "lifecycleContinuity": "UNKNOWN",
-    "zeroWorkEligibleAtCapture": false
-  }
+    "externalContractDigestsMatched": 30,
+    "externalContractDigestCount": 30,
+    "lifecycleContinuity": "CONTINUOUS",
+    "zeroWorkEligibleAtCapture": true,
+    "blockers": [],
+    "materialPaths": 146
+  },
+  "currentPdp0MaterialFingerprintCaptured": "sha256:eff717cf2537a285cd7a1c1a72b44a75766a0a7e6eef6ea97edbc2befa2e1a95",
+  "currentPdp1MaterialFingerprintCaptured": "sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4",
+  "pdp2HistoricalMaterialFingerprint": "sha256:a4c43f03c44a5f1844fba5039f146473f7390c02b3a06ce582c095fc5d9e74bd",
+  "pdp2HistoricalReceiptDigest": "sha256:e08981102312364aad0ebe4282680e20b6d5fcf2db4e70e41a43880b2712d64d",
+  "sourceCurrentnessEvidenceScope": "PDP0_R15_PASS; PDP1_R30_PASS_AGAINST_PDP0_R15; PDP2_R19_PASS_AGAINST_PDP1_R30; PDP3_MDC30_SOURCE_GAP_WORK_ACTIVE_R6_NOT_CAPTURED",
+  "pdp1LatestAttemptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json",
+  "pdp1LatestAttemptDigest": "sha256:18ac1cb3631ef545c6790f1ea55038ecdd609264a61276ae10dae8d6304d967e",
+  "pdp1LatestAttemptFingerprint": "sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4",
+  "pdp1LatestAttemptStatus": "PASS",
+  "pdp1LatestAttemptCounts": {
+    "totalCells": 50,
+    "sourceCurrentCells": 50,
+    "materialPaths": 329
+  },
+  "pdp0CurrentnessStatus": "R15_PASS_SOURCE_CURRENTNESS_50_OF_50_146_PATHS; R14_IMMUTABLE_FAILURE; R12_HISTORICAL_PASS_CAPTURED_SOURCE_SET_ONLY",
+  "pdp1CurrentnessStatus": "R30_PASS_SOURCE_CURRENTNESS_50_OF_50_CELLS_329_PATHS_FINGERPRINT_sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4; DEV_COMPLETE_ZERO_OUTSTANDING_MEANING_IDS; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED; EXPECTED_STRICT_ADMISSION_FINDING",
+  "pdp2CurrentnessStatus": "R19_PASS_SOURCE_CURRENTNESS_50_OF_50_CELLS_405_PATHS_FINGERPRINT_sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b_EXACT_PREDECESSOR_PDP1_R30; ZERO_BLOCKERS; TECHNICAL_DEV_COMPLETE; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED",
+  "pdp2SourceCurrentnessStatus": "R19_PASS_SOURCE_CURRENTNESS_50_OF_50_CELLS_405_PATHS; EXACT_PREDECESSOR_PDP1_R30; ZERO_BLOCKERS; DEV_COMPLETE; OWNER_ACCEPTANCE_NOT_RECORDED",
+  "pdp1LatestAttemptBlockers": [],
+  "pendingCurrentPhaseReviewTargetStatus": "PDP0_R15_PASS; PDP1_R30_PASS; PDP2_R19_PASS_50_OF_50_405_PATHS_FINGERPRINT_sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b; PDP3_NOT_ESTABLISHED; MDC30_ACTIVE_R6_PENDING",
+  "currentPdp2MaterialFingerprintCaptured": "sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b"
 }

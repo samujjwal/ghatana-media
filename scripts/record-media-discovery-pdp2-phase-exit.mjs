@@ -38,8 +38,8 @@ const TOPOLOGY_PATH = '.product-experience/surfaces/media-physical-topology.v1.j
 const REGISTRY_PATH = '.product-experience/surface-registry.yaml';
 const OWNER_DECISION_PATH = '.product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md';
 const MDC20_PATH = 'docs/implementation/observations/media-discovery-pdp2-mdc20-design-drift-2026-10-13-r1.json';
-const P1_EXIT_PATH = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json';
-const P0_EXIT_PATH = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json';
+const P1_EXIT_PATH = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json';
+const P0_EXIT_PATH = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r15.json';
 const COMMON_PDP2_REFS = [
   '.product-experience/source-manifest.yaml',
   '.product-experience/surface-registry.yaml',
@@ -576,7 +576,36 @@ function externalContractObservation(predecessor) {
   };
 }
 
-function validatePdp1Predecessor(exit, matrix) {
+function validatePdp0Predecessor(exit, matrix, exitPath = P0_EXIT_PATH) {
+  const cells = exit.sourceCurrentness?.cells ?? [];
+  const valid = exit.schemaVersion === 'media.discovery-phase-exit.v1'
+    && exit.phase === 'PDP-0'
+    && exit.phaseExit?.status === 'PASS'
+    && exit.phaseExit?.sourceCurrentness === 'PASS'
+    && exit.sourceCurrentness?.status === 'PASS'
+    && exit.sourceCurrentness?.sourceCurrent === true
+    && exit.developmentStatus?.status === 'DEV_COMPLETE'
+    && exit.developmentStatus?.outstandingMeaningIds?.length === 0
+    && cells.length === 50
+    && new Set(cells.map((cell) => cell.surfaceId)).size === 50
+    && cells.every((cell) => cell.sourceCurrentness === 'CURRENT' && (cell.blockers?.length ?? 0) === 0)
+    && matrix.currentCut?.phaseExit === P0_EXIT_PATH
+    && exit.recordId === matrix.currentCut?.phaseExitRecordId
+    && exitPath === matrix.currentCut?.phaseExit
+    && matrix.currentCut?.materialSourceSetFingerprint === exit.developmentStatus.currentMaterialSourceSetFingerprint
+    && exit.sourceCurrentness?.materialSourceSetFingerprint === exit.developmentStatus.currentMaterialSourceSetFingerprint;
+  return {
+    valid,
+    phase: 'PDP-0',
+    exitRef: exitPath,
+    exitDigest: sha256(fs.readFileSync(path.join(root, exitPath))),
+    materialSourceSetFingerprint: exit.developmentStatus?.currentMaterialSourceSetFingerprint ?? null,
+    cellCount: cells.length,
+    status: valid ? 'PASS' : 'FAIL',
+  };
+}
+
+function validatePdp1Predecessor(exit, matrix, exitPath = P1_EXIT_PATH, pdp0 = null) {
   const cells = exit.sourceCurrentness?.cells ?? [];
   const valid = exit.schemaVersion === 'media.discovery-pdp1-currentness-observation.v1'
     && exit.phase === 'PDP-1'
@@ -588,16 +617,30 @@ function validatePdp1Predecessor(exit, matrix) {
     && cells.length === 50
     && new Set(cells.map((cell) => cell.surfaceId)).size === 50
     && cells.every((cell) => cell.sourceCurrentness === 'CURRENT' && (cell.blockers?.length ?? 0) === 0)
-    && matrix.currentCut?.pdp1PhaseExit === P1_EXIT_PATH
+    && exitPath === P1_EXIT_PATH
+    && matrix.currentCut?.pdp1PhaseExit === exitPath
+    && matrix.currentCut?.pdp1PhaseExitRecordId === exit.observationId
     && matrix.currentCut?.pdp1MaterialSourceSetFingerprint === exit.developmentStatus.currentMaterialSourceSetFingerprint;
+  const exactPdp0 = pdp0?.valid === true
+    && exit.predecessor?.phase === 'PDP-0'
+    && exit.predecessor?.exitRef === pdp0.exitRef
+    && exit.predecessor?.exitDigest === pdp0.exitDigest
+    && exit.predecessor?.materialSourceSetFingerprint === pdp0.materialSourceSetFingerprint
+    && exit.predecessor?.status === 'PASS'
+    && exit.predecessor?.currentnessValid === true
+    && exit.predecessor?.currentnessRef === matrix.currentCut?.currentnessObservation
+    && exit.predecessor?.currentnessDigest === sha256(fs.readFileSync(path.join(root, matrix.currentCut.currentnessObservation)))
+    && exit.sourceCurrentness?.materialSourceSetFingerprint === exit.developmentStatus?.currentMaterialSourceSetFingerprint
+    && matrix.currentCut?.pdp1CurrentnessObservation === `${exitPath}#sourceCurrentness`;
   return {
-    valid,
+    valid: valid && exactPdp0,
     phase: 'PDP-1',
-    exitRef: P1_EXIT_PATH,
+    exitRef: exitPath,
     materialSourceSetFingerprint: exit.developmentStatus?.currentMaterialSourceSetFingerprint ?? null,
     observationId: exit.observationId,
     cellCount: cells.length,
-    status: valid ? 'PASS' : 'FAIL',
+    pdp0Predecessor: pdp0,
+    status: valid && exactPdp0 ? 'PASS' : 'FAIL',
   };
 }
 
@@ -610,7 +653,8 @@ function makeObservation({ suffix, testRun }) {
   const p1Exit = readJson(P1_EXIT_PATH);
   const p0Exit = readJson(P0_EXIT_PATH);
   const topologyReview = validateMatrixAndTopology(matrix, topology, registry);
-  const predecessor = validatePdp1Predecessor(p1Exit, matrix);
+  const pdp0Predecessor = validatePdp0Predecessor(p0Exit, matrix);
+  const predecessor = validatePdp1Predecessor(p1Exit, matrix, P1_EXIT_PATH, pdp0Predecessor);
   const ownerDirection = ownerDirectionObservation();
   const populations = catalogPopulationObservation(status);
   const historicalStatusValid = status.phase === 'PDP-2' && status.status === 'DEV_COMPLETE'
@@ -846,5 +890,7 @@ function main() {
   process.stdout.write(`${JSON.stringify({ outputPath, phaseExit: observation.currentPhaseExit, materialSourceSetFingerprint: observation.sourceCurrentness.materialSourceSetFingerprint, cellCount: observation.sourceCurrentness.cells.length }, null, 2)}\n`);
   if (observation.currentPhaseExit.status !== 'PASS') process.exitCode = 1;
 }
+
+export { validatePdp0Predecessor, validatePdp1Predecessor };
 
 if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) main();

@@ -907,8 +907,8 @@ steps:
     screenContractRef: screen-contracts/edit-captions.yaml
     viewIntent: Edit caption wording, timing, and language for accessibility and review.
     actionRef: media.action.correct-caption
-    actionBindingState: journey-specific-action-binding-pending;
-      candidate-refs-come-from-screen-contract-only
+    actionBindingState: SOURCE_BOUND_TO_PDP1_OWNER_OPERATION_AND_PDP3_PURPOSE;
+      journey-exception-branch-allocation-remains-open
     stateRefs: []
     stateBindingState: NO_PDP1_MACHINE_STATE; SESSION_LOCAL_DRAFT_REVISION_ONLY
     candidateActionRefs:
@@ -919,7 +919,10 @@ steps:
       - media.action.save-caption-version
     surfaceRefs:
       - media.surface.web
-    objectRefs: []
+    objectRefs:
+      - media.domain.artifact-version
+      - media.domain.transcript-version
+      - media.domain.caption-version
     canonicalOperationRef: media.operation.caption-draft-write
     authorityRef: null
     decisionRef: null
@@ -980,19 +983,26 @@ steps:
         P1 caption-draft-write returns a session-local draft snapshot and does not register a canonical caption version.
         The composition step does not imply a rendered or delivered output.
     bindingStatus:
-      status: pending-owner-binding
+      status: SOURCE_BOUND_ACTION_OPERATION_OBJECT_RESULT; JOURNEY_BRANCH_ALLOCATION_OPEN
       candidateFields:
         - surfaceRefs
-      pendingFields:
-        - objectRefs
+      sourceBoundFields:
+        - actionRef
         - canonicalOperationRef
-        - authorityRef
-        - decisionRef
-        - handoffRef
+        - objectRefs
+        - success
         - requirementRefs
+        - transitionDisposition
+      authorityRefsRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j18-step-04.v1/authorityRefs
+      decisionRef: transitionDisposition remains bound to PXD-068; no separate action decision is inferred
+      handoffRef: no handoff binding is source-defined for this local draft write
+      pendingFields:
+        - failure
+        - recovery
+        - postconditions
       reason: Journey-level channels remain candidate surface refs only; state and
         transition applicability are source-bound to the exact session-local
-        operation; remaining bindings stay pending.
+        operation; journey exception, recovery, and postcondition allocation remain open.
       stateRefs: no canonical domain state machine applies to a session-local caption draft
       transitionRef: NO_P1_MACHINE_TRANSITION; session-local draft snapshot only
     stepDefinitionSemantics:
@@ -1079,7 +1089,10 @@ steps:
       canonicalBindings:
         surfaceRefs:
           - media.surface.web
-        objectRefs: []
+        objectRefs:
+          - media.domain.artifact-version
+          - media.domain.transcript-version
+          - media.domain.caption-version
         stateRefs: []
         canonicalOperationRef: media.operation.caption-draft-write
         authorityRef: null

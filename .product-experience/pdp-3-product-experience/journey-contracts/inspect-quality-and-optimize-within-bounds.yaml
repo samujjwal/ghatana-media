@@ -106,6 +106,21 @@ pdp1ResultEvidence:
         The result identifies requestId, logicalJobId, sourceSnapshotDigest, renderProfileRef, and durableAdmissionReceipt; it confirms durable job admission only. Render completion and delivery require separate observations.
       unknownDisposition: >-
         UNKNOWN_OUTCOME is neither success nor failure; reconcile the same request identity before an eligible retry and do not infer completion or delivery.
+  terminalOutcomeObservationGap:
+    status: SOURCE_DEFINITION_MISSING; TERMINAL_OPTIMIZATION_NOT_BOUND
+    journeyCompletionRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-19/completion
+    currentPurposeRefs:
+      - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j19-step-03.v1
+      - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j19-step-04.v1
+    availableButInsufficientObservationRefs:
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.job-status-seven-dimension.v1
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1
+    availableButInsufficientOperationRefs:
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
+    missingOwnerDefinition: >-
+      The current J-19 purpose bindings define comparison and render submission, but no source-defined operation/result selects or declines a measurable successor candidate, and no J-19 purpose-bound observation joins render completion to the exact resulting immutable output version. The submit-render durableAdmissionReceipt is admission only; the general job-status and output-preview/version-lineage observations are not joined to J-19 completion or successor selection. Owner definition must supply the exact selection/decline semantics and result identity, and the exact render-completion-to-output-version observation and purpose binding before this terminal outcome can be bound.
+    disposition: Keep terminalSuccess as an unbound PDP-0 outcome; do not infer selection, render completion, or output version from comparison or durable admission.
 preconditions:
   - Applicable metrics, thresholds, budget, stop conditions, and protected
     properties are defined.

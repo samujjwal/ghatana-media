@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { joinMediaPdp0PhaseExit, mediaPdp0RequiredCommands, resolveMediaPdp0SuccessorPredecessorRefs } from '../scripts/lib/media-discovery-pdp0-phase-exit.mjs';
+import { joinMediaPdp0PhaseExit, mediaPdp0RequiredCommands, projectMediaPdp0SuccessorExternalContractDisposition, resolveMediaPdp0SuccessorPredecessorRefs } from '../scripts/lib/media-discovery-pdp0-phase-exit.mjs';
 import {
   buildMediaPdp0CurrentnessPhaseDisposition,
   classifyCurrentCutPdp0PinChange,
@@ -127,7 +127,29 @@ test('PDP-0 successor CLI binds each impact record to its exact predecessor exit
     exitRef: 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json',
     currentnessRef: 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json',
   });
+  assert.deepEqual(resolveMediaPdp0SuccessorPredecessorRefs('MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R3'), {
+    exitRef: 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json',
+    currentnessRef: 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json',
+  });
   assert.throws(() => resolveMediaPdp0SuccessorPredecessorRefs('MEDIA-DISCOVERY-PDP0-R13-SUCCESSOR-IMPACT-2026-10-14-R1'), /Unsupported PDP-0 successor impact recordId/);
+});
+
+test('phase-exit projection preserves the R3 external package disposition as a named source-bound field', () => {
+  const disposition = {
+    repositoryId: 'ghatana-lifecycle', path: 'package.json',
+    classification: 'LIFECYCLE_TOOLING_CHECK_REGISTRATION_NO_PDP0_MEANING',
+    authorityRef: 'docs/implementation/observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r3.json',
+    authoritySha256: 'sha256:1111111111111111111111111111111111111111111111111111111111111111',
+    predecessorSha256: 'sha256:41c42b77f2fa20e1831f32ae116ae49d07ed8150b0b00265cda64e27f55f47bd',
+    observedSha256: 'sha256:6e24f0d78a3ce1521c1e7f3246ae09df4d93f42e75dc9525017b0549ac88ae4f',
+    externalOwnerAcceptance: 'NOT_CLAIMED', independentSignoff: 'NOT_CLAIMED',
+    lifecycleClosure: 'NOT_ENTERED', runtime: 'NOT_ADMITTED', delivery: 'BLOCKED', release: 'NOT_AUTHORIZED',
+  };
+  const projected = projectMediaPdp0SuccessorExternalContractDisposition({ externalContractDisposition: disposition });
+  assert.deepEqual(projected, disposition);
+  assert.notEqual(projected, disposition);
+  assert.equal(JSON.parse(JSON.stringify({ externalContractDisposition: projected })).externalContractDisposition.observedSha256,
+    'sha256:6e24f0d78a3ce1521c1e7f3246ae09df4d93f42e75dc9525017b0549ac88ae4f');
 });
 
 function currentCutTechnical() {

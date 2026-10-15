@@ -67,8 +67,8 @@ steps:
     screenContractRef: screen-contracts/review-dubbing.yaml
     viewIntent: Translation, voice, timing, meaning review and sync
     actionRef: media.action.review-translated-segment
-    actionBindingState: journey-specific-action-binding-pending;
-      candidate-refs-come-from-screen-contract-only
+    actionBindingState: SOURCE_BOUND_TO_PDP1_OWNER_OPERATION_AND_PDP3_PURPOSE;
+      journey-exception-branch-allocation-remains-open
     stateRefs: []
     stateBindingState: pending-owner-bound-state-reference-and-transition
     candidateActionRefs: []
@@ -464,7 +464,10 @@ steps:
       - media.action.review-recognized-or-synthesized-content
     surfaceRefs:
       - media.surface.web
-    objectRefs: []
+    objectRefs:
+      - media.domain.artifact-version
+      - media.domain.transcript-version
+      - media.domain.caption-version
     canonicalOperationRef: null
     authorityRef: null
     decisionRef: null
@@ -690,7 +693,10 @@ steps:
       canonicalBindings:
         surfaceRefs:
           - media.surface.web
-        objectRefs: []
+        objectRefs:
+          - media.domain.artifact-version
+          - media.domain.transcript-version
+          - media.domain.caption-version
         stateRefs: []
         canonicalOperationRef: null
         canonicalOperationRefs: []
@@ -824,14 +830,15 @@ steps:
         P1 caption-draft-write returns a session-local draft snapshot and does not register a canonical caption version.
         Language or timing edits remain draft-only until a separately defined save/version operation.
     bindingStatus:
-      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
-      objectRefs: pending-explicit-step-domain-object-reference
+      status: SOURCE_BOUND_ACTION_OPERATION_OBJECT_RESULT; JOURNEY_BRANCH_ALLOCATION_OPEN
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; channel-transport-unbound
+      objectRefs: source-bound-by-purpose-and-owner-operation-binding
       stateRefs: no canonical domain state machine applies to a session-local caption draft
-      canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
-      authorityRef: pending-explicit-step-authority-binding
-      decisionRef: pending-explicit-owner-decision-binding
+      canonicalOperationRef: source-bound-by-purpose-and-owner-operation-binding
+      authorityRefsRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j16-step-03.v1/authorityRefs
+      decisionRef: transitionDisposition remains bound to PXD-068; no separate action decision is inferred
       transitionRef: NO_P1_MACHINE_TRANSITION; session-local draft snapshot only
-      handoffRef: pending-explicit-step-handoff-allocation
+      handoffRef: no handoff binding is source-defined for this local draft write
       success: step-scoped immediate result defined by
         .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics;
         later journey outcome remains separate

@@ -53,7 +53,7 @@ pdp1ResultEvidence:
       finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/finality
       unknownDispositionRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/outcomes/unknownOutcome
       recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/retry
-      exactResult: The typed result returns the authoritative receipt and opaque identities for one empty project and its initial immutable revision.
+      exactResult: P1 result fields are operationRef, outcome, observedAt, and outputs; the successful versioned-project-state receipt carries projectId and initialRevisionId for the atomic ACTIVE project and empty immutable COMMITTED initial revision.
       finality: Only the atomic authoritative commit receipt establishes project creation; HTTP acknowledgment or local dispatch alone is not finality.
       unknownDisposition: After dispatch without an authoritative commit receipt, preserve UNKNOWN_OUTCOME and the original requestId.
       errorsAndRecovery: Inspect using the same requestId and original request fingerprint before any resubmission; never blindly retry an ambiguous dispatch.
@@ -646,7 +646,7 @@ steps:
     action: media.action.create-project
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
     capabilityRefs: [media.project.create]
-    result: a-new-empty-project-is-created-only-after-current-authority-and-the-project-request-are-validated
+    result: "Exact P1 result is operationRef=media.operation-slice.create-project, outcome, observedAt, and outputs; a successful versioned-project-state receipt carries opaque projectId and initialRevisionId for the atomically created ACTIVE project and empty immutable COMMITTED initial revision whose ID is the project head."
     surfaceRefs:
       - media.surface.web
     objectRefs:
@@ -671,18 +671,16 @@ steps:
       status: source-defined; runtime-admission-pending
       scope: step-specific-fail-closed
       sourceRef: media.operation-slice.create-project
-      proposal: Reject missing trusted identity, unauthorized workspace/policy, blank title, or mismatched
-        idempotency replay without mutation. After dispatch ambiguity preserve UNKNOWN_OUTCOME and
-        the same requestId; never infer no effect from absence/unavailability or blindly resubmit.
+      proposal: "The exact P1 failure outcomes are INVALID_REQUEST, ACCESS_DENIED, IDEMPOTENCY_CONFLICT, UNAVAILABLE, and UNKNOWN_OUTCOME. Reject missing trusted identity, unauthorized workspace/policy, blank title, or mismatched idempotency replay without mutation. After dispatch without an authoritative commit receipt preserve UNKNOWN_OUTCOME and the same requestId; absence or unavailability never proves no creation."
     degradedBehavior: Preserve last observation as stale/unknown; keep protected data hidden when
       identity or authorization cannot be confirmed.
     recovery:
       status: source-defined; runtime-admission-pending
       scope: same-identity-and-current-authority
       sourceRef: media.operation-slice.create-project
-      proposal: Reconcile with inspect-project using the same creationRequestId, tenant, principal, and
-        workspace. Resubmit only after an authoritative safe disposition; never create a second
-        request identity to bypass unknown.
+      proposal: Inspect using the same creationRequestId, tenant, principal, and workspace before any
+        resubmission. Do not automatically retry after ambiguous dispatch; resubmit only after an
+        authoritative safe disposition, never with a second request identity.
     postconditions:
       - Project, initial revision, and head reference commit atomically.
       - The initial revision has no media assets, scenes, timelines, or settings.
@@ -777,33 +775,28 @@ steps:
         actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
       stepSourceFacts:
         intent: search authorized projects and create or open one in the selected workspace
-        result: a-new-empty-project-is-created-only-after-current-authority-and-the-project-request-are-validated
+        result: "Exact P1 result is operationRef=media.operation-slice.create-project, outcome, observedAt, and outputs; a successful versioned-project-state receipt carries opaque projectId and initialRevisionId for the atomically created ACTIVE project and empty immutable COMMITTED initial revision whose ID is the project head."
         resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/ownerWireSchema/resultSchema
         resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
           status: source-defined; runtime-admission-pending
           scope: atomic-project-and-initial-revision-commit
           sourceRef: media.operation-slice.create-project
-          proposal: After an authoritative durable commit receipt, return the same opaque projectId and
-            initial revisionId for one ACTIVE project with an empty immutable COMMITTED revision and
-            matching headRevisionId.
+          proposal: After an authoritative durable commit receipt, return the same opaque projectId and initial revisionId for one ACTIVE project with an empty immutable COMMITTED revision and matching headRevisionId.
         failure:
           status: source-defined; runtime-admission-pending
           scope: step-specific-fail-closed
           sourceRef: media.operation-slice.create-project
-          proposal: Reject missing trusted identity, unauthorized workspace/policy, blank title, or mismatched
-            idempotency replay without mutation. After dispatch ambiguity preserve UNKNOWN_OUTCOME
-            and the same requestId; never infer no effect from absence/unavailability or blindly
-            resubmit.
+          proposal: "The exact P1 failure outcomes are INVALID_REQUEST, ACCESS_DENIED, IDEMPOTENCY_CONFLICT, UNAVAILABLE, and UNKNOWN_OUTCOME. Reject missing trusted identity, unauthorized workspace/policy, blank title, or mismatched idempotency replay without mutation. After dispatch without an authoritative commit receipt preserve UNKNOWN_OUTCOME and the same requestId; absence or unavailability never proves no creation."
         degradedBehavior: Preserve last observation as stale/unknown; keep protected data hidden when
           identity or authorization cannot be confirmed.
         recovery:
           status: source-defined; runtime-admission-pending
           scope: same-identity-and-current-authority
           sourceRef: media.operation-slice.create-project
-          proposal: Reconcile with inspect-project using the same creationRequestId, tenant, principal, and
-            workspace. Resubmit only after an authoritative safe disposition; never create a second
-            request identity to bypass unknown.
+          proposal: Inspect using the same creationRequestId, tenant, principal, and workspace before any
+            resubmission. Do not automatically retry after ambiguous dispatch; resubmit only after an
+            authoritative safe disposition, never with a second request identity.
         postconditions:
           - Project, initial revision, and head reference commit atomically.
           - The initial revision has no media assets, scenes, timelines, or settings.
@@ -845,9 +838,7 @@ steps:
           - duplicate-key-safe YAML parse
           - focused PDP3-005 ten-contract structural/reference check
         actualEvidence: []
-      acceptanceBoundary: Source definition only. Proposal branches, unbound
-        object/state/authority/transition/requirement identities, external review and lifecycle
-        evidence remain separate.
+      acceptanceBoundary: Source definition only. The P1 operation, objects, initial states, authority and requirement are bound; no lifecycle transition applies. Independent review, runtime admission and lifecycle evidence remain separate.
       fixtureOracle:
         status: STEP_SCENARIOS_BOUND; ORACLE_ACCEPTANCE_PENDING
         sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
@@ -870,24 +861,17 @@ steps:
           status: source-defined; runtime-admission-pending
           scope: atomic-project-and-initial-revision-commit
           sourceRef: media.operation-slice.create-project
-          proposal: After an authoritative durable commit receipt, return the same opaque projectId and
-            initial revisionId for one ACTIVE project with an empty immutable COMMITTED revision and
-            matching headRevisionId.
+          result: Only the authoritative durable commit receipt returns opaque projectId and initialRevisionId for one ACTIVE project with an empty immutable COMMITTED revision and matching headRevisionId; matching replay returns the same identities.
         nonhappyBranch:
           status: source-defined; runtime-admission-pending
           scope: step-specific-fail-closed
           sourceRef: media.operation-slice.create-project
-          proposal: Reject missing trusted identity, unauthorized workspace/policy, blank title, or mismatched
-            idempotency replay without mutation. After dispatch ambiguity preserve UNKNOWN_OUTCOME
-            and the same requestId; never infer no effect from absence/unavailability or blindly
-            resubmit.
+          result: Declared outcomes are INVALID_REQUEST, ACCESS_DENIED, IDEMPOTENCY_CONFLICT, UNAVAILABLE, and UNKNOWN_OUTCOME. After dispatch without an authoritative commit receipt preserve UNKNOWN_OUTCOME and the same requestId; scoped absence or unavailability never proves no creation.
         recoveryBranch:
           status: source-defined; runtime-admission-pending
           scope: same-identity-and-current-authority
           sourceRef: media.operation-slice.create-project
-          proposal: Reconcile with inspect-project using the same creationRequestId, tenant, principal, and
-            workspace. Resubmit only after an authoritative safe disposition; never create a second
-            request identity to bypass unknown.
+          result: Inspect using the same requestId before any resubmission; no automatic retry after ambiguous dispatch.
         executable: true
         ownerOracleAcceptance: pending-independent-review
       stepOutcomeSemantics:
@@ -896,7 +880,7 @@ steps:
         actionRef: media.action.create-project
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.create-project
-          intendedResult: a-new-empty-project-is-created-only-after-current-authority-and-the-project-request-are-validated
+          intendedResult: Exact P1 successful versioned-project-state receipt returns projectId and initialRevisionId for the atomically committed ACTIVE project and empty immutable COMMITTED initial revision; same-request replay returns the same identities.
           effect: create-one-empty-versioned-project-in-the-selected-authorized-workspace
           finality: confirmed-only-after-the-project-identity-and-initial-revision-are-recorded
         nonhappy:
@@ -910,17 +894,16 @@ steps:
             reconcile-an-unknown-result-against-the-same-request-identity
         recovery:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.create-project
-          recovery: do-not-claim-creation-without-confirming-evidence;
-            reconcile-an-unknown-result-against-the-same-request-identity
+          recovery: inspect-using-the-same-requestId-before-any-resubmission; no-automatic-retry-after-ambiguous-dispatch
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: TRANSITION_APPLICABILITY_UNRESOLVED
+        status: NO_P1_MACHINE_TRANSITION
         transitionRef: null
         stateRefs:
           - media-project/ACTIVE
           - media-project-version/COMMITTED
         operationRef: media.operation-slice.create-project
-        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.first-use-and-project-creation.J01-3
         runtimeAdmission: NOT_ADMITTED
       canonicalBindingDisposition:
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/2
@@ -930,43 +913,45 @@ steps:
           stateRefs: SOURCE_STEP_STATE_REFS_PRESENT
           canonicalOperationRef: EXACT_OPERATION_REF
           authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
-          transitionRef: TRANSITION_APPLICABILITY_UNRESOLVED
+          transitionRef: NO_P1_MACHINE_TRANSITION
           requirementRefs: EXACT_REQUIREMENT_REFS_PRESENT
           scenarioRefs: EXACT_SCENARIO_FIXTURE_REFS
         operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
         authorityRefs:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
-        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        requirementCrosswalkStatus: SOURCE_BOUND_MEDIA-REQ-CAP-PROJECT
         noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
           lifecycle receipt
       versionedObjectObservation:
-        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
-        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        status: SOURCE_BOUND_EXACT_OPERATION_OBJECT_SCOPE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.first-use-and-project-creation.J01-3
         objectRefs:
           - media.domain.project
           - media.domain.project-revision
         versionIdentityRule: Exact immutable version identity is required whenever the source action names a
           version; do not substitute a newer version.
-        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
-        observation: a-new-empty-project-is-created-only-after-current-authority-and-the-project-request-are-validated
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.first-use-and-project-creation.J01-3
+        observation: Successful command receipt identifies exactly one ACTIVE project and its empty immutable COMMITTED initial revision; this is a command result, not a later state observation.
         runtimeAdmission: NOT_ADMITTED
       operationContractBinding:
-        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.first-use-and-project-creation.J01-3
         operations:
           - operationRef: media.operation-slice.create-project
             operationKind: COMMAND
             domainObjectRefs:
               - media.domain.project
               - media.domain.project-revision
-            stateRefs: []
+            stateRefs:
+              - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-project/stateDefinitions/ACTIVE
+              - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-project-version/stateDefinitions/COMMITTED
             authorityRefs:
               - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
               - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
             profileRef: null
             transitionRefs: []
-            stateApplicabilitySource: null
-            stateApplicability: null
+            stateApplicabilitySource: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.first-use-and-project-creation.J01-3/stateBindingDisposition
+            stateApplicability: INITIAL_STATE_ON_COMMITTED_SUCCESS; command receipt is not a later state observation.
             scopeStatus: bounded-J01-owner-definition-under-PXD-054; runtime-NOT_ADMITTED;
               independent-PDP1-review-open
             runtimeAdmission: NOT_ADMITTED

@@ -61,10 +61,18 @@ export function resolveMediaPdp0SuccessorPredecessorRefs(recordId) {
       exitRef: 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json',
       currentnessRef: 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json',
     },
+    'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R3': {
+      exitRef: 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json',
+      currentnessRef: 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json',
+    },
   };
   const predecessor = predecessors[recordId];
   if (!predecessor) throw new Error(`Unsupported PDP-0 successor impact recordId: ${recordId}`);
   return predecessor;
+}
+
+export function projectMediaPdp0SuccessorExternalContractDisposition(classified) {
+  return classified?.externalContractDisposition ? structuredClone(classified.externalContractDisposition) : null;
 }
 
 const REVIEWED_PDP0_CHANGES = new Set([
@@ -390,7 +398,8 @@ function validatePdp0SuccessorImpactDisposition(record, technicalCurrentness, hi
   const isR8Successor = record?.recordId === 'MEDIA-DISCOVERY-PDP0-R8-SUCCESSOR-IMPACT-2026-10-14-R2';
   const isR11Successor = record?.recordId === 'MEDIA-DISCOVERY-PDP0-R11-SUCCESSOR-IMPACT-2026-10-14-R1';
   const isR12Successor = record?.recordId === 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R1'
-    || record?.recordId === 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2';
+    || record?.recordId === 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2'
+    || record?.recordId === 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R3';
   const predecessorLabel = isR12Successor ? 'R12' : isR11Successor ? 'R11' : isPxd164Successor ? 'R10' : isR8Successor ? 'R8' : 'R6';
   const predecessorExitRef = isR12Successor
     ? 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json'
@@ -481,7 +490,9 @@ function validatePdp0SuccessorImpactDisposition(record, technicalCurrentness, hi
       predecessorPathCount: previousPaths.length,
       observedPathCount: currentPaths.length,
       unchangedPathCount: unchangedCount,
-      internallyDispositionedChangedPathCount: Array.isArray(classified) ? classified.length : classified ? 1 : 0,
+      internallyDispositionedChangedPathCount: Array.isArray(classified) ? classified.length
+        : Array.isArray(classified?.sourceClassifications) ? classified.sourceClassifications.length : classified ? 1 : 0,
+      externalContractDisposition: projectMediaPdp0SuccessorExternalContractDisposition(classified),
       unreviewedChangedPathCount: unexpectedChanges.length,
       missingPathCount: missingPaths.length,
       additionalPathCount: additionalPaths.length,

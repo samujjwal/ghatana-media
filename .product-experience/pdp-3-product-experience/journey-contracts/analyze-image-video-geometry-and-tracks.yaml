@@ -872,6 +872,80 @@ steps:
         result: "Immediate result is limited to the exact P1 result schema for media.operation.action.submit-validated-request; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
         resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
+        selectedCapabilityResultBinding:
+          status: SOURCE_BOUND_P1_RESULT_SCHEMA; ACTION_RECEIPT_DISTINCT; RUNTIME_NOT_ADMITTED
+          purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1
+          operationSchemaBindings:
+            - operationRef: media.operation.capability.media-vision-detect
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect/resultSchema
+            - operationRef: media.operation.capability.media-vision-classify
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-classify/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-classify/resultSchema
+            - operationRef: media.operation.capability.media-vision-segment-image
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-segment-image/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-segment-image/resultSchema
+            - operationRef: media.operation.capability.media-vision-track-object
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-object/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-object/resultSchema
+            - operationRef: media.operation.capability.media-vision-track-point
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-point/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-point/resultSchema
+            - operationRef: media.operation.capability.media-vision-estimate-depth
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-depth/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-depth/resultSchema
+            - operationRef: media.operation.capability.media-vision-estimate-surface-normals
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-surface-normals/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-surface-normals/resultSchema
+            - operationRef: media.operation.capability.media-vision-estimate-human-pose
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-human-pose/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-human-pose/resultSchema
+            - operationRef: media.operation.capability.media-vision-estimate-hand-pose
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-hand-pose/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-hand-pose/resultSchema
+            - operationRef: media.operation.capability.media-vision-estimate-face-landmarks
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-face-landmarks/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-face-landmarks/resultSchema
+            - operationRef: media.operation.capability.media-vision-analyze-expression
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-analyze-expression/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-analyze-expression/resultSchema
+            - operationRef: media.operation.capability.media-vision-analyze-gaze
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-analyze-gaze/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-analyze-gaze/resultSchema
+            - operationRef: media.operation.capability.media-vision-matte-foreground-background
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-matte-foreground-background/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-matte-foreground-background/resultSchema
+          requestIdentityAndSelectors:
+            sourceArtifactVersion: requestSchema.input1.payload carries artifactId and versionId; sourceRef is optional where declared.
+            requestedAnalysis: requestSchema.input2.payload requires dimensions and permits an opaque timeRange reference.
+            frameAndRegionSelectors: UNRESOLVED; no frame- or region-specific selector is defined by these request schemas.
+          resultContract:
+            outcomeValues: [SUCCEEDED, REJECTED, UNKNOWN_OUTCOME]
+            succeededOutput: Exactly one typed-visual-analysis-result-with-applicability-and-uncertainty output; value carries analysisRef, sourceRefs, dimensionResults, and overallDisposition.
+            dimensionResult: Carries dimensionRef, disposition, evidenceRef, uncertaintyDisposition, and reasonRef; measurement and unitRef are optional.
+            provenance: Carries operationRef, observedAt, and sourceRefs; inputDigest, outputDigest, profileRef, and qualificationRef are optional.
+            observedAt: Result envelope and provenance observedAt are date-time fields.
+            rejected: Zero output claims.
+            unknown: Zero output claims; reconcile before retry.
+          unresolvedFields:
+            modelIdentityOrProvider: UNRESOLVED; no model/provider field exists in the declared result schema.
+            frameOrRegionEvidenceSelectors: UNRESOLVED; evidenceRef and timeRange are opaque references and do not define frame/region selector structure.
+            confidenceValues: UNRESOLVED; schema defines uncertaintyDisposition enum, not a confidence value or scale.
+          receiptBoundary: The media.action.submit-validated-request receipt remains the separate immediate action result; it does not stand for this selected capability result or imply job completion.
+          runtimeAdmission: NOT_ADMITTED
         success:
           status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           sourceRef: journey.terminalSuccess
@@ -1880,6 +1954,56 @@ steps:
         result: "Immediate result is limited to the exact P1 result schema for media.operation.action.submit-validated-request; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
         resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
+        selectedCapabilityResultBinding:
+          status: SOURCE_BOUND_P1_RESULT_SCHEMA; ACTION_RECEIPT_DISTINCT; RUNTIME_NOT_ADMITTED
+          purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1
+          operationSchemaBindings:
+            - operationRef: media.operation.capability.media-vision-segment-video
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-segment-video/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-segment-video/resultSchema
+            - operationRef: media.operation.capability.media-vision-track-object
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-object/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-object/resultSchema
+            - operationRef: media.operation.capability.media-vision-track-point
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-point/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-point/resultSchema
+            - operationRef: media.operation.capability.media-vision-estimate-optical-flow
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-optical-flow/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-optical-flow/resultSchema
+            - operationRef: media.operation.capability.media-vision-segment-motion
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-segment-motion/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-segment-motion/resultSchema
+            - operationRef: media.operation.capability.media-vision-detect-shot-boundary
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect-shot-boundary/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect-shot-boundary/resultSchema
+            - operationRef: media.operation.capability.media-vision-estimate-camera-motion
+              operationVersion: 1
+              requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-camera-motion/requestSchema
+              resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-camera-motion/resultSchema
+          requestIdentityAndSelectors:
+            sourceArtifactVersion: requestSchema.input1.payload carries artifactId and versionId; sourceRef is optional where declared.
+            requestedAnalysis: requestSchema.input2.payload requires dimensions and permits an opaque timeRange reference.
+            frameAndRegionSelectors: UNRESOLVED; no frame- or region-specific selector is defined by these request schemas.
+          resultContract:
+            outcomeValues: [SUCCEEDED, REJECTED, UNKNOWN_OUTCOME]
+            succeededOutput: Exactly one typed-visual-analysis-result-with-applicability-and-uncertainty output; value carries analysisRef, sourceRefs, dimensionResults, and overallDisposition.
+            dimensionResult: Carries dimensionRef, disposition, evidenceRef, uncertaintyDisposition, and reasonRef; measurement and unitRef are optional.
+            provenance: Carries operationRef, observedAt, and sourceRefs; inputDigest, outputDigest, profileRef, and qualificationRef are optional.
+            observedAt: Result envelope and provenance observedAt are date-time fields.
+            rejected: Zero output claims.
+            unknown: Zero output claims; reconcile before retry.
+          unresolvedFields:
+            modelIdentityOrProvider: UNRESOLVED; no model/provider field exists in the declared result schema.
+            frameOrRegionEvidenceSelectors: UNRESOLVED; evidenceRef and timeRange are opaque references and do not define frame/region selector structure.
+            confidenceValues: UNRESOLVED; schema defines uncertaintyDisposition enum, not a confidence value or scale.
+          receiptBoundary: The media.action.submit-validated-request receipt remains the separate immediate action result; it does not stand for this selected capability result or imply job completion.
+          runtimeAdmission: NOT_ADMITTED
         success:
           status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           sourceRef: journey.terminalSuccess

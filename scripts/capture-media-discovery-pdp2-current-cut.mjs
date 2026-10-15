@@ -68,12 +68,22 @@ const PDP1_CURRENT_CUT_EXIT_R19_PATH = 'docs/implementation/observations/media-d
 const PDP1_CURRENT_CUT_EXIT_R22_PATH = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r22.json';
 const PDP1_CURRENT_CUT_EXIT_R25_PATH = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r25.json';
 const PDP1_CURRENT_CUT_EXIT_R27_PATH = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json';
+const PDP1_CURRENT_CUT_EXIT_R30_PATH = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json';
+const PDP1_CURRENT_CUT_EXIT_R30_DIGEST = 'sha256:18ac1cb3631ef545c6790f1ea55038ecdd609264a61276ae10dae8d6304d967e';
+const PDP1_CURRENT_CUT_EXIT_R30_FINGERPRINT = 'sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4';
 const PDP1_CURRENT_CUT_EXIT_R25_DIGEST = 'sha256:914390414ee87982efa786e1edf2a8adb0bc3e5d8b5c609776a7f0c65f679e1e';
 const PDP1_CURRENT_CUT_EXIT_R27_DIGEST = 'sha256:2f57ace69d389dde7cbe7c5032c5b88d6a6b068c07177d33694fd968aa6c451e';
 const PDP1_CURRENT_CUT_EXIT_R27_FINGERPRINT = 'sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa';
 const PDP0_CURRENT_CUT_EXIT_R12_PATH = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json';
 const PDP0_CURRENT_CUT_EXIT_R12_DIGEST = 'sha256:91aeae0aad488bc8eb29d40bf955e527ef072ada762948064bc8e50422c5a5c5';
 const PDP0_CURRENT_CUT_EXIT_R12_FINGERPRINT = 'sha256:1a121cf988ba4a34f6b603b1f230fd0494160a3c6142c064d8d5cc2a6aa45f94';
+const PDP0_CURRENT_CUT_EXIT_R15_PATH = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r15.json';
+const PDP0_CURRENT_CUT_EXIT_R15_DIGEST = 'sha256:d36a318fc159b5060bdca65d4b1e6527b7616bf31c3609854aaa07947e80fa4a';
+const PDP0_CURRENT_CUT_EXIT_R15_FINGERPRINT = 'sha256:eff717cf2537a285cd7a1c1a72b44a75766a0a7e6eef6ea97edbc2befa2e1a95';
+const PDP2_R17_PATH = 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json';
+const PDP2_R17_DIGEST = 'sha256:e08981102312364aad0ebe4282680e20b6d5fcf2db4e70e41a43880b2712d64d';
+const PDP2_R17_FINGERPRINT = 'sha256:a4c43f03c44a5f1844fba5039f146473f7390c02b3a06ce582c095fc5d9e74bd';
+const PDP2_R17_TO_R30_IMPACT_PATH = 'docs/implementation/observations/media-discovery-pdp2-r17-to-r30-source-impact-2026-10-15-r1.json';
 const PDP2_ADDITIONAL_SOURCE_IMPACT_R1_PATH = 'docs/implementation/observations/media-discovery-pdp2-additional-source-impact-2026-10-14-r1.json';
 const PDP2_R16_PROJECTION_IMPACT_RECORD_PATH = 'docs/implementation/observations/media-discovery-pdp2-r16-projection-impact-2026-10-14-r1.json';
 const PDP2_R16_PROJECTION_IMPACT_DIGEST = 'sha256:230a0a04d46a6000b915c67bca4354418408c41a1bbda63ea62fa1eb9c1b86e5';
@@ -1632,6 +1642,34 @@ export function validatePdp2R16ProjectionImpact({ record, recordPath, r16Checkpo
 }
 
 export function validatePdp1EvidenceRefresh({ predecessor, currentDigests, actualCurrentDigests, pdp1Exit, pdp1ExitDigest, pdp1ExitPath = PDP1_CURRENT_CUT_EXIT_PATH, statusSource, semanticReviewSource, operationsSourceText, operationsReviewText, operationsReviewSource }) {
+  if (pdp1Exit?.observationId === 'MEDIA-PDP1-CURRENTNESS-2026-10-15-CURRENT-CUT-R30') {
+    const sourceImpact = validatePdp2R17SuccessorImpact({ predecessor, currentDigests, actualCurrentDigests,
+      r30Exit: pdp1Exit, matrix: readJson(MATRIX_PATH), impactRecord: readJson(PDP2_R17_TO_R30_IMPACT_PATH) });
+    const predecessorDigests = predecessor?.sourceCurrentness?.sourceSetDigests?.sourceContentDigests ?? {};
+    const valid = predecessor?.observationId === 'MEDIA-PDP2-CURRENTNESS-2026-10-14-CURRENT-CUT-R17'
+      && predecessor?.sourceCurrentness?.materialSourceSetFingerprint === PDP2_R17_FINGERPRINT
+      && Object.keys(predecessorDigests).length === 405
+      && sourceImpact.valid;
+    return {
+      valid,
+      classification: 'PDP1_R30_CURRENT_SOURCE_SUCCESSOR_WITH_EXACT_PDP2_SOURCE_IMPACT_BRIDGE',
+      predecessorRef: PDP2_R17_PATH,
+      successorRef: pdp1ExitPath,
+      successorDigest: pdp1ExitDigest ?? null,
+      paths: [],
+      currentPathCount: Object.keys(currentDigests ?? {}).length,
+      predecessorPathCount: Object.keys(predecessorDigests).length,
+      pdp1Proof: {
+        phaseStatus: pdp1Exit?.phaseExit?.status ?? null,
+        developmentStatus: pdp1Exit?.developmentStatus?.status ?? null,
+        outstandingMeaningIdCount: pdp1Exit?.developmentStatus?.outstandingMeaningIds?.length ?? null,
+        cellCount: pdp1Exit?.sourceCurrentness?.cells?.length ?? null,
+        materialPathCount: pdp1Exit?.sourceCurrentness?.materialPathDenominator?.uniquePaths ?? null,
+        exactCutOwnerAcceptance: pdp1Exit?.phaseExit?.exactCutOwnerAcceptance ?? null,
+      },
+      r17ToR30SourceImpact: sourceImpact,
+    };
+  }
   if (pdp1Exit?.observationId === 'MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R27') {
     const bridge = validatePdp1R27SourceMapBridge({
       r27Exit: pdp1Exit,
@@ -2134,6 +2172,66 @@ export function pdp2CurrentCutImpact(predecessor, currentDigests, {
   const actualCurrentDigests = Object.fromEntries(Object.keys(currentDigests).map((sourcePath) => [sourcePath, digestFile(sourcePath)]));
   const additionalRecord = additionalSourceImpactPath ? readJson(additionalSourceImpactPath) : null;
   const projectionRecord = additionalProjectionImpactPath ? readJson(additionalProjectionImpactPath) : null;
+  if (p1Exit?.observationId === 'MEDIA-PDP1-CURRENTNESS-2026-10-15-CURRENT-CUT-R30') {
+    const sourceImpact = validatePdp2R17SuccessorImpact({
+      predecessor, currentDigests, actualCurrentDigests, r30Exit: p1Exit,
+      matrix: readJson(MATRIX_PATH), impactRecord: readJson(PDP2_R17_TO_R30_IMPACT_PATH),
+    });
+    const currentCutScopedChangedPaths = sourceImpact.changedPaths;
+    const currentCutScopedTransitions = sourceImpact.transitions;
+    const currentnessSourceChains = {
+      valid: sourceImpact.valid,
+      materialPathCount: sourceImpact.materialPathCount,
+      changedPathCount: sourceImpact.changedPathCount,
+      uniqueTransitionPathCount: currentCutScopedTransitions.length,
+      chains: currentCutScopedTransitions.map((transition) => ({
+        path: transition.path,
+        r17Sha256: transition.predecessorSha256,
+        currentSha256: transition.observedSha256,
+        terminalSha256: transition.observedSha256,
+        hopCount: 1,
+        chainMatchesCurrent: transition.observedSha256 === currentDigests[transition.path],
+        terminalMatchesCurrent: transition.observedSha256 === currentDigests[transition.path],
+      })),
+    };
+    const p1EvidenceRefresh = validatePdp1EvidenceRefresh({
+      predecessor, currentDigests, actualCurrentDigests, pdp1Exit: p1Exit,
+      pdp1ExitDigest: digestFile(pdp1ExitPath), pdp1ExitPath,
+    });
+    const combined = validatePdp2CombinedSourceRefresh({
+      predecessor, currentDigests,
+      p2Impact: { valid: sourceImpact.valid, currentCutScopedChangedPaths,
+        currentCutSupplementalSourceWork: [], scopedChangedPaths: currentCutScopedChangedPaths,
+        supplementalSourceWork: [], currentnessSourceChains },
+      p1EvidenceRefresh,
+    });
+    return {
+      valid: sourceImpact.valid && p1EvidenceRefresh.valid && combined.valid,
+      scopedImpactValid: sourceImpact.valid,
+      scopedChangedPaths: currentCutScopedChangedPaths,
+      currentCutScopedChangedPaths,
+      scopedTransitions: currentCutScopedTransitions,
+      currentCutSupplementalSourceWork: [],
+      supplementalSourceWork: [],
+      supplementalSourceWorkValid: true,
+      transitionsValid: sourceImpact.valid,
+      transitionCount: currentCutScopedTransitions.length,
+      currentnessSourceChains,
+      r17ToR30SourceImpact: sourceImpact,
+      r17HistoricalPinReview: predecessor?.historicalPinReview ?? null,
+      predecessorEvidenceRefresh: p1EvidenceRefresh,
+      combinedSourceRefresh: combined,
+      additionalSourceImpact: null,
+      r16ProjectionImpact: null,
+      changedPaths: combined.changedPaths,
+      ownerAcceptance: 'NOT_CLAIMED',
+      independentReview: 'NOT_CLAIMED',
+      lifecycleClosure: 'NOT_ENTERED',
+      runtimeAdmission: 'NOT_ADMITTED',
+      delivery: 'NOT_AUTHORIZED',
+      release: 'NOT_AUTHORIZED',
+    };
+  }
   const isR27 = p1Exit?.observationId === 'MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R27';
   if (isR27 || p1Exit?.observationId === 'MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R25') {
     const r27Bridge = isR27 ? validatePdp1R27SourceMapBridge({
@@ -2357,6 +2455,40 @@ export function sourcePinReview(status, currentDigests, mdc20, ownerChanges, sup
       return { path: sourcePath, historicalSha256: expected, currentSha256: current, matches: expected === current };
     });
   const changed = changes.filter((entry) => !entry.matches);
+  const r17HistoricalReview = p2Impact.r17HistoricalPinReview;
+  const r17HistoricalPins = r17HistoricalReview?.changedPins ?? [];
+  const r17HistoricalPinByPath = new Map(r17HistoricalPins.map((entry) => [entry.path, entry]));
+  const r17SuccessorTransitions = new Map((p2Impact.scopedTransitions ?? []).map((entry) => [entry.path, entry]));
+  const r17HistoricalExpectedPaths = [...(r17HistoricalReview?.expectedChangedPaths ?? [])].sort();
+  const changedPaths = changed.map((entry) => entry.path).sort();
+  const r17HistoricalPinPaths = r17HistoricalPins.map((entry) => entry.path).sort();
+  const r17PinPathsMatch = r17HistoricalExpectedPaths.length === r17HistoricalPins.length
+    && new Set(r17HistoricalPinPaths).size === r17HistoricalPinPaths.length
+    && JSON.stringify(r17HistoricalExpectedPaths) === JSON.stringify(r17HistoricalPins.map((entry) => entry.path).sort())
+    && JSON.stringify(changedPaths) === JSON.stringify(r17HistoricalExpectedPaths);
+  const r17PinDispositionInventoryValid = r17HistoricalReview?.historicalPinCount === changes.length
+    && r17HistoricalReview?.currentPinCount + r17HistoricalReview?.changedPinCount === r17HistoricalReview?.historicalPinCount
+    && r17HistoricalReview?.missingPinCount === 0
+    && r17HistoricalPins.every((entry) => typeof entry.path === 'string'
+      && /^sha256:[a-f0-9]{64}$/u.test(entry.historicalSha256 ?? '')
+      && /^sha256:[a-f0-9]{64}$/u.test(entry.currentSha256 ?? '')
+      && (typeof entry.disposition?.classification === 'string' && entry.disposition.classification.length > 0
+        || entry.historicalR5Chain?.valid === true && entry.historicalR5Chain.currentSha256 === entry.currentSha256));
+  const r17HistoricalPinCarryForwardValid = p2Impact.r17ToR30SourceImpact?.valid === true
+    && r17PinDispositionInventoryValid
+    && r17HistoricalReview?.changedPinCount === r17HistoricalReview?.expectedChangedPathCount
+    && r17HistoricalReview?.unclassifiedChangedPins?.length === 0
+    && r17HistoricalReview?.expectedChangedPathsMatch === true
+    && r17PinPathsMatch
+    && changed.every((entry) => {
+      const prior = r17HistoricalPinByPath.get(entry.path);
+      const transition = r17SuccessorTransitions.get(entry.path);
+      return prior?.historicalSha256 === entry.historicalSha256
+        && (transition
+          ? prior.currentSha256 === transition.predecessorSha256
+            && entry.currentSha256 === transition.observedSha256
+          : entry.currentSha256 === prior.currentSha256);
+    });
   const dispositionByPath = new Map((mdc20.pinReview?.changedPins ?? []).map((entry) => [entry.path, entry]));
   const ownerByPath = new Map(ownerChanges.map((entry) => [entry.path, entry]));
   const historicalR5ByPath = new Map(changed.flatMap((entry) => {
@@ -2382,6 +2514,7 @@ export function sourcePinReview(status, currentDigests, mdc20, ownerChanges, sup
           && entry.historicalSha256 === work.predecessorSha256
           && entry.currentSha256 === work.observedSha256
           && currentDigests[entry.path] === work.observedSha256)) return false;
+    if (r17HistoricalPinCarryForwardValid && r17HistoricalPinByPath.has(entry.path)) return false;
     if (historicalR5ByPath.get(entry.path)) return false;
     const disposition = dispositionByPath.get(entry.path);
     if (disposition?.historicalSha256 === entry.historicalSha256
@@ -2397,7 +2530,7 @@ export function sourcePinReview(status, currentDigests, mdc20, ownerChanges, sup
       && Array.isArray(reviewed?.meaningIdsChangedAtReviewedCut)
       && reviewed.meaningIdsChangedAtReviewedCut.length === 0);
   });
-  const expected = new Set([
+  const expected = new Set(r17HistoricalPinCarryForwardValid ? r17HistoricalExpectedPaths : [
     '.product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md',
     'apps/media-experience-explorer/specification-artifacts.json',
     'libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx',
@@ -2436,28 +2569,42 @@ export function sourcePinReview(status, currentDigests, mdc20, ownerChanges, sup
       const sourceWork = p2Impact.supplementalSourceWork?.find(({ path: sourcePath }) => sourcePath === entry.path);
       const projectionDelta = p2Impact.r16ProjectionImpact?.transitions?.find(({ path: sourcePath }) => sourcePath === entry.path);
       const historicalR5 = historicalR5ByPath.get(entry.path);
+      const r17HistoricalPin = r17HistoricalPinByPath.get(entry.path);
       return {
         ...entry,
-        historicalR5Chain: historicalR5 ? {
+        historicalR5Chain: r17HistoricalPin?.historicalR5Chain ?? (historicalR5 ? {
           r9Sha256: historicalR5.chain.r9Sha256,
           r13Sha256: historicalR5.chain.r13Sha256,
           currentSha256: historicalR5.chain.currentSha256,
           transitions: historicalR5.transitions,
           sourceWork: historicalR5.sourceWork,
           valid: true,
-        } : null,
-        disposition: dispositionByPath.get(entry.path)
+        } : null),
+        disposition: r17HistoricalPin?.disposition ?? dispositionByPath.get(entry.path)
           ?? (p2Impact.additionalSourceImpact?.valid && (p2Impact.additionalSourceImpact.transitions ?? [p2Impact.additionalSourceImpact]).some((delta) => delta.path === entry.path)
             ? { classification: (p2Impact.additionalSourceImpact.transitions ?? [p2Impact.additionalSourceImpact]).find((delta) => delta.path === entry.path).classification, meaningIdsChanged: (p2Impact.additionalSourceImpact.transitions ?? [p2Impact.additionalSourceImpact]).find((delta) => delta.path === entry.path).meaningIdsChanged, sourceBoundToAdditionalImpact: true } : null)
           ?? (projectionDelta ? { classification: projectionDelta.classification, meaningChange: projectionDelta.meaningChange, sourceBoundToR16ProjectionImpact: true } : null)
           ?? (p1Evidence ? { classification: p2Impact.predecessorEvidenceRefresh.classification, sourceBoundToExplicitPdp1Successor: true } : null)
           ?? (scopedDelta ? { classification: scopedDelta.classification, meaningChange: scopedDelta.meaningChange } : null)
+          ?? (r17HistoricalPinByPath.has(entry.path) ? {
+            classification: r17HistoricalPinByPath.get(entry.path).disposition?.classification ?? 'R17_HISTORICAL_PIN_DISPOSITION_CARRIED_FORWARD',
+            meaningChange: r17HistoricalPinByPath.get(entry.path).disposition?.meaningChange ?? null,
+            sourceBoundToR17HistoricalPinReview: r17HistoricalPinCarryForwardValid,
+          } : null)
           ?? (sourceWork ? { classification: sourceWork.classification, workKind: sourceWork.workKind, disposition: sourceWork.disposition, sourceDerivedFrom: sourceWork.derivedFrom?.sourceRef ?? null } : null),
       };
     }),
     unclassifiedChangedPins: unclassified,
     expectedChangedPaths: [...expected].sort(),
     expectedChangedPathCount: expected.size,
+    r17HistoricalPinCarryForward: {
+      valid: r17HistoricalPinCarryForwardValid,
+      predecessorRef: p2Impact.r17ToR30SourceImpact?.predecessorRef ?? null,
+      expectedChangedPaths: r17HistoricalExpectedPaths,
+      expectedChangedPathCount: r17HistoricalExpectedPaths.length,
+      matchedChangedPathCount: changed.filter((entry) => r17HistoricalPinByPath.has(entry.path)).length,
+      sourceImpactTransitionCount: r17SuccessorTransitions.size,
+    },
     explorerUsedOwnerDirectionBecauseMdc20HashWasStale: changed.some((entry) => entry.path === 'apps/media-experience-explorer/specification-artifacts.json'
       && dispositionByPath.get(entry.path)?.currentSha256 !== entry.currentSha256
       && ownerByPath.has(entry.path)),
@@ -2886,12 +3033,260 @@ export function validatePdp1R27SourceMapBridge({
   };
 }
 
-export function validatePdp1Predecessor(exit, matrix, p1ExitPath, pairedP0) {
+const PDP2_R17_TO_R30_AUTHORIZED_DELTAS = [
+  {
+    path: '.product-experience/source-manifest.yaml',
+    predecessorSha256: 'sha256:76cdcbff690e6a3439580e0df6fc68dbf67e7105b38d8ad1c9c3e9cb8b36145a',
+    observedSha256: 'sha256:3a5c7e92e7470ee11c8bd1779db31a27aba75461c16fef37785901544c0c29fd',
+    classification: 'PDP1_SOURCE_INVENTORY_REFRESH_NO_ADDITIONAL_PDP2_MEANING',
+  },
+  {
+    path: 'apps/media-experience-explorer/specification-artifacts.json',
+    predecessorSha256: 'sha256:2aadeeffe41ea354f43a0824a069b1e21bfef5a31052e4dca8ceb68da9bcfc75',
+    observedSha256: 'sha256:6cb5006b07b113dfa5cc1b41a78648be56e76910c60b60bd82f286c1593b8593',
+    classification: 'PDP1_EXPLORER_SOURCE_INVENTORY_PROJECTION_REFRESH_NO_ADDITIONAL_PDP2_MEANING',
+  },
+  {
+    path: 'scripts/record-media-discovery-pdp2-phase-exit.mjs',
+    predecessorSha256: 'sha256:a137486babfa57a5ebbb8f1ebbd1b477915dfcf94da97aaf7211041b996daeae',
+    observedSha256: 'sha256:86fb027d5edd49a1274f4c701add04db0121f01733f97feea620c989d91d68c5',
+    classification: 'PDP2_CAPTURE_HARNESS_EXACT_PREDECESSOR_GUARD_NO_PRODUCT_MEANING',
+  },
+];
+
+export function validatePdp1R30SourceMapBridge({
+  r30Exit,
+  r17Exit = readJson(PDP2_R17_PATH),
+  p0Exit = readJson(PDP0_CURRENT_CUT_EXIT_R15_PATH),
+  matrix = readJson(MATRIX_PATH),
+  impactRecord = readJson(PDP2_R17_TO_R30_IMPACT_PATH),
+  pdp1ExitPath = PDP1_CURRENT_CUT_EXIT_R30_PATH,
+  pdp1ExitDigest = digestFile(PDP1_CURRENT_CUT_EXIT_R30_PATH),
+  actualCurrentDigests = {},
+  currentDigests = {},
+} = {}) {
+  const r17Digests = r17Exit?.sourceCurrentness?.sourceSetDigests?.sourceContentDigests ?? {};
+  const r30Digests = r30Exit?.sourceCurrentness?.sourceContentDigests ?? {};
+  const r17Paths = Object.keys(r17Digests).sort();
+  const r30Paths = Object.keys(r30Digests).sort();
+  const overlap = r30Paths.filter((sourcePath) => Object.hasOwn(r17Digests, sourcePath));
+  const p1ChangedPaths = overlap.filter((sourcePath) => r17Digests[sourcePath] !== r30Digests[sourcePath]).sort();
+  const changedPaths = r17Paths.filter((sourcePath) => {
+    const liveDigest = actualCurrentDigests[sourcePath] ?? digestFile(sourcePath);
+    return r17Digests[sourcePath] !== liveDigest;
+  }).sort();
+  const sourceDeltas = impactRecord?.sourceDeltas ?? [];
+  const exactDeltaSet = sourceDeltas.length === PDP2_R17_TO_R30_AUTHORIZED_DELTAS.length
+    && sourceDeltas.every((delta, index) => {
+      const expected = PDP2_R17_TO_R30_AUTHORIZED_DELTAS[index];
+      return delta?.path === expected.path
+        && delta?.predecessorSha256 === expected.predecessorSha256
+        && delta?.observedSha256 === expected.observedSha256
+        && delta?.classification === expected.classification
+        && delta?.phase === 'PDP-2'
+        && delta?.meaningChange === 'NO_ADDITIONAL_PDP2_MEANING'
+        && Array.isArray(delta?.meaningIdsChanged) && delta.meaningIdsChanged.length === 0
+        && delta?.requiresFreshCurrentness === true;
+    });
+  const expectedP1ChangedPaths = PDP2_R17_TO_R30_AUTHORIZED_DELTAS
+    .filter(({ path: sourcePath }) => Object.hasOwn(r30Digests, sourcePath))
+    .map(({ path: sourcePath }) => sourcePath).sort();
+  const exactChangedPaths = JSON.stringify(changedPaths)
+    === JSON.stringify(PDP2_R17_TO_R30_AUTHORIZED_DELTAS.map(({ path: sourcePath }) => sourcePath).sort());
+  const exactP1ChangedPaths = JSON.stringify(p1ChangedPaths) === JSON.stringify(expectedP1ChangedPaths);
+  const r17LivePinsMatch = r17Paths.length === 405 && r17Paths.every((sourcePath) => {
+    const liveDigest = actualCurrentDigests[sourcePath] ?? digestFile(sourcePath);
+    return (currentDigests[sourcePath] === undefined || currentDigests[sourcePath] === liveDigest);
+  });
+  const livePinsMatch = r30Paths.length === 329 && r30Paths.every((sourcePath) => {
+    const liveDigest = actualCurrentDigests[sourcePath] ?? digestFile(sourcePath);
+    return liveDigest === r30Digests[sourcePath]
+      && (currentDigests[sourcePath] === undefined || currentDigests[sourcePath] === liveDigest);
+  });
+  const transitionsMatchSources = exactDeltaSet && sourceDeltas.every((delta) => {
+    const liveDigest = actualCurrentDigests[delta.path] ?? digestFile(delta.path);
+    return r17Digests[delta.path] === delta.predecessorSha256
+      && (!Object.hasOwn(r30Digests, delta.path) || r30Digests[delta.path] === delta.observedSha256)
+      && liveDigest === delta.observedSha256
+      && (currentDigests[delta.path] === undefined || currentDigests[delta.path] === liveDigest);
+  });
+  const r17Valid = r17Exit?.observationId === 'MEDIA-PDP2-CURRENTNESS-2026-10-14-CURRENT-CUT-R17'
+    && digestFile(PDP2_R17_PATH) === PDP2_R17_DIGEST
+    && r17Exit?.sourceCurrentness?.status === 'PASS'
+    && r17Exit?.sourceCurrentness?.sourceCurrent === true
+    && r17Exit?.sourceCurrentness?.materialSourceSetFingerprint === PDP2_R17_FINGERPRINT
+    && r17Exit?.sourceCurrentness?.sourceSetDigests?.sourcePathCount === 405
+    && r17Exit?.sourceCurrentness?.cells?.length === 50
+    && r17Paths.length === 405;
+  const p0Valid = p0Exit?.phase === 'PDP-0'
+    && p0Exit?.phaseExit?.status === 'PASS'
+    && p0Exit?.sourceCurrentness?.status === 'PASS'
+    && p0Exit?.sourceCurrentness?.sourceCurrent === true
+    && p0Exit?.sourceCurrentness?.materialSourceSetFingerprint === PDP0_CURRENT_CUT_EXIT_R15_FINGERPRINT
+    && digestFile(PDP0_CURRENT_CUT_EXIT_R15_PATH) === PDP0_CURRENT_CUT_EXIT_R15_DIGEST;
+  const p1Valid = pdp1ExitPath === PDP1_CURRENT_CUT_EXIT_R30_PATH
+    && pdp1ExitDigest === PDP1_CURRENT_CUT_EXIT_R30_DIGEST
+    && pdp1ExitDigest === digestFile(PDP1_CURRENT_CUT_EXIT_R30_PATH)
+    && r30Exit?.schemaVersion === 'media.discovery-pdp1-currentness-observation.v1'
+    && r30Exit?.observationId === 'MEDIA-PDP1-CURRENTNESS-2026-10-15-CURRENT-CUT-R30'
+    && r30Exit?.phase === 'PDP-1'
+    && r30Exit?.phaseExit?.status === 'PASS'
+    && r30Exit?.phaseExit?.sourceCurrentness === 'PASS'
+    && r30Exit?.sourceCurrentness?.status === 'PASS'
+    && r30Exit?.sourceCurrentness?.sourceCurrent === true
+    && r30Exit?.sourceCurrentness?.materialSourceSetFingerprint === PDP1_CURRENT_CUT_EXIT_R30_FINGERPRINT
+    && r30Exit?.sourceCurrentness?.materialPathDenominator?.uniquePaths === 329
+    && r30Exit?.sourceCurrentness?.cells?.length === 50
+    && r30Exit?.sourceCurrentness?.cells?.every((cell) => cell.sourceCurrentness === 'CURRENT' && (cell.blockers?.length ?? 0) === 0)
+    && r30Exit?.developmentStatus?.status === 'DEV_COMPLETE'
+    && r30Exit?.developmentStatus?.currentMaterialSourceSetFingerprint === PDP1_CURRENT_CUT_EXIT_R30_FINGERPRINT
+    && r30Exit?.developmentStatus?.outstandingMeaningIds?.length === 0
+    && r30Exit?.predecessor?.phase === 'PDP-0'
+    && r30Exit?.predecessor?.exitRef === PDP0_CURRENT_CUT_EXIT_R15_PATH
+    && r30Exit?.predecessor?.exitDigest === PDP0_CURRENT_CUT_EXIT_R15_DIGEST
+    && r30Exit?.predecessor?.materialSourceSetFingerprint === PDP0_CURRENT_CUT_EXIT_R15_FINGERPRINT
+    && r30Exit?.predecessor?.cellCount === 50
+    && r30Exit?.predecessor?.status === 'PASS';
+  const matrixMatches = matrix.currentCut?.phaseExit === PDP0_CURRENT_CUT_EXIT_R15_PATH
+    && matrix.currentCut?.materialSourceSetFingerprint === PDP0_CURRENT_CUT_EXIT_R15_FINGERPRINT
+    && matrix.currentCut?.pdp1PhaseExit === PDP1_CURRENT_CUT_EXIT_R30_PATH
+    && matrix.currentCut?.pdp1CurrentnessObservation === `${PDP1_CURRENT_CUT_EXIT_R30_PATH}#sourceCurrentness`
+    && matrix.currentCut?.pdp1PhaseExitRecordId === 'MEDIA-PDP1-CURRENTNESS-2026-10-15-CURRENT-CUT-R30'
+    && matrix.currentCut?.pdp1MaterialSourceSetFingerprint === PDP1_CURRENT_CUT_EXIT_R30_FINGERPRINT;
+  const impactRecordValid = impactRecord?.schemaVersion === 'media.discovery-pdp2-successor-source-impact.v1'
+    && impactRecord?.recordId === 'MEDIA-DISCOVERY-PDP2-R17-TO-R30-SOURCE-IMPACT-2026-10-15-R1'
+    && impactRecord?.campaign?.repository === 'samujjwal/ghatana-media'
+    && impactRecord?.campaign?.stage === 'DISCOVERY'
+    && impactRecord?.campaign?.phase === 'PDP-2'
+    && impactRecord?.campaign?.scope === 'Only the two PDP-1 inventory/projection transitions and the one PDP-2 capture-harness transition listed below, within the existing 405-path, 50-cell source set.'
+    && impactRecord?.predecessorCut?.phase === 'PDP-2'
+    && impactRecord?.predecessorCut?.receiptRef === PDP2_R17_PATH
+    && impactRecord?.predecessorCut?.receiptSha256 === PDP2_R17_DIGEST
+    && impactRecord?.predecessorCut?.sourceFingerprint === PDP2_R17_FINGERPRINT
+    && impactRecord?.predecessorCut?.materialPathCount === 405
+    && impactRecord?.predecessorCut?.cellCount === 50
+    && impactRecord?.successorPredecessors?.pdp1?.receiptRef === PDP1_CURRENT_CUT_EXIT_R30_PATH
+    && impactRecord?.successorPredecessors?.pdp1?.phase === 'PDP-1'
+    && impactRecord?.successorPredecessors?.pdp1?.receiptSha256 === PDP1_CURRENT_CUT_EXIT_R30_DIGEST
+    && impactRecord?.successorPredecessors?.pdp1?.sourceFingerprint === PDP1_CURRENT_CUT_EXIT_R30_FINGERPRINT
+    && impactRecord?.successorPredecessors?.pdp1?.status === 'PASS'
+    && impactRecord?.successorPredecessors?.pdp1?.sourceCurrent === true
+    && impactRecord?.successorPredecessors?.pdp1?.cellCount === 50
+    && impactRecord?.successorPredecessors?.pdp1?.materialPathCount === 329
+    && impactRecord?.successorPredecessors?.pdp1?.developmentStatus === 'DEV_COMPLETE'
+    && impactRecord?.successorPredecessors?.pdp1?.outstandingMeaningIds === 0
+    && impactRecord?.successorPredecessors?.pdp1?.exactCutOwnerAcceptance === 'NOT_RECORDED'
+    && impactRecord?.successorPredecessors?.pdp0?.receiptRef === PDP0_CURRENT_CUT_EXIT_R15_PATH
+    && impactRecord?.successorPredecessors?.pdp0?.phase === 'PDP-0'
+    && impactRecord?.successorPredecessors?.pdp0?.receiptSha256 === PDP0_CURRENT_CUT_EXIT_R15_DIGEST
+    && impactRecord?.successorPredecessors?.pdp0?.sourceFingerprint === PDP0_CURRENT_CUT_EXIT_R15_FINGERPRINT
+    && impactRecord?.successorPredecessors?.pdp0?.status === 'PASS'
+    && impactRecord?.successorPredecessors?.pdp0?.sourceCurrent === true
+    && impactRecord?.successorPredecessors?.pdp0?.cellCount === 50
+    && impactRecord?.successorPredecessors?.pdp0?.materialPathCount === 146
+    && exactDeltaSet
+    && impactRecord?.authority?.userAuthorization?.status === 'AUTHORIZED'
+    && impactRecord?.authority?.userAuthorization?.authorizedBy === 'USER'
+    && impactRecord?.authority?.userAuthorization?.exactResponse === 'I authorize all appropriate recommended task you have - not need to ask for my permission'
+    && impactRecord?.authority?.sourceTransitionAuthorization?.authorizedBy === 'USER'
+    && JSON.stringify(impactRecord?.authority?.sourceTransitionAuthorization?.authorizedTransitions) === JSON.stringify(PDP2_R17_TO_R30_AUTHORIZED_DELTAS.map(({ path: sourcePath, predecessorSha256, observedSha256 }) => ({ path: sourcePath, predecessorSha256, observedSha256 })))
+    && impactRecord?.decision?.pdp2MeaningDisposition === 'NO_ADDITIONAL_PDP2_MEANING'
+    && impactRecord?.decision?.ownerAcceptance === 'NOT_CLAIMED'
+    && impactRecord?.decision?.independentAcceptance === 'NOT_CLAIMED'
+    && impactRecord?.decision?.lifecycleClosure === 'NOT_ENTERED'
+    && impactRecord?.decision?.runtimeAdmission === 'NOT_ADMITTED'
+    && impactRecord?.decision?.delivery === 'NOT_AUTHORIZED'
+    && impactRecord?.decision?.release === 'NOT_AUTHORIZED'
+    && impactRecord?.authority?.humanIndependentSignatureProvided === false
+    && impactRecord?.authority?.externalContractOwnerAcceptanceProvided === false
+    && impactRecord?.authority?.nativeLifecycleReceiptProvided === false;
+  const valid = r17Valid && p0Valid && p1Valid && matrixMatches && impactRecordValid
+    && exactChangedPaths && exactP1ChangedPaths && transitionsMatchSources && r17LivePinsMatch && livePinsMatch;
+  return {
+    valid, r17ReceiptValid: r17Valid, p0PredecessorValid: p0Valid, r30ReceiptValid: p1Valid,
+    matrixMatches, impactRecordValid, exactDeltaSet, exactChangedPaths, exactP1ChangedPaths,
+    transitionsMatchSources, r17LivePinsMatch, livePinsMatch,
+    r17PathCount: r17Paths.length, r30PathCount: r30Paths.length, overlapPathCount: overlap.length,
+    changedPaths, changedPathCount: changedPaths.length, p1ChangedPaths, p1ChangedPathCount: p1ChangedPaths.length,
+  };
+}
+
+export function validatePdp2R17SuccessorImpact({
+  predecessor,
+  currentDigests = {},
+  actualCurrentDigests = {},
+  r30Exit = readJson(PDP1_CURRENT_CUT_EXIT_R30_PATH),
+  matrix = readJson(MATRIX_PATH),
+  impactRecord = readJson(PDP2_R17_TO_R30_IMPACT_PATH),
+} = {}) {
+  const predecessorDigests = predecessor?.sourceCurrentness?.sourceSetDigests?.sourceContentDigests ?? {};
+  const paths = Object.keys(predecessorDigests).sort();
+  const currentPaths = Object.keys(currentDigests).sort();
+  const changedPaths = paths.filter((sourcePath) => {
+    const liveDigest = actualCurrentDigests[sourcePath] ?? digestFile(sourcePath);
+    return predecessorDigests[sourcePath] !== liveDigest;
+  });
+  const bridge = validatePdp1R30SourceMapBridge({
+    r30Exit, r17Exit: predecessor, matrix, impactRecord,
+    actualCurrentDigests, currentDigests,
+  });
+  const transitions = (impactRecord?.sourceDeltas ?? []).map((delta) => ({
+    path: delta.path,
+    predecessorSha256: delta.predecessorSha256,
+    observedSha256: delta.observedSha256,
+    classification: delta.classification,
+    phase: delta.phase,
+    meaningChange: delta.meaningChange,
+    meaningIdsChanged: delta.meaningIdsChanged,
+  }));
+  const uniqueTransitionPaths = new Set(transitions.map(({ path: sourcePath }) => sourcePath));
+  const valid = bridge.valid
+    && predecessor?.observationId === 'MEDIA-PDP2-CURRENTNESS-2026-10-14-CURRENT-CUT-R17'
+    && digestFile(PDP2_R17_PATH) === PDP2_R17_DIGEST
+    && paths.length === 405
+    && currentPaths.length === 405
+    && JSON.stringify(paths) === JSON.stringify(currentPaths)
+    && changedPaths.length === 3
+    && uniqueTransitionPaths.size === 3
+    && JSON.stringify(changedPaths) === JSON.stringify(transitions.map(({ path: sourcePath }) => sourcePath).sort())
+    && transitions.every((transition) => predecessorDigests[transition.path] === transition.predecessorSha256
+      && currentDigests[transition.path] === transition.observedSha256
+      && (actualCurrentDigests[transition.path] ?? digestFile(transition.path)) === transition.observedSha256);
+  return {
+    valid,
+    classification: 'PDP2_R17_TO_R30_EXACT_SOURCE_SUCCESSOR_IMPACT_NO_ADDITIONAL_MEANING',
+    predecessorRef: PDP2_R17_PATH,
+    predecessorDigest: PDP2_R17_DIGEST,
+    materialPathCount: paths.length,
+    changedPathCount: changedPaths.length,
+    changedPaths,
+    transitions,
+    r30SourceMapBridge: bridge,
+    ownerAcceptance: 'NOT_CLAIMED',
+    independentReview: 'NOT_CLAIMED',
+    lifecycleClosure: 'NOT_ENTERED',
+    runtimeAdmission: 'NOT_ADMITTED',
+    delivery: 'NOT_AUTHORIZED',
+    release: 'NOT_AUTHORIZED',
+  };
+}
+
+export function validatePdp1Predecessor(exit, matrix, p1ExitPath, pairedP0, {
+  r17Exit = readJson(PDP2_R17_PATH),
+  r30SourceImpact = readJson(PDP2_R17_TO_R30_IMPACT_PATH),
+  actualCurrentDigests = {},
+  currentDigests = {},
+} = {}) {
   const cells = exit.sourceCurrentness?.cells ?? [];
   const r27Bridge = p1ExitPath === PDP1_CURRENT_CUT_EXIT_R27_PATH
     ? validatePdp1R27SourceMapBridge({ r27Exit: exit, matrix, pdp1ExitPath: p1ExitPath })
     : null;
   const r27Bound = r27Bridge?.valid === true;
+  const r30Bridge = p1ExitPath === PDP1_CURRENT_CUT_EXIT_R30_PATH
+    ? validatePdp1R30SourceMapBridge({ r30Exit: exit, r17Exit, matrix, impactRecord: r30SourceImpact,
+      pdp1ExitPath: p1ExitPath, actualCurrentDigests, currentDigests })
+    : null;
+  const r30Bound = r30Bridge?.valid === true;
   const r25Bound = p1ExitPath === PDP1_CURRENT_CUT_EXIT_R25_PATH
     && exit.observationId === 'MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R25'
     && digestFile(PDP1_CURRENT_CUT_EXIT_R25_PATH) === 'sha256:914390414ee87982efa786e1edf2a8adb0bc3e5d8b5c609776a7f0c65f679e1e'
@@ -2918,7 +3313,7 @@ export function validatePdp1Predecessor(exit, matrix, p1ExitPath, pairedP0) {
     && cells.every((cell) => cell.sourceCurrentness === 'CURRENT' && (cell.blockers?.length ?? 0) === 0)
     && exit.predecessor?.phase === 'PDP-0'
     && pairedP0.valid
-    && (r22Bound || r25Bound || r27Bound || (matrix.currentCut?.pdp1PhaseExit === p1ExitPath
+    && (r22Bound || r25Bound || r27Bound || r30Bound || (matrix.currentCut?.pdp1PhaseExit === p1ExitPath
       && matrix.currentCut?.pdp1CurrentnessObservation === `${p1ExitPath}#sourceCurrentness`
       && matrix.currentCut?.pdp1MaterialSourceSetFingerprint === exit.developmentStatus.currentMaterialSourceSetFingerprint));
   return {
@@ -2930,6 +3325,7 @@ export function validatePdp1Predecessor(exit, matrix, p1ExitPath, pairedP0) {
     observationId: exit.observationId,
     cellCount: cells.length,
     r27SourceMapBridge: r27Bridge,
+    r30SourceMapBridge: r30Bridge,
     status: valid ? 'PASS' : 'FAIL',
   };
 }
@@ -3110,7 +3506,97 @@ export function composePdp2CurrentnessSourceChains({
 export function currentnessOwnerStatusJoin(historicalExit, currentDigests, ownerReview, materialSourceSetFingerprint, {
   r9Checkpoint = readJson(PDP2_CURRENT_CUT_PREDECESSOR_R9_PATH),
   pdp2CurrentCutOptions = {},
+  pdp1ExitPath = PDP1_CURRENT_CUT_EXIT_PATH,
+  p2PredecessorPath = PDP2_CURRENT_CUT_PREDECESSOR_PATH,
 } = {}) {
+  if (pdp1ExitPath === PDP1_CURRENT_CUT_EXIT_R30_PATH) {
+    const selectedPredecessor = readJson(p2PredecessorPath);
+    const predecessorDigests = selectedPredecessor?.sourceCurrentness?.sourceSetDigests?.sourceContentDigests ?? {};
+    const predecessorPaths = Object.keys(predecessorDigests).sort();
+    const currentPaths = Object.keys(currentDigests ?? {}).sort();
+    const predecessorPathSet = new Set(predecessorPaths);
+    const currentPathSet = new Set(currentPaths);
+    const missingPaths = predecessorPaths.filter((sourcePath) => !currentPathSet.has(sourcePath));
+    const additionalPaths = currentPaths.filter((sourcePath) => !predecessorPathSet.has(sourcePath));
+    const changedPaths = predecessorPaths.filter((sourcePath) => currentPathSet.has(sourcePath)
+      && predecessorDigests[sourcePath] !== currentDigests[sourcePath]);
+    const p2Impact = pdp2CurrentCutImpact(selectedPredecessor, currentDigests, {
+      ...pdp2CurrentCutOptions,
+      pdp1ExitPath,
+    });
+    const r17Impact = p2Impact.r17ToR30SourceImpact ?? {};
+    const expectedChangedPaths = [...(r17Impact.changedPaths ?? [])].sort();
+    const transitions = p2Impact.scopedTransitions ?? [];
+    const transitionPaths = transitions.map((transition) => transition.path).sort();
+    const transitionChecks = transitions.map((transition) => ({
+      path: transition.path,
+      r17Sha256: predecessorDigests[transition.path] ?? null,
+      currentSha256: currentDigests[transition.path] ?? null,
+      predecessorSha256: transition.predecessorSha256 ?? null,
+      observedSha256: transition.observedSha256 ?? null,
+      chainMatches: transition.predecessorSha256 === predecessorDigests[transition.path]
+        && transition.observedSha256 === currentDigests[transition.path]
+        && digestFile(transition.path) === currentDigests[transition.path],
+    }));
+    const exactChangedPaths = JSON.stringify(changedPaths) === JSON.stringify(expectedChangedPaths)
+      && JSON.stringify(transitionPaths) === JSON.stringify(expectedChangedPaths)
+      && new Set(transitionPaths).size === transitionPaths.length;
+    const selectedPredecessorValid = p2PredecessorPath === PDP2_R17_PATH
+      && selectedPredecessor?.observationId === 'MEDIA-PDP2-CURRENTNESS-2026-10-14-CURRENT-CUT-R17'
+      && digestFile(PDP2_R17_PATH) === PDP2_R17_DIGEST;
+    const valid = selectedPredecessorValid
+      && p2Impact.valid === true
+      && r17Impact.valid === true
+      && predecessorPaths.length === 405
+      && currentPaths.length === 405
+      && missingPaths.length === 0
+      && additionalPaths.length === 0
+      && changedPaths.length === 3
+      && expectedChangedPaths.length === 3
+      && exactChangedPaths
+      && transitionChecks.length === 3
+      && transitionChecks.every((entry) => entry.chainMatches);
+    return {
+      status: valid ? 'PASS' : 'FAIL',
+      checkpointRef: p2PredecessorPath,
+      checkpointDigest: selectedPredecessorValid ? digestFile(p2PredecessorPath) : null,
+      checkpointStatus: selectedPredecessorValid ? 'PASS' : 'FAIL',
+      selectedPredecessor: {
+        ref: p2PredecessorPath,
+        expectedRef: PDP2_R17_PATH,
+        observationId: selectedPredecessor?.observationId ?? null,
+        valid: selectedPredecessorValid,
+      },
+      ownerReviewValid: null,
+      ownerAcceptance: 'NOT_CLAIMED',
+      independentReview: 'NOT_CLAIMED',
+      materialSourceSetFingerprint,
+      denominator: 405,
+      historicalPathCount: predecessorPaths.length,
+      currentPathCount: currentPaths.length,
+      unchangedPathCount: predecessorPaths.length - changedPaths.length - missingPaths.length,
+      changedPathCount: changedPaths.length,
+      uniqueChangedPathCount: new Set(expectedChangedPaths).size,
+      expectedChangedPathCount: expectedChangedPaths.length,
+      changeTransitionCount: transitions.length,
+      missingPathCount: missingPaths.length,
+      additionalPathCount: additionalPaths.length,
+      unapprovedChangedPathCount: changedPaths.filter((sourcePath) => !expectedChangedPaths.includes(sourcePath)).length,
+      missingAuthorizedPathCount: expectedChangedPaths.filter((sourcePath) => !changedPaths.includes(sourcePath)).length,
+      missingPaths,
+      additionalPaths,
+      changedPaths,
+      expectedChangedPaths,
+      transitionChecks,
+      exactChangedPaths,
+      r17ToR30SourceImpact: r17Impact,
+      pdp2ScopedImpact: p2Impact,
+      lifecycleClosure: 'NOT_ENTERED',
+      runtimeAdmission: 'NOT_ADMITTED',
+      delivery: 'NOT_AUTHORIZED',
+      release: 'NOT_AUTHORIZED',
+    };
+  }
   const r9SourceDigests = r9Checkpoint?.sourceCurrentness?.sourceSetDigests?.sourceContentDigests ?? {};
   const r9Paths = Object.keys(r9SourceDigests).sort();
   const currentPaths = Object.keys(currentDigests ?? {}).sort();
@@ -3270,7 +3756,9 @@ function makeObservation({ suffix, testRun, p1ExitPath }) {
   const phaseOwnerReview = pdp2OwnerReview(ownerDirections);
   const phaseOwnerChanges = phaseOwnerReview?.sourceChanges ?? [];
   const supplement = pdp3StatusGuardSupplement(historicalP2Exit, currentDigests);
-  const p2Impact = pdp2CurrentCutImpact(historicalP2Exit, currentDigests);
+  const p2ImpactPredecessor = pdp2ObservationImpactPredecessor(p1Exit, historicalP2Exit,
+    readJson(PDP2_CURRENT_CUT_PREDECESSOR_PATH));
+  const p2Impact = pdp2CurrentCutImpact(p2ImpactPredecessor, currentDigests);
   const pins = sourcePinReview(status, currentDigests, mdc20, phaseOwnerChanges, supplement, p2Impact);
   const externalContracts = externalContractObservation(p1Exit);
   const observedCells = technical.cells.map((cell) => {
@@ -3334,7 +3822,11 @@ function makeObservation({ suffix, testRun, p1ExitPath }) {
     mdc20DispositionDigest: sha256(fs.readFileSync(path.join(root, MDC20_PATH))),
     cells: observedCells.map((cell) => ({ cellId: cell.cellId, sourceSetFingerprint: cell.sourceSetFingerprint })).sort((a, b) => a.cellId.localeCompare(b.cellId)),
   });
-  const ownershipJoin = currentnessOwnerStatusJoin(historicalP2Exit, sourceSetByPath, phaseOwnerReview, materialSourceSetFingerprint);
+  const ownershipJoin = currentnessOwnerStatusJoin(historicalP2Exit, sourceSetByPath, phaseOwnerReview,
+    materialSourceSetFingerprint, {
+      pdp1ExitPath: p1ExitPath,
+      p2PredecessorPath: PDP2_CURRENT_CUT_PREDECESSOR_PATH,
+    });
   const sourceBlockers = [
     ...topologyReview.errors,
     ...(predecessor.valid ? [] : ['PDP1_PREDECESSOR_EXIT_NOT_PASS_OR_MATRIX_MISMATCH']),
@@ -3360,6 +3852,7 @@ function makeObservation({ suffix, testRun, p1ExitPath }) {
     sharedPathCount: Object.keys(sourceSetByPath).filter((sourcePath) => observedCells.every((cell) => Object.hasOwn(cell.fileContentDigests, sourcePath))).length,
     sourceContentDigests: sourceSetByPath,
   };
+  const scopedImpactBinding = pdp2ScopedImpactBinding(p1Exit);
   return {
     schemaVersion: 'media.discovery-pdp2-currentness-observation.v1',
     observationId: `MEDIA-PDP2-CURRENTNESS-${suffix.toUpperCase()}`,
@@ -3385,7 +3878,7 @@ function makeObservation({ suffix, testRun, p1ExitPath }) {
       ownerDirections: { ref: OWNER_DIRECTIONS_PATH, sha256: digestFile(OWNER_DIRECTIONS_PATH), includedIn405PathMaterialDenominator: false },
       runner: { ref: RUNNER_PATH, sha256: digestFile(RUNNER_PATH), includedIn405PathMaterialDenominator: false },
       historicalP2Exit: { ref: HISTORICAL_P2_EXIT_PATH, sha256: digestFile(HISTORICAL_P2_EXIT_PATH), includedIn405PathMaterialDenominator: false },
-      pdp2ScopedImpact: { ref: PDP2_CURRENT_CUT_IMPACT_PATH, sha256: digestFile(PDP2_CURRENT_CUT_IMPACT_PATH), includedIn405PathMaterialDenominator: false },
+      pdp2ScopedImpact: scopedImpactBinding,
       pdp2ImpactPredecessor: { ref: PDP2_CURRENT_CUT_PREDECESSOR_PATH, sha256: digestFile(PDP2_CURRENT_CUT_PREDECESSOR_PATH), includedIn405PathMaterialDenominator: false },
       pdp2AdditionalSourceImpact: p2Impact.additionalSourceImpact ?? null,
       pdp1EvidenceRefresh: { ref: PDP1_CURRENT_CUT_EXIT_PATH, sha256: digestFile(PDP1_CURRENT_CUT_EXIT_PATH), includedIn405PathMaterialDenominator: false },
@@ -3475,6 +3968,22 @@ function makeObservation({ suffix, testRun, p1ExitPath }) {
   };
 }
 
+export function pdp2ScopedImpactBinding(p1Exit, fallbackImpactPath = PDP2_CURRENT_CUT_IMPACT_PATH) {
+  const isR30Recapture = p1Exit?.observationId === 'MEDIA-PDP1-CURRENTNESS-2026-10-15-CURRENT-CUT-R30';
+  const ref = isR30Recapture ? PDP2_R17_TO_R30_IMPACT_PATH : fallbackImpactPath;
+  return {
+    ref,
+    sha256: digestFile(ref),
+    includedIn405PathMaterialDenominator: false,
+  };
+}
+
+export function pdp2ObservationImpactPredecessor(p1Exit, historicalP2Exit, selectedP2Predecessor) {
+  return p1Exit?.observationId === 'MEDIA-PDP1-CURRENTNESS-2026-10-15-CURRENT-CUT-R30'
+    ? selectedP2Predecessor
+    : historicalP2Exit;
+}
+
 function main() {
   const suffix = process.argv[2];
   const requestedP1ExitPath = process.argv[3];
@@ -3490,7 +3999,7 @@ function main() {
   const outputPath = `docs/implementation/observations/media-discovery-pdp2-exit-${suffix}.json`;
   if (fs.existsSync(path.join(root, outputPath))) throw new Error(`Refusing to overwrite immutable observation: ${outputPath}`);
   const matrix = readJson(MATRIX_PATH);
-  const p1ExitPath = path.normalize(requestedP1ExitPath ?? PDP1_CURRENT_CUT_EXIT_R27_PATH);
+  const p1ExitPath = path.normalize(requestedP1ExitPath ?? PDP1_CURRENT_CUT_EXIT_R30_PATH);
   if (!p1ExitPath) throw new Error('Matrix currentCut does not declare the current PDP-1 exit path');
   if (path.isAbsolute(p1ExitPath) || path.relative(root, path.resolve(root, p1ExitPath)).startsWith('..')) {
     throw new Error(`PDP-1 exit path must be repository-relative: ${requestedP1ExitPath}`);
@@ -3510,8 +4019,18 @@ function main() {
   PDP2_R16_PROJECTION_IMPACT_PATH = requestedProjectionImpactPath
     ? resolveRepositoryPath(requestedProjectionImpactPath, null, 'PDP-2 R16 projection impact') : null;
   const p1 = readJson(p1ExitPath);
+  const r30Recapture = p1.observationId === 'MEDIA-PDP1-CURRENTNESS-2026-10-15-CURRENT-CUT-R30';
   const r27Recapture = p1.observationId === 'MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R27';
   const r25Recapture = p1.observationId === 'MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R25';
+  if (r30Recapture) {
+    if (!requestedP2PredecessorPath) PDP2_CURRENT_CUT_PREDECESSOR_PATH = PDP2_R17_PATH;
+    if (PDP2_CURRENT_CUT_PREDECESSOR_PATH !== PDP2_R17_PATH) {
+      throw new Error(`PDP-1 R30 recapture must compare PDP-2 from exact predecessor ${PDP2_R17_PATH}`);
+    }
+    if (requestedAdditionalImpactPath || requestedProjectionImpactPath) {
+      throw new Error(`PDP-1 R30 recapture consumes the exact combined R17-to-R30 source-impact record ${PDP2_R17_TO_R30_IMPACT_PATH}; no overlapping supplemental impact paths are accepted`);
+    }
+  }
   if (r27Recapture || r25Recapture) {
     if (!requestedP2PredecessorPath) PDP2_CURRENT_CUT_PREDECESSOR_PATH = PDP2_CURRENT_CUT_PREDECESSOR_R13_PATH;
     if (PDP2_CURRENT_CUT_PREDECESSOR_PATH !== PDP2_CURRENT_CUT_PREDECESSOR_R13_PATH) {

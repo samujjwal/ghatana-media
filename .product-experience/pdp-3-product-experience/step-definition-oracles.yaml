@@ -3237,7 +3237,8 @@ journeys:
       - media.operation.caption-draft-write
       operationKinds: []
       capabilityOptions: *id209
-      domainObjectRefs: []
+      domainObjectRefs: [media.domain.artifact-version, media.domain.transcript-version,
+        media.domain.caption-version]
       stateRefs: []
       authorityRefs: []
       requirementRefs:
@@ -9480,7 +9481,9 @@ journeys:
       operationKinds:
       - COMMAND
       capabilityOptions: *id570
-      domainObjectRefs: []
+      domainObjectRefs:
+      - media.domain.processing-job
+      - media.domain.job-attempt
       stateRefs: []
       authorityRefs: []
       requirementRefs:
@@ -9620,7 +9623,9 @@ journeys:
       operationKinds:
       - COMMAND
       capabilityOptions: *id578
-      domainObjectRefs: []
+      domainObjectRefs:
+      - media.domain.processing-job
+      - media.domain.job-attempt
       stateRefs: []
       authorityRefs: []
       requirementRefs:
@@ -14035,7 +14040,10 @@ journeys:
       operationRefs: []
       operationKinds: []
       capabilityOptions: *id825
-      domainObjectRefs: []
+      domainObjectRefs:
+      - media.domain.artifact-version
+      - media.domain.transcript-version
+      - media.domain.caption-version
       stateRefs: []
       authorityRefs: []
       requirementRefs: []

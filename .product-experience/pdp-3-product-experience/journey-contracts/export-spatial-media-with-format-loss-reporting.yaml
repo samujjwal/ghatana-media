@@ -1469,6 +1469,26 @@ steps:
       LOCAL_PATCH_ELIGIBLE_NOT_APPLIED; no patch is applied by this step.
       (.product-experience/pdp-3-product-experience/local-step-effect-contracts\
       .yaml#records/@id=media.local-step-effect.j-28.step-04.v1)"
+sourceGap:
+  id: MDC30-C-28-output-and-conversion-result
+  status: UNKNOWN_NOT_ADMITTED
+  missingOwnerDefinition: >-
+    Define and purpose-bind a J-28 post-render result for the exact immutable
+    output identity and a conversion report before claiming consumer receipt.
+    P1 submit-render establishes durable job admission only; inspect-output-
+    preview-and-version defines output lineage but has no J-28 purpose/operation
+    join; the P1 transform declaration is DECLARED_NOT_APPLIED and defines no
+    conversion-report result. No consumer receipt, conversion fields, transport,
+    or output are established for this journey.
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1
+    - .product-experience/pdp-1-domain-data/value-objects.yaml#spatialTransformDeclarationContract/transformDeclaration
+    - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-03.v1
+    - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1
+  boundary: Preserve terminalSuccess as an unaccepted intent; no result, receipt,
+    or runtime admission is inferred.
 stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy
   view maps to one registered intent-based screen. Null actionRef and empty
   stateRefs are deliberate open bindings, not no-op actions or completed

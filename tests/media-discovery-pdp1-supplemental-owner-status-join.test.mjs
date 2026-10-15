@@ -713,26 +713,33 @@ function validateP0(exit, exitPath = pdp0Path, currentness = pdp0Currentness,
   );
 }
 
-test('PDP-1 requires the exact matrix-selected R12 PDP-0 predecessor and keeps R11/R10 historical', () => {
+test('PDP-1 requires the exact matrix-selected R15 PDP-0 predecessor and keeps R12/R11/R10 historical', () => {
   const matrix = readJson('docs/implementation/media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json');
-  const r12Path = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json';
-  const r12CurrentnessPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json';
-  const r12 = readJson(r12Path);
-  const r12Currentness = readJson(r12CurrentnessPath);
-  assert.equal(matrix.currentCut.phaseExit, r12Path);
-  assert.equal(matrix.currentCut.currentnessObservation, r12CurrentnessPath);
+  const r15Path = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r15.json';
+  const r15CurrentnessPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r15.json';
+  const r15 = readJson(r15Path);
+  const r15Currentness = readJson(r15CurrentnessPath);
+  assert.equal(matrix.currentCut.phaseExit, r15Path);
+  assert.equal(matrix.currentCut.currentnessObservation, r15CurrentnessPath);
 
-  const validation = validateP0(r12, r12Path, r12Currentness, r12CurrentnessPath);
+  const validation = validateP0(r15, r15Path, r15Currentness, r15CurrentnessPath);
   assert.equal(validation.valid, true, JSON.stringify(validation));
-  assert.equal(validation.exitRef, r12Path);
-  assert.equal(validation.exitDigest, 'sha256:91aeae0aad488bc8eb29d40bf955e527ef072ada762948064bc8e50422c5a5c5');
-  assert.equal(validation.currentnessRef, r12CurrentnessPath);
-  assert.equal(validation.currentnessDigest, 'sha256:14882e245fa1676138cfc5bd51ef0403cb96cf2f77542caa2c57dc683ca8b159');
-  assert.equal(validation.materialSourceSetFingerprint, 'sha256:1a121cf988ba4a34f6b603b1f230fd0494160a3c6142c064d8d5cc2a6aa45f94');
+  assert.equal(validation.exitRef, r15Path);
+  assert.equal(validation.exitDigest, 'sha256:d36a318fc159b5060bdca65d4b1e6527b7616bf31c3609854aaa07947e80fa4a');
+  assert.equal(validation.currentnessRef, r15CurrentnessPath);
+  assert.equal(validation.currentnessDigest, 'sha256:82306fcef405fe2df0520a0f84af3cae70f6d3e047d3e96258abb7762b1b7d6f');
+  assert.equal(validation.materialSourceSetFingerprint, 'sha256:eff717cf2537a285cd7a1c1a72b44a75766a0a7e6eef6ea97edbc2befa2e1a95');
   assert.equal(validation.cellCount, 50);
   assert.equal(validation.uniqueCellCount, 50);
   assert.equal(validation.cellsCongruent, true);
   assert.equal(validation.limitationOnly, true);
+
+  const r12Path = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json';
+  const r12CurrentnessPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json';
+  const r12 = readJson(r12Path);
+  const r12Currentness = readJson(r12CurrentnessPath);
+  assert.equal(validateP0(r12, r12Path, r12Currentness, r12CurrentnessPath).valid, false,
+    'R12 remains immutable historical evidence, not the matrix-selected current predecessor');
   assert.equal(pdp0R11.ownerStatusJoin.status, 'CURRENT_SOURCE_WITH_INTERNAL_SUCCESSOR_IMPACT_DISPOSITION_NOT_OWNER_ACCEPTANCE');
   assert.equal(pdp0R11.ownerStatusJoin.predecessorPathCount, 146);
   assert.equal(pdp0R11.ownerStatusJoin.unchangedPathCount, 145);
