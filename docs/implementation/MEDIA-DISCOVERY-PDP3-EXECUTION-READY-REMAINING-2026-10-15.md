@@ -1,5 +1,7 @@
 # Media Discovery PDP-3 — implementation-ready remaining work (2026-10-15)
 
+> **Superseded active snapshot (later October 15):** This plan was authored **before** R6. R6 has since been captured as **UNKNOWN** and R3 external 30-file recapture is completed. Follow [the revised PDP-3 finish plan](MEDIA-DISCOVERY-PDP3-FINISH-2026-10-15.md) and [owner decision](MEDIA-DISCOVERY-TO-BUILD-OWNER-REVIEW-2026-10-15.md). The historical instructions below remain useful source provenance, but do **not** repeat completed R3 or assert that R6 is not captured.
+
 **Controlling active execution addendum**, after `a43ed1d34a0fd5a2f864a16166259b96983fff71`. Read together with the immutable prior cuts and the [50-surface/200-cell matrix](media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json), not as a replacement for actual live machine currentness. Decisions and accepted interpretation are in [the October 15 owner disposition](MEDIA-DISCOVERY-PDP3-DELEGATED-OWNER-DECISIONS-2026-10-15.md).
 
 **Stage / phase:** DISCOVERY / PDP-3 / `MDC-30`. **Prerequisites:** PDP-0 R15, PDP-1 R30 and PDP-2 R19 technical exits recorded PASS, with zero phase-local definition tasks at those captured cuts. **PDP-3:** R6 not captured; current 43/61 source-bound-definition-only edges, 18 incomplete edges in 10 journeys, 14 consequential steps audited but unresolved. **Discovery FAIL; Build NOT_ENTERED; PDP closure NOT_ENTERED; Delivery BLOCKED.** Do not infer currentness merely from the historical `pdp-*-phase-dev-status.json` files.

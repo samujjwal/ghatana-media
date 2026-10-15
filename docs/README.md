@@ -1,5 +1,7 @@
 # Ghatana Media documentation
 
+> **Controlling status — October 15, 2026:** Discovery **FAIL**; PDP-0 R15, PDP-1 R30 and PDP-2 R19 technical PASS at recorded cuts; PDP-3 R6 **UNKNOWN** (source-gap/currentness resolution active). Build **NOT_ENTERED**, PDP closure **NOT_ENTERED**, Delivery **BLOCKED**. Use [the phase-locked remaining Discovery plan](implementation/MEDIA-DISCOVERY-PDP3-FINISH-2026-10-15.md), [delegated owner review](implementation/MEDIA-DISCOVERY-TO-BUILD-OWNER-REVIEW-2026-10-15.md), [full-product future Build plan](implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md), and [50-surface/30-journey/47-task planning matrix](implementation/media-build-coverage-plan-2026-10-15.json). The October 12 completion claims below are historical, not the current PDP-3 technical exit.
+
 **Maintained entry point (October 12, 2026).** Media's four PDP definitions are `DEV_COMPLETE` with **zero remaining PDP development tasks**. The active program is [Build → Integration/Test → Delivery](implementation/MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md). Historical source notes do not supersede the four completed definition cuts.
 
 ## Find the owning source

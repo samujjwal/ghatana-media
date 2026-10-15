@@ -1,0 +1,1836 @@
+{
+  "schemaVersion": "media.build-complete-product-coverage-plan.v1",
+  "recordKind": "SOURCE_DERIVED_PLANNING_CROSSWALK_NOT_DISCOVERY_EXIT_BUILD_ADMISSION_IMPLEMENTATION_PROOF_OR_RELEASE",
+  "reviewCut": {
+    "repository": "samujjwal/ghatana-media",
+    "head": "8c4a3ef8c037a8808d2744139d95f146e70f12d3",
+    "date": "2026-10-15",
+    "topologySource": ".product-experience/surfaces/media-physical-topology.v1.json",
+    "journeySource": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+    "historicalTasks": "docs/implementation/post-pdp-owner-reviewed-execution-directive-2026-10-12.md",
+    "r6": "docs/implementation/observations/media-discovery-pdp3-currentness-2026-10-15-r6.json",
+    "r6Fingerprint": "sha256:66cdf38576f9a278f71fd47e79b55ed6484583ef4d6bb35e247cbde7be953f25"
+  },
+  "stage": {
+    "macro": "DISCOVERY",
+    "phase": "PDP-3",
+    "currentDiscoveryBarrier": "FAIL",
+    "pdp3SourceCurrentness": "UNKNOWN_R6",
+    "buildLane": "NOT_ENTERED",
+    "pdpClosureLane": "NOT_ENTERED",
+    "delivery": "BLOCKED",
+    "planDisposition": "PREPARED_FOR_BUILD_PLAN_IMPLEMENTATION_AFTER_DISCOVERY_PASS_ONLY"
+  },
+  "denominators": {
+    "physicalCandidates": 26,
+    "physicalDeployableCandidates": 12,
+    "supportOnly": 12,
+    "subsumed": 2,
+    "semanticCompositions": 6,
+    "repositoryRoot": 1,
+    "consumerCrosswalks": 17,
+    "activeConsumers": 16,
+    "archivedNA": 1,
+    "uniqueIdentities": 50,
+    "phaseReviewCells": 200,
+    "journeys": 30,
+    "channelEdges": 61,
+    "consequentialSteps": 14,
+    "historicalPostPdpTasks": 47,
+    "buildPlanningPackages": 16
+  },
+  "links": {
+    "review": "docs/implementation/MEDIA-DISCOVERY-TO-BUILD-OWNER-REVIEW-2026-10-15.md",
+    "discovery": "docs/implementation/MEDIA-DISCOVERY-PDP3-FINISH-2026-10-15.md",
+    "build": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md"
+  },
+  "predecessorCutTechnicalHistory": [
+    {
+      "phase": "PDP-0",
+      "attempt": "R15",
+      "materialSourceFingerprint": "sha256:eff717cf2537a285cd7a1c1a72b44a75766a0a7e6eef6ea97edbc2befa2e1a95"
+    },
+    {
+      "phase": "PDP-1",
+      "attempt": "R30",
+      "materialSourceFingerprint": "sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4"
+    },
+    {
+      "phase": "PDP-2",
+      "attempt": "R19",
+      "materialSourceFingerprint": "sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b"
+    }
+  ],
+  "buildPackages": [
+    {
+      "id": "PBI-00",
+      "title": "Build entry and complete source traceability",
+      "dependsOn": [],
+      "stage": "PLAN_ONLY_UNTIL_DISCOVERY_PASS",
+      "reference": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md"
+    },
+    {
+      "id": "PBI-01",
+      "title": "Toolchain, canonical runtime and safe dependency baseline",
+      "dependsOn": [
+        "PBI-00"
+      ],
+      "stage": "PLAN_ONLY_UNTIL_DISCOVERY_PASS",
+      "reference": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md"
+    },
+    {
+      "id": "PBI-02",
+      "title": "Typed public interface contracts and client generation",
+      "dependsOn": [
+        "PBI-01"
+      ],
+      "stage": "PLAN_ONLY_UNTIL_DISCOVERY_PASS",
+      "reference": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md"
+    },
+    {
+      "id": "PBI-03",
+      "title": "Trusted identity, workspace and rights admission",
+      "dependsOn": [
+        "PBI-02"
+      ],
+      "stage": "PLAN_ONLY_UNTIL_DISCOVERY_PASS",
+      "reference": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md"
+    },
+    {
+      "id": "PBI-04",
+      "title": "Governed immutable artifact ingest and storage",
+      "dependsOn": [
+        "PBI-03"
+      ],
+      "stage": "PLAN_ONLY_UNTIL_DISCOVERY_PASS",
+      "reference": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md"
+    },
+    {
+      "id": "PBI-05",
+      "title": "Durable job/attempts, cancellation and recovery",
+      "dependsOn": [
+        "PBI-04"
+      ],
+      "stage": "PLAN_ONLY_UNTIL_DISCOVERY_PASS",
+      "reference": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md"
+    },
+    {
+      "id": "PBI-06",
+      "title": "Transactional outbox and Event Plane",
+      "dependsOn": [
+        "PBI-05"
+      ],
+      "stage": "PLAN_ONLY_UNTIL_DISCOVERY_PASS",
+      "reference": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md"
+    },
+    {
+      "id": "PBI-07",
+      "title": "STT, transcript and caption versions",
+      "dependsOn": [
+        "PBI-05",
+        "PBI-06"
+      ],
+      "stage": "PLAN_ONLY_UNTIL_DISCOVERY_PASS",
+      "reference": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md"
+    },
+    {
+      "id": "PBI-08",
+      "title": "TTS, dubbing, audio mixing and streaming",
+      "dependsOn": [
+        "PBI-05",
+        "PBI-06"
+      ],
+      "stage": "PLAN_ONLY_UNTIL_DISCOVERY_PASS",
+      "reference": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md"
+    },
+    {
+      "id": "PBI-09",
+      "title": "Vision, temporal, video and multimodal",
+      "dependsOn": [
+        "PBI-05",
+        "PBI-06"
+      ],
+      "stage": "PLAN_ONLY_UNTIL_DISCOVERY_PASS",
+      "reference": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md"
+    },
+    {
+      "id": "PBI-10",
+      "title": "Creation, 2D/3D, simulation and render",
+      "dependsOn": [
+        "PBI-05",
+        "PBI-06",
+        "PBI-09"
+      ],
+      "stage": "PLAN_ONLY_UNTIL_DISCOVERY_PASS",
+      "reference": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md"
+    },
+    {
+      "id": "PBI-11",
+      "title": "Real UI/embedded product, design system and Explorer",
+      "dependsOn": [
+        "PBI-02",
+        "PBI-03",
+        "PBI-04"
+      ],
+      "stage": "PLAN_ONLY_UNTIL_DISCOVERY_PASS",
+      "reference": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md"
+    },
+    {
+      "id": "PBI-12",
+      "title": "Public HTTP/RPC/SDK/CLI/Event/Agent and integrations",
+      "dependsOn": [
+        "PBI-02",
+        "PBI-03",
+        "PBI-05"
+      ],
+      "stage": "PLAN_ONLY_UNTIL_DISCOVERY_PASS",
+      "reference": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md"
+    },
+    {
+      "id": "PBI-13",
+      "title": "Rights, delivery/erasure/offline lifecycle",
+      "dependsOn": [
+        "PBI-03",
+        "PBI-04",
+        "PBI-05",
+        "PBI-06"
+      ],
+      "stage": "PLAN_ONLY_UNTIL_DISCOVERY_PASS",
+      "reference": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md"
+    },
+    {
+      "id": "PBI-14",
+      "title": "O11y, tests, NFR, scalability and reliability",
+      "dependsOn": [
+        "PBI-01"
+      ],
+      "stage": "PLAN_ONLY_UNTIL_DISCOVERY_PASS",
+      "reference": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md"
+    },
+    {
+      "id": "PBI-15",
+      "title": "Package admission and reversible migration preparation",
+      "dependsOn": [
+        "PBI-02",
+        "PBI-05",
+        "PBI-14"
+      ],
+      "stage": "PLAN_ONLY_UNTIL_DISCOVERY_PASS",
+      "reference": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md"
+    }
+  ],
+  "surfaces": [
+    {
+      "surfaceId": "media.physical.adapters-ledger",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "owner": "media-platform",
+      "sourcePath": "adapters/ledger",
+      "consumerRefs": [
+        "media.surface.integrations"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-04",
+        "PBI-13"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.apps-media-experience-explorer",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "owner": "media-product-engineering",
+      "sourcePath": "apps/media-experience-explorer",
+      "consumerRefs": [
+        "media.surface.explorer"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-11"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.audio-video-observability",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "owner": "media-platform",
+      "sourcePath": "audio-video-observability",
+      "consumerRefs": [],
+      "plannedBuildPackageIds": [
+        "PBI-14"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.integration-tests",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "owner": "media-platform",
+      "sourcePath": "integration-tests",
+      "consumerRefs": [],
+      "plannedBuildPackageIds": [
+        "PBI-14"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.launcher",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "owner": "media-runtime",
+      "sourcePath": "launcher",
+      "consumerRefs": [
+        "media.surface.public-http"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-01",
+        "PBI-03",
+        "PBI-04",
+        "PBI-05",
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.libs-audio-video-client",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "owner": "media-client-owner",
+      "sourcePath": "libs/audio-video-client",
+      "consumerRefs": [
+        "media.surface.cli",
+        "media.surface.sdk"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-02",
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.libs-audio-video-types",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "owner": "media-types-owner",
+      "sourcePath": "libs/audio-video-types",
+      "consumerRefs": [
+        "media.surface.sdk",
+        "media.surface.types-library"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-02"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.libs-audio-video-ui",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "owner": "media-ui-owner",
+      "sourcePath": "libs/audio-video-ui",
+      "consumerRefs": [
+        "media.surface.embedded",
+        "media.surface.ui-library",
+        "media.surface.web"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-11"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.libs-common",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUBSUMED",
+      "owner": "media-runtime",
+      "sourcePath": "libs/common",
+      "consumerRefs": [
+        "media.surface.agent-tools"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.libs-java-common",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUBSUMED",
+      "owner": "media-runtime",
+      "sourcePath": "libs/java/common",
+      "consumerRefs": [],
+      "plannedBuildPackageIds": [
+        "PBI-01"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.libs-media-experience-simulation",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "owner": "media-product-engineering",
+      "sourcePath": "libs/media-experience-simulation",
+      "consumerRefs": [
+        "media.surface.cli",
+        "media.surface.explorer"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-11"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.modules-audio-streaming",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "owner": "media-runtime",
+      "sourcePath": "modules/audio-streaming",
+      "consumerRefs": [],
+      "plannedBuildPackageIds": [
+        "PBI-08"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-cache",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "owner": "media-platform",
+      "sourcePath": "modules/infrastructure/cache",
+      "consumerRefs": [
+        "media.surface.integrations"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-05",
+        "PBI-14"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-messaging",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "owner": "media-platform",
+      "sourcePath": "modules/infrastructure/messaging",
+      "consumerRefs": [
+        "media.surface.events",
+        "media.surface.integrations"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-06",
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-persistence",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "owner": "media-platform",
+      "sourcePath": "modules/infrastructure/persistence",
+      "consumerRefs": [
+        "media.surface.integrations"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-04",
+        "PBI-05",
+        "PBI-13"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-security",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "owner": "media-platform",
+      "sourcePath": "modules/infrastructure/security",
+      "consumerRefs": [
+        "media.surface.integrations"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-03",
+        "PBI-13"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.modules-integration-tests",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "owner": "media-platform",
+      "sourcePath": "modules/integration-tests",
+      "consumerRefs": [],
+      "plannedBuildPackageIds": [
+        "PBI-14"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "owner": "media-ui-owner",
+      "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react",
+      "consumerRefs": [
+        "media.surface.ui-library"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-08",
+        "PBI-11"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.modules-intelligence-multimodal-service",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "owner": "media-runtime",
+      "sourcePath": "modules/intelligence/multimodal-service",
+      "consumerRefs": [
+        "media.surface.grpc.multimodal",
+        "media.surface.service-grpc"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-09"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "owner": "media-runtime",
+      "sourcePath": "modules/intelligence/speech/libs/speech-audio-rust",
+      "consumerRefs": [],
+      "plannedBuildPackageIds": [
+        "PBI-07",
+        "PBI-08"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.modules-speech-stt-service",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "owner": "media-runtime",
+      "sourcePath": "modules/speech/stt-service",
+      "consumerRefs": [
+        "media.surface.grpc.stt",
+        "media.surface.service-grpc"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-07"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.modules-speech-tts-service",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "owner": "media-runtime",
+      "sourcePath": "modules/speech/tts-service",
+      "consumerRefs": [
+        "media.surface.grpc.tts",
+        "media.surface.service-grpc"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-08"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.modules-video-streaming",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "owner": "media-runtime",
+      "sourcePath": "modules/video-streaming",
+      "consumerRefs": [],
+      "plannedBuildPackageIds": [
+        "PBI-09",
+        "PBI-10"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.modules-vision-vision-service",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "owner": "media-runtime",
+      "sourcePath": "modules/vision/vision-service",
+      "consumerRefs": [
+        "media.surface.grpc.vision",
+        "media.surface.service-grpc"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-09"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.providers-aws-postgresql",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "owner": "media-runtime",
+      "sourcePath": "providers/aws-postgresql",
+      "consumerRefs": [
+        "media.surface.integrations"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-04",
+        "PBI-05",
+        "PBI-06",
+        "PBI-13"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.runtime-contracts",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "owner": "media-runtime",
+      "sourcePath": "runtime-contracts",
+      "consumerRefs": [
+        "media.surface.agent-tools",
+        "media.surface.events",
+        "media.surface.public-http",
+        "media.surface.service-grpc"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-01",
+        "PBI-02",
+        "PBI-03",
+        "PBI-05",
+        "PBI-13"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.composition.repository-root",
+      "kind": "REPOSITORY_ROOT",
+      "childSurfaceRefs": [],
+      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "plannedBuildPackageIds": [
+        "PBI-00",
+        "PBI-15"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.composition.ingestion-and-versioned-artifacts",
+      "kind": "SEMANTIC_COMPOSITION",
+      "childSurfaceRefs": [],
+      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "plannedBuildPackageIds": [
+        "PBI-04"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.composition.governed-job-execution",
+      "kind": "SEMANTIC_COMPOSITION",
+      "childSurfaceRefs": [],
+      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "plannedBuildPackageIds": [
+        "PBI-05",
+        "PBI-06"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.composition.speech-and-caption-workflows",
+      "kind": "SEMANTIC_COMPOSITION",
+      "childSurfaceRefs": [],
+      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "plannedBuildPackageIds": [
+        "PBI-07",
+        "PBI-08"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.composition.vision-and-multimodal-analysis",
+      "kind": "SEMANTIC_COMPOSITION",
+      "childSurfaceRefs": [],
+      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "plannedBuildPackageIds": [
+        "PBI-09"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.composition.creation-composition-and-delivery",
+      "kind": "SEMANTIC_COMPOSITION",
+      "childSurfaceRefs": [],
+      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "plannedBuildPackageIds": [
+        "PBI-10",
+        "PBI-13"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.composition.client-and-machine-interfaces",
+      "kind": "SEMANTIC_COMPOSITION",
+      "childSurfaceRefs": [],
+      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "plannedBuildPackageIds": [
+        "PBI-02",
+        "PBI-11",
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.web",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-ui"
+      ],
+      "hostDisposition": "HOST_DEPENDENT",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-11"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.embedded",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-ui"
+      ],
+      "hostDisposition": "HOST_DEPENDENT",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-11"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.public-http",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.launcher",
+        "media.physical.runtime-contracts"
+      ],
+      "hostDisposition": "HOST_DEPENDENT",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-02",
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.service-grpc",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.runtime-contracts",
+        "media.physical.modules-speech-stt-service",
+        "media.physical.modules-speech-tts-service",
+        "media.physical.modules-vision-vision-service",
+        "media.physical.modules-intelligence-multimodal-service"
+      ],
+      "hostDisposition": "CONTRACT_ONLY",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-02",
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.grpc.stt",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.modules-speech-stt-service"
+      ],
+      "hostDisposition": "CONTRACT_ONLY",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-07",
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.grpc.tts",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.modules-speech-tts-service"
+      ],
+      "hostDisposition": "CONTRACT_ONLY",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-08",
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.grpc.vision",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.modules-vision-vision-service"
+      ],
+      "hostDisposition": "CONTRACT_ONLY",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-09",
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.grpc.multimodal",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.modules-intelligence-multimodal-service"
+      ],
+      "hostDisposition": "CONTRACT_ONLY",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-09",
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.sdk",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-client",
+        "media.physical.libs-audio-video-types"
+      ],
+      "hostDisposition": "PHYSICAL",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-02",
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.cli",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-client",
+        "media.physical.libs-media-experience-simulation"
+      ],
+      "hostDisposition": "HOST_DEPENDENT",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.agent-tools",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.runtime-contracts",
+        "media.physical.libs-common"
+      ],
+      "hostDisposition": "CONTRACT_ONLY",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.events",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.modules-infrastructure-messaging",
+        "media.physical.runtime-contracts"
+      ],
+      "hostDisposition": "CONTRACT_ONLY",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-06",
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.integrations",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.adapters-ledger",
+        "media.physical.providers-aws-postgresql",
+        "media.physical.modules-infrastructure-persistence",
+        "media.physical.modules-infrastructure-security",
+        "media.physical.modules-infrastructure-cache",
+        "media.physical.modules-infrastructure-messaging"
+      ],
+      "hostDisposition": "HOST_DEPENDENT",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-12",
+        "PBI-15"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.types-library",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-types"
+      ],
+      "hostDisposition": "PHYSICAL",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-02"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.ui-library",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-ui",
+        "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react"
+      ],
+      "hostDisposition": "HOST_DEPENDENT",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-11"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.explorer",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.apps-media-experience-explorer",
+        "media.physical.libs-media-experience-simulation"
+      ],
+      "hostDisposition": "PHYSICAL",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-11"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.desktop-archive",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [],
+      "hostDisposition": "ARCHIVED",
+      "applicability": "NOT_APPLICABLE_ARCHIVED",
+      "plannedBuildPackageIds": [],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "ARCHIVED_NA"
+    }
+  ],
+  "journeys": [
+    {
+      "journeyId": "J-01",
+      "title": "First use, authentication, context, and project creation",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml",
+      "leadBuildPackageId": "PBI-03",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-02",
+      "title": "Upload/import, inspect, and produce a usable artifact",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
+      "leadBuildPackageId": "PBI-04",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-03",
+      "title": "Audio/video transcription through corrected captions",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
+      "leadBuildPackageId": "PBI-07",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-04",
+      "title": "Authorized text-to-speech to approved audio",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml",
+      "leadBuildPackageId": "PBI-08",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-05",
+      "title": "Image/video analysis, geometry, and tracks",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml",
+      "leadBuildPackageId": "PBI-09",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-06",
+      "title": "Multimodal or document consumer request to grounded typed result",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml",
+      "leadBuildPackageId": "PBI-09",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-07",
+      "title": "Noisy/clipped interview cleanup with preservation and comparison",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml",
+      "leadBuildPackageId": "PBI-08",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-08",
+      "title": "Low-quality video repair with measured comparison",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml",
+      "leadBuildPackageId": "PBI-09",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-09",
+      "title": "Prompt/brief to storyboard, composition, render, review, and delivery",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml",
+      "leadBuildPackageId": "PBI-10",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-10",
+      "title": "Controlled generation with references and continuity review",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml",
+      "leadBuildPackageId": "PBI-10",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-11",
+      "title": "Region mask/tracking edit with comparison and undo",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml",
+      "leadBuildPackageId": "PBI-09",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-12",
+      "title": "Deterministic 2D/vector/procedural animation",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml",
+      "leadBuildPackageId": "PBI-10",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-13",
+      "title": "3D character, rig, path, or control animation",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml",
+      "leadBuildPackageId": "PBI-10",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-14",
+      "title": "Explore a domain simulation and its measurements",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml",
+      "leadBuildPackageId": "PBI-10",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-15",
+      "title": "Simulation/procedural passes with protected semantic validation",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml",
+      "leadBuildPackageId": "PBI-10",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-16",
+      "title": "Existing-video translation/dubbing and voice/timing review",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml",
+      "leadBuildPackageId": "PBI-08",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-17",
+      "title": "Music, effects, Foley, stems, mix, and mastering",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml",
+      "leadBuildPackageId": "PBI-08",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-18",
+      "title": "Compose clips, captions, exact graphics, color, and audio master",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml",
+      "leadBuildPackageId": "PBI-10",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-19",
+      "title": "Review media quality and improve it within declared limits",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml",
+      "leadBuildPackageId": "PBI-10",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-20",
+      "title": "Observe a long-running job and check its outcome",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml",
+      "leadBuildPackageId": "PBI-05",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-21",
+      "title": "Review/comment/approve exact version and re-review changed material",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml",
+      "leadBuildPackageId": "PBI-13",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-22",
+      "title": "Export/download/publish with destination acknowledgement",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml",
+      "leadBuildPackageId": "PBI-13",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-23",
+      "title": "Private/local workflow while disconnected and reconnect",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml",
+      "leadBuildPackageId": "PBI-13",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-24",
+      "title": "CLI batch/JSON plan through verified outputs",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml",
+      "leadBuildPackageId": "PBI-12",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-25",
+      "title": "Agent or product integration with bounded delegated Media action",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml",
+      "leadBuildPackageId": "PBI-12",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-26",
+      "title": "Delete/revoke/retention/hold and visible lifecycle",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml",
+      "leadBuildPackageId": "PBI-13",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-27",
+      "title": "Continue safely when processing is unavailable",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml",
+      "leadBuildPackageId": "PBI-05",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-28",
+      "title": "Spatial/360/interactive/synthetic-data export to declared consumer",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml",
+      "leadBuildPackageId": "PBI-10",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-29",
+      "title": "Live session loss, consent change, and bounded recovery",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml",
+      "leadBuildPackageId": "PBI-05",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    },
+    {
+      "journeyId": "J-30",
+      "title": "Check which processing options are eligible",
+      "journeyRegistryPath": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "contractPath": ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml",
+      "leadBuildPackageId": "PBI-12",
+      "requiredCrossCuttingPackages": [
+        "PBI-11",
+        "PBI-12",
+        "PBI-14"
+      ],
+      "developmentClaim": "PLAN_ONLY",
+      "acceptance": "Real typed same-subject authorized outcome, explicit negative/UNKNOWN/recovery, source/consumer integration tests; no simulated-as-real"
+    }
+  ],
+  "historicalPostPdpTasks": [
+    {
+      "taskId": "BASE-01",
+      "historicalStatus": "LOCAL_COMPLETE",
+      "buildPackageIds": [],
+      "lane": "REUSE_HISTORICALLY_COMPLETE",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "BASE-02",
+      "historicalStatus": "LOCAL_COMPLETE",
+      "buildPackageIds": [],
+      "lane": "REUSE_HISTORICALLY_COMPLETE",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "BASE-03",
+      "historicalStatus": "LOCAL_COMPLETE",
+      "buildPackageIds": [],
+      "lane": "REUSE_HISTORICALLY_COMPLETE",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "BASE-04",
+      "historicalStatus": "LOCAL_COMPLETE",
+      "buildPackageIds": [],
+      "lane": "REUSE_HISTORICALLY_COMPLETE",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "BASE-05",
+      "historicalStatus": "LOCAL_COMPLETE",
+      "buildPackageIds": [],
+      "lane": "REUSE_HISTORICALLY_COMPLETE",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "SUR-01",
+      "historicalStatus": "LOCAL_COMPLETE_EXTERNAL_REVIEW_PENDING",
+      "buildPackageIds": [
+        "PBI-00",
+        "PBI-15"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "SUR-02",
+      "historicalStatus": "LOCAL_COMPLETE_EXTERNAL_REVIEW_PENDING",
+      "buildPackageIds": [
+        "PBI-00",
+        "PBI-12"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "SUR-03",
+      "historicalStatus": "LOCAL_COMPLETE_EXTERNAL_REVIEW_PENDING",
+      "buildPackageIds": [
+        "PBI-00",
+        "PBI-11"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "SUR-04",
+      "historicalStatus": "LOCAL_COMPLETE_EXTERNAL_REVIEW_PENDING",
+      "buildPackageIds": [
+        "PBI-00",
+        "PBI-02"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "SUR-05",
+      "historicalStatus": "LOCAL_COMPLETE_EXTERNAL_REVIEW_PENDING",
+      "buildPackageIds": [
+        "PBI-00",
+        "PBI-02"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "SUR-06",
+      "historicalStatus": "LOCAL_COMPLETE_EXTERNAL_REVIEW_PENDING",
+      "buildPackageIds": [
+        "PBI-02",
+        "PBI-11"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "SUR-07",
+      "historicalStatus": "LOCAL_COMPLETE_EXTERNAL_REVIEW_PENDING",
+      "buildPackageIds": [
+        "PBI-11"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "SUR-08",
+      "historicalStatus": "UPSTREAM_NOT_AVAILABLE (RECHECK)",
+      "buildPackageIds": [
+        "PBI-11",
+        "PBI-15"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "SUR-09",
+      "historicalStatus": "LOCAL_COMPLETE_EXTERNAL_REVIEW_PENDING",
+      "buildPackageIds": [
+        "PBI-11"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "SUR-10",
+      "historicalStatus": "LOCAL_COMPLETE",
+      "buildPackageIds": [],
+      "lane": "REUSE_HISTORICALLY_COMPLETE",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "DEP-01",
+      "historicalStatus": "EXTERNAL_PENDING",
+      "buildPackageIds": [
+        "PBI-01",
+        "PBI-15"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "DEP-02",
+      "historicalStatus": "EXTERNAL_PENDING",
+      "buildPackageIds": [
+        "PBI-11",
+        "PBI-15"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "DEP-03",
+      "historicalStatus": "EXTERNAL_PENDING",
+      "buildPackageIds": [
+        "PBI-03"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "DEP-04",
+      "historicalStatus": "EXTERNAL_PENDING",
+      "buildPackageIds": [
+        "PBI-02",
+        "PBI-12"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "MIG-01",
+      "historicalStatus": "PARTIAL",
+      "buildPackageIds": [
+        "PBI-01",
+        "PBI-15"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "MIG-02",
+      "historicalStatus": "PARTIAL",
+      "buildPackageIds": [
+        "PBI-15"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "MIG-03",
+      "historicalStatus": "BLOCKED_DEPENDENCY",
+      "buildPackageIds": [
+        "PBI-15"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "MIG-04",
+      "historicalStatus": "BLOCKED_DEPENDENCY",
+      "buildPackageIds": [
+        "PBI-15"
+      ],
+      "lane": "BUILD_PREP_DELIVER_CUTOVER",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "RUN-01",
+      "historicalStatus": "PARTIAL",
+      "buildPackageIds": [
+        "PBI-03"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "RUN-02",
+      "historicalStatus": "PARTIAL",
+      "buildPackageIds": [
+        "PBI-04"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "RUN-03",
+      "historicalStatus": "PARTIAL",
+      "buildPackageIds": [
+        "PBI-05"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "RUN-04",
+      "historicalStatus": "PARTIAL",
+      "buildPackageIds": [
+        "PBI-05"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "RUN-05",
+      "historicalStatus": "PARTIAL",
+      "buildPackageIds": [
+        "PBI-07"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "RUN-06",
+      "historicalStatus": "PARTIAL",
+      "buildPackageIds": [
+        "PBI-09"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "RUN-07",
+      "historicalStatus": "PARTIAL",
+      "buildPackageIds": [
+        "PBI-10"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "RUN-08",
+      "historicalStatus": "PARTIAL",
+      "buildPackageIds": [
+        "PBI-06"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "RUN-09",
+      "historicalStatus": "PARTIAL",
+      "buildPackageIds": [
+        "PBI-14"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "RUN-10",
+      "historicalStatus": "PARTIAL",
+      "buildPackageIds": [
+        "PBI-01",
+        "PBI-14"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "EXP-01",
+      "historicalStatus": "PARTIAL",
+      "buildPackageIds": [
+        "PBI-11"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "EXP-02",
+      "historicalStatus": "PARTIAL",
+      "buildPackageIds": [
+        "PBI-11"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "EXP-03",
+      "historicalStatus": "PARTIAL",
+      "buildPackageIds": [
+        "PBI-11"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "EXP-04",
+      "historicalStatus": "PARTIAL",
+      "buildPackageIds": [
+        "PBI-11"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "EXP-05",
+      "historicalStatus": "PARTIAL",
+      "buildPackageIds": [
+        "PBI-12"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "EXP-06",
+      "historicalStatus": "UPSTREAM_NOT_AVAILABLE (RECHECK)",
+      "buildPackageIds": [
+        "PBI-11",
+        "PBI-15"
+      ],
+      "lane": "BUILD_OR_EXTERNAL_ADMISSION",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "EXP-07",
+      "historicalStatus": "LOCAL_COMPLETE",
+      "buildPackageIds": [],
+      "lane": "REUSE_HISTORICALLY_COMPLETE",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "ACC-01",
+      "historicalStatus": "EXTERNAL_PENDING",
+      "buildPackageIds": [],
+      "lane": "SEPARATE_ACCEPTANCE_OR_PDP_CLOSURE",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "ACC-02",
+      "historicalStatus": "EXTERNAL_PENDING",
+      "buildPackageIds": [],
+      "lane": "SEPARATE_ACCEPTANCE_OR_PDP_CLOSURE",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "ACC-03",
+      "historicalStatus": "EXTERNAL_PENDING",
+      "buildPackageIds": [],
+      "lane": "SEPARATE_ACCEPTANCE_OR_PDP_CLOSURE",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "LC-01",
+      "historicalStatus": "EXTERNAL_PENDING",
+      "buildPackageIds": [],
+      "lane": "SEPARATE_ACCEPTANCE_OR_PDP_CLOSURE",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "LC-02",
+      "historicalStatus": "EXTERNAL_PENDING",
+      "buildPackageIds": [],
+      "lane": "SEPARATE_ACCEPTANCE_OR_PDP_CLOSURE",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "REL-01",
+      "historicalStatus": "DEFERRED",
+      "buildPackageIds": [],
+      "lane": "DELIVER_RELEASE",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    },
+    {
+      "taskId": "REL-02",
+      "historicalStatus": "DEFERRED",
+      "buildPackageIds": [],
+      "lane": "DELIVER_RELEASE",
+      "currentStatusClaim": "NOT_RECHECKED_ON_2026_10_15"
+    }
+  ],
+  "historicalTaskStatusCounts": {
+    "LOCAL_COMPLETE": 7,
+    "LOCAL_COMPLETE_EXTERNAL_REVIEW_PENDING": 8,
+    "UPSTREAM_NOT_AVAILABLE (RECHECK)": 2,
+    "EXTERNAL_PENDING": 9,
+    "PARTIAL": 17,
+    "BLOCKED_DEPENDENCY": 2,
+    "DEFERRED": 2
+  },
+  "scopeGuards": {
+    "j21RightsApproval": "BLOCKED_EXCLUDED_NO_RIGHTS_OWNER_PROOF",
+    "j26Erasure": "NO_ALL_COPY_ERASURE_CLAIM",
+    "all61Transports": "UNBOUND_AT_DISCOVERY",
+    "runtime": "NOT_ADMITTED_AT_DISCOVERY",
+    "sourceWriter": "ghatana/services/media UNTIL AUTHORIZED_CUTOVER",
+    "buildValidation": "NOT_RUN",
+    "independentReview": "NOT_PROVIDED",
+    "delivery": "NOT_AUTHORIZED"
+  },
+  "coverageAssertions": {
+    "uniqueSurfaceIds": 50,
+    "uniqueJourneyIds": 30,
+    "uniqueHistoricalTaskIds": 47,
+    "allRequiredPlannedPackageIdsKnown": true,
+    "allPdp3CellsCurrent": false,
+    "allPdpPhasesDevCompleteCurrent": false,
+    "actualBuildImplementationPass": false
+  }
+}

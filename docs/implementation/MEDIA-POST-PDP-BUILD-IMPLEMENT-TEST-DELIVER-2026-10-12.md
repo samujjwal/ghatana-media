@@ -1,5 +1,7 @@
 # Ghatana Media — Build, Implement, Test and Deliver
 
+> **Controlling October 15 plan:** [full-product Build implementation blueprint](MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md) and [machine coverage](media-build-coverage-plan-2026-10-15.json). These **prepare** Plan Implementation only; Discovery R6 is **UNKNOWN**, and Build is still **NOT_ENTERED**. [Current PDP-3 finish plan](MEDIA-DISCOVERY-PDP3-FINISH-2026-10-15.md) governs the earliest remaining phase. Historical October 12 `DEV_COMPLETE` claims below do not establish current PDP-3 exit.
+
 > **Discovery currentness hold (2026-10-13):** The four historical PDP development records still say `DEV_COMPLETE` with **zero outstanding definition-meaning tasks**, but the currently required per-surface source/currentness barrier is not yet validated. Under `AGENTS.md`, do not enter Build until [the approved reconciliation/Discovery exit plan](MEDIA-DISCOVERY-SOURCE-CURRENTNESS-EXIT-PLAN-2026-10-13.md) reaches PASS. This is source-currentness verification and binding, **not** revival of the withdrawn PDP-D01…D15 backlog. [Delegated review and decisions](../../.product-experience/reviews/2026-10-13-pdp0-discovery-delegated-review.md).
 
 **Owner correction (October 12, 2026):** PDP-0, PDP-1, PDP-2 and PDP-3 are all `DEV_COMPLETE`. **Remaining PDP development tasks: 0.** The four phase definitions are completed specification inputs to this plan; they are not active workstreams.
