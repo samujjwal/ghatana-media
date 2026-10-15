@@ -329,7 +329,18 @@ function assertJourneyTypedResultProof(edge, operation, proof, { purposeById, ex
     });
     const directOperationResult = operation.resultSchemaRef?.startsWith(".product-experience/pdp-1-domain-data/operations.yaml#")
       && operation.resultSchema && (operation.resultSchema.type === "object" || Array.isArray(operation.resultSchema.required));
-    if (!directOperationResult && !journeyResultBound) {
+    const fallback = journeyContract.pdp1ResultEvidence?.fallbackConfirmation;
+    const operationSourceRef = edge.p1OperationBindings.find((item) => item.operationRef === operation.id)?.sourceRef;
+    const fallbackOperationResult = fallback?.operationRef === operation.id
+      && fallback?.sourceRef === operationSourceRef
+      && fallback?.operationKind === operation.operationKind
+      && Array.isArray(operation.resultSchema?.oneOf) && operation.resultSchema.oneOf.length > 0
+      && typeof operation.sourceEffect === "string" && operation.sourceEffect.trim().length > 0
+      && typeof operation.sourceFinality === "string" && operation.sourceFinality.trim().length > 0
+      && typeof operation.sourceRecovery === "string" && operation.sourceRecovery.trim().length > 0
+      && typeof fallback.effect === "string" && typeof fallback.finality === "string"
+      && typeof fallback.unknownRecovery === "string";
+    if (!directOperationResult && !journeyResultBound && !fallbackOperationResult) {
       throw new Error(`${edge.id} related action operation must expose its exact typed P1 result contract`);
     }
   }

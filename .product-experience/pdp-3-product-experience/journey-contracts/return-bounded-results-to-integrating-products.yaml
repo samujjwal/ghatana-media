@@ -44,17 +44,23 @@ pdp1ResultEvidence:
       operationRef: media.operation.action.review-processing-parameters
       delegatedResultKind: PROCESSING_PARAMETERS
       typedObservationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1/resultRules
+      unknownDisposition: Missing or stale observations are UNKNOWN; NOT_FOUND is valid only when the current owner source explicitly reports that exact requested parameter absent. Missing data is not a negative, zero, or failure result, a default, or permission to change processing.
     - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml#/steps/1
       journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j25-step-02.v1
       operationRef: media.operation.action.view-job-status
       sourceQueryOperationRef: media.operation.job-status.read-dimensions.v1
       delegatedResultKind: JOB_STATUS
       typedObservationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.job-status-seven-dimension.v1
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.job-status-seven-dimension.v1/resultRules
+      unknownDisposition: Missing, stale, mismatched, untrusted, or unavailable status results collapse to sparse UNKNOWN with no underlying source result reference or digest; the query response remains source-bound and read-only and never authorizes retry.
     - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml#/steps/2
       journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j25-step-03.v1
       operationRef: media.operation.action.inspect-output-preview-and-version
       delegatedResultKind: OUTPUT_PREVIEW_VERSION
       typedObservationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1/resultRules
+      unknownDisposition: Missing, stale, mismatched, denied, unavailable, or incomplete lineage is UNKNOWN and contains no artifact version, digest, or source lineage.
   resultCompleteness: Every operation is covered by its exact purpose-bound P1 observation contract and appears once in the delegated result tuple; the tuple must resolve under trusted tenant, principal, read authority, and read version.
   channelAndRuntimeBoundary:
     intendedChannels: [media.channel.product-integration, media.channel.http-api]
