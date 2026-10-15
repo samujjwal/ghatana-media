@@ -2520,7 +2520,9 @@ records:
   finality: request-accepted-or-unknown; destination acknowledgment required for delivery
   recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence; never-claim-success-from-local-state
   sourceRefs:
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
   - .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/8
+  - .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/typedObservationBindings/0
   mappingBasis: Change only the current local draft or selection; keep committed source and versioned objects unchanged
     until a separately specified commit.
   runtimeAdmission: NOT_ADMITTED
@@ -3536,7 +3538,9 @@ records:
   localEffectContractRef: null
   domainObjectRefs:
   - media.domain.project
-  stateRefs: []
+  stateRefs:
+  - media-project/ACTIVE
+  - media-project/ARCHIVED
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   requirementRefs:
@@ -4701,16 +4705,6 @@ records:
   - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/PARTIALLY_SUCCEEDED
   - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/FAILED
   - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/CANCELLED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CLAIMED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/DISPATCH_INTENT_RECORDED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/DISPATCHED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/RUNNING
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_REQUESTED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUCCEEDED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/FAILED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_CONFIRMED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/OUTCOME_UNKNOWN
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUPERSEDED
   stateBindingDisposition: job and attempt identity observations only; they do not establish a transition or finality.
   transitionRefs: []
   transitionDisposition:
@@ -4781,16 +4775,6 @@ records:
   - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/PARTIALLY_SUCCEEDED
   - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/FAILED
   - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/CANCELLED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CLAIMED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/DISPATCH_INTENT_RECORDED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/DISPATCHED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/RUNNING
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_REQUESTED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUCCEEDED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/FAILED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_CONFIRMED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/OUTCOME_UNKNOWN
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUPERSEDED
   stateBindingDisposition: job and attempt identity observations only; they do not establish a transition or finality.
   transitionRefs: []
   transitionDisposition:

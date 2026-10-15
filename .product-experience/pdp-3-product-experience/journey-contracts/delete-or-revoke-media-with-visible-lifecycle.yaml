@@ -25,6 +25,46 @@ channels:
   - media.channel.http-api
   - media.channel.product-integration
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+pdp1ResultEvidence:
+  status: SOURCE_BOUND_DEFINITION_ONLY; CHANNEL_TRANSPORT_UNBOUND; RUNTIME_NOT_ADMITTED
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-consent-and-permitted-use
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact
+    - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact/readSemantics
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+    - .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+  operationResultBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/0
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-01.v1
+      operationRef: media.operation.action.inspect-consent-and-permitted-use
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-consent-and-permitted-use/contractVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-consent-and-permitted-use
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1
+      exactResult: Exact-target scoped rights/consent owner observation; missing, stale, denied, or unavailable evidence remains UNKNOWN and does not imply permission.
+      unknownDisposition: Missing, stale, denied, mismatched, or unavailable evidence is UNKNOWN; no rights or processing permission is inferred.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1
+      operationRef: media.operation-slice.inspect-artifact
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact/readSemantics
+      exactResult: Read-only result for one exact artifact and immutable version; it does not establish current availability, rights, consent, retention authority, or processing/delivery permission.
+      unknownDisposition: Missing, stale, or unavailable artifact evidence remains unresolved; no lifecycle effect is inferred.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/2
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-03.v1
+      operationRef: media.operation.action.view-job-status
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status/contractVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      exactResult: Exact-target scoped current job status observation; it does not establish artifact erasure or revocation completion.
+      unknownDisposition: Missing, stale, unavailable, or incomplete evidence remains UNKNOWN; absence is scoped only and no lifecycle effect is inferred.
 preconditions:
   - Identity, deletion/revocation authority, retention/hold state, and affected
     artifact/derivative scope are resolved.

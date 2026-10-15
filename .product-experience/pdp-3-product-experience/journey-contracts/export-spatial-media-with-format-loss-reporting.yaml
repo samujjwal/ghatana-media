@@ -21,6 +21,32 @@ channels:
   - media.channel.web
   - media.channel.product-integration
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+pdp1ResultEvidence:
+  status: SOURCE_BOUND_DEFINITION_ONLY; CHANNEL_TRANSPORT_UNBOUND; RUNTIME_NOT_ADMITTED
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1
+    - .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+  operationResultBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/2
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-03.v1
+      operationRef: media.operation.action.submit-render
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/contractVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/requestEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/resultEnvelope
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      exactResult: >-
+        The result identifies requestId, logicalJobId, sourceSnapshotDigest, renderProfileRef, and durableAdmissionReceipt; it confirms durable job admission only. Render completion, package contents, conversion loss, consumer receipt, and delivery are not established by this operation.
+      unknownDisposition: >-
+        UNKNOWN_OUTCOME is neither success nor failure; reconcile the same request identity before an eligible retry and do not infer render completion or consumer receipt.
 preconditions:
   - Destination subset, coordinate/time conventions, synthetic-data labeling,
     and licensing are declared.

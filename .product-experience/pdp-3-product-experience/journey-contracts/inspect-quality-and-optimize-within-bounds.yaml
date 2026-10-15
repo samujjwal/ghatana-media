@@ -19,6 +19,93 @@ actors:
 channels:
   - media.channel.web
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+pdp1ResultEvidence:
+  status: SOURCE_BOUND_DEFINITION_ONLY; CHANNEL_TRANSPORT_UNBOUND; RUNTIME_NOT_ADMITTED
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1
+    - .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+  operationResultBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/0
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j19-step-01.v1
+      operationRef: media.operation.action.inspect-quality-evidence
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/contractVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      exactResult: >-
+        The immediate result is the exact-target scoped owner observation with requestId, exactTargetRef, ownerReceipt, and observedAt. This envelope does not itself establish a measurement or quality conclusion.
+      unknownDisposition: >-
+        Missing, stale, unavailable, or incomplete evidence remains UNKNOWN; absence is scoped only and this read implies no command effect or replay.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j19-step-02.v1
+      operationRef: media.operation.action.review-processing-parameters
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/contractVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      exactResult: >-
+        The immediate result is the exact-target scoped owner observation with requestId, exactTargetRef, ownerReceipt, and observedAt. Preserve source versions and distinguish missing evidence from a negative result; no parameter mutation is implied.
+      unknownDisposition: >-
+        Missing, stale, unavailable, or incomplete evidence remains UNKNOWN; do not substitute a newer version during recovery.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/2
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j19-step-03.v1
+      operationRef: media.operation.action.compare-candidate-on-metric
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/contractVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      exactResult: >-
+        The immediate result is the exact-target scoped owner observation with requestId, exactTargetRef, ownerReceipt, and observedAt. The owner receipt is limited to the source-declared comparison; no candidate improvement or user selection is inferred.
+      unknownDisposition: >-
+        Missing, stale, unavailable, or incomplete evidence remains UNKNOWN; reconcile the same request identity before any retry and never substitute a newer version.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/3
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j19-step-04.v1
+      operationRef: media.operation.action.submit-render
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/contractVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/requestEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/resultEnvelope
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      exactResult: >-
+        The result identifies requestId, logicalJobId, sourceSnapshotDigest, renderProfileRef, and durableAdmissionReceipt; it confirms durable job admission only. Render completion and delivery require separate observations.
+      unknownDisposition: >-
+        UNKNOWN_OUTCOME is neither success nor failure; reconcile the same request identity before an eligible retry and do not infer completion or delivery.
 preconditions:
   - Applicable metrics, thresholds, budget, stop conditions, and protected
     properties are defined.

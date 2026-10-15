@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "media.discovery.pdp0-successor-source-impact.v1",
+  "recordId": "MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R1",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "stage": "DISCOVERY",
+    "activePhase": "PDP-0",
+    "scope": "Exact R12-to-successor four-path census/projection correction; no PDP-0 meaning change."
+  },
+  "authority": {
+    "delegate": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_AUTHORIZATION",
+    "decisionRole": "SCOPED_INTERNAL_PDP0_SOURCE_IMPACT_REVIEW",
+    "userAuthorization": "Register and recapture (Recommended)",
+    "authorizationEvidence": {
+      "source": "DIRECT_USER_REPLY_IN_CURRENT_TASK",
+      "userReply": "Register and recapture (Recommended)",
+      "authorizedScope": "Register the existing delegated owner review as CROSS_PHASE_GOVERNANCE, regenerate its source projections, and recapture impacted currentness.",
+      "noMeaningChange": true,
+      "externalAcceptance": false
+    },
+    "humanIndependentSignatureProvided": false,
+    "qualifiedExternalSpecialistSignoffProvided": false,
+    "externalContractOwnerAcceptanceProvided": false,
+    "nativeLifecycleReceiptProvided": false
+  },
+  "predecessorCut": {
+    "phase": "PDP-0",
+    "exitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json",
+    "exitSha256": "sha256:91aeae0aad488bc8eb29d40bf955e527ef072ada762948064bc8e50422c5a5c5",
+    "currentnessRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json",
+    "currentnessSha256": "sha256:14882e245fa1676138cfc5bd51ef0403cb96cf2f77542caa2c57dc683ca8b159",
+    "materialSourceSetFingerprint": "sha256:1a121cf988ba4a34f6b603b1f230fd0494160a3c6142c064d8d5cc2a6aa45f94",
+    "materialPathCount": 146,
+    "topology": {
+      "physicalCandidates": 26,
+      "semanticCompositions": 6,
+      "repositoryRoots": 1,
+      "consumers": 17,
+      "totalCells": 50
+    }
+  },
+  "sourceDeltas": [
+    {
+      "path": ".product-experience/artifact-identities.yaml",
+      "phase": "PDP-0",
+      "classification": "ARTIFACT_IDENTITY_CENSUS_ONLY",
+      "predecessorSha256": "sha256:cd6709b2e3bfff3c0b824f6e7e3c2c12777f688259beabbdbfeb1a261bd568f6",
+      "observedSha256": "sha256:ad898f0143460d256f8da39466fcc344016097b8740f47b3b28a18b260e12f3a",
+      "pdp0MeaningChange": "NONE",
+      "pdp0MeaningIdsChanged": [],
+      "freshCurrentnessRequired": true
+    },
+    {
+      "path": ".product-experience/gaps.yaml",
+      "phase": "PDP-0",
+      "classification": "GAP_CENSUS_ONLY_CORRECTION",
+      "predecessorSha256": "sha256:3f58ca80e96f999960a4e4e0e91491a5f9a99bc9348223bbeb18426ba1cf4afd",
+      "observedSha256": "sha256:4df3bad69c330b3649fe88a1797025f0a82de06f05d2ed3b5691608e5a5a6698",
+      "pdp0MeaningChange": "NONE",
+      "pdp0MeaningIdsChanged": [],
+      "freshCurrentnessRequired": true
+    },
+    {
+      "path": ".product-experience/source-manifest.yaml",
+      "phase": "PDP-0",
+      "classification": "GENERATED_SOURCE_MANIFEST_PROJECTION",
+      "predecessorSha256": "sha256:76cdcbff690e6a3439580e0df6fc68dbf67e7105b38d8ad1c9c3e9cb8b36145a",
+      "observedSha256": "sha256:3a5c7e92e7470ee11c8bd1779db31a27aba75461c16fef37785901544c0c29fd",
+      "pdp0MeaningChange": "NONE",
+      "pdp0MeaningIdsChanged": [],
+      "freshCurrentnessRequired": true
+    },
+    {
+      "path": "apps/media-experience-explorer/specification-artifacts.json",
+      "phase": "PDP-0",
+      "classification": "EXPLORER_ARTIFACT_INDEX_PROJECTION",
+      "predecessorSha256": "sha256:2aadeeffe41ea354f43a0824a069b1e21bfef5a31052e4dca8ceb68da9bcfc75",
+      "observedSha256": "sha256:6cb5006b07b113dfa5cc1b41a78648be56e76910c60b60bd82f286c1593b8593",
+      "pdp0MeaningChange": "NONE",
+      "pdp0MeaningIdsChanged": [],
+      "freshCurrentnessRequired": true
+    }
+  ],
+  "decision": {
+    "status": "INTERNAL_SCOPED_NO_PDP0_MEANING_CHANGE_FOR_EXACT_R12_DELTAS",
+    "pdp0MeaningDisposition": "NO_PDP0_MEANING_CHANGE",
+    "ownerAcceptance": "NOT_CLAIMED",
+    "independentSignoff": "NOT_CLAIMED",
+    "lifecycleClosure": "NOT_ENTERED",
+    "runtime": "NOT_ADMITTED",
+    "delivery": "BLOCKED",
+    "release": "NOT_AUTHORIZED",
+    "freshTechnicalCurrentness": "REQUIRED"
+  },
+  "limitations": "This scoped internal disposition covers only the exact R12 four-path census/projection correction and asserts no additional PDP-0 meaning. It does not claim owner acceptance, independent signoff, native Lifecycle receipt or closure, runtime admission, Delivery readiness, or release authorization.",
+  "supportFileSha256s": {
+    "scripts/lib/media-discovery-pdp0-phase-exit.mjs": "sha256:5611dc6372d551fc32f954ed941ec99b9afe695527abbc80a8f7d78c1f603f40",
+    "scripts/record-media-discovery-pdp0-currentness.mjs": "sha256:db2bef926b6d80bf06eb7c47e484d6cf937dbc453d52d66df403ffdd8739e0af",
+    "scripts/record-media-discovery-pdp0-phase-exit.mjs": "sha256:b483ab348a6883201f47296eb262c249fd75232af4c51cdfd56d915a5ce7950d",
+    "tests/media-discovery-currentness.test.mjs": "sha256:ac36fb8691d6c4243dd095d37c1f6ff5b6978cb9317b1454489335ed91974ed2",
+    "tests/media-discovery-pdp0-phase-exit.test.mjs": "sha256:7005c11055552a043b0cfff156c54d627159a57558e68389e47bbe9b9ce1a03c"
+  }
+}

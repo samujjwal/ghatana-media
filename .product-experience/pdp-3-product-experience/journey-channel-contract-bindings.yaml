@@ -18,9 +18,9 @@
   "sourceBoundDefinitionOnlyOperationMappings": 6
   "allRuntimeAdmission": "NOT_ADMITTED"
   "sourceBoundHttpOperationMappings": 6
-  "logicalDefinitionOnlyEdges": 30
+  "logicalDefinitionOnlyEdges": 43
   "transportEquivalenceUnboundEdges": 61
-  "incompleteP1StateOrObservationEdges": 31
+  "incompleteP1StateOrObservationEdges": 18
 "channelGrammar":
   "media.channel.web":
     "consumerSurfaceId": "media.surface.web"
@@ -274,18 +274,40 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source-only; no accepted web operation-channel binding in the reviewed sources"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation-slice.create-project"
-      - "media.operation-slice.inspect-project"
-      - "media.operation-slice.list-projects"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-01"
     "pdp1OperationRefs":
       - "media.operation-slice.create-project"
       - "media.operation-slice.inspect-project"
       - "media.operation-slice.list-projects"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation-slice.create-project"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j01-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/pdp1ResultEvidence/operationResultBindings/1"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation-slice.inspect-project"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j01-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/pdp1ResultEvidence/operationResultBindings/2"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation-slice.list-projects"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j01-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-project-version/stateDefinitions/COMMITTED"
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-project/stateDefinitions/ACTIVE"
@@ -336,9 +358,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation-slice.create-project, media.operation-slice.inspect-project, media.operation-slice.list-projects"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-01.j-01.step-01"
@@ -421,6 +442,55 @@
       - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/VERIFYING"
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/VERIFYING"
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation-slice.begin-upload"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation-slice.append-upload-chunk"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/pdp1ResultEvidence/operationResultBindings/1"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation-slice.complete-upload"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/pdp1ResultEvidence/operationResultBindings/2"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": ["media-upload-and-artifact/T01"]
+      - "operationRef": "media.operation-slice.inspect-upload"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/pdp1ResultEvidence/operationResultBindings/3"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.view-job-status"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/pdp1ResultEvidence/operationResultBindings/4"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation-slice.inspect-artifact-version"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-05.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/pdp1ResultEvidence/operationResultBindings/5"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
     "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
     "p1ObservationRefs":
       - ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records"
@@ -499,15 +569,9 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source-only; no accepted web operation-channel binding in the reviewed sources"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation-slice.append-upload-chunk"
-      - "media.operation-slice.begin-upload"
-      - "media.operation-slice.complete-upload"
-      - "media.operation-slice.inspect-artifact-version"
-      - "media.operation-slice.inspect-upload"
-      - "media.operation.action.view-job-status"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-02"
     "pdp1OperationRefs":
@@ -574,9 +638,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation-slice.append-upload-chunk, media.operation-slice.begin-upload, media.operation-slice.complete-upload, media.operation-slice.inspect-artifact-version, media.operation-slice.inspect-upload, media.operation.action.view-job-status"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-02.j-02.step-01"
@@ -682,6 +745,55 @@
       - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/VERIFYING"
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/VERIFYING"
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation-slice.begin-upload"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation-slice.append-upload-chunk"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/pdp1ResultEvidence/operationResultBindings/1"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation-slice.complete-upload"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/pdp1ResultEvidence/operationResultBindings/2"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": ["media-upload-and-artifact/T01"]
+      - "operationRef": "media.operation-slice.inspect-upload"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/pdp1ResultEvidence/operationResultBindings/3"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.view-job-status"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/pdp1ResultEvidence/operationResultBindings/4"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation-slice.inspect-artifact-version"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-05.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/pdp1ResultEvidence/operationResultBindings/5"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
     "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
     "p1ObservationRefs":
       - ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records"
@@ -768,11 +880,9 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source route inventory; runtime admission NOT_ADMITTED"
     "exactTransportMappingCount": 4
-    "unresolvedOperationRefs":
-      - "media.operation-slice.inspect-artifact-version"
-      - "media.operation.action.view-job-status"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-02"
     "pdp1OperationRefs":
@@ -843,9 +953,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation-slice.append-upload-chunk, media.operation-slice.begin-upload, media.operation-slice.complete-upload, media.operation-slice.inspect-artifact-version, media.operation-slice.inspect-upload, media.operation.action.view-job-status"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-02.j-02.step-01"
@@ -931,6 +1040,55 @@
       - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/VERIFYING"
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/VERIFYING"
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation-slice.begin-upload"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation-slice.append-upload-chunk"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/pdp1ResultEvidence/operationResultBindings/1"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation-slice.complete-upload"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/pdp1ResultEvidence/operationResultBindings/2"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": ["media-upload-and-artifact/T01"]
+      - "operationRef": "media.operation-slice.inspect-upload"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/pdp1ResultEvidence/operationResultBindings/3"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.view-job-status"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/pdp1ResultEvidence/operationResultBindings/4"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation-slice.inspect-artifact-version"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-05.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/pdp1ResultEvidence/operationResultBindings/5"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
     "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
     "p1ObservationRefs":
       - ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records"
@@ -1006,15 +1164,9 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source method inventory; only bounded definitions source-crosslinked; runtime admission NOT_ADMITTED"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation-slice.append-upload-chunk"
-      - "media.operation-slice.begin-upload"
-      - "media.operation-slice.complete-upload"
-      - "media.operation-slice.inspect-artifact-version"
-      - "media.operation-slice.inspect-upload"
-      - "media.operation.action.view-job-status"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-02"
     "pdp1OperationRefs":
@@ -1080,9 +1232,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation-slice.append-upload-chunk, media.operation-slice.begin-upload, media.operation-slice.complete-upload, media.operation-slice.inspect-artifact-version, media.operation-slice.inspect-upload, media.operation.action.view-job-status"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-02.j-02.step-01"
@@ -2940,29 +3091,7 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source-only; no accepted web operation-channel binding in the reviewed sources"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation.action.compare-candidate-on-metric"
-      - "media.operation.action.inspect-quality-evidence"
-      - "media.operation.action.submit-validated-request"
-      - "media.operation.capability.media-quality-inspect"
-      - "media.operation.capability.media-vision-analyze-expression"
-      - "media.operation.capability.media-vision-analyze-gaze"
-      - "media.operation.capability.media-vision-classify"
-      - "media.operation.capability.media-vision-detect"
-      - "media.operation.capability.media-vision-detect-shot-boundary"
-      - "media.operation.capability.media-vision-estimate-camera-motion"
-      - "media.operation.capability.media-vision-estimate-depth"
-      - "media.operation.capability.media-vision-estimate-face-landmarks"
-      - "media.operation.capability.media-vision-estimate-hand-pose"
-      - "media.operation.capability.media-vision-estimate-human-pose"
-      - "media.operation.capability.media-vision-estimate-optical-flow"
-      - "media.operation.capability.media-vision-estimate-surface-normals"
-      - "media.operation.capability.media-vision-matte-foreground-background"
-      - "media.operation.capability.media-vision-segment-image"
-      - "media.operation.capability.media-vision-segment-motion"
-      - "media.operation.capability.media-vision-segment-video"
-      - "media.operation.capability.media-vision-track-object"
-      - "media.operation.capability.media-vision-track-point"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
     "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
@@ -2990,6 +3119,183 @@
       - "media.operation.capability.media-vision-segment-video"
       - "media.operation.capability.media-vision-track-object"
       - "media.operation.capability.media-vision-track-point"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation.action.compare-candidate-on-metric"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.inspect-quality-evidence"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/1"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.submit-validated-request"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1",".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/2",".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/3"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-job",".product-experience/pdp-1-domain-data/states.yaml#media-attempt"]
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-quality-inspect"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/4"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-analyze-expression"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/5"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-analyze-gaze"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/6"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-classify"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/7"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-detect"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/8"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-detect-shot-boundary"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/9"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-camera-motion"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/10"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-depth"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/11"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-face-landmarks"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/12"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-hand-pose"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/13"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-human-pose"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/14"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-optical-flow"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/15"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-surface-normals"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/16"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-matte-foreground-background"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/17"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-segment-image"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/18"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-segment-motion"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/19"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-segment-video"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/20"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-track-object"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1",".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/21",".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/22"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-track-point"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1",".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/23",".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/24"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/GUI"
@@ -3060,7 +3366,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation.action.compare-candidate-on-metric, media.operation.action.inspect-quality-evidence, media.operation.action.submit-validated-request, media.operation.capability.media-quality-inspect, media.operation.capability.media-vision-analyze-expression, media.operation.capability.media-vision-analyze-gaze, media.operation.capability.media-vision-classify, media.operation.capability.media-vision-detect, media.operation.capability.media-vision-detect-shot-boundary, media.operation.capability.media-vision-estimate-camera-motion, media.operation.capability.media-vision-estimate-depth, media.operation.capability.media-vision-estimate-face-landmarks, media.operation.capability.media-vision-estimate-hand-pose, media.operation.capability.media-vision-estimate-human-pose, media.operation.capability.media-vision-estimate-optical-flow, media.operation.capability.media-vision-estimate-surface-normals, media.operation.capability.media-vision-matte-foreground-background, media.operation.capability.media-vision-segment-image, media.operation.capability.media-vision-segment-motion, media.operation.capability.media-vision-segment-video, media.operation.capability.media-vision-track-object, media.operation.capability.media-vision-track-point"
+      - "The invocation adapters define submission receipt only and no completion result; no source-bound terminal output observation binds the source artifact, timestamp/frame/region, model provenance, confidence, and uncertainty."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -3496,29 +3802,7 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source RPC inventory; logical-operation proposals do not prove semantic parity; runtime admission NOT_ADMITTED"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation.action.compare-candidate-on-metric"
-      - "media.operation.action.inspect-quality-evidence"
-      - "media.operation.action.submit-validated-request"
-      - "media.operation.capability.media-quality-inspect"
-      - "media.operation.capability.media-vision-analyze-expression"
-      - "media.operation.capability.media-vision-analyze-gaze"
-      - "media.operation.capability.media-vision-classify"
-      - "media.operation.capability.media-vision-detect"
-      - "media.operation.capability.media-vision-detect-shot-boundary"
-      - "media.operation.capability.media-vision-estimate-camera-motion"
-      - "media.operation.capability.media-vision-estimate-depth"
-      - "media.operation.capability.media-vision-estimate-face-landmarks"
-      - "media.operation.capability.media-vision-estimate-hand-pose"
-      - "media.operation.capability.media-vision-estimate-human-pose"
-      - "media.operation.capability.media-vision-estimate-optical-flow"
-      - "media.operation.capability.media-vision-estimate-surface-normals"
-      - "media.operation.capability.media-vision-matte-foreground-background"
-      - "media.operation.capability.media-vision-segment-image"
-      - "media.operation.capability.media-vision-segment-motion"
-      - "media.operation.capability.media-vision-segment-video"
-      - "media.operation.capability.media-vision-track-object"
-      - "media.operation.capability.media-vision-track-point"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
     "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
@@ -3546,6 +3830,183 @@
       - "media.operation.capability.media-vision-segment-video"
       - "media.operation.capability.media-vision-track-object"
       - "media.operation.capability.media-vision-track-point"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation.action.compare-candidate-on-metric"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.inspect-quality-evidence"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/1"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.submit-validated-request"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1",".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/2",".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/3"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-job",".product-experience/pdp-1-domain-data/states.yaml#media-attempt"]
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-quality-inspect"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/4"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-analyze-expression"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/5"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-analyze-gaze"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/6"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-classify"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/7"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-detect"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/8"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-detect-shot-boundary"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/9"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-camera-motion"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/10"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-depth"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/11"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-face-landmarks"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/12"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-hand-pose"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/13"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-human-pose"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/14"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-optical-flow"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/15"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-surface-normals"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/16"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-matte-foreground-background"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/17"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-segment-image"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/18"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-segment-motion"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/19"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-segment-video"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/20"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-track-object"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1",".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/21",".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/22"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-track-point"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1",".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/23",".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/24"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/gRPC"
@@ -3615,7 +4076,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation.action.compare-candidate-on-metric, media.operation.action.inspect-quality-evidence, media.operation.action.submit-validated-request, media.operation.capability.media-quality-inspect, media.operation.capability.media-vision-analyze-expression, media.operation.capability.media-vision-analyze-gaze, media.operation.capability.media-vision-classify, media.operation.capability.media-vision-detect, media.operation.capability.media-vision-detect-shot-boundary, media.operation.capability.media-vision-estimate-camera-motion, media.operation.capability.media-vision-estimate-depth, media.operation.capability.media-vision-estimate-face-landmarks, media.operation.capability.media-vision-estimate-hand-pose, media.operation.capability.media-vision-estimate-human-pose, media.operation.capability.media-vision-estimate-optical-flow, media.operation.capability.media-vision-estimate-surface-normals, media.operation.capability.media-vision-matte-foreground-background, media.operation.capability.media-vision-segment-image, media.operation.capability.media-vision-segment-motion, media.operation.capability.media-vision-segment-video, media.operation.capability.media-vision-track-object, media.operation.capability.media-vision-track-point"
+      - "The invocation adapters define submission receipt only and no completion result; no source-bound terminal output observation binds the source artifact, timestamp/frame/region, model provenance, confidence, and uncertainty."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -3937,29 +4398,7 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source method inventory; only bounded definitions source-crosslinked; runtime admission NOT_ADMITTED"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation.action.compare-candidate-on-metric"
-      - "media.operation.action.inspect-quality-evidence"
-      - "media.operation.action.submit-validated-request"
-      - "media.operation.capability.media-quality-inspect"
-      - "media.operation.capability.media-vision-analyze-expression"
-      - "media.operation.capability.media-vision-analyze-gaze"
-      - "media.operation.capability.media-vision-classify"
-      - "media.operation.capability.media-vision-detect"
-      - "media.operation.capability.media-vision-detect-shot-boundary"
-      - "media.operation.capability.media-vision-estimate-camera-motion"
-      - "media.operation.capability.media-vision-estimate-depth"
-      - "media.operation.capability.media-vision-estimate-face-landmarks"
-      - "media.operation.capability.media-vision-estimate-hand-pose"
-      - "media.operation.capability.media-vision-estimate-human-pose"
-      - "media.operation.capability.media-vision-estimate-optical-flow"
-      - "media.operation.capability.media-vision-estimate-surface-normals"
-      - "media.operation.capability.media-vision-matte-foreground-background"
-      - "media.operation.capability.media-vision-segment-image"
-      - "media.operation.capability.media-vision-segment-motion"
-      - "media.operation.capability.media-vision-segment-video"
-      - "media.operation.capability.media-vision-track-object"
-      - "media.operation.capability.media-vision-track-point"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
     "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
@@ -3987,6 +4426,183 @@
       - "media.operation.capability.media-vision-segment-video"
       - "media.operation.capability.media-vision-track-object"
       - "media.operation.capability.media-vision-track-point"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation.action.compare-candidate-on-metric"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.inspect-quality-evidence"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/1"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.submit-validated-request"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1",".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/2",".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/3"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-job",".product-experience/pdp-1-domain-data/states.yaml#media-attempt"]
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-quality-inspect"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/4"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-analyze-expression"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/5"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-analyze-gaze"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/6"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-classify"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/7"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-detect"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/8"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-detect-shot-boundary"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/9"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-camera-motion"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/10"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-depth"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/11"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-face-landmarks"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/12"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-hand-pose"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/13"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-human-pose"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/14"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-optical-flow"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/15"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-estimate-surface-normals"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/16"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-matte-foreground-background"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/17"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-segment-image"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/18"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-segment-motion"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/19"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-segment-video"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/20"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-track-object"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1",".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/21",".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/22"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-vision-track-point"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-01.v1",".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j05-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/23",".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/pdp1ResultEvidence/operationResultBindings/24"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/SDK"
@@ -4056,7 +4672,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation.action.compare-candidate-on-metric, media.operation.action.inspect-quality-evidence, media.operation.action.submit-validated-request, media.operation.capability.media-quality-inspect, media.operation.capability.media-vision-analyze-expression, media.operation.capability.media-vision-analyze-gaze, media.operation.capability.media-vision-classify, media.operation.capability.media-vision-detect, media.operation.capability.media-vision-detect-shot-boundary, media.operation.capability.media-vision-estimate-camera-motion, media.operation.capability.media-vision-estimate-depth, media.operation.capability.media-vision-estimate-face-landmarks, media.operation.capability.media-vision-estimate-hand-pose, media.operation.capability.media-vision-estimate-human-pose, media.operation.capability.media-vision-estimate-optical-flow, media.operation.capability.media-vision-estimate-surface-normals, media.operation.capability.media-vision-matte-foreground-background, media.operation.capability.media-vision-segment-image, media.operation.capability.media-vision-segment-motion, media.operation.capability.media-vision-segment-video, media.operation.capability.media-vision-track-object, media.operation.capability.media-vision-track-point"
+      - "The invocation adapters define submission receipt only and no completion result; no source-bound terminal output observation binds the source artifact, timestamp/frame/region, model provenance, confidence, and uncertainty."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -5555,25 +6171,7 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source-only; no accepted web operation-channel binding in the reviewed sources"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation.action.compare-candidate-on-metric"
-      - "media.operation.action.inspect-quality-evidence"
-      - "media.operation.action.submit-validated-request"
-      - "media.operation.capability.media-enhance-video-compression-repair"
-      - "media.operation.capability.media-enhance-video-deflicker"
-      - "media.operation.capability.media-enhance-video-deinterlace"
-      - "media.operation.capability.media-enhance-video-frame-rate-conversion"
-      - "media.operation.capability.media-enhance-video-frame-repair"
-      - "media.operation.capability.media-enhance-video-grain-adjust"
-      - "media.operation.capability.media-enhance-video-interpolation"
-      - "media.operation.capability.media-enhance-video-inverse-telecine-cadence"
-      - "media.operation.capability.media-enhance-video-motion-blur-synthesis"
-      - "media.operation.capability.media-enhance-video-rolling-shutter"
-      - "media.operation.capability.media-enhance-video-spatiotemporal-super-resolution"
-      - "media.operation.capability.media-enhance-video-stabilize"
-      - "media.operation.capability.media-enhance-video-temporal-consistency"
-      - "media.operation.capability.media-enhance-video-temporal-deblur"
-      - "media.operation.capability.media-enhance-video-temporal-denoise"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
     "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
@@ -5597,6 +6195,151 @@
       - "media.operation.capability.media-enhance-video-temporal-consistency"
       - "media.operation.capability.media-enhance-video-temporal-deblur"
       - "media.operation.capability.media-enhance-video-temporal-denoise"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation.action.compare-candidate-on-metric"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.inspect-quality-evidence"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/operationResultBindings/1"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.submit-validated-request"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/operationResultBindings/2"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-job",".product-experience/pdp-1-domain-data/states.yaml#media-attempt"]
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-enhance-video-compression-repair"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/operationResultBindings/3"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-enhance-video-deflicker"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/operationResultBindings/4"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-enhance-video-deinterlace"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/operationResultBindings/5"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-enhance-video-frame-rate-conversion"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/operationResultBindings/6"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-enhance-video-frame-repair"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/operationResultBindings/7"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-enhance-video-grain-adjust"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/operationResultBindings/8"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-enhance-video-interpolation"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/operationResultBindings/9"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-enhance-video-inverse-telecine-cadence"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/operationResultBindings/10"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-enhance-video-motion-blur-synthesis"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/operationResultBindings/11"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-enhance-video-rolling-shutter"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/operationResultBindings/12"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-enhance-video-spatiotemporal-super-resolution"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/operationResultBindings/13"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-enhance-video-stabilize"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/operationResultBindings/14"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-enhance-video-temporal-consistency"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/operationResultBindings/15"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-enhance-video-temporal-deblur"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/operationResultBindings/16"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-enhance-video-temporal-denoise"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/pdp1ResultEvidence/operationResultBindings/17"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/GUI"
@@ -5662,7 +6405,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation.action.compare-candidate-on-metric, media.operation.action.inspect-quality-evidence, media.operation.action.submit-validated-request, media.operation.capability.media-enhance-video-compression-repair, media.operation.capability.media-enhance-video-deflicker, media.operation.capability.media-enhance-video-deinterlace, media.operation.capability.media-enhance-video-frame-rate-conversion, media.operation.capability.media-enhance-video-frame-repair, media.operation.capability.media-enhance-video-grain-adjust, media.operation.capability.media-enhance-video-interpolation, media.operation.capability.media-enhance-video-inverse-telecine-cadence, media.operation.capability.media-enhance-video-motion-blur-synthesis, media.operation.capability.media-enhance-video-rolling-shutter, media.operation.capability.media-enhance-video-spatiotemporal-super-resolution, media.operation.capability.media-enhance-video-stabilize, media.operation.capability.media-enhance-video-temporal-consistency, media.operation.capability.media-enhance-video-temporal-deblur, media.operation.capability.media-enhance-video-temporal-denoise"
+      - "The video-repair adapter defines submission receipt only and no completion result; no source-bound repaired-output observation binds applicable quality metrics and visible limitations."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -5784,6 +6527,7 @@
       - ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/6"
       - ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/7"
       - ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/8"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1"
     "p1AuthorityRefs":
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
@@ -5853,17 +6597,9 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source-only; no accepted web operation-channel binding in the reviewed sources"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation.action.deliver-exact-version"
-      - "media.operation.action.inspect-version-and-review-scope"
-      - "media.operation.action.review-processing-parameters"
-      - "media.operation.action.submit-render"
-      - "media.operation.action.submit-validated-request"
-      - "media.operation.capability.media-generate-video-image-to-video"
-      - "media.operation.capability.media-generate-video-text-image-to-video"
-      - "media.operation.capability.media-generate-video-text-to-video"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-09"
     "pdp1OperationRefs":
@@ -5875,8 +6611,74 @@
       - "media.operation.capability.media-generate-video-image-to-video"
       - "media.operation.capability.media-generate-video-text-image-to-video"
       - "media.operation.capability.media-generate-video-text-to-video"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation.action.deliver-exact-version"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j09-step-09.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/typedObservationBindings/0"]
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED",".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED",".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN"]
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.inspect-version-and-review-scope"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j09-step-08.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/operationResultBindings/1"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.review-processing-parameters"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j09-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/operationResultBindings/2"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.submit-render"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j09-step-07.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/operationResultBindings/3"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-job",".product-experience/pdp-1-domain-data/states.yaml#media-attempt"]
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.submit-validated-request"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j09-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/operationResultBindings/4"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-job",".product-experience/pdp-1-domain-data/states.yaml#media-attempt"]
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-generate-video-image-to-video"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j09-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/operationResultBindings/5"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-generate-video-text-image-to-video"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j09-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/operationResultBindings/6"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-generate-video-text-to-video"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j09-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/operationResultBindings/7"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/GUI"
     "typedRequestResultErrors":
       "sourceRefs":
@@ -5939,9 +6741,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation.action.deliver-exact-version, media.operation.action.inspect-version-and-review-scope, media.operation.action.review-processing-parameters, media.operation.action.submit-render, media.operation.action.submit-validated-request, media.operation.capability.media-generate-video-image-to-video, media.operation.capability.media-generate-video-text-image-to-video, media.operation.capability.media-generate-video-text-to-video"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-09.j-09.step-01"
@@ -6083,6 +6884,7 @@
       - ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/6"
       - ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/7"
       - ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/8"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1"
     "p1AuthorityRefs":
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
@@ -6152,17 +6954,9 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "contract-only; host-dependent external transport unbound; runtime admission NOT_ADMITTED"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation.action.deliver-exact-version"
-      - "media.operation.action.inspect-version-and-review-scope"
-      - "media.operation.action.review-processing-parameters"
-      - "media.operation.action.submit-render"
-      - "media.operation.action.submit-validated-request"
-      - "media.operation.capability.media-generate-video-image-to-video"
-      - "media.operation.capability.media-generate-video-text-image-to-video"
-      - "media.operation.capability.media-generate-video-text-to-video"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-09"
     "pdp1OperationRefs":
@@ -6174,8 +6968,74 @@
       - "media.operation.capability.media-generate-video-image-to-video"
       - "media.operation.capability.media-generate-video-text-image-to-video"
       - "media.operation.capability.media-generate-video-text-to-video"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation.action.deliver-exact-version"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j09-step-09.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/typedObservationBindings/0"]
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED",".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED",".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN"]
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.inspect-version-and-review-scope"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j09-step-08.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/operationResultBindings/1"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.review-processing-parameters"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j09-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/operationResultBindings/2"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.submit-render"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j09-step-07.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/operationResultBindings/3"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-job",".product-experience/pdp-1-domain-data/states.yaml#media-attempt"]
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.submit-validated-request"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j09-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/operationResultBindings/4"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-job",".product-experience/pdp-1-domain-data/states.yaml#media-attempt"]
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-generate-video-image-to-video"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j09-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/operationResultBindings/5"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-generate-video-text-image-to-video"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j09-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/operationResultBindings/6"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-generate-video-text-to-video"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j09-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/operationResultBindings/7"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/headless"
     "typedRequestResultErrors":
       "sourceRefs":
@@ -6238,9 +7098,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation.action.deliver-exact-version, media.operation.action.inspect-version-and-review-scope, media.operation.action.review-processing-parameters, media.operation.action.submit-render, media.operation.action.submit-validated-request, media.operation.capability.media-generate-video-image-to-video, media.operation.capability.media-generate-video-text-image-to-video, media.operation.capability.media-generate-video-text-to-video"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-09.j-09.step-01"
@@ -6449,18 +7308,7 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source-only; no accepted web operation-channel binding in the reviewed sources"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation.action.compare-candidate-on-metric"
-      - "media.operation.action.inspect-quality-evidence"
-      - "media.operation.action.review-processing-parameters"
-      - "media.operation.action.submit-validated-request"
-      - "media.operation.capability.media-generate-video-image-to-video"
-      - "media.operation.capability.media-generate-video-keyframe-end"
-      - "media.operation.capability.media-generate-video-keyframe-intermediate"
-      - "media.operation.capability.media-generate-video-keyframe-start"
-      - "media.operation.capability.media-generate-video-reference-video"
-      - "media.operation.capability.media-generate-video-text-image-to-video"
-      - "media.operation.capability.media-generate-video-video-to-video"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
     "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
@@ -6477,6 +7325,95 @@
       - "media.operation.capability.media-generate-video-reference-video"
       - "media.operation.capability.media-generate-video-text-image-to-video"
       - "media.operation.capability.media-generate-video-video-to-video"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation.action.compare-candidate-on-metric"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j10-step-05.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.inspect-quality-evidence"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j10-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml#/pdp1ResultEvidence/operationResultBindings/1"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.review-processing-parameters"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j10-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml#/pdp1ResultEvidence/operationResultBindings/2"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.submit-validated-request"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j10-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml#/pdp1ResultEvidence/operationResultBindings/3"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-job",".product-experience/pdp-1-domain-data/states.yaml#media-attempt"]
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-generate-video-image-to-video"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j10-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml#/pdp1ResultEvidence/operationResultBindings/4"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-generate-video-keyframe-end"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j10-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml#/pdp1ResultEvidence/operationResultBindings/5"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-generate-video-keyframe-intermediate"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j10-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml#/pdp1ResultEvidence/operationResultBindings/6"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-generate-video-keyframe-start"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j10-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml#/pdp1ResultEvidence/operationResultBindings/7"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-generate-video-reference-video"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j10-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml#/pdp1ResultEvidence/operationResultBindings/8"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-generate-video-text-image-to-video"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j10-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml#/pdp1ResultEvidence/operationResultBindings/9"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.capability.media-generate-video-video-to-video"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j10-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml#/pdp1ResultEvidence/operationResultBindings/10"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/GUI"
@@ -6537,7 +7474,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation.action.compare-candidate-on-metric, media.operation.action.inspect-quality-evidence, media.operation.action.review-processing-parameters, media.operation.action.submit-validated-request, media.operation.capability.media-generate-video-image-to-video, media.operation.capability.media-generate-video-keyframe-end, media.operation.capability.media-generate-video-keyframe-intermediate, media.operation.capability.media-generate-video-keyframe-start, media.operation.capability.media-generate-video-reference-video, media.operation.capability.media-generate-video-text-image-to-video, media.operation.capability.media-generate-video-video-to-video"
+      - "The terminal identity/geometry/control/AI-unavailable branches lack exact source-bound per-condition state, copy, action, expected-result, and finality bindings."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -7118,9 +8055,7 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source-only; no accepted web operation-channel binding in the reviewed sources"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation.action.inspect-output-preview-and-version"
-      - "media.operation.action.submit-render"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
     "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
@@ -7128,6 +8063,23 @@
     "pdp1OperationRefs":
       - "media.operation.action.inspect-output-preview-and-version"
       - "media.operation.action.submit-render"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation.action.inspect-output-preview-and-version"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j13-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml#/pdp1ResultEvidence/operationResultBindings/1"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.submit-render"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j13-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-job",".product-experience/pdp-1-domain-data/states.yaml#media-attempt"]
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/GUI"
@@ -7177,7 +8129,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation.action.inspect-output-preview-and-version, media.operation.action.submit-render"
+      - "No source-bound rig/scene-version render/export result or typed conversion-loss observation exists; preview lineage alone does not prove the terminal output."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -7296,10 +8248,7 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source-only; no accepted web operation-channel binding in the reviewed sources"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation.action.inspect-quality-evidence"
-      - "media.operation.action.inspect-simulation-result"
-      - "media.operation.action.submit-render"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
     "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
@@ -7308,6 +8257,31 @@
       - "media.operation.action.inspect-quality-evidence"
       - "media.operation.action.inspect-simulation-result"
       - "media.operation.action.submit-render"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation.action.inspect-quality-evidence"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j14-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml#/pdp1ResultEvidence/operationResultBindings/1",".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml#/pdp1ResultEvidence/operationResultBindings/2"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.inspect-simulation-result"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j14-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.submit-render"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j14-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml#/pdp1ResultEvidence/operationResultBindings/3"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-job",".product-experience/pdp-1-domain-data/states.yaml#media-attempt"]
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/GUI"
@@ -7358,7 +8332,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation.action.inspect-quality-evidence, media.operation.action.inspect-simulation-result, media.operation.action.submit-render"
+      - "No typed simulation measurement/fidelity observation or render-completion binding supports the terminal measurements-and-render result."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -7483,10 +8457,7 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "contract-only; host-dependent external transport unbound; runtime admission NOT_ADMITTED"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation.action.inspect-quality-evidence"
-      - "media.operation.action.inspect-simulation-result"
-      - "media.operation.action.submit-render"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
     "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
@@ -7495,6 +8466,31 @@
       - "media.operation.action.inspect-quality-evidence"
       - "media.operation.action.inspect-simulation-result"
       - "media.operation.action.submit-render"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation.action.inspect-quality-evidence"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j14-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml#/pdp1ResultEvidence/operationResultBindings/1",".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml#/pdp1ResultEvidence/operationResultBindings/2"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.inspect-simulation-result"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j14-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.submit-render"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j14-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml#/pdp1ResultEvidence/operationResultBindings/3"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-job",".product-experience/pdp-1-domain-data/states.yaml#media-attempt"]
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/headless"
@@ -7545,7 +8541,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation.action.inspect-quality-evidence, media.operation.action.inspect-simulation-result, media.operation.action.submit-render"
+      - "No typed simulation measurement/fidelity observation or render-completion binding supports the terminal measurements-and-render result."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -8962,6 +9958,31 @@
       - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation.caption-draft-write"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j18-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.submit-render"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j18-step-05.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/pdp1ResultEvidence/operationResultBindings/1"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-job", ".product-experience/pdp-1-domain-data/states.yaml#media-attempt"]
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.inspect-output-preview-and-version"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j18-step-06.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/pdp1ResultEvidence/operationResultBindings/2"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
     "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
     "p1ObservationRefs":
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-output-preview-and-version"
@@ -9033,12 +10054,9 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source-only; no accepted web operation-channel binding in the reviewed sources"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation.action.inspect-output-preview-and-version"
-      - "media.operation.action.submit-render"
-      - "media.operation.caption-draft-write"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-18"
     "pdp1OperationRefs":
@@ -9098,9 +10116,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation.action.inspect-output-preview-and-version, media.operation.action.submit-render, media.operation.caption-draft-write"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-18.j-18.step-01"
@@ -9232,11 +10249,7 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source-only; no accepted web operation-channel binding in the reviewed sources"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation.action.compare-candidate-on-metric"
-      - "media.operation.action.inspect-quality-evidence"
-      - "media.operation.action.review-processing-parameters"
-      - "media.operation.action.submit-render"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
     "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
@@ -9246,6 +10259,39 @@
       - "media.operation.action.inspect-quality-evidence"
       - "media.operation.action.review-processing-parameters"
       - "media.operation.action.submit-render"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation.action.compare-candidate-on-metric"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j19-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/pdp1ResultEvidence/operationResultBindings/2"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.inspect-quality-evidence"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j19-step-01.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.review-processing-parameters"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j19-step-02.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/pdp1ResultEvidence/operationResultBindings/1"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.submit-render"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j19-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/pdp1ResultEvidence/operationResultBindings/3"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-job",".product-experience/pdp-1-domain-data/states.yaml#media-attempt"]
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/GUI"
@@ -9297,7 +10343,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation.action.compare-candidate-on-metric, media.operation.action.inspect-quality-evidence, media.operation.action.review-processing-parameters, media.operation.action.submit-render"
+      - "No source-bound successor selection/result or post-render completion observation exists; durable submit receipt alone does not prove terminal optimization."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -9464,11 +10510,7 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source-only; no accepted web operation-channel binding in the reviewed sources"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation-slice.cancel-job"
-      - "media.operation-slice.retry-job"
-      - "media.operation.action.check-job-outcome"
-      - "media.operation.action.view-job-status"
+    "unresolvedOperationRefs": ["media.operation-slice.cancel-job","media.operation-slice.retry-job","media.operation.action.check-job-outcome","media.operation.action.view-job-status"]
     "runtimeAdmission": "NOT_ADMITTED"
     "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
@@ -9478,6 +10520,53 @@
       - "media.operation-slice.retry-job"
       - "media.operation.action.check-job-outcome"
       - "media.operation.action.view-job-status"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation-slice.cancel-job"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-05.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/pdp1ResultEvidence/operationResultBindings/5"
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation-slice.retry-job"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-06.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/pdp1ResultEvidence/operationResultBindings/6"
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.check-job-outcome"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-07.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/pdp1ResultEvidence/operationResultBindings/4"
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.view-job-status"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-01.v1"
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-02.v1"
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-03.v1"
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-04.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/pdp1ResultEvidence/operationResultBindings/0"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/pdp1ResultEvidence/operationResultBindings/1"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/pdp1ResultEvidence/operationResultBindings/2"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/pdp1ResultEvidence/operationResultBindings/3"
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/CANCELLED"
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/COMPLETED"
@@ -9542,9 +10631,7 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "J20 cancel/retry remain unresolved: media.operation-slice.cancel-job and media.operation-slice.retry-job have no source-bound operation-purpose-state/result proof; no channel action or transition is inferred."
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation-slice.cancel-job, media.operation-slice.retry-job, media.operation.action.check-job-outcome, media.operation.action.view-job-status"
+    "logicalDefinitionBlockers": ["Exact immediate cancel, retry, job-status, and outcome-check results are source-bound. No cancellation transition/finality is joined, and retry eligibility/authority/transition remain unresolved; UNKNOWN does not authorize replay."]
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -9710,11 +10797,7 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "fixture simulator is not production; only exact separately listed production command candidates may be referenced"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation-slice.cancel-job"
-      - "media.operation-slice.retry-job"
-      - "media.operation.action.check-job-outcome"
-      - "media.operation.action.view-job-status"
+    "unresolvedOperationRefs": ["media.operation-slice.cancel-job","media.operation-slice.retry-job","media.operation.action.check-job-outcome","media.operation.action.view-job-status"]
     "runtimeAdmission": "NOT_ADMITTED"
     "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
@@ -9724,6 +10807,53 @@
       - "media.operation-slice.retry-job"
       - "media.operation.action.check-job-outcome"
       - "media.operation.action.view-job-status"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation-slice.cancel-job"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-05.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/pdp1ResultEvidence/operationResultBindings/5"
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation-slice.retry-job"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-06.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/pdp1ResultEvidence/operationResultBindings/6"
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.check-job-outcome"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-07.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/pdp1ResultEvidence/operationResultBindings/4"
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.view-job-status"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-01.v1"
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-02.v1"
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-03.v1"
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-04.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/pdp1ResultEvidence/operationResultBindings/0"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/pdp1ResultEvidence/operationResultBindings/1"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/pdp1ResultEvidence/operationResultBindings/2"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/pdp1ResultEvidence/operationResultBindings/3"
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/CANCELLED"
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/COMPLETED"
@@ -9788,9 +10918,7 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "J20 cancel/retry remain unresolved: media.operation-slice.cancel-job and media.operation-slice.retry-job have no source-bound operation-purpose-state/result proof; no channel action or transition is inferred."
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation-slice.cancel-job, media.operation-slice.retry-job, media.operation.action.check-job-outcome, media.operation.action.view-job-status"
+    "logicalDefinitionBlockers": ["Exact immediate cancel, retry, job-status, and outcome-check results are source-bound. No cancellation transition/finality is joined, and retry eligibility/authority/transition remain unresolved; UNKNOWN does not authorize replay."]
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -10981,11 +12109,9 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source-only; no accepted web operation-channel binding in the reviewed sources"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation-slice.inspect-artifact"
-      - "media.operation.action.view-job-status"
+    "unresolvedOperationRefs": ["media.operation-slice.inspect-artifact","media.operation.action.view-job-status"]
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-23"
     "pdp1OperationRefs":
@@ -11051,9 +12177,9 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation-slice.inspect-artifact, media.operation.action.view-job-status"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "p1OperationStateProofs": [{"operationRef":"media.operation-slice.inspect-artifact","disposition":"EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j23-step-02.v1"],"journeyResultBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/pdp1ResultEvidence/operationResultBindings/0"],"typedObservationBindingRefs":[],"relatedActionBindingRefs":[],"stateRefs":[],"transitionRefs":[]},{"operationRef":"media.operation.action.view-job-status","disposition":"EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j23-step-03.v1",".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j23-step-04.v1"],"journeyResultBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/pdp1ResultEvidence/operationResultBindings/1",".product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/pdp1ResultEvidence/operationResultBindings/2"],"typedObservationBindingRefs":[],"relatedActionBindingRefs":[],"stateRefs":[],"transitionRefs":[]}]
+    "p1JourneyResultRefs": [".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact/readSemantics",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope"]
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-23.j-23.step-01"
@@ -11192,11 +12318,9 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "fixture simulator is not production; only exact separately listed production command candidates may be referenced"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation-slice.inspect-artifact"
-      - "media.operation.action.view-job-status"
+    "unresolvedOperationRefs": ["media.operation-slice.inspect-artifact","media.operation.action.view-job-status"]
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-23"
     "pdp1OperationRefs":
@@ -11262,9 +12386,9 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation-slice.inspect-artifact, media.operation.action.view-job-status"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "p1OperationStateProofs": [{"operationRef":"media.operation-slice.inspect-artifact","disposition":"EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j23-step-02.v1"],"journeyResultBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/pdp1ResultEvidence/operationResultBindings/0"],"typedObservationBindingRefs":[],"relatedActionBindingRefs":[],"stateRefs":[],"transitionRefs":[]},{"operationRef":"media.operation.action.view-job-status","disposition":"EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j23-step-03.v1",".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j23-step-04.v1"],"journeyResultBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/pdp1ResultEvidence/operationResultBindings/1",".product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/pdp1ResultEvidence/operationResultBindings/2"],"typedObservationBindingRefs":[],"relatedActionBindingRefs":[],"stateRefs":[],"transitionRefs":[]}]
+    "p1JourneyResultRefs": [".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact/readSemantics",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope"]
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-23.j-23.step-01"
@@ -11414,12 +12538,9 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "fixture simulator is not production; only exact separately listed production command candidates may be referenced"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation-slice.inspect-artifact"
-      - "media.operation.action.review-processing-parameters"
-      - "media.operation.action.view-job-status"
+    "unresolvedOperationRefs": ["media.operation-slice.inspect-artifact","media.operation.action.review-processing-parameters","media.operation.action.view-job-status"]
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-24"
     "pdp1OperationRefs":
@@ -11487,9 +12608,9 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation-slice.inspect-artifact, media.operation.action.review-processing-parameters, media.operation.action.view-job-status"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "p1OperationStateProofs": [{"operationRef":"media.operation-slice.inspect-artifact","disposition":"EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j24-step-04.v1"],"journeyResultBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml#/pdp1ResultEvidence/operationResultBindings/2"],"typedObservationBindingRefs":[],"relatedActionBindingRefs":[],"stateRefs":[],"transitionRefs":[]},{"operationRef":"media.operation.action.review-processing-parameters","disposition":"EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j24-step-02.v1"],"journeyResultBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml#/pdp1ResultEvidence/operationResultBindings/0"],"typedObservationBindingRefs":[],"relatedActionBindingRefs":[],"stateRefs":[],"transitionRefs":[]},{"operationRef":"media.operation.action.view-job-status","disposition":"EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j24-step-03.v1"],"journeyResultBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml#/pdp1ResultEvidence/operationResultBindings/1"],"typedObservationBindingRefs":[],"relatedActionBindingRefs":[],"stateRefs":[],"transitionRefs":[]}]
+    "p1JourneyResultRefs": [".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/resultSchema",".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1/resultSchema",".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact/readSemantics"]
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-24.j-24.step-01"
@@ -11654,11 +12775,9 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source route inventory; runtime admission NOT_ADMITTED"
     "exactTransportMappingCount": 1
-    "unresolvedOperationRefs":
-      - "media.operation.action.review-processing-parameters"
-      - "media.operation.action.view-job-status"
+    "unresolvedOperationRefs": ["media.operation.action.review-processing-parameters","media.operation.action.view-job-status"]
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-24"
     "pdp1OperationRefs":
@@ -11730,9 +12849,9 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation-slice.inspect-artifact, media.operation.action.review-processing-parameters, media.operation.action.view-job-status"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "p1OperationStateProofs": [{"operationRef":"media.operation-slice.inspect-artifact","disposition":"EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j24-step-04.v1"],"journeyResultBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml#/pdp1ResultEvidence/operationResultBindings/2"],"typedObservationBindingRefs":[],"relatedActionBindingRefs":[],"stateRefs":[],"transitionRefs":[]},{"operationRef":"media.operation.action.review-processing-parameters","disposition":"EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j24-step-02.v1"],"journeyResultBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml#/pdp1ResultEvidence/operationResultBindings/0"],"typedObservationBindingRefs":[],"relatedActionBindingRefs":[],"stateRefs":[],"transitionRefs":[]},{"operationRef":"media.operation.action.view-job-status","disposition":"EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j24-step-03.v1"],"journeyResultBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml#/pdp1ResultEvidence/operationResultBindings/1"],"typedObservationBindingRefs":[],"relatedActionBindingRefs":[],"stateRefs":[],"transitionRefs":[]}]
+    "p1JourneyResultRefs": [".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/resultSchema",".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1/resultSchema",".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact/readSemantics"]
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-24.j-24.step-01"
@@ -12240,6 +13359,37 @@
       - "media.operation-slice.inspect-artifact"
       - "media.operation.action.inspect-consent-and-permitted-use"
       - "media.operation.action.view-job-status"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation-slice.inspect-artifact"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/1"
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.inspect-consent-and-permitted-use"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-01.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/0"
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.view-job-status"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-03.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/2"
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ACCESS_REVOKED"
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/AVAILABLE"
@@ -12300,7 +13450,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation-slice.inspect-artifact, media.operation.action.inspect-consent-and-permitted-use, media.operation.action.view-job-status"
+      - "Exact P1 result proofs bind only the consent, artifact, and job-status reads. No source-bound delete/revoke action, mutation authority, terminal lifecycle transition/finality, or handoff is joined; read evidence cannot prove erasure or revocation completion."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -12472,6 +13622,37 @@
       - "media.operation-slice.inspect-artifact"
       - "media.operation.action.inspect-consent-and-permitted-use"
       - "media.operation.action.view-job-status"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation-slice.inspect-artifact"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/1"
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.inspect-consent-and-permitted-use"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-01.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/0"
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.view-job-status"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-03.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/2"
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ACCESS_REVOKED"
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/AVAILABLE"
@@ -12536,7 +13717,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation-slice.inspect-artifact, media.operation.action.inspect-consent-and-permitted-use, media.operation.action.view-job-status"
+      - "Exact P1 result proofs bind only the consent, artifact, and job-status reads. No source-bound delete/revoke action, mutation authority, terminal lifecycle transition/finality, or handoff is joined; read evidence cannot prove erasure or revocation completion."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -12703,6 +13884,37 @@
       - "media.operation-slice.inspect-artifact"
       - "media.operation.action.inspect-consent-and-permitted-use"
       - "media.operation.action.view-job-status"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation-slice.inspect-artifact"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/1"
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.inspect-consent-and-permitted-use"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-01.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/0"
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.view-job-status"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-03.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/2"
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ACCESS_REVOKED"
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/AVAILABLE"
@@ -12763,7 +13975,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation-slice.inspect-artifact, media.operation.action.inspect-consent-and-permitted-use, media.operation.action.view-job-status"
+      - "Exact P1 result proofs bind only the consent, artifact, and job-status reads. No source-bound delete/revoke action, mutation authority, terminal lifecycle transition/finality, or handoff is joined; read evidence cannot prove erasure or revocation completion."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -13403,14 +14615,22 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source-only; no accepted web operation-channel binding in the reviewed sources"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation.action.submit-render"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
     "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-28"
     "pdp1OperationRefs":
       - "media.operation.action.submit-render"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation.action.submit-render"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-job",".product-experience/pdp-1-domain-data/states.yaml#media-attempt"]
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/GUI"
@@ -13459,7 +14679,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation.action.submit-render"
+      - "P1 submit-render proves durable job admission only; no source-bound post-render consumer receipt or conversion-report result exists, so terminal delivery remains undefined."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -13556,14 +14776,22 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "contract-only; host-dependent external transport unbound; runtime admission NOT_ADMITTED"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation.action.submit-render"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
     "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-28"
     "pdp1OperationRefs":
       - "media.operation.action.submit-render"
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation.action.submit-render"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-03.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-job",".product-experience/pdp-1-domain-data/states.yaml#media-attempt"]
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/headless"
@@ -13612,7 +14840,7 @@
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
     "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation.action.submit-render"
+      - "P1 submit-render proves durable job admission only; no source-bound post-render consumer receipt or conversion-report result exists, so terminal delivery remains undefined."
     "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
@@ -13643,6 +14871,15 @@
           - ".product-experience/pdp-3-product-experience/screen-registry.yaml"
           - ".product-experience/pdp-3-product-experience/action-registry.yaml"
         "reason": "No exact source-proven channel-equivalent operation binding in the reviewed channel inventory."
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation.capability.media-stream-session-reconnect"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j29-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-stream-session"]
+        "transitionRefs": []
     "p1StateRefs":
       - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent"
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent"
@@ -13738,10 +14975,9 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source-only; no accepted web operation-channel binding in the reviewed sources"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation.capability.media-stream-session-reconnect"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-29"
     "pdp1OperationRefs":
@@ -13803,9 +15039,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation.capability.media-stream-session-reconnect"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-29.j-29.step-01"
@@ -13839,6 +15074,15 @@
           - "modules/vision/vision-service/src/main/proto/vision_service.proto"
           - "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto"
         "reason": "No exact source-proven channel-equivalent operation binding in the reviewed channel inventory."
+    "p1OperationStateProofs":
+      - "operationRef": "media.operation.capability.media-stream-session-reconnect"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j29-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/pdp1ResultEvidence/operationResultBindings/0"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": []
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-stream-session"]
+        "transitionRefs": []
     "p1StateRefs":
       - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent"
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent"
@@ -13935,10 +15179,9 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source RPC inventory; logical-operation proposals do not prove semantic parity; runtime admission NOT_ADMITTED"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs":
-      - "media.operation.capability.media-stream-session-reconnect"
+    "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-29"
     "pdp1OperationRefs":
@@ -13999,9 +15242,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "Missing exact source-bound P1 state, typed observation, or journey-result proof for operations: media.operation.capability.media-stream-session-reconnect"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-29.j-29.step-01"

@@ -20,6 +20,75 @@ actors:
 channels:
   - media.channel.web
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+pdp1ResultEvidence:
+  status: SOURCE_BOUND_DEFINITION_ONLY; PDP3_CHANNEL_BINDING_PENDING
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/ownerWireSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1
+  operationResultBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/3
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j18-step-04.v1
+      operationRef: media.operation.caption-draft-write
+      operationKind: COMMAND
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/ownerWireSchema/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/ownerWireSchema/resultSchema
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+        - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/error
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/unknownOutcome
+      versionSemanticsRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/version
+      exactResult: >-
+        SUCCEEDED returns the complete session-local draft snapshot and exact source/typed-parent identities with draftId and the next draftRevision. It establishes only that local draft revision; it does not establish durable persistence, canonical caption registration, approval, delivery, or publication.
+      unknownDisposition: >-
+        Preserve the same active session, draftId, expected revision, exact source and parent, and edit. On UNKNOWN_OUTCOME, inspect that same session-local draft before any explicit edit; never blindly reapply or infer that the revision advanced.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/4
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j18-step-05.v1
+      operationRef: media.operation.action.submit-render
+      operationKind: COMMAND
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/contractVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/sourceFinality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/recovery
+      exactResult: >-
+        The accepted request receipt identifies only durable job admission for the exact request, source snapshot, and render profile. It is not rendering completion, an attempt result, output availability, delivery, or publication.
+        No current job state is returned or asserted by this journey result.
+      unknownDisposition: >-
+        Preserve the same requestId, canonical payload fingerprint, exact target and source snapshot. UNKNOWN_OUTCOME requires reconciliation of that same request before retry; never infer admission, completion, or failure from missing evidence.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/5
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j18-step-06.v1
+      operationRef: media.operation.action.inspect-output-preview-and-version
+      operationKind: QUERY
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/contractVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceFinality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery
+      exactResult: >-
+        This is its own exact-target, read-only scoped owner observation: requestId, exactTargetRef, ownerReceipt, and observedAt. It does not establish that the render request completed or that an output was delivered; no command effect is implied.
+      unknownDisposition: >-
+        Missing, stale, denied, mismatched, or unavailable evidence remains UNKNOWN; preserve the exact target and request identity and repeat only the authorized read. Never treat absence as global or replay the render command.
 preconditions:
   - Exact assets/fonts/brand claims, timeline mapping, color profile, and output
     destination are authorized.
@@ -841,7 +910,7 @@ steps:
     actionBindingState: journey-specific-action-binding-pending;
       candidate-refs-come-from-screen-contract-only
     stateRefs: []
-    stateBindingState: pending-owner-bound-state-reference-and-transition
+    stateBindingState: NO_PDP1_MACHINE_STATE; SESSION_LOCAL_DRAFT_REVISION_ONLY
     candidateActionRefs:
       - media.action.align-caption-timing
       - media.action.compare-caption-versions
@@ -916,16 +985,14 @@ steps:
         - surfaceRefs
       pendingFields:
         - objectRefs
-        - stateRefs
         - canonicalOperationRef
         - authorityRef
         - decisionRef
-        - transitionRef
         - handoffRef
         - requirementRefs
-      reason: Journey-level channels are candidate surface refs only; step-level
-        object/state/operation/authority/decision/transition/handoff/requirement
-        bindings are not declared.
+      reason: Journey-level channels remain candidate surface refs only; state and
+        transition applicability are source-bound to the exact session-local
+        operation; remaining bindings stay pending.
       stateRefs: no canonical domain state machine applies to a session-local caption draft
       transitionRef: NO_P1_MACHINE_TRANSITION; session-local draft snapshot only
     stepDefinitionSemantics:
@@ -1079,7 +1146,7 @@ steps:
           recovery: preserve-prior-draft-snapshot-on-denial-stale-parent-or-revision-conflict
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: TRANSITION_APPLICABILITY_UNRESOLVED
+        status: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_P1_MACHINE_TRANSITION
         transitionRef: null
         stateRefs: []
         operationRef: media.operation.caption-draft-write
@@ -1090,10 +1157,10 @@ steps:
         fields:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
           objectRefs: OBJECT_BINDING_UNRESOLVED
-          stateRefs: STATE_BINDING_UNRESOLVED
+          stateRefs: NO_PDP1_MACHINE_STATE; SESSION_LOCAL_DRAFT_REVISION_ONLY
           canonicalOperationRef: EXACT_OPERATION_REF
           authorityRef: AUTHORITY_BINDING_UNRESOLVED
-          transitionRef: TRANSITION_APPLICABILITY_UNRESOLVED
+          transitionRef: NO_PDP1_MACHINE_TRANSITION; SESSION_LOCAL_DRAFT_REVISION_ONLY
           requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
           scenarioRefs: NO_STEP_SCENARIO_FIXTURE
         operationContractRef: null

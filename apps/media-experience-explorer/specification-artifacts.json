@@ -2436,6 +2436,13 @@
     "title": "2026 10 12 Delegated Pdp Dev Owner Review"
   },
   {
+    "artifactId": "ART-GOV-DISCOVERY-CURRENT-CUT-OWNER-REVIEW-20261013",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
+    "phase": "CROSS_PHASE",
+    "path": ".product-experience/reviews/2026-10-13-discovery-current-cut-delegated-owner-review.md",
+    "title": "2026 10 13 Discovery Current Cut Delegated Owner Review"
+  },
+  {
     "artifactId": "ART-GOV-DISCOVERY-DELEGATED-OWNER-DECISIONS-20261013",
     "authorityClass": "CROSS_PHASE_GOVERNANCE",
     "phase": "CROSS_PHASE",

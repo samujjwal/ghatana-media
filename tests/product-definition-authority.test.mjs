@@ -789,7 +789,7 @@ function validateBoundedScopedQueryStepDefinition(journey, { journeyId, stepInde
   assert.match(operation.scopeStatus, /transport\/runtime-NOT_ADMITTED/u);
   assert.match(operation.sourceFinality, /^(?:read-only(?:-or-navigation)?(?:; no-write-finality)?|remains-unknown-until-evidence-classifies-outcome)$/u);
   assert.equal(step.canonicalOperationRef, operationId);
-  assert.deepEqual(step.stateRefs, []);
+  assert.deepEqual(step.stateRefs, [], "bounded scoped-query operations do not invent machine-state observations");
   assert.equal(step.success.status, "EXACT_OPERATION_RESULT_DEFINED");
   assert.equal(step.success.sourceRef, resultRef);
   assert.equal(step.success.resultSchemaRef, resultRef);
@@ -893,6 +893,44 @@ function validateBoundedJ20CommandOutcomeDefinition(journey, { stepIndex, operat
   for (const field of ["authorityRef", "decisionRef", "transitionRef", "handoffRef"]) {
     assert.equal(step[field], null, `${stepIndex} ${field} remains unbound`);
   }
+}
+
+function validateBoundedJ20CommandStateReferenceDefinition(journey, { stepIndex, operationId, actionId, purposeBindingId }) {
+  const step = journey.steps[stepIndex];
+  const states = readYaml(".product-experience/pdp-1-domain-data/states.yaml");
+  const machines = states.stateMachines.filter(({ machineId }) => ["media-job", "media-attempt"].includes(machineId));
+  assert.deepEqual(machines.map(({ machineId }) => machineId), ["media-job", "media-attempt"]);
+  const stateRefsFor = (machine) => machine.stateIds.map((stateId) =>
+    `.product-experience/pdp-1-domain-data/states.yaml#stateMachines/${machine.machineId}/stateDefinitions/${stateId}`);
+  const jobStateRefs = stateRefsFor(machines[0]);
+  const exactStateRefs = [...jobStateRefs, ...stateRefsFor(machines[1])];
+  assert.equal(exactStateRefs.length, 19);
+  assert.equal(step.action, actionId);
+  assert.equal(step.canonicalOperationRef, operationId);
+  assert.deepEqual(step.stateRefs, exactStateRefs,
+    `${operationId} links exactly the PDP-1 job and attempt state vocabularies`);
+  assert.equal(step.bindingStatus.stateRefs,
+    "exact P1 media-job and media-attempt state observations linked; no terminal effect inferred");
+  assert.equal(step.transitionRef, null);
+  assert.equal(step.transitionDisposition.status, "NO_EXACT_ACTION_TRANSITION");
+  assert.equal(step.transitionDisposition.transitionRef, null);
+  assert.match(step.transitionDisposition.reason, /none has a source-backed exact action\/operation binding/u);
+  assert.equal(step.bindingStatus.transitionRef,
+    "NO_EXACT_ACTION_TRANSITION; job family refs are unresolved and attempt edges have no operation binding");
+  assert.equal(step.stepDefinitionSemantics.action.runtimeAdmission, "NOT_ADMITTED");
+  assert.deepEqual(step.stepDefinitionSemantics.action.exactOperationRefs, [operationId]);
+  assert.match(step.stepDefinitionSemantics.action.finality, /pending/u);
+
+  const purpose = readYaml(".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml").records
+    .find(({ id }) => id === purposeBindingId);
+  assert.ok(purpose, `${purposeBindingId} purpose binding must resolve`);
+  assert.deepEqual(purpose.operationRefs, [operationId]);
+  assert.deepEqual(purpose.stateRefs, jobStateRefs,
+    "purpose binding identifies the exact job-state vocabulary; attempt states remain a separate observation set");
+  assert.equal(purpose.transitionDisposition.status, "NO_EXACT_ACTION_TRANSITION");
+  assert.deepEqual(purpose.transitionRefs, []);
+  assert.equal(purpose.runtimeAdmission, "NOT_ADMITTED");
+  return true;
 }
 
 const boundedLocalStepEffectSpecs = [
@@ -1111,7 +1149,13 @@ function validateBoundedJ16CaptionDraftWriteDefinition(journey) {
   assert.match(operation.scopeStatus, /session-local-draft-only/u);
   assert.match(operation.scopeStatus, /runtime-NOT_ADMITTED/u);
   assert.equal(step.view, "media.view.edit-captions");
+  assert.equal(step.actionRef, "media.action.correct-caption");
+  assert.deepEqual(step.stateRefs, []);
+  assert.equal(step.stateBindingState, "NO_PDP1_MACHINE_STATE; SESSION_LOCAL_DRAFT_REVISION_ONLY");
   assert.equal(step.canonicalOperationRef, operationId);
+  assert.equal(step.transitionRef, null);
+  assert.equal(step.transitionDisposition.status, "NO_P1_MACHINE_TRANSITION");
+  assert.equal(step.transitionDisposition.decisionRef, ".product-experience/decision-log.md#PXD-068");
   assert.equal(step.success.status, "EXACT_OPERATION_RESULT_DEFINED");
   assert.equal(step.success.sourceRef, resultRef);
   assert.equal(step.success.resultSchemaRef, resultRef);
@@ -1136,12 +1180,57 @@ function validateBoundedJ16CaptionDraftWriteDefinition(journey) {
   assert.equal(step.stepDefinitionSemantics.action.runtimeAdmission, "NOT_ADMITTED");
   assert.deepEqual(step.stepDefinitionSemantics.action.exactOperationRefs, [operationId]);
   assert.deepEqual(step.stepDefinitionSemantics.stepSourceFacts.resultSourceRef, [`${resultRef}/result`]);
+  assert.equal(step.stepDefinitionSemantics.transitionApplicability.status,
+    "LOCAL_SESSION_OR_DRAFT_EFFECT; NO_P1_MACHINE_TRANSITION");
+  assert.equal(step.stepDefinitionSemantics.transitionApplicability.operationRef, operationId);
+  assert.deepEqual(step.stepDefinitionSemantics.transitionApplicability.stateRefs, []);
+  assert.equal(step.stepDefinitionSemantics.transitionApplicability.transitionRef, null);
+  assert.equal(step.stepDefinitionSemantics.transitionApplicability.runtimeAdmission, "NOT_ADMITTED");
+  assert.equal(step.stepDefinitionSemantics.canonicalBindingDisposition.fields.stateRefs,
+    "NO_PDP1_MACHINE_STATE; SESSION_LOCAL_DRAFT_REVISION_ONLY");
+  assert.equal(step.stepDefinitionSemantics.canonicalBindingDisposition.fields.transitionRef,
+    "NO_P1_MACHINE_TRANSITION; SESSION_LOCAL_DRAFT_REVISION_ONLY");
+  const purpose = readYaml(".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml").records
+    .find(({ id }) => id === "media.pdp3.step-purpose-binding.j16-step-03.v1");
+  assert.ok(purpose, "the exact J-16 step purpose binding must resolve");
+  assert.deepEqual(purpose.stateRefs, []);
+  assert.deepEqual(purpose.transitionRefs, []);
+  assert.equal(purpose.transitionDisposition.status, "NO_P1_MACHINE_TRANSITION");
+  assert.equal(purpose.transitionDisposition.transitionRef, null);
+  assert.deepEqual(purpose.allowedOperationRefs, [operationId]);
+  assert.equal(purpose.runtimeAdmission, "NOT_ADMITTED");
   assert.equal(step.verification.status, "not-run");
   assert.deepEqual(step.verification.actualEvidence, []);
   assert.equal(step.recovery.status, "candidate-proposal");
   for (const field of ["authorityRef", "decisionRef", "transitionRef", "handoffRef"]) {
     assert.equal(step[field], null, `${field} remains unbound`);
   }
+}
+
+function validateBoundedJ18CaptionDraftWriteDefinition(journey) {
+  const step = journey.steps[3];
+  const operationId = "media.operation.caption-draft-write";
+  const operation = readYaml(".product-experience/pdp-1-domain-data/operations.yaml").operations
+    .find(({ id }) => id === operationId);
+  assert.equal(journey.journeyId, "J-18");
+  assert.ok(operation, "the exact J-18 caption draft operation must resolve");
+  assert.equal(step.canonicalOperationRef, operationId);
+  assert.deepEqual(step.stateRefs, []);
+  assert.equal(operation.transition.applicability, "no-domain-transition");
+  assert.equal(operation.transition.effect, "session-local-draft-revision-only");
+  assert.deepEqual(operation.transition.transitionRefs, []);
+  assert.equal(step.transitionDisposition.status, "NO_P1_MACHINE_TRANSITION");
+  assert.equal(step.transitionDisposition.decisionRef, ".product-experience/decision-log.md#PXD-068");
+  assert.equal(step.stateBindingState, "NO_PDP1_MACHINE_STATE; SESSION_LOCAL_DRAFT_REVISION_ONLY");
+  assert.equal(step.stepDefinitionSemantics.transitionApplicability.status,
+    "LOCAL_SESSION_OR_DRAFT_EFFECT; NO_P1_MACHINE_TRANSITION");
+  assert.deepEqual(step.stepDefinitionSemantics.transitionApplicability.stateRefs, []);
+  assert.equal(step.stepDefinitionSemantics.transitionApplicability.operationRef, operationId);
+  assert.equal(step.stepDefinitionSemantics.action.runtimeAdmission, "NOT_ADMITTED");
+  assert.equal(step.stepDefinitionSemantics.canonicalBindingDisposition.fields.stateRefs,
+    "NO_PDP1_MACHINE_STATE; SESSION_LOCAL_DRAFT_REVISION_ONLY");
+  assert.equal(step.stepDefinitionSemantics.canonicalBindingDisposition.fields.transitionRef,
+    "NO_PDP1_MACHINE_TRANSITION; SESSION_LOCAL_DRAFT_REVISION_ONLY");
 }
 
 function validateBoundedJ16UnselectedActionSetDefinition(journey) {
@@ -1293,7 +1382,23 @@ function validateBoundedJ22DeliverySuccessDefinition(journey) {
   assert.equal(operation.operationKind, "COMMAND");
   assert.deepEqual(operation.domainObjectRefs, ["media.domain.artifact-version", "media.domain.delivery-outcome"]);
   assert.deepEqual(operation.resultSchema.fields,
-    ["requestId", "deliveryRequestId", "artifactVersionId", "destinationRef", "ownerReceipt", "observedAt"]);
+    ["requestId", "deliveryRequestId", "deliveryRequestResultRef", "deliveryRequestFingerprint", "exactTargetRef", "artifactVersionId", "destinationRef", "ownerReceipt", "observedAt"]);
+  assert.deepEqual(operation.resultSchema.fieldContracts.deliveryRequestResultRef, {
+    type: "opaque-versioned-reference",
+    identifies: "immutable-result-of-this-delivery-request",
+  });
+  assert.equal(operation.resultSchema.fieldContracts.deliveryRequestFingerprint.pattern, "^sha256:[a-f0-9]{64}$");
+  assert.equal(operation.resultSchema.fieldContracts.deliveryRequestFingerprint.computedBy, "authenticated-trusted-host");
+  assert.deepEqual(operation.resultSchema.identityBindings, {
+    requestId: "$.request.requestId",
+    deliveryRequestResultRef: "immutable-reference-to-this-host-recorded-command-result",
+    exactTargetRef: "$.request.exactTargetRef",
+    artifactVersionId: "$.request.artifactVersionId",
+    destinationRef: "$.request.destinationRef",
+    deliveryRequestFingerprint: "canonical-fingerprint-of-validatedPayloadRef-and-resolvedExactTargetRefs",
+  });
+  assert.ok(operation.resultSchema.fieldContracts.deliveryRequestFingerprint.excludes.includes("acknowledgment-query-fingerprint"),
+    "delivery identity must not be substituted with the separate reconciliation query fingerprint");
   assert.equal(operation.resultSchema.unknown,
     "submission/acknowledgment is unknown until authoritative destination evidence; never claim delivery from dispatch");
   assert.equal(operation.resultSchemaRef, "media.operation-profile.governed-external-effect.v1#resultEnvelope");
@@ -1304,7 +1409,7 @@ function validateBoundedJ22DeliverySuccessDefinition(journey) {
   assert.equal(step.success.resultSchemaRef, resultRef);
   assert.equal(step.success.operationRef, operation.id);
   assert.equal(step.success.meaning,
-    "Immediate result is the delivery request/owner receipt for the exact artifactVersionId and destinationRef; destination delivery remains UNKNOWN until authoritative destination evidence.");
+    "Immediate REQUEST_ACCEPTED is a submission receipt for the exact artifactVersionId and destinationRef. It maps to SUBMITTED only; it does not establish destination receipt or ACKNOWLEDGED. Denial/errors remain classified failures, while post-submission uncertainty maps to OUTCOME_UNKNOWN pending same-identity reconciliation.");
   assert.equal(step.success.evidenceBoundary,
     "definition-grade operation contract only; runtimeAdmission NOT_ADMITTED and no owner evidence/result is asserted");
   assert.equal(step.success.laterJourneyOutcomeRef,
@@ -2228,6 +2333,7 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
   let boundedJ21InspectProvenanceValidated = false;
   let boundedJ16CaptionDraftWriteValidated = false;
   let boundedJ16UnselectedActionSetValidated = false;
+  let boundedJ18CaptionDraftWriteValidated = false;
   const boundedScopedQueryBindings = new Set();
   const boundedJ20CommandBindings = new Set();
   const boundedLocalStepEffectBindings = new Set();
@@ -2317,6 +2423,10 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
       validateBoundedJ16UnselectedActionSetDefinition(parsedJourney);
       boundedJ16UnselectedActionSetValidated = true;
     }
+    if (journeyId === "J-18") {
+      validateBoundedJ18CaptionDraftWriteDefinition(parsedJourney);
+      boundedJ18CaptionDraftWriteValidated = true;
+    }
     for (const [scopedJourneyId, stepIndex, operationId, sourceFile] of boundedScopedQueryStepSpecs) {
       if (journeyId !== scopedJourneyId) continue;
       validateBoundedScopedQueryStepDefinition(parsedJourney, { journeyId, stepIndex, operationId, sourceFile });
@@ -2326,6 +2436,12 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
       for (const [stepIndex, operationId, requestFields, expectedArtifactType] of boundedJ20CommandStepSpecs) {
         validateBoundedJ20CommandOutcomeDefinition(parsedJourney, { stepIndex, operationId, requestFields, expectedArtifactType });
         boundedJ20CommandBindings.add(`${journeyId}:${stepIndex}`);
+      }
+      for (const [stepIndex, operationId, actionId, purposeBindingId] of [
+        [4, "media.operation-slice.cancel-job", "media.action.request-cancellation", "media.pdp3.step-purpose-binding.j20-step-05.v1"],
+        [5, "media.operation-slice.retry-job", "media.action.retry-job", "media.pdp3.step-purpose-binding.j20-step-06.v1"],
+      ]) {
+        validateBoundedJ20CommandStateReferenceDefinition(parsedJourney, { stepIndex, operationId, actionId, purposeBindingId });
       }
     }
     for (const [localJourneyId, stepIndex, effectId, sourceFile, effectMode] of boundedLocalStepEffectSpecs) {
@@ -2426,13 +2542,21 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
           `${journeyId}/${stepId} missing binding status/reason for ${field}`);
         const reason = directReason ?? bindingReason ?? localStatus;
         const boundedJ06SourceDefinition = journeyId === "J-06" && itemIndex === 0
-          && ["canonicalOperationRef", "authorityRef"].includes(field)
+          && ["canonicalOperationRef", "authorityRef", "stateRefs", "transitionRef"].includes(field)
           && ((field === "canonicalOperationRef"
-            && directReason === "media.operation.job.submit.v1; selected target operation remains user-bound")
+            && directReason === "media.operation.job.submit.v1; exact capability target is explicitly selected and version-bound")
             || (field === "authorityRef"
-              && directReason === "trusted tenant/principal/delegation context is host-supplied and rechecked"))
+              && directReason === "trusted tenant/principal/delegation context is host-supplied and rechecked")
+            || (field === "stateRefs"
+              && directReason === "no state bound; a submit receipt does not assert a P1 machine transition")
+            || (field === "transitionRef"
+              && directReason === "NO_P1_MACHINE_TRANSITION; accepted receipt establishes initial job identity only"))
           && block.includes("canonicalOperationRef: media.operation.job.submit.v1")
           && block.includes("authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation")
+          && (field !== "stateRefs" && field !== "transitionRef"
+            || (block.includes("stateRefs: []") && block.includes("transitionRef: null")
+              && block.includes("status: NO_P1_MACHINE_TRANSITION")
+              && block.includes(".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md#MD30-03")))
           && /exactOperationRefs:\n\s+- media\.operation\.action\.submit-validated-request/u.test(block)
           && block.includes(".product-experience/decision-log.md#PXD-075")
           && /runtimeAdmission: NOT_ADMITTED/u.test(block);
@@ -2473,6 +2597,16 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
             && content.includes("runtimeAdmission: NOT_ADMITTED"))
           || (boundedJ20CommandBindings.has(`${journeyId}:${itemIndex}`) && ["success", "degradedBehavior"].includes(field)
             && content.includes("runtimeAdmission: NOT_ADMITTED"))
+          || (journeyId === "J-20" && [4, 5].includes(itemIndex) && field === "stateRefs"
+            && boundedJ20CommandBindings.has(`${journeyId}:${itemIndex}`)
+            && block.includes(`action: ${itemIndex === 4 ? "media.action.request-cancellation" : "media.action.retry-job"}`)
+            && content.includes("runtimeAdmission: NOT_ADMITTED"))
+          || (journeyId === "J-16" && itemIndex === 2 && ["stateRefs", "transitionRef"].includes(field)
+            && boundedJ16CaptionDraftWriteValidated
+            && block.includes("actionRef: media.action.correct-caption")
+            && block.includes("canonicalOperationRef: media.operation.caption-draft-write")
+            && content.includes(".product-experience/decision-log.md#PXD-068")
+            && /runtimeAdmission: NOT_ADMITTED/u.test(block))
           || (boundedLocalStepEffectBindings.has(`${journeyId}:${itemIndex}`) && ["success", "degradedBehavior"].includes(field)
             && content.includes("runtimeAdmission: NOT_ADMITTED"))
           || (journeyId === "J-21" && itemIndex === 2 && ["success", "degradedBehavior"].includes(field)
@@ -2480,6 +2614,12 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
             && content.includes("runtimeAdmission: NOT_ADMITTED"))
           || (journeyId === "J-16" && itemIndex === 2 && ["success", "degradedBehavior"].includes(field)
             && boundedJ16CaptionDraftWriteValidated && content.includes(".product-experience/decision-log.md#PXD-075")
+            && content.includes("runtimeAdmission: NOT_ADMITTED"))
+          || (journeyId === "J-18" && itemIndex === 3 && field === "stateRefs"
+            && boundedJ18CaptionDraftWriteValidated && content.includes(".product-experience/decision-log.md#PXD-068")
+            && content.includes("runtimeAdmission: NOT_ADMITTED"))
+          || (journeyId === "J-18" && itemIndex === 3 && field === "transitionRef"
+            && boundedJ18CaptionDraftWriteValidated && content.includes(".product-experience/decision-log.md#PXD-068")
             && content.includes("runtimeAdmission: NOT_ADMITTED"))
           || (journeyId === "J-16" && itemIndex === 1 && ["success", "degradedBehavior"].includes(field)
             && boundedJ16UnselectedActionSetValidated && content.includes("runtimeAdmission: NOT_ADMITTED"))
@@ -2585,6 +2725,7 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
   assert.equal(boundedLocalStepEffectBindings.size, 5, "only the five audited local catalog-selection steps use their exact local-draft eligibility contracts");
   assert.equal(boundedJ21InspectProvenanceValidated, true, "only J-21 inspect-provenance binds the exact typed owner observation definition without runtime admission");
   assert.equal(boundedJ16CaptionDraftWriteValidated, true, "only J-16 edit-captions binds the exact session-local draft output and unknown-recovery semantics without runtime admission");
+  assert.equal(boundedJ18CaptionDraftWriteValidated, true, "J-18 caption editing joins PXD-068 and the exact session-local operation with no PDP-1 state transition");
   assert.equal(boundedJ16UnselectedActionSetValidated, true, "J-16 work-with-speech remains an exact no-result-until-selection state with no default dispatch or runtime admission");
   assert.equal(boundedInspectArtifactBindings.size, 2, "only the two audited inspect-artifact steps bind caller-scoped metadata semantics without runtime admission");
   assert.equal(boundedJ19QualityEvidenceValidated, true, "J-19 review-quality binds only the exact scoped observation result without runtime admission");

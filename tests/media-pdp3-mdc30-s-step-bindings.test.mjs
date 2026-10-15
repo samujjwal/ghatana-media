@@ -9,6 +9,7 @@ const { parse } = createRequire(resolve(process.cwd(), '../ghatana-tools/package
 const readYaml = (path) => parse(readFileSync(path, 'utf8'));
 const purposePath = '.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml';
 const purpose = readYaml(purposePath);
+const journeyCatalog = readYaml('.product-experience/pdp-0-product-truth/journey-catalog.yaml');
 const transitionEdges = readYaml('.product-experience/pdp-3-product-experience/journey-transition-edge-bindings.yaml');
 const sources = {
   J01: '.product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml',
@@ -56,7 +57,10 @@ test('MDC30 S01-S13 retain explicit source-bounded no-transition dispositions', 
   for (const ordinal of [5, 6]) {
     const record = getRecord('J20', ordinal);
     const attempts = record.stateRefs.filter((ref) => ref.includes('stateMachines/media-attempt/'));
-    assert.equal(attempts.length, 10, `J20:${ordinal} observes all exact attempt states`);
+    const jobStates = record.stateRefs.filter((ref) => ref.includes('stateMachines/media-job/'));
+    assert.deepEqual(attempts, [], `J20:${ordinal} does not bind media-attempt states`);
+    assert.equal(jobStates.length, 9, `J20:${ordinal} binds the nine media-job states`);
+    assert.deepEqual(record.stateRefs, getStep('J20', ordinal).stateRefs.filter((ref) => ref.includes('stateMachines/media-job/')), `J20:${ordinal} purpose binding matches source media-job states`);
     assert.equal(record.transitionDisposition.status, 'NO_EXACT_ACTION_TRANSITION');
   }
   const s06 = getRecord('J06', 1);
@@ -76,6 +80,34 @@ test('MDC30 S01-S13 retain explicit source-bounded no-transition dispositions', 
   assert.ok(s06.sourceRefs.some((ref) => ref.includes('media.operation.job.submit.v1')));
   assert.ok(s06.sourceRefs.some((ref) => ref.includes('capability-invocation-adapters.yaml#records/@id=media.pdp3.invocation-adapter.j06-source-grounded.v1')));
   assert.match(getStep('J06', 1).transitionDisposition.reason, /does not prove a P1 job state, QUEUED, execution, completion, or output availability/i);
+});
+
+test('J06 S01 retains its five journey-level nonhappy conditions as unallocated proposals', () => {
+  const step = getStep('J06', 1);
+  const semantics = step.stepDefinitionSemantics;
+  const fixtureOracle = semantics.fixtureOracle;
+  const sourceJourney = journeyCatalog.journeys.find(({ id }) => id === 'J-06');
+  const conditions = [
+    /privacy denial/i,
+    /unqualified fallback/i,
+    /cancellation boundary/i,
+    /missing public API/i,
+    /generic document request/i,
+  ];
+
+  assert.ok(conditions.every((condition) => condition.test(sourceJourney.criticalNonhappy)));
+  assert.equal(step.failure.status, 'candidate-proposal');
+  assert.equal(step.failure.scope, 'journey-level-not-allocated-to-this-step');
+  assert.equal(step.failure.sourceRef, 'journey.criticalNonhappyPaths');
+  assert.equal(fixtureOracle.status, 'NO_STEP_SCENARIO_BOUND');
+  assert.equal(fixtureOracle.nonhappyBranch.status, 'candidate-proposal');
+  assert.equal(fixtureOracle.nonhappyBranch.scope, 'journey-level-not-allocated-to-this-step');
+  assert.equal(fixtureOracle.nonhappyBranch.sourceRef, 'journey.criticalNonhappyPaths');
+  assert.deepEqual(semantics.canonicalBindings.scenarioRefs, []);
+  assert.deepEqual(fixtureOracle.scenarioRefs, []);
+  assert.deepEqual(fixtureOracle.scenarios, []);
+  assert.equal(fixtureOracle.executable, false);
+  assert.match(step.failure.proposal[0].condition, /Privacy denial, unqualified fallback, cancellation boundary, missing public API, or generic document request routed as video OCR by MIME alone/i);
 });
 
 test('MDC30 S14 binds T01 only to complete-upload under guarded finalization', () => {

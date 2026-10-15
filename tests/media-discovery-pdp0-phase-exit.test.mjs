@@ -119,7 +119,15 @@ test('PDP-0 successor CLI binds each impact record to its exact predecessor exit
     exitRef: 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r11.json',
     currentnessRef: 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r11.json',
   });
-  assert.throws(() => resolveMediaPdp0SuccessorPredecessorRefs('MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R1'), /Unsupported PDP-0 successor impact recordId/);
+  assert.deepEqual(resolveMediaPdp0SuccessorPredecessorRefs('MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R1'), {
+    exitRef: 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json',
+    currentnessRef: 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json',
+  });
+  assert.deepEqual(resolveMediaPdp0SuccessorPredecessorRefs('MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2'), {
+    exitRef: 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json',
+    currentnessRef: 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json',
+  });
+  assert.throws(() => resolveMediaPdp0SuccessorPredecessorRefs('MEDIA-DISCOVERY-PDP0-R13-SUCCESSOR-IMPACT-2026-10-14-R1'), /Unsupported PDP-0 successor impact recordId/);
 });
 
 function currentCutTechnical() {

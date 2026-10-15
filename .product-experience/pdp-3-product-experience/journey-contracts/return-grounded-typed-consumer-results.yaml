@@ -20,6 +20,94 @@ channels:
   - media.channel.grpc-api
   - media.channel.product-integration
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+pdp1ResultEvidence:
+  status: SOURCE_BOUND_DEFINITION_ONLY; J06_STEP_BRANCH_ALLOCATION_INCOMPLETE; CHANNEL_TRANSPORT_UNBOUND; RUNTIME_NOT_ADMITTED
+  sourceRefs:
+    - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-06/criticalNonhappy
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/errorSchemaRef
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/errors
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/finality
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/recovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/canonicalAuthorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/resultObservationSemantics
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/canonicalAuthorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerErrorResponseContract
+    - .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+    - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+    - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
+    - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
+    - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1
+    - .product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml#records/@id=media.pdp3.invocation-adapter.j06-source-grounded.v1
+  operationResultBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1
+      operationRef: media.operation.action.submit-validated-request
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+      exactResult: >-
+        The action operation records an owner receipt only at the profile-defined boundary; it does not collapse the explicitly selected capability operation or the job-submit wrapper into the action identity.
+      errorsAndRecovery: >-
+        Use the bound operation profile error schema. Preserve the exact request identity and context; an ambiguous post-dispatch outcome remains UNKNOWN_OUTCOME and must be reconciled before retry.
+      finality: External-effect-or-request finality requires owner acknowledgment; no downstream capability completion is implied.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j06-step-01.v1
+      operationRef: media.operation.capability.media-multimodal-observe-source-grounded
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/resultSchema
+      exactResult: >-
+        This is the explicitly selected, versioned target COMMAND result. It is a separate target-operation result; the submission step does not claim that this output was produced or observed.
+      errorsAndRecovery: >-
+        Preserve typed INVALID_REQUEST, ACCESS_DENIED, RIGHTS_OR_CONSENT_DENIED, UNSUPPORTED_PROFILE, BOUNDS_EXCEEDED, CONFLICT, UNAVAILABLE, and UNKNOWN_OUTCOME distinctions from the target operation. UNKNOWN_OUTCOME retains the same request identity for authorized reconciliation before retry.
+      finality: The target operation's own result schema governs its result; no target completion or output availability is inferred from wrapper submission.
+  invocationReceiptBinding:
+    journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
+    adapterRef: .product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml#records/@id=media.pdp3.invocation-adapter.j06-source-grounded.v1
+    actionOperationRef: media.operation.action.submit-validated-request
+    selectedCapabilityRef: media.multimodal.observe.source-grounded
+    selectedCapabilityOperationRef: media.operation.capability.media-multimodal-observe-source-grounded
+    wrapperOperationRef: media.operation.job.submit.v1
+    wrapperOperationVersion: 1
+    wrapperRequestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/requestSchema
+    wrapperResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema
+    exactResult: >-
+      The wrapper schema defines its own REQUEST_ACKNOWLEDGED receipt and fields. This journey binds the receipt identity only; it does not project the wrapper's reported status into a PDP-1 state assertion or claim target execution, completion, or output availability.
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/canonicalAuthorityRefs
+    deniedOutcome:
+      typedErrorCodes: [ACCESS_DENIED, RIGHTS_OR_CONSENT_DENIED]
+      sourceRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/errors
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerErrorResponseContract
+      disposition: Denial remains scoped to the owner-reported request/effect; do not infer that no prior effect exists.
+    unknownOutcome:
+      outcomeRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      disposition: Preserve UNKNOWN_OUTCOME and the same request identity; reconcile with the authoritative owner before any retry. Missing receipt or unavailable evidence does not prove nonreceipt or no effect.
+      recoverySourceRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/recoverySemantics
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/resultObservationSemantics
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
+    finality:
+      sourceRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/sourceFinality
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/resultObservationSemantics
+      disposition: A wrapper receipt is request acknowledgment only for this journey; downstream execution and result finality require separate source-bound observation and are not claimed here.
+  criticalNonhappyAllocation:
+    sourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-06/criticalNonhappy
+    status: SOURCE_CONDITION_LISTED; PER_CONDITION_P3_BRANCH_ALLOCATION_UNRESOLVED
+    scenarios: []
+    rationale: >-
+      PDP-0 supplies one combined critical-nonhappy statement without stable per-condition branch identities or typed response mappings; the PDP-3 fixture registry lists J-06 among journeys without exact simulation seeds. Do not assign privacy denial, unqualified fallback, cancellation boundary, missing public API, or generic-document/MIME routing to a guessed scenario or error. The J-06 branch acceptance remains open pending owner-defined exact allocations.
+  channelAndRuntimeBoundary:
+    transport: UNBOUND
+    runtimeAdmission: NOT_ADMITTED
 preconditions:
   - Consumer purpose and artifact access are authorized; Media-specific
     scene-text intent is distinguished from document extraction.

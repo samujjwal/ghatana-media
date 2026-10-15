@@ -747,7 +747,7 @@ steps:
     actionBindingState: journey-specific-action-binding-pending;
       candidate-refs-come-from-screen-contract-only
     stateRefs: []
-    stateBindingState: pending-owner-bound-state-reference-and-transition
+    stateBindingState: NO_PDP1_MACHINE_STATE; SESSION_LOCAL_DRAFT_REVISION_ONLY
     candidateActionRefs:
       - media.action.align-caption-timing
       - media.action.compare-caption-versions
@@ -1009,7 +1009,7 @@ steps:
           recovery: preserve-prior-draft-snapshot-on-denial-stale-parent-or-revision-conflict
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: TRANSITION_APPLICABILITY_UNRESOLVED
+        status: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_P1_MACHINE_TRANSITION
         transitionRef: null
         stateRefs: []
         operationRef: media.operation.caption-draft-write
@@ -1020,10 +1020,10 @@ steps:
         fields:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
           objectRefs: OBJECT_BINDING_UNRESOLVED
-          stateRefs: STATE_BINDING_UNRESOLVED
+          stateRefs: NO_PDP1_MACHINE_STATE; SESSION_LOCAL_DRAFT_REVISION_ONLY
           canonicalOperationRef: EXACT_OPERATION_REF
           authorityRef: AUTHORITY_BINDING_UNRESOLVED
-          transitionRef: TRANSITION_APPLICABILITY_UNRESOLVED
+          transitionRef: NO_P1_MACHINE_TRANSITION; SESSION_LOCAL_DRAFT_REVISION_ONLY
           requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
           scenarioRefs: NO_STEP_SCENARIO_FIXTURE
         operationContractRef: null

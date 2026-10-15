@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -7,9 +8,14 @@ import { captureRepositorySourceCurrentness as captureRepository } from '@ghatan
 import { observeMediaDiscoveryCurrentness, resolveMediaPdp0Cells } from '../scripts/media-discovery-currentness.mjs';
 import {
   assertMediaPdp0CurrentnessOutputAvailable,
+  classifyMediaPdp0R12SuccessorImpact,
+  classifyMediaPdp0R12SuccessorImpactR2,
   classifyMediaPdp0R11SuccessorImpact,
+  mediaPdp0R12SuccessorSupportFileHashes,
+  mediaPdp0R12SuccessorR2SupportFileHashes,
   mediaPdp0R11SuccessorSupportFileHashes,
   resolveMediaPdp0CurrentnessOutputPath,
+  resolveMediaPdp0SuccessorCurrentnessSuffix,
 } from '../scripts/record-media-discovery-pdp0-currentness.mjs';
 
 const dimensions = {
@@ -34,17 +40,83 @@ function fixture() {
 
 function digest(char) { return `sha256:${char.repeat(64)}`; }
 
-test('PDP-0 successor currentness selects immutable R10 output and refuses overwrite before capture', () => {
+test('PDP-0 successor currentness selects immutable R10, R12, R13, and R14 outputs', () => {
   const legacyPath = resolveMediaPdp0CurrentnessOutputPath(false);
   const successorPath = resolveMediaPdp0CurrentnessOutputPath(true);
   const r11SuccessorPath = resolveMediaPdp0CurrentnessOutputPath(true, '2026-10-14-current-cut-r12');
+  const r12SuccessorPath = resolveMediaPdp0CurrentnessOutputPath(true, '2026-10-14-current-cut-r13');
+  const r12R2SuccessorPath = resolveMediaPdp0CurrentnessOutputPath(true, '2026-10-14-current-cut-r14');
   assert.equal(legacyPath, 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json');
   assert.equal(successorPath, 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r10.json');
   assert.equal(r11SuccessorPath, 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json');
+  assert.equal(r12SuccessorPath, 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r13.json');
+  assert.equal(r12R2SuccessorPath, 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r14.json');
+  assert.equal(resolveMediaPdp0SuccessorCurrentnessSuffix('MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R1'), '2026-10-14-current-cut-r13');
+  assert.equal(resolveMediaPdp0SuccessorCurrentnessSuffix('MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2'), '2026-10-14-current-cut-r14');
+  assert.equal(resolveMediaPdp0SuccessorCurrentnessSuffix('MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2', '2026-10-14-current-cut-r14'), '2026-10-14-current-cut-r14');
+  assert.throws(() => resolveMediaPdp0SuccessorCurrentnessSuffix('MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2', 'wrong-suffix'), /requires canonical output suffix 2026-10-14-current-cut-r14/);
+  assert.equal(resolveMediaPdp0SuccessorCurrentnessSuffix('UNMAPPED-SUCCESSOR-RECORD', 'caller-suffix'), 'caller-suffix');
   assert.notEqual(successorPath, legacyPath);
   const checked = assertMediaPdp0CurrentnessOutputAvailable(successorPath, () => false);
   assert.ok(checked.endsWith(successorPath));
   assert.throws(() => assertMediaPdp0CurrentnessOutputAvailable(successorPath, () => true), /Refusing to overwrite immutable observation/);
+});
+
+test('R2 successor CLI rejects a noncanonical output suffix before writing an observation', (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'media-pdp0-r2-suffix-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const impactPath = path.join(root, 'r2-impact.json');
+  const wrongSuffix = '2026-10-14-r2-wrong-suffix';
+  const outputPath = path.join(process.cwd(), 'docs/implementation/observations', `media-discovery-pdp0-currentness-${wrongSuffix}.json`);
+  fs.writeFileSync(impactPath, JSON.stringify({ recordId: 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2' }));
+  const result = spawnSync(process.execPath, [
+    path.resolve('scripts/record-media-discovery-pdp0-currentness.mjs'),
+    '--successor-impact', impactPath, wrongSuffix,
+  ], { cwd: process.cwd(), encoding: 'utf8' });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /requires canonical output suffix 2026-10-14-current-cut-r14/);
+  assert.equal(fs.existsSync(outputPath), false);
+});
+
+test('PDP-0 R12 successor R2 binds the exact R1 record digest and only corrects the gap census pin', () => {
+  const exitPath = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json';
+  const currentnessPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json';
+  const r1Path = 'docs/implementation/observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r1.json';
+  const r2Path = 'docs/implementation/observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r2.json';
+  const exit = JSON.parse(fs.readFileSync(path.join(process.cwd(), exitPath), 'utf8'));
+  const currentness = JSON.parse(fs.readFileSync(path.join(process.cwd(), currentnessPath), 'utf8'));
+  const priorImpactBytes = fs.readFileSync(path.join(process.cwd(), r1Path));
+  const r1 = JSON.parse(priorImpactBytes.toString('utf8'));
+  const deltas = r1.sourceDeltas.map((delta) => delta.path === '.product-experience/gaps.yaml'
+    ? { ...delta, observedSha256: 'sha256:7635137e6eb0e22659a3effde4f2076f94ce6429c58cefca2ae41469c952e8a0' }
+    : delta);
+  const comparisons = Object.keys(exit.sourceCurrentness.sourceContentDigests).sort().map((sourcePath) => {
+    const delta = deltas.find((candidate) => candidate.path === sourcePath);
+    return { path: sourcePath, recordedDigest: exit.sourceCurrentness.sourceContentDigests[sourcePath],
+      currentDigest: delta?.observedSha256 ?? exit.sourceCurrentness.sourceContentDigests[sourcePath],
+      disposition: delta ? 'CHANGED' : 'MATCH' };
+  });
+  const technical = { physicalCompositeConsumerCells: currentness.physicalCompositeConsumerCells,
+    denominators: { physicalCandidates: 26, semanticCompositions: 6, repositoryRoots: 1, consumers: 17, totalCells: 50 },
+    materialPathDenominator: { uniquePaths: 146 },
+    lifecycleSourceCurrentness: { continuity: 'CONTINUOUS', consistencyStable: true, zeroWorkEligibleAtCapture: true } };
+  const record = structuredClone(r1);
+  record.recordId = 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2';
+  record.supersedes = { recordId: r1.recordId, sha256: 'sha256:e5f837db065f2b6c99e721ee9f748b319266e911de3b21a1e30c055437e18ebe' };
+  record.campaign.scope = 'Exact R12-to-successor four-path census/projection correction; R2 supersedes R1 by exact digest, with R12 retained as the predecessor cut; 356 generated source records plus one manifest projection (357 total); no PDP-0 meaning change.';
+  record.projectionDenominator = { generatedSourceRecords: 356, manifestProjectionRecords: 1, total: 357 };
+  record.sourceDeltas = deltas;
+  record.limitations = 'This scoped internal disposition covers only the exact R12 four-path census/projection correction. R2 supersedes the R1 impact record by exact digest while retaining R12 as the source predecessor. It records 356 generated source records plus one manifest projection (357 total) and asserts no PDP-0 meaning change. It does not claim owner acceptance, independent signoff, native Lifecycle receipt or closure, runtime admission, Delivery readiness, or release authorization.';
+  record.supportFileSha256s = mediaPdp0R12SuccessorR2SupportFileHashes();
+  const classify = (changed = record, candidatePath = r2Path, pinSet = comparisons) => classifyMediaPdp0R12SuccessorImpactR2(
+    pinSet, changed, candidatePath, technical,
+    { recordBytes: Buffer.from(JSON.stringify(changed)), priorExit: exit, priorCurrentness: currentness, priorImpactBytes });
+  assert.deepEqual(classify()?.map(({ path: sourcePath }) => sourcePath), deltas.map(({ path: sourcePath }) => sourcePath));
+  assert.equal(classify({ ...record, supersedes: { ...record.supersedes, sha256: digest('0') } }), null);
+  assert.equal(classify({ ...record, sourceDeltas: record.sourceDeltas.map((delta, index) => index === 1 ? { ...delta, observedSha256: digest('0') } : delta) }), null);
+  assert.equal(classify({ ...record, decision: { ...record.decision, ownerAcceptance: 'ACCEPTED' } }), null);
+  assert.equal(classify(record, 'docs/implementation/observations/wrong-record.json'), null);
+  assert.equal(classify(record, r2Path, comparisons.filter(({ path: sourcePath }) => sourcePath !== '.product-experience/gaps.yaml')), null);
 });
 
 test('PDP-0 R11 successor classifier accepts only the exact PDP-1 generated projection delta', () => {
@@ -136,6 +208,97 @@ test('PDP-0 R11 successor classifier accepts only the exact PDP-1 generated proj
   const missingSupportPin = { ...impact, supportFileSha256s: { ...impact.supportFileSha256s } };
   delete missingSupportPin.supportFileSha256s['tests/media-discovery-pdp0-phase-exit.test.mjs'];
   assert.equal(classify(missingSupportPin), null);
+});
+
+test('PDP-0 R12 successor classifier accepts only the exact four-path census/projection delta', () => {
+  const exitPath = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json';
+  const currentnessPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json';
+  const impactPath = 'docs/implementation/observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r1.json';
+  const exit = JSON.parse(fs.readFileSync(path.join(process.cwd(), exitPath), 'utf8'));
+  const currentness = JSON.parse(fs.readFileSync(path.join(process.cwd(), currentnessPath), 'utf8'));
+  const topology = { physicalCandidates: 26, semanticCompositions: 6, repositoryRoots: 1, consumers: 17, totalCells: 50 };
+  const deltas = [
+    ['.product-experience/artifact-identities.yaml', 'sha256:cd6709b2e3bfff3c0b824f6e7e3c2c12777f688259beabbdbfeb1a261bd568f6', 'sha256:ad898f0143460d256f8da39466fcc344016097b8740f47b3b28a18b260e12f3a', 'ARTIFACT_IDENTITY_CENSUS_ONLY'],
+    ['.product-experience/gaps.yaml', 'sha256:3f58ca80e96f999960a4e4e0e91491a5f9a99bc9348223bbeb18426ba1cf4afd', 'sha256:4df3bad69c330b3649fe88a1797025f0a82de06f05d2ed3b5691608e5a5a6698', 'GAP_CENSUS_ONLY_CORRECTION'],
+    ['.product-experience/source-manifest.yaml', 'sha256:76cdcbff690e6a3439580e0df6fc68dbf67e7105b38d8ad1c9c3e9cb8b36145a', 'sha256:3a5c7e92e7470ee11c8bd1779db31a27aba75461c16fef37785901544c0c29fd', 'GENERATED_SOURCE_MANIFEST_PROJECTION'],
+    ['apps/media-experience-explorer/specification-artifacts.json', 'sha256:2aadeeffe41ea354f43a0824a069b1e21bfef5a31052e4dca8ceb68da9bcfc75', 'sha256:6cb5006b07b113dfa5cc1b41a78648be56e76910c60b60bd82f286c1593b8593', 'EXPLORER_ARTIFACT_INDEX_PROJECTION'],
+  ];
+  const changedPaths = new Set(deltas.map(([sourcePath]) => sourcePath));
+  const comparisons = Object.keys(exit.sourceCurrentness.sourceContentDigests).sort().map((sourcePath) => {
+    const delta = deltas.find(([candidate]) => candidate === sourcePath);
+    return {
+      path: sourcePath,
+      recordedDigest: exit.sourceCurrentness.sourceContentDigests[sourcePath],
+      currentDigest: delta?.[2] ?? exit.sourceCurrentness.sourceContentDigests[sourcePath],
+      disposition: delta ? 'CHANGED' : 'MATCH',
+    };
+  });
+  assert.deepEqual(comparisons.filter(({ disposition }) => disposition === 'CHANGED').map(({ path: sourcePath }) => sourcePath), [...changedPaths].sort());
+  const technical = {
+    physicalCompositeConsumerCells: currentness.physicalCompositeConsumerCells,
+    denominators: topology,
+    materialPathDenominator: { uniquePaths: 146 },
+    lifecycleSourceCurrentness: { continuity: 'CONTINUOUS', consistencyStable: true, zeroWorkEligibleAtCapture: true },
+  };
+  const impact = {
+    schemaVersion: 'media.discovery.pdp0-successor-source-impact.v1',
+    recordId: 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R1',
+    campaign: {
+      repository: 'samujjwal/ghatana-media', stage: 'DISCOVERY', activePhase: 'PDP-0',
+      scope: 'Exact R12-to-successor four-path census/projection correction; no PDP-0 meaning change.',
+    },
+    authority: {
+      delegate: 'AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_AUTHORIZATION',
+      decisionRole: 'SCOPED_INTERNAL_PDP0_SOURCE_IMPACT_REVIEW',
+      userAuthorization: 'Register and recapture (Recommended)',
+      authorizationEvidence: {
+        source: 'DIRECT_USER_REPLY_IN_CURRENT_TASK',
+        userReply: 'Register and recapture (Recommended)',
+        authorizedScope: 'Register the existing delegated owner review as CROSS_PHASE_GOVERNANCE, regenerate its source projections, and recapture impacted currentness.',
+        noMeaningChange: true,
+        externalAcceptance: false,
+      },
+      humanIndependentSignatureProvided: false,
+      qualifiedExternalSpecialistSignoffProvided: false,
+      externalContractOwnerAcceptanceProvided: false,
+      nativeLifecycleReceiptProvided: false,
+    },
+    predecessorCut: {
+      phase: 'PDP-0', exitRef: exitPath,
+      exitSha256: 'sha256:91aeae0aad488bc8eb29d40bf955e527ef072ada762948064bc8e50422c5a5c5',
+      currentnessRef: currentnessPath,
+      currentnessSha256: 'sha256:14882e245fa1676138cfc5bd51ef0403cb96cf2f77542caa2c57dc683ca8b159',
+      materialSourceSetFingerprint: 'sha256:1a121cf988ba4a34f6b603b1f230fd0494160a3c6142c064d8d5cc2a6aa45f94',
+      materialPathCount: 146, topology,
+    },
+    sourceDeltas: deltas.map(([sourcePath, predecessorSha256, observedSha256, classification]) => ({
+      path: sourcePath, phase: 'PDP-0', classification, predecessorSha256, observedSha256,
+      pdp0MeaningChange: 'NONE', pdp0MeaningIdsChanged: [], freshCurrentnessRequired: true,
+    })),
+    decision: {
+    status: 'INTERNAL_SCOPED_NO_PDP0_MEANING_CHANGE_FOR_EXACT_R12_DELTAS',
+      pdp0MeaningDisposition: 'NO_PDP0_MEANING_CHANGE', ownerAcceptance: 'NOT_CLAIMED',
+      independentSignoff: 'NOT_CLAIMED', lifecycleClosure: 'NOT_ENTERED', runtime: 'NOT_ADMITTED',
+      delivery: 'BLOCKED', release: 'NOT_AUTHORIZED', freshTechnicalCurrentness: 'REQUIRED',
+    },
+    limitations: 'This scoped internal disposition covers only the exact R12 four-path census/projection correction and asserts no additional PDP-0 meaning. It does not claim owner acceptance, independent signoff, native Lifecycle receipt or closure, runtime admission, Delivery readiness, or release authorization.',
+    supportFileSha256s: mediaPdp0R12SuccessorSupportFileHashes(),
+  };
+  const classify = (changed = impact, candidatePath = impactPath, pinSet = comparisons) => classifyMediaPdp0R12SuccessorImpact(
+    pinSet, changed, candidatePath, technical,
+    { recordBytes: Buffer.from(JSON.stringify(changed)), priorExit: exit, priorCurrentness: currentness },
+  );
+  assert.deepEqual(classify()?.map(({ path: sourcePath }) => sourcePath), deltas.map(([sourcePath]) => sourcePath));
+  assert.equal(classify({ ...impact, predecessorCut: { ...impact.predecessorCut, exitSha256: digest('0') } }), null);
+  assert.equal(classify({ ...impact, predecessorCut: { ...impact.predecessorCut, currentnessSha256: digest('0') } }), null);
+  assert.equal(classify({ ...impact, sourceDeltas: impact.sourceDeltas.map((delta, index) => index ? delta : { ...delta, observedSha256: digest('0') }) }), null);
+  assert.equal(classify(impact, 'docs/implementation/observations/wrong-record.json'), null);
+  assert.equal(classify(impact, impactPath, comparisons.filter(({ path: sourcePath }) => sourcePath !== deltas[0][0])), null);
+  assert.equal(classify({ ...impact, sourceDeltas: [...impact.sourceDeltas, { ...impact.sourceDeltas[0], path: 'unexpected.md' }] }), null);
+  assert.equal(classify({ ...impact, sourceDeltas: impact.sourceDeltas.map((delta, index) => index ? delta : { ...delta, pdp0MeaningChange: 'CHANGED' }) }), null);
+  assert.equal(classify({ ...impact, supportFileSha256s: { ...impact.supportFileSha256s, 'scripts/record-media-discovery-pdp0-currentness.mjs': digest('0') } }), null);
+  assert.equal(classify({ ...impact, decision: { ...impact.decision, ownerAcceptance: 'ACCEPTED' } }), null);
+  assert.equal(classify({ ...impact, authority: { ...impact.authority, externalContractOwnerAcceptanceProvided: true } }), null);
 });
 
 test('journal reset performs full validation and fails closed until continuity resumes', () => {

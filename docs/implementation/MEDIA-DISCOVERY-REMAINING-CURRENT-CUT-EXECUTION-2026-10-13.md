@@ -1,53 +1,58 @@
 # Media Discovery — current-cut reconciliation and execution plan
 
 **Campaign:** Media PDP-0 through PDP-3 for all 50 scoped review identities (26 physical/support/subsumed, 6 semantic compositions, root, 17 consumer crosswalks); 200 phase-review cells.
-**Source baseline:** observed head `e58e67084a4871dc21fb10523f0bcd0df8167d47`; PDP-0 R12 `sha256:1a121cf988ba4a34f6b603b1f230fd0494160a3c6142c064d8d5cc2a6aa45f94`; PDP-1 R27 `sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa`; PDP-2 R17 `sha256:a4c43f03c44a5f1844fba5039f146473f7390c02b3a06ce582c095fc5d9e74bd` (PASS/current against PDP-1 R27; 405 paths/50 cells).
-**Macro stage:** DISCOVERY. **Active phase:** PDP-3 / MDC-30 re-audit. PDP-0 R12, PDP-1 R27, and PDP-2 R17 are current phase exits. PDP-1/PDP-2 are `DEV_COMPLETE` with zero outstanding definition tasks; exact-cut owner acceptance remains unrecorded.
-**Phase receipts:** [PDP-0 R12](observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json), [PDP-1 R27](observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json), [PDP-2 R17](observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json). R17 receipt digest `sha256:2f57ace69d389dde7cbe7c5032c5b88d6a6b068c07177d33694fd968aa6c451e`; R25→R27 bridge confirms the same 329 paths with no changed paths. Earlier PDP-2 R13/R16 and PDP-1 R25/R26 receipts remain historical.
-**PDP-3 status:** currentness `NOT_ESTABLISHED`; source re-audit is required. The R4 result (43/61 edges, 18 gaps across C-03/C-04/C-16/C-22/C-25/C-27, and 14/14 consequential steps) is historical and must not be presented as current. First re-audit all 61 journey×channel edges and all 14 consequential steps against R12/R27/R17, then resolve the currently confirmed gaps at their owning phase and run V-01.
-**Discovery barrier:** FAIL. **Build lane:** NOT_ENTERED. **PDP closure lane:** NOT_ENTERED. **Delivery gate:** BLOCKED. **Next allowed work:** PDP-3 MDC-30 current-source re-audit and gap resolution → V-01 → MDC-31 Explorer verification → MDC-32 PDP-3 exit → MDC-40 Discovery barrier. MDC-41 remains gated until that barrier passes.
-**Projection note:** stale source-pinned `pdp-0`…`pdp-3` status projections are historical only; they have not been mutated without an exact material-impact disposition. Use the current source-bound receipts and matrix for this campaign cut.
+**Historical PDP-0–PDP-2 receipts:** observed head `e58e67084a4871dc21fb10523f0bcd0df8167d47`; PDP-0 R12 `sha256:1a121cf988ba4a34f6b603b1f230fd0494160a3c6142c064d8d5cc2a6aa45f94`; PDP-1 R27 `sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa`; PDP-2 R17 `sha256:a4c43f03c44a5f1844fba5039f146473f7390c02b3a06ce582c095fc5d9e74bd`. Each PASS applies only to its recorded source set. Present-cut currentness is not established.
+**PDP-3 audit baseline:** R5 is the immutable historical audit; subsequent source edits make it stale. The active R6 capture is pending and must be generated from the finalized current material-input set. Do not claim a reviewed HEAD, source fingerprint, or captured R6 observation until that record exists.
+**Macro stage:** DISCOVERY. **Active phase:** PDP-0 present-cut currentness recapture. R13 is an immutable failed attempt; latest PDP-0 R14 is `FAIL_SOURCE_CURRENTNESS` with 0/50 current and 50/50 unknown because Lifecycle continuity is `UNKNOWN` with `UNEXPECTED_REPOSITORY_MEMBERSHIP_CHANGE`. PDP-1 and PDP-2 present-cut recaptures are blocked in sequence. R12, R27, and R17 remain immutable historical PASS receipts for their exact captured source sets only. PDP-3 source work and R6 capture do not proceed until PDP-0 → PDP-1 → PDP-2 currentness is re-established.
+**Historical phase receipts:** [PDP-0 R12](observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json), [PDP-1 R27](observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json), [PDP-2 R17](observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json). R17 receipt digest `sha256:2f57ace69d389dde7cbe7c5032c5b88d6a6b068c07177d33694fd968aa6c451e`; R25→R27 bridge confirms the same 329 paths between those captured cuts only. [R13 currentness](observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r13.json) remains immutable historical evidence of its four-path failure: `.product-experience/artifact-identities.yaml`, `.product-experience/gaps.yaml`, `.product-experience/source-manifest.yaml`, and `apps/media-experience-explorer/specification-artifacts.json`. The later GAP-12 denominator correction is recorded exactly in [R2](observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r2.json), but [R14 currentness](observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r14.json) did not apply that classification: it failed with 0/50 cells current and 50/50 unknown, 30/30 external-contract digests matching, and Lifecycle continuity `UNKNOWN` / zero-work eligibility false due `UNEXPECTED_REPOSITORY_MEMBERSHIP_CHANGE`. Preserve R13, R1, R2 and R14. The separate external Lifecycle `package.json` transition still awaits its owner. Re-establish root-wide continuity, then capture a fresh PDP-0 successor applying R2; only after PDP-0 passes recapture PDP-1, then PDP-2. **Older-cut R13 records:** [PDP-1 R13](observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r13.json) is a technical PASS against PDP-0 R5; [PDP-2 R13](observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r13.json) is a technical PASS against PDP-1 R22. Neither is a present-cut recapture or satisfies the required PDP-0 → PDP-1 → PDP-2 chain.
+**PDP-3 pending status:** currentness `NOT_ESTABLISHED`; R6 has not yet been captured. The latest available source audit recorded 43/61 journey×channel edges as source-bound definition-only and 18 incomplete across 10 groups: C05(3), C08(1), C10(1), C13(1), C14(2), C19(1), C20(2), C21(2), C26(3), C28(2). The 14 consequential-step classifications remain 5 definition-bound, 7 partial, and 2 gaps pending R6 re-audit. All 61 transports remain `UNBOUND`; runtime is `NOT_ADMITTED`. R5's captured 37/61 and 24-incomplete result is historical. R4 also captured 43/61, but its incomplete-edge and step dispositions differ from the live registry; the matching aggregate does not make R4 current. Capture R6 after source/test edits settle and verify its exact counts before V-01.
+**PDP-3 preserved source tasks:** the 18 incomplete edges across the 10 groups above and 9 partial/gap consequential steps remain open at their owning sources. Resume this work only after PDP-0 → PDP-1 → PDP-2 present-cut currentness passes. Keep J21 rights-approval excluded and blocked under the user's direction.
+**PDP-3 consequential-step gaps:** S-04 and S-05 are the two gaps; S-01, S-03, S-06, S-07, S-12, S-13, and S-14 are partial. S-02, S-08, S-09, S-10, and S-11 have source-bound definition dispositions only, not runtime or independent acceptance.
+**Discovery barrier:** FAIL. **Build lane:** NOT_ENTERED. **PDP closure lane:** NOT_ENTERED. **Delivery gate:** BLOCKED. **Next allowed work:** R2 now records the exact post-R13 GAP-12 correction, but R14 did not apply it because Lifecycle continuity/cell currentness failed. Resolve the external Lifecycle `package.json` transition through its owner and re-establish root-wide continuity; then capture a fresh PDP-0 successor applying R2. Only after PDP-0 passes recapture PDP-1, followed by PDP-2 serially. Only after all three currentness captures pass may source-local PDP-3 MDC-30 work resume, followed by R6 → V-01 → MDC-31 → MDC-32 → MDC-40. MDC-41 remains gated until the Discovery barrier passes.
+**Projection note:** stale source-pinned `pdp-0`…`pdp-3` status projections are historical only; they have not been mutated without an exact material-impact disposition. Use the current source-bound receipts and active matrix for this campaign cut.
 **Canonical campaign records:** [17-task worklist](media-discovery-reconciliation-worklist-2026-10-13.json), [200-cell surface matrix](media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json).
 
 ## Full ordered work graph and remaining tasks
 
 | Order | Task | Current scope | Acceptance / gate |
 | --- | --- | --- | --- |
-| 1 | `MDC-30` current-source re-audit | All 61 journey×channel edges and 14 consequential steps against PDP-0 R12, PDP-1 R27, PDP-2 R17 | Reuse only unchanged historical bindings; write current findings before labeling any gap open or closed |
-| 2 | `MDC-30` confirmed gap resolution | Only source gaps established by the current re-audit, repaired at their owning phase | Required source definitions and negative tests pass; no inferred R4 gap closure |
-| 3 | `MDC30-V-01` | Binding registry, 50 PDP-3 cells, generated manifests/tests | All 61 edge dispositions and 14 consequential steps verified on current sources |
-| 4 | `MDC-31` | Explorer inspection and browser/a11y/keyboard/mobile/headless evidence | Actual review surfaces and current contracts are inspectable; retain exact evidence |
-| 5 | `MDC-32` | PDP-3 source-current exit | All 50 applicable/justified N/A cells current with zero outstanding definition tasks |
-| 6 | `MDC-40` | 200-cell Discovery barrier | Four congruent current phase exits and required source graph/Explorer evidence; fail closed otherwise |
-| 7 | `MDC-41` | Build handoff | Gated until MDC-40 passes; no Build lane is entered now |
+| 1 | `MDC-30` source-gap resolution | After predecessor recapture passes, resolve the 18 live-registry incomplete edges across 10 groups and 9 partial/gap consequential steps | Owning-source definitions and negative tests pass; preserve J21 exclusion; capture current R6 without asserting phase exit |
+| 2 | `MDC30-V-01` | Binding registry, 50 PDP-3 cells, generated manifests/tests | Run only after R6 verifies all 61 edge dispositions and 14 consequential steps on current sources |
+| 3 | `MDC-31` | Explorer inspection and browser/a11y/keyboard/mobile/headless evidence | Actual review surfaces and current contracts are inspectable; retain exact evidence |
+| 4 | `MDC-32` | PDP-3 source-current exit | All 50 applicable/justified N/A cells current with zero outstanding definition tasks |
+| 5 | `MDC-40` | 200-cell Discovery barrier | Four congruent current phase exits and required source graph/Explorer evidence; fail closed otherwise |
+| 6 | `MDC-41` | Build handoff | Gated until MDC-40 passes; no Build lane is entered now |
 
-The historical MDC30 R4 cut recorded **43/61** logical edges source-bound and **18** incomplete across six groups: C-03 (4), C-04 (3), C-16 (2), C-22 (4), C-25 (2), and C-27 (3). The eight R4-complete groups C-06, C-07, C-11, C-12, C-15, C-17, C-21, and C-30 are historical source-bound work to re-audit and reuse only if their material inputs are unchanged; none is currently asserted as source-bound. Preserve their detailed acceptance criteria below as re-audit criteria. The remaining work is **MDC-30 current-source re-audit of 61 edges and 14 consequential steps, followed by resolution of only currently confirmed source gaps, V-01, MDC-31, MDC-32, MDC-40, and gated MDC-41**, under the existing five campaign groups (`MDC-30/31/32/40/41`). Do **not** inflate PDP-0/1/2's completed meaning-task backlogs.
+R4 and R5 remain immutable historical evidence; use the live registry, pending R6 reference and ordered work graph above for active status and gaps. Do **not** inflate PDP-0/1/2's completed meaning-task backlogs with later-phase work.
 
-## PDP-0 → PDP-2 currentness exits (complete and reusable)
+## PDP-0 → PDP-2 present-cut currentness recapture (blocked)
 
-### RC-P0-01 — PDP-0 currentness (complete and reusable)
+### RC-P0-01 — PDP-0 currentness
 
-PDP-0 R12 is PASS/current for the 50-cell campaign at `sha256:1a121cf988ba4a34f6b603b1f230fd0494160a3c6142c064d8d5cc2a6aa45f94`. Reuse [the R12 receipt](observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json); zero phase-local definition tasks remain.
+R12 remains an immutable PASS receipt for its captured 146-path/50-cell source set at `sha256:1a121cf988ba4a34f6b603b1f230fd0494160a3c6142c064d8d5cc2a6aa45f94`; that count describes R12 only. R13 is the immutable four-path failed attempt. Exact R2 records the later GAP-12 correction, but R14 remains the latest failed capture: 0/50 current, 50/50 unknown, 30/30 external-contract digests matching, Lifecycle continuity `UNKNOWN`, zero-work eligibility false, blocker `UNEXPECTED_REPOSITORY_MEMBERSHIP_CHANGE`. R14 did not apply R2. Resolve the external Lifecycle transition through its owner, re-establish root-wide continuity, then capture a fresh PDP-0 successor applying R2.
 
-### RC-P1-01 — PDP-1 currentness (complete and reusable)
+### RC-P1-01 — PDP-1 currentness
 
-PDP-1 R27 is PASS/current and `DEV_COMPLETE` for 329 material paths and 50 cells at `sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa`, against PDP-0 R12. The R25→R27 source map has the same 329 paths and no changed paths. Reuse [the R27 receipt](observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json); zero phase-local definition tasks remain. Exact-cut owner acceptance is not recorded.
+R27 remains an immutable PASS receipt for its captured 329-path/50-cell source set at `sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa`; the R25→R27 unchanged-path bridge is historical evidence only. Present-cut PDP-1 recapture is blocked until PDP-0 currentness passes. Then recapture PDP-1 against that exact PDP-0 successor; preserve R27 and its acceptance boundary as historical.
 
-### RC-P2-01 — PDP-2 currentness (complete and reusable)
+### RC-P2-01 — PDP-2 currentness
 
-PDP-2 R17 is PASS/current and `DEV_COMPLETE` for 405 paths and 50 cells at `sha256:a4c43f03c44a5f1844fba5039f146473f7390c02b3a06ce582c095fc5d9e74bd`, against PDP-1 R27. Its receipt digest is `sha256:2f57ace69d389dde7cbe7c5032c5b88d6a6b068c07177d33694fd968aa6c451e`. The R17 capture consumed the exact historical R5, R1 and R16 projection-impact chains. Reuse [the R17 receipt](observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json); zero phase-local definition tasks remain. Exact-cut owner acceptance is not recorded.
+R17 remains an immutable PASS receipt for its captured 405-path/50-cell source set at `sha256:a4c43f03c44a5f1844fba5039f146473f7390c02b3a06ce582c095fc5d9e74bd`, against PDP-1 R27; receipt digest `sha256:2f57ace69d389dde7cbe7c5032c5b88d6a6b068c07177d33694fd968aa6c451e`. Its impact chains and PASS apply to that capture only. Present-cut PDP-2 recapture is blocked until PDP-0 then PDP-1 currentness passes; recapture PDP-2 against the exact PDP-1 successor after those gates.
 
+## PDP-3 source-gap resolution and exit
 
-## PDP-3 current-source re-audit, gap resolution, and exit
-
-**PDP-3 currentness is NOT_ESTABLISHED. First re-audit all 61 journey×channel edges and all 14 consequential steps against current R12/R27/R17 sources. The R4 result of 43/61 source-bound and 18 incomplete edges across six groups is historical only. Reuse historical bindings only after verifying their material inputs are unchanged; resolve gaps only when the current-source re-audit confirms them. Reuse `scripts/lib/pdp3-step-capability-purpose.mjs`, `tests/pdp3-journey-channel-contract-bindings.test.mjs` and `tests/pdp-experience-step-definition-oracle.test.mjs`.
+The live edge and step counts, phase status, and next legal action are maintained once in the campaign summary and canonical worklist/matrix above. The preserved MDC30-C and MDC30-S source-local task IDs remain open; hold their execution until serial PDP-0 → PDP-1 → PDP-2 currentness recapture passes, then resolve only source-confirmed gaps and capture R6 after sources and focused proofs settle. V-01 remains gated until R6 validates the complete 61-edge and 14-step denominators. Reuse `scripts/lib/pdp3-step-capability-purpose.mjs`, `tests/pdp3-journey-channel-contract-bindings.test.mjs` and `tests/pdp-experience-step-definition-oracle.test.mjs`.
 
 **Binding proof choice (mandatory one per edge):** (1) exact P1 machine state bound to action/guard; (2) exact typed P1 owner observation with complete purpose/operation join; **or** (3) explicit, source-proven **NO_P1_MACHINE_STATE** justified by a stateless read/local session effect/initial result/external handoff, with typed result and authority/finality/unknown/recovery. A mere `stateRefs: []` or null cannot pass. The semantic third branch requires adding positive verification and adversarial tests; do not weaken the existing missing-state test to unconditionally accept N/A. A command with owner-state effects cannot escape through a false read-only label. Full coverage must account for every exact P1 operation on the edge.
 
-### MDC30-C-03 — J-03, 4 unfinished channel edges
+## Historical owner-intent entries and current status
 
-**Owner:** Media speech/transcription and caption-interface owners. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (material currentness) and the R4 source-bound dispositions (re-audit/reuse only if material inputs remain current; not remaining authoring).
-**What:** Finish `TRANSCRIPTION_SUBMISSION_THEN_EXACT_CAPTION_DRAFT_OR_VERSION` on `media.channel.cli`, `media.channel.grpc-api`, `media.channel.sdk`, `media.channel.web`. **Approved meaning:** A submission receipt is not transcription completion; session caption edits and immutable caption-version registration remain separate, and denied/UNKNOWN retain same source/version.
+The detailed MDC30-C entries below preserve owner intent and definition criteria. Live group status must be read from the current binding registry and revalidated in pending R6; R4/R5 counts are historical. Work only on current source gaps. Source-bound definitions do not imply transport equivalence, owner acceptance, independent review, runtime admission, phase exit, or Delivery. J21 rights approval remains excluded and blocked under the user's direction.
+
+### MDC30-C-03 — J-03 (owner intent; historical R5 disposition)
+
+**Owner:** Media speech/transcription and caption-interface owners. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (blocked pending present-cut recapture; see above); R5 is historical audit evidence only.
+**Reviewed scope:** `TRANSCRIPTION_SUBMISSION_THEN_EXACT_CAPTION_DRAFT_OR_VERSION` on `media.channel.cli`, `media.channel.grpc-api`, `media.channel.sdk`, `media.channel.web`. **Approved meaning:** A submission receipt is not transcription completion; session caption edits and immutable caption-version registration remain separate, and denied/UNKNOWN retain same source/version.
 
 **Where:** `.product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml`; `.product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml`; `.product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml`; `.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml`; `.product-experience/pdp-1-domain-data/operations.yaml`; `.product-experience/pdp-1-domain-data/states.yaml`; `.product-experience/pdp-2-design-interface-system/interface-grammar.yaml`.
 
@@ -56,10 +61,10 @@ PDP-2 R17 is PASS/current and `DEV_COMPLETE` for 405 paths and 50 cells at `sha2
 **Acceptance:** Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.
 
 
-### MDC30-C-04 — J-04, 3 unfinished channel edges
+### MDC30-C-04 — J-04 (owner intent; historical R5 disposition)
 
-**Owner:** Media speech/TTS, rights and consent owners. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (material currentness) and the R4 source-bound dispositions (re-audit/reuse only if material inputs remain current; not remaining authoring).
-**What:** Finish `AUTHORIZED_VOICE_SYNTHESIS_ASYNC_WITH_RIGHTS_GUARDS` on `media.channel.grpc-api`, `media.channel.sdk`, `media.channel.web`. **Approved meaning:** A voice/license choice or submit receipt cannot prove voice right, generated output, or approval; require consent scope, selected profile, exact source and typed later observation.
+**Owner:** Media speech/TTS, rights and consent owners. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (blocked pending present-cut recapture; see above); R5 is historical audit evidence only.
+**Reviewed scope:** `AUTHORIZED_VOICE_SYNTHESIS_ASYNC_WITH_RIGHTS_GUARDS` on `media.channel.grpc-api`, `media.channel.sdk`, `media.channel.web`. **Approved meaning:** A voice/license choice or submit receipt cannot prove voice right, generated output, or approval; require consent scope, selected profile, exact source and typed later observation.
 
 **Where:** `.product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml`; `.product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml`; `.product-experience/pdp-0-product-truth/policy-authority-model.yaml`; `.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml`; `.product-experience/pdp-1-domain-data/operations.yaml`; `.product-experience/pdp-1-domain-data/states.yaml`; `.product-experience/pdp-2-design-interface-system/interface-grammar.yaml`.
 
@@ -68,10 +73,10 @@ PDP-2 R17 is PASS/current and `DEV_COMPLETE` for 405 paths and 50 cells at `sha2
 **Acceptance:** Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.
 
 
-### MDC30-C-06 — J-06, 3 edges (R4 historical source-bound; re-audit/reuse, not remaining authoring)
+### MDC30-C-06 — J-06 (owner intent; historical R5 disposition)
 
-**Owner:** Media multimodal/capability operation owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (material currentness) and the R4 source-bound dispositions (re-audit/reuse only if material inputs remain current; not remaining authoring).
-**What:** Finish `EXACT_TARGET_COMMAND_IN_BOUNDED_JOB_SUBMIT_WRAPPER` on `media.channel.grpc-api`, `media.channel.http-api`, `media.channel.product-integration`. **Approved meaning:** Media action → exact capability target → owner job.submit wrapper are three different IDs; retain exact purpose/version, no QUEUED before owner receipt or output before owner observation.
+**Owner:** Media multimodal/capability operation owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (blocked pending present-cut recapture; see above); R5 is historical audit evidence only.
+**Reviewed scope:** `EXACT_TARGET_COMMAND_IN_BOUNDED_JOB_SUBMIT_WRAPPER` on `media.channel.grpc-api`, `media.channel.http-api`, `media.channel.product-integration`. **Approved meaning:** Media action → exact capability target → owner job.submit wrapper are three different IDs; retain exact purpose/version, no QUEUED before owner receipt or output before owner observation.
 
 **Where:** `.product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml`; `.product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml`; `.product-experience/pdp-1-domain-data/operations.yaml`; `.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml`; `.product-experience/pdp-1-domain-data/operations.yaml`; `.product-experience/pdp-1-domain-data/states.yaml`; `.product-experience/pdp-2-design-interface-system/interface-grammar.yaml`.
 
@@ -80,10 +85,10 @@ PDP-2 R17 is PASS/current and `DEV_COMPLETE` for 405 paths and 50 cells at `sha2
 **Acceptance:** Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.
 
 
-### MDC30-C-07 — J-07, 1 edges (R4 historical source-bound; re-audit/reuse, not remaining authoring)
+### MDC30-C-07 — J-07 (owner intent; historical R5 disposition)
 
-**Owner:** Media audio enhancement and fidelity owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (material currentness) and the R4 source-bound dispositions (re-audit/reuse only if material inputs remain current; not remaining authoring).
-**What:** Finish `SOURCE_PRESERVING_ENHANCEMENT_COMPARISON` on `media.channel.web`. **Approved meaning:** Comparing or reviewing source/candidate output is read-only; any enhancement command must select explicit version/profile and preserve original source and quality/fidelity disclosures.
+**Owner:** Media audio enhancement and fidelity owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (blocked pending present-cut recapture; see above); R5 is historical audit evidence only.
+**Reviewed scope:** `SOURCE_PRESERVING_ENHANCEMENT_COMPARISON` on `media.channel.web`. **Approved meaning:** Comparing or reviewing source/candidate output is read-only; any enhancement command must select explicit version/profile and preserve original source and quality/fidelity disclosures.
 
 **Where:** `.product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml`; `.product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml`; `.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml`; `.product-experience/pdp-1-domain-data/operations.yaml`; `.product-experience/pdp-1-domain-data/states.yaml`; `.product-experience/pdp-2-design-interface-system/interface-grammar.yaml`.
 
@@ -92,10 +97,10 @@ PDP-2 R17 is PASS/current and `DEV_COMPLETE` for 405 paths and 50 cells at `sha2
 **Acceptance:** Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.
 
 
-### MDC30-C-11 — J-11, 1 edges (R4 historical source-bound; re-audit/reuse, not remaining authoring)
+### MDC30-C-11 — J-11 (owner intent; historical R5 disposition)
 
-**Owner:** Media editing/undo and version owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (material currentness) and the R4 source-bound dispositions (re-audit/reuse only if material inputs remain current; not remaining authoring).
-**What:** Finish `EXACT_REGION_EDIT_WITH_UNDO_AND_VERSION_GUARDS` on `media.channel.web`. **Approved meaning:** Preview/compare and local undo must not imply persisted artifact mutation; an actual edit uses exact source version/frame bounds, independent permission and typed conflict/recovery.
+**Owner:** Media editing/undo and version owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (blocked pending present-cut recapture; see above); R5 is historical audit evidence only.
+**Reviewed scope:** `EXACT_REGION_EDIT_WITH_UNDO_AND_VERSION_GUARDS` on `media.channel.web`. **Approved meaning:** Preview/compare and local undo must not imply persisted artifact mutation; an actual edit uses exact source version/frame bounds, independent permission and typed conflict/recovery.
 
 **Where:** `.product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml`; `.product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml`; `.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml`; `.product-experience/pdp-1-domain-data/operations.yaml`; `.product-experience/pdp-1-domain-data/states.yaml`; `.product-experience/pdp-2-design-interface-system/interface-grammar.yaml`.
 
@@ -104,10 +109,10 @@ PDP-2 R17 is PASS/current and `DEV_COMPLETE` for 405 paths and 50 cells at `sha2
 **Acceptance:** Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.
 
 
-### MDC30-C-12 — J-12, 1 edges (R4 historical source-bound; re-audit/reuse, not remaining authoring)
+### MDC30-C-12 — J-12 (owner intent; historical R5 disposition)
 
-**Owner:** Media animation/composition owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (material currentness) and the R4 source-bound dispositions (re-audit/reuse only if material inputs remain current; not remaining authoring).
-**What:** Finish `ANIMATION_INTENT_PREVIEW_VS_PERSISTED_RENDER_RESULT` on `media.channel.web`. **Approved meaning:** A source-backed animation plan/preview is not a persisted artifact or final render; timing/geometry/export profile and provenance remain bound to exact selections.
+**Owner:** Media animation/composition owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (blocked pending present-cut recapture; see above); R5 is historical audit evidence only.
+**Reviewed scope:** `ANIMATION_INTENT_PREVIEW_VS_PERSISTED_RENDER_RESULT` on `media.channel.web`. **Approved meaning:** A source-backed animation plan/preview is not a persisted artifact or final render; timing/geometry/export profile and provenance remain bound to exact selections.
 
 **Where:** `.product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml`; `.product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml`; `.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml`; `.product-experience/pdp-1-domain-data/operations.yaml`; `.product-experience/pdp-1-domain-data/states.yaml`; `.product-experience/pdp-2-design-interface-system/interface-grammar.yaml`.
 
@@ -116,10 +121,10 @@ PDP-2 R17 is PASS/current and `DEV_COMPLETE` for 405 paths and 50 cells at `sha2
 **Acceptance:** Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.
 
 
-### MDC30-C-15 — J-15, 2 edges (R4 historical source-bound; re-audit/reuse, not remaining authoring)
+### MDC30-C-15 — J-15 (owner intent; historical R5 disposition)
 
-**Owner:** Media simulation validation and integration owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (material currentness) and the R4 source-bound dispositions (re-audit/reuse only if material inputs remain current; not remaining authoring).
-**What:** Finish `SIMULATION_OBSERVATION_VS_PROTECTED_SEMANTIC_CHANGE` on `media.channel.product-integration`, `media.channel.web`. **Approved meaning:** Simulation quality observation may be a typed read with no Media domain transition; changing protected simulation semantics requires separately authorized owner operation, and quality evidence is not an execution guarantee.
+**Owner:** Media simulation validation and integration owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (blocked pending present-cut recapture; see above); R5 is historical audit evidence only.
+**Reviewed scope:** `SIMULATION_OBSERVATION_VS_PROTECTED_SEMANTIC_CHANGE` on `media.channel.product-integration`, `media.channel.web`. **Approved meaning:** Simulation quality observation may be a typed read with no Media domain transition; changing protected simulation semantics requires separately authorized owner operation, and quality evidence is not an execution guarantee.
 
 **Where:** `.product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml`; `.product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml`; `.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml`; `.product-experience/pdp-1-domain-data/operations.yaml`; `.product-experience/pdp-1-domain-data/states.yaml`; `.product-experience/pdp-2-design-interface-system/interface-grammar.yaml`.
 
@@ -128,10 +133,10 @@ PDP-2 R17 is PASS/current and `DEV_COMPLETE` for 405 paths and 50 cells at `sha2
 **Acceptance:** Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.
 
 
-### MDC30-C-16 — J-16, 2 unfinished channel edges
+### MDC30-C-16 — J-16 (owner intent; historical R5 disposition)
 
-**Owner:** Media dubbing/localization and caption owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (material currentness) and the R4 source-bound dispositions (re-audit/reuse only if material inputs remain current; not remaining authoring).
-**What:** Finish `SOURCE_AND_LOCALE_BOUND_DUBBING_WITH_DRAFT_VS_VERSION` on `media.channel.grpc-api`, `media.channel.web`. **Approved meaning:** Caption timing, language, authorized voice and source version must be exact; a draft correction is not saved immutable caption, dubbing approval or delivery.
+**Owner:** Media dubbing/localization and caption owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (blocked pending present-cut recapture; see above); R5 is historical audit evidence only.
+**Reviewed scope:** `SOURCE_AND_LOCALE_BOUND_DUBBING_WITH_DRAFT_VS_VERSION` on `media.channel.grpc-api`, `media.channel.web`. **Approved meaning:** Caption timing, language, authorized voice and source version must be exact; a draft correction is not saved immutable caption, dubbing approval or delivery.
 
 **Where:** `.product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml`; `.product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml`; `.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml`; `.product-experience/pdp-1-domain-data/operations.yaml`; `.product-experience/pdp-1-domain-data/states.yaml`; `.product-experience/pdp-2-design-interface-system/interface-grammar.yaml`.
 
@@ -140,10 +145,10 @@ PDP-2 R17 is PASS/current and `DEV_COMPLETE` for 405 paths and 50 cells at `sha2
 **Acceptance:** Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.
 
 
-### MDC30-C-17 — J-17, 1 edges (R4 historical source-bound; re-audit/reuse, not remaining authoring)
+### MDC30-C-17 — J-17 (owner intent; historical R5 disposition)
 
-**Owner:** Media audio mastering/fidelity owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (material currentness) and the R4 source-bound dispositions (re-audit/reuse only if material inputs remain current; not remaining authoring).
-**What:** Finish `MIX_MASTER_QUALITY_OBSERVATION_VS_DELIVERY` on `media.channel.web`. **Approved meaning:** Loudness and channel-layout measurements are read-only evidence; requested mix/master processing and eventual immutable delivered output are distinct effects and finality.
+**Owner:** Media audio mastering/fidelity owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (blocked pending present-cut recapture; see above); R5 is historical audit evidence only.
+**Reviewed scope:** `MIX_MASTER_QUALITY_OBSERVATION_VS_DELIVERY` on `media.channel.web`. **Approved meaning:** Loudness and channel-layout measurements are read-only evidence; requested mix/master processing and eventual immutable delivered output are distinct effects and finality.
 
 **Where:** `.product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml`; `.product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml`; `.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml`; `.product-experience/pdp-1-domain-data/operations.yaml`; `.product-experience/pdp-1-domain-data/states.yaml`; `.product-experience/pdp-2-design-interface-system/interface-grammar.yaml`.
 
@@ -152,22 +157,20 @@ PDP-2 R17 is PASS/current and `DEV_COMPLETE` for 405 paths and 50 cells at `sha2
 **Acceptance:** Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.
 
 
-### MDC30-C-21 — J-21, 2 edges (R4 historical source-bound; re-audit/reuse, not remaining authoring)
+### MDC30-C-21 — J-21 rights-approval scope, blocked with two incomplete edges
 
-**Owner:** Media exact-version review/care rights owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (material currentness) and the R4 source-bound dispositions (re-audit/reuse only if material inputs remain current; not remaining authoring).
-**What:** Finish `VERSIONED_REVIEW_NOT_DETERMINED_BY_READ_ONLY_INSPECTION` on `media.channel.product-integration`, `media.channel.web`. **Approved meaning:** Viewing/commenting and formal APPROVED are not equivalent; only an explicit owner-authorized review operation can change formal review state on exact immutable version.
+**Owner:** Media exact-version review/care rights owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (blocked pending present-cut recapture; see above); R5 is historical audit evidence only.
+**Current direction:** Preserve the exclusion of the rights-approval query from J-21 and keep `media.pdp3.channel-binding.j21.product-integration.v1` and `media.pdp3.channel-binding.j21.web.v1` incomplete and transport-unbound. The current source audit has no source-bound P1 operation/purpose/typed-result join, owner approval evidence, or exact approval-result source. Prior R4 completion does not carry forward as current.
 
-**Where:** `.product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml`; `.product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml`; `.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml`; `.product-experience/pdp-1-domain-data/operations.yaml`; `.product-experience/pdp-1-domain-data/states.yaml`; `.product-experience/pdp-2-design-interface-system/interface-grammar.yaml`.
+**Where:** `.product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml`; `.product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml`; `.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml`; `.product-experience/pdp-3-product-experience/action-registry.yaml`; `.product-experience/pdp-1-domain-data/operations.yaml`.
 
-**How:** For EACH named channel: read existing p1OperationBindings, purposeBindingRefs, operationKinds and existing explicit P1 stateRefs/ownerTypedObservationContracts; establish full-coverage exact state OR exact typed observation cited by purpose/action/operation OR a source-proven no-P1-state typed result/owner-receipt/no-side-effect disposition. Verify all required operations are covered (not one partial overlap), exact artifact version, authority and fail-closed guards, success/denied/unknown/timeout/recovery, and channel-specific GUI/headless grammar. Keep transport UNBOUND and runtime NOT_ADMITTED until independently admitted. Never add guessed canonical state IDs, hardcoded endpoint, CLI fixture or observation ref without exact join. For each edge, record the specific chosen complete logical disposition and the actual owning result/state source; never satisfy a multi-operation journey through one overlapping observation.
-
-**Acceptance:** Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.
+**Next action:** Do not add rights-query action/view applicability or change purpose/result sources under this scope. Reopen the earliest affected PDP-3 definition only if the authoritative owner direction changes and the matching source contracts are updated. No J-21 closure, owner approval, transport admission, or runtime admission is claimed.
 
 
-### MDC30-C-22 — J-22, 4 unfinished channel edges
+### MDC30-C-22 — J-22 (owner intent; historical R5 disposition)
 
-**Owner:** Media delivery and destination acknowledgement owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (material currentness) and the R4 source-bound dispositions (re-audit/reuse only if material inputs remain current; not remaining authoring).
-**What:** Finish `DELIVERY_REQUEST_RECEIPT_VS_EXTERNAL_ACK` on `media.channel.cli`, `media.channel.http-api`, `media.channel.product-integration`, `media.channel.web`. **Approved meaning:** Download/export/publish initiation is not completed delivery; external ACK/uncertainty must be attributable to exact output, destination and request identity, deny unknown retry.
+**Owner:** Media delivery and destination acknowledgement owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (blocked pending present-cut recapture; see above); R5 is historical audit evidence only.
+**Reviewed scope:** `DELIVERY_REQUEST_RECEIPT_VS_EXTERNAL_ACK` on `media.channel.cli`, `media.channel.http-api`, `media.channel.product-integration`, `media.channel.web`. **Approved meaning:** Download/export/publish initiation is not completed delivery; external ACK/uncertainty must be attributable to exact output, destination and request identity, deny unknown retry.
 
 **Where:** `.product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml`; `.product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml`; `.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml`; `.product-experience/pdp-1-domain-data/operations.yaml`; `.product-experience/pdp-1-domain-data/states.yaml`; `.product-experience/pdp-2-design-interface-system/interface-grammar.yaml`.
 
@@ -176,10 +179,10 @@ PDP-2 R17 is PASS/current and `DEV_COMPLETE` for 405 paths and 50 cells at `sha2
 **Acceptance:** Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.
 
 
-### MDC30-C-25 — J-25, 2 unfinished channel edges
+### MDC30-C-25 — J-25 (owner intent; historical R5 disposition)
 
-**Owner:** Media integration/agent delegated authority owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (material currentness) and the R4 source-bound dispositions (re-audit/reuse only if material inputs remain current; not remaining authoring).
-**What:** Finish `BOUNDED_MACHINE_DELEGATION_NO_RECURSION_OR_UNADMITTED_TOOLS` on `media.channel.http-api`, `media.channel.product-integration`. **Approved meaning:** Machine delegated action is bounded by tenant/actor/purpose/budget/recursion and original request identity; a source-only integration does not become an admitted Tool or public API.
+**Owner:** Media integration/agent delegated authority owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (blocked pending present-cut recapture; see above); R5 is historical audit evidence only.
+**Reviewed scope:** `BOUNDED_MACHINE_DELEGATION_NO_RECURSION_OR_UNADMITTED_TOOLS` on `media.channel.http-api`, `media.channel.product-integration`. **Approved meaning:** Machine delegated action is bounded by tenant/actor/purpose/budget/recursion and original request identity; a source-only integration does not become an admitted Tool or public API.
 
 **Where:** `.product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml`; `.product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml`; `.product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml`; `.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml`; `.product-experience/pdp-1-domain-data/operations.yaml`; `.product-experience/pdp-1-domain-data/states.yaml`; `.product-experience/pdp-2-design-interface-system/interface-grammar.yaml`.
 
@@ -188,10 +191,10 @@ PDP-2 R17 is PASS/current and `DEV_COMPLETE` for 405 paths and 50 cells at `sha2
 **Acceptance:** Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.
 
 
-### MDC30-C-27 — J-27, 3 unfinished channel edges
+### MDC30-C-27 — J-27 (owner intent; historical R5 disposition)
 
-**Owner:** Media runtime resilience and support-experience owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (material currentness) and the R4 source-bound dispositions (re-audit/reuse only if material inputs remain current; not remaining authoring).
-**What:** Finish `ELIGIBILITY_STATUS_AND_UNAVAILABILITY_ARE_READ_ONLY_UNTIL_EXPLICIT_COMMAND` on `media.channel.cli`, `media.channel.http-api`, `media.channel.web`. **Approved meaning:** Unavailable/stale/unknown status is a scoped observation, not failed job/effect, nor permission to resubmit; fallback requires current rights/licensing/quality/resources and explicit opt-in.
+**Owner:** Media runtime resilience and support-experience owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (blocked pending present-cut recapture; see above); R5 is historical audit evidence only.
+**Reviewed scope:** `ELIGIBILITY_STATUS_AND_UNAVAILABILITY_ARE_READ_ONLY_UNTIL_EXPLICIT_COMMAND` on `media.channel.cli`, `media.channel.http-api`, `media.channel.web`. **Approved meaning:** Unavailable/stale/unknown status is a scoped observation, not failed job/effect, nor permission to resubmit; fallback requires current rights/licensing/quality/resources and explicit opt-in.
 
 **Where:** `.product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml`; `.product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml`; `.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml`; `.product-experience/pdp-1-domain-data/operations.yaml`; `.product-experience/pdp-1-domain-data/states.yaml`; `.product-experience/pdp-2-design-interface-system/interface-grammar.yaml`.
 
@@ -200,10 +203,10 @@ PDP-2 R17 is PASS/current and `DEV_COMPLETE` for 405 paths and 50 cells at `sha2
 **Acceptance:** Every named edge has a validated, source-linked complete logical state/observation OR explicit source-proven no-state representation; schema/operation cardinality and typed failure/recovery all validate. Negative cases reject missing/partial operation coverage and invented semantics. A nonadmitted transport is not grounds for fabricating an endpoint.
 
 
-### MDC30-C-30 — J-30, 3 edges (R4 historical source-bound; re-audit/reuse, not remaining authoring)
+### MDC30-C-30 — J-30 (owner intent; historical R5 disposition)
 
-**Owner:** Media diagnostics/eligibility and CLI/API interface owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (material currentness) and the R4 source-bound dispositions (re-audit/reuse only if material inputs remain current; not remaining authoring).
-**What:** Finish `READ_ONLY_ELIGIBILITY_OBSERVATION_WITH_DISTINCT_UNAVAILABLE_DIMENSIONS` on `media.channel.cli`, `media.channel.http-api`, `media.channel.web`. **Approved meaning:** Provider qualification/license/health/capability and rights are separate; observation/readiness is not a command effect nor a future admission promise; unavailable facts remain UNKNOWN.
+**Owner:** Media diagnostics/eligibility and CLI/API interface owner. **Predecessors:** RC-P0-01 → RC-P1-01 → RC-P2-01 (blocked pending present-cut recapture; see above); R5 is historical audit evidence only.
+**Reviewed scope:** `READ_ONLY_ELIGIBILITY_OBSERVATION_WITH_DISTINCT_UNAVAILABLE_DIMENSIONS` on `media.channel.cli`, `media.channel.http-api`, `media.channel.web`. **Approved meaning:** Provider qualification/license/health/capability and rights are separate; observation/readiness is not a command effect nor a future admission promise; unavailable facts remain UNKNOWN.
 
 **Where:** `.product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml`; `.product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml`; `.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml`; `.product-experience/pdp-1-domain-data/operations.yaml`; `.product-experience/pdp-1-domain-data/states.yaml`; `.product-experience/pdp-2-design-interface-system/interface-grammar.yaml`.
 
@@ -213,7 +216,7 @@ PDP-2 R17 is PASS/current and `DEV_COMPLETE` for 405 paths and 50 cells at `sha2
 
 
 
-**Important test follow-through:** existing `tests/pdp3-journey-channel-contract-bindings.test.mjs` count assertions reflect an older cut. R4 historically recorded 43/61 source-bound and 18 incomplete; re-audit first, then update the test *together with canonical source changes* to demand **zero logically incomplete** edges and verify a typed/source-backed no-state branch instead of removing checks. The expected **61 UNBOUND transports** may remain until Build; do not make the test falsely claim 61 runnable channels. Reject fake operation/version/schema, partial observation join, wrong authority, guessed state transition, missing source, and simulated CLI-as-production.
+**Important test follow-through:** the latest pre-R6 live-registry source audit recorded 43/61 edges source-bound definition-only and 18 incomplete; these are pending R6 confirmation, not R4-only historical counts. R4 and R5 remain separate historical cuts (R5 recorded 37/61 and 24 incomplete). After the source-local repairs, the acceptance criterion is **zero logically incomplete** edges with a typed/source-backed no-state branch where justified; update `tests/pdp3-journey-channel-contract-bindings.test.mjs` together with canonical source changes, without removing checks. The expected **61 UNBOUND transports** may remain until Build; do not make the test falsely claim 61 runnable channels. Reject fake operation/version/schema, partial observation join, wrong authority, guessed state transition, missing source, and simulated CLI-as-production.
 
 ## PDP-3 definition task — MDC30-S-06 exact multimodal submission decision
 
@@ -229,7 +232,7 @@ PDP-2 R17 is PASS/current and `DEV_COMPLETE` for 405 paths and 50 cells at `sha2
 
 **MDC30-V-01 (Media experience/status owner).** Run `pnpm check:product-experience-local`; `node --test tests/media-pdp-p3-dev-status.test.mjs tests/pdp-3-overview-denominator.test.mjs tests/pdp-3-screen-source-bindings.test.mjs tests/pdp-3-definition-branch-coverage.test.mjs tests/pdp3-api-experience-source-bindings.test.mjs tests/pdp3-journey-channel-contract-bindings.test.mjs tests/media-pdp3-mdc30-s-step-bindings.test.mjs tests/media-discovery-current-cut-owner-plan.test.mjs`; plus all affected logical source/negative case suites. Re-generate manifests only through their scripts. Resolve all 50 P3 cells (26 physical, 6 compositions, root, 17 consumers incl archived explicit N/A) against a stable current source, current predecessor cuts and source graph, and issue a **new immutable** technical/currentness observation with actual tests. Do not overwrite historical `MDC30-R1` or try to change prior historical phase status. The 30 declared external contract matches in R2 are reusable only for those exact bytes; recheck if declared material changes.
 
-**MDC-31 (Media Explorer + UX/a11y owner).** Make and verify actual Explorer inspectability: source hierarchy; 30 journeys and 130 steps; 47 screens and design-system tokens/components/layouts/templates; all 61 channel edges across API/RPC/SDK/CLI/Agent/Event consumers, reflecting all current-source-reviewed edge dispositions (R4 counts of 43/61 and 18 gaps remain historical only); 31 scenarios with positive/denied/unknown/timeout/recovery branches; source-currentness and N/A/UNBOUND disclosure; stable canonical search, deep-links, keyboard focus, tablet/mobile reflow, reduced motion/forced colors. Use `pnpm test:experience-browser` and `node --test tests/media-explorer-canonical-id-search.test.mjs tests/media-explorer-physical-topology.test.mjs tests/media-explorer-task-first-navigation.test.mjs tests/media-experience-explorer-accessibility.test.mjs tests/media-explorer-verification-interface-boundaries.test.mjs`. Create honest browser evidence (route/viewport/errors/screenshots/fixtures). A failing/unrun browser verification is **not** a PASS. Product runtime implementation remains BUILD.
+**MDC-31 (Media Explorer + UX/a11y owner).** Make and verify actual Explorer inspectability: source hierarchy; 30 journeys and 130 steps; 47 screens and design-system tokens/components/layouts/templates; all 61 channel edges across API/RPC/SDK/CLI/Agent/Event consumers, reflecting the latest pre-R6 source audit only after predecessor currentness is restored (R4 is a separate historical cut; its aggregate does not establish current edge dispositions); 31 scenarios with positive/denied/unknown/timeout/recovery branches; source-currentness and N/A/UNBOUND disclosure; stable canonical search, deep-links, keyboard focus, tablet/mobile reflow, reduced motion/forced colors. Use `pnpm test:experience-browser` and `node --test tests/media-explorer-canonical-id-search.test.mjs tests/media-explorer-physical-topology.test.mjs tests/media-explorer-task-first-navigation.test.mjs tests/media-experience-explorer-accessibility.test.mjs tests/media-explorer-verification-interface-boundaries.test.mjs`. Create honest browser evidence (route/viewport/errors/screenshots/fixtures). A failing/unrun browser verification is **not** a PASS. Product runtime implementation remains BUILD.
 
 **MDC-32 (Media PDP-3 status).** Validate current canonical 47 screens, 30 journeys/130 steps, 147 actions, 31 scenario definitions, 105 bounded-recovery oracles, source-specific channel and headless negative behavior, real Explorer verification and 50/50 exact source/applicability rows. Publish source-bound PDP-3 `DEV_COMPLETE` successor exit with zero remaining meaning IDs and separate owner/currentness/independent/closure fields. Accept a source-only interface contract with `NOT_ADMITTED` runtime only when logical behavior is fully defined; do not invent deployed endpoints, live video, 30 executable journeys, or independent certifications.
 
@@ -241,9 +244,9 @@ PDP-2 R17 is PASS/current and `DEV_COMPLETE` for 405 paths and 50 cells at `sha2
 
 - **Single owner and single phase:** phase-local meaning stays at PDP0/1/2/3 owner; status and Explorer are projections; external provider authority stays external.
 - **Stop reopening unchanged definitions:** semantic source digest and declared dependency impacts decide tests; changed commit/derived index alone cannot reopen an untouched PDP meaning. Preserve old receipts and source-bound reuse; no re-execution of huge unrelated suites.
-- **Do not accept missing technical meaning by assertion:** NO_P1_MACHINE_STATE needs positive proof and robust negative test; the 18 R4-incomplete edges cannot be stamped green by new status text, and all 61 require current-source re-audit.
+- **Do not accept missing technical meaning by assertion:** NO_P1_MACHINE_STATE needs positive proof and robust negative test; prior incomplete edges cannot be stamped green by status text, and the complete 61-edge denominator must be revalidated against current sources.
 - **Serialize authored sources and phase/currentness publication, parallelize only read-only scanning and resource-isolated tests**. On branch/source movement, recalculate affected material and invalidate only impacted cells and their required dependents.
 - **No fabricated qualified reviews:** owner decisions in this document are explicitly AI-assisted internal delegation. Independent legal/security/privacy/a11y/public-contract owner approvals, if mandated later, remain genuine separate formal closure/Delivery gates.
 - **No hidden Build work:** operational endpoints, storage/job handlers, production transports, runtime model/provider qualification, real UI integration and release/deploy are downstream Build/Deliver, not accepted substitutes for Discovery definitions.
 
-**Owner decision status:** PDP-2 R17 is technically PASS/current against PDP-1 R27 after consuming the exact R5 (R9→R22), R1 (R13→live), and R16 projection-impact chains. Exact-cut owner acceptance, independent signoff, native closure, runtime admission, Delivery, and release are not claimed. PDP-3 currentness remains NOT_ESTABLISHED and its exit is unpublished. **Current gate:** Discovery FAIL, Build NOT_ENTERED, native closure NOT_ENTERED, Delivery BLOCKED. **Next legal action:** re-audit all 61 MDC-30 edges and 14 consequential steps against R12/R27/R17, resolve only current-source-confirmed gaps, then proceed through V-01, MDC-31, MDC-32, and MDC-40. Keep MDC-41 gated until the Discovery barrier passes.
+**Acceptance boundary:** R17 and the older R13 receipts are historical technical PASS records for their captured source sets; they do not imply exact-cut owner acceptance, independent signoff, native closure, runtime admission, Delivery, or release.

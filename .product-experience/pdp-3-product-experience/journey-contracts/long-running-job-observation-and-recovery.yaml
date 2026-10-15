@@ -16,6 +16,99 @@ channels:
   - media.channel.web
   - media.channel.cli
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+pdp1ResultEvidence:
+  status: SOURCE_BOUND_DEFINITION_ONLY; CHANNEL_TRANSPORT_UNBOUND; RUNTIME_NOT_ADMITTED
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.check-job-outcome
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1
+    - .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+    - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job
+    - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job
+    - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.long-running-job-observation-and-recovery.index-4
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.long-running-job-observation-and-recovery.index-5
+  operationResultBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/0
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-01.v1
+      operationRef: media.operation.action.view-job-status
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status/contractVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      exactResult: >-
+        Exact-target scoped owner observation with requestId, exactTargetRef, ownerReceipt, and observedAt; it does not assert a terminal job outcome.
+      unknownDisposition: >-
+        Missing, stale, unavailable, or incomplete evidence remains UNKNOWN; absence is scoped only and this read implies no command effect or replay.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-02.v1
+      operationRef: media.operation.action.view-job-status
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status/contractVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      exactResult: >-
+        Exact-target scoped owner observation with requestId, exactTargetRef, ownerReceipt, and observedAt; it does not assert a terminal job outcome.
+      unknownDisposition: >-
+        Missing, stale, unavailable, or incomplete evidence remains UNKNOWN; absence is scoped only and this read implies no command effect or replay.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/2
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-03.v1
+      operationRef: media.operation.action.view-job-status
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status/contractVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      exactResult: >-
+        Exact-target scoped owner observation with requestId, exactTargetRef, ownerReceipt, and observedAt; it does not assert a terminal job outcome.
+      unknownDisposition: >-
+        Missing, stale, unavailable, or incomplete evidence remains UNKNOWN; absence is scoped only and this read implies no command effect or replay.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/3
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-04.v1
+      operationRef: media.operation.action.view-job-status
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status/contractVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      exactResult: >-
+        Exact-target scoped owner observation with requestId, exactTargetRef, ownerReceipt, and observedAt; it does not assert a terminal job outcome.
+      unknownDisposition: >-
+        Missing, stale, unavailable, or incomplete evidence remains UNKNOWN; absence is scoped only and this read implies no command effect or replay.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/6
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-07.v1
+      operationRef: media.operation.action.check-job-outcome
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.check-job-outcome/contractVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.check-job-outcome
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      exactResult: >-
+        Exact-target scoped owner observation with requestId, exactTargetRef, ownerReceipt, and observedAt; it does not assert a terminal job outcome.
+      unknownDisposition: >-
+        Missing, stale, unavailable, or incomplete evidence remains UNKNOWN; absence is scoped only and this read implies no command effect or replay.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/4
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-05.v1
+      operationRef: media.operation-slice.cancel-job
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema
+      exactResult: The durable cancellation-request record for the exact job and current attempt set; it does not establish provider stop, terminal cancellation, or absence of further effect.
+      unknownDisposition: UNKNOWN retains the same request identity and requires reconciliation; no terminal cancellation is inferred.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/5
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j20-step-06.v1
+      operationRef: media.operation-slice.retry-job
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema
+      exactResult: The durable new fenced attempt identity under the same logical job; it does not establish provider dispatch or processing outcome and is conditional on current authority, eligibility, and budget.
+      unknownDisposition: UNKNOWN requires reconciliation of the same request identity before any new request; UNKNOWN does not authorize replay.
 intent: media.intent.resolve-job
 preconditions:
   - The job has one stable owner-issued identity and the current actor may view

@@ -94,6 +94,10 @@ function assertValid(document, sources) {
     const machine = (states.stateMachines ?? []).find((item) => item.machineId === match[1]);
     return Boolean(machine?.stateDefinitions?.some((state) => state.id === match[2]));
   };
+  const exactStateSourceRefExists = (ref) => {
+    const match = /^\.product-experience\/pdp-1-domain-data\/states\.yaml#([^/#]+)$/.exec(ref);
+    return Boolean(match && (states.stateMachines ?? []).some((machine) => machine.machineId === match[1]));
+  };
   const exactObservationRef = (ref) => {
     const match = ref.match(/^\.product-experience\/pdp-1-domain-data\/operations\.yaml#ownerTypedObservationContracts\/records\/@id=(.+)$/);
     return match ? observationById.get(match[1]) : undefined;
@@ -108,7 +112,7 @@ function assertValid(document, sources) {
     const edge = document.edges.find((item) => item.journeyRef === expected.journeyId && item.channelRef === expected.channelRef);
     assert.ok(edge, `${expected.taskId} has an edge`);
     if (edge.logicalDefinitionDisposition === "SOURCE_BOUND_DEFINITION_ONLY" || Object.hasOwn(edge, "p1OperationStateProofs")) {
-      assertOperationStateProofs(edge, { operationsById, purposeById, exactStateRefExists, exactObservationRef, journeyOperationBindings: operations.ownerDefinedJourneyOperationBindings?.records ?? [], journeyContract: readYaml(edge.journeyContractRef) });
+      assertOperationStateProofs(edge, { operationsById, purposeById, exactStateRefExists, exactStateSourceRefExists, exactObservationRef, journeyOperationBindings: operations.ownerDefinedJourneyOperationBindings?.records ?? [], journeyContract: readYaml(edge.journeyContractRef) });
       if (Object.hasOwn(edge, "localStepNoP1MachineProofs")) {
         assertLocalStepNoP1MachineProofs(edge, {
           journeyContract: readYaml(edge.journeyContractRef.split("#")[0]),
@@ -257,8 +261,10 @@ test("MDC30-C channel binding registry covers the owner-approved 61-edge set wit
   assert.equal(registry.status, "SOURCE_BOUND_LOGICAL_DEFINITIONS_PARTIAL; CHANNEL_TRANSPORT_EQUIVALENCE_UNBOUND; RUNTIME_NOT_ADMITTED");
   assert.equal(registry.counts.sourceBoundDefinitionOnlyOperationMappings, 6);
   assert.equal(registry.counts.sourceBoundHttpOperationMappings, 6);
-  assert.equal(registry.counts.logicalDefinitionOnlyEdges, 27);
-  assert.equal(registry.counts.incompleteP1StateOrObservationEdges, 34);
+  assert.equal(registry.counts.logicalDefinitionOnlyEdges, 43);
+  assert.equal(registry.counts.incompleteP1StateOrObservationEdges, 18);
+  assert.equal(registry.edges.filter((edge) => edge.logicalDefinitionDisposition === "SOURCE_BOUND_DEFINITION_ONLY").length, 43);
+  assert.equal(registry.edges.filter((edge) => edge.logicalDefinitionDisposition === "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING").length, 18);
   assert.equal(registry.counts.transportEquivalenceUnboundEdges, 61);
   assert.equal(registry.adversarialFixtureCases.length, 14);
   assert.deepEqual(registry.adversarialFixtureCases.slice(-7).map((fixture) => fixture.id), [
@@ -270,6 +276,216 @@ test("MDC30-C channel binding registry covers the owner-approved 61-edge set wit
     "MDC30-CHANNEL-NEG-013-PARTIAL-OPERATION-PROOF-COVERAGE",
     "MDC30-CHANNEL-NEG-014-FORGED-LOCAL-SESSION-NO-TRANSITION",
   ]);
+});
+
+test("current source gaps remain explicit after operation-result proofs are joined", () => {
+  const registry = readYaml(registryPath);
+  const incompleteEdges = registry.edges
+    .filter((edge) => edge.logicalDefinitionDisposition === "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING")
+    .map((edge) => edge.id)
+    .sort();
+  assert.deepEqual(incompleteEdges, [
+    "media.pdp3.channel-binding.j05.grpc-api.v1",
+    "media.pdp3.channel-binding.j05.sdk.v1",
+    "media.pdp3.channel-binding.j05.web.v1",
+    "media.pdp3.channel-binding.j08.web.v1",
+    "media.pdp3.channel-binding.j10.web.v1",
+    "media.pdp3.channel-binding.j13.web.v1",
+    "media.pdp3.channel-binding.j14.product-integration.v1",
+    "media.pdp3.channel-binding.j14.web.v1",
+    "media.pdp3.channel-binding.j19.web.v1",
+    "media.pdp3.channel-binding.j20.cli.v1",
+    "media.pdp3.channel-binding.j20.web.v1",
+    "media.pdp3.channel-binding.j21.product-integration.v1",
+    "media.pdp3.channel-binding.j21.web.v1",
+    "media.pdp3.channel-binding.j26.http-api.v1",
+    "media.pdp3.channel-binding.j26.product-integration.v1",
+    "media.pdp3.channel-binding.j26.web.v1",
+    "media.pdp3.channel-binding.j28.product-integration.v1",
+    "media.pdp3.channel-binding.j28.web.v1",
+  ]);
+  const blockerFor = (edgeId) => registry.edges.find((edge) => edge.id === edgeId).logicalDefinitionBlockers.join(" ");
+  for (const id of ["media.pdp3.channel-binding.j09.web.v1", "media.pdp3.channel-binding.j09.product-integration.v1"]) {
+    const edge = registry.edges.find((item) => item.id === id);
+    assert.equal(edge.logicalDefinitionDisposition, "SOURCE_BOUND_DEFINITION_ONLY");
+    assert.equal(edge.channelTransportEquivalence, "UNBOUND");
+    assert.equal(edge.runtimeAdmission, "NOT_ADMITTED");
+    assert.deepEqual(edge.logicalDefinitionBlockers, []);
+    const proof = edge.p1OperationStateProofs.find((item) => item.operationRef === "media.operation.action.deliver-exact-version");
+    assert.deepEqual(proof.typedObservationBindingRefs, [".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/pdp1ResultEvidence/typedObservationBindings/0"]);
+    assert.ok(edge.p1ObservationRefs.includes(".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1"));
+  }
+  for (const id of ["media.pdp3.channel-binding.j05.web.v1", "media.pdp3.channel-binding.j05.grpc-api.v1", "media.pdp3.channel-binding.j05.sdk.v1"]) {
+    const edge = registry.edges.find((item) => item.id === id);
+    assert.equal(edge.logicalDefinitionDisposition, "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING", `${id} retains terminal-output blocker`);
+    assert.match(edge.logicalDefinitionBlockers.join(" "), /no source-bound terminal output observation/u);
+  }
+  assert.match(blockerFor("media.pdp3.channel-binding.j05.web.v1"), /no source-bound terminal output observation/u);
+  assert.match(blockerFor("media.pdp3.channel-binding.j10.web.v1"), /per-condition state, copy, action, expected-result, and finality bindings/u);
+  assert.match(blockerFor("media.pdp3.channel-binding.j28.web.v1"), /post-render consumer receipt or conversion-report result/u);
+  for (const id of [
+    "media.pdp3.channel-binding.j23.cli.v1",
+    "media.pdp3.channel-binding.j23.web.v1",
+    "media.pdp3.channel-binding.j24.cli.v1",
+    "media.pdp3.channel-binding.j24.http-api.v1",
+  ]) {
+    const edge = registry.edges.find((item) => item.id === id);
+    assert.equal(edge.logicalDefinitionDisposition, "SOURCE_BOUND_DEFINITION_ONLY", `${id} has complete P1 result proof coverage`);
+    assert.equal(edge.channelTransportEquivalence, "UNBOUND", `${id} does not claim transport equivalence`);
+    assert.equal(edge.runtimeAdmission, "NOT_ADMITTED", `${id} does not admit runtime`);
+    assert.equal(edge.p1OperationStateProofs.length, edge.p1OperationBindings.length, `${id} proves each exact P1 operation`);
+    assert.deepEqual(
+      edge.unresolvedOperationRefs,
+      edge.p1OperationBindings.filter((binding) => binding.disposition === "UNBOUND").map((binding) => binding.operationRef),
+      `${id} keeps channel-unbound operations visible even when logical definitions are source-bound`,
+    );
+  }
+  for (const id of ["media.pdp3.channel-binding.j20.cli.v1", "media.pdp3.channel-binding.j20.web.v1"]) {
+    const edge = registry.edges.find((item) => item.id === id);
+    assert.equal(edge.logicalDefinitionDisposition, "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING");
+    assert.deepEqual(
+      edge.unresolvedOperationRefs,
+      edge.p1OperationBindings.filter((binding) => binding.disposition === "UNBOUND").map((binding) => binding.operationRef),
+      `${id} retains all operations without channel mappings`,
+    );
+    assert.match(edge.logicalDefinitionBlockers.join(" "), /No cancellation transition\/finality is joined/u);
+    assert.match(edge.logicalDefinitionBlockers.join(" "), /retry eligibility\/authority\/transition remain unresolved/u);
+    assert.equal(edge.p1OperationStateProofs.length, 4);
+    assert.deepEqual(edge.p1OperationStateProofs.map((proof) => proof.operationRef).sort(), [
+      "media.operation-slice.cancel-job", "media.operation-slice.retry-job",
+      "media.operation.action.check-job-outcome", "media.operation.action.view-job-status",
+    ].sort());
+    assert.equal(edge.channelTransportEquivalence, "UNBOUND");
+    assert.equal(edge.runtimeAdmission, "NOT_ADMITTED");
+  }
+  for (const id of ["media.pdp3.channel-binding.j26.http-api.v1", "media.pdp3.channel-binding.j26.product-integration.v1", "media.pdp3.channel-binding.j26.web.v1"]) {
+    const edge = registry.edges.find((item) => item.id === id);
+    assert.equal(edge.logicalDefinitionDisposition, "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING");
+    assert.equal(edge.channelTransportEquivalence, "UNBOUND");
+    assert.equal(edge.runtimeAdmission, "NOT_ADMITTED");
+    assert.equal(edge.p1OperationStateProofs.length, 3);
+    assert.match(edge.logicalDefinitionBlockers.join(" "), /No source-bound delete\/revoke action, mutation authority, terminal lifecycle transition\/finality, or handoff/u);
+  }
+  const j21Edges = registry.edges.filter((edge) => edge.journeyRef === "J-21");
+  assert.deepEqual(j21Edges.map((edge) => edge.id).sort(), [
+    "media.pdp3.channel-binding.j21.product-integration.v1",
+    "media.pdp3.channel-binding.j21.web.v1",
+  ]);
+  for (const edge of j21Edges) {
+    assert.equal(edge.logicalDefinitionDisposition, "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING");
+    assert.equal(edge.channelTransportEquivalence, "UNBOUND");
+    assert.match(edge.logicalDefinitionBlockers.join(" "), /J21 rights-approval decision has no source-bound P1 operation\/purpose\/typed-result join/u);
+    assert.match(edge.logicalDefinitionBlockers.join(" "), /owner approval evidence and exact approval-result source are absent/u);
+  }
+});
+
+test("J-02 complete-upload proof resolves nested P1 state bindings strictly", () => {
+  const operation = structuredClone(operationRecords(sources.operations).find(
+    (item) => item.id === "media.operation-slice.complete-upload",
+  ));
+  assert.deepEqual(operation.stateBinding.transitionRefs, ["media-upload-and-artifact/T01"]);
+  for (const collection of ["operations", "individualOperationContracts", "ownerDefinedOperationContracts", "capabilityOperationContracts"]) {
+    const container = collection === "operations" ? { operations: [operation] } : { [collection]: { records: [operation] } };
+    assert.equal(operationRecords(container).find((item) => item.id === operation.id), operation,
+      `operation resolver retains nested stateBinding from ${collection}`);
+  }
+  assert.equal(Object.hasOwn(operation.stateBinding, "stateRefs"), false);
+  assert.equal(Object.hasOwn(operation, "stateRefs"), false);
+  assert.equal(Object.hasOwn(operation, "transitionRefs"), false);
+  const journeyContract = readYaml(".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml");
+  const operationRef = operation.id;
+  const purposeRef = ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-03.v1";
+  const resultRef = ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/pdp1ResultEvidence/operationResultBindings/2";
+  const purposeId = purposeRef.split("@id=")[1];
+  const purpose = sources.journeyPurpose.records.find((item) => item.id === purposeId);
+  assert.ok(purpose);
+  assert.equal(journeyContract.pdp1ResultEvidence.operationResultBindings[2].operationRef, operationRef);
+  const edge = {
+    id: "media.pdp3.channel-binding.j02.web.v1", journeyRef: "J-02",
+    journeyContractRef: ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
+    p1OperationBindings: [{ operationRef, sourceRef: `.product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=${operationRef}` }],
+    purposeBindingRefs: [purposeRef], p1ObservationRefs: [], pdp1StateOrObservationRefs: [],
+    p1OperationStateProofs: [{ operationRef, disposition: "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF",
+      purposeBindingRefs: [purposeRef], journeyResultBindingRefs: [resultRef], stateRefs: [],
+      transitionRefs: ["media-upload-and-artifact/T01"] }],
+  };
+  const run = (op = operation, proof = edge.p1OperationStateProofs[0]) => assertOperationStateProofs(
+    { ...edge, p1OperationStateProofs: [proof] },
+    { operationsById: new Map([[operationRef, op]]), purposeById: new Map([[purposeId, purpose]]),
+      exactStateRefExists: () => false, exactObservationRef: () => undefined, journeyContract },
+  );
+  run();
+  assert.throws(() => run(operation, { ...edge.p1OperationStateProofs[0], transitionRefs: undefined }), /transitionRefs must exactly match/);
+  assert.throws(() => run(operation, { ...edge.p1OperationStateProofs[0], transitionRefs: [] }), /transitionRefs must exactly match/);
+  assert.throws(() => run(operation, { ...edge.p1OperationStateProofs[0], transitionRefs: ["media-upload-and-artifact/T02"] }), /transitionRefs must exactly match/);
+  assert.throws(() => run(operation, { ...edge.p1OperationStateProofs[0], stateRefs: undefined }), /stateRefs must exactly match/);
+  assert.throws(() => run(operation, { ...edge.p1OperationStateProofs[0], stateRefs: [".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/VERIFYING"] }), /stateRefs must exactly match/);
+  const topLevelEmpty = structuredClone(operation);
+  topLevelEmpty.transitionRefs = [];
+  assert.throws(() => run(topLevelEmpty), /transitionRefs must exactly match/);
+  const alteredNested = structuredClone(operation);
+  alteredNested.stateBinding.transitionRefs = ["media-upload-and-artifact/T02"];
+  assert.throws(() => run(alteredNested), /transitionRefs must exactly match/);
+});
+
+test("J-18 submit-render binds machine roots without asserting a current job state", () => {
+  const operationRef = "media.operation.action.submit-render";
+  const operation = operationRecords(sources.operations).find((item) => item.id === operationRef);
+  const journeyFile = ".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml";
+  const journeyContract = readYaml(journeyFile);
+  const resultIndex = journeyContract.pdp1ResultEvidence.operationResultBindings.findIndex((item) => item.operationRef === operationRef);
+  assert.equal(resultIndex, 1);
+  const resultRef = `${journeyFile}#/pdp1ResultEvidence/operationResultBindings/${resultIndex}`;
+  const resultBinding = journeyContract.pdp1ResultEvidence.operationResultBindings[resultIndex];
+  assert.equal(Object.hasOwn(resultBinding, "stateRefs"), false,
+    "durable job admission does not assert a current job state");
+  assert.match(resultBinding.exactResult, /No current job state is returned or asserted/);
+  const purposeRef = ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j18-step-05.v1";
+  const purpose = sources.journeyPurpose.records.find((item) => item.id === "media.pdp3.step-purpose-binding.j18-step-05.v1");
+  const purposeById = new Map([[purpose.id, purpose]]);
+  const sourceRefs = [
+    ".product-experience/pdp-1-domain-data/states.yaml#media-job",
+    ".product-experience/pdp-1-domain-data/states.yaml#media-attempt",
+  ];
+  assert.deepEqual(operation.stateRefs, sourceRefs);
+  const sourceRef = `.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=${operationRef}`;
+  const edge = {
+    id: "fixture.j18.submit-render", journeyRef: "J-18", journeyContractRef: journeyFile,
+    p1OperationBindings: [{ operationRef, sourceRef }], purposeBindingRefs: [purposeRef],
+    p1OperationStateProofs: [{ operationRef, disposition: "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF",
+      purposeBindingRefs: [purposeRef], journeyResultBindingRefs: [resultRef], stateRefs: sourceRefs, transitionRefs: [] }],
+  };
+  const states = sources.states;
+  const exactStateRefExists = (ref) => /^\.product-experience\/pdp-1-domain-data\/states\.yaml#stateMachines\/([^/]+)\/stateDefinitions\/([^/]+)$/.test(ref);
+  const exactStateSourceRefExists = (ref) => {
+    const match = /^\.product-experience\/pdp-1-domain-data\/states\.yaml#([^/#]+)$/.exec(ref);
+    return Boolean(match && states.stateMachines.some((machine) => machine.machineId === match[1]));
+  };
+  const run = (proof) => assertOperationStateProofs({ ...edge, p1OperationStateProofs: [proof] }, {
+    operationsById: new Map([[operationRef, operation]]), purposeById,
+    exactStateRefExists, exactStateSourceRefExists, exactObservationRef: () => undefined, journeyContract,
+  });
+  run(edge.p1OperationStateProofs[0]);
+  assert.throws(() => run({ ...edge.p1OperationStateProofs[0], stateRefs: [sourceRefs[0]] }), /stateRefs must exactly match/);
+  assert.throws(() => run({ ...edge.p1OperationStateProofs[0], stateRefs: [sourceRefs[0], `${sourceRefs[1]}-invented`] }), /stateRefs must exactly match/);
+  assert.throws(() => run({ ...edge.p1OperationStateProofs[0], stateRefs: undefined }), /stateRefs must exactly match/);
+  assert.throws(() => run({ ...edge.p1OperationStateProofs[0], disposition: "EXACT_P1_STATE_SOURCE_REF", stateRef: sourceRefs[0], journeyResultBindingRefs: undefined }), /proof state reference must resolve/);
+});
+
+test("J-29 reconnect result preserves the exact receipt and one-output outcome rules", () => {
+  const journey = readYaml(".product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml");
+  const binding = journey.pdp1ResultEvidence.operationResultBindings.find(
+    (item) => item.operationRef === "media.operation.capability.media-stream-session-reconnect",
+  );
+  assert.ok(binding);
+  assert.match(binding.exactResult, /SUCCEEDED requires the typed reconnectReceipt/);
+  assert.match(binding.exactResult, /exactly one typed output/);
+  assert.match(binding.exactResult, /REJECTED and UNKNOWN_OUTCOME carry neither receipt nor output/);
+  assert.match(binding.unknownDisposition, /reconcile the same session and receipt identity/);
+  assert.match(binding.exactResult, /does not establish that a frame was sent/);
+  assert.match(binding.exactResult, /provider effect occurred/);
+  assert.match(binding.exactResult, /runtime was qualified/);
+  assert.match(binding.exactResult, /session was otherwise restored/);
 });
 
 test("MDC30-C-30 binds exact effective-constraint observations and the local no-dispatch step", () => {

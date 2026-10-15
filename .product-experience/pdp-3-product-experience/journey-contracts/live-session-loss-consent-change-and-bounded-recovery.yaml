@@ -21,6 +21,41 @@ channels:
   - media.channel.web
   - media.channel.grpc-api
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+pdp1ResultEvidence:
+  operationResultBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/3
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j29-step-04.v1
+      operationRef: media.operation.capability.media-stream-session-reconnect
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-reconnect/operationVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-reconnect
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-reconnect/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-reconnect/resultSchema
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.consentRevocation
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-reconnect/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-reconnect/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-reconnect/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      exactResult: >-
+        SUCCEEDED requires the typed reconnectReceipt, bound to the same
+        tenant-scoped session, requestId, server-computed payload fingerprint,
+        current lease version and fencing token, acknowledged and next sequence,
+        consent, resolved frame outcome references, and recordedAt, plus exactly
+        one typed output: an ordered stream observation or terminal session
+        state. REJECTED and UNKNOWN_OUTCOME carry neither receipt nor output.
+        This reports the reconnect operation result only; it does not establish
+        that a frame was sent, provider effect occurred, runtime was qualified,
+        or the session was otherwise restored.
+      unknownDisposition: >-
+        REJECTED and UNKNOWN_OUTCOME carry no reconnect receipt or output claim.
+        For UNKNOWN_OUTCOME, reconcile the same session and receipt identity;
+        do not replay or advance sequence until the authoritative current lease
+        and last acknowledged sequence are observed. Retry only proven
+        non-acceptance with the same requestId and payload fingerprint.
 orderedViews:
   - media.view.work-in-project
   - media.view.job-status

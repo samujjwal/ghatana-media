@@ -276,6 +276,16 @@ pdp1ResultEvidence:
     transport: UNBOUND
     runtimeAdmission: NOT_ADMITTED
 
+  typedObservationBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/8
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j09-step-09.v1
+      operationRef: media.operation.action.deliver-exact-version
+      observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1/resultSchema
+      requiredExactIdentity: [deliveryRequestResultRef, deliveryRequestId, deliveryRequestFingerprint, artifactVersionRef, destinationRef]
+      acknowledgedOnlyWhen: Current owner-issued acknowledgment authority and nonempty evidence match the original immutable delivery result and exact identity.
+      unknownDisposition: Missing, stale, denied, timed-out, mismatched, or unavailable evidence is UNKNOWN; preserve the exact request and never retry blindly.
+      resultRequestFingerprint: The reconciliation query requestFingerprint is distinct from deliveryRequestFingerprint and cannot replace it.
 preconditions:
   - Intent, source/reference rights, budget, quality/preservation choices, and
     required reviewers are explicit.

@@ -1,7 +1,13 @@
 const isNonemptyStrings = (value) => Array.isArray(value) && value.length > 0 && value.every((item) => typeof item === "string" && item.trim().length > 0);
+// Some source-authored operation families place these arrays under stateBinding.
+// A canonical top-level field, including an explicitly empty array, always wins.
+const operationStateRefs = (operation) => Object.hasOwn(operation, "stateRefs")
+  ? operation.stateRefs : operation.stateBinding?.stateRefs ?? [];
+const operationTransitionRefs = (operation) => Object.hasOwn(operation, "transitionRefs")
+  ? operation.transitionRefs : operation.stateBinding?.transitionRefs ?? [];
 
 /** Validate the strict, per-operation PDP-1 state/observation proof branch. */
-export function assertOperationStateProofs(edge, { operationsById, purposeById, exactStateRefExists, exactObservationRef, journeyOperationBindings = [], journeyContract }) {
+export function assertOperationStateProofs(edge, { operationsById, purposeById, exactStateRefExists, exactStateSourceRefExists = () => false, exactObservationRef, journeyOperationBindings = [], journeyContract }) {
   const proofs = edge.p1OperationStateProofs;
   if (!Array.isArray(proofs)) throw new Error(`${edge.id} requires exactly one state/observation proof for every P1 operation`);
   const proofByOperation = new Map();
@@ -36,7 +42,7 @@ export function assertOperationStateProofs(edge, { operationsById, purposeById, 
 
     if (proof.disposition === "EXACT_P1_STATE_SOURCE_REF") {
       if (!proof.stateRef || !exactStateRefExists(proof.stateRef)
-        || !(operation.stateRefs ?? []).includes(proof.stateRef)) {
+        || !operationStateRefs(operation).includes(proof.stateRef)) {
         throw new Error(`${edge.id} proof state reference must resolve and occur in the bound operation stateRefs`);
       }
       if (proof.observationRef || proof.noP1MachineState) throw new Error(`${edge.id} proof must select exactly one proof kind`);
@@ -69,7 +75,7 @@ export function assertOperationStateProofs(edge, { operationsById, purposeById, 
     }
     if (proof.disposition === "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF") {
       assertJourneyTypedResultProof(edge, operation, proof, {
-        purposeById, exactStateRefExists, journeyContract,
+        purposeById, exactStateRefExists, exactStateSourceRefExists, journeyContract,
       });
       continue;
     }
@@ -83,7 +89,7 @@ export function assertOperationStateProofs(edge, { operationsById, purposeById, 
     if (!noState || proof.stateRef || proof.observationRef || proof.noP1MachineTransition) {
       throw new Error(`${edge.id} no-state proof must be explicit and exclusive`);
     }
-    if (operation.operationKind !== "QUERY" || (operation.stateRefs ?? []).length !== 0 || (operation.transitionRefs ?? []).length !== 0) {
+    if (operation.operationKind !== "QUERY" || operationStateRefs(operation).length !== 0 || operationTransitionRefs(operation).length !== 0) {
       throw new Error(`${edge.id} cannot label a command/write or stateful operation NO_P1_MACHINE_STATE`);
     }
     const effect = `${operation.sourceEffect ?? ""} ${operation.effectSemantics ?? ""}`.toLowerCase()
@@ -169,8 +175,8 @@ function assertConditionalSelectedTargetResultProof(edge, operation, proof, { pu
     result: `${expectedTargetSource}/resultSchema`,
     ttsResult: ".product-experience/pdp-1-domain-data/operations.yaml#media.operation.tts-request-origin-binding.v1/producedOutputObservation",
   };
-  const stateRefs = operation.stateRefs ?? [];
-  const transitionRefs = operation.transitionRefs ?? [];
+  const stateRefs = operationStateRefs(operation);
+  const transitionRefs = operationTransitionRefs(operation);
   if (!journeyContract || !binding || edge.journeyRef !== "J-04"
     || proof.operationRef !== operation.id || operation.operationKind !== "COMMAND"
     || edge.p1OperationBindings.find((item) => item.operationRef === operation.id)?.sourceRef !== expectedTargetSource
@@ -210,7 +216,7 @@ function assertConditionalSelectedTargetResultProof(edge, operation, proof, { pu
   }
 }
 
-function assertJourneyTypedResultProof(edge, operation, proof, { purposeById, exactStateRefExists, journeyContract }) {
+function assertJourneyTypedResultProof(edge, operation, proof, { purposeById, exactStateRefExists, exactStateSourceRefExists, journeyContract }) {
   if (!journeyContract || (!Array.isArray(proof.journeyResultBindingRefs) || proof.journeyResultBindingRefs.length === 0)
     && (!Array.isArray(proof.relatedActionBindingRefs) || proof.relatedActionBindingRefs.length === 0)
     && (!Array.isArray(proof.journeyOperationResultBindingRefs) || proof.journeyOperationResultBindingRefs.length === 0)) {
@@ -241,12 +247,12 @@ function assertJourneyTypedResultProof(edge, operation, proof, { purposeById, ex
     }
   }
 
-  const actualStateRefs = operation.stateRefs ?? [];
+  const actualStateRefs = operationStateRefs(operation);
   if (!Array.isArray(proof.stateRefs) || JSON.stringify(proof.stateRefs) !== JSON.stringify(actualStateRefs)
-    || proof.stateRefs.some((ref) => !exactStateRefExists(ref))) {
+    || proof.stateRefs.some((ref) => !exactStateRefExists(ref) && !exactStateSourceRefExists(ref))) {
     throw new Error(`${edge.id} result proof stateRefs must exactly match the canonical P1 operation stateRefs array`);
   }
-  const actualTransitionRefs = operation.transitionRefs ?? [];
+  const actualTransitionRefs = operationTransitionRefs(operation);
   if (!Array.isArray(proof.transitionRefs) || JSON.stringify(proof.transitionRefs) !== JSON.stringify(actualTransitionRefs)) {
     throw new Error(`${edge.id} result proof transitionRefs must exactly match the canonical P1 operation transitionRefs array`);
   }
@@ -432,11 +438,11 @@ function assertNoTransitionTypedOperationResultProof(edge, operation, proof, { p
     && item.operationDefinitionRef === sourceRef
     && item.wireSchemaRef === `${sourceRef}/ownerWireSchema`
     && item.operationKind === operation.operationKind
-    && JSON.stringify(item.stateRefs ?? []) === JSON.stringify(operation.stateRefs ?? [])
+    && JSON.stringify(item.stateRefs ?? []) === JSON.stringify(operationStateRefs(operation))
     && (item.sourceEvidenceRefs ?? []).includes(sourceRef));
   const exactJourneyOperationBinding = Boolean(canonicalJourneyOperationBinding);
   if (!sourceRef || operation.operationKind !== "COMMAND" || operation.readOnly === true
-    || (operation.stateRefs ?? []).length !== 0 || (operation.transitionRefs ?? []).length !== 0
+    || operationStateRefs(operation).length !== 0 || operationTransitionRefs(operation).length !== 0
     || purposes.some((purpose) => !purpose || purpose.transitionDisposition?.status !== "NO_P1_MACHINE_TRANSITION"
       || purpose.transitionDisposition.transitionRef !== null
       || (purpose.stateRefs ?? []).length !== 0 || (purpose.transitionRefs ?? []).length !== 0
@@ -579,7 +585,7 @@ function assertJ06NoTransitionTypedResultProof(edge, operation, proof, { purpose
   }
 
   if (isAction) {
-    if (!(operation.stateRefs ?? []).length
+    if (!operationStateRefs(operation).length
       || !String(operation.resultSchema?.finality ?? "").includes("owner receipt only; no unstated downstream effect is implied")
       || !String(operation.sourceFinality ?? "").includes("unknown-is-not-failure")
       || !proofBody.finalityRefs.includes(`${operationSourceRef}/sourceFinality`)

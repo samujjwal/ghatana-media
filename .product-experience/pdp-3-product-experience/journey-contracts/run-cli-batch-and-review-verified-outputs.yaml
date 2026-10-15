@@ -20,6 +20,83 @@ channels:
   - media.channel.cli
   - media.channel.http-api
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+pdp1ResultEvidence:
+  status: SOURCE_BOUND_TYPED_QUERY_DEFINITION_ONLY; PURPOSE_AND_STEP_JOIN_EXACT; RUNTIME_NOT_ADMITTED
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/errorSchemaRef
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/authorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/sourceFinality
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/sourceRecovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1/resultRules
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality
+    - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j24-step-02.v1
+    - .product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml#/steps/1
+  operationResultBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml#/steps/1
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j24-step-02.v1
+      operationRef: media.operation.action.review-processing-parameters
+      operationKind: QUERY
+      operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters
+      operationResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/resultSchema
+      observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1/resultSchema
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/authorityRefs
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1/readAuthorityRefs
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/sourceFinality
+      profileFinalityRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/sourceRecovery
+      profileRecoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery
+      exactResult: >-
+        Return only the typed observations for the requested parameterRefs on the exact subjectVersionRef. Each observed value is bound to its parameter version, schema, and evidence; it does not authorize or change processing, and this read asserts no artifact/job lifecycle state.
+      unknownDisposition: >-
+        Missing, stale, mismatched, or unavailable evidence remains UNKNOWN. NOT_FOUND is valid only when the current owner source explicitly reports that exact requested parameter absent; missing data is not a negative value or permission to apply a default. Reobserve the same exact subject and parameter selector only.
+      finality: Read-only observation; no state mutation, external effect, or authorization grant.
+      runtimeAdmission: NOT_ADMITTED
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml#/steps/2
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j24-step-03.v1
+      operationRef: media.operation.action.view-job-status
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status/contractVersion
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status/authorityRefs/0
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status/authorityRefs/1
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery
+      exactResult: >-
+        Immediate result is the exact-target scoped owner observation with requestId,
+        exactTargetRef, ownerReceipt and observedAt. It does not assert a job or
+        attempt lifecycle state or completion.
+      finality: Read-only observation; no state mutation, external effect, or authorization grant.
+      unknownDisposition: >-
+        Missing, stale, mismatched, or unavailable evidence remains UNKNOWN; absence
+        is scoped only and this read implies no command effect or replay.
+      runtimeAdmission: NOT_ADMITTED
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml#/steps/3
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j24-step-04.v1
+      operationRef: media.operation-slice.inspect-artifact
+      operationDefinitionRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact/readSemantics
+      exactResult: >-
+        Immediate result is caller-scoped artifact metadata observation: HTTP-200
+        metadata or scoped absent/inaccessible; unavailable read is UNKNOWN and proves
+        neither global absence nor no prior effect.
+      unknownDisposition: >-
+        Unavailable, missing, stale, or target-mismatched evidence remains UNKNOWN;
+        preserve the exact target, infer neither global absence nor downstream effect,
+        and reobserve the same selector only. No command replay.
+      runtimeAdmission: NOT_ADMITTED
 preconditions:
   - Public command/request schema, explicit approval/policy input, client keys,
     and per-item budgets are accepted.

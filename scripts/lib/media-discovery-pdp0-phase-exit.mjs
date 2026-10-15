@@ -53,6 +53,14 @@ export function resolveMediaPdp0SuccessorPredecessorRefs(recordId) {
       exitRef: 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r11.json',
       currentnessRef: 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r11.json',
     },
+    'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R1': {
+      exitRef: 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json',
+      currentnessRef: 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json',
+    },
+    'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2': {
+      exitRef: 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json',
+      currentnessRef: 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json',
+    },
   };
   const predecessor = predecessors[recordId];
   if (!predecessor) throw new Error(`Unsupported PDP-0 successor impact recordId: ${recordId}`);
@@ -381,15 +389,21 @@ function validatePdp0SuccessorImpactDisposition(record, technicalCurrentness, hi
   const isPxd164Successor = record?.recordId === 'MEDIA-DISCOVERY-PDP0-PXD164-SUCCESSOR-IMPACT-2026-10-14-R1';
   const isR8Successor = record?.recordId === 'MEDIA-DISCOVERY-PDP0-R8-SUCCESSOR-IMPACT-2026-10-14-R2';
   const isR11Successor = record?.recordId === 'MEDIA-DISCOVERY-PDP0-R11-SUCCESSOR-IMPACT-2026-10-14-R1';
-  const predecessorLabel = isR11Successor ? 'R11' : isPxd164Successor ? 'R10' : isR8Successor ? 'R8' : 'R6';
-  const predecessorExitRef = isR11Successor
+  const isR12Successor = record?.recordId === 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R1'
+    || record?.recordId === 'MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2';
+  const predecessorLabel = isR12Successor ? 'R12' : isR11Successor ? 'R11' : isPxd164Successor ? 'R10' : isR8Successor ? 'R8' : 'R6';
+  const predecessorExitRef = isR12Successor
+    ? 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json'
+    : isR11Successor
     ? 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r11.json'
     : isPxd164Successor
     ? 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r10.json'
     : isR8Successor
       ? 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r8.json'
       : 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r6.json';
-  const predecessorCurrentnessRef = isR11Successor
+  const predecessorCurrentnessRef = isR12Successor
+    ? 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json'
+    : isR11Successor
     ? 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r11.json'
     : isPxd164Successor
     ? 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r10.json'
@@ -415,7 +429,7 @@ function validatePdp0SuccessorImpactDisposition(record, technicalCurrentness, hi
   const classified = classifyPdp0SuccessorImpact(comparisons, record, recordPath, technicalCurrentness);
   if (!classified) blockers.push(`PDP0_${predecessorLabel}_SUCCESSOR_IMPACT_INVALID`);
   const priorPxd163 = technicalCurrentness?.historicalPdp0PinDriftClassifications?.find((entry) => entry.path === '.product-experience/decision-log.md');
-  if (!isPxd164Successor && !isR11Successor && (priorPxd163?.classification !== 'INTERNAL_SCOPED_IMPACT_DISPOSITION'
+  if (!isPxd164Successor && !isR11Successor && !isR12Successor && (priorPxd163?.classification !== 'INTERNAL_SCOPED_IMPACT_DISPOSITION'
       || priorPxd163?.authorityRef !== priorPxd163ImpactPath
       || priorPxd163?.authoritySha256 !== sha256File(priorPxd163ImpactPath)
       || priorPxd163?.predecessorSha256 !== 'sha256:cdea20d6fa57cc4d7bbea866d911c03685eeb74e0bfdb4e0a5df0c90ded56db4'
@@ -429,21 +443,29 @@ function validatePdp0SuccessorImpactDisposition(record, technicalCurrentness, hi
       || carriedPxd163?.impactDelta?.observedSha256 !== 'sha256:9831b03ecd3f30d2cbfd7a1db62d934035ba20cf1482bb5e621d166eacdb9b4c')) {
     blockers.push('PDP0_R10_SUCCESSOR_PXD163_PREDECESSOR_CLASSIFICATION_MISSING');
   }
-  const expectedDelta = isR11Successor
+  const expectedDeltas = isR12Successor
+    ? record?.sourceDeltas?.map(({ path: sourcePath, predecessorSha256, observedSha256 }) => ({
+      path: sourcePath,
+      predecessor: predecessorSha256,
+      observed: observedSha256,
+    })) ?? []
+    : [isR11Successor
     ? { path: '.product-experience/pdp-0-product-truth/generated/product-definition.candidate.json', predecessor: 'sha256:13c0789a6fa94c51abfbc60da8465e340406947a3f5a1dff4ec5a37bcef7e341', observed: 'sha256:6cfb42b2fbf2e24ca904ab93ca98c905a6b892069f811f2f73166d7dc7e8de49' }
     : isPxd164Successor
     ? { path: '.product-experience/decision-log.md', predecessor: 'sha256:9831b03ecd3f30d2cbfd7a1db62d934035ba20cf1482bb5e621d166eacdb9b4c', observed: 'sha256:97ad3104abec9ba6670804394c68a11c663f37171e90ea2a1f2e629aa5619bbc' }
     : isR8Successor
       ? { path: 'tests/pdp-truth-domain.test.mjs', predecessor: 'sha256:0d94c83f6c081f2e67a4ba20752c0cdfff03f26ae1d9d87860d9ba97047964e0', observed: 'sha256:8ef1a6d5e11dc2e10ca32c3e6813fc8671c22a6c7f7038d48300d52f8feae578' }
-      : { path: 'scripts/report-media-pdp-readiness.mjs', predecessor: 'sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573', observed: 'sha256:4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f' };
+      : { path: 'scripts/report-media-pdp-readiness.mjs', predecessor: 'sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573', observed: 'sha256:4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f' }];
   const unexpectedChanges = comparisons.filter((entry) => entry.disposition !== 'MATCH'
-    && (entry.path !== expectedDelta.path
-      || entry.recordedDigest !== expectedDelta.predecessor
-      || entry.currentDigest !== expectedDelta.observed));
+    && !expectedDeltas.some((delta) => entry.path === delta.path
+      && entry.recordedDigest === delta.predecessor
+      && entry.currentDigest === delta.observed));
   if (unexpectedChanges.length) blockers.push(`PDP0_${predecessorLabel}_SUCCESSOR_UNREVIEWED_SOURCE_DELTA`);
-  const successorDeltaPath = expectedDelta.path;
-  const successorChanges = comparisons.filter((entry) => entry.path === successorDeltaPath && entry.disposition === 'CHANGED');
-  if (successorChanges.length !== 1) blockers.push(`PDP0_${predecessorLabel}_SUCCESSOR_AUTHORIZED_DELTA_MISSING`);
+  const successorChanges = comparisons.filter((entry) => entry.disposition === 'CHANGED'
+    && expectedDeltas.some((delta) => entry.path === delta.path
+      && entry.recordedDigest === delta.predecessor
+      && entry.currentDigest === delta.observed));
+  if (successorChanges.length !== expectedDeltas.length) blockers.push(`PDP0_${predecessorLabel}_SUCCESSOR_AUTHORIZED_DELTA_MISSING`);
   if (historicalPdp0Exit?.phase !== 'PDP-0' || historicalPdp0Exit?.phaseExit?.status !== 'PASS'
       || historicalPdp0Exit?.sourceCurrentness?.cells?.length !== 50
       || technicalCurrentness?.physicalCompositeConsumerCells?.length !== 50
@@ -459,7 +481,7 @@ function validatePdp0SuccessorImpactDisposition(record, technicalCurrentness, hi
       predecessorPathCount: previousPaths.length,
       observedPathCount: currentPaths.length,
       unchangedPathCount: unchangedCount,
-      internallyDispositionedChangedPathCount: classified ? 1 : 0,
+      internallyDispositionedChangedPathCount: Array.isArray(classified) ? classified.length : classified ? 1 : 0,
       unreviewedChangedPathCount: unexpectedChanges.length,
       missingPathCount: missingPaths.length,
       additionalPathCount: additionalPaths.length,
