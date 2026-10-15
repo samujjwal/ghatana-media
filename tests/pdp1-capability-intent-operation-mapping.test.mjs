@@ -94,7 +94,7 @@ function outputTypes(schema) {
   return found;
 }
 
-function diagnostics(capabilities, operations) {
+function diagnostics(capabilities, operations, { ignoredIssues = () => false } = {}) {
   const issues = [];
   const fail = (id, check, detail = "mismatch") => issues.push(`${id}: ${check} (${detail})`);
   const capRows = capabilities.capabilities ?? [];
@@ -314,7 +314,8 @@ function diagnostics(capabilities, operations) {
     } else fail(id, "supported-operation-record-kind", operation.recordKind);
   }
   for (const id of contractByCapability.keys()) if (!capById.has(id)) fail(id, "P0-capability-exists");
-  return issues;
+  const remainingIssues = issues.filter((issue) => !ignoredIssues(issue));
+  return remainingIssues;
 }
 
 function validateTypedInputMappings(id, intent, operation, wires, scalarTypes, selectedAction, documents, fail) {
@@ -2721,7 +2722,46 @@ test("project create, inspect, and attach preserve exact project receipt variant
 test("all 462 PDP-1 mappings preserve P0 capability input, parameter, and success-output meaning", () => {
   const capabilities = read(CAP_PATH);
   const operations = read(OPS_PATH);
-  const issues = diagnostics(capabilities, operations);
+  const issues = diagnostics(capabilities, operations, {
+    ignoredIssues: (issue) => /^media\.speech\.synthesis\.dub: parameter(?:-|\[)/u.test(issue),
+  });
+  const dub = operations.capabilityOperationContracts.records.find(({ capabilityRef }) => capabilityRef === "media.speech.synthesis.dub");
+  const dubP0 = capabilities.capabilities.find(({ id }) => id === "media.speech.synthesis.dub").ownerDefinition.parameterSchema;
+  const dubScalarTypes = operations.capabilityOperationContracts.scalarTypes ?? {};
+  const dubBaseNames = Object.keys(dubP0.properties).sort();
+  const dubSupplementalNames = ["sourceLocale", "translatedSegmentVersionRef", "voiceProfileVersionRef"];
+  assert.deepEqual(dubBaseNames, ["outputLanguage", "outputProfileRef"]);
+  assert.deepEqual(Object.keys(dub.parameterSchema.properties).sort(), ["outputProfileRef", "sourceLocale", "targetLocale", "translatedSegmentVersionRef", "voiceProfileVersionRef"].sort(),
+    "PXD-163 C16 adds exactly its approved dub parameters and maps the P0 output-language field");
+  assert.equal(dub.parameterSchema.type, "object", "dub parameter envelope is an object");
+  assert.equal(dub.parameterSchema.additionalProperties, false, "dub parameter envelope is closed");
+  assert.deepEqual([...dub.parameterSchema.required].sort(), ["outputProfileRef", "sourceLocale", "targetLocale", "translatedSegmentVersionRef", "voiceProfileVersionRef"].sort(),
+    "dub requires exactly the five PXD-163 C16 parameter fields");
+  assert.equal(dub.parameterSchema.emptyDisposition, "NOT_EMPTY", "dub rejects an empty parameter object");
+  assert.deepEqual(normalizedParameterField(dubP0.properties.outputProfileRef, dubP0, dubScalarTypes),
+    normalizedSchema(dub.parameterSchema.properties.outputProfileRef, dubScalarTypes),
+    "dub preserves exact P0 outputProfileRef schema");
+  assert.equal(dubP0.required.includes("outputProfileRef"), dub.parameterSchema.required.includes("outputProfileRef"),
+    "dub preserves exact P0 outputProfileRef requiredness");
+  // P0's optional outputLanguage is represented by C16's exact targetLocale;
+  // C16 requires a target locale for dubbing and forbids locale substitution.
+  assert.deepEqual(normalizedParameterField(dubP0.properties.outputLanguage, dubP0, dubScalarTypes),
+    normalizedSchema(dub.parameterSchema.properties.targetLocale, dubScalarTypes),
+    "P0 outputLanguage maps to the exact C16 targetLocale schema");
+  assert.equal(dubP0.required.includes("outputLanguage"), false, "P0 outputLanguage remains optional in its source definition");
+  assert.equal(dub.parameterSchema.required.includes("targetLocale"), true, "C16 requires the explicitly selected target locale");
+  const c16ParameterSchemas = {
+    sourceLocale: { type: "string", format: "bcp47-language-tag", pattern: "^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$", minLength: 2, maxLength: 63 },
+    targetLocale: { type: "string", format: "bcp47-language-tag", pattern: "^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$", minLength: 2, maxLength: 63 },
+    translatedSegmentVersionRef: { type: "string", format: "opaque-versioned-reference", minLength: 1, maxLength: 384 },
+    voiceProfileVersionRef: { type: "string", format: "versioned-profile-reference", minLength: 1, maxLength: 384, pattern: ".*\\S.*" },
+  };
+  assert.deepEqual(dubSupplementalNames.sort(), ["sourceLocale", "translatedSegmentVersionRef", "voiceProfileVersionRef"]);
+  for (const [name, schema] of Object.entries(c16ParameterSchemas)) {
+    assert.deepEqual(normalizedSchema(dub.parameterSchema.properties[name], dubScalarTypes), stable(schema),
+      `PXD-163 C16 defines exact ${name} schema`);
+    assert.equal(dub.parameterSchema.required.includes(name), true, `PXD-163 C16 requires ${name}`);
+  }
   assertMutationDetected(capabilities, operations, (copy) => {
     const row = copy.capabilityOperationContracts.records.find(({ capabilityRef }) => capabilityRef === "media.generate.image.image-to-image");
     row.inputSlots[1].required = false;
@@ -2798,8 +2838,13 @@ test("PXD-144 delete, keyframe, attestation, dub, and clone outputs preserve exa
     },
     "media.speech.synthesis.dub": {
       input1: { artifactType: "text-or-speech-intent", payload: { kind: "text", text: "dub text" } },
-      input2: { artifactType: "source-media-with-speech-artifact", payload: { ...identity } },
-      parameters: { outputProfileRef: "media://profile/speech/v1" }, requestId: "request-dub-1",
+      input2: { artifactType: "source-media-with-speech-artifact", payload: {
+        ...identity, sourceContentDigest: `sha256:${"a".repeat(64)}`, sourceClockId: "clock-1", ticksPerSecond: 48000, sourceDurationTicks: 480000,
+      } },
+      parameters: {
+        outputProfileRef: "media://profile/speech/v1", sourceLocale: "en-US", targetLocale: "es-ES",
+        translatedSegmentVersionRef: "media://caption/version/translated-v1", voiceProfileVersionRef: "media://voice/profile/v1",
+      }, requestId: "request-dub-1",
     },
     "media.speech.synthesis.speaker.clone-authorized": {
       input1: { artifactType: "text-or-speech-intent", payload: { kind: "text", text: "clone request" } },
@@ -2818,35 +2863,53 @@ test("PXD-144 delete, keyframe, attestation, dub, and clone outputs preserve exa
     assert.equal(typed.schema.additionalProperties, false);
     const contract = { requestSchema: effective.requestSchema, resultSchema: effective.resultSchema, crossFieldRules: operation.crossFieldRules ?? [] };
     const output = (type, payload) => ({ artifactType: type, payload });
-    const result = (outcome, outputs) => ({
+    const result = (request, outcome, outputs) => ({
+      ...(capabilityRef === "media.speech.synthesis.dub" ? { requestId: request.requestId, requestFingerprint: `sha256:${"b".repeat(64)}` } : {}),
+      ...(capabilityRef === "media.speech.synthesis.dub" && outcome === "SUCCEEDED" ? {
+        acceptedRequest: {
+          sourceArtifactId: request.input2.payload.artifactId,
+          sourceArtifactVersionId: request.input2.payload.versionId,
+          sourceContentDigest: request.input2.payload.sourceContentDigest,
+          sourceClockId: request.input2.payload.sourceClockId,
+          ticksPerSecond: request.input2.payload.ticksPerSecond,
+          sourceDurationTicks: request.input2.payload.sourceDurationTicks,
+          sourceLocale: request.parameters.sourceLocale,
+          targetLocale: request.parameters.targetLocale,
+          translatedSegmentVersionRef: request.parameters.translatedSegmentVersionRef,
+          voiceProfileVersionRef: request.parameters.voiceProfileVersionRef,
+          outputProfileRef: request.parameters.outputProfileRef,
+          candidateOutputRef: outputs[0]?.payload?.reference ?? "media://output/candidate/v1",
+        },
+      } : {}),
       outcome, observedAt: timestamp, outputs,
       provenance: { operationRef: operation.id, observedAt: timestamp, sourceRefs: [] },
       implementationState: "UNKNOWN", qualificationState: "NOT_EVALUATED", runtimeAvailability: "UNKNOWN",
     });
     const payload = artifactType === deleteType ? { ...identity, state: "ACCESS_REVOKED" } : { reference: `media://output/${artifactType}/v1` };
     const validate = (request, value) => validateOwnerLeafWireResult(contract, request, value);
-    assert.equal(validate(requests[capabilityRef], result("SUCCEEDED", [output(artifactType, payload)])).valid, true, `${capabilityRef} accepts its exact success output`);
-    assert.equal(validate(requests[capabilityRef], result("SUCCEEDED", [])).reason, "RESULT_SCHEMA_REJECTED", `${capabilityRef} requires its declared output on success`);
+    const exactSuccess = validate(requests[capabilityRef], result(requests[capabilityRef], "SUCCEEDED", [output(artifactType, payload)]));
+    assert.equal(exactSuccess.valid, true, `${capabilityRef} accepts its exact success output: ${JSON.stringify(exactSuccess)}`);
+    assert.equal(validate(requests[capabilityRef], result(requests[capabilityRef], "SUCCEEDED", [])).reason, "RESULT_SCHEMA_REJECTED", `${capabilityRef} requires its declared output on success`);
     const secondPayload = artifactType === deleteType
       ? { ...identity, state: "BLOCKED_BY_HOLD" }
       : { reference: `media://output/${artifactType}/v2` };
-    assert.equal(validate(requests[capabilityRef], result("SUCCEEDED", [output(artifactType, payload), output(artifactType, secondPayload)])).reason, "RESULT_SCHEMA_REJECTED", `${capabilityRef} success is bounded to one declared output`);
-    assert.equal(validate(requests[capabilityRef], result("SUCCEEDED", [output("wrong-output-type", payload)])).reason, "RESULT_SCHEMA_REJECTED", `${capabilityRef} rejects a substituted discriminator`);
+    assert.equal(validate(requests[capabilityRef], result(requests[capabilityRef], "SUCCEEDED", [output(artifactType, payload), output(artifactType, secondPayload)])).reason, "RESULT_SCHEMA_REJECTED", `${capabilityRef} success is bounded to one declared output`);
+    assert.equal(validate(requests[capabilityRef], result(requests[capabilityRef], "SUCCEEDED", [output("wrong-output-type", payload)])).reason, "RESULT_SCHEMA_REJECTED", `${capabilityRef} rejects a substituted discriminator`);
     if (artifactType !== deleteType) {
-      assert.equal(validate(requests[capabilityRef], result("SUCCEEDED", [output(artifactType, { ...payload, contents: "unclaimed" })])).reason, "RESULT_SCHEMA_REJECTED", `${capabilityRef} rejects undeclared payload claims`);
+      assert.equal(validate(requests[capabilityRef], result(requests[capabilityRef], "SUCCEEDED", [output(artifactType, { ...payload, contents: "unclaimed" })])).reason, "RESULT_SCHEMA_REJECTED", `${capabilityRef} rejects undeclared payload claims`);
     }
     for (const outcome of ["REJECTED", "UNKNOWN_OUTCOME"]) {
-      assert.equal(validate(requests[capabilityRef], result(outcome, [])).valid, true, `${capabilityRef} ${outcome} has no output claim`);
-      assert.equal(validate(requests[capabilityRef], result(outcome, [output(artifactType, payload)])).reason, "RESULT_SCHEMA_REJECTED", `${capabilityRef} ${outcome} cannot claim success output`);
+      assert.equal(validate(requests[capabilityRef], result(requests[capabilityRef], outcome, [])).valid, true, `${capabilityRef} ${outcome} has no output claim`);
+      assert.equal(validate(requests[capabilityRef], result(requests[capabilityRef], outcome, [output(artifactType, payload)])).reason, "RESULT_SCHEMA_REJECTED", `${capabilityRef} ${outcome} cannot claim success output`);
     }
     if (capabilityRef === "media.artifact.delete") {
       for (const state of ["ACCESS_REVOKED", "BLOCKED_BY_HOLD", "ERASURE_REQUESTED", "PHYSICAL_ERASURE_PENDING", "ERASURE_CONFIRMED", "EXTERNAL_ERASURE_UNCONFIRMED"]) {
-        assert.equal(validate(requests[capabilityRef], result("SUCCEEDED", [output(artifactType, { ...identity, state })])).valid, true, `delete preserves lifecycle state ${state}`);
+        assert.equal(validate(requests[capabilityRef], result(requests[capabilityRef], "SUCCEEDED", [output(artifactType, { ...identity, state })])).valid, true, `delete preserves lifecycle state ${state}`);
       }
-      assert.equal(validate(requests[capabilityRef], result("SUCCEEDED", [output(artifactType, { artifactId: "other-artifact", versionId: identity.versionId, state: "ACCESS_REVOKED" })])).reason, "CROSS_FIELD_BINDING_REJECTED", "delete output artifact identity equals the requested artifact");
-      assert.equal(validate(requests[capabilityRef], result("SUCCEEDED", [output(artifactType, { artifactId: identity.artifactId, versionId: "other-version", state: "ACCESS_REVOKED" })])).reason, "CROSS_FIELD_BINDING_REJECTED", "delete output version identity equals the requested immutable version");
-      assert.equal(validate(requests[capabilityRef], result("SUCCEEDED", [output(artifactType, { ...identity, state: "DELETED" })])).reason, "RESULT_SCHEMA_REJECTED", "delete does not collapse lifecycle states to a generic deleted state");
-      assert.equal(validate(requests[capabilityRef], result("SUCCEEDED", [output(artifactType, { ...identity, state: "ACCESS_REVOKED", externalCopiesRecalled: true })])).reason, "RESULT_SCHEMA_REJECTED", "delete output does not claim external-copy recall");
+      assert.equal(validate(requests[capabilityRef], result(requests[capabilityRef], "SUCCEEDED", [output(artifactType, { artifactId: "other-artifact", versionId: identity.versionId, state: "ACCESS_REVOKED" })])).reason, "CROSS_FIELD_BINDING_REJECTED", "delete output artifact identity equals the requested artifact");
+      assert.equal(validate(requests[capabilityRef], result(requests[capabilityRef], "SUCCEEDED", [output(artifactType, { artifactId: identity.artifactId, versionId: "other-version", state: "ACCESS_REVOKED" })])).reason, "CROSS_FIELD_BINDING_REJECTED", "delete output version identity equals the requested immutable version");
+      assert.equal(validate(requests[capabilityRef], result(requests[capabilityRef], "SUCCEEDED", [output(artifactType, { ...identity, state: "DELETED" })])).reason, "RESULT_SCHEMA_REJECTED", "delete does not collapse lifecycle states to a generic deleted state");
+      assert.equal(validate(requests[capabilityRef], result(requests[capabilityRef], "SUCCEEDED", [output(artifactType, { ...identity, state: "ACCESS_REVOKED", externalCopiesRecalled: true })])).reason, "RESULT_SCHEMA_REJECTED", "delete output does not claim external-copy recall");
     }
   }
   const families = operations.capabilityOperationContracts.families;
@@ -2911,6 +2974,7 @@ test("PXD-145 exact required inputs preserve P0 source types, identity, and alte
     return undefined;
   };
   const rejectedResult = (operation) => ({
+    ...(operation.capabilityRef === "media.speech.synthesis.dub" ? { requestId: "x", requestFingerprint: `sha256:${"a".repeat(64)}` } : {}),
     outcome: "REJECTED", observedAt: timestamp, outputs: [],
     provenance: { operationRef: operation.id, observedAt: timestamp, sourceRefs: [] },
     implementationState: "UNKNOWN", qualificationState: "NOT_EVALUATED", runtimeAvailability: "UNKNOWN",
@@ -2930,12 +2994,36 @@ test("PXD-145 exact required inputs preserve P0 source types, identity, and alte
       if (schemaRef) {
         const typed = schemaRows.find(({ id }) => id === schemaRef);
         assert.ok(typed, `${capabilityRef} references a declared typed input schema ${schemaRef}`);
+        if (capabilityRef === "media.speech.synthesis.dub" && slot.slotId === "input2") {
+          assert.equal(schemaRef, "media.typed-input.source-media-with-speech-dub",
+            "PXD-163 C16 uses its dedicated closed source-media input schema");
+          assert.equal(typed.schema.type, "object");
+          assert.equal(typed.schema.additionalProperties, false);
+          assert.deepEqual([...typed.schema.required].sort(), ["artifactType", "payload"]);
+          assert.deepEqual(Object.keys(typed.schema.properties).sort(), ["artifactType", "payload"]);
+          assert.equal(typed.schema.properties.artifactType.const, "source-media-with-speech-artifact");
+          const payloadSchema = typed.schema.properties.payload;
+          assert.equal(payloadSchema.additionalProperties, false, "C16 source-media payload is closed");
+          assert.deepEqual([...payloadSchema.required].sort(), ["artifactId", "sourceClockId", "sourceContentDigest", "sourceDurationTicks", "ticksPerSecond", "versionId"].sort(),
+            "C16 input requires exact source identity, digest, clock, timebase, and duration fields");
+          assert.deepEqual(Object.keys(payloadSchema.properties).sort(), ["artifactId", "sourceClockId", "sourceContentDigest", "sourceDurationTicks", "ticksPerSecond", "versionId"].sort(),
+            "C16 input exposes exactly the six required source facts");
+        }
         assert.deepEqual(stable(operation.requestSchema.properties[slot.slotId]), stable(typed.schema), `${capabilityRef} request schema equals its typed input schema`);
       }
     }
     const effective = resolveEffectiveCapabilityWireSchemas(operations, capabilityRef);
     assert.equal(effective.valid, true, `${capabilityRef} request/result wire resolves`);
     const request = sample(effective.requestSchema);
+    if (capabilityRef === "media.speech.synthesis.dub") {
+      request.parameters.sourceLocale = "en-US";
+      request.parameters.targetLocale = "es-ES";
+      request.parameters.translatedSegmentVersionRef = "media://caption/version/translated-v1";
+      request.parameters.voiceProfileVersionRef = "media://voice/profile/v1";
+      request.parameters.outputProfileRef = "media://profile/speech/v1";
+      request.input2.payload.sourceContentDigest = `sha256:${"a".repeat(64)}`;
+      request.input2.payload.sourceClockId = "clock-1";
+    }
     const contract = { requestSchema: effective.requestSchema, resultSchema: effective.resultSchema, crossFieldRules: operation.crossFieldRules ?? [] };
     const validate = (candidate) => validateOwnerLeafWireResult(contract, candidate, rejectedResult(operation));
     const validRequest = validate(request);

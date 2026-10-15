@@ -102,25 +102,20 @@ function assertValid(document, sources) {
   for (const edgeId of operationStateProofEdgeIds) {
     const edge = document.edges.find((item) => item.id === edgeId);
     assert.ok(edge, `${edgeId} remains in the owner-approved edge denominator`);
-    assert.ok(Array.isArray(edge.p1OperationStateProofs), `${edgeId} retains its explicit per-operation proof branch`);
-    assertOperationStateProofs(edge, { operationsById, purposeById, exactStateRefExists, exactObservationRef });
-    assertLocalStepNoP1MachineProofs(edge, {
-      journeyContract: readYaml(edge.journeyContractRef.split("#")[0]),
-      purposeById,
-      localStepEffectsById,
-    });
   }
 
   for (const expected of intended) {
     const edge = document.edges.find((item) => item.journeyRef === expected.journeyId && item.channelRef === expected.channelRef);
     assert.ok(edge, `${expected.taskId} has an edge`);
-    if (Object.hasOwn(edge, "p1OperationStateProofs")) {
-      assertOperationStateProofs(edge, { operationsById, purposeById, exactStateRefExists, exactObservationRef });
-      assertLocalStepNoP1MachineProofs(edge, {
-        journeyContract: readYaml(edge.journeyContractRef.split("#")[0]),
-        purposeById,
-        localStepEffectsById,
-      });
+    if (edge.logicalDefinitionDisposition === "SOURCE_BOUND_DEFINITION_ONLY" || Object.hasOwn(edge, "p1OperationStateProofs")) {
+      assertOperationStateProofs(edge, { operationsById, purposeById, exactStateRefExists, exactObservationRef, journeyOperationBindings: operations.ownerDefinedJourneyOperationBindings?.records ?? [], journeyContract: readYaml(edge.journeyContractRef) });
+      if (Object.hasOwn(edge, "localStepNoP1MachineProofs")) {
+        assertLocalStepNoP1MachineProofs(edge, {
+          journeyContract: readYaml(edge.journeyContractRef.split("#")[0]),
+          purposeById,
+          localStepEffectsById,
+        });
+      }
     }
     for (const field of requiredFields) assert.ok(Object.hasOwn(edge, field), `${edge.id} explicitly exposes ${field}`);
     assert.equal(edge.journeyId, expected.journeyId);
@@ -139,12 +134,16 @@ function assertValid(document, sources) {
     }
     assert.equal(edge.authBindingDisposition, "SOURCE_RULES_REFERENCED; CHANNEL_AUTHENTICATION_AND_TRUSTED_CONTEXT_BINDING_UNBOUND");
     assert.equal(edge.runtimeAdmission, "NOT_ADMITTED", `${edge.id} cannot admit runtime`);
+    const proofOperations = (edge.p1OperationStateProofs ?? []).map((proof) => proof.operationRef);
+    const proofCoverageExact = proofOperations.length === edge.p1OperationBindings.length
+      && new Set(proofOperations).size === proofOperations.length
+      && edge.p1OperationBindings.every((binding) => proofOperations.includes(binding.operationRef));
+    const exactLogicalProof = edge.pdp1OperationRefs.length && proofCoverageExact
+      && !(edge.logicalDefinitionBlockers ?? []).length && edge.pdp2GrammarRef;
     assert.equal(
       edge.logicalDefinitionDisposition,
-      edge.pdp1OperationRefs.length && (edge.pdp1StateOrObservationRefs.length || Object.hasOwn(edge, "p1OperationStateProofs")) && edge.pdp2GrammarRef
-        ? "SOURCE_BOUND_DEFINITION_ONLY"
-        : "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING",
-      `${edge.id} reports exact logical definition coverage without inferring missing state/observation selectors`,
+      exactLogicalProof ? "SOURCE_BOUND_DEFINITION_ONLY" : "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING",
+      `${edge.id} requires one source-bound P1 semantic proof per operation and no unresolved blocker`,
     );
     assert.equal(edge.semanticCompleteness, edge.logicalDefinitionDisposition);
     assert.equal(edge.channelTransportEquivalence, "UNBOUND", `${edge.id} does not overclaim end-to-end channel equivalence`);
@@ -177,7 +176,10 @@ function assertValid(document, sources) {
 
     for (const binding of edge.p1OperationBindings) {
       const p1Operation = operationsById.get(binding.operationRef);
-      assert.equal(binding.operationVersion ?? null, p1Operation.contractVersion ?? null, `${edge.id} preserves the P1 operation version`);
+      const expectedOperationVersion = Number.isSafeInteger(p1Operation.operationVersion)
+        ? p1Operation.operationVersion
+        : Number.isSafeInteger(p1Operation.contractVersion) ? p1Operation.contractVersion : null;
+      assert.equal(binding.operationVersion ?? null, expectedOperationVersion, `${edge.id} preserves the P1 operation version`);
       if (binding.disposition === "SOURCE_BOUND_DEFINITION_ONLY") {
         assert.notEqual(binding.transportRef, "UNBOUND", `${edge.id} has a source-backed transport identity`);
         assert.ok(binding.sourceRefs.length > 0, `${edge.id} transport mapping cites its source`);
@@ -255,8 +257,8 @@ test("MDC30-C channel binding registry covers the owner-approved 61-edge set wit
   assert.equal(registry.status, "SOURCE_BOUND_LOGICAL_DEFINITIONS_PARTIAL; CHANNEL_TRANSPORT_EQUIVALENCE_UNBOUND; RUNTIME_NOT_ADMITTED");
   assert.equal(registry.counts.sourceBoundDefinitionOnlyOperationMappings, 6);
   assert.equal(registry.counts.sourceBoundHttpOperationMappings, 6);
-  assert.equal(registry.counts.logicalDefinitionOnlyEdges, 43);
-  assert.equal(registry.counts.incompleteP1StateOrObservationEdges, 18);
+  assert.equal(registry.counts.logicalDefinitionOnlyEdges, 27);
+  assert.equal(registry.counts.incompleteP1StateOrObservationEdges, 34);
   assert.equal(registry.counts.transportEquivalenceUnboundEdges, 61);
   assert.equal(registry.adversarialFixtureCases.length, 14);
   assert.deepEqual(registry.adversarialFixtureCases.slice(-7).map((fixture) => fixture.id), [
@@ -275,7 +277,7 @@ test("MDC30-C-30 binds exact effective-constraint observations and the local no-
   const observationRef = ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.effective-processing-constraints.v1";
   const localProofSource = ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-30.step-04.v1";
   const observation = sources.operations.ownerTypedObservationContracts.records.find((record) => record.id === "media.observation-contract.effective-processing-constraints.v1");
-  const expectedDimensions = ["qualification", "license", "health", "capability", "rights"];
+  const expectedDimensions = ["qualification", "license", "health", "capability", "rights", "resourceCapacity", "costEstimate"];
   assert.deepEqual(observation.operationRefs, ["media.operation.action.inspect-effective-processing-constraints"]);
   assert.deepEqual(observation.requestSchema.properties.dimensionRefs.items.enum, expectedDimensions);
   assert.deepEqual(observation.resultSchema.properties.observation.properties.dimensions.items.properties.dimension.enum, expectedDimensions);
@@ -444,9 +446,165 @@ function operationProofFixture() {
   return { edge, proof, operation, operationsById, purposeById, exactStateRefExists, exactObservationRef };
 }
 
+function canonicalQueryProofFixture() {
+  const operationRef = "media.operation.fixture.canonical-inspect";
+  const sourceRef = `.product-experience/pdp-1-domain-data/operations.yaml#operations/@id=${operationRef}`;
+  const purposeRef = ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.fixture-canonical-query.v1";
+  const errorRef = ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=DENIED";
+  const operation = {
+    id: operationRef,
+    operationKind: "QUERY",
+    stateRefs: [],
+    resultSchemaRef: `${sourceRef}/resultSchema`,
+    resultSchema: { type: "object", required: ["operationRef", "outputs"], properties: { operationRef: { const: operationRef }, outputs: { type: "array" } } },
+    sourceEffect: "read-only inspect current canonical operation evidence; no mutation",
+    contractVersion: 2,
+    authorityRefs: [".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"],
+    errorSchemaRef: errorRef,
+    recovery: "reconcile current evidence before another read",
+    sourceFinality: "the result is a current read observation only",
+  };
+  const purpose = { id: purposeRef.split("@id=")[1], operationRefs: [operationRef], actionExactOperationRefs: [] };
+  const refs = {
+    result: `${sourceRef}/resultSchema`,
+    effect: `${sourceRef}/sourceEffect`,
+    version: `${sourceRef}/contractVersion`,
+    finality: `${sourceRef}/sourceFinality`,
+    error: `${sourceRef}/errorSchemaRef`,
+    recovery: `${sourceRef}/recovery`,
+    authority: `${sourceRef}/authorityRefs`,
+  };
+  const proof = {
+    operationRef,
+    disposition: "NO_P1_MACHINE_STATE",
+    purposeBindingRefs: [purposeRef],
+    noP1MachineState: {
+      sourceRefs: [sourceRef, ...Object.values(refs)],
+      noEffectRef: refs.effect,
+      resultRef: refs.result,
+      authorityRefs: [...operation.authorityRefs],
+      versionRefs: [refs.version],
+      operationVersion: operation.contractVersion,
+      deniedUnknownRecoveryRefs: [errorRef, refs.recovery, ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME"],
+      finalityRefs: [refs.result, refs.finality],
+    },
+  };
+  const edge = {
+    id: "fixture.canonical-read-query",
+    p1OperationBindings: [{ operationRef, sourceRef }],
+    purposeBindingRefs: [purposeRef],
+    p1OperationStateProofs: [proof],
+  };
+  return {
+    edge,
+    operationsById: new Map([[operationRef, operation]]),
+    purposeById: new Map([[purpose.id, purpose]]),
+    exactStateRefExists: () => false,
+    exactObservationRef: () => undefined,
+  };
+}
+
+function noTransitionCommandFixture(sourcePath = "ownerDefinedOperationContracts/records") {
+  const operationRef = "media.operation.fixture.submit-request";
+  const sourceRef = `.product-experience/pdp-1-domain-data/operations.yaml#${sourcePath}/@id=${operationRef}`;
+  const purposeRef = ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.fixture-submit.v1";
+  const operation = {
+    id: operationRef,
+    operationKind: "COMMAND",
+    stateRefs: [],
+    transitionRefs: [],
+    sourceEffect: "submit one request and return its typed receipt",
+    resultSchema: { type: "object", required: ["outcome", "requestId"], properties: { outcome: { type: "string" }, requestId: { type: "string" } } },
+    contractVersion: 3,
+    authorityRefs: [".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"],
+    errorSchemaRef: ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=DENIED",
+    recovery: "reconcile the same request identity before retrying",
+    finality: "the typed receipt confirms request acceptance only",
+  };
+  const purpose = {
+    id: purposeRef.split("@id=")[1],
+    operationRefs: [operationRef],
+    operationKinds: ["COMMAND"],
+    stateRefs: [],
+    transitionRefs: [],
+    sourceRefs: [sourceRef],
+    transitionDisposition: { status: "NO_P1_MACHINE_TRANSITION", transitionRef: null, reason: "The request result does not assert a machine transition." },
+  };
+  const refs = {
+    result: `${sourceRef}/resultSchema`,
+    version: `${sourceRef}/contractVersion`,
+    finality: `${sourceRef}/finality`,
+    recovery: `${sourceRef}/recovery`,
+    errors: `${sourceRef}/errorSchemaRef`,
+    authority: `${sourceRef}/authorityRefs`,
+  };
+  const proof = {
+    operationRef,
+    disposition: "NO_P1_MACHINE_TRANSITION_TYPED_RESULT",
+    purposeBindingRefs: [purposeRef],
+    noP1MachineTransition: {
+      sourceRefs: [sourceRef, ...Object.values(refs), `${purposeRef}/transitionDisposition`, `${purposeRef}/stateRefs`, `${purposeRef}/transitionRefs`],
+      operationResultRef: refs.result,
+      operationVersion: operation.contractVersion,
+      authorityRefs: [...operation.authorityRefs],
+      versionRefs: [refs.version],
+      deniedUnknownRecoveryRefs: [operation.errorSchemaRef, refs.recovery, ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME"],
+      finalityRefs: [refs.result, refs.finality],
+    },
+  };
+  const edge = {
+    id: "fixture.no-transition-command",
+    p1OperationBindings: [{ operationRef, sourceRef }],
+    purposeBindingRefs: [purposeRef],
+    p1OperationStateProofs: [proof],
+  };
+  return {
+    edge,
+    operationsById: new Map([[operationRef, operation]]),
+    purposeById: new Map([[purpose.id, purpose]]),
+    exactStateRefExists: () => false,
+    exactObservationRef: () => undefined,
+  };
+}
+
 test("MDC30-C accepts an explicit per-operation NO_P1_MACHINE_STATE proof for a source-defined read-only query", () => {
   const fixture = operationProofFixture();
   assertOperationStateProofs(fixture.edge, fixture);
+});
+
+test("MDC30-C accepts exact NO_P1_MACHINE_STATE results from canonical PDP-1 QUERY records", () => {
+  const fixture = canonicalQueryProofFixture();
+  assertOperationStateProofs(fixture.edge, fixture);
+});
+
+test("MDC30-C rejects canonical PDP-1 COMMAND records mislabeled NO_P1_MACHINE_STATE", () => {
+  const fixture = canonicalQueryProofFixture();
+  fixture.operationsById.get("media.operation.fixture.canonical-inspect").operationKind = "COMMAND";
+  assert.throws(() => assertOperationStateProofs(fixture.edge, fixture), /cannot label a command\/write or stateful operation/);
+});
+
+test("MDC30-C rejects canonical QUERY proofs with mismatched exact result or source joins", () => {
+  const resultMismatch = canonicalQueryProofFixture();
+  resultMismatch.edge.p1OperationStateProofs[0].noP1MachineState.resultRef = "invented-result";
+  assert.throws(() => assertOperationStateProofs(resultMismatch.edge, resultMismatch), /exact effect, result, authority, and version/);
+
+  const sourceOmission = canonicalQueryProofFixture();
+  sourceOmission.edge.p1OperationStateProofs[0].noP1MachineState.sourceRefs.pop();
+  assert.throws(() => assertOperationStateProofs(sourceOmission.edge, sourceOmission), /exact operation source fields/);
+
+  const emptyResult = canonicalQueryProofFixture();
+  emptyResult.operationsById.get("media.operation.fixture.canonical-inspect").resultSchema.required = [];
+  assert.throws(() => assertOperationStateProofs(emptyResult.edge, emptyResult), /exact typed result schema/);
+});
+
+test("MDC30-C keeps canonical QUERY no-state proofs exclusive and rejects declared transitions", () => {
+  const dualProof = canonicalQueryProofFixture();
+  dualProof.edge.p1OperationStateProofs[0].noP1MachineTransition = {};
+  assert.throws(() => assertOperationStateProofs(dualProof.edge, dualProof), /explicit and exclusive/);
+
+  const statefulQuery = canonicalQueryProofFixture();
+  statefulQuery.operationsById.get("media.operation.fixture.canonical-inspect").transitionRefs = ["transition-1"];
+  assert.throws(() => assertOperationStateProofs(statefulQuery.edge, statefulQuery), /stateful operation/);
 });
 
 test("MDC30-C rejects empty state selectors without an explicit per-operation proof", () => {
@@ -490,6 +648,120 @@ test("MDC30-C rejects NO_P1_MACHINE_STATE for command/write operations and incom
   const noResult = operationProofFixture();
   noResult.edge.p1OperationStateProofs[0].noP1MachineState.resultRef = "invented-result";
   assert.throws(() => assertOperationStateProofs(noResult.edge, noResult), /typed result/);
+});
+
+test("MDC30-C accepts strict no-transition typed results for source-defined COMMAND records", () => {
+  for (const sourcePath of ["operations", "ownerDefinedOperationContracts/records"]) {
+    const fixture = noTransitionCommandFixture(sourcePath);
+    assertOperationStateProofs(fixture.edge, fixture);
+  }
+});
+
+test("MDC30-C rejects incomplete or mismatched no-transition COMMAND result joins", () => {
+  const attacks = [
+    [(f) => { f.edge.p1OperationBindings[0].sourceRef += "/wrong"; }, /exact source-defined command purpose/],
+    [(f) => { f.edge.p1OperationStateProofs[0].noP1MachineTransition.sourceRefs = []; }, /exact operation, purpose, result/],
+    [(f) => { f.edge.p1OperationStateProofs[0].noP1MachineTransition.operationResultRef = "invented-result"; }, /exact typed result and operation version/],
+    [(f) => { f.edge.p1OperationStateProofs[0].noP1MachineTransition.finalityRefs.pop(); }, /typed result and exact finality/],
+    [(f) => { f.edge.p1OperationStateProofs[0].noP1MachineTransition.deniedUnknownRecoveryRefs.pop(); }, /exact error, unknown, and recovery semantics/],
+    [(f) => { f.operationsById.get("media.operation.fixture.submit-request").recovery = ""; }, /source-defined recovery/],
+    [(f) => { delete f.operationsById.get("media.operation.fixture.submit-request").errorSchemaRef; }, /source-defined version and error/],
+    [(f) => { delete f.operationsById.get("media.operation.fixture.submit-request").contractVersion; }, /source-defined version and error/],
+    [(f) => { f.operationsById.get("media.operation.fixture.submit-request").resultSchema = null; }, /exact typed result/],
+    [(f) => { f.operationsById.get("media.operation.fixture.submit-request").resultSchema.required = []; }, /exact typed result/],
+    [(f) => { f.operationsById.get("media.operation.fixture.submit-request").resultSchema.required = ["missing"]; }, /exact typed result/],
+    [(f) => { f.operationsById.get("media.operation.fixture.submit-request").resultSchema.properties = {}; }, /exact typed result/],
+    [(f) => { f.edge.p1OperationStateProofs[0].noP1MachineState = {}; }, /exact typed result/],
+    [(f) => { f.operationsById.get("media.operation.fixture.submit-request").stateRefs = ["state-ACTIVE"]; }, /no state or transition refs/],
+    [(f) => { f.operationsById.get("media.operation.fixture.submit-request").transitionRefs = ["transition-ACTIVATE"]; }, /no state or transition refs/],
+    [(f) => { f.operationsById.get("media.operation.fixture.submit-request").sourceEffect = "read-only inspection; no effect"; }, /as read-only/],
+    [(f) => { f.purposeById.get("media.pdp3.step-purpose-binding.fixture-submit.v1").transitionDisposition.status = "UNBOUND"; }, /no state or transition refs/],
+    [(f) => { f.purposeById.get("media.pdp3.step-purpose-binding.fixture-submit.v1").stateRefs = ["state-ACTIVE"]; }, /no state or transition refs/],
+    [(f) => { f.purposeById.get("media.pdp3.step-purpose-binding.fixture-submit.v1").sourceRefs = []; }, /no state or transition refs/],
+  ];
+  for (const [mutate, pattern] of attacks) {
+    const fixture = noTransitionCommandFixture();
+    mutate(fixture);
+    assert.throws(() => assertOperationStateProofs(fixture.edge, fixture), pattern);
+  }
+});
+
+function pxd163CanonicalWriteProofFixture(operationId) {
+  const operation = structuredClone(sources.operations.operations.find((item) => item.id === operationId));
+  const binding = structuredClone(sources.operations.ownerDefinedJourneyOperationBindings.records.find((item) => item.operationRef === operationId));
+  const purposeId = operationId === "media.operation.transcription-submission" ? "media.pdp3.step-purpose-binding.j03-step-02.v1"
+    : operationId === "media.operation.caption-version-write" ? "media.pdp3.step-purpose-binding.j03-step-07.v1"
+      : "media.pdp3.step-purpose-binding.j03-step-05.v1";
+  const purpose = structuredClone(sources.journeyPurpose.records.find((item) => item.id === purposeId));
+  const sourceRef = `.product-experience/pdp-1-domain-data/operations.yaml#operations/@id=${operationId}`;
+  const purposeRef = `${journeyPurposePath}#records/@id=${purposeId}`;
+  const bindingRef = `.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=${binding.id}`;
+  const resultRef = `${sourceRef}/ownerWireSchema/resultSchema`;
+  const sourceRefs = [sourceRef, resultRef, `${sourceRef}/version`, `${sourceRef}/finality`, `${sourceRef}/recovery`, `${sourceRef}/error`, `${sourceRef}/ownerWireSchema`, bindingRef, `${bindingRef}/authorityRefs`, `${purposeRef}/transitionDisposition`, `${purposeRef}/stateRefs`, `${purposeRef}/transitionRefs`];
+  const proof = {
+    operationRef: operationId,
+    disposition: "NO_P1_MACHINE_TRANSITION_TYPED_RESULT",
+    purposeBindingRefs: [purposeRef],
+    noP1MachineTransition: {
+      sourceRefs,
+      operationResultRef: resultRef,
+      operationVersion: operation.version,
+      authorityRefs: [...binding.authorityRefs],
+      versionRefs: [`${sourceRef}/version`],
+      deniedUnknownRecoveryRefs: [`${sourceRef}/error`, `${sourceRef}/recovery`, ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME"],
+      finalityRefs: [resultRef, `${sourceRef}/finality`],
+    },
+  };
+  return {
+    edge: { id: `fixture.pxd163.${operationId}`, p1OperationBindings: [{ operationRef: operationId, sourceRef }], purposeBindingRefs: [purposeRef], p1OperationStateProofs: [proof] },
+    operationsById: new Map([[operationId, operation]]),
+    purposeById: new Map([[purposeId, purpose]]),
+    journeyOperationBindings: [binding],
+    exactStateRefExists: () => false,
+    exactObservationRef: () => undefined,
+  };
+}
+
+test("MDC30-C03 consumes exact nested owner wire results for its three canonical writes", () => {
+  for (const operationId of ["media.operation.transcription-submission", "media.operation.caption-draft-write", "media.operation.caption-version-write"]) {
+    const fixture = pxd163CanonicalWriteProofFixture(operationId);
+    assertOperationStateProofs(fixture.edge, fixture);
+  }
+});
+
+test("MDC30-C03 rejects malformed source, invented state/transition, partial purpose, and omitted proof obligations", () => {
+  const attacks = [
+    [(f) => { f.edge.p1OperationBindings[0].sourceRef = ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.invented"; }, /no-transition command proof requires an exact source-defined command purpose/],
+    [(f) => { f.operationsById.get("media.operation.caption-draft-write").ownerWireSchema.resultSchema = null; }, /exact typed result/],
+    [(f) => { f.journeyOperationBindings[0].wireSchemaRef += "/invented"; }, /exact canonical operation and owner journey-operation binding/],
+    [(f) => { f.operationsById.get("media.operation.caption-draft-write").stateRefs = ["media.state.invented"]; f.journeyOperationBindings[0].stateRefs = ["media.state.invented"]; }, /no state or transition refs/],
+    [(f) => { f.operationsById.get("media.operation.caption-draft-write").transitionRefs = ["media.transition.invented"]; }, /no state or transition refs/],
+    [(f) => { const ref = ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j03-step-01.v1"; f.edge.purposeBindingRefs.push(ref); f.edge.p1OperationStateProofs[0].purposeBindingRefs = [ref]; }, /wrong purpose-to-operation join/],
+    [(f) => { f.edge.p1OperationStateProofs[0].noP1MachineTransition.authorityRefs = []; }, /exact operation authority set/],
+    [(f) => { f.edge.p1OperationStateProofs[0].noP1MachineTransition.versionRefs = []; }, /exact typed result and operation version/],
+    [(f) => { f.edge.p1OperationStateProofs[0].noP1MachineTransition.finalityRefs = []; }, /typed result and exact finality/],
+    [(f) => { f.edge.p1OperationStateProofs[0].noP1MachineTransition.deniedUnknownRecoveryRefs = []; }, /exact error, unknown, and recovery semantics/],
+    [(f) => { f.operationsById.get("media.operation.caption-draft-write").recovery = ""; }, /source-defined recovery/],
+    [(f) => { f.operationsById.get("media.operation.caption-draft-write").error = undefined; }, /source-defined version and error/],
+  ];
+  for (const [mutate, pattern] of attacks) {
+    const fixture = pxd163CanonicalWriteProofFixture("media.operation.caption-draft-write");
+    mutate(fixture);
+    assert.throws(() => assertOperationStateProofs(fixture.edge, fixture), pattern);
+  }
+});
+
+test("MDC30-C03 caption comparison result schema preserves only its two source-defined output branches", () => {
+  const operation = sources.operations.operations.find((item) => item.id === "media.operation.caption-version-read");
+  const schema = operation.resultSchema;
+  assert.ok(schema && Array.isArray(schema.oneOf) && schema.oneOf.length === 2);
+  for (const branch of ["EXACT_PAIR", "REGISTRATION_REQUEST"]) {
+    const sourceFields = operation.outputSemantics[branch].requiredFields;
+    const schemaBranch = schema.oneOf.find((candidate) => sourceFields.every((field) => candidate.required.includes(field)));
+    assert.ok(schemaBranch, `${branch} keeps every outputSemantics required field`);
+  }
+  assert.equal(schema.properties?.outcome, undefined);
+  assert.equal(operation.outputSemantics.registrationRequestRules.includes("UNKNOWN_OUTCOME"), true);
 });
 
 test("MDC30-C accepts local session draft proofs only with exact no-domain-transition source contracts", () => {
@@ -540,6 +812,37 @@ test("MDC30-C accepts local session draft proofs only with exact no-domain-trans
     purposeById: new Map([[purpose.id, purpose]]),
     localStepEffectsById: effects,
   }), /every source-defined local session step/);
+
+  const j03Edge = readYaml(registryPath).edges.find((item) => item.id === "media.pdp3.channel-binding.j03.web.v1");
+  const j03ContractPath = j03Edge.journeyContractRef.split("#")[0];
+  const j03Purpose = readYaml(journeyPurposePath).records.find((item) => item.id === "media.pdp3.step-purpose-binding.j03-step-01.v1");
+  const j03PurposeById = new Map([[j03Purpose.id, j03Purpose]]);
+  const checkJ03 = (contract = readYaml(j03ContractPath), effectChanges = () => {}) => {
+    const j03Effects = new Map(readYaml(localStepEffectPath).records.map((record) => [record.id, structuredClone(record)]));
+    effectChanges(j03Effects.get("media.local-step-effect.j-03.step-01.v1"));
+    assertLocalStepNoP1MachineProofs(j03Edge, {
+      journeyContract: contract,
+      purposeById: j03PurposeById,
+      localStepEffectsById: j03Effects,
+    });
+  };
+  assert.doesNotThrow(() => checkJ03(), "selected ArtifactVersionRef may be named without implying a canonical state mutation");
+
+  for (const mutate of [
+    (contract) => { contract.steps[0].stepDefinitionSemantics.transitionApplicability.transitionRef = "invented-transition"; },
+    (contract) => { contract.steps[0].stepDefinitionSemantics.transitionApplicability.stateRefs = ["invented-state"]; },
+    (contract) => {
+      contract.steps[0].stepDefinitionSemantics.transitionApplicability.operationRef = "media.operation.caption-version-write";
+      contract.steps[0].stepDefinitionSemantics.action.exactOperationRefs = ["media.operation.caption-version-write"];
+      contract.steps[0].stepDefinitionSemantics.canonicalBindings.canonicalOperationRef = "media.operation.caption-version-write";
+    },
+  ]) {
+    const contract = readYaml(j03ContractPath);
+    mutate(contract);
+    assert.throws(() => checkJ03(contract), /exact source-defined local-only effect/);
+  }
+  assert.throws(() => checkJ03(undefined, (effect) => { effect.effect.remoteDispatch = "dispatch"; }), /exact source-defined local-only effect/);
+  assert.throws(() => checkJ03(undefined, (effect) => { effect.effect.committedMediaObjects = "changed"; }), /exact source-defined local-only effect/);
 });
 
 test("MDC30-C J-06 binds all channel operation roles to the exact request-only no-transition result", () => {

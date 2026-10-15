@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "media.discovery-required-check-outcomes.v1",
+  "recordId": "MEDIA-DISCOVERY-PDP0-R7-REQUIRED-CHECKS-2026-10-14",
+  "phase": "PDP-0",
+  "testOutcomes": [
+    {
+      "command": "pnpm check:physical-topology",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm test:physical-topology",
+      "status": "PASS",
+      "exitCode": 0,
+      "testCount": 13,
+      "passedCount": 13,
+      "failedCount": 0,
+      "skippedCount": 0
+    },
+    {
+      "command": "pnpm check:product-definition-authority",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm check:product-experience-local",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    {
+      "command": "node --test tests/media-discovery-currentness.test.mjs tests/media-discovery-pdp0-phase-exit.test.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "testCount": 26,
+      "passedCount": 26,
+      "failedCount": 0,
+      "skippedCount": 0
+    }
+  ]
+}

@@ -1769,7 +1769,26 @@ steps:
       canonicalBindings:
         surfaceRefs: []
         objectRefs: []
-        stateRefs: []
+        stateRefs:
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RUNNING
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RETRY_PENDING
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/OUTCOME_UNKNOWN
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RECONCILING
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/COMPLETED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/PARTIALLY_SUCCEEDED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/FAILED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/CANCELLED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CLAIMED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/DISPATCH_INTENT_RECORDED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/DISPATCHED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/RUNNING
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_REQUESTED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUCCEEDED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/FAILED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_CONFIRMED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/OUTCOME_UNKNOWN
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUPERSEDED
         canonicalOperationRef: media.operation-slice.cancel-job
         authorityRef: null
         transitionRef: null
@@ -2160,7 +2179,26 @@ steps:
       canonicalBindings:
         surfaceRefs: []
         objectRefs: []
-        stateRefs: []
+        stateRefs:
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RUNNING
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RETRY_PENDING
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/OUTCOME_UNKNOWN
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RECONCILING
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/COMPLETED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/PARTIALLY_SUCCEEDED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/FAILED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/CANCELLED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CLAIMED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/DISPATCH_INTENT_RECORDED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/DISPATCHED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/RUNNING
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_REQUESTED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUCCEEDED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/FAILED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_CONFIRMED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/OUTCOME_UNKNOWN
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUPERSEDED
         canonicalOperationRef: media.operation-slice.retry-job
         authorityRef: null
         transitionRef: null

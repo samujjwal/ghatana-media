@@ -5,6 +5,12 @@ import path from 'node:path';
 import test from 'node:test';
 import { captureRepositorySourceCurrentness as captureRepository } from '@ghatana/verification-planner';
 import { observeMediaDiscoveryCurrentness, resolveMediaPdp0Cells } from '../scripts/media-discovery-currentness.mjs';
+import {
+  assertMediaPdp0CurrentnessOutputAvailable,
+  classifyMediaPdp0R11SuccessorImpact,
+  mediaPdp0R11SuccessorSupportFileHashes,
+  resolveMediaPdp0CurrentnessOutputPath,
+} from '../scripts/record-media-discovery-pdp0-currentness.mjs';
 
 const dimensions = {
   ownerGraphFingerprint: digest('a'),
@@ -27,6 +33,110 @@ function fixture() {
 }
 
 function digest(char) { return `sha256:${char.repeat(64)}`; }
+
+test('PDP-0 successor currentness selects immutable R10 output and refuses overwrite before capture', () => {
+  const legacyPath = resolveMediaPdp0CurrentnessOutputPath(false);
+  const successorPath = resolveMediaPdp0CurrentnessOutputPath(true);
+  const r11SuccessorPath = resolveMediaPdp0CurrentnessOutputPath(true, '2026-10-14-current-cut-r12');
+  assert.equal(legacyPath, 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json');
+  assert.equal(successorPath, 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r10.json');
+  assert.equal(r11SuccessorPath, 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json');
+  assert.notEqual(successorPath, legacyPath);
+  const checked = assertMediaPdp0CurrentnessOutputAvailable(successorPath, () => false);
+  assert.ok(checked.endsWith(successorPath));
+  assert.throws(() => assertMediaPdp0CurrentnessOutputAvailable(successorPath, () => true), /Refusing to overwrite immutable observation/);
+});
+
+test('PDP-0 R11 successor classifier accepts only the exact PDP-1 generated projection delta', () => {
+  const exitPath = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r11.json';
+  const currentnessPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r11.json';
+  const impactPath = 'docs/implementation/observations/media-discovery-pdp0-r11-successor-impact-2026-10-14-r1.json';
+  const exit = JSON.parse(fs.readFileSync(path.join(process.cwd(), exitPath), 'utf8'));
+  const currentness = JSON.parse(fs.readFileSync(path.join(process.cwd(), currentnessPath), 'utf8'));
+  const candidatePath = '.product-experience/pdp-0-product-truth/generated/product-definition.candidate.json';
+  const oldDigest = 'sha256:13c0789a6fa94c51abfbc60da8465e340406947a3f5a1dff4ec5a37bcef7e341';
+  const newDigest = 'sha256:6cfb42b2fbf2e24ca904ab93ca98c905a6b892069f811f2f73166d7dc7e8de49';
+  const topology = { physicalCandidates: 26, semanticCompositions: 6, repositoryRoots: 1, consumers: 17, totalCells: 50 };
+  const comparisons = Object.keys(exit.sourceCurrentness.sourceContentDigests).sort().map((sourcePath) => ({
+    path: sourcePath,
+    recordedDigest: exit.sourceCurrentness.sourceContentDigests[sourcePath],
+    currentDigest: sourcePath === candidatePath ? newDigest : exit.sourceCurrentness.sourceContentDigests[sourcePath],
+    disposition: sourcePath === candidatePath ? 'CHANGED' : 'MATCH',
+  }));
+  assert.deepEqual(comparisons.filter((entry) => entry.disposition === 'CHANGED').map((entry) => entry.path), [candidatePath]);
+  for (const supportPath of [
+    'scripts/record-media-discovery-pdp0-currentness.mjs',
+    'scripts/lib/media-discovery-pdp0-phase-exit.mjs',
+    'tests/media-discovery-currentness.test.mjs',
+    'tests/media-discovery-pdp0-phase-exit.test.mjs',
+  ]) assert.equal(Object.hasOwn(exit.sourceCurrentness.sourceContentDigests, supportPath), false);
+  const technical = {
+    physicalCompositeConsumerCells: currentness.physicalCompositeConsumerCells,
+    denominators: topology,
+    materialPathDenominator: { uniquePaths: 146 },
+    lifecycleSourceCurrentness: { continuity: 'CONTINUOUS', consistencyStable: true, zeroWorkEligibleAtCapture: true },
+  };
+  const impact = {
+    schemaVersion: 'media.discovery.pdp0-successor-source-impact.v1',
+    recordId: 'MEDIA-DISCOVERY-PDP0-R11-SUCCESSOR-IMPACT-2026-10-14-R1',
+    campaign: {
+      repository: 'samujjwal/ghatana-media', stage: 'DISCOVERY', activePhase: 'PDP-0',
+      scope: 'Exact R11-to-successor PDP-1 generated decision-source inventory projection; no PDP-0 meaning change.',
+    },
+    authority: {
+      decisionRole: 'SCOPED_INTERNAL_PDP0_SOURCE_IMPACT_REVIEW',
+      humanIndependentSignatureProvided: false,
+      externalContractOwnerAcceptanceProvided: false,
+      nativeLifecycleReceiptProvided: false,
+    },
+    predecessorCut: {
+      phase: 'PDP-0', exitRef: exitPath,
+      exitSha256: 'sha256:fe8e73184cf385328a4974a9a3b2aad84ff9033fb999c80c10f49c3db066c4ea',
+      currentnessRef: currentnessPath,
+      currentnessSha256: 'sha256:b6986cd2e93241c9962d1215977c99f899949f87da15a72d8087e6ad130d7026',
+      materialSourceSetFingerprint: 'sha256:d9fc2839dc341cb05250e31093a2250678a9004febffaf290d4852e29f7282f1',
+      materialPathCount: 146, topology,
+    },
+    sourceDeltas: [{
+      path: candidatePath,
+      phase: 'PDP-1',
+      classification: 'PDP1_DECISION_SOURCE_INVENTORY_PROJECTION_NO_PDP0_MEANING',
+      predecessorSha256: oldDigest,
+      observedSha256: newDigest,
+      pdp0MeaningChange: 'NONE',
+      pdp0MeaningIdsChanged: [],
+      freshCurrentnessRequired: true,
+    }],
+    decision: {
+      status: 'INTERNAL_SCOPED_NO_PDP0_MEANING_CHANGE_FOR_EXACT_R11_DELTA',
+      pdp0MeaningDisposition: 'NO_PDP0_MEANING_CHANGE', ownerAcceptance: 'NOT_CLAIMED',
+      independentSignoff: 'NOT_CLAIMED', lifecycleClosure: 'NOT_ENTERED', runtime: 'NOT_ADMITTED',
+      delivery: 'BLOCKED', release: 'NOT_AUTHORIZED', freshTechnicalCurrentness: 'REQUIRED',
+    },
+    limitations: 'This scoped internal disposition covers only the exact R11 generated candidate transition as a PDP-1 decision-source inventory projection with no PDP-0 meaning change. It does not claim owner acceptance, independent signoff, native Lifecycle receipt or closure, runtime admission, Delivery readiness, or release authorization.',
+    supportFileSha256s: mediaPdp0R11SuccessorSupportFileHashes(),
+  };
+  const classify = (changed = impact, candidatePathOverride = impactPath) => classifyMediaPdp0R11SuccessorImpact(
+    comparisons, changed, candidatePathOverride, technical,
+    { recordBytes: Buffer.from(JSON.stringify(changed)), priorExit: exit, priorCurrentness: currentness },
+  );
+  assert.equal(classify()?.path, candidatePath);
+  assert.equal(classify({ ...impact, predecessorCut: { ...impact.predecessorCut, exitSha256: 'sha256:' + '0'.repeat(64) } }), null);
+  assert.equal(classify({ ...impact, predecessorCut: { ...impact.predecessorCut, exitRef: 'docs/implementation/observations/wrong-predecessor.json' } }), null);
+  assert.equal(classify({ ...impact, predecessorCut: { ...impact.predecessorCut, currentnessSha256: 'sha256:' + '0'.repeat(64) } }), null);
+  assert.equal(classify({ ...impact, decision: { ...impact.decision, status: 'OWNER_ACCEPTED' } }), null);
+  const missingStatus = { ...impact, decision: { ...impact.decision } };
+  delete missingStatus.decision.status;
+  assert.equal(classify(missingStatus), null);
+  assert.equal(classify({ ...impact, sourceDeltas: [{ ...impact.sourceDeltas[0], observedSha256: 'sha256:' + '0'.repeat(64) }] }), null);
+  assert.equal(classify(impact, 'docs/implementation/observations/wrong-record.json'), null);
+  assert.equal(classify({ ...impact, sourceDeltas: [...impact.sourceDeltas, { ...impact.sourceDeltas[0], path: 'unexpected.md' }] }), null);
+  assert.equal(classify({ ...impact, supportFileSha256s: { ...impact.supportFileSha256s, 'scripts/record-media-discovery-pdp0-currentness.mjs': 'sha256:' + '0'.repeat(64) } }), null);
+  assert.equal(classify({ ...impact, supportFileSha256s: { ...impact.supportFileSha256s, 'unexpected-support.mjs': 'sha256:' + '0'.repeat(64) } }), null);
+  const missingSupportPin = { ...impact, supportFileSha256s: { ...impact.supportFileSha256s } };
+  delete missingSupportPin.supportFileSha256s['tests/media-discovery-pdp0-phase-exit.test.mjs'];
+  assert.equal(classify(missingSupportPin), null);
+});
 
 test('journal reset performs full validation and fails closed until continuity resumes', () => {
   const { root, cell } = fixture();

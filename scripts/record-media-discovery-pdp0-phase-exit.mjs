@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { captureRepositorySourceCurrentness } from '@ghatana/verification-planner';
-import { joinMediaPdp0PhaseExit } from './lib/media-discovery-pdp0-phase-exit.mjs';
+import { joinMediaPdp0PhaseExit, parseMediaPdp0PhaseExitArgs, resolveMediaPdp0SuccessorPredecessorRefs } from './lib/media-discovery-pdp0-phase-exit.mjs';
 import { buildMediaPdp0CurrentnessObservation } from './record-media-discovery-pdp0-currentness.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -11,23 +11,35 @@ const defaultOwnerInput = 'docs/implementation/observations/media-discovery-curr
 const legacyHistoricalPdp0ExitInput = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json';
 const currentCutHistoricalPdp0ExitInput = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r2.json';
 const currentCutImpactInput = 'docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r1.json';
-const suffix = process.argv[2] ?? '2026-10-13-r2';
-const outcomesPath = process.argv[3];
-const currentCutImpactMode = process.argv[4] === '--current-cut-impact';
-const ownerInput = currentCutImpactMode ? currentCutImpactInput : process.argv[4] ?? defaultOwnerInput;
-const historicalPdp0ExitInput = currentCutImpactMode ? currentCutHistoricalPdp0ExitInput : legacyHistoricalPdp0ExitInput;
+const r8HistoricalPdp0ExitInput = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r8.json';
+const r10HistoricalPdp0ExitInput = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r10.json';
+const r11HistoricalPdp0ExitInput = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r11.json';
+const { suffix, outcomesPath, currentCutImpactMode, additionalImpactPath, successorImpactMode, successorImpactPath, legacyOwnerInputPath } = parseMediaPdp0PhaseExitArgs(process.argv);
+const ownerInput = currentCutImpactMode ? currentCutImpactInput : successorImpactMode ? successorImpactPath : legacyOwnerInputPath ?? defaultOwnerInput;
+const successorPredecessorRefs = successorImpactMode
+  ? resolveMediaPdp0SuccessorPredecessorRefs(JSON.parse(fs.readFileSync(path.resolve(root, ownerInput), 'utf8')).recordId)
+  : null;
+const historicalPdp0ExitInput = currentCutImpactMode ? currentCutHistoricalPdp0ExitInput : successorImpactMode
+  ? successorPredecessorRefs.exitRef
+  : legacyHistoricalPdp0ExitInput;
 
 if (!/^[a-z0-9-]+$/u.test(suffix) || !outcomesPath) {
-  process.stderr.write('Usage: node scripts/record-media-discovery-pdp0-phase-exit.mjs <fresh-cut-suffix> <test-outcomes-json> [owner-directions-json|--current-cut-impact]\n');
+  process.stderr.write('Usage: node scripts/record-media-discovery-pdp0-phase-exit.mjs <fresh-cut-suffix> <test-outcomes-json> [owner-directions-json|--current-cut-impact <additional-source-impact-json>|--successor-impact <successor-impact-json>]\n');
   process.exitCode = 2;
 } else {
   const readJson = (relativePath) => JSON.parse(fs.readFileSync(path.resolve(root, relativePath), 'utf8'));
   const outcomeRecord = JSON.parse(fs.readFileSync(path.resolve(outcomesPath), 'utf8'));
   if (!Array.isArray(outcomeRecord.testOutcomes)) throw new TypeError('Test-outcomes JSON must contain a testOutcomes array');
+  const technicalPath = `docs/implementation/observations/media-discovery-pdp0-currentness-${suffix}.json`;
+  const exitPath = `docs/implementation/observations/media-discovery-pdp0-exit-${suffix}.json`;
+  for (const relativePath of [technicalPath, exitPath]) {
+    if (fs.existsSync(path.resolve(root, relativePath))) throw new Error(`Refusing to overwrite immutable observation: ${relativePath}`);
+  }
 
   // The first build gives the exact dimension set and allows Lifecycle to
   // observe the just-committed repository membership before the final capture.
-  const initial = buildMediaPdp0CurrentnessObservation({ preserveExistingObservedAt: false }).observation;
+  const initial = buildMediaPdp0CurrentnessObservation({ preserveExistingObservedAt: false, additionalImpactPath, successorImpactPath,
+    observationOutputPath: technicalPath }).observation;
   const firstCell = initial.physicalCompositeConsumerCells[0];
   const dimensions = {
     ownerGraphFingerprint: firstCell?.ownerGraphFingerprint,
@@ -49,27 +61,27 @@ if (!/^[a-z0-9-]+$/u.test(suffix) || !outcomesPath) {
     removals: capture.journal?.membershipRemovals?.length ?? null,
     changedPathCount: capture.journal?.changedPaths?.length ?? null,
   }));
-  const { observation: technicalCurrentness } = buildMediaPdp0CurrentnessObservation({ preserveExistingObservedAt: false });
-  technicalCurrentness.observationId = `MEDIA-PDP0-CURRENTNESS-${suffix.toUpperCase()}`;
+  const { observation: technicalCurrentness } = buildMediaPdp0CurrentnessObservation({ preserveExistingObservedAt: false, additionalImpactPath, successorImpactPath,
+    observationOutputPath: technicalPath });
+  if (!successorImpactMode) technicalCurrentness.observationId = `MEDIA-PDP0-CURRENTNESS-${suffix.toUpperCase()}`;
   technicalCurrentness.capturePreparation = {
     lifecyclePriming,
     purpose: 'Establish a stable post-commit Lifecycle source snapshot before the exact phase-cell capture.',
   };
   const ownerAcceptance = readJson(ownerInput);
+  const additionalSourceImpact = additionalImpactPath ? readJson(additionalImpactPath) : null;
   const historicalPdp0Exit = readJson(historicalPdp0ExitInput);
   const baselineSha = technicalCurrentness.campaign.observedHead;
   const exit = joinMediaPdp0PhaseExit({
     technicalCurrentness,
     ownerAcceptance,
+    ownerAcceptancePath: ownerInput,
+    additionalSourceImpact,
+    additionalSourceImpactPath: additionalImpactPath,
     historicalPdp0Exit,
     testOutcomes: outcomeRecord.testOutcomes,
     baselineSha,
   });
-  const technicalPath = `docs/implementation/observations/media-discovery-pdp0-currentness-${suffix}.json`;
-  const exitPath = `docs/implementation/observations/media-discovery-pdp0-exit-${suffix}.json`;
-  for (const relativePath of [technicalPath, exitPath]) {
-    if (fs.existsSync(path.resolve(root, relativePath))) throw new Error(`Refusing to overwrite immutable observation: ${relativePath}`);
-  }
   const writeImmutable = (relativePath, value) => {
     const absolute = path.resolve(root, relativePath);
     fs.mkdirSync(path.dirname(absolute), { recursive: true });

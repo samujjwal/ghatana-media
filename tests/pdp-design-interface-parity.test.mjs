@@ -1043,8 +1043,8 @@ test("client callbacks and UI action intents are not canonical lifecycle events"
 
 test("all UI action effect contracts are source-exact and stay separate from operation acceptance", () => {
   const inventory = parity.typedUiActionSemantics;
-  assert.equal(inventory.length, 146);
-  assert.equal(actionRegistry.actions.length, 146);
+  assert.equal(inventory.length, 147);
+  assert.equal(actionRegistry.actions.length, 147);
   const sourceById = new Map(actionRegistry.actions.map((entry) => [entry.id, entry]));
   const seen = new Set();
   for (const entry of inventory) {

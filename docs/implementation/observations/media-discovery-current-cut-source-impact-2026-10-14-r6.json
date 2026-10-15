@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "media.discovery-pdp1-additional-source-impact.v1",
+  "recordId": "MEDIA-DISCOVERY-PDP1-TEST-CENSUS-IMPACT-2026-10-14-R6",
+  "observedAt": "2026-10-14T15:14:37Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "stage": "DISCOVERY",
+    "phase": "PDP-1",
+    "scope": "Exact source-impact disposition for the changed PDP-1 status test; test expectation updates a structural census count only."
+  },
+  "authority": {
+    "delegate": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION",
+    "decisionRole": "SCOPED_INTERNAL_MEDIA_SOURCE_IMPACT_REVIEW",
+    "userAuthorization": "Authorize scoped impact disposition (Recommended)",
+    "authorizationEvidence": {
+      "channel": "DIRECT_USER_REPLY_IN_CURRENT_TASK",
+      "exactResponse": "Authorize scoped impact disposition (Recommended)",
+      "authorizedPath": "tests/media-pdp-p1-dev-status.test.mjs",
+      "predecessorSha256": "sha256:3ff1576a4a3987f5b1e05d15ae77e35a62745260e127ebcb28c1bb49ef7ef82e",
+      "observedSha256": "sha256:5201e4b1915f35594641f8683ee3c499bb563259ed5f3387f027ce787bf0899d"
+    },
+    "authorizationContext": "The user directly authorized this scoped impact disposition for exact path tests/media-pdp-p1-dev-status.test.mjs as part of PDP-1 material changes, with the direction that the changed files add no PDP-0/PDP-1 product meaning and technically recapture.",
+    "humanIndependentSignatureProvided": false,
+    "externalContractOwnerAcceptanceProvided": false,
+    "nativeLifecycleReceiptProvided": false
+  },
+  "parentImpact": {
+    "ref": "docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r1.json",
+    "recordId": "MEDIA-DISCOVERY-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R1",
+    "sha256": "sha256:1530e22dfb8c60296123ec95d494c53fc2f5ff81be7c8fc47bf0252661d2655b"
+  },
+  "sourceDelta": {
+    "path": "tests/media-pdp-p1-dev-status.test.mjs",
+    "phase": "PDP-1",
+    "predecessorSha256": "sha256:3ff1576a4a3987f5b1e05d15ae77e35a62745260e127ebcb28c1bb49ef7ef82e",
+    "observedSha256": "sha256:5201e4b1915f35594641f8683ee3c499bb563259ed5f3387f027ce787bf0899d",
+    "classification": "STRUCTURAL_REGRESSION_TEST_CENSUS_EXPECTATION_CORRECTION",
+    "changeSummary": "Updates the PDP-1 status test's expected capabilityInputPayloadSchemas census count from 128 to 129. This is a test expectation/census correction only and does not change product definitions, contracts, behavior, or meaning.",
+    "meaningChange": "NONE",
+    "meaningIdsChanged": [],
+    "requiresFreshCurrentness": true
+  },
+  "decision": {
+    "status": "INTERNAL_SCOPED_IMPACT_DISPOSITION",
+    "pdp1MeaningDisposition": "NO_PRODUCT_MEANING_CHANGE_FOR_EXACT_TEST_FILE_DELTA",
+    "preserveHistoricalReceipts": true,
+    "freshTechnicalCurrentnessRecapture": "REQUIRED",
+    "ownerAcceptance": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "nativePdpClosure": "NOT_ENTERED",
+    "delivery": "NOT_AUTHORIZED",
+    "release": "NOT_AUTHORIZED"
+  },
+  "limitation": "This internal, user-authorized disposition covers only the exact test path and hashes above. It records a structural census-test correction with zero PDP-1 meaning IDs. It does not provide external or independent signoff, runtime admission, PDP closure, delivery, or release authorization; fresh PDP-1 technical currentness must be established for the changed source."
+}

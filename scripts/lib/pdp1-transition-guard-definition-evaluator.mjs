@@ -31,6 +31,24 @@ const canonicalUtc = (value) => typeof value === "string" && /^\d{4}-\d{2}-\d{2}
 const exactKeys = (value, expected) => value !== null && typeof value === "object" && !Array.isArray(value)
   && JSON.stringify(Object.keys(value).sort()) === JSON.stringify([...expected].sort());
 
+function specializeDecisionKindContract(contract, decisionKind) {
+  const specialize = (schema) => {
+    if (!Array.isArray(schema?.allOf)) return schema;
+    const allOf = schema.allOf.filter((branch) => {
+      const condition = branch?.if;
+      const properties = condition?.properties;
+      return !(condition?.required?.includes("decisionKind") && properties && Object.keys(properties).length === 1 &&
+        properties.decisionKind?.const && properties.decisionKind.const !== decisionKind);
+    });
+    if (allOf.length === 0) {
+      const { allOf: _allOf, ...unconditional } = schema;
+      return unconditional;
+    }
+    return { ...schema, allOf };
+  };
+  return { ...contract, requestSchema: specialize(contract.requestSchema), resultSchema: specialize(contract.resultSchema) };
+}
+
 function evaluateConsentPerEffectCurrent(facts) {
   const trusted = facts.trustedConsentContext;
   const read = facts.typedOwnerFacts?.consentPerEffectCurrent;
@@ -74,7 +92,7 @@ function evaluateConsentPerEffectCurrent(facts) {
     const rightsTrusted = { tenantScopeRef: trusted.tenantScopeRef, principalRef: trusted.principalRef,
       expectedOperationRef: "media.operation.action.inspect-consent-and-permitted-use",
       expectedReadAuthorityRef: trusted.expectedRightsAuthorityRef, expectedReadVersion: trusted.expectedRightsReadVersion };
-    const rightsCurrent = validateTypedObservationCurrentRead({ contract: RIGHTS_DECISION_CONTRACT, request, result,
+    const rightsCurrent = validateTypedObservationCurrentRead({ contract: specializeDecisionKindContract(RIGHTS_DECISION_CONTRACT, "CONSENT"), request, result,
       trusted: rightsTrusted, now: trusted.now, maxAgeMs: trusted.maxAgeMs });
     const decision = result.decision;
     const dispositionMapping = RIGHTS_DECISION_CONTRACT.decisionKindStateMapping?.find((row) =>

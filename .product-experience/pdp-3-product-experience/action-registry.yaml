@@ -8092,6 +8092,7 @@ actions:
   label: Reconcile delivery acknowledgment
   intentTexts:
     - reconcile uncertain acknowledgment
+    - reconcile destination acknowledgment for the same delivery request, artifact version, and destination
   actorRefs:
     - media.creator
     - media.editor
@@ -8100,6 +8101,7 @@ actions:
   handoffRefs: []
   viewRefs:
     - media.view.deliver-output
+    - media.view.job-status
   journeyRefs:
     - J-09
     - J-22
@@ -8172,6 +8174,9 @@ actions:
         scopeStatus: Media-owner-defined exact logical operation; independent PDP1/PDP3 review open;
           transport/runtime NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
+      observationContractRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
+      observationBindingBoundary: Match the immutable delivery request result, delivery request ID and fingerprint, exact artifact version, and destination; current authoritative ACK evidence alone establishes acknowledgment. UNKNOWN is neither success nor failure and does not authorize retry.
       operationRef: media.operation.action.reconcile-delivery-acknowledgment
       orderedOperationRefs: []
     sourceEnvelope:
@@ -15810,6 +15815,78 @@ actions:
   requirementRefs: []
   capabilityBindingStatus: NO_SCREEN_ACTION_CONSEQUENCE_CROSSWALK
   capabilityCrosswalkSources: []
+- id: media.action.confirm-selected-fallback
+  label: Confirm this fallback
+  intentTexts:
+    - explicitly confirm the named versioned fallback for the existing job
+  actorRefs:
+    - media.creator
+    - media.editor
+    - media.operator
+  capabilityRefs: []
+  capabilityBindingState: owner-approved-capability-mapping-pending
+  handoffRefs: []
+  viewRefs:
+    - media.view.review-quality
+  journeyRefs:
+    - J-27
+  preconditions:
+    - exact-original-job-and-submission-request-snapshot-are-current
+    - exact-seven-dimension-job-status-is-current-and-matches-the-original-job
+    - explicitly-named-versioned-alternative-and-candidate-artifact-are-exact
+    - candidate-specific-current-rights-license-quality-resource-and-cost-evidence-is-positive
+    - caller-resource-budget-is-only-a-ceiling-not-capacity-evidence
+    - explicit-confirmation-matches-the-original-request-and-selected-alternative
+  confirmation: Show the exact versioned alternative and its candidate-bound evidence; require a separate explicit confirmation bound to the original job and request snapshot.
+  effect: Record a separately confirmed versioned fallback selection for the same job and request snapshot; do not dispatch or retry processing.
+  affectedObjects: exact original processing job, request snapshot, and selected candidate artifact version
+  reversible: false
+  finality: explicit-selection-receipt-only; no execution, completion, approval, or delivery
+  outcomes:
+    - success
+    - failure
+    - outcome-unknown
+  failure: Preserve original identities and evidence; unknown or stale status does not imply failure or authorize resubmission.
+  retry: Reconcile the same confirmation request ID and fingerprint; never blindly resubmit an unknown outcome.
+  cancellation: Not applicable after selection request; dispatch remains separate.
+  recovery: Reconcile the same confirmation identity; a selection receipt does not imply processing dispatch or success.
+  provenance: Bind actor, original job/request snapshot, selected alternative, candidate version, and exact current evidence when available.
+  nextSafeAction: Inspect the same job or reconcile the same confirmation identity; do not dispatch or resubmit from unknown status.
+  contractState: proposal-derived-from-J-27-fallback-confirmation-intent; semantic-and-owner-review-pending
+  actionDefinitionSemantics:
+    actionRef: media.action.confirm-selected-fallback
+    typedDefinition:
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-163
+      semanticRole: DOMAIN_OPERATION
+      effectKind: consequential-operation-unbound
+      reversibilityDisposition: NOT_REVERSIBLE
+      confirmationDisposition: REQUIRED
+      confirmationRequirement: Show the exact versioned alternative and its candidate-bound evidence; require a separate explicit confirmation bound to the original job and request snapshot.
+      actorRefs: [media.creator, media.editor, media.operator]
+      applicabilityGuards:
+        - exact-original-job-and-submission-request-snapshot-are-current
+        - exact-seven-dimension-job-status-is-current-and-matches-the-original-job
+        - explicitly-named-versioned-alternative-and-candidate-artifact-are-exact
+        - candidate-specific-current-rights-license-quality-resource-and-cost-evidence-is-positive
+        - caller-resource-budget-is-only-a-ceiling-not-capacity-evidence
+        - explicit-confirmation-matches-the-original-request-and-selected-alternative
+      effect: Record a separately confirmed versioned fallback selection for the same job and request snapshot; do not dispatch or retry processing.
+      sourceReversibleValue: false
+      finality: explicit-selection-receipt-only; no execution, completion, approval, or delivery
+      failureRecovery: Reconcile the same confirmation request ID and fingerprint; UNKNOWN does not imply denial, failure, or permission to resubmit.
+      domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+      exactOperationRefs: [media.operation.fallback-selection.confirm.v1]
+      runtimeAdmission: NOT_ADMITTED
+      acceptanceLimit: Logical selection definition only; external owner acceptance, independent review, transport, dispatch, and runtime remain pending.
+      canonicalOperationBindings:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.fallback-selection.confirm.v1
+        operationRef: media.operation.fallback-selection.confirm.v1
+        operationKind: COMMAND
+        domainObjectRefs: [media.domain.processing-job, media.domain.artifact-version, media.domain.resolved-plan]
+  requirementRefs: []
+  capabilityBindingStatus: OWNER_OPERATION_BOUND; CAPABILITY_AND_EXTERNAL_ACCEPTANCE_PENDING
+  capabilityCrosswalkSources: []
+
 ownerDefinedActions:
   - id: media.action.request-live-session-reconnect
     label: Request reconnect for the same live session

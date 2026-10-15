@@ -6887,8 +6887,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/decisions.yaml",
-      "sha256": "e5ec641ef93f9429ec940a2ca695bbed3ccd845a0f26706c7ee55ca42a0a07df",
-      "bytes": 8379,
+      "sha256": "21ae2214b7e1db961e826b95022fa5a69a41fef83afd923701d79f9c8aef18b8",
+      "bytes": 10094,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.decisions.v1",
       "authority": ".product-experience/pdp-0-product-truth/domain-model.yaml",
@@ -6910,6 +6910,7 @@
         "media.pdp1.decision.disconnected-operation-and-reconciliation",
         "media.pdp1.decision.document-intelligence",
         "media.pdp1.decision.event-taxonomy",
+        "media.pdp1.decision.mdc30-task-operation-result-joins",
         "media.pdp1.decision.offline-conflicts",
         "media.pdp1.decision.physical-coordinate-conventions",
         "media.pdp1.decision.retention-erasure-and-revocation",

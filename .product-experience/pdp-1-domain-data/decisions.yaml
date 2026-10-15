@@ -6,6 +6,28 @@ authority: .product-experience/pdp-0-product-truth/domain-model.yaml
 scopeStatus: extracted-rules-and-open-decisions; pending-owner-review
 sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml, .product-experience/pdp-0-product-truth/state-models.yaml, .product-experience/pdp-0-product-truth/time-units-fidelity.yaml, .product-experience/pdp-0-product-truth/policy-authority-model.yaml, .product-experience/pdp-0-product-truth/quality-policy.yaml, docs/migration/decisions/MDI-001-document-intelligence-ownership.md]
 decisions:
+  - id: media.pdp1.decision.mdc30-task-operation-result-joins
+    state: OWNER_DEFINED_LOGICAL_MEANING; independent-acceptance-pending
+    decision: >-
+      Under PXD-163, define exact request/result joins for MDC30-C-03, C-04,
+      C-16, C-22, C-25, and C-27: transcription output lineage; scoped TTS
+      rights/profile/output/approval; dubbing source/locale/profile/version;
+      trusted delivery request fingerprint and destination ACK; typed bounded
+      delegated results; and read-only status plus explicit candidate-bound
+      fallback guards. Preserve UNKNOWN on stale, unavailable, denied, or
+      mismatched owner evidence. Transport remains UNBOUND and runtime remains
+      NOT_ADMITTED.
+    sourceRefs:
+      - .product-experience/decision-log.md#PXD-163
+      - docs/implementation/MEDIA-DISCOVERY-REMAINING-CURRENT-CUT-EXECUTION-2026-10-13.md#MDC30-C-03
+      - docs/implementation/MEDIA-DISCOVERY-REMAINING-CURRENT-CUT-EXECUTION-2026-10-13.md#MDC30-C-04
+      - docs/implementation/MEDIA-DISCOVERY-REMAINING-CURRENT-CUT-EXECUTION-2026-10-13.md#MDC30-C-16
+      - docs/implementation/MEDIA-DISCOVERY-REMAINING-CURRENT-CUT-EXECUTION-2026-10-13.md#MDC30-C-22
+      - docs/implementation/MEDIA-DISCOVERY-REMAINING-CURRENT-CUT-EXECUTION-2026-10-13.md#MDC30-C-25
+      - docs/implementation/MEDIA-DISCOVERY-REMAINING-CURRENT-CUT-EXECUTION-2026-10-13.md#MDC30-C-27
+      - docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r4.json
+    pending: focused-source-validation; affected-PDP-2-and-PDP-3-currentness; independent-PDP-acceptance
+    scopeStatus: delegated-internal-Media-source-definition-only; no external-owner-observation-or-runtime-admission
   - id: media.pdp1.fact.runtime-version-and-fencing
     state: observed-source-fact
     decision: ProcessingJob-has-a-version-field-and-JobLease-has-expiry-and-fencingToken; neither-establishes-durable-attempt-history

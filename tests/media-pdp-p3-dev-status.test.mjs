@@ -53,7 +53,7 @@ test("PDP-3 census consumes the frozen PDP-0/1/2 handoffs and exact 47/30/130 de
     journeys: 30,
     orderedSteps: 130,
     purposeBindings: 130,
-    uiActions: 147,
+    uiActions: 148,
     scenarios: 31,
     syntheticScenarioDefinitions: 31,
     journeysWithSeededScenarios: 4,

@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "media.discovery-pdp1-three-review-source-transition.v1",
+  "recordId": "MEDIA-DISCOVERY-PDP1-THREE-REVIEW-SOURCE-TRANSITION-2026-10-14",
+  "observedAt": "2026-10-14T19:01:19Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "stage": "DISCOVERY",
+    "phase": "PDP-1",
+    "scope": "Three exact R16-to-current review-artifact and regression-test transitions; no product-definition change."
+  },
+  "predecessor": {
+    "ref": "docs/implementation/observations/media-discovery-pdp1-exit-current-cut-r16.json",
+    "sha256": "sha256:63ee158301047bd715b586c41368a4d576a0b1e224672d08e2ced08349ad00fc",
+    "observationId": "MEDIA-PDP1-CURRENTNESS-CURRENT-CUT-R16"
+  },
+  "authority": {
+    "delegate": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION",
+    "decisionRole": "SCOPED_INTERNAL_SOURCE_TRANSITION_DISPOSITION",
+    "authorizationEvidence": {
+      "providedBy": "PARENT_TASK_RELAYING_EXPLICIT_USER_AUTHORIZATION",
+      "exactStatement": "Authorization is now explicit for the three exact R16→current PDP-1 transitions",
+      "authorizedTransitions": [
+        {
+          "path": ".product-experience/interface-parity/current-source-review.json",
+          "predecessorSha256": "sha256:0ce764d11912596ee39057db9bd0f2dfbf3c85f6269d55632bda3b3e6e4ad0dd",
+          "observedSha256": "sha256:90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76"
+        },
+        {
+          "path": ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
+          "predecessorSha256": "sha256:e0fff26ea178606b97098ccd255aedec443d495227c563adbce671db1f0a5d21",
+          "observedSha256": "sha256:6a00513dbe97182091a5b1b47fad2dc3e702ffaed962b835d2d4dffb822ff5b8"
+        },
+        {
+          "path": "tests/pdp1-owner-action-wire-contracts.test.mjs",
+          "predecessorSha256": "sha256:95e37d1273fd5aef4e1dc00cc68226aee9a04a235fed19b12a479fe47c979cb5",
+          "observedSha256": "sha256:e1f628e3b24e8054d0a5f9a7d5925306c1be9db05919c685628e3b71a56ad58e"
+        }
+      ]
+    }
+  },
+  "sourceTransitions": [
+    {
+      "path": ".product-experience/interface-parity/current-source-review.json",
+      "predecessorSha256": "sha256:0ce764d11912596ee39057db9bd0f2dfbf3c85f6269d55632bda3b3e6e4ad0dd",
+      "observedSha256": "sha256:90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76",
+      "classification": "PDP1_REVIEW_ARTIFACT_REFRESH_FOR_CURRENT_C22_SOURCE",
+      "meaningChange": "NONE",
+      "requiresFreshCurrentness": true
+    },
+    {
+      "path": ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
+      "predecessorSha256": "sha256:e0fff26ea178606b97098ccd255aedec443d495227c563adbce671db1f0a5d21",
+      "observedSha256": "sha256:6a00513dbe97182091a5b1b47fad2dc3e702ffaed962b835d2d4dffb822ff5b8",
+      "classification": "PDP1_REVIEW_ARTIFACT_REFRESH_FOR_CURRENT_C22_SOURCE",
+      "meaningChange": "NONE",
+      "requiresFreshCurrentness": true
+    },
+    {
+      "path": "tests/pdp1-owner-action-wire-contracts.test.mjs",
+      "predecessorSha256": "sha256:95e37d1273fd5aef4e1dc00cc68226aee9a04a235fed19b12a479fe47c979cb5",
+      "observedSha256": "sha256:e1f628e3b24e8054d0a5f9a7d5925306c1be9db05919c685628e3b71a56ad58e",
+      "classification": "PDP1_REGRESSION_TEST_REFRESH",
+      "meaningChange": "NONE",
+      "requiresFreshCurrentness": true
+    }
+  ],
+  "decision": {
+    "status": "INTERNAL_SCOPED_SOURCE_TRANSITION_DISPOSITION",
+    "meaningDisposition": "NO_MEANING_CHANGE_FOR_THE_THREE_EXACT_SOURCE_TRANSITIONS",
+    "freshPdp1CurrentnessRecapture": "REQUIRED",
+    "preserveHistoricalReceipts": true
+  },
+  "boundaries": {
+    "externalOwnerAcceptance": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeClosure": "NOT_ENTERED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "release": "NOT_AUTHORIZED"
+  },
+  "limitation": "This disposition covers only the three exact R16-to-current PDP-1 source transitions listed. It preserves prior receipts, requires fresh PDP-1 currentness, and makes no owner acceptance, independent acceptance, native closure, runtime admission, or release claim."
+}

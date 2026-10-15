@@ -2174,7 +2174,7 @@ idempotencyBindings:
   - sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.request-admitted-speech-operation
     sourceRequestIdempotency:
       scope: trusted tenant and principal plus requestId
-      fingerprint: canonical validated action payload and exact target identities
+      fingerprint: canonical validated action payload, selected capability and target operation/version/schema identities, selectedTargetRequest, and exact target identities
       replay: same payload returns original receipt; different payload is IDEMPOTENCY_CONFLICT
     unknownOutcomeRule: UNKNOWN is neither success nor failure; reconcile the same tenant/principal request identity and
       payload fingerprint before any command resubmission; never blindly replay or allocate a new request identity.
@@ -2674,36 +2674,53 @@ resultProjectionBindings:
     mappingStatus: OWNER_DECLARED_NORMALIZED_PROJECTION; no producer-payload or field-value equivalence is implied
     sourceDeclaredFields:
       - artifactVersionId
+      - deliveryRequestFingerprint
       - deliveryRequestId
+      - deliveryRequestResultRef
       - destinationRef
+      - exactTargetRef
       - observedAt
       - ownerReceipt
       - requestId
     normalizedSuccessFields:
+      - artifactVersionId
+      - deliveryRequestFingerprint
+      - deliveryRequestId
+      - deliveryRequestResultRef
+      - destinationRef
+      - exactTargetRef
+      - observedAt
       - ownerReceipt
       - requestId
-      - targetRefs
     sourceFieldMappings:
       - sourceField: artifactVersionId
-        wireField: null
-        disposition: NOT_EXPOSED_IN_NORMALIZED_BRANCH
+        wireField: artifactVersionId
+        disposition: NAME_MATCH_ONLY
+      - sourceField: deliveryRequestFingerprint
+        wireField: deliveryRequestFingerprint
+        disposition: NAME_MATCH_ONLY
       - sourceField: deliveryRequestId
-        wireField: null
-        disposition: NOT_EXPOSED_IN_NORMALIZED_BRANCH
+        wireField: deliveryRequestId
+        disposition: NAME_MATCH_ONLY
+      - sourceField: deliveryRequestResultRef
+        wireField: deliveryRequestResultRef
+        disposition: NAME_MATCH_ONLY
       - sourceField: destinationRef
-        wireField: null
-        disposition: NOT_EXPOSED_IN_NORMALIZED_BRANCH
+        wireField: destinationRef
+        disposition: NAME_MATCH_ONLY
+      - sourceField: exactTargetRef
+        wireField: exactTargetRef
+        disposition: NAME_MATCH_ONLY
       - sourceField: observedAt
-        wireField: null
-        disposition: NOT_EXPOSED_IN_NORMALIZED_BRANCH
+        wireField: observedAt
+        disposition: NAME_MATCH_ONLY
       - sourceField: ownerReceipt
         wireField: ownerReceipt
         disposition: NAME_MATCH_ONLY
       - sourceField: requestId
         wireField: requestId
         disposition: NAME_MATCH_ONLY
-    normalizedOnlyFields:
-      - targetRefs
+    normalizedOnlyFields: []
   - sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.export-authorized-provenance
     sourceResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.export-authorized-provenance/resultSchema
     wireSuccessBranchRef: .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.export-authorized-provenance.v1/resultSchema/oneOf/0
@@ -2746,15 +2763,25 @@ resultProjectionBindings:
     wireSuccessBranchRef: .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.inspect-consent-and-permitted-use.v1/resultSchema/oneOf/0
     mappingStatus: OWNER_DECLARED_NORMALIZED_PROJECTION; no producer-payload or field-value equivalence is implied
     sourceDeclaredFields:
+      - artifactDigest
+      - artifactVersionRef
       - exactTargetRef
       - observedAt
       - ownerReceipt
       - requestId
+      - sourceArtifactVersionRef
+      - sourceDigest
     normalizedSuccessFields:
       - observationRefs
       - observedAt
       - requestedSubjects
     sourceFieldMappings:
+      - sourceField: artifactDigest
+        wireField: null
+        disposition: NOT_EXPOSED_IN_NORMALIZED_BRANCH
+      - sourceField: artifactVersionRef
+        wireField: null
+        disposition: NOT_EXPOSED_IN_NORMALIZED_BRANCH
       - sourceField: exactTargetRef
         wireField: null
         disposition: NOT_EXPOSED_IN_NORMALIZED_BRANCH
@@ -2765,6 +2792,12 @@ resultProjectionBindings:
         wireField: null
         disposition: NOT_EXPOSED_IN_NORMALIZED_BRANCH
       - sourceField: requestId
+        wireField: null
+        disposition: NOT_EXPOSED_IN_NORMALIZED_BRANCH
+      - sourceField: sourceArtifactVersionRef
+        wireField: null
+        disposition: NOT_EXPOSED_IN_NORMALIZED_BRANCH
+      - sourceField: sourceDigest
         wireField: null
         disposition: NOT_EXPOSED_IN_NORMALIZED_BRANCH
     normalizedOnlyFields:
@@ -5599,6 +5632,7 @@ records:
       effectKind: GOVERNED_MUTATION_OR_REQUEST
       unknownIsNotSuccess: true
       legacyRawJsonDisposition: UNTRUSTED_OBSERVATION_ONLY; never canonical result or finality evidence
+      selectedTargetResultBoundary: The normalized success branch is only the generic action wrapper receipt; a selected target operation result is a separate exact-schema observation and is not present in this wrapper result.
       runtimeAdmission: NOT_ADMITTED
   - id: media.owner-action-wire.apply-authorized-rights-restriction.v1
     actionRef: media.action.apply-authorized-rights-restriction
@@ -6431,26 +6465,52 @@ records:
             - actionRef
             - outcome
             - requestId
-            - targetRefs
+            - deliveryRequestId
+            - deliveryRequestResultRef
+            - deliveryRequestFingerprint
+            - exactTargetRef
+            - artifactVersionId
+            - destinationRef
             - ownerReceipt
+            - observedAt
           properties:
             operationRef:
               const: media.operation.action.deliver-exact-version
             actionRef:
               const: media.action.deliver-exact-version
             outcome:
-              const: ACKNOWLEDGED
+              const: REQUEST_ACCEPTED
             requestId:
               type: string
               minLength: 1
               maxLength: 256
               pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,255}$
-            targetRefs:
-              type: array
-              items:
-                $ref: "#/$defs/canonicalReferenceAny"
-              minItems: 1
-              maxItems: 32
+            deliveryRequestId:
+              type: string
+              minLength: 1
+              maxLength: 128
+              pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+            deliveryRequestResultRef:
+              type: string
+              minLength: 1
+              maxLength: 384
+            deliveryRequestFingerprint:
+              type: string
+              pattern: ^sha256:[a-f0-9]{64}$
+            exactTargetRef:
+              oneOf:
+                - $ref: "#/$defs/canonicalReferences/media_domain_artifact-version"
+                - $ref: "#/$defs/canonicalReferences/media_domain_delivery-outcome"
+            artifactVersionId:
+              type: string
+              minLength: 1
+              maxLength: 128
+              pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
+            destinationRef:
+              type: string
+              minLength: 1
+              maxLength: 256
+              pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,255}$
             ownerReceipt:
               type: object
               additionalProperties: false
@@ -6480,6 +6540,9 @@ records:
                 receiptDigest:
                   type: string
                   pattern: ^sha256:[a-f0-9]{64}$
+            observedAt:
+              type: string
+              format: date-time
         - type: object
           additionalProperties: false
           required:
@@ -6515,11 +6578,17 @@ records:
       sourceDeclaredResultFields:
         - requestId
         - deliveryRequestId
+        - deliveryRequestResultRef
+        - deliveryRequestFingerprint
+        - exactTargetRef
         - artifactVersionId
         - destinationRef
         - ownerReceipt
         - observedAt
       effectKind: GOVERNED_MUTATION_OR_REQUEST
+      ownerReceiptSemantics: >-
+        Delivery command request receipt only; destination acknowledgment is a separate current owner-authoritative read
+        bound to this exact delivery request result, request ID, fingerprint, artifact version, and destination.
       unknownIsNotSuccess: true
       legacyRawJsonDisposition: UNTRUSTED_OBSERVATION_ONLY; never canonical result or finality evidence
       runtimeAdmission: NOT_ADMITTED
@@ -6828,6 +6897,10 @@ records:
       sourceDeclaredResultFields:
         - requestId
         - exactTargetRef
+        - artifactVersionRef
+        - artifactDigest
+        - sourceArtifactVersionRef
+        - sourceDigest
         - ownerReceipt
         - observedAt
       effectKind: READ_ONLY_OBSERVATION
@@ -11167,6 +11240,12 @@ records:
       - requestId
       - exactTargetRefs
       - admittedOperationRef
+      - selectedTargetCapabilityRef
+      - selectedTargetOperationRef
+      - selectedTargetOperationVersion
+      - selectedTargetRequestSchemaRef
+      - selectedTargetResultSchemaRef
+      - selectedTargetRequest
       - explicitConfirmation
     ownerCompletedRequiredProperties: []
     requestSchema:
@@ -11178,6 +11257,12 @@ records:
         - requestId
         - exactTargetRefs
         - admittedOperationRef
+        - selectedTargetCapabilityRef
+        - selectedTargetOperationRef
+        - selectedTargetOperationVersion
+        - selectedTargetRequestSchemaRef
+        - selectedTargetResultSchemaRef
+        - selectedTargetRequest
         - explicitConfirmation
       properties:
         operationRef:
@@ -11206,6 +11291,35 @@ records:
           minLength: 1
           maxLength: 256
           pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,255}$
+          const: media.operation.action.request-admitted-speech-operation
+        selectedTargetCapabilityRef:
+          type: string
+          minLength: 1
+          maxLength: 192
+          pattern: ^media\.[A-Za-z0-9._:-]+$
+          format: exact-capability-id
+        selectedTargetOperationRef:
+          type: string
+          minLength: 1
+          maxLength: 192
+          pattern: ^media\.[A-Za-z0-9._:-]+$
+          format: exact-operation-id
+        selectedTargetOperationVersion:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        selectedTargetRequestSchemaRef:
+          type: string
+          minLength: 1
+          maxLength: 512
+          format: source-reference
+        selectedTargetResultSchemaRef:
+          type: string
+          minLength: 1
+          maxLength: 512
+          format: source-reference
+        selectedTargetRequest:
+          $ref: "#/$defs/boundedPreferenceValue"
         explicitConfirmation:
           $ref: "#/$defs/targetBoundConfirmation"
     resultSchema:
@@ -11307,6 +11421,7 @@ records:
       effectKind: GOVERNED_MUTATION_OR_REQUEST
       unknownIsNotSuccess: true
       legacyRawJsonDisposition: UNTRUSTED_OBSERVATION_ONLY; never canonical result or finality evidence
+      selectedTargetResultBoundary: The normalized success branch is only the generic action wrapper receipt; a selected target operation result is a separate exact-schema observation and is not present in this wrapper result.
       runtimeAdmission: NOT_ADMITTED
   - id: media.owner-action-wire.request-authorized-review.v1
     actionRef: media.action.request-authorized-review

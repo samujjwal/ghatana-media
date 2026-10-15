@@ -52,8 +52,8 @@ handoffs:
         operationOnlyQueryId: media.owner-action-wire.inspect-job-retry-policy.v1
         source: .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records
       uiActions:
-        count: 147
-        registryActions: 146
+        count: 148
+        registryActions: 147
         ownerDefinedActions: 1
         ownerDefinedActionId: media.action.request-live-session-reconnect
         ownerDefinedOperationRef: media.operation.capability.media-stream-session-reconnect
@@ -64,7 +64,7 @@ handoffs:
         existingOperationBindingCount: 14
         source: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts
       ownerDefinedOperations:
-        count: 106
+        count: 107
         source: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records
       interfaceIdentities:
         http: {count: 27, source: contracts/openapi/media.yaml#/paths}

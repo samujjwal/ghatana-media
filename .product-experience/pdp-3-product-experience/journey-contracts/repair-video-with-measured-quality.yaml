@@ -20,6 +20,557 @@ actors:
 channels:
   - media.channel.web
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+pdp1ResultEvidence:
+  status: SOURCE_BOUND_DEFINITION_ONLY; CHANNEL_TRANSPORT_UNBOUND; RUNTIME_NOT_ADMITTED
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-compression-repair
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-compression-repair/canonicalAuthorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-compression-repair/errors
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-compression-repair/finality
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-compression-repair/operationVersion
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-compression-repair/recovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-compression-repair/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-compression-repair/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deflicker
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deflicker/canonicalAuthorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deflicker/errors
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deflicker/finality
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deflicker/operationVersion
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deflicker/recovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deflicker/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deflicker/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deinterlace
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deinterlace/canonicalAuthorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deinterlace/errors
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deinterlace/finality
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deinterlace/operationVersion
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deinterlace/recovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deinterlace/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deinterlace/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-rate-conversion
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-rate-conversion/canonicalAuthorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-rate-conversion/errors
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-rate-conversion/finality
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-rate-conversion/operationVersion
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-rate-conversion/recovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-rate-conversion/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-rate-conversion/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-repair
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-repair/canonicalAuthorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-repair/errors
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-repair/finality
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-repair/operationVersion
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-repair/recovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-repair/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-repair/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-grain-adjust
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-grain-adjust/canonicalAuthorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-grain-adjust/errors
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-grain-adjust/finality
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-grain-adjust/operationVersion
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-grain-adjust/recovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-grain-adjust/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-grain-adjust/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-interpolation
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-interpolation/canonicalAuthorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-interpolation/errors
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-interpolation/finality
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-interpolation/operationVersion
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-interpolation/recovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-interpolation/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-interpolation/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-inverse-telecine-cadence
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-inverse-telecine-cadence/canonicalAuthorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-inverse-telecine-cadence/errors
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-inverse-telecine-cadence/finality
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-inverse-telecine-cadence/operationVersion
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-inverse-telecine-cadence/recovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-inverse-telecine-cadence/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-inverse-telecine-cadence/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-motion-blur-synthesis
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-motion-blur-synthesis/canonicalAuthorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-motion-blur-synthesis/errors
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-motion-blur-synthesis/finality
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-motion-blur-synthesis/operationVersion
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-motion-blur-synthesis/recovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-motion-blur-synthesis/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-motion-blur-synthesis/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-rolling-shutter
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-rolling-shutter/canonicalAuthorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-rolling-shutter/errors
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-rolling-shutter/finality
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-rolling-shutter/operationVersion
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-rolling-shutter/recovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-rolling-shutter/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-rolling-shutter/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-spatiotemporal-super-resolution
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-spatiotemporal-super-resolution/canonicalAuthorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-spatiotemporal-super-resolution/errors
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-spatiotemporal-super-resolution/finality
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-spatiotemporal-super-resolution/operationVersion
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-spatiotemporal-super-resolution/recovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-spatiotemporal-super-resolution/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-spatiotemporal-super-resolution/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-stabilize
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-stabilize/canonicalAuthorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-stabilize/errors
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-stabilize/finality
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-stabilize/operationVersion
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-stabilize/recovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-stabilize/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-stabilize/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-consistency
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-consistency/canonicalAuthorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-consistency/errors
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-consistency/finality
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-consistency/operationVersion
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-consistency/recovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-consistency/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-consistency/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-deblur
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-deblur/canonicalAuthorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-deblur/errors
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-deblur/finality
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-deblur/operationVersion
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-deblur/recovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-deblur/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-deblur/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-denoise
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-denoise/canonicalAuthorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-denoise/errors
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-denoise/finality
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-denoise/operationVersion
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-denoise/recovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-denoise/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-denoise/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/authorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/contractVersion
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceFinality
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceRecovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/authorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/contractVersion
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/sourceFinality
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/sourceRecovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/authorityRefs
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/contractVersion
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/sourceFinality
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/sourceRecovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/errors
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/requestEnvelope
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/resultEnvelope
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+    - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1
+    - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-03.v1
+    - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-04.v1
+  operationResultBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/2
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-03.v1
+      operationRef: media.operation.action.compare-candidate-on-metric
+      operationKind: QUERY
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/contractVersion
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+      authoritySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/authorityRefs
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceFinality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceRecovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      stateRefs: []
+      transitionRefs: []
+      exactResult: "Exact P1 result schema requires: typed observations, observedAt. Source finality: read-only-or-navigation; no-write-finality"
+      unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: retain-the-exact-context-and-request-identity; reconcile-unknown-effects-before-retry; never-substitute-a-newer-version"
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/3
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-04.v1
+      operationRef: media.operation.action.inspect-quality-evidence
+      operationKind: QUERY
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/contractVersion
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+      authoritySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/authorityRefs
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/sourceFinality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/sourceRecovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      stateRefs: []
+      transitionRefs: []
+      exactResult: "Exact P1 result schema requires: typed observations, observedAt. Source finality: read-only-or-navigation; no-write-finality"
+      unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: retain-the-exact-context-and-request-identity; reconcile-unknown-effects-before-retry; never-substitute-a-newer-version"
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1
+      operationRef: media.operation.action.submit-validated-request
+      operationKind: COMMAND
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/requestEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/resultEnvelope
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/contractVersion
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+      authoritySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/authorityRefs
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/sourceFinality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/sourceRecovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      stateRefs:
+        - .product-experience/pdp-1-domain-data/states.yaml#media-job
+        - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+      transitionRefs: []
+      exactResult: "Exact P1 result schema requires: requestId, logicalJobId, durableAdmissionReceipt. Source finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure"
+      unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: retain-the-exact-context-and-request-identity; reconcile-unknown-effects-before-retry; never-substitute-a-newer-version"
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1
+      operationRef: media.operation.capability.media-enhance-video-compression-repair
+      operationKind: COMMAND
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-compression-repair
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-compression-repair/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-compression-repair/resultSchema
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-compression-repair/operationVersion
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
+      authoritySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-compression-repair/canonicalAuthorityRefs
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-compression-repair/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-compression-repair/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-compression-repair/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      stateRefs: []
+      transitionRefs: []
+      exactResult: "Exact P1 result schema requires: outcome, observedAt, outputs, provenance, implementationState, qualificationState, runtimeAvailability. Source finality: success requires authoritative owner receipt and exact output version references; transport acknowledgement or dispatch is not completion; ambiguous finality is UNKNOWN_OUTCOME"
+      unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: After ambiguous response reconcile same requestId and payload fingerprint; no blind retry; retry only proven non-acceptance with same idempotency identity."
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1
+      operationRef: media.operation.capability.media-enhance-video-deflicker
+      operationKind: COMMAND
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deflicker
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deflicker/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deflicker/resultSchema
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deflicker/operationVersion
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
+      authoritySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deflicker/canonicalAuthorityRefs
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deflicker/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deflicker/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deflicker/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      stateRefs: []
+      transitionRefs: []
+      exactResult: "Exact P1 result schema requires: outcome, observedAt, outputs, provenance, implementationState, qualificationState, runtimeAvailability. Source finality: success requires authoritative owner receipt and exact output version references; transport acknowledgement or dispatch is not completion; ambiguous finality is UNKNOWN_OUTCOME"
+      unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: After ambiguous response reconcile same requestId and payload fingerprint; no blind retry; retry only proven non-acceptance with same idempotency identity."
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1
+      operationRef: media.operation.capability.media-enhance-video-deinterlace
+      operationKind: COMMAND
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deinterlace
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deinterlace/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deinterlace/resultSchema
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deinterlace/operationVersion
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
+      authoritySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deinterlace/canonicalAuthorityRefs
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deinterlace/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deinterlace/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-deinterlace/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      stateRefs: []
+      transitionRefs: []
+      exactResult: "Exact P1 result schema requires: outcome, observedAt, outputs, provenance, implementationState, qualificationState, runtimeAvailability. Source finality: success requires authoritative owner receipt and exact output version references; transport acknowledgement or dispatch is not completion; ambiguous finality is UNKNOWN_OUTCOME"
+      unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: After ambiguous response reconcile same requestId and payload fingerprint; no blind retry; retry only proven non-acceptance with same idempotency identity."
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1
+      operationRef: media.operation.capability.media-enhance-video-frame-rate-conversion
+      operationKind: COMMAND
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-rate-conversion
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-rate-conversion/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-rate-conversion/resultSchema
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-rate-conversion/operationVersion
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
+      authoritySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-rate-conversion/canonicalAuthorityRefs
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-rate-conversion/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-rate-conversion/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-rate-conversion/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      stateRefs: []
+      transitionRefs: []
+      exactResult: "Exact P1 result schema requires: outcome, observedAt, outputs, provenance, implementationState, qualificationState, runtimeAvailability. Source finality: success requires authoritative owner receipt and exact output version references; transport acknowledgement or dispatch is not completion; ambiguous finality is UNKNOWN_OUTCOME"
+      unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: After ambiguous response reconcile same requestId and payload fingerprint; no blind retry; retry only proven non-acceptance with same idempotency identity."
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1
+      operationRef: media.operation.capability.media-enhance-video-frame-repair
+      operationKind: COMMAND
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-repair
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-repair/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-repair/resultSchema
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-repair/operationVersion
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
+      authoritySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-repair/canonicalAuthorityRefs
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-repair/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-repair/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-frame-repair/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      stateRefs: []
+      transitionRefs: []
+      exactResult: "Exact P1 result schema requires: outcome, observedAt, outputs, provenance, implementationState, qualificationState, runtimeAvailability. Source finality: success requires authoritative owner receipt and exact output version references; transport acknowledgement or dispatch is not completion; ambiguous finality is UNKNOWN_OUTCOME"
+      unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: After ambiguous response reconcile same requestId and payload fingerprint; no blind retry; retry only proven non-acceptance with same idempotency identity."
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1
+      operationRef: media.operation.capability.media-enhance-video-grain-adjust
+      operationKind: COMMAND
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-grain-adjust
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-grain-adjust/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-grain-adjust/resultSchema
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-grain-adjust/operationVersion
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
+      authoritySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-grain-adjust/canonicalAuthorityRefs
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-grain-adjust/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-grain-adjust/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-grain-adjust/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      stateRefs: []
+      transitionRefs: []
+      exactResult: "Exact P1 result schema requires: outcome, observedAt, outputs, provenance, implementationState, qualificationState, runtimeAvailability. Source finality: success requires authoritative owner receipt and exact output version references; transport acknowledgement or dispatch is not completion; ambiguous finality is UNKNOWN_OUTCOME"
+      unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: After ambiguous response reconcile same requestId and payload fingerprint; no blind retry; retry only proven non-acceptance with same idempotency identity."
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1
+      operationRef: media.operation.capability.media-enhance-video-interpolation
+      operationKind: COMMAND
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-interpolation
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-interpolation/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-interpolation/resultSchema
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-interpolation/operationVersion
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
+      authoritySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-interpolation/canonicalAuthorityRefs
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-interpolation/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-interpolation/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-interpolation/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      stateRefs: []
+      transitionRefs: []
+      exactResult: "Exact P1 result schema requires: outcome, observedAt, outputs, provenance, implementationState, qualificationState, runtimeAvailability. Source finality: success requires authoritative owner receipt and exact output version references; transport acknowledgement or dispatch is not completion; ambiguous finality is UNKNOWN_OUTCOME"
+      unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: After ambiguous response reconcile same requestId and payload fingerprint; no blind retry; retry only proven non-acceptance with same idempotency identity."
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1
+      operationRef: media.operation.capability.media-enhance-video-inverse-telecine-cadence
+      operationKind: COMMAND
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-inverse-telecine-cadence
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-inverse-telecine-cadence/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-inverse-telecine-cadence/resultSchema
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-inverse-telecine-cadence/operationVersion
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
+      authoritySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-inverse-telecine-cadence/canonicalAuthorityRefs
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-inverse-telecine-cadence/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-inverse-telecine-cadence/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-inverse-telecine-cadence/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      stateRefs: []
+      transitionRefs: []
+      exactResult: "Exact P1 result schema requires: outcome, observedAt, outputs, provenance, implementationState, qualificationState, runtimeAvailability. Source finality: success requires authoritative owner receipt and exact output version references; transport acknowledgement or dispatch is not completion; ambiguous finality is UNKNOWN_OUTCOME"
+      unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: After ambiguous response reconcile same requestId and payload fingerprint; no blind retry; retry only proven non-acceptance with same idempotency identity."
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1
+      operationRef: media.operation.capability.media-enhance-video-motion-blur-synthesis
+      operationKind: COMMAND
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-motion-blur-synthesis
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-motion-blur-synthesis/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-motion-blur-synthesis/resultSchema
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-motion-blur-synthesis/operationVersion
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
+      authoritySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-motion-blur-synthesis/canonicalAuthorityRefs
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-motion-blur-synthesis/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-motion-blur-synthesis/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-motion-blur-synthesis/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      stateRefs: []
+      transitionRefs: []
+      exactResult: "Exact P1 result schema requires: outcome, observedAt, outputs, provenance, implementationState, qualificationState, runtimeAvailability. Source finality: success requires authoritative owner receipt and exact output version references; transport acknowledgement or dispatch is not completion; ambiguous finality is UNKNOWN_OUTCOME"
+      unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: After ambiguous response reconcile same requestId and payload fingerprint; no blind retry; retry only proven non-acceptance with same idempotency identity."
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1
+      operationRef: media.operation.capability.media-enhance-video-rolling-shutter
+      operationKind: COMMAND
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-rolling-shutter
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-rolling-shutter/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-rolling-shutter/resultSchema
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-rolling-shutter/operationVersion
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
+      authoritySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-rolling-shutter/canonicalAuthorityRefs
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-rolling-shutter/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-rolling-shutter/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-rolling-shutter/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      stateRefs: []
+      transitionRefs: []
+      exactResult: "Exact P1 result schema requires: outcome, observedAt, outputs, provenance, implementationState, qualificationState, runtimeAvailability. Source finality: success requires authoritative owner receipt and exact output version references; transport acknowledgement or dispatch is not completion; ambiguous finality is UNKNOWN_OUTCOME"
+      unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: After ambiguous response reconcile same requestId and payload fingerprint; no blind retry; retry only proven non-acceptance with same idempotency identity."
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1
+      operationRef: media.operation.capability.media-enhance-video-spatiotemporal-super-resolution
+      operationKind: COMMAND
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-spatiotemporal-super-resolution
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-spatiotemporal-super-resolution/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-spatiotemporal-super-resolution/resultSchema
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-spatiotemporal-super-resolution/operationVersion
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
+      authoritySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-spatiotemporal-super-resolution/canonicalAuthorityRefs
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-spatiotemporal-super-resolution/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-spatiotemporal-super-resolution/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-spatiotemporal-super-resolution/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      stateRefs: []
+      transitionRefs: []
+      exactResult: "Exact P1 result schema requires: outcome, observedAt, outputs, provenance, implementationState, qualificationState, runtimeAvailability. Source finality: success requires authoritative owner receipt and exact output version references; transport acknowledgement or dispatch is not completion; ambiguous finality is UNKNOWN_OUTCOME"
+      unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: After ambiguous response reconcile same requestId and payload fingerprint; no blind retry; retry only proven non-acceptance with same idempotency identity."
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1
+      operationRef: media.operation.capability.media-enhance-video-stabilize
+      operationKind: COMMAND
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-stabilize
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-stabilize/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-stabilize/resultSchema
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-stabilize/operationVersion
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
+      authoritySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-stabilize/canonicalAuthorityRefs
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-stabilize/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-stabilize/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-stabilize/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      stateRefs: []
+      transitionRefs: []
+      exactResult: "Exact P1 result schema requires: outcome, observedAt, outputs, provenance, implementationState, qualificationState, runtimeAvailability. Source finality: success requires authoritative owner receipt and exact output version references; transport acknowledgement or dispatch is not completion; ambiguous finality is UNKNOWN_OUTCOME"
+      unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: After ambiguous response reconcile same requestId and payload fingerprint; no blind retry; retry only proven non-acceptance with same idempotency identity."
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1
+      operationRef: media.operation.capability.media-enhance-video-temporal-consistency
+      operationKind: COMMAND
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-consistency
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-consistency/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-consistency/resultSchema
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-consistency/operationVersion
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
+      authoritySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-consistency/canonicalAuthorityRefs
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-consistency/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-consistency/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-consistency/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      stateRefs: []
+      transitionRefs: []
+      exactResult: "Exact P1 result schema requires: outcome, observedAt, outputs, provenance, implementationState, qualificationState, runtimeAvailability. Source finality: success requires authoritative owner receipt and exact output version references; transport acknowledgement or dispatch is not completion; ambiguous finality is UNKNOWN_OUTCOME"
+      unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: After ambiguous response reconcile same requestId and payload fingerprint; no blind retry; retry only proven non-acceptance with same idempotency identity."
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1
+      operationRef: media.operation.capability.media-enhance-video-temporal-deblur
+      operationKind: COMMAND
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-deblur
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-deblur/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-deblur/resultSchema
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-deblur/operationVersion
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
+      authoritySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-deblur/canonicalAuthorityRefs
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-deblur/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-deblur/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-deblur/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      stateRefs: []
+      transitionRefs: []
+      exactResult: "Exact P1 result schema requires: outcome, observedAt, outputs, provenance, implementationState, qualificationState, runtimeAvailability. Source finality: success requires authoritative owner receipt and exact output version references; transport acknowledgement or dispatch is not completion; ambiguous finality is UNKNOWN_OUTCOME"
+      unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: After ambiguous response reconcile same requestId and payload fingerprint; no blind retry; retry only proven non-acceptance with same idempotency identity."
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-02.v1
+      operationRef: media.operation.capability.media-enhance-video-temporal-denoise
+      operationKind: COMMAND
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-denoise
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-denoise/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-denoise/resultSchema
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-denoise/operationVersion
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
+        - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
+      authoritySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-denoise/canonicalAuthorityRefs
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-denoise/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-denoise/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-enhance-video-temporal-denoise/recovery
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      stateRefs: []
+      transitionRefs: []
+      exactResult: "Exact P1 result schema requires: outcome, observedAt, outputs, provenance, implementationState, qualificationState, runtimeAvailability. Source finality: success requires authoritative owner receipt and exact output version references; transport acknowledgement or dispatch is not completion; ambiguous finality is UNKNOWN_OUTCOME"
+      unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: After ambiguous response reconcile same requestId and payload fingerprint; no blind retry; retry only proven non-acceptance with same idempotency identity."
+  resultCompleteness: Each exact operation-purpose pair cites the P1 result schema and source-defined authority, version, finality, error, and recovery semantics. State and transition arrays are copied exactly from P1; no additional machine state or transition is inferred.
+  channelAndRuntimeBoundary:
+    intendedChannels:
+      - media.channel.web
+    transport: UNBOUND
+    runtimeAdmission: NOT_ADMITTED
+
 preconditions:
   - Repair operation, input envelope, and budget are admitted by P0-003/P0-007.
 steps:

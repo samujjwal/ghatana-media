@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "media.discovery-pdp1-additional-source-impact.v1",
+  "recordId": "MEDIA-DISCOVERY-PDP1-ADDITIONAL-SOURCE-IMPACT-2026-10-14-R2",
+  "observedAt": "2026-10-14T00:00:00.000Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "stage": "DISCOVERY",
+    "phase": "PDP-1",
+    "reviewedSourceBaseline": "f5ae3461c53eb1d490362a9bb8818ce74573147c",
+    "scope": "Exact additional PDP-1 source-review artifact refresh after the authorized PDP-1 definition review; no added PDP-1 meaning."
+  },
+  "authority": {
+    "delegate": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION",
+    "authorityRef": ".product-experience/reviews/2026-10-13-discovery-current-cut-delegated-owner-review.md#Authority-and-attribution",
+    "decisionRole": "SCOPED_INTERNAL_MEDIA_SOURCE_IMPACT_REVIEW",
+    "userAuthorization": "Authorize scoped PDP1 disposition (Recommended)",
+    "authorizationContext": "The user authorized an internal no-additional-meaning disposition for the exact refreshed PDP-1 interface current-source review after the captured blocker identified its stale operations source pins.",
+    "humanIndependentSignatureProvided": false,
+    "externalContractOwnerAcceptanceProvided": false
+  },
+  "parentImpact": {
+    "ref": "docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r1.json",
+    "recordId": "MEDIA-DISCOVERY-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R1",
+    "sha256": "sha256:1530e22dfb8c60296123ec95d494c53fc2f5ff81be7c8fc47bf0252661d2655b"
+  },
+  "sourceDelta": {
+    "path": ".product-experience/interface-parity/current-source-review.json",
+    "selector": ".product-experience/pdp-1-domain-data/operations-current-source-review.json#currentSourceCutDeltaReview/supplementalPdp1DefinitionDelta",
+    "predecessorSha256": "sha256:62765cbb335572f28570fe650b3955aaa028f314322490e17e466d3ca9234abf",
+    "observedSha256": "sha256:9f9150548c5e4e97881cc08dd28df0c4b892d88ad51e783e5f51465e1d8715c2",
+    "classification": "PDP1_REVIEW_ARTIFACT_REFRESH_FOR_SEPARATELY_REVIEWED_OPERATION_DELTA",
+    "meaningChange": "NO_ADDITIONAL_MEANING",
+    "meaningIdsChanged": [],
+    "additionalMeaningIds": [],
+    "requiresFreshCurrentness": true
+  },
+  "decision": {
+    "status": "INTERNAL_SCOPED_IMPACT_DISPOSITION",
+    "pdp1MeaningDisposition": "NO_ADDITIONAL_MEANING_FOR_EXACT_INTERFACE_REVIEW_REFRESH",
+    "preserveHistoricalReceipts": true,
+    "externalContractOwnerAcceptance": "NOT_CLAIMED",
+    "independentReview": "NOT_CLAIMED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "transportAdmission": "NOT_ADMITTED",
+    "lifecycleClosure": "NOT_ENTERED",
+    "delivery": "BLOCKED"
+  },
+  "limitation": "This is a narrow, internal, user-delegated source-impact disposition for the exact interface review artifact path and hashes. It does not accept external contracts, establish independent approval or lifecycle closure, admit runtime or transport, or authorize delivery."
+}

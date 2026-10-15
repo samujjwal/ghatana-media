@@ -22,6 +22,68 @@ channels:
   - media.channel.cli
   - media.channel.product-integration
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+pdp1ResultEvidence:
+  status: SOURCE_BOUND_DEFINITION_ONLY; PDP3_CHANNEL_BINDING_PENDING
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.reconcile-delivery-acknowledgment
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
+  operationResultBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/steps/0
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j22-step-01.v1
+      operationRef: media.operation.action.inspect-output-preview-and-version
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      exactResult: Exact-target inspection receipt only; it does not prove delivery, destination receipt, or current approval.
+      unknownDisposition: Missing, stale, denied, mismatched, or unavailable evidence remains UNKNOWN; preserve the exact output/version selector and repeat only the authorized read.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/steps/1
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j22-step-02.v1
+      operationRef: media.operation.action.deliver-exact-version
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
+      exactResult: REQUEST_ACCEPTED is a submission receipt for the exact artifactVersionId and destinationRef. Preserve deliveryRequestId, immutable deliveryRequestResultRef, and trusted-host deliveryRequestFingerprint; submission does not establish destination receipt or acknowledgment.
+      finality: Bind only the P1 media-delivery states SUBMITTED, ACKNOWLEDGED, and OUTCOME_UNKNOWN. SUBMITTED means durable submission intent only; ACKNOWLEDGED requires the separate typed owner observation; OUTCOME_UNKNOWN preserves uncertainty.
+      unknownDisposition: Denied or error results remain denied/error; missing, stale, mismatched, timed-out, or unavailable post-submission evidence is OUTCOME_UNKNOWN. Reconcile the same deliveryRequestId, resultRef, fingerprint, artifact version, and destination; never blindly resubmit.
+      stateRefs:
+        - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED
+        - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED
+        - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/steps/2
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j22-step-03.v1
+      operationRef: media.operation.action.view-job-status
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      exactResult: Exact-target scoped job observation envelope only; it is not a destination acknowledgment.
+      unknownDisposition: Missing, stale, denied, mismatched, or unavailable evidence remains UNKNOWN; repeat only the authorized read and do not retry delivery.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/steps/2
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j22-step-03.v1
+      operationRef: media.operation.action.reconcile-delivery-acknowledgment
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1/resultSchema
+      exactResult: Reconciliation query receipt is not destination evidence. Interpret the typed result only when current, fully accessible, and exactly joined to the original deliveryRequestId, resultRef, fingerprint, artifact version, and destination.
+      unknownDisposition: UNKNOWN includes absent, denied, stale, timed-out, mismatched, or unavailable observation; it is neither success nor failure and never authorizes retry. A current owner-sourced NOT_ACKNOWLEDGED is a classified non-acknowledgment, not success.
+  typedObservationBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/steps/2
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j22-step-03.v1
+      actionBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j22-step-03.v1/relatedActionBindings/@id=media.pdp3.action-binding.j22-destination-ack-reconciliation.v1
+      operationRef: media.operation.action.reconcile-delivery-acknowledgment
+      observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1/resultSchema
+      requiredExactIdentity: [deliveryRequestResultRef, deliveryRequestId, deliveryRequestFingerprint, artifactVersionRef, destinationRef]
+      acknowledgedOnlyWhen: Current owner-issued acknowledgment authority and nonempty evidence match the original immutable delivery result and exact identity.
+      unknownDisposition: Missing, stale, denied, timed-out, mismatched, or unavailable evidence is UNKNOWN; preserve the exact request and never retry blindly.
+      resultRequestFingerprint: The reconciliation query requestFingerprint is distinct from deliveryRequestFingerprint and cannot replace it.
+  deliveryRequestIdentity:
+    sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
+    requiredIdentity: [deliveryRequestResultRef, deliveryRequestId, deliveryRequestFingerprint, exactTargetRef, artifactVersionId, destinationRef]
+    fingerprintDisposition: Trusted-host computed from the validated delivery request and exact target identities; requestId alone is not the fingerprint.
+  destinationAcknowledgment:
+    sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
+    binding: Resolve the immutable delivery result and exactly match its request ID, request fingerprint, artifact version, and destination before interpreting destination evidence.
+    finality: ACKNOWLEDGED requires current owner-issued authority and evidence; missing, stale, denied, timed-out, mismatched, or unavailable evidence is UNKNOWN. UNKNOWN is neither success nor failure and never authorizes retry.
+  channelAndRuntimeBoundary:
+    intendedChannels: [media.channel.web, media.channel.http-api, media.channel.cli, media.channel.product-integration]
+    interfaceGrammarRefs:
+      - .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/GUI
+      - .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/headless
+    transport: UNBOUND
+    runtimeAdmission: NOT_ADMITTED
 preconditions:
   - Exact output, destination, rights, approval, and external-effect authority
     are current.
@@ -415,8 +477,11 @@ steps:
     viewIntent: Destination/format/rights/approval and publication finality
     actionRef: media.action.deliver-exact-version
     actionBindingState: EXACT_P1_DELIVERY_REQUEST_BOUND; ACKNOWLEDGMENT_SEPARATE
-    stateRefs: []
-    stateBindingState: no-media-transition; external delivery acknowledgment remains separate
+    stateRefs:
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN
+    stateBindingState: P1_DELIVERY_FINALITY_STATES_BOUND; submission and destination acknowledgment remain distinct
     candidateActionRefs: []
     surfaceRefs:
       - media.surface.web
@@ -435,9 +500,11 @@ steps:
       sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
       operationRef: media.operation.action.deliver-exact-version
-      meaning: Immediate result is the delivery request/owner receipt for the exact
-        artifactVersionId and destinationRef; destination delivery remains
-        UNKNOWN until authoritative destination evidence.
+      meaning: Immediate REQUEST_ACCEPTED is a submission receipt for the exact
+        artifactVersionId and destinationRef. It maps to SUBMITTED only; it does not
+        establish destination receipt or ACKNOWLEDGED. Denial/errors remain classified
+        failures, while post-submission uncertainty maps to OUTCOME_UNKNOWN pending
+        same-identity reconciliation.
       evidenceBoundary: definition-grade operation contract only; runtimeAdmission
         NOT_ADMITTED and no owner evidence/result is asserted
       laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/terminalSuccess
@@ -558,9 +625,11 @@ steps:
           sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
           resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
           operationRef: media.operation.action.deliver-exact-version
-          meaning: Immediate result is the delivery request/owner receipt for the exact
-            artifactVersionId and destinationRef; destination delivery remains
-            UNKNOWN until authoritative destination evidence.
+          meaning: Immediate REQUEST_ACCEPTED is a submission receipt for the exact
+            artifactVersionId and destinationRef. It maps to SUBMITTED only; it does
+            not establish destination receipt or ACKNOWLEDGED. Denial/errors remain
+            classified failures, while post-submission uncertainty maps to OUTCOME_UNKNOWN
+            pending same-identity reconciliation.
           evidenceBoundary: definition-grade operation contract only; runtimeAdmission
             NOT_ADMITTED and no owner evidence/result is asserted
           laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/terminalSuccess
@@ -607,7 +676,10 @@ steps:
           - media.surface.cli
           - media.surface.integrations
         objectRefs: [ media.domain.artifact-version, media.domain.delivery-outcome ]
-        stateRefs: []
+        stateRefs:
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN
         canonicalOperationRef: media.operation.action.deliver-exact-version
         authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
         transitionRef: null
@@ -660,15 +732,16 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.deliver-exact-version
           intendedResult:
-            status: REQUEST_ACCEPTED_OR_UNKNOWN; DELIVERY_NOT_ASSERTED
+            status: SUBMITTED_OR_CLASSIFIED_DENIAL_ERROR_OR_OUTCOME_UNKNOWN; ACK_REQUIRES_TYPED_DESTINATION_EVIDENCE
             sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
-            proposal: A request receipt identifies the exact version and destination; only
-              later authoritative destination acknowledgment establishes
-              delivery.
+            proposal: REQUEST_ACCEPTED identifies the exact submission and maps to
+              SUBMITTED only. Only a current exact-identity typed destination
+              acknowledgment with owner authority and nonempty evidence maps to
+              ACKNOWLEDGED. QUEUED or job status never establishes delivery.
           effect: Change only the current local draft or selection; keep committed source
             and versioned objects unchanged until a separately specified commit.
-          finality: request-accepted-or-unknown;
-            destination-acknowledgment-required-for-delivery
+          finality: SUBMITTED-is-not-delivery; ACKNOWLEDGED-requires-current-typed-destination-evidence;
+            denial-error-remain-classified; unresolved-result-is-OUTCOME_UNKNOWN
         nonhappy:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.deliver-exact-version
           guards:
@@ -688,7 +761,10 @@ steps:
         status: EXTERNAL_DELIVERY_REQUEST_ONLY;
           NO_MEDIA_STATE_TRANSITION_OR_DELIVERY_SUCCESS_INFERRED
         transitionRef: null
-        stateRefs: []
+        stateRefs:
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN
         operationRef: media.operation.action.deliver-exact-version
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/steps/1
         runtimeAdmission: NOT_ADMITTED
@@ -697,7 +773,7 @@ steps:
         fields:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
           objectRefs: EXACT_ARTIFACT_VERSION_AND_DELIVERY_OUTCOME_FROM_P1_OPERATION
-          stateRefs: NO_PDP1_TRANSITION; DELIVERY_RECEIPT_IS_SEPARATE_FINALITY
+          stateRefs: EXACT_P1_MEDIA_DELIVERY_FINALITY_STATES; SUBMITTED_RECEIPT_IS_NOT_ACKNOWLEDGMENT
           canonicalOperationRef: EXACT_OPERATION_REF
           authorityRef: HOST_IDENTITY_AND_PRIVILEGED_EFFECT_RECHECK_REQUIRED
           transitionRef: LOCAL_DRAFT_REVISION_CAS; NO_PDP1_DOMAIN_TRANSITION

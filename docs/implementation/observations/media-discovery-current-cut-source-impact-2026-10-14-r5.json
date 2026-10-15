@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "media.discovery-pdp1-additional-source-impact.v1",
+  "recordId": "MEDIA-DISCOVERY-PDP1-OWNER-ACTION-WIRE-IMPACT-2026-10-14-R5",
+  "observedAt": "2026-10-14T15:07:45Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "stage": "DISCOVERY",
+    "phase": "PDP-1",
+    "reviewedSourceBaseline": "f5ae3461c53eb1d490362a9bb8818ce74573147c",
+    "scope": "User-authorized, exact-path revalidation of the owner-action wire projection mapping-ledger change; no additional PDP-1 product meaning."
+  },
+  "authority": {
+    "delegate": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION",
+    "authorityRef": ".product-experience/reviews/2026-10-13-discovery-current-cut-delegated-owner-review.md#Authority-and-attribution",
+    "decisionRole": "SCOPED_INTERNAL_MEDIA_SOURCE_IMPACT_REVIEW",
+    "userAuthorization": "Authorize no additional PDP-1 meaning (Recommended)",
+    "authorizationContext": "The user directly authorized this exact owner-action-wire-contracts.yaml path and hash transition for an internal no-additional-PDP-1-meaning disposition and technical PDP-1 recapture.",
+    "authorizationEvidence": {
+      "channel": "DIRECT_USER_REPLY_IN_CURRENT_TASK",
+      "exactResponse": "Authorize no additional PDP-1 meaning (Recommended)",
+      "authorizedPath": ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml",
+      "predecessorSha256": "sha256:f6155c1bf0a1851b0fa45f631ce09eb459d2b8d5d8df6cd03a3dd6d634be19cf",
+      "observedSha256": "sha256:e7c432e0244e7c719d211d16dd7c7d94d1c7dc87b33f339ed72ddcf5bd6e4a9b"
+    },
+    "humanIndependentSignatureProvided": false,
+    "externalContractOwnerAcceptanceProvided": false
+  },
+  "parentImpact": {
+    "ref": "docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r3.json",
+    "recordId": "MEDIA-DISCOVERY-PDP1-OWNER-ACTION-WIRE-IMPACT-2026-10-14-R3",
+    "sha256": "sha256:a3994ba98f8dabf14a1f61f2974fb4c008831083c102e5392bd5ec187ade3f57"
+  },
+  "supersedes": {
+    "ref": "docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r3.json",
+    "recordId": "MEDIA-DISCOVERY-PDP1-OWNER-ACTION-WIRE-IMPACT-2026-10-14-R3",
+    "sha256": "sha256:a3994ba98f8dabf14a1f61f2974fb4c008831083c102e5392bd5ec187ade3f57",
+    "reason": "R3 preserves the exact technical delta but omitted the direct authorization trace and used a placeholder observedAt. This successor records the user's scoped authorization and revalidates the same exact source hashes; the R3 bytes remain unchanged as history."
+  },
+  "sourceDeltas": [
+    {
+      "path": ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml",
+      "selector": "resultProjectionBindings and records/@id=media.owner-action-wire.deliver-exact-version.v1|media.owner-action-wire.inspect-consent-and-permitted-use.v1/semantics/sourceDeclaredResultFields",
+      "predecessorSha256": "sha256:f6155c1bf0a1851b0fa45f631ce09eb459d2b8d5d8df6cd03a3dd6d634be19cf",
+      "observedSha256": "sha256:e7c432e0244e7c719d211d16dd7c7d94d1c7dc87b33f339ed72ddcf5bd6e4a9b",
+      "classification": "PDP1_NOT_EXPOSED_MAPPING_LEDGER_REFRESH",
+      "changeSummary": "Adds source-declared inventory and explicit NOT_EXPOSED_IN_NORMALIZED_BRANCH mappings for existing delivery-request and consent/use result fields. It does not change either closed wire result schema, add a result branch, or change operation effect semantics.",
+      "sourceFields": [
+        "deliveryRequestFingerprint",
+        "deliveryRequestResultRef",
+        "exactTargetRef",
+        "artifactDigest",
+        "artifactVersionRef",
+        "sourceArtifactVersionRef",
+        "sourceDigest"
+      ],
+      "meaningChange": "NO_ADDITIONAL_PDP1_MEANING",
+      "meaningIdsChanged": [],
+      "requiresFreshCurrentness": true
+    }
+  ],
+  "decision": {
+    "status": "INTERNAL_SCOPED_IMPACT_DISPOSITION",
+    "pdp1MeaningDisposition": "NO_ADDITIONAL_PDP1_MEANING_FOR_EXACT_OWNER_ACTION_WIRE_LEDGER_REFRESH",
+    "preserveHistoricalReceipts": true,
+    "ownerAcceptance": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "runtime": "NOT_ADMITTED",
+    "closure": "NOT_ENTERED",
+    "delivery": "BLOCKED",
+    "release": "NOT_CLAIMED"
+  },
+  "limitation": "This record is restricted to the listed owner-action wire projection inventory and exact hashes. It establishes no external owner acceptance, independent review, runtime or transport admission, Lifecycle closure, delivery, or release. Fresh source-currentness remains required."
+}

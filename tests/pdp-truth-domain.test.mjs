@@ -168,7 +168,7 @@ test("PDP-1 state meanings and transitions preserve all source dimensions, guard
   assert.equal(transitionIsDefined(transitions, "media-rights-and-consent", "consent", "PENDING_VERIFICATION", "ACTIVE"), true);
 });
 
-test("all 146 action identities have a source-backed operation or non-operation disposition", () => {
+test("all 147 action identities have a source-backed operation or non-operation disposition", () => {
   const operations = readYaml(paths.operations);
   const sourceActions = readYaml(paths.sourceActions).actions;
   const inventory = operations.actionOperationDispositionInventory.records;
@@ -182,6 +182,8 @@ test("all 146 action identities have a source-backed operation or non-operation 
   assert.equal(validateActionInventory(broken, sourceActions, known), false, "an omitted source action must fail total population validation");
 
   const byAction = new Map(inventory.map((entry) => [entry.actionId, entry]));
+  assert.equal(byAction.get("media.action.confirm-selected-fallback").domainOperationDisposition, "OWNER_DEFINED_EXACT_OPERATION_REFERENCE");
+  assert.deepEqual(byAction.get("media.action.confirm-selected-fallback").exactOperationRefs, ["media.operation.fallback-selection.confirm.v1"]);
   const inspectSourceAction = sourceActions.find(({ id }) => id === "media.action.inspect-source");
   assert.ok(inspectSourceAction, "inspect-source must remain in the authoritative PDP-3 action registry");
   assert.deepEqual(

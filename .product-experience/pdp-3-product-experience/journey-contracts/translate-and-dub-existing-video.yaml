@@ -21,6 +21,43 @@ channels:
   - media.channel.web
   - media.channel.grpc-api
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+pdp1ResultEvidence:
+  status: SOURCE_BOUND_DEFINITION_ONLY; PDP3_CHANNEL_BINDING_PENDING
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-translated-segment
+    - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-dub
+    - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/ownerWireSchema/resultSchema
+  operationResultBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/steps/0
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j16-step-01.v1
+      operationRef: media.operation.action.review-translated-segment
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      exactResult: Exact-target scoped owner observation with requestId, exactTargetRef, ownerReceipt, and observedAt only; no command effect or approval is inferred.
+      unknownDisposition: Missing, stale, denied, mismatched, or unavailable evidence remains UNKNOWN; preserve the exact target and repeat only the authorized read.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/steps/2
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j16-step-03.v1
+      operationRef: media.operation.caption-draft-write
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+      exactResult: One session-local draft snapshot and exact source/parent identifiers; no immutable caption-version registration, approval, or publication.
+      unknownDisposition: Preserve the exact request and draft identity; reconcile an unknown write against the same request fingerprint and never infer a second write.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/steps/4
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j16-step-05.v1
+      operationRef: media.operation.action.compare-candidate-on-metric
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      exactResult: Exact-target scoped owner observation only; comparison does not mutate a candidate or establish dubbing quality, approval, or delivery.
+      unknownDisposition: Missing, stale, denied, mismatched, or unavailable evidence remains UNKNOWN; preserve exact candidate/version selectors and repeat only the authorized read.
+  conditionalCandidateOperations:
+    status: NOT_BOUND_TO_AN_OPERATION_BEARING_JOURNEY_STEP
+    sourceRefs:
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-dub
+      - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/ownerWireSchema/resultSchema
+    disposition: Step 1 remains an explicit user-selection choice with no default, dispatch, or operation result. The listed speech and save-version candidates do not establish a dub result or immutable caption version in this journey.
+  channelAndRuntimeBoundary:
+    intendedChannels: [media.channel.web, media.channel.grpc-api]
+    transport: UNBOUND
+    runtimeAdmission: NOT_ADMITTED
 preconditions:
   - Source, translation intent, voice authority, subtitle/voice locales, and
     destination are independently specified.
@@ -1789,6 +1826,13 @@ requiredScenarioBehaviors:
     consent denial, or lip/speech timing mismatch.
 scenarioRefs: []
 unresolvedProductDecisions:
+  - Bind the exact PDP-1 results across the existing-video, target-locale,
+    translated-segment/draft, immutable-version, approval, and delivery stages
+    before claiming the intended terminal outcome. The currently source-defined
+    review/compare operations return the scoped-query envelope only, and the
+    caption-draft operation returns a session-local snapshot; neither result
+    establishes immutable registration, approval, or destination acknowledgement.
+    Keep the web and gRPC transport bindings UNBOUND and runtime NOT_ADMITTED.
   - Bind each view transition to an owner-approved action, state, and finality
     contract; no action identifier or state transition is inferred by this
     proposal.

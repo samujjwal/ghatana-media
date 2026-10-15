@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "media.discovery-pdp1-additional-source-impact.v1",
+  "recordId": "MEDIA-DISCOVERY-PDP1-OWNER-ACTION-WIRE-IMPACT-2026-10-14-R3",
+  "observedAt": "2026-10-14T00:00:00.000Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "stage": "DISCOVERY",
+    "phase": "PDP-1",
+    "scope": "Exact PDP-1 owner-action wire mapping-ledger refresh from NOT_EXPOSED reconciliation; no additional PDP-1 meaning."
+  },
+  "authority": {
+    "delegate": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION",
+    "authorityRef": ".product-experience/reviews/2026-10-13-discovery-current-cut-delegated-owner-review.md#Authority-and-attribution",
+    "decisionRole": "SCOPED_INTERNAL_MEDIA_SOURCE_IMPACT_REVIEW",
+    "humanIndependentSignatureProvided": false,
+    "externalContractOwnerAcceptanceProvided": false
+  },
+  "parentImpact": {
+    "ref": "docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r2.json",
+    "recordId": "MEDIA-DISCOVERY-PDP1-ADDITIONAL-SOURCE-IMPACT-2026-10-14-R2",
+    "sha256": "sha256:e42ea147206f041b5cb3b76a81227314630f775201f1bf099a6e4aace38c6860"
+  },
+  "sourceDeltas": [
+    {
+      "path": ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml",
+      "predecessorSha256": "sha256:f6155c1bf0a1851b0fa45f631ce09eb459d2b8d5d8df6cd03a3dd6d634be19cf",
+      "observedSha256": "sha256:e7c432e0244e7c719d211d16dd7c7d94d1c7dc87b33f339ed72ddcf5bd6e4a9b",
+      "classification": "PDP1_NOT_EXPOSED_MAPPING_LEDGER_REFRESH",
+      "meaningChange": "NO_ADDITIONAL_PDP1_MEANING",
+      "meaningIdsChanged": [],
+      "requiresFreshCurrentness": true
+    }
+  ],
+  "decision": {
+    "preserveHistoricalReceipts": true,
+    "ownerAcceptance": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "runtime": "NOT_CLAIMED",
+    "closure": "NOT_CLAIMED",
+    "delivery": "NOT_CLAIMED",
+    "release": "NOT_CLAIMED"
+  },
+  "limitation": "This internal source-impact record covers only the listed NOT_EXPOSED mapping-ledger refresh and requires fresh currentness. It does not establish owner or independent acceptance, runtime behavior, native closure, delivery, or release."
+}

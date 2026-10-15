@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { joinMediaPdp0PhaseExit, mediaPdp0RequiredCommands } from '../scripts/lib/media-discovery-pdp0-phase-exit.mjs';
+import { joinMediaPdp0PhaseExit, mediaPdp0RequiredCommands, resolveMediaPdp0SuccessorPredecessorRefs } from '../scripts/lib/media-discovery-pdp0-phase-exit.mjs';
 import {
   buildMediaPdp0CurrentnessPhaseDisposition,
   classifyCurrentCutPdp0PinChange,
@@ -96,6 +96,31 @@ const currentCutPdp0Predecessor = JSON.parse(fs.readFileSync(path.join(root, 'do
 const currentCutImpact = JSON.parse(fs.readFileSync(path.join(root, 'docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r1.json'), 'utf8'));
 const currentCutImpactPath = 'docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r1.json';
 const currentCutImpactDigest = `sha256:${createHash('sha256').update(fs.readFileSync(path.join(root, currentCutImpactPath))).digest('hex')}`;
+const r8ExitPath = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r8.json';
+const r8CurrentnessPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r8.json';
+const r8Exit = JSON.parse(fs.readFileSync(path.join(root, r8ExitPath), 'utf8'));
+const r8SuccessorImpactPath = 'docs/implementation/observations/media-discovery-pdp0-r8-successor-impact-2026-10-14-r2.json';
+const r8SuccessorImpact = JSON.parse(fs.readFileSync(path.join(root, r8SuccessorImpactPath), 'utf8'));
+const r8Currentness = JSON.parse(fs.readFileSync(path.join(root, r8CurrentnessPath), 'utf8'));
+
+test('PDP-0 successor CLI binds each impact record to its exact predecessor exit and currentness', () => {
+  assert.deepEqual(resolveMediaPdp0SuccessorPredecessorRefs('MEDIA-DISCOVERY-PDP0-R6-SUCCESSOR-IMPACT-2026-10-14-R1'), {
+    exitRef: 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r6.json',
+    currentnessRef: 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r6.json',
+  });
+  assert.deepEqual(resolveMediaPdp0SuccessorPredecessorRefs('MEDIA-DISCOVERY-PDP0-R8-SUCCESSOR-IMPACT-2026-10-14-R2'), {
+    exitRef: r8ExitPath, currentnessRef: r8CurrentnessPath,
+  });
+  assert.deepEqual(resolveMediaPdp0SuccessorPredecessorRefs('MEDIA-DISCOVERY-PDP0-PXD164-SUCCESSOR-IMPACT-2026-10-14-R1'), {
+    exitRef: 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r10.json',
+    currentnessRef: 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r10.json',
+  });
+  assert.deepEqual(resolveMediaPdp0SuccessorPredecessorRefs('MEDIA-DISCOVERY-PDP0-R11-SUCCESSOR-IMPACT-2026-10-14-R1'), {
+    exitRef: 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r11.json',
+    currentnessRef: 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r11.json',
+  });
+  assert.throws(() => resolveMediaPdp0SuccessorPredecessorRefs('MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R1'), /Unsupported PDP-0 successor impact recordId/);
+});
 
 function currentCutTechnical() {
   const result = technical();
@@ -318,6 +343,46 @@ test('the current-cut impact disposition rejects changed authority attribution',
   });
   assert.equal(exit.phaseExit.status, 'FAIL');
   assert.ok(exit.delegatedOwnerAcceptance.blockers.includes('CURRENT_CUT_IMPACT_AUTHORITY_INVALID'));
+});
+
+test('PDP-0 R10 phase exit joins exactly the authorized R8 test transition without claiming acceptance', () => {
+  const currentDigests = { ...r8Exit.sourceCurrentness.sourceContentDigests,
+    'tests/pdp-truth-domain.test.mjs': 'sha256:8ef1a6d5e11dc2e10ca32c3e6813fc8671c22a6c7f7038d48300d52f8feae578' };
+  const technicalCurrentness = {
+    ...r8Currentness,
+    materialPathDenominator: { uniquePaths: 146, sharedPaths: 111, cellSpecificPaths: 35 },
+    physicalCompositeConsumerCells: r8Currentness.physicalCompositeConsumerCells.map((cell) => ({ ...cell, sourceCurrentness: 'CURRENT', blockers: [] })),
+    sourceContentDigests: currentDigests,
+    historicalPdp0PinDriftClassifications: r8Currentness.historicalPdp0PinDriftClassifications,
+    unclassifiedHistoricalPdp0PinChanges: [],
+    externalOwnerContracts: { totalFiles: 30, digestMatches: 30, digestMismatches: [] },
+    authority: { changedMeaningIds: [] },
+    phaseDisposition: { historicalDefinitionStatus: 'DEV_COMPLETE', historicalOutstandingMeaningIds: [], currentSourceCurrentness: 'PASS', sourceCurrent: true },
+  };
+  const exit = joinMediaPdp0PhaseExit({
+    technicalCurrentness,
+    ownerAcceptance: r8SuccessorImpact,
+    ownerAcceptancePath: r8SuccessorImpactPath,
+    historicalPdp0Exit: r8Exit,
+    testOutcomes,
+    baselineSha: r8Exit.campaign.observedHead,
+  });
+  assert.equal(exit.phaseExit.status, 'PASS');
+  assert.equal(exit.sourceCurrentness.status, 'PASS');
+  assert.equal(exit.developmentStatus.status, 'DEV_COMPLETE');
+  assert.deepEqual(exit.developmentStatus.outstandingMeaningIds, []);
+  assert.equal(exit.ownerStatusJoin.predecessorExitRef, r8ExitPath);
+  assert.equal(exit.ownerStatusJoin.predecessorCurrentnessRef, r8CurrentnessPath);
+  assert.equal(exit.ownerStatusJoin.predecessorPathCount, 146);
+  assert.equal(exit.ownerStatusJoin.unchangedPathCount, 145);
+  assert.equal(exit.ownerStatusJoin.internallyDispositionedChangedPathCount, 1);
+  assert.equal(exit.ownerStatusJoin.unreviewedChangedPathCount, 0);
+  assert.equal(exit.delegatedOwnerAcceptance.status, 'INTERNAL_SUCCESSOR_IMPACT_DISPOSITION_ONLY_NOT_OWNER_ACCEPTANCE');
+  assert.equal(exit.delegatedOwnerAcceptance.humanIndependentSignatureProvided, false);
+  assert.equal(exit.phaseExit.delegatedOwnerAcceptance, 'NOT_CLAIMED_IMPACT_DISPOSITION_ONLY');
+  assert.equal(exit.independentApproval, 'NOT_CLAIMED_AND_NOT_WAIVED');
+  assert.equal(exit.lifecycleClosure, 'NOT_ENTERED');
+  assert.equal(exit.delivery, 'BLOCKED');
 });
 
 const REVIEWED_PATHS = new Set([

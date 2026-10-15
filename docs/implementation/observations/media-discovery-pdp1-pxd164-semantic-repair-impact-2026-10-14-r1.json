@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "media.discovery-pdp1-semantic-repair-impact.v1",
+  "recordId": "MEDIA-DISCOVERY-PDP1-PXD164-SEMANTIC-REPAIR-IMPACT-2026-10-14-R1",
+  "observedAt": "2026-10-14T22:42:27Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "stage": "DISCOVERY",
+    "phase": "PDP-1",
+    "scope": "Exact PXD-164 selected-target wrapper definition repair for the admitted speech operation; source-impact disposition only."
+  },
+  "decisionRef": ".product-experience/decision-log.md#PXD-164",
+  "meaningOwnerId": "media.operation.action.request-admitted-speech-operation",
+  "sourcePredecessor": {
+    "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r22.json",
+    "sha256": "sha256:bb448dc45d3db788ef16802f8a92dc8054a6fc6aaa27f047c42b4f6c91feb303",
+    "sourceDigests": {
+      ".product-experience/decision-log.md": "sha256:9831b03ecd3f30d2cbfd7a1db62d934035ba20cf1482bb5e621d166eacdb9b4c",
+      ".product-experience/pdp-1-domain-data/operations-current-source-review.json": "sha256:d5f83fad612d6598165072137390c70c8d4dfdc549a236a29c7bda34b50b6d0c",
+      ".product-experience/pdp-1-domain-data/operations.yaml": "sha256:62d0a4050a43da1c58a63d12adaa7c27055c63afc51580bd1e2478d1da3dace8",
+      ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml": "sha256:19605e76b089ffc91cc7a08ce09bed375c638c29edf7b623df61ca2e89cfcf0b"
+    }
+  },
+  "sourceDeltas": [
+    {
+      "path": ".product-experience/decision-log.md",
+      "selector": ".product-experience/decision-log.md#PXD-164",
+      "predecessorSha256": "sha256:9831b03ecd3f30d2cbfd7a1db62d934035ba20cf1482bb5e621d166eacdb9b4c",
+      "observedSha256": "sha256:97ad3104abec9ba6670804394c68a11c663f37171e90ea2a1f2e629aa5619bbc",
+      "phase": "PDP-1",
+      "classification": "PXD164_SPEECH_SELECTED_TARGET_WRAPPER_SEMANTIC_REPAIR",
+      "meaningChange": "PDP1_MEANING_CHANGED_AND_REVIEWED_UNDER_DELEGATED_INTERNAL_SOURCE_REVIEW",
+      "meaningIdsChanged": [
+        "media.operation.action.request-admitted-speech-operation"
+      ],
+      "requiresFreshCurrentness": true
+    },
+    {
+      "path": ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
+      "selector": ".product-experience/pdp-1-domain-data/operations-current-source-review.json#reviewedOperationDefinitions/@id=media.operation.action.request-admitted-speech-operation",
+      "predecessorSha256": "sha256:d5f83fad612d6598165072137390c70c8d4dfdc549a236a29c7bda34b50b6d0c",
+      "observedSha256": "sha256:e5a86cd601694697ad735ab10803f215ef8078b8704dc7dc2645435a490e74bc",
+      "phase": "PDP-1",
+      "classification": "PXD164_SPEECH_SELECTED_TARGET_WRAPPER_SEMANTIC_REPAIR_REVIEW",
+      "meaningChange": "PDP1_MEANING_CHANGED_AND_REVIEWED_UNDER_DELEGATED_INTERNAL_SOURCE_REVIEW",
+      "meaningIdsChanged": [
+        "media.operation.action.request-admitted-speech-operation"
+      ],
+      "requiresFreshCurrentness": true
+    },
+    {
+      "path": ".product-experience/pdp-1-domain-data/operations.yaml",
+      "selector": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.request-admitted-speech-operation",
+      "predecessorSha256": "sha256:62d0a4050a43da1c58a63d12adaa7c27055c63afc51580bd1e2478d1da3dace8",
+      "observedSha256": "sha256:63e36ea20e5b5f7e6fa84d3a7f2bdd2f611835b415aa25205bcf0b290fb7f952",
+      "phase": "PDP-1",
+      "classification": "PXD164_SPEECH_SELECTED_TARGET_WRAPPER_SEMANTIC_REPAIR",
+      "meaningChange": "PDP1_MEANING_CHANGED_AND_REVIEWED_UNDER_DELEGATED_INTERNAL_SOURCE_REVIEW",
+      "meaningIdsChanged": [
+        "media.operation.action.request-admitted-speech-operation"
+      ],
+      "requiresFreshCurrentness": true
+    },
+    {
+      "path": ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml",
+      "selector": ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.request-admitted-speech-operation.v1",
+      "predecessorSha256": "sha256:19605e76b089ffc91cc7a08ce09bed375c638c29edf7b623df61ca2e89cfcf0b",
+      "observedSha256": "sha256:c5f6a711b9b8d90e139aeeda5bc22eebd90648f544a9dca17bb72b7cafb55bda",
+      "phase": "PDP-1",
+      "classification": "PXD164_SPEECH_SELECTED_TARGET_WRAPPER_WIRE_ALIGNMENT",
+      "meaningChange": "PDP1_MEANING_CHANGED_AND_REVIEWED_UNDER_DELEGATED_INTERNAL_SOURCE_REVIEW",
+      "meaningIdsChanged": [
+        "media.operation.action.request-admitted-speech-operation"
+      ],
+      "requiresFreshCurrentness": true
+    }
+  ],
+  "verificationInputs": {
+    "scripts/lib/pdp-selected-target-operation-binding.mjs": "sha256:e1f77c00f7ff1bea37b2b46bea8c94586a0996514e4fa515ddc0ec578b60eecc",
+    "tests/pdp1-j04-selected-target-operation-binding.test.mjs": "sha256:5e37458e9a9c03677e37954b05c892c81f7cd7baa4f2ecbb12bf40012a444108",
+    "tests/pdp1-operation-current-source-review.test.mjs": "sha256:fae9e284461a294d15de7acfc05fa739f26ccf20b351107916fe32206497e331"
+  },
+  "verificationInputTransitions": [
+    {
+      "path": "tests/pdp1-operation-current-source-review.test.mjs",
+      "predecessorSha256": "sha256:0eba3c1f978587e94052b717ecb3a712104e972cfeeeddeef65982a5ebf2f641",
+      "observedSha256": "sha256:fae9e284461a294d15de7acfc05fa739f26ccf20b351107916fe32206497e331",
+      "classification": "PDP1_FOCUSED_VERIFICATION_ONLY",
+      "meaningChange": "NO_PDP1_MEANING_CHANGE",
+      "meaningIdsChanged": [],
+      "requiresFreshCurrentness": true
+    }
+  ],
+  "pdp0ImpactAssessment": {
+    "meaningIdsChanged": [],
+    "disposition": "NO_PDP0_MEANING_CHANGE",
+    "assessment": "PXD-164 defines the PDP-1 operation wrapper for an existing speech journey and changes no Product Truth outcome, scope, capability, actor, right, or requirement."
+  },
+  "downstreamImpact": {
+    "pdp2": "NOT_YET_DISPOSITIONED_REQUIRES_SOURCE_IMPACT_REVIEW_AFTER_PDP1_CURRENTNESS",
+    "pdp3": "REQUIRES_RECAPTURE_AFTER_AFFECTED_PDP2_CURRENTNESS",
+    "orderedTechnicalCurrentnessRecapture": [
+      "PDP-1",
+      "AFFECTED_PDP-2",
+      "PDP-3"
+    ]
+  },
+  "authority": {
+    "delegate": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION",
+    "decisionRole": "SCOPED_INTERNAL_MEDIA_SOURCE_IMPACT_REVIEW",
+    "humanIndependentSignatureProvided": false,
+    "externalContractOwnerAcceptanceProvided": false,
+    "nativeLifecycleReceiptProvided": false
+  },
+  "decision": {
+    "status": "INTERNAL_SCOPED_PDP1_SEMANTIC_REPAIR_IMPACT_DISPOSITION",
+    "pdp1MeaningDisposition": "EXACT_PXD164_OWNER_ID_MEANING_CHANGED",
+    "preserveHistoricalReceipts": true,
+    "freshTechnicalCurrentnessRequired": true,
+    "pdp2ImpactDisposition": "NOT_CLAIMED_REQUIRES_SEPARATE_REVIEW",
+    "ownerAcceptance": "NOT_CLAIMED",
+    "independentReview": "NOT_CLAIMED",
+    "nativeClosure": "NOT_ENTERED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "release": "NOT_AUTHORIZED"
+  },
+  "limitation": "This record scopes only the four exact R22-to-current PXD-164 source transitions and the named PDP-1 owner ID. It does not disposition PDP-2 impact, establish currentness or phase exit, constitute owner acceptance or independent review, or authorize closure, runtime admission, delivery, or release."
+}

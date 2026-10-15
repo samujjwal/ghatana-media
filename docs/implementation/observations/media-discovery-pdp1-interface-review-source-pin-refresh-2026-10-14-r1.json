@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "media.pdp1-source-impact.v1",
+  "recordId": "MEDIA-PDP1-INTERFACE-REVIEW-SOURCE-PIN-REFRESH-2026-10-14-R1",
+  "recordedOn": "2026-10-14",
+  "phase": "PDP-1",
+  "classification": "INTERNAL_SOURCE_PIN_REVIEW_REFRESH_NO_ADDITIONAL_PDP1_MEANING",
+  "sourceTransition": {
+    "path": ".product-experience/interface-parity/current-source-review.json",
+    "predecessorSha256": "sha256:866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd",
+    "observedSha256": "sha256:64796cfb0db909a36e030041b2d51d02fd19fc115d703cc16bca37116f92ed06"
+  },
+  "currentPins": {
+    ".product-experience/pdp-1-domain-data/operations.yaml": "sha256:63e36ea20e5b5f7e6fa84d3a7f2bdd2f611835b415aa25205bcf0b290fb7f952",
+    ".product-experience/pdp-1-domain-data/operations-current-source-review.json": "sha256:e5a86cd601694697ad735ab10803f215ef8078b8704dc7dc2645435a490e74bc",
+    "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json": "sha256:15ec0101ba8d7c178bed46b116284b0de1150ac38caacedd65904225ab4b51c9",
+    ".product-experience/interface-parity/current-source-review.json": "sha256:64796cfb0db909a36e030041b2d51d02fd19fc115d703cc16bca37116f92ed06"
+  },
+  "disposition": "The exact interface-review transition corrects current PDP-1 operations and operations-review source pins and refreshes the review evidence to the current 147 typed semantic records while preserving the 148 UI identity denominator and independently reviewed PDP-2 operation-parity material. This is a source-pin/review-evidence refresh only and adds no PDP-1 product meaning.",
+  "scopeLimits": {
+    "externalOwnerAcceptance": "NOT_CLAIMED",
+    "independentApproval": "NOT_CLAIMED_AND_NOT_WAIVED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "transportAdmission": "NOT_ADMITTED",
+    "lifecycleClosure": "NOT_ENTERED",
+    "delivery": "NOT_CLAIMED",
+    "release": "NOT_CLAIMED",
+    "tests": "NOT_CLAIMED",
+    "phaseCapture": "NOT_CLAIMED"
+  }
+}

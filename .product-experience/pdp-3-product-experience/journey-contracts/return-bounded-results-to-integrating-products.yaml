@@ -19,6 +19,49 @@ channels:
   - media.channel.product-integration
   - media.channel.http-api
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+pdp1ResultEvidence:
+  status: SOURCE_BOUND_DEFINITION_ONLY; PDP3_CHANNEL_BINDING_PENDING
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.delegated-integration-result-context.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.job-status-seven-dimension.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1
+  boundedResultContext:
+    sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.delegated-integration-result-context.v1
+    operationRefs: [media.operation.action.review-processing-parameters, media.operation.action.view-job-status, media.operation.action.inspect-output-preview-and-version]
+    requiredResultKinds: [JOB_STATUS, OUTPUT_PREVIEW_VERSION, PROCESSING_PARAMETERS]
+    exactness: Each delegated result reference resolves to its exact typed query result and matches operation, query identity, request fingerprint, digest, read version, observation time, and CURRENT status.
+    identityJoinRuleRefs:
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.delegated-integration-result-context.v1/bindingRules/@id=media.observation-binding.delegated-context.original-request-id
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.delegated-integration-result-context.v1/bindingRules/@id=media.observation-binding.delegated-context.original-request-fingerprint
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.delegated-integration-result-context.v1/resultResolutionRules/@id=media.observation-resolution.delegated-context.exact-typed-result-tuple
+    boundary: Missing, duplicate, mismatched, stale, or unknown result evidence yields UNKNOWN; recursive invocation is not permitted and returned context authorizes no new action.
+    boundedAuthorityFields: [delegationRef, purposeRef, budgetRef, deadlineRef]
+    recursiveInvocationAllowed: false
+  operationResultBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml#/steps/0
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j25-step-01.v1
+      operationRef: media.operation.action.review-processing-parameters
+      delegatedResultKind: PROCESSING_PARAMETERS
+      typedObservationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j25-step-02.v1
+      operationRef: media.operation.action.view-job-status
+      sourceQueryOperationRef: media.operation.job-status.read-dimensions.v1
+      delegatedResultKind: JOB_STATUS
+      typedObservationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.job-status-seven-dimension.v1
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml#/steps/2
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j25-step-03.v1
+      operationRef: media.operation.action.inspect-output-preview-and-version
+      delegatedResultKind: OUTPUT_PREVIEW_VERSION
+      typedObservationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1
+  resultCompleteness: Every operation is covered by its exact purpose-bound P1 observation contract and appears once in the delegated result tuple; the tuple must resolve under trusted tenant, principal, read authority, and read version.
+  channelAndRuntimeBoundary:
+    intendedChannels: [media.channel.product-integration, media.channel.http-api]
+    interfaceGrammarRefs:
+      - .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/headless
+    transport: UNBOUND
+    runtimeAdmission: NOT_ADMITTED
 preconditions:
   - Public Media action, bounded authority/delegation, recursion/cost limits,
     and return contract are admitted.

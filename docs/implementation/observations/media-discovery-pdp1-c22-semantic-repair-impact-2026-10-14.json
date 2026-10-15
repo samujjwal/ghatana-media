@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "media.discovery-pdp1-c22-semantic-repair-impact.v1",
+  "recordId": "MEDIA-DISCOVERY-PDP1-C22-SEMANTIC-REPAIR-IMPACT-2026-10-14",
+  "observedAt": "2026-10-14T18:25:16Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "stage": "DISCOVERY",
+    "phase": "PDP-1",
+    "scope": "Exact PXD-163 MDC30-C-22 operation result and owner-wire semantic repair; source review only."
+  },
+  "decisionRef": ".product-experience/decision-log.md#PXD-163",
+  "taskId": "MDC30-C-22",
+  "authority": {
+    "delegate": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION",
+    "decisionRole": "INTERNAL_PDP1_SOURCE_DEFINITION_REVIEW",
+    "humanOwnerAcceptance": "NOT_CLAIMED",
+    "independentSpecialistAcceptance": "NOT_CLAIMED"
+  },
+  "sourcePredecessor": {
+    "ref": "docs/implementation/observations/media-discovery-pdp1-exit-current-cut-r16.json",
+    "sha256": "sha256:63ee158301047bd715b586c41368a4d576a0b1e224672d08e2ced08349ad00fc",
+    "sourceDigests": {
+      ".product-experience/pdp-1-domain-data/operations.yaml": "sha256:ec1e29eceb76333dec91b52b94d20fa882456dcb52989b1794c4f9c58fdfd111",
+      ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml": "sha256:e7c432e0244e7c719d211d16dd7c7d94d1c7dc87b33f339ed72ddcf5bd6e4a9b"
+    }
+  },
+  "sourceDeltas": [
+    {
+      "path": ".product-experience/pdp-1-domain-data/operations.yaml",
+      "selector": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema",
+      "predecessorSha256": "sha256:ec1e29eceb76333dec91b52b94d20fa882456dcb52989b1794c4f9c58fdfd111",
+      "observedSha256": "sha256:62d0a4050a43da1c58a63d12adaa7c27055c63afc51580bd1e2478d1da3dace8",
+      "phase": "PDP-1",
+      "classification": "PXD163_MDC30_C22_SEMANTIC_REPAIR",
+      "meaningChange": "PDP1_MEANING_CHANGED_AND_REVIEWED_UNDER_DELEGATED_INTERNAL_SOURCE_REVIEW",
+      "meaningIdsChanged": ["PXD-163/MDC30-C-22"],
+      "requiresFreshCurrentness": true
+    },
+    {
+      "path": ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml",
+      "selector": ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#resultProjectionBindings/@sourceOperationRef=media.operation.action.deliver-exact-version",
+      "predecessorSha256": "sha256:e7c432e0244e7c719d211d16dd7c7d94d1c7dc87b33f339ed72ddcf5bd6e4a9b",
+      "observedSha256": "sha256:19605e76b089ffc91cc7a08ce09bed375c638c29edf7b623df61ca2e89cfcf0b",
+      "phase": "PDP-1",
+      "classification": "PXD163_MDC30_C22_SEMANTIC_REPAIR",
+      "meaningChange": "PDP1_MEANING_CHANGED_AND_REVIEWED_UNDER_DELEGATED_INTERNAL_SOURCE_REVIEW",
+      "meaningIdsChanged": ["PXD-163/MDC30-C-22"],
+      "requiresFreshCurrentness": true
+    }
+  ],
+  "operationSelector": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema",
+  "wireSelector": ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#resultProjectionBindings/@sourceOperationRef=media.operation.action.deliver-exact-version",
+  "reviewInputs": {
+    ".product-experience/pdp-1-domain-data/operations-current-source-review.json": "sha256:6a00513dbe97182091a5b1b47fad2dc3e702ffaed962b835d2d4dffb822ff5b8",
+    ".product-experience/interface-parity/current-source-review.json": "sha256:90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76",
+    "tests/media-pdp1-mdc30-owner-result-bindings.test.mjs": "sha256:4e81b7e2caf29cbc7e81a16d2253d9214f420e6b9541b34787eb47837cb8839e",
+    "tests/pdp1-operation-current-source-review.test.mjs": "sha256:0eba3c1f978587e94052b717ecb3a712104e972cfeeeddeef65982a5ebf2f641",
+    "tests/pdp1-interface-current-source-review.test.mjs": "sha256:9a5251fd20311b470e6ac4e43b173f2a2fbb0066d4a55d1fd4a63945a14ba630"
+  },
+  "resultTuple": {
+    "successOutcome": "REQUEST_ACCEPTED",
+    "operationResultFields": [
+      "requestId",
+      "deliveryRequestId",
+      "deliveryRequestResultRef",
+      "deliveryRequestFingerprint",
+      "exactTargetRef",
+      "artifactVersionId",
+      "destinationRef",
+      "ownerReceipt",
+      "observedAt"
+    ],
+    "wireSuccessRequired": [
+      "operationRef",
+      "actionRef",
+      "outcome",
+      "requestId",
+      "deliveryRequestId",
+      "deliveryRequestResultRef",
+      "deliveryRequestFingerprint",
+      "exactTargetRef",
+      "artifactVersionId",
+      "destinationRef",
+      "ownerReceipt",
+      "observedAt"
+    ],
+    "negativeOutcomes": ["REJECTED", "UNKNOWN"],
+    "fingerprintComputedBy": "authenticated-trusted-host",
+    "acknowledgmentIsSeparate": true
+  },
+  "reviewDisposition": "INTERNAL_SOURCE_DEFINITION_REVIEW_COMPLETE; PDP_PHASE_ACCEPTANCE_NOT_CLAIMED",
+  "boundaries": {
+    "externalOwnerAcceptance": "NOT_CLAIMED",
+    "independentSpecialistAcceptance": "NOT_CLAIMED",
+    "nativeClosure": "NOT_ENTERED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "transportAdmission": "NOT_ADMITTED",
+    "release": "NOT_AUTHORIZED"
+  },
+  "limitation": "This source-bound internal review covers only the listed exact R16-to-current C22 source transitions and selectors. It is not external owner acceptance, independent specialist acceptance, PDP phase acceptance, native closure, runtime or transport admission, or release authorization."
+}

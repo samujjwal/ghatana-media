@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "media.discovery-required-check-outcomes.v1",
+  "recordId": "MEDIA-DISCOVERY-PDP0-R12-REQUIRED-CHECKS-2026-10-14",
+  "phase": "PDP-0",
+  "testOutcomes": [
+    {
+      "command": "pnpm check:physical-topology",
+      "status": "PASS",
+      "exitCode": 0,
+      "evidence": "Media physical topology valid: 26 manifest candidates, 17 consumers, 7 compositions."
+    },
+    {
+      "command": "pnpm test:physical-topology",
+      "status": "PASS",
+      "exitCode": 0,
+      "testCount": 13,
+      "passedCount": 13,
+      "failedCount": 0,
+      "skippedCount": 0
+    },
+    {
+      "command": "pnpm check:product-definition-authority",
+      "status": "PASS",
+      "exitCode": 0,
+      "evidence": "355 portable manifest records parsed; 38 scoped requirement records and 30 journey-catalog records checked."
+    },
+    {
+      "command": "pnpm check:product-experience-local",
+      "status": "PASS",
+      "exitCode": 0,
+      "evidence": "Media Product Definition local structural check passed; semantic and independent acceptance remain unclaimed by the checker."
+    },
+    {
+      "command": "node --test tests/media-discovery-currentness.test.mjs tests/media-discovery-pdp0-phase-exit.test.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "testCount": 29,
+      "passedCount": 29,
+      "failedCount": 0,
+      "skippedCount": 0
+    }
+  ]
+}

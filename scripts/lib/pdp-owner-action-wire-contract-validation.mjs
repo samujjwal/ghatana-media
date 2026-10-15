@@ -504,7 +504,8 @@ export function validateOwnerActionWireCatalog({ catalog, operations, actions, d
     }
     const outcomeBranches = (record.resultSchema?.oneOf ?? []).map((branch) => branch.properties?.outcome).filter(Boolean);
     const outcomeConstants = outcomeBranches.flatMap((branch) => branch.const ? [branch.const] : branch.enum ?? []);
-    const expectedSuccess = source.operationKind === "QUERY" ? "OBSERVED" : "ACKNOWLEDGED";
+    const expectedSuccess = source.resultSchema?.successOutcome
+      ?? (source.operationKind === "QUERY" ? "OBSERVED" : "ACKNOWLEDGED");
     const failedBranch = record.resultSchema?.oneOf?.find((branch) => branch.properties?.outcome?.enum);
     if (source.requestSchema && (record.resultSchema?.oneOf?.[0]?.properties?.outcome?.const !== expectedSuccess
       || !outcomeConstants.includes("UNKNOWN") || outcomeBranches.some((branch) => branch.const === "UNKNOWN"))) {

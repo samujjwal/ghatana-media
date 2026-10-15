@@ -5,15 +5,19 @@
   "sources": [
     {
       "path": ".product-experience/interface-parity/operation-parity.yaml",
-      "sha256": "8b95782fe47cb7e44ec159c168399f78a674dbc1c6f72065881c278f7e3c13d6"
+      "sha256": "24e4699d42dd1a2a0363628387fdf2a12c539f8ac697a0b8771277bbd4aa8555"
     },
     {
       "path": ".product-experience/pdp-1-domain-data/operations.yaml",
-      "sha256": "317878be9ebe9c978f356a4e81060620fcb69af02ea25c2ff1d47bd20180c069"
+      "sha256": "63e36ea20e5b5f7e6fa84d3a7f2bdd2f611835b415aa25205bcf0b290fb7f952"
+    },
+    {
+      "path": ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
+      "sha256": "e5a86cd601694697ad735ab10803f215ef8078b8704dc7dc2645435a490e74bc"
     },
     {
       "path": ".product-experience/pdp-3-product-experience/action-registry.yaml",
-      "sha256": "da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2"
+      "sha256": "832beaf50f03f9e3c4d8bf0f7e5f47ffe38b570c3e4864bef04c7362352180fe"
     },
     {
       "path": ".product-experience/pdp-3-product-experience/cli-command-registry.yaml",
@@ -85,7 +89,7 @@
     },
     {
       "path": ".product-experience/pdp-3-product-experience/action-registry.yaml",
-      "sha256": "da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2"
+      "sha256": "832beaf50f03f9e3c4d8bf0f7e5f47ffe38b570c3e4864bef04c7362352180fe"
     },
     {
       "path": "config/route-manifest.json",
@@ -101,8 +105,8 @@
     "fixtureCliCommands": 11,
     "canonicalCliProposalRecords": 12,
     "hostConfiguredCliConsumers": 1,
-    "currentUiActionIdentities": 147,
-    "currentUiActionOperationIntent": 96,
+    "currentUiActionIdentities": 148,
+    "currentUiActionOperationIntent": 97,
     "currentUiActionLocalOrSessionOnly": 49,
     "currentUiActionSharedIdentityBoundary": 2
   },
@@ -166,7 +170,7 @@
     "historicalMappedProposal": 14,
     "historicalOwnerDefinedIntentOnly": 1,
     "historicalUnresolvedCrossInterfaceBindings": 132,
-    "meaning": "This separate cross-interface binding count does not override the current 147-action semantic-role census or imply that 132 actions lack P1 operation-intent or non-operation dispositions."
+    "meaning": "This separate cross-interface binding count uses the UI action registry denominator and does not override the current 148-identity semantic-role census or imply that any action lacks P1 operation-intent or non-operation dispositions."
   },
   "semanticDelta": {
     "surface": "CLI fixture commands",
@@ -355,28 +359,29 @@
   },
   "currentSourceCutDeltaReview": {
     "status": "RECONCILED_CURRENT_SOURCE_CUT",
-    "reviewedOn": "2026-10-13",
-    "operationsSha256": "317878be9ebe9c978f356a4e81060620fcb69af02ea25c2ff1d47bd20180c069",
-    "actionRegistrySha256": "da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2",
-    "operationParitySha256": "8b95782fe47cb7e44ec159c168399f78a674dbc1c6f72065881c278f7e3c13d6",
-    "meaning": "Re-reviewed the current operations source against exact interface identities and action crosswalks. The preceding reviewed operations bytes are not available in the checked-out Git history, so this is a full current-cut parity review, not a reconstructed byte-exact delta. The inspect-source action retains its exact current PDP-3 preconditions and one matching PDP-1 QUERY inventory identity. Four additional owner-defined typed QUERY observations cover destination delivery acknowledgement, delegated integration result context, processing parameter reads, and effective processing constraints; they remain proposal-only definitions with no accepted public-interface identity or transport/runtime admission. Logical operation identity remains separate from route/transport identity.",
+    "reviewedOn": "2026-10-14",
+    "operationsSha256": "63e36ea20e5b5f7e6fa84d3a7f2bdd2f611835b415aa25205bcf0b290fb7f952",
+    "actionRegistrySha256": "832beaf50f03f9e3c4d8bf0f7e5f47ffe38b570c3e4864bef04c7362352180fe",
+    "operationParitySha256": "24e4699d42dd1a2a0363628387fdf2a12c539f8ac697a0b8771277bbd4aa8555",
+    "meaning": "Re-reviewed the current operations source against exact interface identities, action crosswalks, and typed observation inventory. The preceding reviewed operations bytes are not available in the checked-out Git history, so this is a full current-cut parity review, not a reconstructed byte-exact delta. The exact source inventory contains 15/15 current owner typed observation contracts and 15 validation rules, including exact transcript submission lineage, seven-dimension job status, immutable output-preview/version lineage, and the rights/quality/profile evidence joins used by the affected MDC-30 result definitions. These are logical definitions only: they do not establish accepted interface mapping, transport equivalence, external owner acceptance, independent review, or runtime admission. The inspect-source action retains its exact current PDP-3 preconditions and one matching PDP-1 QUERY inventory identity. Logical operation identity remains separate from route/transport identity.",
     "outstandingMeaningIds": [],
     "runtimeAdmission": "NOT_ADMITTED",
-    "typedUiActionSemanticRecordCount": 146,
-    "currentActionIdentityDenominator": 147,
+    "typedUiActionSemanticRecordCount": 147,
+    "currentActionIdentityDenominator": 148,
     "previousReviewedOperationsSha256": "2ea3da8af4d332be51c7322060641de5f59a13e3b00833e03105f5d13049d55c",
     "previousReviewedOperationsBytesAvailableInGit": false,
     "operationsSourceReinspection": {
       "status": "REINSPECTED_CURRENT_SOURCE_CUT",
-      "sourceSha256": "317878be9ebe9c978f356a4e81060620fcb69af02ea25c2ff1d47bd20180c069",
+      "sourceSha256": "63e36ea20e5b5f7e6fa84d3a7f2bdd2f611835b415aa25205bcf0b290fb7f952",
       "previousReviewedSourceSha256": "2ea3da8af4d332be51c7322060641de5f59a13e3b00833e03105f5d13049d55c",
       "previousSourceBytesAvailableInGit": false,
       "populations": {
-        "typedUiActionSemanticRecords": 146,
-        "currentActionIdentityDenominator": 147,
+        "typedUiActionSemanticRecords": 147,
+        "currentActionIdentityDenominator": 148,
         "fixtureCliCommands": 11,
         "sdkRegistryRecords": 33,
-        "sdkPublicMethodIdentities": 30
+        "sdkPublicMethodIdentities": 30,
+        "ownerTypedObservationContracts": 15
       },
       "evidence": [
         "tests/pdp1-interface-current-source-review.test.mjs",
@@ -385,13 +390,43 @@
       ],
       "runtimeAdmission": "NOT_ADMITTED",
       "transportAdmission": "NOT_ADMITTED",
-      "additionalOwnerTypedObservationContractIds": [
+      "additionalObservationDisposition": "DEFINITION_ONLY_NO_ACCEPTED_INTERFACE_MAPPING_NO_TRANSPORT_OR_RUNTIME_ADMISSION",
+      "currentOwnerTypedObservationContractIds": [
+        "media.observation-contract.rights-decision.v1",
+        "media.observation-contract.quality-evidence.v1",
+        "media.observation-contract.profile-qualification.v1",
+        "media.observation-contract.provenance-completeness.v1",
+        "media.observation-contract.declared-options.v1",
+        "media.observation-contract.quality-action-plan.v1",
+        "media.observation-contract.language-uncertainty.v1",
+        "media.observation-contract.retry-policy-current-read.v1",
         "media.observation-contract.destination-delivery-acknowledgment.v1",
         "media.observation-contract.delegated-integration-result-context.v1",
+        "media.observation-contract.transcript-submission-lineage.v1",
         "media.observation-contract.processing-parameter-read.v1",
+        "media.observation-contract.job-status-seven-dimension.v1",
+        "media.observation-contract.output-preview-version-lineage.v1",
         "media.observation-contract.effective-processing-constraints.v1"
       ],
-      "additionalObservationDisposition": "DEFINITION_ONLY_NO_INTERFACE_MAPPING_ACCEPTED_NO_TRANSPORT_OR_RUNTIME_ADMISSION"
+      "ownerTypedObservationContracts": 15,
+      "ownerTypedObservationValidationRules": 15
+    },
+    "externalOwnerAcceptance": "PENDING",
+    "independentReview": "OPEN",
+    "transportAdmission": "NOT_ADMITTED",
+    "fallbackActionOperationReconciliation": {
+      "actionRef": "media.action.confirm-selected-fallback",
+      "operationRefs": [
+        "media.operation.fallback-selection.confirm.v1"
+      ],
+      "actionSourceSelector": ".product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.confirm-selected-fallback",
+      "ownerSourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#actionOperationDispositionInventory/records/@actionId=media.action.confirm-selected-fallback",
+      "operationSourceSelector": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.fallback-selection.confirm.v1",
+      "operationKind": "COMMAND",
+      "runtimeAdmission": "NOT_ADMITTED",
+      "externalOwnerAcceptance": "PENDING",
+      "independentReview": "OPEN",
+      "transportAdmission": "NOT_ADMITTED"
     }
   }
 }

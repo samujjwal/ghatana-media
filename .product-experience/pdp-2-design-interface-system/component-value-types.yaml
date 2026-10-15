@@ -654,6 +654,7 @@ $defs:
       - media.action.compare-candidate-on-metric
       - media.action.compare-caption-versions
       - media.action.compare-media-versions
+      - media.action.confirm-selected-fallback
       - media.action.continue-within-recorded-scope
       - media.action.correct-caption
       - media.action.create-project

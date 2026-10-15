@@ -19,6 +19,60 @@ intent: media.intent.restore-project
 channels:
   - media.channel.web
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+pdp1ResultEvidence:
+  status: SOURCE_BOUND_DEFINITION_ONLY; PDP3_CHANNEL_BINDING_PENDING
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/ownerWireSchema/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.list-projects/ownerWireSchema/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project/ownerWireSchema/resultSchema
+  operationResultBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/1
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j01-step-02.v1
+      operationRef: media.operation-slice.list-projects
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.list-projects/contractVersion
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.list-projects/ownerWireSchema/resultSchema
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.list-projects/authority/ownerRefs/0
+        - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.list-projects/authority/ownerRefs/1
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.list-projects/finality
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.list-projects/ownerWireSchema/resultSchema
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.list-projects/retry
+      exactResult: A time-scoped authorized project summary page; an empty page is scoped to the selected workspace and observedAt, not global absence.
+      unknownDisposition: The result schema distinguishes UNKNOWN_OBSERVATION from OBSERVED; preserve that distinction and do not infer a cross-workspace inventory.
+      errorsAndRecovery: Reobserve only the same authorized tenant, principal, workspace, and query; no command replay.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/2
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j01-step-03.v1
+      operationRef: media.operation-slice.create-project
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/contractVersion
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/ownerWireSchema/resultSchema
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/authority/ownerRefs/0
+        - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/authority/ownerRefs/1
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/finality
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/outcomes/unknownOutcome
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/retry
+      exactResult: The typed result returns the authoritative receipt and opaque identities for one empty project and its initial immutable revision.
+      finality: Only the atomic authoritative commit receipt establishes project creation; HTTP acknowledgment or local dispatch alone is not finality.
+      unknownDisposition: After dispatch without an authoritative commit receipt, preserve UNKNOWN_OUTCOME and the original requestId.
+      errorsAndRecovery: Inspect using the same requestId and original request fingerprint before any resubmission; never blindly retry an ambiguous dispatch.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/3
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j01-step-04.v1
+      operationRef: media.operation-slice.inspect-project
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project/contractVersion
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project/ownerWireSchema/resultSchema
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project/authority/ownerRefs/0
+        - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project/authority/ownerRefs/1
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project/finality
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project/outcomes/unknownCreate
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project/retry
+      exactResult: A time-scoped observation of the selected project and exact current head revision, or same-request creation reconciliation.
+      finality: Observation only; the returned head is current as of observedAt and is not a write precondition or rights proof.
+      unknownDisposition: If reconciliation cannot establish the original creation receipt and initialRevisionId, preserve UNKNOWN_OUTCOME.
+      errorsAndRecovery: Reobserve the same selector under current authority; never create or replay from an unavailable or scoped-absence result.
 preconditions:
   - Resolve an authenticated principal and authorized tenant/workspace through the admitted Shared
     identity contract before showing protected project data.

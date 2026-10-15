@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "media.discovery-pdp1-additional-source-impact.v1",
+  "recordId": "MEDIA-DISCOVERY-PDP1-INTERFACE-REVIEW-IMPACT-2026-10-14-R4",
+  "observedAt": "2026-10-14T14:58:21Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "stage": "DISCOVERY",
+    "phase": "PDP-1",
+    "scope": "Exact interface-review source-pin correction from R2's reviewed operations digest to the current operations source digest; no additional PDP-1 meaning."
+  },
+  "authority": {
+    "delegate": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION",
+    "authorityRef": ".product-experience/reviews/2026-10-13-discovery-current-cut-delegated-owner-review.md#Authority-and-attribution",
+    "decisionRole": "SCOPED_INTERNAL_MEDIA_SOURCE_IMPACT_REVIEW",
+    "userAuthorization": "NO_ADDITIONAL_P1_MEANING_FOR_EXACT_INTERFACE-REVIEW-PATH",
+    "humanIndependentSignatureProvided": false,
+    "externalContractOwnerAcceptanceProvided": false
+  },
+  "parentImpact": {
+    "ref": "docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r2.json",
+    "recordId": "MEDIA-DISCOVERY-PDP1-ADDITIONAL-SOURCE-IMPACT-2026-10-14-R2",
+    "sha256": "sha256:e42ea147206f041b5cb3b76a81227314630f775201f1bf099a6e4aace38c6860"
+  },
+  "sourceDelta": {
+    "path": ".product-experience/interface-parity/current-source-review.json",
+    "selector": "sources[.product-experience/pdp-1-domain-data/operations.yaml].sha256",
+    "predecessorSha256": "sha256:9f9150548c5e4e97881cc08dd28df0c4b892d88ad51e783e5f51465e1d8715c2",
+    "observedSha256": "sha256:0ce764d11912596ee39057db9bd0f2dfbf3c85f6269d55632bda3b3e6e4ad0dd",
+    "pinnedOperationsSha256": "sha256:ec1e29eceb76333dec91b52b94d20fa882456dcb52989b1794c4f9c58fdfd111",
+    "classification": "PDP1_INTERFACE_REVIEW_SOURCE_PIN_CORRECTION",
+    "meaningChange": "NO_ADDITIONAL_P1_MEANING",
+    "meaningIdsChanged": [],
+    "requiresFreshCurrentness": true
+  },
+  "decision": {
+    "status": "INTERNAL_SCOPED_IMPACT_DISPOSITION",
+    "pdp1MeaningDisposition": "NO_ADDITIONAL_P1_MEANING_FOR_EXACT_INTERFACE_REVIEW_PATH",
+    "preserveHistoricalReceipts": true,
+    "ownerAcceptance": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "runtime": "NOT_CLAIMED",
+    "closure": "NOT_CLAIMED",
+    "delivery": "NOT_CLAIMED",
+    "release": "NOT_CLAIMED"
+  },
+  "limitation": "This record covers only the exact interface-review source-pin correction from R2's interface-review digest to the current digest, which pins the exact operations.yaml digest. It adds no PDP-1 meaning, requires fresh currentness, and makes no owner or independent acceptance, runtime, closure, delivery, or release claim."
+}

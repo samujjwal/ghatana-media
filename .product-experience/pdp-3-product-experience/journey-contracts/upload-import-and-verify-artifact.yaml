@@ -25,6 +25,109 @@ channels:
   - media.channel.http-api
   - media.channel.sdk
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+pdp1ResultEvidence:
+  status: SOURCE_BOUND_DEFINITION_ONLY; PDP3_CHANNEL_BINDING_PENDING
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload/ownerWireSchema/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk/ownerWireSchema/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload/ownerWireSchema/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-upload/ownerWireSchema/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/ownerWireSchema/resultSchema
+  operationResultBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/1
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-02.v1
+      operationRef: media.operation-slice.begin-upload
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload/contractVersion
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload/ownerWireSchema/resultSchema
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload/authority
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload/finality
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload/outcomes/unknownOutcome
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload/outcomes/unknownOutcome
+      exactResult: The typed result is an upload-session receipt; upload completion and artifact verification remain separate operations.
+      finality: Successful response establishes only an upload-session receipt; upload completion and artifact verification are separate.
+      unknownDisposition: Preserve UNKNOWN_OUTCOME and reconcile the same tenant, principal, and idempotency key before using any new upload identity.
+      errorsAndRecovery: Reconcile the same identity before any new upload; no automatic retry is defined.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/2
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-03.v1
+      operationRef: media.operation-slice.append-upload-chunk
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk/contractVersion
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk/ownerWireSchema/resultSchema
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk/authority
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk/finality
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk/outcomes/unknownOutcome
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk/outcomes/unknownOutcome
+      exactResult: The typed result reports an upload-session receipt with observed bytesReceived, nextChunkIndex, and status; it does not establish complete bytes or artifact availability.
+      finality: Updated upload-session receipt only; complete bytes and artifact availability are not established.
+      unknownDisposition: Preserve UNKNOWN_OUTCOME and inspect the same upload before another command; never automatically replay.
+      errorsAndRecovery: Inspect the same upload identity before another command; no automatic replay.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/2
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-03.v1
+      operationRef: media.operation-slice.complete-upload
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload/contractVersion
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload/ownerWireSchema/resultSchema
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload/authority
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload/finality
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload/outcomes/unknownOutcome
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload/outcomes/unknownOutcome
+      exactResult: The typed result is a checksum-verified artifact receipt with opaque storage reference; it does not establish downstream job use, rights clearance, or delivery.
+      finality: Returned artifact receipt only; downstream use, rights clearance, and delivery are not established.
+      unknownDisposition: Preserve UNKNOWN_OUTCOME and inspect the same upload and artifact identities; do not infer availability or create another artifact.
+      errorsAndRecovery: Reconcile the same upload and artifact identities; no second artifact creation or inferred availability.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/2
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-03.v1
+      operationRef: media.operation-slice.inspect-upload
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-upload/contractVersion
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-upload/ownerWireSchema/resultSchema
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-upload/authority
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-upload/finality
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-upload/outcomes/unknownOutcome
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-upload/outcomes/unknownOutcome
+      exactResult: The typed result is a time-scoped upload-session observation, not an artifact or completion proof.
+      finality: Read-only upload-session observation; it is not artifact or completion proof.
+      unknownDisposition: An unavailable read does not prove global absence or safe replay.
+      errorsAndRecovery: Repeat only the same scoped read; a read result never authorizes command replay.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/3
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-04.v1
+      operationRef: media.operation.action.view-job-status
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status/contractVersion
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      typedObservationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.delegated-integration-result-context.v1
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status/authorityRefs/0
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status/authorityRefs/1
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery
+      exactResult: The scoped read envelope contains typed observations and observedAt; it does not define job status dimensions or imply a state transition.
+      finality: Read-only observation; it establishes no state mutation, external effect, or authorization grant.
+      unknownDisposition: Preserve unavailable or scoped-absence results as unknown; do not infer job, attempt, or processing completion.
+      errorsAndRecovery: Reobserve with the same selector; never replay a command based on a query result.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j02-step-05.v1
+      operationRef: media.operation-slice.inspect-artifact-version
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/contractVersion
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/ownerWireSchema/resultSchema
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/authority
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/finality
+      unknownDispositionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/ownerWireSchema/resultSchema
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/retry
+      exactResult: The typed read returns metadata and recorded integrity/lifecycle disposition for the exact immutable artifact version, with observedAt; content bytes are not returned.
+      finality: Read-only observation; it does not establish current availability, rights, permission to process, or external effect.
+      unknownDisposition: Preserve UNKNOWN_OUTCOME and caller-scoped absence; neither proves global nonexistence or current availability.
+      errorsAndRecovery: Reobserve only the same exact artifact/version under current read authority; no command replay.
 preconditions:
   - Resolve the current principal, workspace, and any selected project before
     exposing or mutating protected artifact data.

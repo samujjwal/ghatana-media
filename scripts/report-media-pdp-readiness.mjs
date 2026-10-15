@@ -689,9 +689,9 @@ export function buildPdp1SourceCensus(repositoryRoot = root) {
     .map(row => row?.id).filter(Boolean);
   const uiActionOwnerDefined = (actionRegistry.ownerDefinedActions ?? [])
     .find(row => row?.id === populations.uiActions?.ownerDefinedActionId);
-  if (uiActionIdentityIds.length !== 147 || new Set(uiActionIdentityIds).size !== 147
-      || (actionRegistry.actions ?? []).length !== 146 || (actionRegistry.ownerDefinedActions ?? []).length !== 1
-      || populations.uiActions?.count !== 147 || populations.uiActions?.registryActions !== 146
+  if (uiActionIdentityIds.length !== 148 || new Set(uiActionIdentityIds).size !== 148
+      || (actionRegistry.actions ?? []).length !== 147 || (actionRegistry.ownerDefinedActions ?? []).length !== 1
+      || populations.uiActions?.count !== 148 || populations.uiActions?.registryActions !== 147
       || populations.uiActions?.ownerDefinedActions !== 1
       || populations.uiActions?.ownerDefinedActionId !== 'media.action.request-live-session-reconnect'
       || populations.uiActions?.ownerDefinedOperationRef !== 'media.operation.capability.media-stream-session-reconnect'

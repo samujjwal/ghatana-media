@@ -19,7 +19,7 @@ promptContext:
   - preserve task IDs, wave ordering, gates, exclusions, and evidence boundaries from the supplied plan
 repoGuidance:
   discovered:
-  - no AGENTS.md, nested AGENTS.md, .github/copilot-instructions.md, .github/instructions, or .github/prompts files found
+  - AGENTS.md — root phase-locked four-stage and PDP review protocol
   - .product-experience/README.md
   - .product-experience/authority-map.yaml
   - .product-experience/source-manifest.yaml
@@ -206,8 +206,8 @@ rows:
   - id: prompt-repo-guidance
     status: reviewed-no-gap
     classification: not-applicable
-    evidence: matrix.promptContext and matrix.repoGuidance.discovered record the pasted constitutional contract and repo guidance scan.
-    change: retain this matrix as the auditable context record for the current repair slice
+    evidence: AGENTS.md and matrix.repoGuidance.discovered record the live phase-locked repository protocol and its source scan.
+    change: retain the live root guidance and refresh this inventory when repository instructions change
     verification: node scripts/check-product-experience-local.mjs
   - id: recursive-inventory
     status: gap-found

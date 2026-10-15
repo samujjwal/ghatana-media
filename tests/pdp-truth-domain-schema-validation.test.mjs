@@ -204,15 +204,36 @@ test("all 448 canonical capability request and result schemas close against exac
     const success = example(result);
     success.outcome = "SUCCEEDED";
     success.outputs = outputSchemas.map(example);
+    if (row.capabilityRef === "media.speech.synthesis.dub") {
+      const source = validRequest.input2.payload;
+      success.requestId = validRequest.requestId;
+      success.requestFingerprint = `sha256:${"a".repeat(64)}`;
+      success.acceptedRequest = {
+        sourceArtifactId: source.artifactId,
+        sourceArtifactVersionId: source.versionId,
+        sourceContentDigest: source.sourceContentDigest,
+        sourceClockId: source.sourceClockId,
+        ticksPerSecond: source.ticksPerSecond,
+        sourceDurationTicks: source.sourceDurationTicks,
+        sourceLocale: validRequest.parameters.sourceLocale,
+        targetLocale: validRequest.parameters.targetLocale,
+        translatedSegmentVersionRef: validRequest.parameters.translatedSegmentVersionRef,
+        voiceProfileVersionRef: validRequest.parameters.voiceProfileVersionRef,
+        outputProfileRef: validRequest.parameters.outputProfileRef,
+        candidateOutputRef: success.outputs[0].payload.reference,
+      };
+    }
     if (row.capabilityRef === "media.stream.session.reconnect") {
       success.reconnectReceipt = example(row.resultSchema.properties.reconnectReceipt);
       assert.equal(validateResult({ ...success, reconnectReceipt: undefined }), false, `${row.id} success requires an authoritative reconnect receipt`);
     }
     assert.equal(validateResult(success), true, `${row.id} generated success result should validate: ${ajv.errorsText(validateResult.errors)}`);
     const rejected = { ...success, outcome: "REJECTED", outputs: [] };
+    if (row.capabilityRef === "media.speech.synthesis.dub") delete rejected.acceptedRequest;
     if (row.capabilityRef === "media.stream.session.reconnect") delete rejected.reconnectReceipt;
     assert.equal(validateResult(rejected), true, `${row.id} rejected result without output should validate: ${ajv.errorsText(validateResult.errors)}`);
     const rejectedWithSuccessArtifact = { ...success, outcome: "REJECTED" };
+    if (row.capabilityRef === "media.speech.synthesis.dub") delete rejectedWithSuccessArtifact.acceptedRequest;
     if (row.capabilityRef === "media.stream.session.reconnect") delete rejectedWithSuccessArtifact.reconnectReceipt;
     assert.equal(validateResult(rejectedWithSuccessArtifact), false, `${row.id} must reject a success artifact on rejection`);
     if (row.capabilityRef === "media.stream.session.reconnect") {
@@ -229,8 +250,8 @@ test("all 448 canonical capability request and result schemas close against exac
 });
 
 
-test("all 128 input and 98 output type definitions are material, closed, and reject missing required evidence", () => {
-  assert.equal(contract.inputPayloadSchemas.length, 128);
+test("all 129 input and 98 output type definitions are material, closed, and reject missing required evidence", () => {
+  assert.equal(contract.inputPayloadSchemas.length, 129);
   assert.equal(contract.outputPayloadSchemas.length, 98);
   assert.equal(contract.inputPayloadSchemaCount, contract.inputPayloadSchemas.length);
   assert.equal(contract.outputPayloadSchemaCount, contract.outputPayloadSchemas.length);

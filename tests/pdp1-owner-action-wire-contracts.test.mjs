@@ -496,6 +496,50 @@ test("wire requests and results are closed, tenant-bound, and distinguish effect
   }
 });
 
+test("deliver-exact-version wire result exposes the exact request tuple without claiming destination acknowledgment", () => {
+  const record = wire.records.find(({ id }) => id === "media.owner-action-wire.deliver-exact-version.v1");
+  const operation = operationById.get("media.operation.action.deliver-exact-version");
+  assert.ok(record);
+  assert.ok(operation);
+  assert.equal(operation.resultSchema.successOutcome, "REQUEST_ACCEPTED");
+  const success = record.resultSchema.oneOf.find(({ properties }) => properties?.outcome?.const === "REQUEST_ACCEPTED");
+  const failure = record.resultSchema.oneOf.find(({ properties }) => properties?.reasonCode);
+  assert.ok(success, "successful delivery command result means request accepted only");
+  assert.ok(failure, "rejected/unknown command results remain represented");
+  assert.deepEqual(success.required.filter((field) => !["operationRef", "actionRef", "outcome"].includes(field)),
+    operation.resultSchema.fields, "the wire result requires every canonical delivery result field");
+  assert.equal(record.semantics.ownerReceiptSemantics.includes("request receipt only"), true);
+  assert.equal(record.semantics.ownerReceiptSemantics.includes("destination acknowledgment is a separate"), true);
+  assert.deepEqual(failure.properties.outcome.enum, ["REJECTED", "UNKNOWN"]);
+
+  const validateResult = new Ajv2020({ allErrors: true, strict: false, formats: { "date-time": true } }).compile({
+    $defs: wire.$defs,
+    allOf: [record.resultSchema],
+  });
+  const accepted = schemaExample(success, { $defs: wire.$defs });
+  assert.equal(validateResult(accepted), true, JSON.stringify(validateResult.errors));
+  assert.equal(validateResult({ ...accepted, outcome: "ACKNOWLEDGED" }), false,
+    "a command receipt cannot use destination-acknowledgment finality");
+  assert.equal(validateResult({ ...accepted, acknowledgmentStatus: "ACKNOWLEDGED" }), false,
+    "the closed command result cannot carry a destination acknowledgment claim");
+  for (const field of operation.resultSchema.fields) {
+    const missing = structuredClone(accepted);
+    delete missing[field];
+    assert.equal(validateResult(missing), false, `the exact command result tuple requires ${field}`);
+  }
+  const malformedFingerprint = { ...accepted, deliveryRequestFingerprint: "caller-fingerprint" };
+  assert.equal(validateResult(malformedFingerprint), false, "delivery fingerprint must use canonical SHA-256 syntax");
+  for (const outcome of failure.properties.outcome.enum) {
+    assert.equal(validateResult({
+      operationRef: "media.operation.action.deliver-exact-version",
+      actionRef: "media.action.deliver-exact-version",
+      outcome,
+      requestId: accepted.requestId,
+      reasonCode: "owner-result-unknown",
+    }), true, `${outcome} remains a valid fail-closed command result`);
+  }
+});
+
 test("all 79 closed result variants accept a schema-valid payload and reject extensions", () => {
   const ajv = new Ajv2020({ allErrors: true, strict: false, formats: { "date-time": true } });
   const refRoot = { $defs: wire.$defs };

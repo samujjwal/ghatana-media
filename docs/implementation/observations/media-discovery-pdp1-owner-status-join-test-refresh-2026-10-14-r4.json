@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "media.discovery-pdp1-test-source-transition.v1",
+  "recordId": "MEDIA-DISCOVERY-PDP1-OWNER-STATUS-JOIN-TEST-REFRESH-2026-10-14-R4",
+  "observedAt": "2026-10-15T03:00:33Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "stage": "DISCOVERY",
+    "phase": "PDP-1",
+    "scope": "One PDP-1 owner-status-join regression-test refresh binding the exact PDP-0 R12 predecessor while preserving R2/R3 and R10/R11 as historical evidence."
+  },
+  "predecessor": {
+    "ref": "docs/implementation/observations/media-discovery-pdp1-owner-status-join-test-refresh-2026-10-14-r3.json",
+    "sha256": "sha256:f5ef16bdf4b23b866135de97ecf43b876f985e630a54980af7edecdcee433686",
+    "testPath": "tests/media-discovery-pdp1-supplemental-owner-status-join.test.mjs",
+    "testSha256": "sha256:7373bb3f4e165274086a92b6d496ee845503ce7e261a4d40967efd1db75e737d",
+    "pdp0ExitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json",
+    "pdp0ExitSha256": "sha256:91aeae0aad488bc8eb29d40bf955e527ef072ada762948064bc8e50422c5a5c5",
+    "pdp0CurrentnessRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json",
+    "pdp0CurrentnessSha256": "sha256:14882e245fa1676138cfc5bd51ef0403cb96cf2f77542caa2c57dc683ca8b159",
+    "materialSourceSetFingerprint": "sha256:1a121cf988ba4a34f6b603b1f230fd0494160a3c6142c064d8d5cc2a6aa45f94"
+  },
+  "authority": {
+    "delegate": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_AUTHORIZATION",
+    "decisionRole": "INTERNAL_TEST_CURRENTNESS_DISPOSITION",
+    "userAuthorization": "Authorize exact test-only transition (Recommended)",
+    "instruction": "Bind the exact R3-to-R4 regression-test source transition to the matrix-selected PDP-0 R12 exit/currentness pair. Record no additional PDP-1 product meaning and make no owner acceptance, independent acceptance, closure, runtime admission, or release claim."
+  },
+  "sourceTransition": {
+    "path": "tests/media-discovery-pdp1-supplemental-owner-status-join.test.mjs",
+    "predecessorSha256": "sha256:7373bb3f4e165274086a92b6d496ee845503ce7e261a4d40967efd1db75e737d",
+    "observedSha256": "sha256:bb56e5986d7737ff19e62a477710a2e3998d8ee72361c73b205b7796caa72d1c",
+    "classification": "PDP1_REGRESSION_TEST_IMMEDIATE_PREDECESSOR_REFRESH",
+    "productMeaningChange": "NONE",
+    "requiresFreshCurrentnessCapture": true
+  },
+  "decision": {
+    "status": "INTERNAL_TEST_CURRENTNESS_DISPOSITION",
+    "meaningDisposition": "NO_PDP1_PRODUCT_MEANING_CHANGE",
+    "freshPdp1CurrentnessRecapture": "REQUIRED",
+    "preserveHistoricalReceipts": true,
+    "historicalReceiptRefs": [
+      "docs/implementation/observations/media-discovery-pdp1-owner-status-join-test-refresh-2026-10-14-r2.json",
+      "docs/implementation/observations/media-discovery-pdp1-owner-status-join-test-refresh-2026-10-14-r3.json",
+      "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r10.json",
+      "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r11.json"
+    ]
+  },
+  "boundaries": {
+    "ownerAcceptance": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeClosure": "NOT_ENTERED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "release": "NOT_AUTHORIZED"
+  },
+  "limitation": "This internal disposition covers only the exact R3-to-R4 regression-test source transition shown. It changes no PDP-1 product meaning, requires fresh PDP-1 currentness capture, preserves prior R2/R3 and R10/R11 receipts as historical evidence, and makes no owner acceptance, independent acceptance, native closure, runtime admission, or release claim."
+}

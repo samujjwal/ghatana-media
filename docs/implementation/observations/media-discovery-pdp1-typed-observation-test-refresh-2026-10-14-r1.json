@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "media.pdp1-test-source-impact.v1",
+  "recordId": "MEDIA-DISCOVERY-PDP1-TYPED-OBSERVATION-TEST-REFRESH-2026-10-14-R1",
+  "phase": "PDP-1",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "stage": "DISCOVERY",
+    "scope": "Exact verification assertion preserving the earlier supplemental review's R22 operations pin while checking the current semantic source fingerprint independently."
+  },
+  "predecessor": {
+    "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r22.json",
+    "sha256": "sha256:bb448dc45d3db788ef16802f8a92dc8054a6fc6aaa27f047c42b4f6c91feb303",
+    "testPath": "tests/pdp-truth-domain-typed-observations.test.mjs",
+    "testSha256": "sha256:e824ac21970a39795f6d4abd1dc9c1965bbf941024ea03b2aba58f903966916a"
+  },
+  "sourceTransition": {
+    "path": "tests/pdp-truth-domain-typed-observations.test.mjs",
+    "predecessorSha256": "sha256:e824ac21970a39795f6d4abd1dc9c1965bbf941024ea03b2aba58f903966916a",
+    "observedSha256": "sha256:ba78025d7b39f910d8fbbde1219419f497cf0c3fcaef93abc5a131268eeaaee7",
+    "classification": "PDP1_REGRESSION_TEST_EXPECTATION_ALIGNMENT",
+    "meaningChange": "NO_PDP1_MEANING_CHANGE",
+    "meaningIdsChanged": [],
+    "requiresFreshCurrentness": true
+  },
+  "reviewedPinSeparation": {
+    "priorSupplementalDefinitionReviewOperationsSha256": "62d0a4050a43da1c58a63d12adaa7c27055c63afc51580bd1e2478d1da3dace8",
+    "pdp164PredecessorOperationsSha256": "sha256:62d0a4050a43da1c58a63d12adaa7c27055c63afc51580bd1e2478d1da3dace8",
+    "currentOperationsSha256": "sha256:63e36ea20e5b5f7e6fa84d3a7f2bdd2f611835b415aa25205bcf0b290fb7f952",
+    "pdp164MeaningOwnerId": "media.operation.action.request-admitted-speech-operation"
+  },
+  "authority": {
+    "delegate": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_TASK_DELEGATION",
+    "decisionRole": "INTERNAL_REGRESSION_TEST_SOURCE_IMPACT_DISPOSITION",
+    "humanIndependentSignatureProvided": false,
+    "externalContractOwnerAcceptanceProvided": false,
+    "nativeLifecycleReceiptProvided": false
+  },
+  "decision": {
+    "status": "INTERNAL_TEST_ONLY_SOURCE_DISPOSITION",
+    "meaningDisposition": "NO_PDP1_PRODUCT_MEANING_CHANGE",
+    "preserveHistoricalReceipts": true,
+    "freshPdp1CurrentnessRequired": true,
+    "ownerAcceptance": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "nativeClosure": "NOT_ENTERED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "delivery": "NOT_CLAIMED",
+    "release": "NOT_CLAIMED"
+  },
+  "limitation": "This disposition covers only the exact verification-test hash transition. The earlier supplemental review remains bound to its exact PXD164 predecessor operations hash while the current semantic source fingerprint binds the live operations hash. It makes no owner acceptance, independent acceptance, closure, runtime, delivery, or release claim."
+}

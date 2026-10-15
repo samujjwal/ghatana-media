@@ -8,6 +8,65 @@ channels:
   - media.channel.grpc-api
   - media.channel.sdk
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+pdp1ResultEvidence:
+  status: SOURCE_BOUND_DEFINITION_ONLY; PDP3_CHANNEL_BINDING_PENDING
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission/ownerWireSchema/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcript-version-read
+    - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/ownerWireSchema/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/ownerWireSchema/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-read/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+  operationResultBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/1
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j03-step-02.v1
+      operationRef: media.operation.transcription-submission
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission/ownerWireSchema/resultSchema
+      exactResult: Stable logical job identity and submission receipt only; no job/attempt status or recognition completion.
+      finality: Submission receipt is not completion, transcript availability, or approval.
+      errorsAndRecovery: Preserve exact request identity. Explicit rejection follows its typed error; UNKNOWN_OUTCOME reconciles that same request and forbids replay until resolved.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/2
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j03-step-03.v1
+      operationRef: media.operation.action.view-job-status
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      exactResult: Scoped query envelope only (requestId, exactTargetRef, ownerReceipt, observedAt); no job, attempt, or transcription-completion observation is defined.
+      finality: Progress and completion remain UNKNOWN; never derive transcript/caption finality from the query receipt.
+      errorsAndRecovery: Missing, denied, stale, mismatched, or unavailable scoped observation remains UNKNOWN; retry only as the same authorized read, never as a submission.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/3
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j03-step-04.v1
+      operationRef: media.operation.transcript-version-read
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcript-version-read/outputSemantics
+      exactSelector: One exact transcriptVersionId; sourceArtifactId and sourceArtifactVersionId resolve from that immutable version in caller scope.
+      exactResult: Same transcriptVersionId and source pair, per-field availability, supplied transcript/source observations, and observedAt.
+      errorsAndRecovery: INVALID_REQUEST, ACCESS_DENIED, TRANSCRIPT_VERSION_NOT_FOUND_IN_CALLER_SCOPE, SOURCE_IDENTITY_MISMATCH, or UNAVAILABLE remain typed; re-read only the same exact version under current authority, never substitute job state or latest.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/4
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j03-step-05.v1
+      operationRef: media.operation.caption-draft-write
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/ownerWireSchema/resultSchema
+      exactResult: Session-local draft identity/revision remains linked to the exact source version and typed parent; text correction alone does not register an immutable caption.
+      errorsAndRecovery: Preserve source, parent, and edit on conflict; explicit rebase is required. Unknown write outcome reconciles the same request and fingerprint.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/5
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j03-step-06.v1
+      operationRef: media.operation.caption-draft-write
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/ownerWireSchema/resultSchema
+      exactResult: Session-local timing draft identity/revision remains linked to the exact source version and typed parent; timing correction alone does not register an immutable caption.
+      errorsAndRecovery: Preserve source, parent, and edit on conflict; explicit rebase is required. Unknown write outcome reconciles the same request and fingerprint.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/6
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j03-step-07.v1
+      operationRef: media.operation.caption-version-write
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/ownerWireSchema/resultSchema
+      exactResult: Durable receipt identifies the exact new immutable captionVersionId, source version, and parent; registration alone grants no approval or publication.
+      errorsAndRecovery: Preserve append-only semantics and exact request identity; UNKNOWN_OUTCOME reconciles the same request/fingerprint, never creates a second version by inference.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/7
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j03-step-08.v1
+      operationRef: media.operation.caption-version-read
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-read/resultSchema
+      exactResult: Read-only exact caption-version or exact version-pair comparison; no merge, mutation, approval, or publication.
+      errorsAndRecovery: Preserve the exact selector/pair; missing or non-current evidence stays UNKNOWN, with same-request reconciliation where applicable.
+  channelAndRuntimeBoundary:
+    transport: UNBOUND
+    runtimeAdmission: NOT_ADMITTED
 status: proposal; all-upstream-acceptance-and-role-review-pending
 definitionReview:
   status: SOURCE_DEFINED_OWNER_ACCEPTED
@@ -1052,12 +1111,19 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: A reviewable caption version is linked to the exact source and carries
-        timing, language, provenance, and the recorded authority/finality
-        disposition.
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status/resultSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      operationRef: media.operation.action.view-job-status
+      meaning: The immediate result is limited to requestId, exactTargetRef,
+        ownerReceipt, and observedAt. The current owner definition provides no
+        job-state, attempt-state, or transcription-completion observation, so
+        progress and finality remain UNKNOWN; this result establishes no
+        transcript or caption finality.
+      evidenceBoundary: definition-grade operation contract only; transport
+        equivalence and runtime admission remain UNBOUND and NOT_ADMITTED.
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -1159,12 +1225,14 @@ steps:
         resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status/resultSchema
         resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: A reviewable caption version is linked to the exact source and carries
-            timing, language, provenance, and the recorded authority/finality
-            disposition.
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status/resultSchema
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          operationRef: media.operation.action.view-job-status
+          meaning: The immediate result is limited to requestId, exactTargetRef, ownerReceipt, and observedAt. The current owner definition provides no job-state, attempt-state, or transcription-completion observation, so progress and finality remain UNKNOWN; this result establishes no transcript or caption finality.
+          evidenceBoundary: definition-grade operation contract only; transport equivalence and runtime admission remain UNBOUND and NOT_ADMITTED.
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step

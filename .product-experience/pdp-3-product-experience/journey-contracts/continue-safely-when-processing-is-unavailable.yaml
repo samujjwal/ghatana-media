@@ -26,6 +26,99 @@ channels:
   - media.channel.http-api
   - media.channel.cli
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+pdp1ResultEvidence:
+  status: SOURCE_BOUND_DEFINITION_ONLY; PDP3_CHANNEL_BINDING_PENDING
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.job-status-seven-dimension.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.fallback-selection.confirm.v1
+  jobStatus:
+    sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.job-status-seven-dimension.v1
+    operationRef: media.operation.job-status.read-dimensions.v1
+    presentationOperationRef: media.operation.action.view-job-status
+    missingOrNonCurrentDisposition: UNKNOWN; a missing dimension is not inferred from overall status and does not authorize resubmission.
+  operationResultBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml#/steps/0
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j27-step-01.v1
+      presentationOperationRef: media.operation.action.view-job-status
+      sourceQueryOperationRef: media.operation.job-status.read-dimensions.v1
+      typedObservationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.job-status-seven-dimension.v1
+      unknownDisposition: Any missing, stale, mismatched, denied, or unavailable dimension remains UNKNOWN and does not authorize resubmission.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j27-step-02.v1
+      presentationOperationRef: media.operation.action.view-job-status
+      sourceQueryOperationRef: media.operation.job-status.read-dimensions.v1
+      typedObservationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.job-status-seven-dimension.v1
+      unknownDisposition: Any missing, stale, mismatched, denied, or unavailable dimension remains UNKNOWN and does not authorize resubmission.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml#/steps/2
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j27-step-03.v1
+      operationRef: media.operation.action.review-processing-parameters
+      typedObservationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1
+      unknownDisposition: Missing or non-current parameter values remain UNKNOWN, not negative values, defaults, or permission to alter processing.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml#/steps/3
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j27-step-04.v1
+      operationRef: media.operation.action.inspect-quality-evidence
+      typedObservationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1
+      unknownDisposition: Missing, stale, denied, or unavailable quality evidence is UNKNOWN and cannot satisfy a positive quality condition.
+  completeness: The repeated status read is bound separately for both purpose steps; these QUERY operations only observe and do not select, dispatch, or retry a fallback.
+  fallbackConfirmationResultBinding:
+    journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml#/steps/3
+    journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j27-step-04.v1/relatedActionBindings/@id=media.pdp3.action-binding.j27-fallback-confirmation.v1
+    operationRef: media.operation.fallback-selection.confirm.v1
+    operationKind: COMMAND
+    sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.fallback-selection.confirm.v1
+    resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.fallback-selection.confirm.v1/resultSchema
+    resultBindingIds:
+      - media.operation-result-binding.fallback-selection.job-id
+      - media.operation-result-binding.fallback-selection.request-id
+      - media.operation-result-binding.fallback-selection.request-fingerprint
+      - media.operation-result-binding.fallback-selection.source-version
+      - media.operation-result-binding.fallback-selection.source-digest
+      - media.operation-result-binding.fallback-selection.alternative-operation
+      - media.operation-result-binding.fallback-selection.alternative-profile
+      - media.operation-result-binding.fallback-selection.candidate-version
+      - media.operation-result-binding.fallback-selection.candidate-digest
+      - media.operation-result-binding.fallback-selection.candidate-evidence-ref
+      - media.operation-result-binding.fallback-selection.candidate-evidence-digest
+      - media.operation-result-binding.fallback-selection.status-result-ref
+      - media.operation-result-binding.fallback-selection.status-result-digest
+      - media.operation-result-binding.fallback-selection.status-source-result-digest
+      - media.operation-result-binding.fallback-selection.rights-result
+      - media.operation-result-binding.fallback-selection.license-result
+      - media.operation-result-binding.fallback-selection.quality-result
+      - media.operation-result-binding.fallback-selection.resource-capacity-result
+      - media.operation-result-binding.fallback-selection.cost-result
+    stateDisposition: NO_P1_STATE_DECLARED
+    stateRefsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.fallback-selection.confirm.v1/stateRefs
+    finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.fallback-selection.confirm.v1/sourceFinality
+    unknownRecoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.fallback-selection.confirm.v1/sourceRecovery
+  fallbackConfirmation:
+    sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.fallback-selection.confirm.v1
+    actionProposalRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.confirm-selected-fallback
+    actionProposalStatus: INTENT_DERIVED_SOURCE_PROPOSAL; external-acceptance-pending; runtime-NOT_ADMITTED
+    journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j27-step-04.v1/relatedActionBindings/@id=media.pdp3.action-binding.j27-fallback-confirmation.v1
+    operationRef: media.operation.fallback-selection.confirm.v1
+    operationKind: COMMAND
+    requiredEvidenceRefs:
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.job-status-seven-dimension.v1
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.effective-processing-constraints.v1
+    requiredIdentity: Original job/request identity, exact source and candidate artifact versions, alternative operation/profile, and current evidence bound to the candidate version.
+    explicitOptIn: This command requires explicit confirmation matching the exact fallback and its evidence; read-only eligibility or status never implies consent to fallback.
+    effect: Record the separately confirmed versioned fallback selection for the same job and request snapshot; do not dispatch or retry processing.
+    finality: Explicit selection receipt only; no execution, completion, approval, or delivery.
+    unknownRecovery: Reconcile the same confirmation request identity; UNKNOWN does not imply denial, failure, or permission to resubmit.
+    dispatchDisposition: NEVER; processing dispatch and any later retry require their own separate action and authority.
+  channelAndRuntimeBoundary:
+    intendedChannels: [media.channel.web, media.channel.http-api, media.channel.cli]
+    interfaceGrammarRefs:
+      - .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/GUI
+      - .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/headless
+    transport: UNBOUND
+    runtimeAdmission: NOT_ADMITTED
 preconditions:
   - Capability qualification, license, runtime availability, and fallback policy
     are checked independently.
@@ -1430,6 +1523,18 @@ steps:
           - .product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml
           - .product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml
         acceptance: crosswalk source only; no independent review/runtime admission
+    relatedActionBindings:
+      - purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j27-step-04.v1/relatedActionBindings/@id=media.pdp3.action-binding.j27-fallback-confirmation.v1
+        actionRef: media.action.confirm-selected-fallback
+        operationRef: media.operation.fallback-selection.confirm.v1
+        operationKind: COMMAND
+        role: Separate explicit user opt-in after current, candidate-bound evidence is shown; this action records a selection only.
+        effect: Record a separately confirmed versioned fallback selection for the same job and request snapshot; do not dispatch or retry processing.
+        finality: Explicit selection receipt only; no execution, completion, approval, or delivery.
+        unknownRecovery: Reconcile the same confirmation request identity; UNKNOWN does not imply denial, failure, or permission to resubmit.
+        dispatchDisposition: NEVER; processing dispatch is a separate action.
+        runtimeAdmission: NOT_ADMITTED
+        externalAcceptance: PENDING
     scenarioRefs: []
     authorityRefs:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
@@ -1444,8 +1549,11 @@ stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy
   view maps to one registered intent-based screen. Null actionRef and empty
   stateRefs are deliberate open bindings, not no-op actions or completed
   transitions.
-terminalSuccess: User receives an admitted equivalent fallback with material
-  differences disclosed or a clear blocked result.
+terminalSuccess: |
+  User receives a truthful result: a candidate-specific versioned
+  fallback may be explicitly confirmed as a selection only when current evidence
+  is positive, or the request is clearly blocked or unknown. Confirmation records
+  selection only; it does not execute, approve, complete, or deliver processing.
 criticalNonhappyPaths:
   - id: phase0-critical-exception
     condition: Provider/license/capacity outage, no eligible alternative, or

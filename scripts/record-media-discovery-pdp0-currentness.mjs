@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import { isDeepStrictEqual } from 'node:util';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
   canonicalizeVerificationValue,
@@ -13,9 +14,52 @@ import { observeMediaDiscoveryCurrentness, resolveMediaPdp0Cells } from './media
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outputPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json';
+const successorOutputPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r10.json';
+const r11SuccessorOutputPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json';
 const supplementalImpactPath = 'docs/implementation/observations/media-discovery-predecessor-impact-pdp3-status-guard-2026-10-14-r1.json';
 const currentCutImpactPath = 'docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r1.json';
 const currentCutPdp0PredecessorPath = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r2.json';
+const pdp0R6ExitPath = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r6.json';
+const pdp0R6CurrentnessPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r6.json';
+const pdp0SuccessorImpactPath = 'docs/implementation/observations/media-discovery-pdp0-r6-successor-impact-2026-10-14-r1.json';
+const pdp0R8ExitPath = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r8.json';
+const pdp0R8CurrentnessPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r8.json';
+const pdp0R8SuccessorImpactPath = 'docs/implementation/observations/media-discovery-pdp0-r8-successor-impact-2026-10-14-r2.json';
+const pdp0Pxd163ImpactPath = 'docs/implementation/observations/media-discovery-pdp0-pxd163-source-impact-2026-10-14-r1.json';
+const pdp0R10ExitPath = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r10.json';
+const pdp0R10CurrentnessPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r10.json';
+const pdp0Pxd164SuccessorImpactPath = 'docs/implementation/observations/media-discovery-pdp0-pxd164-successor-impact-2026-10-14-r1.json';
+const pdp1Pxd164ImpactPath = 'docs/implementation/observations/media-discovery-pdp1-pxd164-semantic-repair-impact-2026-10-14-r1.json';
+const pdp0R11ExitPath = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r11.json';
+const pdp0R11CurrentnessPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r11.json';
+const pdp0R11SuccessorImpactPath = 'docs/implementation/observations/media-discovery-pdp0-r11-successor-impact-2026-10-14-r1.json';
+const pdp0R11SuccessorSupportPaths = [
+  'scripts/record-media-discovery-pdp0-currentness.mjs',
+  'scripts/record-media-discovery-pdp0-phase-exit.mjs',
+  'scripts/lib/media-discovery-pdp0-phase-exit.mjs',
+  'tests/media-discovery-currentness.test.mjs',
+  'tests/media-discovery-pdp0-phase-exit.test.mjs',
+].sort();
+
+export function mediaPdp0R11SuccessorSupportFileHashes() {
+  return Object.fromEntries(pdp0R11SuccessorSupportPaths.map((relativePath) => [
+    relativePath,
+    hashBytes(fs.readFileSync(path.join(root, relativePath))),
+  ]));
+}
+
+export function resolveMediaPdp0CurrentnessOutputPath(successorImpactMode = false, successorSuffix = null) {
+  if (!successorImpactMode) return outputPath;
+  if (successorSuffix === null || successorSuffix === undefined) return successorOutputPath;
+  if (!/^[a-z0-9-]+$/u.test(successorSuffix)) throw new TypeError('Successor suffix must contain lowercase letters, digits, or hyphens');
+  return `docs/implementation/observations/media-discovery-pdp0-currentness-${successorSuffix}.json`;
+}
+
+export function assertMediaPdp0CurrentnessOutputAvailable(relativePath, exists = fs.existsSync) {
+  const destination = path.join(root, relativePath);
+  if (exists(destination)) throw new Error(`Refusing to overwrite immutable observation: ${relativePath}`);
+  return destination;
+}
 const externalRoots = {
   ghatana: '../ghatana',
   'ghatana-products': '../ghatana-products',
@@ -262,6 +306,605 @@ export function classifyCurrentCutPdp0PinChange(pinComparisons, decision) {
   };
 }
 
+export function classifyAdditionalPdp0SourceImpact(pinComparisons, record, recordPath) {
+  const sourcePath = '.product-experience/decision-log.md';
+  const expectedRecordPath = 'docs/implementation/observations/media-discovery-pdp0-pxd163-source-impact-2026-10-14-r1.json';
+  const expectedRecordId = 'MEDIA-DISCOVERY-PDP0-ADDITIONAL-SOURCE-IMPACT-2026-10-14-R1';
+  const pin = pinComparisons?.find((entry) => entry.path === sourcePath);
+  const validPath = typeof recordPath === 'string' && !path.isAbsolute(recordPath)
+    && !path.relative(root, path.resolve(root, recordPath)).startsWith('..');
+  const valid = validPath
+    && record?.schemaVersion === 'media.discovery-pdp0-additional-source-impact.v1'
+    && record.recordId === expectedRecordId
+    && recordPath === expectedRecordPath
+    && record.phase === 'PDP-0'
+    && record.sourcePath === sourcePath
+    && /^sha256:[a-f0-9]{64}$/u.test(record.predecessorSha256 ?? '')
+    && /^sha256:[a-f0-9]{64}$/u.test(record.observedSha256 ?? '')
+    && record.classification === 'INTERNAL_SCOPED_IMPACT_DISPOSITION'
+    && record.pdp0MeaningDisposition === 'NO_PDP0_MEANING_CHANGE'
+    && record.pdp0ImpactAssessment?.sourceSelector === '.product-experience/decision-log.md#PXD-163'
+    && record.pdp0ImpactAssessment?.meaningIdsChanged?.length === 0
+    && record.ownerAcceptance === 'NOT_CLAIMED'
+    && record.independentReview === 'NOT_CLAIMED'
+    && record.lifecycleClosure === 'NOT_ENTERED'
+    && record.runtimeAdmission === 'NOT_ADMITTED'
+    && record.delivery === 'BLOCKED'
+    && pin?.recordedDigest === record.predecessorSha256
+    && pin?.currentDigest === record.observedSha256
+    && pin?.disposition === 'CHANGED';
+  if (!valid) return null;
+  return {
+    path: sourcePath,
+    classification: record.classification,
+    authorityRef: recordPath,
+    authoritySha256: hashBytes(fs.readFileSync(path.resolve(root, recordPath))),
+    predecessorSha256: record.predecessorSha256,
+    observedSha256: record.observedSha256,
+    ownerAcceptance: record.ownerAcceptance,
+    independentReview: record.independentReview,
+  };
+}
+
+export function classifyPdp0SuccessorImpact(pinComparisons, record, recordPath, technicalCurrentness) {
+  if (record?.recordId === 'MEDIA-DISCOVERY-PDP0-R11-SUCCESSOR-IMPACT-2026-10-14-R1') {
+    return classifyMediaPdp0R11SuccessorImpact(pinComparisons, record, recordPath, technicalCurrentness);
+  }
+  if (record?.recordId === 'MEDIA-DISCOVERY-PDP0-PXD164-SUCCESSOR-IMPACT-2026-10-14-R1') {
+    return classifyPdp0Pxd164SuccessorImpact(pinComparisons, record, recordPath, technicalCurrentness);
+  }
+  if (record?.recordId === 'MEDIA-DISCOVERY-PDP0-R8-SUCCESSOR-IMPACT-2026-10-14-R2') {
+    return classifyPdp0R8SuccessorImpact(pinComparisons, record, recordPath, technicalCurrentness);
+  }
+  const reporterPath = 'scripts/report-media-pdp-readiness.mjs';
+  const priorExit = JSON.parse(fs.readFileSync(path.join(root, pdp0R6ExitPath), 'utf8'));
+  const priorCurrentness = JSON.parse(fs.readFileSync(path.join(root, pdp0R6CurrentnessPath), 'utf8'));
+  const hashFile = (relativePath) => hashBytes(fs.readFileSync(path.join(root, relativePath)));
+  const expectedTopology = {
+    physicalCandidates: 26, semanticCompositions: 6, repositoryRoots: 1, consumers: 17, totalCells: 50,
+  };
+  const topologySignature = (cells) => hashValue((cells ?? []).map((cell) => ({
+    cellId: cell.cellId,
+    surfaceId: cell.surfaceId,
+    cellType: cell.cellType,
+    applicability: cell.applicability,
+  })).sort((left, right) => left.cellId.localeCompare(right.cellId)));
+  const fingerprintSignature = (cells) => hashValue((cells ?? []).map((cell) => ({
+    cellId: cell.cellId,
+    ownerGraphFingerprint: cell.ownerGraphFingerprint,
+    physicalCatalogFingerprint: cell.physicalCatalogFingerprint,
+    providerRegistryFingerprint: cell.providerRegistryFingerprint,
+  })).sort((left, right) => left.cellId.localeCompare(right.cellId)));
+  const expectedCellIds = priorExit.sourceCurrentness?.cells?.map((cell) => cell.cellId).sort() ?? [];
+  const currentCellIds = technicalCurrentness?.physicalCompositeConsumerCells?.map((cell) => cell.cellId).sort() ?? [];
+  const deltas = record?.sourceDeltas ?? [];
+  const delta = deltas[0];
+  const predecessorCut = record?.predecessorCuts?.[0];
+  const pin = pinComparisons?.find((entry) => entry.path === reporterPath);
+  const validPath = typeof recordPath === 'string' && !path.isAbsolute(recordPath)
+    && !path.relative(root, path.resolve(root, recordPath)).startsWith('..');
+  if (!validPath || recordPath !== pdp0SuccessorImpactPath) return null;
+  let recordBytes;
+  let parsedRecord;
+  try {
+    recordBytes = fs.readFileSync(path.resolve(root, recordPath));
+    parsedRecord = JSON.parse(recordBytes.toString('utf8'));
+  } catch {
+    return null;
+  }
+  if (!isDeepStrictEqual(parsedRecord, record)) return null;
+  const authoritySha256 = hashBytes(recordBytes);
+  const valid = validPath
+    && recordPath === pdp0SuccessorImpactPath
+    && record?.schemaVersion === 'media.discovery.pdp0-successor-source-impact.v1'
+    && record?.recordId === 'MEDIA-DISCOVERY-PDP0-R6-SUCCESSOR-IMPACT-2026-10-14-R1'
+    && record?.campaign?.repository === 'samujjwal/ghatana-media'
+    && record?.campaign?.stage === 'DISCOVERY'
+    && record?.campaign?.activePhase === 'PDP-0'
+    && record?.authority?.delegate === 'AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION'
+    && record?.authority?.userAuthorization === 'Authorize this exact transition (Recommended)'
+    && record?.authority?.authorizationEvidence?.channel === 'DIRECT_USER_REPLY_IN_CURRENT_TASK'
+    && record?.authority?.authorizationEvidence?.exactResponse === 'Authorize this exact transition (Recommended)'
+    && record?.authority?.authorizationEvidence?.authorizedPath === reporterPath
+    && record?.authority?.authorizationEvidence?.predecessorSha256 === 'sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573'
+    && record?.authority?.authorizationEvidence?.observedSha256 === 'sha256:4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f'
+    && record?.authority?.decisionRole === 'SCOPED_INTERNAL_PDP0_SUCCESSOR_SOURCE_IMPACT_REVIEW'
+    && record?.authority?.humanIndependentSignatureProvided === false
+    && record?.authority?.qualifiedExternalSpecialistSignoffProvided === false
+    && record?.authority?.externalContractOwnerAcceptanceProvided === false
+    && record?.authority?.nativeLifecycleReceiptProvided === false
+    && record?.decision?.status === 'APPROVED_INTERNAL_NO_MEANING_CHANGE_FOR_EXACT_SUCCESSOR_DELTA'
+    && record?.decision?.pdp0MeaningDisposition === 'NO_PDP0_MEANING_CHANGE_FOR_EXACT_SOURCE_DELTA'
+    && record?.decision?.ownerAcceptance === 'NOT_CLAIMED'
+    && record?.decision?.independentSignoff === 'NOT_CLAIMED'
+    && record?.decision?.lifecycleClosure === 'NOT_ENTERED'
+    && record?.decision?.runtime === 'NOT_ADMITTED'
+    && record?.decision?.delivery === 'BLOCKED'
+    && record?.decision?.release === 'NOT_AUTHORIZED'
+    && record?.decision?.freshTechnicalCurrentness === 'REQUIRED'
+    && JSON.stringify(record?.decision?.orderedTechnicalCurrentness) === JSON.stringify(['PDP-0', 'PDP-1'])
+    && typeof record?.limitations === 'string'
+    && record.limitations.includes('does not claim external owner acceptance')
+    && record.limitations.includes('independent signoff')
+    && record.limitations.includes('native Lifecycle receipt or closure')
+    && record.limitations.includes('runtime admission')
+    && record.limitations.includes('Delivery readiness')
+    && record.limitations.includes('release')
+    && deltas.length === 1
+    && delta?.path === reporterPath
+    && delta?.classification === 'PDP_STATUS_REPORTER_SELECTION_CHANGE'
+    && JSON.stringify(delta?.phases) === JSON.stringify(['PDP-0', 'PDP-1'])
+    && delta?.predecessorSha256 === 'sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573'
+    && delta?.observedSha256 === 'sha256:4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f'
+    && Array.isArray(delta?.changedMeaningIds) && delta.changedMeaningIds.length === 0
+    && delta?.freshCurrentnessRequired === true
+    && record?.predecessorCuts?.some((cut) => cut.phase === 'PDP-0'
+      && cut.exitRef === pdp0R6ExitPath
+      && cut.exitSha256 === 'sha256:dac98419a6a2314741d584e120f7a9e7a3190559cbde7b6ca7e5d5b1a785aabb'
+      && cut.currentnessRef === pdp0R6CurrentnessPath
+      && cut.currentnessSha256 === 'sha256:826b0a69673818e9e97046fc4288af4cdf59d724f78bc2e6db5709f8d3b7bf65'
+      && cut.materialSourceSetFingerprint === 'sha256:d44b0268aaec280bbd1a661d4ce2449e5e26daba41bba9f496005010bfa6f7bb'
+      && cut.materialPathCount === 146
+      && JSON.stringify(cut.topology) === JSON.stringify(expectedTopology))
+    && record?.predecessorCuts?.length === 1
+    && priorExit?.phase === 'PDP-0'
+    && priorExit?.phaseExit?.status === 'PASS'
+    && priorExit?.sourceCurrentness?.materialSourceSetFingerprint === 'sha256:d44b0268aaec280bbd1a661d4ce2449e5e26daba41bba9f496005010bfa6f7bb'
+    && Object.keys(priorExit?.sourceCurrentness?.sourceContentDigests ?? {}).length === 146
+    && priorExit?.sourceCurrentness?.cells?.length === 50
+    && priorCurrentness?.materialSourceSetFingerprint === 'sha256:d44b0268aaec280bbd1a661d4ce2449e5e26daba41bba9f496005010bfa6f7bb'
+    && priorCurrentness?.physicalCompositeConsumerCells?.length === 50
+    && topologySignature(priorExit?.sourceCurrentness?.cells) === topologySignature(technicalCurrentness?.physicalCompositeConsumerCells)
+    && fingerprintSignature(priorCurrentness?.physicalCompositeConsumerCells) === fingerprintSignature(technicalCurrentness?.physicalCompositeConsumerCells)
+    && JSON.stringify(priorCurrentness?.denominators) === JSON.stringify(expectedTopology)
+    && JSON.stringify(technicalCurrentness?.denominators) === JSON.stringify(expectedTopology)
+    && JSON.stringify(currentCellIds) === JSON.stringify(expectedCellIds)
+    && technicalCurrentness?.physicalCompositeConsumerCells?.every((cell) => cell.sourceCurrentness === 'CURRENT')
+    && hashFile(pdp0R6ExitPath) === predecessorCut?.exitSha256
+    && hashFile(pdp0R6CurrentnessPath) === predecessorCut?.currentnessSha256
+    && pin?.recordedDigest === delta.predecessorSha256
+    && pin?.currentDigest === delta.observedSha256
+    && pin?.disposition === 'CHANGED';
+  if (!valid) return null;
+  return {
+    path: reporterPath,
+    classification: 'INTERNAL_PDP0_SUCCESSOR_IMPACT_DISPOSITION',
+    authorityRef: recordPath,
+    authoritySha256,
+    predecessorSha256: delta.predecessorSha256,
+    observedSha256: delta.observedSha256,
+    meaningIdsChanged: [],
+    ownerAcceptance: 'NOT_CLAIMED',
+    independentSignoff: 'NOT_CLAIMED',
+    lifecycleClosure: 'NOT_ENTERED',
+    runtime: 'NOT_ADMITTED',
+    delivery: 'BLOCKED',
+  };
+}
+
+function classifyPdp0Pxd164SuccessorImpact(pinComparisons, record, recordPath, technicalCurrentness) {
+  const sourcePath = '.product-experience/decision-log.md';
+  const predecessorSha256 = 'sha256:9831b03ecd3f30d2cbfd7a1db62d934035ba20cf1482bb5e621d166eacdb9b4c';
+  const observedSha256 = 'sha256:97ad3104abec9ba6670804394c68a11c663f37171e90ea2a1f2e629aa5619bbc';
+  const predecessorExitSha256 = 'sha256:f6c0e6a693ce74b0997743bbd2317f9f7ae0ab25e6f562aabf77f1ad2a9375a9';
+  const predecessorCurrentnessSha256 = 'sha256:1f2ee24f5913b8d9d9fc6d306a2d1356347f16e437e49de59e3f502643c83d0e';
+  const materialFingerprint = 'sha256:af292ca4f4d3d932fa081c42bb09273a286ec8aae83975a827f63cbc633b4687';
+  const expectedTopology = { physicalCandidates: 26, semanticCompositions: 6, repositoryRoots: 1, consumers: 17, totalCells: 50 };
+  const validPath = recordPath === pdp0Pxd164SuccessorImpactPath
+    && !path.isAbsolute(recordPath)
+    && !path.relative(root, path.resolve(root, recordPath)).startsWith('..');
+  if (!validPath) return null;
+  let recordBytes;
+  let parsedRecord;
+  let priorExit;
+  let priorCurrentness;
+  let p1ImpactBytes;
+  let p1Impact;
+  try {
+    recordBytes = fs.readFileSync(path.resolve(root, recordPath));
+    parsedRecord = JSON.parse(recordBytes.toString('utf8'));
+    priorExit = JSON.parse(fs.readFileSync(path.join(root, pdp0R10ExitPath), 'utf8'));
+    priorCurrentness = JSON.parse(fs.readFileSync(path.join(root, pdp0R10CurrentnessPath), 'utf8'));
+    p1ImpactBytes = fs.readFileSync(path.join(root, pdp1Pxd164ImpactPath));
+    p1Impact = JSON.parse(p1ImpactBytes.toString('utf8'));
+  } catch {
+    return null;
+  }
+  const priorPins = priorExit?.sourceCurrentness?.sourceContentDigests ?? {};
+  const comparisons = [...(pinComparisons ?? [])].sort((a, b) => a.path.localeCompare(b.path));
+  const changed = comparisons.filter((pin) => pin.disposition !== 'MATCH');
+  const sourcePin = comparisons.find((pin) => pin.path === sourcePath);
+  const currentCells = technicalCurrentness?.physicalCompositeConsumerCells ?? [];
+  const priorCells = priorCurrentness?.physicalCompositeConsumerCells ?? [];
+  const cellIds = (cells) => cells.map((cell) => cell.cellId).sort();
+  const topologyUnchanged = priorCells.length === 50 && currentCells.length === 50
+    && JSON.stringify(cellIds(priorCells)) === JSON.stringify(cellIds(currentCells))
+    && priorCells.every((cell) => {
+      const current = currentCells.find((candidate) => candidate.cellId === cell.cellId);
+      return current
+        && current.surfaceId === cell.surfaceId
+        && current.cellType === cell.cellType
+        && isDeepStrictEqual(current.applicability, cell.applicability)
+        && current.ownerGraphFingerprint === cell.ownerGraphFingerprint
+        && current.physicalCatalogFingerprint === cell.physicalCatalogFingerprint
+        && current.providerRegistryFingerprint === cell.providerRegistryFingerprint;
+    });
+  const p1ImpactDigest = hashBytes(p1ImpactBytes);
+  const delta = record?.sourceDeltas?.[0];
+  const predecessorCut = record?.predecessorCut;
+  const valid = isDeepStrictEqual(parsedRecord, record)
+    && record?.schemaVersion === 'media.discovery.pdp0-successor-source-impact.v1'
+    && record?.recordId === 'MEDIA-DISCOVERY-PDP0-PXD164-SUCCESSOR-IMPACT-2026-10-14-R1'
+    && record?.campaign?.repository === 'samujjwal/ghatana-media'
+    && record?.campaign?.stage === 'DISCOVERY'
+    && record?.campaign?.activePhase === 'PDP-0'
+    && record?.authority?.delegate === 'AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION'
+    && record?.authority?.decisionRole === 'SCOPED_INTERNAL_PDP0_SOURCE_IMPACT_REVIEW'
+    && record?.authority?.humanIndependentSignatureProvided === false
+    && record?.authority?.qualifiedExternalSpecialistSignoffProvided === false
+    && record?.authority?.externalContractOwnerAcceptanceProvided === false
+    && record?.authority?.nativeLifecycleReceiptProvided === false
+    && record?.decision?.status === 'INTERNAL_SCOPED_NO_PDP0_MEANING_CHANGE_FOR_EXACT_PXD164_DELTA'
+    && record?.decision?.pdp0MeaningDisposition === 'NO_PDP0_MEANING_CHANGE'
+    && record?.decision?.ownerAcceptance === 'NOT_CLAIMED'
+    && record?.decision?.independentSignoff === 'NOT_CLAIMED'
+    && record?.decision?.lifecycleClosure === 'NOT_ENTERED'
+    && record?.decision?.runtime === 'NOT_ADMITTED'
+    && record?.decision?.delivery === 'BLOCKED'
+    && record?.decision?.release === 'NOT_AUTHORIZED'
+    && record?.decision?.freshTechnicalCurrentness === 'REQUIRED'
+    && JSON.stringify(record?.decision?.orderedTechnicalCurrentness) === JSON.stringify(['PDP-0', 'PDP-1'])
+    && typeof record?.limitations === 'string'
+    && record.limitations.includes('does not claim owner acceptance')
+    && record.limitations.includes('independent signoff')
+    && record.limitations.includes('native Lifecycle receipt or closure')
+    && record.limitations.includes('runtime admission')
+    && record.limitations.includes('Delivery readiness')
+    && record.limitations.includes('release authorization')
+    && delta?.path === sourcePath
+    && delta?.selector === `${sourcePath}#PXD-164`
+    && delta?.phase === 'PDP-1'
+    && delta?.classification === 'PXD164_PDP1_SEMANTIC_REPAIR_NO_PDP0_MEANING'
+    && delta?.predecessorSha256 === predecessorSha256
+    && delta?.observedSha256 === observedSha256
+    && delta?.pdp0MeaningChange === 'NONE'
+    && Array.isArray(delta?.pdp0MeaningIdsChanged) && delta.pdp0MeaningIdsChanged.length === 0
+    && delta?.freshCurrentnessRequired === true
+    && record?.sourceDeltas?.length === 1
+    && record?.pdp1ImpactBasis?.ref === pdp1Pxd164ImpactPath
+    && record?.pdp1ImpactBasis?.sha256 === p1ImpactDigest
+    && p1Impact?.recordId === 'MEDIA-DISCOVERY-PDP1-PXD164-SEMANTIC-REPAIR-IMPACT-2026-10-14-R1'
+    && p1Impact?.sourceDeltas?.some((entry) => entry.path === sourcePath
+      && entry.predecessorSha256 === predecessorSha256
+      && entry.observedSha256 === observedSha256
+      && entry.meaningIdsChanged?.includes('media.operation.action.request-admitted-speech-operation'))
+    && p1Impact?.pdp0ImpactAssessment?.disposition === 'NO_PDP0_MEANING_CHANGE'
+    && p1Impact?.pdp0ImpactAssessment?.meaningIdsChanged?.length === 0
+    && predecessorCut?.phase === 'PDP-0'
+    && predecessorCut?.exitRef === pdp0R10ExitPath
+    && predecessorCut?.exitSha256 === predecessorExitSha256
+    && predecessorCut?.currentnessRef === pdp0R10CurrentnessPath
+    && predecessorCut?.currentnessSha256 === predecessorCurrentnessSha256
+    && predecessorCut?.materialSourceSetFingerprint === materialFingerprint
+    && predecessorCut?.materialPathCount === 146
+    && JSON.stringify(predecessorCut?.topology) === JSON.stringify(expectedTopology)
+    && priorExit?.phase === 'PDP-0'
+    && priorExit?.phaseExit?.status === 'PASS'
+    && priorExit?.sourceCurrentness?.status === 'PASS'
+    && priorExit?.sourceCurrentness?.sourceCurrent === true
+    && priorExit?.developmentStatus?.status === 'DEV_COMPLETE'
+    && priorExit?.developmentStatus?.outstandingMeaningIds?.length === 0
+    && priorExit?.sourceCurrentness?.materialSourceSetFingerprint === materialFingerprint
+    && Object.keys(priorPins).length === 146
+    && priorCurrentness?.observationId === 'MEDIA-PDP0-CURRENTNESS-2026-10-14-CURRENT-CUT-R10'
+    && priorCurrentness?.phaseDisposition?.currentSourceCurrentness === 'PASS'
+    && priorCurrentness?.phaseDisposition?.sourceCurrent === true
+    && priorCurrentness?.materialSourceSetFingerprint === materialFingerprint
+    && priorCurrentness?.denominators?.totalCells === 50
+    && priorExit?.sourceCurrentness?.cells?.length === 50
+    && JSON.stringify(technicalCurrentness?.denominators) === JSON.stringify(expectedTopology)
+    && technicalCurrentness?.materialSourceSetFingerprint
+    && technicalCurrentness?.materialPathDenominator?.uniquePaths === 146
+    && technicalCurrentness?.lifecycleSourceCurrentness?.continuity === 'CONTINUOUS'
+    && technicalCurrentness?.lifecycleSourceCurrentness?.consistencyStable === true
+    && technicalCurrentness?.lifecycleSourceCurrentness?.zeroWorkEligibleAtCapture === true
+    && currentCells.every((cell) => cell.sourceCurrentness === 'CURRENT' && (cell.blockers?.length ?? 0) === 0)
+    && topologyUnchanged
+    && comparisons.length === 146
+    && comparisons.every((pin) => Object.hasOwn(priorPins, pin.path) && pin.recordedDigest === priorPins[pin.path])
+    && changed.length === 1
+    && sourcePin?.recordedDigest === predecessorSha256
+    && sourcePin?.currentDigest === observedSha256
+    && sourcePin?.disposition === 'CHANGED'
+    && hashBytes(fs.readFileSync(path.join(root, pdp0R10ExitPath))) === predecessorExitSha256
+    && hashBytes(fs.readFileSync(path.join(root, pdp0R10CurrentnessPath))) === predecessorCurrentnessSha256;
+  if (!valid) return null;
+  return {
+    path: sourcePath,
+    classification: 'INTERNAL_PDP0_SUCCESSOR_IMPACT_DISPOSITION',
+    authorityRef: recordPath,
+    authoritySha256: hashBytes(recordBytes),
+    predecessorSha256,
+    observedSha256,
+    meaningIdsChanged: [],
+    ownerAcceptance: 'NOT_CLAIMED',
+    independentSignoff: 'NOT_CLAIMED',
+    lifecycleClosure: 'NOT_ENTERED',
+    runtime: 'NOT_ADMITTED',
+    delivery: 'BLOCKED',
+  };
+}
+
+export function classifyPdp0R8SuccessorImpact(pinComparisons, record, recordPath, technicalCurrentness) {
+  const sourcePath = 'tests/pdp-truth-domain.test.mjs';
+  const predecessorSha256 = 'sha256:0d94c83f6c081f2e67a4ba20752c0cdfff03f26ae1d9d87860d9ba97047964e0';
+  const observedSha256 = 'sha256:8ef1a6d5e11dc2e10ca32c3e6813fc8671c22a6c7f7038d48300d52f8feae578';
+  const predecessorExitSha256 = 'sha256:4984d80baff808caf1792dddb5e52e20fe81d5d764e90948934d6e013e1e4e77';
+  const predecessorCurrentnessSha256 = 'sha256:96841df11e13c1a394968d68ea3154724bd6168b5bc6dc0c5376ec09a40ea871';
+  const materialFingerprint = 'sha256:26fdd485663c5ddd3426d50e0ca5d7c51606fd1a5854861c4c614e1786201c04';
+  const expectedTopology = { physicalCandidates: 26, semanticCompositions: 6, repositoryRoots: 1, consumers: 17, totalCells: 50 };
+  const validPath = recordPath === pdp0R8SuccessorImpactPath
+    && !path.isAbsolute(recordPath)
+    && !path.relative(root, path.resolve(root, recordPath)).startsWith('..');
+  if (!validPath) return null;
+  let parsedRecord;
+  let recordBytes;
+  let priorExit;
+  let priorCurrentness;
+  try {
+    recordBytes = fs.readFileSync(path.resolve(root, recordPath));
+    parsedRecord = JSON.parse(recordBytes.toString('utf8'));
+    priorExit = JSON.parse(fs.readFileSync(path.join(root, pdp0R8ExitPath), 'utf8'));
+    priorCurrentness = JSON.parse(fs.readFileSync(path.join(root, pdp0R8CurrentnessPath), 'utf8'));
+  } catch {
+    return null;
+  }
+  const priorPins = priorExit?.sourceCurrentness?.sourceContentDigests ?? {};
+  const sortedComparisons = [...(pinComparisons ?? [])].sort((a, b) => a.path.localeCompare(b.path));
+  const changed = sortedComparisons.filter((pin) => pin.disposition !== 'MATCH');
+  const sourcePin = sortedComparisons.find((pin) => pin.path === sourcePath);
+  const samePaths = sortedComparisons.length === 146
+    && Object.keys(priorPins).length === 146
+    && sortedComparisons.every((pin) => Object.hasOwn(priorPins, pin.path) && pin.recordedDigest === priorPins[pin.path]);
+  const predecessorCells = priorCurrentness?.physicalCompositeConsumerCells ?? [];
+  const currentCells = technicalCurrentness?.physicalCompositeConsumerCells ?? [];
+  const cellIds = (cells) => cells.map((cell) => cell.cellId).sort();
+  const topologyUnchanged = JSON.stringify(cellIds(predecessorCells)) === JSON.stringify(cellIds(currentCells))
+    && predecessorCells.length === 50 && currentCells.length === 50
+    && predecessorCells.every((cell) => {
+      const current = currentCells.find((candidate) => candidate.cellId === cell.cellId);
+      return current
+        && current.surfaceId === cell.surfaceId
+        && current.cellType === cell.cellType
+        && isDeepStrictEqual(current.applicability, cell.applicability)
+        && current.ownerGraphFingerprint === cell.ownerGraphFingerprint
+        && current.physicalCatalogFingerprint === cell.physicalCatalogFingerprint
+        && current.providerRegistryFingerprint === cell.providerRegistryFingerprint;
+    });
+  const valid = isDeepStrictEqual(parsedRecord, record)
+    && record?.schemaVersion === 'media.discovery.pdp0-successor-source-impact.v1'
+    && record?.recordId === 'MEDIA-DISCOVERY-PDP0-R8-SUCCESSOR-IMPACT-2026-10-14-R2'
+    && record?.campaign?.repository === 'samujjwal/ghatana-media'
+    && record?.campaign?.stage === 'DISCOVERY'
+    && record?.campaign?.activePhase === 'PDP-0'
+    && record?.campaign?.scope === 'Exact R8-to-R10 PDP-0 source transition for one authorized test file.'
+    && record?.authority?.delegate === 'AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_AUTHORIZATION'
+    && record?.authority?.decisionRole === 'SCOPED_INTERNAL_PDP0_SOURCE_IMPACT_REVIEW'
+    && record?.authority?.authorizationBasis === 'EXPLICIT_USER_AUTHORIZATION_RELAYED_BY_ORCHESTRATOR; NO_DIRECT_QUOTE_OR_SIGNATURE_RECORDED'
+    && record?.authority?.humanIndependentSignatureProvided === false
+    && record?.authority?.externalContractOwnerAcceptanceProvided === false
+    && record?.authority?.nativeLifecycleReceiptProvided === false
+    && record?.decision?.status === 'APPROVED_INTERNAL_NO_ADDITIONAL_PDP0_MEANING_FOR_EXACT_TEST_DELTA'
+    && record?.decision?.pdp0MeaningDisposition === 'NO_ADDITIONAL_PDP0_MEANING'
+    && record?.decision?.ownerAcceptance === 'NOT_CLAIMED'
+    && record?.decision?.independentSignoff === 'NOT_CLAIMED'
+    && record?.decision?.lifecycleClosure === 'NOT_ENTERED'
+    && record?.decision?.runtime === 'NOT_ADMITTED'
+    && record?.decision?.delivery === 'BLOCKED'
+    && record?.decision?.release === 'NOT_AUTHORIZED'
+    && record?.decision?.freshTechnicalCurrentness === 'REQUIRED'
+    && record?.sourceDeltas?.length === 1
+    && record.sourceDeltas[0]?.path === sourcePath
+    && record.sourceDeltas[0]?.classification === 'PDP0_REGRESSION_TEST_ONLY_CHANGE'
+    && record.sourceDeltas[0]?.predecessorSha256 === predecessorSha256
+    && record.sourceDeltas[0]?.observedSha256 === observedSha256
+    && record.sourceDeltas[0]?.meaningChange === 'NONE'
+    && record.sourceDeltas[0]?.meaningIdsChanged?.length === 0
+    && record.sourceDeltas[0]?.freshCurrentnessRequired === true
+    && record?.predecessorCut?.exitRef === pdp0R8ExitPath
+    && record.predecessorCut.exitSha256 === predecessorExitSha256
+    && record.predecessorCut.currentnessRef === pdp0R8CurrentnessPath
+    && record.predecessorCut.currentnessSha256 === predecessorCurrentnessSha256
+    && record.predecessorCut.materialSourceSetFingerprint === materialFingerprint
+    && record.predecessorCut.materialPathCount === 146
+    && record?.limitations === 'This scoped internal disposition covers only the exact R8-to-R10 tests/pdp-truth-domain.test.mjs transition and asserts no additional PDP-0 meaning. It does not claim owner acceptance, independent signoff, native Lifecycle receipt or closure, runtime admission, Delivery readiness, or release authorization.'
+    && JSON.stringify(record.predecessorCut.topology) === JSON.stringify(expectedTopology)
+    && priorExit?.phase === 'PDP-0'
+    && priorExit?.phaseExit?.status === 'PASS'
+    && priorExit?.sourceCurrentness?.status === 'PASS'
+    && priorExit?.sourceCurrentness?.sourceCurrent === true
+    && priorExit?.developmentStatus?.status === 'DEV_COMPLETE'
+    && priorExit?.developmentStatus?.outstandingMeaningIds?.length === 0
+    && priorExit?.sourceCurrentness?.materialSourceSetFingerprint === materialFingerprint
+    && priorCurrentness?.observationId === 'MEDIA-PDP0-CURRENTNESS-2026-10-14-CURRENT-CUT-R8'
+    && priorCurrentness?.phaseDisposition?.currentSourceCurrentness === 'PASS'
+    && priorCurrentness?.phaseDisposition?.sourceCurrent === true
+    && priorCurrentness?.materialSourceSetFingerprint === materialFingerprint
+    && priorCurrentness?.denominators?.totalCells === 50
+    && priorExit?.sourceCurrentness?.denominators?.totalCells === 50
+    && samePaths && topologyUnchanged
+    && changed.length === 1
+    && sourcePin?.recordedDigest === predecessorSha256
+    && sourcePin?.currentDigest === observedSha256
+    && sourcePin?.disposition === 'CHANGED'
+    && (technicalCurrentness?.physicalCompositeConsumerCells ?? []).every((cell) => cell.sourceCurrentness === 'CURRENT' && (cell.blockers?.length ?? 0) === 0)
+    && technicalCurrentness?.denominators?.totalCells === 50
+    && (technicalCurrentness?.materialPathDenominator?.uniquePaths ?? 0) === 146
+    && technicalCurrentness?.lifecycleSourceCurrentness?.continuity === 'CONTINUOUS'
+    && technicalCurrentness?.lifecycleSourceCurrentness?.consistencyStable === true
+    && technicalCurrentness?.lifecycleSourceCurrentness?.zeroWorkEligibleAtCapture === true
+    && hashBytes(fs.readFileSync(path.join(root, pdp0R8ExitPath))) === predecessorExitSha256
+    && hashBytes(fs.readFileSync(path.join(root, pdp0R8CurrentnessPath))) === predecessorCurrentnessSha256;
+  if (!valid) return null;
+  return {
+    path: sourcePath,
+    classification: 'INTERNAL_PDP0_SUCCESSOR_IMPACT_DISPOSITION',
+    authorityRef: recordPath,
+    authoritySha256: hashBytes(recordBytes),
+    predecessorSha256,
+    observedSha256,
+    meaningIdsChanged: [],
+    ownerAcceptance: 'NOT_CLAIMED',
+    independentSignoff: 'NOT_CLAIMED',
+    lifecycleClosure: 'NOT_ENTERED',
+    runtime: 'NOT_ADMITTED',
+    delivery: 'BLOCKED',
+  };
+}
+
+export function classifyMediaPdp0R11SuccessorImpact(pinComparisons, record, recordPath, technicalCurrentness, inputs = {}) {
+  const sourcePath = '.product-experience/pdp-0-product-truth/generated/product-definition.candidate.json';
+  const predecessorSha256 = 'sha256:13c0789a6fa94c51abfbc60da8465e340406947a3f5a1dff4ec5a37bcef7e341';
+  const observedSha256 = 'sha256:6cfb42b2fbf2e24ca904ab93ca98c905a6b892069f811f2f73166d7dc7e8de49';
+  const predecessorExitSha256 = 'sha256:fe8e73184cf385328a4974a9a3b2aad84ff9033fb999c80c10f49c3db066c4ea';
+  const predecessorCurrentnessSha256 = 'sha256:b6986cd2e93241c9962d1215977c99f899949f87da15a72d8087e6ad130d7026';
+  const materialFingerprint = 'sha256:d9fc2839dc341cb05250e31093a2250678a9004febffaf290d4852e29f7282f1';
+  const expectedTopology = { physicalCandidates: 26, semanticCompositions: 6, repositoryRoots: 1, consumers: 17, totalCells: 50 };
+  if (recordPath !== pdp0R11SuccessorImpactPath || path.isAbsolute(recordPath)
+      || path.relative(root, path.resolve(root, recordPath)).startsWith('..')) return null;
+  let recordBytes;
+  let priorExit;
+  let priorCurrentness;
+  try {
+    recordBytes = inputs.recordBytes ?? fs.readFileSync(path.resolve(root, recordPath));
+    priorExit = inputs.priorExit ?? JSON.parse(fs.readFileSync(path.join(root, pdp0R11ExitPath), 'utf8'));
+    priorCurrentness = inputs.priorCurrentness ?? JSON.parse(fs.readFileSync(path.join(root, pdp0R11CurrentnessPath), 'utf8'));
+  } catch {
+    return null;
+  }
+  const priorPins = priorExit?.sourceCurrentness?.sourceContentDigests ?? {};
+  const sortedComparisons = [...(pinComparisons ?? [])].sort((a, b) => a.path.localeCompare(b.path));
+  const changed = sortedComparisons.filter((pin) => pin.disposition !== 'MATCH');
+  const sourcePin = sortedComparisons.find((pin) => pin.path === sourcePath);
+  const samePaths = sortedComparisons.length === 146
+    && Object.keys(priorPins).length === 146
+    && sortedComparisons.every((pin) => Object.hasOwn(priorPins, pin.path) && pin.recordedDigest === priorPins[pin.path]);
+  const expectedSupportFileHashes = mediaPdp0R11SuccessorSupportFileHashes();
+  const predecessorCells = priorCurrentness?.physicalCompositeConsumerCells ?? [];
+  const currentCells = technicalCurrentness?.physicalCompositeConsumerCells ?? [];
+  const cellIds = (cells) => cells.map((cell) => cell.cellId).sort();
+  const topologyUnchanged = JSON.stringify(cellIds(predecessorCells)) === JSON.stringify(cellIds(currentCells))
+    && predecessorCells.length === 50 && currentCells.length === 50
+    && predecessorCells.every((cell) => {
+      const current = currentCells.find((candidate) => candidate.cellId === cell.cellId);
+      return current
+        && current.surfaceId === cell.surfaceId
+        && current.cellType === cell.cellType
+        && isDeepStrictEqual(current.applicability, cell.applicability)
+        && current.ownerGraphFingerprint === cell.ownerGraphFingerprint
+        && current.physicalCatalogFingerprint === cell.physicalCatalogFingerprint
+        && current.providerRegistryFingerprint === cell.providerRegistryFingerprint;
+    });
+  const valid = isDeepStrictEqual(JSON.parse(recordBytes.toString('utf8')), record)
+    && record?.schemaVersion === 'media.discovery.pdp0-successor-source-impact.v1'
+    && record?.recordId === 'MEDIA-DISCOVERY-PDP0-R11-SUCCESSOR-IMPACT-2026-10-14-R1'
+    && record?.campaign?.repository === 'samujjwal/ghatana-media'
+    && record?.campaign?.stage === 'DISCOVERY'
+    && record?.campaign?.activePhase === 'PDP-0'
+    && record?.campaign?.scope === 'Exact R11-to-successor PDP-1 generated decision-source inventory projection; no PDP-0 meaning change.'
+    && record?.authority?.decisionRole === 'SCOPED_INTERNAL_PDP0_SOURCE_IMPACT_REVIEW'
+    && record?.authority?.humanIndependentSignatureProvided === false
+    && record?.authority?.externalContractOwnerAcceptanceProvided === false
+    && record?.authority?.nativeLifecycleReceiptProvided === false
+    && record?.predecessorCut?.phase === 'PDP-0'
+    && record?.predecessorCut?.exitRef === pdp0R11ExitPath
+    && record.predecessorCut.exitSha256 === predecessorExitSha256
+    && record.predecessorCut.currentnessRef === pdp0R11CurrentnessPath
+    && record.predecessorCut.currentnessSha256 === predecessorCurrentnessSha256
+    && record.predecessorCut.materialSourceSetFingerprint === materialFingerprint
+    && record.predecessorCut.materialPathCount === 146
+    && isDeepStrictEqual(record.predecessorCut.topology, expectedTopology)
+    && record?.sourceDeltas?.length === 1
+    && record.sourceDeltas[0]?.path === sourcePath
+    && record.sourceDeltas[0]?.phase === 'PDP-1'
+    && record.sourceDeltas[0]?.classification === 'PDP1_DECISION_SOURCE_INVENTORY_PROJECTION_NO_PDP0_MEANING'
+    && record.sourceDeltas[0]?.predecessorSha256 === predecessorSha256
+    && record.sourceDeltas[0]?.observedSha256 === observedSha256
+    && record.sourceDeltas[0]?.pdp0MeaningChange === 'NONE'
+    && record.sourceDeltas[0]?.pdp0MeaningIdsChanged?.length === 0
+    && record.sourceDeltas[0]?.freshCurrentnessRequired === true
+    && record?.decision?.pdp0MeaningDisposition === 'NO_PDP0_MEANING_CHANGE'
+    && record?.decision?.status === 'INTERNAL_SCOPED_NO_PDP0_MEANING_CHANGE_FOR_EXACT_R11_DELTA'
+    && record?.decision?.ownerAcceptance === 'NOT_CLAIMED'
+    && record?.decision?.independentSignoff === 'NOT_CLAIMED'
+    && record?.decision?.lifecycleClosure === 'NOT_ENTERED'
+    && record?.decision?.runtime === 'NOT_ADMITTED'
+    && record?.decision?.delivery === 'BLOCKED'
+    && record?.decision?.release === 'NOT_AUTHORIZED'
+    && record?.decision?.freshTechnicalCurrentness === 'REQUIRED'
+    && isDeepStrictEqual(record?.supportFileSha256s, expectedSupportFileHashes)
+    && record?.limitations === 'This scoped internal disposition covers only the exact R11 generated candidate transition as a PDP-1 decision-source inventory projection with no PDP-0 meaning change. It does not claim owner acceptance, independent signoff, native Lifecycle receipt or closure, runtime admission, Delivery readiness, or release authorization.'
+    && priorExit?.phase === 'PDP-0'
+    && priorExit?.phaseExit?.status === 'PASS'
+    && priorExit?.sourceCurrentness?.status === 'PASS'
+    && priorExit?.sourceCurrentness?.sourceCurrent === true
+    && priorExit?.developmentStatus?.status === 'DEV_COMPLETE'
+    && priorExit?.developmentStatus?.outstandingMeaningIds?.length === 0
+    && priorExit?.sourceCurrentness?.materialSourceSetFingerprint === materialFingerprint
+    && priorCurrentness?.observationId === 'MEDIA-PDP0-CURRENTNESS-2026-10-14-CURRENT-CUT-R11'
+    && priorCurrentness?.phaseDisposition?.currentSourceCurrentness === 'PASS'
+    && priorCurrentness?.phaseDisposition?.sourceCurrent === true
+    && priorCurrentness?.materialSourceSetFingerprint === materialFingerprint
+    && priorCurrentness?.denominators?.totalCells === 50
+    && priorExit?.sourceCurrentness?.denominators?.totalCells === 50
+    && samePaths && topologyUnchanged
+    && changed.length === 1
+    && sourcePin?.recordedDigest === predecessorSha256
+    && sourcePin?.currentDigest === observedSha256
+    && sourcePin?.disposition === 'CHANGED'
+    && currentCells.every((cell) => cell.sourceCurrentness === 'CURRENT' && (cell.blockers?.length ?? 0) === 0)
+    && technicalCurrentness?.denominators?.totalCells === 50
+    && technicalCurrentness?.materialPathDenominator?.uniquePaths === 146
+    && technicalCurrentness?.lifecycleSourceCurrentness?.continuity === 'CONTINUOUS'
+    && technicalCurrentness?.lifecycleSourceCurrentness?.consistencyStable === true
+    && technicalCurrentness?.lifecycleSourceCurrentness?.zeroWorkEligibleAtCapture === true
+    && hashBytes(fs.readFileSync(path.join(root, pdp0R11ExitPath))) === predecessorExitSha256
+    && hashBytes(fs.readFileSync(path.join(root, pdp0R11CurrentnessPath))) === predecessorCurrentnessSha256;
+  if (!valid) return null;
+  return {
+    path: sourcePath,
+    classification: 'INTERNAL_PDP0_SUCCESSOR_IMPACT_DISPOSITION',
+    authorityRef: recordPath,
+    authoritySha256: hashBytes(recordBytes),
+    predecessorSha256,
+    observedSha256,
+    meaningIdsChanged: [],
+    ownerAcceptance: 'NOT_CLAIMED',
+    independentSignoff: 'NOT_CLAIMED',
+    lifecycleClosure: 'NOT_ENTERED',
+    runtime: 'NOT_ADMITTED',
+    delivery: 'BLOCKED',
+  };
+}
+
+export function projectMediaPdp0PinDriftClassifications(classifications, pinComparisons) {
+  return classifications.map((classification) => {
+    const pin = pinComparisons.find((entry) => entry.path === classification.path);
+    const hasImpactDelta = typeof classification.predecessorSha256 === 'string'
+      && typeof classification.observedSha256 === 'string'
+      && classification.predecessorSha256.startsWith('sha256:')
+      && classification.observedSha256.startsWith('sha256:');
+    return {
+      ...classification,
+      ...(hasImpactDelta ? { impactDelta: classification.impactDelta ?? {
+        predecessorSha256: classification.predecessorSha256,
+        observedSha256: classification.observedSha256,
+      } } : {}),
+      ...pin,
+    };
+  });
+}
+
 export function buildMediaPdp0CurrentnessPhaseDisposition(sourceCurrent, exactImpactDispositionCurrent) {
   const pdp0Exit = sourceCurrent
     ? exactImpactDispositionCurrent ? 'PASS_INTERNAL_IMPACT_DISPOSITION_ONLY' : 'BLOCKED_PENDING_OWNER_ACCEPTANCE'
@@ -355,7 +998,7 @@ function compactCellEvidence(cell, sharedPaths) {
   };
 }
 
-export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedAt = true } = {}) {
+export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedAt = true, additionalImpactPath = null, successorImpactPath = null, observationOutputPath = outputPath } = {}) {
   const topologyPath = '.product-experience/surfaces/media-physical-topology.v1.json';
   const registryPath = '.product-experience/surface-registry.yaml';
   const sourceManifestPath = '.product-experience/source-manifest.yaml';
@@ -412,8 +1055,8 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
       .sort((left, right) => left.cellId.localeCompare(right.cellId)),
   });
   const initialGitStatus = runGit(['status', '--porcelain=v1', '--untracked-files=all']) ?? 'UNKNOWN';
-  const existing = fs.existsSync(path.join(root, outputPath))
-    ? JSON.parse(fs.readFileSync(path.join(root, outputPath), 'utf8'))
+  const existing = fs.existsSync(path.join(root, observationOutputPath))
+    ? JSON.parse(fs.readFileSync(path.join(root, observationOutputPath), 'utf8'))
     : null;
   const supplementalDecision = JSON.parse(fs.readFileSync(path.join(root, supplementalImpactPath), 'utf8'));
   const historicalDriftClassifications = [
@@ -425,11 +1068,100 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
     { path: 'apps/media-experience-explorer/specification-artifacts.json', classification: 'GENERATED EXPLORER ARTIFACT INDEX OBSERVED', authorityRef: 'MDO-03' },
     { path: '.product-experience/source-manifest.yaml', classification: 'GENERATED SOURCE INDEX AND EXTERNAL OBSERVATIONS OBSERVED', authorityRef: 'MDO-03' },
   ];
+  let isPxd164Successor = false;
+  let isR11Successor = false;
+  if (successorImpactPath) {
+    const successorImpact = JSON.parse(fs.readFileSync(path.resolve(root, successorImpactPath), 'utf8'));
+    isPxd164Successor = successorImpact?.recordId === 'MEDIA-DISCOVERY-PDP0-PXD164-SUCCESSOR-IMPACT-2026-10-14-R1';
+    isR11Successor = successorImpact?.recordId === 'MEDIA-DISCOVERY-PDP0-R11-SUCCESSOR-IMPACT-2026-10-14-R1';
+    const predecessorObservationPath = isPxd164Successor ? pdp0R10CurrentnessPath : isR11Successor ? pdp0R11CurrentnessPath : pdp0R8CurrentnessPath;
+    const predecessorObservation = JSON.parse(fs.readFileSync(path.join(root, predecessorObservationPath), 'utf8'));
+    if (isPxd164Successor) {
+      const predecessorBytes = fs.readFileSync(path.join(root, predecessorObservationPath));
+      if (hashBytes(predecessorBytes) !== 'sha256:1f2ee24f5913b8d9d9fc6d306a2d1356347f16e437e49de59e3f502643c83d0e') {
+        throw new Error('PDP-0 PXD-164 successor requires the exact immutable R10 currentness predecessor');
+      }
+      historicalDriftClassifications.splice(0, historicalDriftClassifications.length,
+        ...(predecessorObservation.historicalPdp0PinDriftClassifications ?? []));
+    }
+    if (isR11Successor) {
+      if (hashBytes(fs.readFileSync(path.join(root, predecessorObservationPath))) !== 'sha256:b6986cd2e93241c9962d1215977c99f899949f87da15a72d8087e6ad130d7026') {
+        throw new Error('PDP-0 R11 successor requires the exact immutable R11 currentness predecessor');
+      }
+      historicalDriftClassifications.splice(0, historicalDriftClassifications.length,
+        ...(predecessorObservation.historicalPdp0PinDriftClassifications ?? []));
+    }
+    const reporterCarryForward = predecessorObservation.historicalPdp0PinDriftClassifications?.find((entry) =>
+      entry.path === 'scripts/report-media-pdp-readiness.mjs'
+      && entry.classification === 'INTERNAL_PDP0_SUCCESSOR_IMPACT_DISPOSITION'
+      && entry.currentDigest === sourceContentDigests[entry.path]
+      && entry.authorityRef === 'docs/implementation/observations/media-discovery-pdp0-r6-successor-impact-2026-10-14-r1.json'
+      && fs.existsSync(path.join(root, entry.authorityRef))
+      && hashBytes(fs.readFileSync(path.join(root, entry.authorityRef))) === entry.authoritySha256);
+    if (reporterCarryForward && !historicalDriftClassifications.some((entry) => entry.path === reporterCarryForward.path)) {
+      historicalDriftClassifications.push(reporterCarryForward);
+    }
+  }
   const supplementalClassification = classifySupplementalPdp0PinChange(p0Comparison.pinComparisons, supplementalDecision);
   if (supplementalClassification) historicalDriftClassifications.push(supplementalClassification);
   const currentCutImpact = JSON.parse(fs.readFileSync(path.join(root, currentCutImpactPath), 'utf8'));
   const currentCutClassification = classifyCurrentCutPdp0PinChange(p0Comparison.pinComparisons, currentCutImpact);
   if (currentCutClassification) historicalDriftClassifications.push(currentCutClassification);
+  let successorImpactDispositionCurrent = false;
+  if (additionalImpactPath) {
+    const normalizedImpactPath = path.relative(root, path.resolve(root, additionalImpactPath)).split(path.sep).join('/');
+    if (path.isAbsolute(additionalImpactPath) || normalizedImpactPath === '..' || normalizedImpactPath.startsWith('../')) {
+      throw new Error('Additional PDP-0 source-impact path must resolve inside the repository');
+    }
+    const additionalImpact = JSON.parse(fs.readFileSync(path.resolve(root, normalizedImpactPath), 'utf8'));
+    const additionalClassification = classifyAdditionalPdp0SourceImpact(p0Comparison.pinComparisons, additionalImpact, normalizedImpactPath);
+    if (additionalClassification) historicalDriftClassifications.push(additionalClassification);
+  }
+  if (successorImpactPath) {
+    const normalizedImpactPath = path.relative(root, path.resolve(root, successorImpactPath)).split(path.sep).join('/');
+    if (path.isAbsolute(successorImpactPath) || normalizedImpactPath === '..' || normalizedImpactPath.startsWith('../')) {
+      throw new Error('PDP-0 successor impact path must resolve inside the repository');
+    }
+    const successorImpact = JSON.parse(fs.readFileSync(path.resolve(root, normalizedImpactPath), 'utf8'));
+    const predecessorExitPath = successorImpact?.recordId === 'MEDIA-DISCOVERY-PDP0-R11-SUCCESSOR-IMPACT-2026-10-14-R1'
+      ? pdp0R11ExitPath
+      : successorImpact?.recordId === 'MEDIA-DISCOVERY-PDP0-PXD164-SUCCESSOR-IMPACT-2026-10-14-R1'
+      ? pdp0R10ExitPath
+      : successorImpact?.recordId === 'MEDIA-DISCOVERY-PDP0-R8-SUCCESSOR-IMPACT-2026-10-14-R2'
+        ? pdp0R8ExitPath : pdp0R6ExitPath;
+    const predecessorExit = JSON.parse(fs.readFileSync(path.join(root, predecessorExitPath), 'utf8'));
+    const predecessorDigests = predecessorExit.sourceCurrentness?.sourceContentDigests ?? {};
+    const predecessorPinComparisons = Object.keys(predecessorDigests).sort().map((sourcePath) => ({
+      path: sourcePath,
+      recordedDigest: predecessorDigests[sourcePath],
+      currentDigest: sourceContentDigests[sourcePath] ?? null,
+      disposition: (sourceContentDigests[sourcePath] ?? null) === predecessorDigests[sourcePath] ? 'MATCH' : 'CHANGED',
+    }));
+    const successorClassification = classifyPdp0SuccessorImpact(predecessorPinComparisons, successorImpact, normalizedImpactPath, {
+      denominators: resolved.denominator,
+      physicalCompositeConsumerCells: currentCellRecords,
+      materialPathDenominator: {
+        uniquePaths: Object.keys(sourceContentDigests).length,
+        sharedPaths: sharedMaterialPaths.length,
+        cellSpecificPaths: Object.keys(sourceContentDigests).length - sharedMaterialPaths.length,
+      },
+      lifecycleSourceCurrentness: {
+        continuity: currentness.continuity,
+        consistencyStable,
+        zeroWorkEligibleAtCapture: currentness.zeroWorkEligible,
+        blockers: [...new Set([...currentness.blockers, ...(consistencyStable ? [] : ['POST_CAPTURE_SOURCE_OR_LIFECYCLE_STATE_CHANGED'])])],
+      },
+    });
+    if (successorClassification) {
+      historicalDriftClassifications.push(successorClassification);
+      successorImpactDispositionCurrent = true;
+    }
+    if (!isPxd164Successor && !isR11Successor) {
+      const pxd163Impact = JSON.parse(fs.readFileSync(path.join(root, pdp0Pxd163ImpactPath), 'utf8'));
+      const pxd163Classification = classifyAdditionalPdp0SourceImpact(p0Comparison.pinComparisons, pxd163Impact, pdp0Pxd163ImpactPath);
+      if (pxd163Classification) historicalDriftClassifications.push(pxd163Classification);
+    }
+  }
   const classifiedPdp0Paths = new Set(historicalDriftClassifications.map((entry) => entry.path));
   const unclassifiedHistoricalPdp0PinChanges = p0Comparison.pinComparisons
     .filter((entry) => entry.disposition !== 'MATCH' && !classifiedPdp0Paths.has(entry.path));
@@ -443,7 +1175,11 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
     && requiredPdp0Sources.every((entry) => entry.currentDigest !== null);
   const observation = {
     schemaVersion: 'media.discovery-pdp0-currentness-observation.v1',
-    observationId: 'MEDIA-PDP0-CURRENTNESS-2026-10-13',
+    observationId: observationOutputPath === successorOutputPath
+      ? 'MEDIA-PDP0-CURRENTNESS-2026-10-14-CURRENT-CUT-R10'
+      : /media-discovery-pdp0-currentness-2026-10-14-current-cut-(r\d+)\.json$/u.exec(observationOutputPath)
+        ? `MEDIA-PDP0-CURRENTNESS-2026-10-14-CURRENT-CUT-${/media-discovery-pdp0-currentness-2026-10-14-current-cut-(r\d+)\.json$/u.exec(observationOutputPath)[1].toUpperCase()}`
+        : 'MEDIA-PDP0-CURRENTNESS-2026-10-13',
     observedAt: preserveExistingObservedAt ? (existing?.observedAt ?? new Date().toISOString()) : new Date().toISOString(),
     campaign: {
       repository: 'samujjwal/ghatana-media',
@@ -464,10 +1200,7 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
     },
     denominators: resolved.denominator,
     historicalPhaseStatusComparison: historicalPinComparisons,
-    historicalPdp0PinDriftClassifications: historicalDriftClassifications.map((classification) => ({
-      ...classification,
-      ...p0Comparison.pinComparisons.find((entry) => entry.path === classification.path),
-    })),
+    historicalPdp0PinDriftClassifications: projectMediaPdp0PinDriftClassifications(historicalDriftClassifications, p0Comparison.pinComparisons),
     unclassifiedHistoricalPdp0PinChanges,
     requiredPdp0SourceMembership: requiredPdp0Sources,
     externalOwnerContracts: {
@@ -493,7 +1226,7 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
     sourceContentDigests,
     physicalCompositeConsumerCells: currentCellRecords.map((cell) => compactCellEvidence(cell, sharedPathSet)),
     materialSourceSetFingerprint,
-    phaseDisposition: buildMediaPdp0CurrentnessPhaseDisposition(sourceCurrent, currentCutClassification !== null),
+    phaseDisposition: buildMediaPdp0CurrentnessPhaseDisposition(sourceCurrent, currentCutClassification !== null || successorImpactDispositionCurrent),
     limitations: [
       'The historical PDP-0 DEV_COMPLETE record remains anchored at its recorded source cut and is not rewritten.',
       'This observation does not assert independent semantic acceptance, Lifecycle closure, Build entry, or Delivery readiness.',
@@ -503,7 +1236,7 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
   return {
     observation,
     summary: {
-      outputPath,
+      outputPath: observationOutputPath,
       sourceCurrent,
       sourceCellCurrentCount: currentness.cells.filter((cell) => cell.sourceCurrentness === 'CURRENT').length,
       sourceCellUnknownCount: currentness.cells.filter((cell) => cell.sourceCurrentness === 'UNKNOWN').length,
@@ -517,10 +1250,28 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
 }
 
 function main() {
-  const { observation, summary } = buildMediaPdp0CurrentnessObservation();
-  const destination = path.join(root, outputPath);
+  const successorImpactMode = process.argv[2] === '--successor-impact';
+  const impactPath = successorImpactMode ? process.argv[3] ?? null : process.argv[2] ?? null;
+  const requestedSuffix = successorImpactMode ? process.argv[4] ?? null : null;
+  if (successorImpactMode && (!impactPath || process.argv[5])) {
+    throw new Error('Usage: node scripts/record-media-discovery-pdp0-currentness.mjs --successor-impact <impact-json> [output-suffix]');
+  }
+  const impactRecord = successorImpactMode ? JSON.parse(fs.readFileSync(path.resolve(root, impactPath), 'utf8')) : null;
+  const successorSuffix = successorImpactMode && !requestedSuffix
+    && impactRecord?.recordId === 'MEDIA-DISCOVERY-PDP0-R11-SUCCESSOR-IMPACT-2026-10-14-R1'
+    ? '2026-10-14-current-cut-r12' : requestedSuffix;
+  const destinationPath = resolveMediaPdp0CurrentnessOutputPath(successorImpactMode, successorSuffix);
+  const destination = successorImpactMode
+    ? assertMediaPdp0CurrentnessOutputAvailable(destinationPath)
+    : path.join(root, destinationPath);
+  const { observation, summary } = buildMediaPdp0CurrentnessObservation({
+    preserveExistingObservedAt: !successorImpactMode,
+    additionalImpactPath: successorImpactMode ? null : impactPath,
+    successorImpactPath: successorImpactMode ? impactPath : null,
+    observationOutputPath: destinationPath,
+  });
   fs.mkdirSync(path.dirname(destination), { recursive: true });
-  fs.writeFileSync(destination, `${JSON.stringify(observation, null, 2)}\n`);
+  fs.writeFileSync(destination, `${JSON.stringify(observation, null, 2)}\n`, { flag: successorImpactMode ? 'wx' : 'w' });
   process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
 }
 

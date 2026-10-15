@@ -81,7 +81,7 @@ function validateActionPopulation(document, ownerOperations, definition = matrix
 test("all current UI actions have exact owner operation or non-operation semantics", () => {
   const ownerOperations = indexOwnerOperations(operations);
   assert.deepEqual([...ownerOperations.duplicates], [], "operation identities must resolve to a unique canonical source row");
-  assert.equal(actions.actions.length + actions.ownerDefinedActions.length, 147);
+  assert.equal(actions.actions.length + actions.ownerDefinedActions.length, 148);
   assert.deepEqual(validateActionPopulation(actions, ownerOperations), []);
   assert.equal(matrix.excludedClaims.includes("transport-equivalence"), true);
   assert.equal(matrix.excludedClaims.includes("runtime-reachability"), true);

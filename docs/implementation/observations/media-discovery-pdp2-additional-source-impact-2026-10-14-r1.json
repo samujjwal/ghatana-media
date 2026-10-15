@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "media.discovery-pdp2-additional-source-impact.v3",
+  "recordId": "MEDIA-DISCOVERY-PDP2-ADDITIONAL-SOURCE-IMPACT-2026-10-14-R1",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "stage": "DISCOVERY",
+    "activePhase": "PDP-2"
+  },
+  "predecessorCut": {
+    "phase": "PDP-2",
+    "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r13.json",
+    "receiptSha256": "sha256:e594080519407b78027389e4b9e09669663de6451cedeb2e17dd9db8c5cfcaae"
+  },
+  "pdp1Predecessor": {
+    "phase": "PDP-1",
+    "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r25.json",
+    "receiptSha256": "sha256:914390414ee87982efa786e1edf2a8adb0bc3e5d8b5c609776a7f0c65f679e1e",
+    "sourceFingerprint": "sha256:249b4d300e4103406335b4c395da888e487fa898d08bae91f09d7fa07a1e9d0e",
+    "status": "PASS",
+    "sourceCurrentness": "PASS",
+    "sourceCurrent": true,
+    "cellCount": 50,
+    "developmentStatus": "DEV_COMPLETE",
+    "outstandingMeaningIds": 0
+  },
+  "authority": {
+    "delegate": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION",
+    "decisionRole": "SCOPED_INTERNAL_MEDIA_PDP2_SOURCE_IMPACT_REVIEW",
+    "userAuthorization": {
+      "status": "AUTHORIZED",
+      "authorizedBy": "USER",
+        "exactResponse": "Authorize these three exact transitions (Recommended)",
+        "additionalScopedAuthorizationResponse": "Authorize this scoped PDP-2 impact disposition (Recommended)",
+      "exactResponses": [
+        "Authorize these three exact transitions (Recommended)",
+        "Authorize this scoped PDP-2 impact disposition (Recommended)"
+      ],
+      "authorizedTransitions": [
+        {
+          "path": ".product-experience/decision-log.md",
+          "predecessorSha256": "sha256:9831b03ecd3f30d2cbfd7a1db62d934035ba20cf1482bb5e621d166eacdb9b4c",
+          "observedSha256": "sha256:97ad3104abec9ba6670804394c68a11c663f37171e90ea2a1f2e629aa5619bbc"
+        },
+        {
+          "path": ".product-experience/interface-parity/current-source-review.json",
+          "predecessorSha256": "sha256:866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd",
+          "observedSha256": "sha256:64796cfb0db909a36e030041b2d51d02fd19fc115d703cc16bca37116f92ed06"
+        },
+        {
+          "path": "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json",
+          "predecessorSha256": "sha256:e9350fb4424fceeca2f13b93f756231e5b648904bb002de11d3d9659a0b994b6",
+          "observedSha256": "sha256:15ec0101ba8d7c178bed46b116284b0de1150ac38caacedd65904225ab4b51c9"
+        }
+      ]
+    },
+    "humanSignatureProvided": false,
+    "independentReviewerProvided": false,
+    "lifecycleReceiptProvided": false
+  },
+  "sourceDeltas": [
+    {
+      "path": ".product-experience/decision-log.md",
+      "predecessorSha256": "sha256:9831b03ecd3f30d2cbfd7a1db62d934035ba20cf1482bb5e621d166eacdb9b4c",
+      "observedSha256": "sha256:97ad3104abec9ba6670804394c68a11c663f37171e90ea2a1f2e629aa5619bbc",
+      "classification": "PDP1_PXD164_SEMANTIC_REPAIR_NO_ADDITIONAL_PDP2_MEANING",
+      "sourceSelector": ".product-experience/decision-log.md#PXD-164",
+      "phase": "PDP-2",
+      "meaningChange": "NO_ADDITIONAL_PDP2_MEANING",
+      "meaningIdsChanged": [],
+      "requiresFreshCurrentness": true
+    },
+    {
+      "path": ".product-experience/interface-parity/current-source-review.json",
+      "predecessorSha256": "sha256:866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd",
+      "observedSha256": "sha256:64796cfb0db909a36e030041b2d51d02fd19fc115d703cc16bca37116f92ed06",
+      "classification": "PDP1_INTERFACE_SOURCE_REVIEW_REFRESH",
+      "sourceSelector": ".product-experience/interface-parity/current-source-review.json",
+      "phase": "PDP-2",
+      "meaningChange": "NO_ADDITIONAL_PDP2_MEANING",
+      "meaningIdsChanged": [],
+      "requiresFreshCurrentness": true
+    },
+    {
+      "path": "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json",
+      "predecessorSha256": "sha256:e9350fb4424fceeca2f13b93f756231e5b648904bb002de11d3d9659a0b994b6",
+      "observedSha256": "sha256:15ec0101ba8d7c178bed46b116284b0de1150ac38caacedd65904225ab4b51c9",
+      "classification": "PDP1_SEMANTIC_REVIEW_EVIDENCE_REFRESH",
+      "sourceSelector": "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json",
+      "phase": "PDP-2",
+      "meaningChange": "NO_ADDITIONAL_PDP2_MEANING",
+      "meaningIdsChanged": [],
+      "requiresFreshCurrentness": true
+    }
+  ],
+  "ownerAcceptance": "NOT_CLAIMED",
+  "independentReview": "NOT_CLAIMED",
+  "lifecycleClosure": "NOT_ENTERED",
+  "runtimeAdmission": "NOT_ADMITTED",
+  "delivery": "NOT_AUTHORIZED",
+  "release": "NOT_AUTHORIZED"
+}

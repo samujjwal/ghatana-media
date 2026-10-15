@@ -18,7 +18,7 @@ ownerDefinedSourceTruthMatrix:
     sourceCollections:
       - .product-experience/pdp-3-product-experience/action-registry.yaml#/actions
       - .product-experience/pdp-3-product-experience/action-registry.yaml#/ownerDefinedActions
-    currentIdentityCount: 147
+    currentIdentityCount: 148
     exactSemanticFields:
       definition: actionDefinitionSemantics/typedDefinition
       role: domainOperationDisposition
@@ -46,7 +46,7 @@ ownerDefinedSourceTruthMatrix:
       sharedIdentityBoundary row must have no Media operation refs and must
       retain its explicit upstream handoff/observation boundary. Do not replace
       either class with a guessed Media operation based on the action label.
-    dispositionCounts: {operationIntent: 96, localOrSessionOnly: 49, sharedIdentityBoundary: 2}
+    dispositionCounts: {operationIntent: 97, localOrSessionOnly: 49, sharedIdentityBoundary: 2}
     excludedClaims: [transport-equivalence, runtime-reachability, execution-admission, independent-acceptance]
     sourceStatus: CURRENT_MEDIA_ACTION_IDENTITIES_EXACTLY_DISPOSED; cross-interface bindings remain separately reviewed
   status: OWNER_DEFINED_SOURCE_INVENTORY_AND_DISPOSITION; no cross-interface binding, runtime parity, or independent acceptance is implied.
@@ -10679,6 +10679,9 @@ typedUiActionSemantics:
           profileRef: media.operation-profile.scoped-query.v1
           scopeStatus: Media-owner-defined exact logical operation; independent PDP1/PDP3 review open; transport/runtime NOT_ADMITTED
           runtimeAdmission: NOT_ADMITTED
+        observationContractRefs:
+          - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
+        observationBindingBoundary: Match the immutable delivery request result, delivery request ID and fingerprint, exact artifact version, and destination; current authoritative ACK evidence alone establishes acknowledgment. UNKNOWN is neither success nor failure and does not authorize retry.
         operationRef: media.operation.action.reconcile-delivery-acknowledgment
         orderedOperationRefs: []
       sourceEnvelope:
@@ -14647,6 +14650,39 @@ typedUiActionSemantics:
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
         classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
         runtimeAdmission: NOT_ADMITTED
+  - identity: media.action.confirm-selected-fallback
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.confirm-selected-fallback]
+    definitionOnlyBoundary: PDP3 action intent and declared action-effect scope only; does not accept canonical PDP1 operation semantics, wire/transport parity, runtime reachability, or admission.
+    actionDefinitionSemantics:
+      actionRef: media.action.confirm-selected-fallback
+      typedDefinition:
+        ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-163
+        semanticRole: DOMAIN_OPERATION
+        effectKind: consequential-operation-unbound
+        reversibilityDisposition: NOT_REVERSIBLE
+        confirmationDisposition: REQUIRED
+        confirmationRequirement: Show the exact versioned alternative and its candidate-bound evidence; require a separate explicit confirmation bound to the original job and request snapshot.
+        actorRefs: [media.creator, media.editor, media.operator]
+        applicabilityGuards:
+          - exact-original-job-and-submission-request-snapshot-are-current
+          - exact-seven-dimension-job-status-is-current-and-matches-the-original-job
+          - explicitly-named-versioned-alternative-and-candidate-artifact-are-exact
+          - candidate-specific-current-rights-license-quality-resource-and-cost-evidence-is-positive
+          - caller-resource-budget-is-only-a-ceiling-not-capacity-evidence
+          - explicit-confirmation-matches-the-original-request-and-selected-alternative
+        effect: Record a separately confirmed versioned fallback selection for the same job and request snapshot; do not dispatch or retry processing.
+        sourceReversibleValue: false
+        finality: explicit-selection-receipt-only; no execution, completion, approval, or delivery
+        failureRecovery: Reconcile the same confirmation request ID and fingerprint; UNKNOWN does not imply denial, failure, or permission to resubmit.
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs: [media.operation.fallback-selection.confirm.v1]
+        runtimeAdmission: NOT_ADMITTED
+        acceptanceLimit: Logical selection definition only; external owner acceptance, independent review, transport, dispatch, and runtime remain pending.
+        canonicalOperationBindings:
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.fallback-selection.confirm.v1
+          operationRef: media.operation.fallback-selection.confirm.v1
+          operationKind: COMMAND
+          domainObjectRefs: [media.domain.processing-job, media.domain.artifact-version, media.domain.resolved-plan]
 
 
 typedRuntimeLifecycleEventDispositions:

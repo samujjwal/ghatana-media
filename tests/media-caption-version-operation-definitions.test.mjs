@@ -132,6 +132,15 @@ test('caption version comparison definition', () => {
   assert.match(validateMediaCaptionVersionDefinitions(approvalClaimed).join('\n'), /must not return approval/u);
 });
 
+test('caption version read observedAt schema accepts UTC timestamps with optional fractional seconds', () => {
+  const read = operation('media.operation.caption-version-read');
+  const observedAtPattern = new RegExp(read.resultSchema.properties.observedAt.pattern, 'u');
+
+  assert.equal(observedAtPattern.test('2026-10-14T12:34:56Z'), true);
+  assert.equal(observedAtPattern.test('2026-10-14T12:34:56.789Z'), true);
+  assert.equal(observedAtPattern.test('2026-10-14T12:34Z'), false);
+});
+
 test('J-03 steps 7 and 8 bind the existing operations and preserve source observations as synthetic only', () => {
   const journey = yaml('.product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml');
   const saveStep = journey.steps[6];

@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "media.discovery.pdp0-successor-source-impact.v1",
+  "recordId": "MEDIA-DISCOVERY-PDP0-R8-SUCCESSOR-IMPACT-2026-10-14-R1",
+  "observedAt": "2026-10-14T19:01:51Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "stage": "DISCOVERY",
+    "activePhase": "PDP-0",
+    "scope": "Exact R8-to-R9 PDP-0 source transition for one authorized test file."
+  },
+  "authority": {
+    "delegate": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_AUTHORIZATION",
+    "decisionRole": "SCOPED_INTERNAL_PDP0_SOURCE_IMPACT_REVIEW",
+    "authorizationBasis": "EXPLICIT_USER_AUTHORIZATION_RELAYED_BY_ORCHESTRATOR; NO_DIRECT_QUOTE_OR_SIGNATURE_RECORDED",
+    "humanIndependentSignatureProvided": false,
+    "externalContractOwnerAcceptanceProvided": false,
+    "nativeLifecycleReceiptProvided": false
+  },
+  "predecessorCut": {
+    "phase": "PDP-0",
+    "exitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r8.json",
+    "exitSha256": "sha256:4984d80baff808caf1792dddb5e52e20fe81d5d764e90948934d6e013e1e4e77",
+    "currentnessRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r8.json",
+    "currentnessSha256": "sha256:96841df11e13c1a394968d68ea3154724bd6168b5bc6dc0c5376ec09a40ea871",
+    "materialSourceSetFingerprint": "sha256:26fdd485663c5ddd3426d50e0ca5d7c51606fd1a5854861c4c614e1786201c04",
+    "materialPathCount": 146,
+    "topology": {
+      "physicalCandidates": 26,
+      "semanticCompositions": 6,
+      "repositoryRoots": 1,
+      "consumers": 17,
+      "totalCells": 50
+    }
+  },
+  "sourceDeltas": [
+    {
+      "path": "tests/pdp-truth-domain.test.mjs",
+      "phase": "PDP-0",
+      "classification": "PDP0_REGRESSION_TEST_ONLY_CHANGE",
+      "predecessorSha256": "sha256:0d94c83f6c081f2e67a4ba20752c0cdfff03f26ae1d9d87860d9ba97047964e0",
+      "observedSha256": "sha256:8ef1a6d5e11dc2e10ca32c3e6813fc8671c22a6c7f7038d48300d52f8feae578",
+      "meaningChange": "NONE",
+      "meaningIdsChanged": [],
+      "freshCurrentnessRequired": true
+    }
+  ],
+  "decision": {
+    "status": "APPROVED_INTERNAL_NO_ADDITIONAL_PDP0_MEANING_FOR_EXACT_TEST_DELTA",
+    "pdp0MeaningDisposition": "NO_ADDITIONAL_PDP0_MEANING",
+    "ownerAcceptance": "NOT_CLAIMED",
+    "independentSignoff": "NOT_CLAIMED",
+    "lifecycleClosure": "NOT_ENTERED",
+    "runtime": "NOT_ADMITTED",
+    "delivery": "BLOCKED",
+    "release": "NOT_AUTHORIZED",
+    "freshTechnicalCurrentness": "REQUIRED",
+    "orderedTechnicalCurrentness": ["PDP-0", "PDP-1"]
+  },
+  "limitations": "This scoped internal disposition covers only the exact R8-to-R9 tests/pdp-truth-domain.test.mjs transition and asserts no additional PDP-0 meaning. It does not claim owner acceptance, independent signoff, native Lifecycle receipt or closure, runtime admission, Delivery readiness, or release authorization."
+}

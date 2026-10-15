@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "media.discovery-pdp0-additional-source-impact.v1",
+  "recordId": "MEDIA-DISCOVERY-PDP0-ADDITIONAL-SOURCE-IMPACT-2026-10-14-R1",
+  "phase": "PDP-0",
+  "sourcePath": ".product-experience/decision-log.md",
+  "predecessorSha256": "sha256:cdea20d6fa57cc4d7bbea866d911c03685eeb74e0bfdb4e0a5df0c90ded56db4",
+  "observedSha256": "sha256:9831b03ecd3f30d2cbfd7a1db62d934035ba20cf1482bb5e621d166eacdb9b4c",
+  "classification": "INTERNAL_SCOPED_IMPACT_DISPOSITION",
+  "pdp0MeaningDisposition": "NO_PDP0_MEANING_CHANGE",
+  "pdp0ImpactAssessment": {
+    "sourceSelector": ".product-experience/decision-log.md#PXD-163",
+    "meaningIdsChanged": [],
+    "assessment": "PXD-163 records delegated internal PDP-1 operation/result definitions for existing Media journeys; it adds no Product Truth outcome, scope, capability, actor, right, requirement, or Product Truth decision."
+  },
+  "authority": {
+    "delegate": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION",
+    "userAuthorization": "Authorize scoped impact disposition (Recommended)",
+    "decisionRole": "SCOPED_INTERNAL_MEDIA_SOURCE_IMPACT_REVIEW",
+    "humanIndependentSignatureProvided": false,
+    "qualifiedExternalSpecialistSignoffProvided": false,
+    "externalContractOwnerAcceptanceProvided": false,
+    "nativeLifecycleReceiptProvided": false
+  },
+  "ownerAcceptance": "NOT_CLAIMED",
+  "independentReview": "NOT_CLAIMED",
+  "lifecycleClosure": "NOT_ENTERED",
+  "runtimeAdmission": "NOT_ADMITTED",
+  "delivery": "BLOCKED"
+}

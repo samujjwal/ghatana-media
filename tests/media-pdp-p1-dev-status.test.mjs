@@ -32,8 +32,10 @@ test('current PDP-1 semantic review pins the exact full denominator and delegate
   assert.ok(review.decisionReconciliations.some(item => item.id === 'PXD-155'));
   assert.equal(review.currentCutReview?.sourceIdentityCount, census.identityIds.length);
   assert.equal(review.currentCutReview?.currentOperationsSourceReinspection?.status, 'REINSPECTED_CURRENT_SOURCE_CUT');
+  const pxd164Impact = JSON.parse(fs.readFileSync('docs/implementation/observations/media-discovery-pdp1-pxd164-semantic-repair-impact-2026-10-14-r1.json', 'utf8'));
   assert.equal(review.currentCutReview?.currentOperationsSourceReinspection?.currentSourceSha256,
-    sourceFingerprints['.product-experience/pdp-1-domain-data/operations.yaml']);
+    pxd164Impact.sourcePredecessor.sourceDigests['.product-experience/pdp-1-domain-data/operations.yaml'].replace(/^sha256:/u, ''),
+    'the earlier reinspection remains bound to the exact pre-PXD164 operations source');
   assert.equal(review.currentCutReview?.currentOperationsSourceReinspection?.previousSourceBytesAvailableInGit, false);
   assert.deepEqual(review.currentCutReview?.outstandingMeaningIds, []);
 });
@@ -195,7 +197,7 @@ test('PDP-1 current identity census matches the normative owner registry denomin
   assert.equal(census.sourceRecordCount.actionWireContracts, 79);
   assert.equal(census.sourceRecordCount.capabilityOperations, 462);
   assert.equal(census.sourceRecordCount.capabilityBounds, 462);
-  assert.equal(census.sourceRecordCount.capabilityInputPayloadSchemas, 128);
+  assert.equal(census.sourceRecordCount.capabilityInputPayloadSchemas, 129);
   assert.equal(census.sourceRecordCount.capabilityOutputPayloadSchemas, 98);
   assert.equal(census.sourceRecordCount.capabilityOperationRecordCount, 462);
   assert.equal(census.sourceRecordCount.canonicalOperationSchemaCount, 448);
@@ -206,7 +208,7 @@ test('PDP-1 current identity census matches the normative owner registry denomin
   assert.equal(census.sourceRecordCount.sdkLogicalPublicMethods, 30);
   assert.equal(census.sourceRecordCount.sdkParserTokens, 3);
   assert.equal(census.sourceRecordCount.grpcDispositionCounts.unresolved, 0);
-  assert.equal(census.sourceRecordCount.uiActions, 147);
+  assert.equal(census.sourceRecordCount.uiActions, 148);
   assert.equal(census.sourceRecordCount.cliCommands, 11);
   assert.equal(census.sourceRecordCount.agentToolHandlers, 4);
   assert.equal(census.sourceRecordCount.agentToolContracts, 4);

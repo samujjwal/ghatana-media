@@ -43,10 +43,16 @@ test('integration applicability is an internal approved choice, not retroactive 
 });
 
 test('phase lock retains prior exits, open PDP3, no Build/closure/Delivery false assertions', () => {
-  assert.deepEqual(work.campaign.remainingDiscoveryTaskIds,['MDC-30','MDC-31','MDC-32','MDC-40','MDC-41']);
+  assert.deepEqual(work.campaign.remainingDiscoveryTaskIds,['RC-P2-01','MDC-30','MDC-31','MDC-32','MDC-40','MDC-41']);
   assert.equal(work.tasks.find(t => t.id === 'MDC-30').subtaskIds.length,47);
-  for (const ph of ['pdp0','pdp1','pdp2']) assert.equal(matrix.status[ph],'CURRENT_PHASE_EXIT_PASS');
-  assert.ok(matrix.status.pdp3.includes('GAPS'));
+  assert.equal(work.campaign.activePhase,'PDP-2');
+  assert.deepEqual(work.campaign.completedPredecessorRecheckTaskIds,['RC-P0-01','RC-P1-01']);
+  assert.deepEqual(work.campaign.requiredPredecessorRecheckTaskIds,['RC-P2-01']);
+  assert.equal(matrix.status.pdp0,'CURRENT_PHASE_EXIT_PASS_R11_INTERNAL_IMPACT_DISPOSITION_ONLY');
+  assert.equal(matrix.status.pdp1,'CURRENT_PHASE_EXIT_PASS_R25_INTERNAL_IMPACT_DISPOSITION_ONLY_OWNER_ACCEPTANCE_NOT_RECORDED');
+  assert.equal(matrix.status.pdp2,'RECAPTURE_REQUIRED_R13_STALE_PREDECESSOR_PDP1_R25');
+  assert.equal(matrix.status.pdp3,'GATED_PENDING_PDP2_CURRENTNESS_AFTER_PDP1_R25');
+  assert.equal(matrix.currentPhase,'PDP-2');
   assert.equal(plan.approvalRules.newMdc30ExitPublished,false);
   assert.equal(matrix.status.discovery,'FAIL');
   assert.equal(matrix.status.build,'NOT_ENTERED');

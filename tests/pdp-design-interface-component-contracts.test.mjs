@@ -11,12 +11,20 @@ const componentPath = ".product-experience/pdp-2-design-interface-system/compone
 const auditPath = ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml";
 const components = parse(readFileSync(resolve(root, componentPath), "utf8")).components;
 const valueTypes = parse(readFileSync(resolve(root, ".product-experience/pdp-2-design-interface-system/component-value-types.yaml"), "utf8"));
+const actionRegistry = parse(readFileSync(resolve(root, ".product-experience/pdp-3-product-experience/action-registry.yaml"), "utf8"));
 const audit = parse(readFileSync(resolve(root, auditPath), "utf8"));
 const contractOnly = audit.publicExportInventory.unboundFamilies;
 
 function validate(records) {
   return validateTypedComponentContracts(root, records, audit);
 }
+
+test("PDP-2 action identity enums exactly match the current PDP-3 action registry", () => {
+  const canonicalActionIds = [...actionRegistry.actions, ...actionRegistry.ownerDefinedActions]
+    .map((record) => record.id).sort();
+  assert.deepEqual(valueTypes.$defs.MediaActionIntentRef.enum, canonicalActionIds);
+  assert.deepEqual(valueTypes.$defs.ActionIntentRef.enum, canonicalActionIds);
+});
 
 test("all 28 contract-only component families have typed, meaningful Media source definitions", () => {
   assert.equal(components.length, 31);

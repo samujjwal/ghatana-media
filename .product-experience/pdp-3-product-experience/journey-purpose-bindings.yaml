@@ -420,8 +420,10 @@ records:
   - .product-experience/pdp-0-product-truth/capabilities.yaml#media.quality.inspect
   - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-quality-inspect
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-quality-evidence
-  mappingBasis: This query is limited to applicable measured quality evidence and does not dispatch image or video
-    generation.
+  observationContractRefs:
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-action-plan.v1
+  mappingBasis: Bind measured quality, applicability, and abstentions to quality-evidence; bind any requested recommendation or bounded repair plan to quality-action-plan. Neither observation executes work or changes state.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
@@ -474,8 +476,8 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/3
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.compare-candidate-on-metric
-  mappingBasis: Read or navigate using the exact selected context; do not mutate a source object or infer permission
-    from its presence.
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+  mappingBasis: Bind the metric comparison to its exact owner-defined P1 result schema and selected immutable context; a read-only result does not establish permission, approval, or delivery.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
@@ -673,8 +675,9 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml#/steps/3
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-output-preview-and-version
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-output-preview-and-version
-  mappingBasis: Read or navigate using the exact selected context; do not mutate a source object or infer permission
-    from its presence.
+  observationContractRefs:
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1
+  mappingBasis: Bind preview/version inspection to the exact immutable output-preview-version-lineage observation; the read-only result does not register, approve, deliver, dispatch, qualify, or retry an artifact.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
@@ -873,6 +876,39 @@ records:
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs: []
+  relatedActionBindings:
+  - id: media.pdp3.action-binding.j04-selected-tts-command.v1
+    bindingKind: CONDITIONAL_SELECTED_TARGET_COMMAND_ACTION_PURPOSE
+    actionRef: media.action.request-admitted-speech-operation
+    actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-admitted-speech-operation
+    intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/pdp1ResultEvidence/conditionalSelectedCommandResultBinding
+    operationRef: media.operation.action.request-admitted-speech-operation
+    actionExactOperationRefs:
+    - media.operation.action.request-admitted-speech-operation
+    operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.request-admitted-speech-operation
+    operationKind: COMMAND
+    selectedTargetOperationBindingRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.request-admitted-speech-operation/selectedTargetOperationBinding
+    selectedTargetCapabilityRef: media.speech.synthesis.text-to-speech
+    selectedTargetOperationRef: media.operation.capability.media-speech-synthesis-text-to-speech
+    selectedTargetOperationVersion: 1
+    selectedTargetOperationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech
+    selectedTargetRequestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech/requestSchema
+    selectedTargetResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech/resultSchema
+    selectionCondition: Trusted explicit user selection of exactly one current COMMAND target; no default and no dispatch before selection.
+    effect: The wrapper may submit only the exact selected TTS target request after target-specific source, profile, policy, rights, consent, and resource guards pass.
+    finality: The wrapper produces only its own receipt; the selected target result is a separate exact-schema observation and does not establish output registration or approval.
+    recovery: Preserve the exact request identity and fingerprint; reconcile UNKNOWN against that same identity before retry, and never blindly dispatch a second write.
+    sourceRefs:
+    - .product-experience/decision-log.md#PXD-119
+    - .product-experience/decision-log.md#PXD-164
+    - .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/steps/0/stepDefinitionSemantics/choiceSet
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.request-admitted-speech-operation
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech
+    - .product-experience/pdp-1-domain-data/operations.yaml#media.operation.tts-request-origin-binding.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#media.operation.tts-request-origin-binding.v1/producedOutputObservation
+    runtimeAdmission: NOT_ADMITTED
+    externalAcceptance: PENDING
+    acceptanceEffect: none
 - id: media.pdp3.step-purpose-binding.j04-step-02.v1
   journeyRef: J-04
   journeySourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-04
@@ -1925,6 +1961,7 @@ records:
   acceptanceEffect: none
   allowedOperationRefs:
   - media.operation.action.review-processing-parameters
+
 - id: media.pdp3.step-purpose-binding.j27-step-04.v1
   journeyRef: J-27
   journeySourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-27
@@ -1948,6 +1985,28 @@ records:
   actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-quality-evidence
   actionExactOperationRefs:
   - media.operation.action.inspect-quality-evidence
+  relatedActionBindings:
+  - id: media.pdp3.action-binding.j27-fallback-confirmation.v1
+    bindingKind: EXACT_SINGLE_OPERATION_ACTION_PROPOSAL
+    actionRef: media.action.confirm-selected-fallback
+    actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.confirm-selected-fallback
+    intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml#/pdp1ResultEvidence/fallbackConfirmation
+    operationRef: media.operation.fallback-selection.confirm.v1
+    actionExactOperationRefs:
+    - media.operation.fallback-selection.confirm.v1
+    operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.fallback-selection.confirm.v1
+    operationKind: COMMAND
+    effect: Record the explicit, candidate-bound versioned fallback selection for the same original job and request snapshot; do not dispatch or retry processing.
+    finality: explicit-selection-receipt-only; no execution, completion, approval, or delivery
+    recovery: reconcile-the-same-confirmation-request-identity; unknown-does-not-imply-failure-or-authorize-resubmission
+    runtimeAdmission: NOT_ADMITTED
+    externalAcceptance: PENDING
+    acceptanceEffect: none
+    sourceRefs:
+    - .product-experience/decision-log.md#PXD-163
+    - .product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml#/fallbackConfirmation
+    - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.confirm-selected-fallback
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.fallback-selection.confirm.v1
   operationRefs:
   - media.operation.action.inspect-quality-evidence
   supportingOperationRefs: []
@@ -2077,8 +2136,9 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/1
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.review-processing-parameters
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.review-processing-parameters
-  mappingBasis: Read the exact artifact, measurement, or declared parameter context; preserve source versions and
-    distinguish missing evidence from a negative result.
+  observationContractRefs:
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1
+  mappingBasis: Bind exact subject version and requested parameter refs to processing-parameter-read; missing, stale, or unavailable parameter evidence remains unknown, not negative.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
@@ -2409,8 +2469,8 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/7
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-version-and-review-scope
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-version-and-review-scope
-  mappingBasis: Read or navigate using the exact selected context; do not mutate a source object or infer permission
-    from its presence.
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/resultSchema
+  mappingBasis: Bind version and review-scope inspection to the exact owner-defined P1 result schema; this read-only query asserts no P1 machine transition and is distinct from recording a review decision or approval.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
@@ -2744,6 +2804,10 @@ records:
   recovery: preserve exact request, destination, profile, and artifact version; reconcile unknown effects before any same-identity retry
   sourceRefs:
   - .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/steps/1
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
+  observationContractRefs:
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
+  destinationAcknowledgmentObservationDisposition: LATER_EXTERNAL_EVIDENCE_ONLY; delivery-request-receipt-does-not-establish-ACK
   mappingBasis: Exact action and COMMAND operation association; P1 request binds artifactVersionId, destinationRef, deliveryProfileRef, current authority decision, and explicit confirmation.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
@@ -2797,11 +2861,48 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/steps/2
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.view-job-status
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.view-job-status
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
+  observationContractRefs:
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
   mappingBasis: read-current-job-and-attempt-evidence
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
   - media.operation.action.view-job-status
+  relatedActionBindings:
+  - id: media.pdp3.action-binding.j22-destination-ack-reconciliation.v1
+    bindingKind: EXACT_SINGLE_OPERATION_ACTION_PROPOSAL
+    actionRef: media.action.reconcile-delivery-acknowledgment
+    actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.reconcile-delivery-acknowledgment
+    intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/steps/2
+    operationRef: media.operation.action.reconcile-delivery-acknowledgment
+    actionExactOperationRefs:
+    - media.operation.action.reconcile-delivery-acknowledgment
+    operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.reconcile-delivery-acknowledgment
+    operationKind: QUERY
+    effectSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.reconcile-delivery-acknowledgment/sourceEffect
+    effect: Read or navigate using the exact selected context; do not mutate a source object or infer permission from its presence.
+    finalitySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.reconcile-delivery-acknowledgment/sourceFinality
+    finality: read-only-or-navigation; no-write-finality
+    recoverySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.reconcile-delivery-acknowledgment/sourceRecovery
+    recovery: retain-the-exact-context-and-request-identity; reconcile-unknown-effects-before-retry; never-substitute-a-newer-version
+    observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
+    observationBinding: Exact immutable delivery request result, request ID and fingerprint, artifact version, and destination must match. Current authoritative destination evidence alone may establish ACKNOWLEDGED.
+    unknownDisposition: UNKNOWN is neither success nor failure; reconcile the same identity and never retry blindly.
+    sourceIntentRefs:
+    - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-22/completion
+    - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-22/recovery
+    runtimeAdmission: NOT_ADMITTED
+    transport: UNBOUND
+    externalAcceptance: PENDING
+    acceptanceEffect: none
+    sourceRefs:
+    - .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/pdp1ResultEvidence/destinationAcknowledgment
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.reconcile-delivery-acknowledgment
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.reconcile-delivery-acknowledgment/sourceEffect
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.reconcile-delivery-acknowledgment/sourceFinality
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.reconcile-delivery-acknowledgment/sourceRecovery
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
 - id: media.pdp3.step-purpose-binding.j11-step-01.v1
   journeyRef: J-11
   journeySourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-11
@@ -3043,8 +3144,8 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml#/steps/1
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-simulation-result
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-simulation-result
-  mappingBasis: Read the result and declared measurements for the exact simulation run; distinguish missing, partial,
-    and unavailable evidence.
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/resultSchema
+  mappingBasis: Bind simulation-result inspection to its exact owner-defined P1 result schema for the selected run; this read-only query asserts no P1 machine transition, missing, partial, and unavailable evidence remain distinct, and a plan does not establish execution.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
@@ -3098,8 +3199,10 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml#/steps/2
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-quality-evidence
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-quality-evidence
-  mappingBasis: Read or navigate using the exact selected context; do not mutate a source object or infer permission
-    from its presence.
+  observationContractRefs:
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-action-plan.v1
+  mappingBasis: Bind measured quality, applicability, and abstentions to quality-evidence; bind any requested recommendation or bounded repair plan to quality-action-plan. Neither observation executes work or changes state.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
@@ -3433,24 +3536,21 @@ records:
   localEffectContractRef: null
   domainObjectRefs:
   - media.domain.project
-  stateRefs:
-  - media-project/ACTIVE
-  - media-project/ARCHIVED
+  stateRefs: []
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   requirementRefs:
   - MEDIA-REQ-CAP-PROJECT
   effect: Read the authorized project collection for the trusted tenant, principal, and selected workspace; do not
     create, mutate, or infer global absence.
-  finality: read-only scoped query; returned rows are observations at observedAt, not complete cross-workspace inventory
-    or transition
+  finality: read-only scoped query; returned rows are observations at observedAt, not complete cross-workspace inventory or transition
   recovery: repeat the same scoped query under current identity and authority; preserve request/query identity and
     label unavailable or stale results honestly
   sourceRefs:
   - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/1
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation-slice.list-projects
-  mappingBasis: Read the authorized project collection for the trusted tenant, principal, and selected workspace;
-    do not create, mutate, or infer global absence.
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.list-projects/ownerWireSchema/resultSchema
+  mappingBasis: Bind the authorized project-list query to its exact P1 owner wire result; returned lifecycle labels are selector/filter data, not machine-state claims.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
@@ -3625,8 +3725,9 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml#/steps/0
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.review-processing-parameters
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.review-processing-parameters
-  mappingBasis: Read the exact artifact, measurement, or declared parameter context; preserve source versions and
-    distinguish missing evidence from a negative result.
+  observationContractRefs:
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.processing-parameter-read.v1
+  mappingBasis: Bind exact subject version and requested parameter refs to processing-parameter-read; missing, stale, or unavailable parameter evidence remains unknown, not negative.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
@@ -3833,8 +3934,10 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml#/steps/3
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-quality-evidence
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-quality-evidence
-  mappingBasis: Read or navigate using the exact selected context; do not mutate a source object or infer permission
-    from its presence.
+  observationContractRefs:
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-action-plan.v1
+  mappingBasis: Bind measured quality, applicability, and abstentions to quality-evidence; bind any requested recommendation or bounded repair plan to quality-action-plan. Neither observation executes work or changes state.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
@@ -3887,8 +3990,8 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml#/steps/4
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.compare-candidate-on-metric
-  mappingBasis: Read or navigate using the exact selected context; do not mutate a source object or infer permission
-    from its presence.
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+  mappingBasis: Bind the metric comparison to its exact owner-defined P1 result schema and selected immutable context; a read-only result does not establish permission, approval, or delivery.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
@@ -5488,8 +5591,8 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/2
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.compare-candidate-on-metric
-  mappingBasis: Read or navigate using the exact selected context; do not mutate a source object or infer permission
-    from its presence.
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+  mappingBasis: Bind the metric comparison to its exact owner-defined P1 result schema and selected immutable context; a read-only result does not establish permission, approval, or delivery.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
@@ -5544,8 +5647,9 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/3
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-quality-evidence
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-quality-evidence
-  mappingBasis: Read or navigate using the exact selected context; do not mutate a source object or infer permission
-    from its presence.
+  observationContractRefs:
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1
+  mappingBasis: Bind exact subject version and requested metrics to the owner-defined quality-evidence observation; applicability, abstention, and uncertainty remain distinct from measured disposition.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
@@ -5945,6 +6049,33 @@ records:
   acceptanceEffect: none
   allowedOperationRefs:
   - media.operation.action.inspect-version-and-review-scope
+  relatedActionBindings:
+  - id: media.pdp3.action-binding.j21-review-decision-receipt.v1
+    bindingKind: RELATED_OUTCOME_EVIDENCE_NOT_STEP_TRANSITION
+    journeyStepTransition: false
+    actionRef: media.action.record-version-review-decision
+    actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.record-version-review-decision
+    intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/pdp1ResultEvidence/operationResultBindings/0
+    operationRef: media.operation.action.record-version-review-decision
+    actionExactOperationRefs:
+    - media.operation.action.record-version-review-decision
+    operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.record-version-review-decision
+    operationKind: COMMAND
+    resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.record-version-review-decision/resultSchema
+    resultMeaning: Append only the exact review record to the owner-issued case for the immutable version; the receipt does not imply approval or mutate that version.
+    effect: Request the exact review-record operation after fresh actor, capability, policy, and target checks.
+    finality: append receipt confirms the exact review record only; it does not imply approval or mutate the reviewed version.
+    unknownDisposition: UNKNOWN is not failure; retain the same request identity and exact reviewed version for authorized reconciliation and never issue a second write while outcome is UNKNOWN.
+    recovery: retain-the-exact-context-and-request-identity; reconcile-unknown-effects-before-retry; never-substitute-a-newer-version
+    sourceRefs:
+    - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-21/completion
+    - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-21/recovery
+    - .product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/pdp1ResultEvidence/operationResultBindings/0
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.record-version-review-decision
+    - .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.record-version-review-decision.v1
+    runtimeAdmission: NOT_ADMITTED
+    externalAcceptance: PENDING
+    acceptanceEffect: none
 - id: media.pdp3.step-purpose-binding.j21-step-02.v1
   journeyRef: J-21
   journeySourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-21
@@ -7209,7 +7340,9 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/3
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.view-job-status
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.view-job-status
-  mappingBasis: read-current-job-and-attempt-evidence
+  observationContractRefs:
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.delegated-integration-result-context.v1
+  mappingBasis: Bind only the exact delegated-integration-result-context observation; its identity-bound JOB_STATUS result reference is a separate typed query result, not a state transition, output, approval, or delivery acknowledgment.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
@@ -7262,7 +7395,8 @@ records:
   sourceRefs:
   - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version
-  mappingBasis: One source-defined query reads exact-version metadata and its time-scoped recorded integrity/lifecycle disposition; it does not establish current availability, rights, consent, retention authority, or processing/delivery permission.
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/ownerWireSchema/resultSchema
+  mappingBasis: Bind to the exact owner-defined inspect-artifact-version result schema for one immutable version; this read-only query asserts no P1 machine transition and does not establish current availability, rights, consent, retention authority, or processing/delivery permission.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:

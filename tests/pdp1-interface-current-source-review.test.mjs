@@ -33,12 +33,61 @@ test("P1 interface review pins current sources and reconciles source populations
   assert.equal(sourceReinspection.previousSourceBytesAvailableInGit, false);
   assert.equal(sourceReinspection.runtimeAdmission, "NOT_ADMITTED");
   assert.equal(sourceReinspection.transportAdmission, "NOT_ADMITTED");
+  const authoritativeActions = actionRegistry.actions;
+  assert.equal(authoritativeActions.length, 147);
+  assert.equal(review.recomputedPopulations.currentUiActionIdentities,
+    authoritativeActions.length + actionRegistry.ownerDefinedActions.length);
+  const actualTypedActionSemantics = authoritativeActions.filter(({ actionDefinitionSemantics }) => actionDefinitionSemantics);
+  assert.equal(actualTypedActionSemantics.length, authoritativeActions.length);
+  assert.equal(review.currentSourceCutDeltaReview.typedUiActionSemanticRecordCount, actualTypedActionSemantics.length);
+  const fallbackAction = authoritativeActions.find(({ id }) => id === "media.action.confirm-selected-fallback");
+  const fallbackReview = review.currentSourceCutDeltaReview.fallbackActionOperationReconciliation;
+  const fallbackOperation = ownerOperations.ownerDefinedOperationContracts.records.find(({ id }) =>
+    id === "media.operation.fallback-selection.confirm.v1");
+  assert.ok(fallbackAction && fallbackOperation);
+  assert.deepEqual(fallbackReview, {
+    actionRef: "media.action.confirm-selected-fallback",
+    operationRefs: ["media.operation.fallback-selection.confirm.v1"],
+    actionSourceSelector: ".product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.confirm-selected-fallback",
+    ownerSourceSelector: ".product-experience/pdp-1-domain-data/operations.yaml#actionOperationDispositionInventory/records/@actionId=media.action.confirm-selected-fallback",
+    operationSourceSelector: ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.fallback-selection.confirm.v1",
+    operationKind: "COMMAND",
+    runtimeAdmission: "NOT_ADMITTED",
+    externalOwnerAcceptance: "PENDING",
+    independentReview: "OPEN",
+    transportAdmission: "NOT_ADMITTED",
+  });
+  assert.deepEqual(fallbackAction.actionDefinitionSemantics.typedDefinition.exactOperationRefs,
+    fallbackReview.operationRefs);
+  assert.equal(fallbackAction.actionDefinitionSemantics.typedDefinition.runtimeAdmission, "NOT_ADMITTED");
+  assert.equal(fallbackOperation.operationKind, fallbackReview.operationKind);
+  assert.equal(fallbackOperation.scopeStatus,
+    "OWNER_DEFINED_SELECTION_DEFINITION_ONLY; no fallback execution, provider, endpoint, transport, or runtime is admitted");
+  assert.equal(ownerOperations.actionOperationDispositionInventory.records.find(({ actionId }) =>
+    actionId === fallbackReview.actionRef).exactOperationRefs[0], fallbackReview.operationRefs[0]);
+  const typedObservationIds = ownerOperations.ownerTypedObservationContracts.records.map(({ id }) => id);
+  assert.equal(typedObservationIds.length, 15);
+  assert.deepEqual(sourceReinspection.currentOwnerTypedObservationContractIds, typedObservationIds);
+  assert.equal(ownerOperations.ownerTypedObservationValidationRules.records.length, 15);
+  assert.equal(review.currentSourceCutDeltaReview.externalOwnerAcceptance, "PENDING");
+  assert.equal(review.currentSourceCutDeltaReview.independentReview, "OPEN");
+  assert.equal(review.currentSourceCutDeltaReview.runtimeAdmission, "NOT_ADMITTED");
+  assert.equal(review.currentSourceCutDeltaReview.transportAdmission, "NOT_ADMITTED");
   const ui = parity.surfaces.find(({ surface }) => surface === "UI action registry");
   const cli = parity.surfaces.find(({ surface }) => surface === "CLI fixture commands");
-  assert.equal(ui.denominator, review.recomputedPopulations.currentUiActionIdentities);
+  const sourceTruth = parity.ownerDefinedSourceTruthMatrix.currentUiActionIdentityResolution;
+  assert.equal(sourceTruth.currentIdentityCount, review.recomputedPopulations.currentUiActionIdentities);
+  assert.deepEqual(sourceTruth.dispositionCounts, {
+    operationIntent: review.recomputedPopulations.currentUiActionOperationIntent,
+    localOrSessionOnly: review.recomputedPopulations.currentUiActionLocalOrSessionOnly,
+    sharedIdentityBoundary: review.recomputedPopulations.currentUiActionSharedIdentityBoundary,
+  });
+  assert.equal(sourceTruth.currentIdentityCount, 148);
+  assert.equal(sourceTruth.dispositionCounts.operationIntent, 97);
+  assert.equal(ui.denominator, 147, "cross-interface UI registry denominator remains separately scoped");
   assert.equal(ui.operationBindingCounts.unresolved, review.crossInterfaceActionBindingSnapshot.historicalUnresolvedCrossInterfaceBindings);
   assert.equal(review.crossInterfaceActionBindingSnapshot.currentActionDenominator, ui.denominator);
-  assert.match(review.crossInterfaceActionBindingSnapshot.meaning, /does not override the current 147-action semantic-role census/u);
+  assert.match(review.crossInterfaceActionBindingSnapshot.meaning, /does not override the current 148-identity semantic-role census/u);
 
   assert.equal(cli.identities.length, review.recomputedPopulations.fixtureCliCommands);
   assert.deepEqual(cli.dispositionCounts, { mappedProposal: 11, unresolved: 0 });

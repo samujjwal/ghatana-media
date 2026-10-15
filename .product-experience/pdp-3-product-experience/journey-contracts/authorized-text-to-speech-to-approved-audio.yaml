@@ -19,6 +19,108 @@ channels:
   - media.channel.grpc-api
   - media.channel.sdk
 channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+pdp1ResultEvidence:
+  status: SOURCE_BOUND_DEFINITION_ONLY; PDP3_CHANNEL_EDGE_PROOF_REFERENCES_PRESENT; OWNER_ACCEPTANCE_NOT_RECORDED
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#media.operation.tts-request-origin-binding.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.request-snapshot.inspect.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.speaker-reference.resolve-version.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.voice-profile.resolve-source-version.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.output.register.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-voice-authorization/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema
+  operationResultBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/steps/1
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j04-step-02.v1
+      operationRef: media.operation.action.inspect-voice-authorization
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      exactResult: requestId, exactTargetRef, ownerReceipt, and observedAt only; this operation result contains no typed VOICE_AUTHORIZATION or CONSENT decision.
+      semanticJoinLimit: Separate current rights-decision observations remain required; this receipt cannot satisfy the rights/consent gate or authorize synthesis.
+      unknownDisposition: Missing, stale, denied, mismatched, or unavailable scoped observation remains UNKNOWN; repeat only the same authorized read and never infer rights, consent, or synthesis permission.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/steps/2
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j04-step-03.v1
+      operationRef: media.operation.action.compare-candidate-on-metric
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      exactResult: requestId, exactTargetRef, ownerReceipt, and observedAt only; no comparison values or synthesis-result approval are defined in this result.
+      semanticJoinLimit: This receipt is not a synthesis result, output registration, or approval observation.
+      unknownDisposition: Missing, stale, denied, mismatched, or unavailable scoped observation remains UNKNOWN; repeat only the same authorized read and do not infer comparison values, synthesis success, registration, or approval.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/steps/3
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j04-step-04.v1
+      operationRef: media.operation.action.inspect-output-preview-and-version
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      exactResult: requestId, exactTargetRef, ownerReceipt, and observedAt only; no typed synthesized output version, provenance result, or approval observation is present.
+      semanticJoinLimit: This generic scoped-query receipt cannot establish an exact registered output ArtifactVersionRef or replace the independent registration-receipt observation.
+      unknownDisposition: Missing, stale, denied, mismatched, or unavailable scoped observation remains UNKNOWN; repeat only the same authorized read and do not infer output registration or approval.
+  conditionalSelectedCommandResultBinding:
+    journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/steps/0
+    journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j04-step-01.v1/relatedActionBindings/@id=media.pdp3.action-binding.j04-selected-tts-command.v1
+    explicitChoiceSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/steps/0/stepDefinitionSemantics/choiceSet
+    selection: EXPLICIT_USER_SELECTION_REQUIRED; NO_DEFAULT; NO_DISPATCH_UNTIL_SELECTED
+    candidateActionRef: media.action.request-admitted-speech-operation
+    actionPurposeOperationRef: media.operation.action.request-admitted-speech-operation
+    actionPurposeOperationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.request-admitted-speech-operation
+    selectedTargetOperationBindingRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.request-admitted-speech-operation/selectedTargetOperationBinding
+    selectedCanonicalOperationRef: media.operation.capability.media-speech-synthesis-text-to-speech
+    selectedCapabilityRef: media.speech.synthesis.text-to-speech
+    operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech
+    operationKind: COMMAND
+    operationVersion: 1
+    requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech/requestSchema
+    exactResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech/resultSchema
+    resultBindingRef: .product-experience/pdp-1-domain-data/operations.yaml#media.operation.tts-request-origin-binding.v1/producedOutputObservation
+    acceptance: A later separately selected and owner-bound request may use this exact TTS operation only after current source/profile, rights/consent, and trusted request snapshot joins pass; exact successful result must match the expected request/provenance tuple and then the separate registration and approval chain.
+    currentJoinStatus: SOURCE_BOUND_DEFINITION_ONLY; CONDITIONAL_ACTION_PURPOSE_JOIN_AUTHORED; CHANNEL_EDGE_PROOF_REFERENCES_PRESENT; OWNER_ACCEPTANCE_NOT_RECORDED
+    exactSharedJoinGap: The distinct related-action purpose binding joins the explicit selected command to the existing generic wrapper and exact TTS target contract, and all three owner-directed channel-edge proof records cite that exact binding and result source. J-04 step-01 remains PASSIVE_OR_NO_DISPATCH; this source-only join does not establish execution, registration, approval, transport admission, or owner acceptance.
+    requestIdentityAndUnknownRecoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.request-admitted-speech-operation/requestIdempotency
+    outputAndApprovalBoundary: A wrapper receipt, candidate result, or selected-command binding does not establish synthesis execution, output registration, or human approval; the separate exact target result and registration/approval observations remain required.
+    runtimeAdmission: NOT_ADMITTED
+  conditionalResultChain:
+    selectionBoundary: The umbrella view contains explicit candidate actions with no selected action or default. No operation is dispatched and no result exists until a concrete candidate action is selected through an owner-bound PDP-3 action and purpose binding.
+    sourceAndProfileResolution:
+      sourceRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.speaker-reference.resolve-version.v1
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.voice-profile.resolve-source-version.v1
+      exactResult: Resolve the explicitly selected speaker or exact profile/version pair to one trusted immutable voice-model artifact/version and canonical sourceRef under tenant/principal context.
+      boundary: Missing, ambiguous, inaccessible, mismatched, or stale resolution is UNKNOWN; caller-constructed source identity is not evidence.
+    rightsAndConsent:
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1
+      requiredDecisionKinds: [VOICE_AUTHORIZATION, CONSENT]
+      exactTuple: [tenantId, principalId, queryId, decisionKind, subjectArtifactVersionRef, purposeRef, useRef, regionRef, retentionPolicyRef]
+      positiveAcceptance: Each exact current observation must be ALLOWED_FOR_DECLARED_SCOPE with PERMITTED disposition, current authority/version, valid interval, and authoritative evidence; voice authorization names the resolved governed voice artifact version and consent names the exact applicable selected/default dependency.
+      negativeAcceptance: Absent, UNKNOWN, denied, restricted, expired, revoked, stale, malformed, or tuple-mismatched decisions prohibit output registration; profile version alone is not voice authorization.
+    synthesisRequestAndResult:
+      originBindingRef: .product-experience/pdp-1-domain-data/operations.yaml#media.operation.tts-request-origin-binding.v1
+      operationRef: media.operation.capability.media-speech-synthesis-text-to-speech
+      operationVersion: 1
+      requestSnapshotOperationRef: media.operation.request-snapshot.inspect.v1
+      requestSnapshotResultRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.request-snapshot.inspect.v1/resultSchema
+      exactRequestJoin: Exact trusted tenant/principal/job/request identity, acceptedRequestSnapshotRef, requestFingerprint, target operation/version/schema digest, capability, profile/version refs, purpose, typed input/parameter digests, resolved source inputs, read authority/version, and fresh observedAt must agree with the host-selected expected tuple.
+      exactResultRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech/resultSchema
+      exactResultFields: ["outcome", "outputs[0].payload.outputCandidateRef", "outputs[0].payload.outputDigest", "outputs[0].payload.originBindingRef", "outputs[0].payload.acceptedRequestSnapshotRef", "outputs[0].payload.requestFingerprint", "outputs[0].payload.sourceVersionRefs", "provenance.jobId", "provenance.requestId", "provenance.tenantId", "provenance.principalId", "provenance.readAuthorityRef", "provenance.readVersion", "provenance.currentness", "provenance.observedAt"]
+      freshness: observedAt must be canonical UTC milliseconds, nonfuture, and at most 30000ms old; provenance currentness and trusted read authority/version must match the expected tuple.
+      unknownDisposition: Missing, stale, foreign, malformed, mismatched, or unsuccessful owner result is UNKNOWN and prohibits registration; caller-authored origin data cannot supply the missing result.
+    outputRegistration:
+      operationRef: media.operation.artifact.output.register.v1
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.output.register.v1
+      acceptanceSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#media.operation.tts-request-origin-binding.v1/outputRegistrationReceiptObservation
+      requiredJoin: Successful registration response plus independent current receipt observation must match exact tenant, principal, request, candidate, digest, artifactId, versionId, registrationReceiptRef, originBindingRef, contentDigest, read authority/version, and observedAt.
+      finality: Only that exact registered output ArtifactVersionRef proceeds to review. A synthesis submit/acceptance receipt, candidate reference, or generic scoped-query envelope is not a registered output.
+      mismatchDisposition: UNKNOWN_NO_SUCCESSFUL_OUTPUT_CLAIM; do not report output registration or proceed to approval.
+    humanReviewApproval:
+      queryContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1
+      queryOperationRef: media.operation.action.review-rights-approval-and-format-effects
+      decisionKind: HUMAN_REVIEW_APPROVAL
+      exactSubject: Exact owner-confirmed registered output ArtifactVersionRef from outputRegistration; output existence cannot be inferred from synthesis submission or result receipt alone.
+      positiveAcceptance: Current exact query/decision subject and request tuple, APPROVED observationStatus, APPROVED approvalStatus, APPROVED effectDisposition, current authority/version, in-validity interval, and nonempty authoritative evidenceRefs.
+      negativeAcceptance: STALE or UNKNOWN currentness is UNKNOWN with no decision; missing/unresolvable output, authority, or evidence is UNKNOWN. The read is read-only and never creates, changes, or infers approval.
+    journeyJoinStatus: SOURCE_BOUND_DEFINITION_ONLY; all three owner-directed J-04 channel-edge records cite the exact conditional action-purpose, wrapper, selected target, request/result schemas, and typed result binding. No dispatch, execution, registration, approval, or transport admission is asserted.
+  channelAndRuntimeBoundary:
+    transport: UNBOUND
+    runtimeAdmission: NOT_ADMITTED
 preconditions:
   - Text, voice rights/consent, language and output intent are admitted.
 steps:
@@ -347,10 +449,19 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      sourceRef: journey.terminalSuccess
-      summary: A reviewable audio artifact records selected voice/version,
-        format/rate, provenance, and approval status where required.
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-voice-authorization/resultSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      operationRef: media.operation.action.inspect-voice-authorization
+      meaning: The current operation returns only the scoped-query envelope
+        (requestId, exactTargetRef, ownerReceipt, observedAt). That envelope does
+        not contain a typed voice-authorization or consent decision and does not
+        authorize synthesis.
+      evidenceBoundary: Definition-grade query contract only; consent, rights,
+        selected-voice identity, and synthesis-effect joins remain unbound.
+        Transport remains UNBOUND and runtime NOT_ADMITTED.
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
@@ -436,10 +547,19 @@ steps:
         resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-voice-authorization/resultSchema
         resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
-          sourceRef: journey.terminalSuccess
-          summary: A reviewable audio artifact records selected voice/version,
-            format/rate, provenance, and approval status where required.
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-voice-authorization/resultSchema
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          operationRef: media.operation.action.inspect-voice-authorization
+          meaning: The current operation returns only the scoped-query envelope
+            (requestId, exactTargetRef, ownerReceipt, observedAt). That envelope does
+            not contain a typed voice-authorization or consent decision and does not
+            authorize synthesis.
+          evidenceBoundary: Definition-grade query contract only; consent, rights,
+            selected-voice identity, and synthesis-effect joins remain unbound.
+            Transport remains UNBOUND and runtime NOT_ADMITTED.
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
@@ -663,10 +783,18 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      sourceRef: journey.terminalSuccess
-      summary: A reviewable audio artifact records selected voice/version,
-        format/rate, provenance, and approval status where required.
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      operationRef: media.operation.action.compare-candidate-on-metric
+      meaning: The current operation returns only the scoped-query envelope
+        (requestId, exactTargetRef, ownerReceipt, observedAt). It defines no
+        comparison values or synthesis-result approval; those meanings cannot
+        be inferred from this receipt.
+      evidenceBoundary: Definition-grade query contract only; channel transport
+        remains UNBOUND and runtime NOT_ADMITTED.
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
@@ -752,10 +880,14 @@ steps:
         resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
         resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
-          sourceRef: journey.terminalSuccess
-          summary: A reviewable audio artifact records selected voice/version,
-            format/rate, provenance, and approval status where required.
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          operationRef: media.operation.action.compare-candidate-on-metric
+          meaning: The current operation returns only the scoped-query envelope (requestId, exactTargetRef, ownerReceipt, observedAt). It defines no comparison values or synthesis-result approval; those meanings cannot be inferred from this receipt.
+          evidenceBoundary: Definition-grade query contract only; channel transport remains UNBOUND and runtime NOT_ADMITTED.
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
@@ -976,10 +1108,19 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      sourceRef: journey.terminalSuccess
-      summary: A reviewable audio artifact records selected voice/version,
-        format/rate, provenance, and approval status where required.
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      operationRef: media.operation.action.inspect-output-preview-and-version
+      meaning: The current operation returns only the scoped-query envelope
+        (requestId, exactTargetRef, ownerReceipt, observedAt). It does not supply
+        a typed synthesized-output version, provenance result, or approval
+        observation in this operation result.
+      evidenceBoundary: Definition-grade query contract only; output, approval,
+        and synthesis joins remain unbound. Transport remains UNBOUND and runtime
+        NOT_ADMITTED.
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
@@ -1065,10 +1206,14 @@ steps:
         resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema
         resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
-          sourceRef: journey.terminalSuccess
-          summary: A reviewable audio artifact records selected voice/version,
-            format/rate, provenance, and approval status where required.
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          operationRef: media.operation.action.inspect-output-preview-and-version
+          meaning: The current operation returns only the scoped-query envelope (requestId, exactTargetRef, ownerReceipt, observedAt). It does not supply a typed synthesized-output version, provenance result, or approval observation in this operation result.
+          evidenceBoundary: Definition-grade query contract only; output, approval, and synthesis joins remain unbound. Transport remains UNBOUND and runtime NOT_ADMITTED.
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths

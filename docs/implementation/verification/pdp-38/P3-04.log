@@ -1,160 +1,200 @@
 TAP version 13
 # Subtest: all 146 PDP-3 actions retain exact authored actor, guard, effect, finality, and recovery source
-ok 1 - all 146 PDP-3 actions retain exact authored actor, guard, effect, finality, and recovery source
+not ok 1 - all 146 PDP-3 actions retain exact authored actor, guard, effect, finality, and recovery source
   ---
-  duration_ms: 7.58405
+  duration_ms: 1.915375
   type: 'test'
+  location: '/Users/samujjwal/Development/ghatana-media/tests/pdp-experience-action-inventory.test.mjs:16:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    the recorded UI action denominator changed
+    
+    147 !== 146
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 146
+  actual: 147
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/samujjwal/Development/ghatana-media/tests/pdp-experience-action-inventory.test.mjs:18:10)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.start (node:internal/test_runner/test:1257:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
   ...
 # Subtest: action reconciliation contract is definition-only and covers exact host port identities
 ok 2 - action reconciliation contract is definition-only and covers exact host port identities
   ---
-  duration_ms: 1.897795
+  duration_ms: 0.837041
   type: 'test'
   ...
 # Subtest: local immediate finality allowlist is explicit and consequential/unknown outcomes remain reconciled
 ok 3 - local immediate finality allowlist is explicit and consequential/unknown outcomes remain reconciled
   ---
-  duration_ms: 0.527455
+  duration_ms: 0.173834
   type: 'test'
   ...
 # Subtest: Media identity adapter envelope stays typed and Shared wire names remain pending
 ok 4 - Media identity adapter envelope stays typed and Shared wire names remain pending
   ---
-  duration_ms: 2.666729
+  duration_ms: 2.170334
   type: 'test'
   ...
 # Subtest: anonymous initiation and authenticated workspace selection use distinct trusted host contexts
 ok 5 - anonymous initiation and authenticated workspace selection use distinct trusted host contexts
   ---
-  duration_ms: 1.526625
+  duration_ms: 5.536833
   type: 'test'
   ...
 # Subtest: identity requests reject injected credentials, caller claims, unsafe routes, and malformed host options
 ok 6 - identity requests reject injected credentials, caller claims, unsafe routes, and malformed host options
   ---
-  duration_ms: 0.361122
+  duration_ms: 0.141791
   type: 'test'
   ...
 # Subtest: all result outcomes stay bound to nonce and return route before affecting the view
 ok 7 - all result outcomes stay bound to nonce and return route before affecting the view
   ---
-  duration_ms: 0.705951
+  duration_ms: 0.434625
   type: 'test'
   ...
 # Subtest: exact owner pin, identity, membership, clock and expiry are required for an acceptable fixture
 ok 8 - exact owner pin, identity, membership, clock and expiry are required for an acceptable fixture
   ---
-  duration_ms: 0.830574
+  duration_ms: 0.170125
   type: 'test'
   ...
 # Subtest: each local step has a distinct exact session-local contract, never a canonical product mutation
 ok 9 - each local step has a distinct exact session-local contract, never a canonical product mutation
   ---
-  duration_ms: 126.960146
+  duration_ms: 40.033166
   type: 'test'
   ...
 # Subtest: local effect contracts cannot absorb consequential source actions
 ok 10 - local effect contracts cannot absorb consequential source actions
   ---
-  duration_ms: 38.716518
+  duration_ms: 16.85125
   type: 'test'
   ...
 # Subtest: local effects fail closed for stale, mismatched, malformed, and unknown session/catalog evidence
 ok 11 - local effects fail closed for stale, mismatched, malformed, and unknown session/catalog evidence
   ---
-  duration_ms: 21.105583
+  duration_ms: 8.666042
   type: 'test'
   ...
 # Subtest: selection and draft values cannot escape the closed local-session contract
 ok 12 - selection and draft values cannot escape the closed local-session contract
   ---
-  duration_ms: 0.839548
+  duration_ms: 0.291833
   type: 'test'
   ...
 # Subtest: all 55 P1 transitions and every exact guarded edge are source-linked without runtime promotion
 ok 13 - all 55 P1 transitions and every exact guarded edge are source-linked without runtime promotion
   ---
-  duration_ms: 11.619684
+  duration_ms: 3.220416
   type: 'test'
   ...
 # Subtest: foreign transitions, guards, state edges, operations, and invented journey actions fail closed
 ok 14 - foreign transitions, guards, state edges, operations, and invented journey actions fail closed
   ---
-  duration_ms: 53.574557
+  duration_ms: 16.567916
   type: 'test'
   ...
 # Subtest: all transition trigger definitions resolve exact guard facts, state endpoints, producer, and action crosswalk
 ok 15 - all transition trigger definitions resolve exact guard facts, state endpoints, producer, and action crosswalk
   ---
-  duration_ms: 1252.263339
+  duration_ms: 416.412875
   type: 'test'
   ...
 # Subtest: transition trigger event schemas reject foreign edge/source facts and incomplete evidence
 ok 16 - transition trigger event schemas reject foreign edge/source facts and incomplete evidence
   ---
-  duration_ms: 0.599551
+  duration_ms: 0.213292
   type: 'test'
   ...
 # Subtest: nested any-guard clauses preserve OR semantics instead of flattening alternatives
 ok 17 - nested any-guard clauses preserve OR semantics instead of flattening alternatives
   ---
-  duration_ms: 0.480132
+  duration_ms: 0.187291
   type: 'test'
   ...
 # Subtest: legacy event evaluator rejects bare SATISFIED verdicts for non-state guard facts
 ok 18 - legacy event evaluator rejects bare SATISFIED verdicts for non-state guard facts
   ---
-  duration_ms: 0.356272
+  duration_ms: 0.129833
   type: 'test'
   ...
 # Subtest: causal job-start and upload-finalization definitions require exact source evidence and trusted tuple joins
 ok 19 - causal job-start and upload-finalization definitions require exact source evidence and trusted tuple joins
   ---
-  duration_ms: 16.267868
+  duration_ms: 5.404083
   type: 'test'
   ...
 # Subtest: every job/attempt edge has a closed source-specific causal receipt and branch-correct lease applicability
 ok 20 - every job/attempt edge has a closed source-specific causal receipt and branch-correct lease applicability
   ---
-  duration_ms: 337.94817
+  duration_ms: 108.642042
   type: 'test'
   ...
 # Subtest: job lease requirements follow causal branch rather than blanket job/attempt membership
 ok 21 - job lease requirements follow causal branch rather than blanket job/attempt membership
   ---
-  duration_ms: 0.908642
+  duration_ms: 0.42825
   type: 'test'
   ...
 # Subtest: artifact lifecycle edges use distinct closed receipt shapes and require exact upload/version subjects
 ok 22 - artifact lifecycle edges use distinct closed receipt shapes and require exact upload/version subjects
   ---
-  duration_ms: 134.514044
+  duration_ms: 49.631916
   type: 'test'
   ...
 # Subtest: the remaining edge population has per-fact closed evidence schemas and derives applied, denied, and unknown
-ok 23 - the remaining edge population has per-fact closed evidence schemas and derives applied, denied, and unknown
+not ok 23 - the remaining edge population has per-fact closed evidence schemas and derives applied, denied, and unknown
   ---
-  duration_ms: 2467.793773
+  duration_ms: 34.923458
   type: 'test'
+  location: '/Users/samujjwal/Development/ghatana-media/tests/pdp-experience-transition-trigger-semantics.test.mjs:696:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    media.transition-trigger-definition.media-stream-session-t02.01.v1 derives only supported predicates and preserves unresolved ones
+    + actual - expected
+    
+    + 'UNKNOWN'
+    - 'APPLIED_DEFINITION_ONLY'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'APPLIED_DEFINITION_ONLY'
+  actual: 'UNKNOWN'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/samujjwal/Development/ghatana-media/tests/pdp-experience-transition-trigger-semantics.test.mjs:861:12)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1397:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+    Test.postRun (node:internal/test_runner/test:1537:19)
+    Test.run (node:internal/test_runner/test:1462:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
   ...
 # Subtest: all 164 typed guard-fact records resolve their exact source and authority selectors
 ok 24 - all 164 typed guard-fact records resolve their exact source and authority selectors
   ---
-  duration_ms: 11809.620455
+  duration_ms: 2906.590333
   type: 'test'
   ...
 # Subtest: inventory, hold, version, and per-effect consent predicates use typed source values
 ok 25 - inventory, hold, version, and per-effect consent predicates use typed source values
   ---
-  duration_ms: 0.727075
+  duration_ms: 0.252166
   type: 'test'
   ...
 1..25
 # tests 25
 # suites 0
-# pass 25
-# fail 0
+# pass 23
+# fail 2
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 63213.563667
+# duration_ms 17304.869417

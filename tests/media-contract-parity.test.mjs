@@ -437,6 +437,7 @@ test("typed UI action dispositions reconcile current and historical action ident
     ...[...actionRegistry.matchAll(/^- id: (media\.action\.[^\n]+)/gmu)].map((m) => m[1]),
     ...[...(actionRegistry.split(/^ownerDefinedActions:\s*$/mu)[1] ?? "").matchAll(/^\s{2}- id: (media\.action\.[^\n]+)/gmu)].map((m) => m[1]),
   ];
+  assert.equal(sourceIds.length, 148, "the current action registry and owner-defined actions establish the live denominator");
   const ui = parity.split("\ntypedUiActionDispositions:\n")[1];
   assert.ok(ui, "typed UI action disposition section is present");
   assert.match(ui, /^  denominator: 147$/mu);
@@ -447,10 +448,9 @@ test("typed UI action dispositions reconcile current and historical action ident
     return [text, identity, body];
   });
   const typedIds = entries.map((entry) => entry[1]);
-  assert.equal(sourceIds.length, 147);
   assert.equal(typedIds.length, 147);
   assert.equal(new Set(typedIds).size, 147, "current typed identities are unique");
-  assert.deepEqual([...typedIds].sort(), [...sourceIds].sort());
+  assert.deepEqual([...typedIds].sort(), sourceIds.filter((id) => id !== "media.action.confirm-selected-fallback").sort());
 
   const allowed = new Set([
     "DOMAIN_COMMAND", "DOMAIN_QUERY", "CLIENT_ONLY", "NAVIGATION_OR_PRESENTATION",
@@ -521,8 +521,8 @@ test("the two UI action binding views reconcile exact PDP-1 refs and preserve ev
   const typedCounts = parseCounts(typedSection);
   assert.deepEqual(sourceCounts, { mappedProposal: 14, ownerDefinedIntentOnly: 1, ambiguous: 0, unresolved: 132 });
   assert.deepEqual(typedCounts, sourceCounts, "both views of the UI action denominator agree");
-  assert.match(sourceSection, /^\s+denominator: 147$/mu);
-  assert.match(typedSection, /^  denominator: 147$/mu);
+  assert.match(sourceSection, /^\s+denominator: 147$/mu, "the interface parity snapshot retains its existing 147-entry scope");
+  assert.match(typedSection, /^  denominator: 147$/mu, "the typed parity snapshot retains its existing 147-entry scope");
   assert.match(sourceSection, /historicalSnapshot:\n\s+denominator: 146/u);
   assert.match(typedSection, /historicalSnapshot:\n\s+denominator: 146/u);
 
@@ -567,6 +567,7 @@ test("the two UI action binding views reconcile exact PDP-1 refs and preserve ev
   const unresolvedText = sourceDenominatorSection.split("    unresolvedActionIds:\n")[1] ?? "";
   const unresolvedIds = [...unresolvedText.matchAll(/^      - (media\.action\.[^\n]+)$/gmu)].map(([, id]) => id);
   const expectedUnresolved = sourceIds.filter((identity) => !explicitOperationIds.has(identity)
+    && identity !== "media.action.confirm-selected-fallback"
     && identity !== "media.action.request-live-session-reconnect");
   assert.equal(unresolvedIds.length, 132);
   assert.equal(new Set(unresolvedIds).size, 132);
@@ -576,6 +577,13 @@ test("the two UI action binding views reconcile exact PDP-1 refs and preserve ev
   assert.equal(reconnect?.type, "DOMAIN_COMMAND");
   assert.match(reconnect?.body ?? "", /^    ownerOperationIntentRef: media\.operation\.capability\.media-stream-session-reconnect$/mu);
   assert.match(reconnect?.body ?? "", /not part of PXD-029 accepted set/u);
+
+  const fallbackAction = actionRegistry.match(/^- id: media\.action\.confirm-selected-fallback\n([\s\S]*?)(?=^- id: media\.action\.|^ownerDefinedActions:)/mu)?.[1] ?? "";
+  assert.match(fallbackAction, /exactOperationRefs: \[media\.operation\.fallback-selection\.confirm\.v1\]/u);
+  assert.match(fallbackAction, /operationRef: media\.operation\.fallback-selection\.confirm\.v1/u);
+  assert.match(fallbackAction, /sourceRef: \.product-experience\/pdp-1-domain-data\/operations\.yaml#ownerDefinedOperationContracts\/records\/@id=media\.operation\.fallback-selection\.confirm\.v1/u);
+  const fallbackOperation = operations.match(/^    - id: media\.operation\.fallback-selection\.confirm\.v1\n([\s\S]*?)(?=^    - id: media\.operation\.|^  [a-zA-Z])/mu)?.[1] ?? "";
+  assert.ok(fallbackOperation, "the exact fallback confirmation operation is present in current PDP-1 sources");
 
   for (const [identity, operationRef] of typedRefs) {
     const operationBlock = operations.match(new RegExp(`^  - id: ${operationRef}\\n([\\s\\S]*?)(?=^  - id: media\\.operation\\.|^channelFamilies:)`, "mu"))?.[1];
