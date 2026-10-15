@@ -44,7 +44,13 @@ test('integration applicability is an internal approved choice, not retroactive 
 
 test('phase lock retains prior exits, open PDP3, no Build/closure/Delivery false assertions', () => {
   assert.deepEqual(work.campaign.remainingDiscoveryTaskIds,['MDC-30','MDC30-V-01','MDC-31','MDC-32','MDC-40','MDC-41']);
-  assert.equal(work.tasks.find(t => t.id === 'MDC-30').subtaskIds.length,47);
+  const expectedMdc30Subtasks = [
+    ...Array.from({length: 30}, (_, i) => `MDC30-C-${String(i + 1).padStart(2, '0')}`),
+    ...Array.from({length: 14}, (_, i) => `MDC30-S-${String(i + 1).padStart(2, '0')}`),
+    'MDC30-I-01',
+    'MDC30-E-01',
+  ];
+  assert.deepEqual(work.tasks.find(t => t.id === 'MDC-30').subtaskIds, expectedMdc30Subtasks);
   assert.equal(work.campaign.activePhase,'PDP-3');
   assert.deepEqual(work.campaign.completedPredecessorRecheckTaskIds,['RC-P0-01','RC-P1-01','RC-P2-01']);
   assert.deepEqual(work.campaign.requiredPredecessorRecheckTaskIds,[]);

@@ -1,0 +1,327 @@
+{
+  "schemaVersion": "media.discovery-delegated-internal-owner-decision.v1",
+  "recordKind": "NEW_DATED_INTERNAL_OWNER_DECISION_NOT_TECHNICAL_RECEIPT_OR_INDEPENDENT_SIGNOFF",
+  "decisionId": "MEDIA-DISCOVERY-DELEGATED-OWNER-2026-10-15-R1",
+  "recordDate": "2026-10-15",
+  "sourceReview": {
+    "repository": "samujjwal/ghatana-media",
+    "branch": "main",
+    "observedMainSha": "a43ed1d34a0fd5a2f864a16166259b96983fff71",
+    "reviewScope": "DISCOVERY_PDP3_MDC30_WITH_EXACT_CUT_PREDECESSOR_INTERNAL_DECISIONS",
+    "basis": [
+      "current source registry",
+      "50-identity/200-cell matrix",
+      "MDC30 edge registry: 61 edges",
+      "14 consequential-step audit",
+      "R15/R30/R19 phase exit observations",
+      "2026-10-13 external 30-file recapture"
+    ]
+  },
+  "attribution": {
+    "actorKind": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_ACCOUNT_OWNER_DELEGATION",
+    "decisionPower": "INTERNAL_MEDIA_PRODUCT_DEFINITION_DIRECTION_AND_DELEGATED_OWNER_REVIEW_ONLY",
+    "accountableHumanNotReplaced": true,
+    "independentProfessionalOrExternalOwnerSignaturesProvided": false,
+    "testsExecutedByThisReview": false
+  },
+  "scope": {
+    "physicalCandidates": 26,
+    "semanticCompositions": 6,
+    "repositoryRoots": 1,
+    "consumerCrosswalks": 17,
+    "uniqueIdentities": 50,
+    "phaseCells": 200
+  },
+  "acceptedExactCuts": [
+    {
+      "phase": "PDP-0",
+      "receipt": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r15.json",
+      "fingerprint": "sha256:eff717cf2537a285cd7a1c1a72b44a75766a0a7e6eef6ea97edbc2befa2e1a95",
+      "cells": 50,
+      "paths": 146,
+      "technicalExit": "PASS",
+      "decision": "DELEGATED_INTERNAL_OWNER_APPROVED_WITH_COMMENTS_EXACT_CUT_ONLY",
+      "independentApproval": "NOT_PROVIDED",
+      "formalLifecycleClosure": "NOT_CLAIMED"
+    },
+    {
+      "phase": "PDP-1",
+      "receipt": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json",
+      "fingerprint": "sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4",
+      "cells": 50,
+      "paths": 329,
+      "technicalExit": "PASS_DEV_COMPLETE",
+      "decision": "DELEGATED_INTERNAL_OWNER_APPROVED_WITH_COMMENTS_EXACT_CUT_ONLY",
+      "independentApproval": "NOT_PROVIDED",
+      "formalLifecycleClosure": "NOT_CLAIMED"
+    },
+    {
+      "phase": "PDP-2",
+      "receipt": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-15-current-cut-r19.json",
+      "fingerprint": "sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b",
+      "cells": 50,
+      "paths": 405,
+      "technicalExit": "PASS_DEV_COMPLETE",
+      "decision": "DELEGATED_INTERNAL_OWNER_APPROVED_WITH_COMMENTS_EXACT_CUT_ONLY",
+      "independentApproval": "NOT_PROVIDED",
+      "formalLifecycleClosure": "NOT_CLAIMED"
+    }
+  ],
+  "pdp3": {
+    "currentStatus": "NOT_ESTABLISHED_MDC30_ACTIVE_R6_NOT_CAPTURED",
+    "ownerDesignDirections": "APPROVED_WITH_COMMENTS",
+    "phaseCurrentOwnerAcceptance": "NOT_GIVEN",
+    "currentTechnicalPass": false,
+    "logicalEdgeTotal": 61,
+    "sourceBoundDefinitionOnlyEdgesAtBaseline": 43,
+    "incompleteLogicalEdgesAtBaseline": 18,
+    "sourceGapJourneys": 10,
+    "transportBindingsUnbound": 61,
+    "runtimeAdmission": "NOT_ADMITTED",
+    "consequentialStepCount": 14,
+    "consequentialTechnicalSourceDispositions": "NOT_CLOSED",
+    "channelSourcePackages": [
+      {
+        "taskId": "MDC30-C-05",
+        "journeyId": "J-05",
+        "edges": [
+          "j05.web",
+          "j05.grpc-api",
+          "j05.sdk"
+        ],
+        "ownerSemanticDirection": "APPROVED_SOURCE_BOUND_RESOLUTION_DIRECTION",
+        "technicalResolution": "NOT_CLAIMED",
+        "blockedRightsApproval": false
+      },
+      {
+        "taskId": "MDC30-C-08",
+        "journeyId": "J-08",
+        "edges": [
+          "j08.web"
+        ],
+        "ownerSemanticDirection": "APPROVED_SOURCE_BOUND_RESOLUTION_DIRECTION",
+        "technicalResolution": "NOT_CLAIMED",
+        "blockedRightsApproval": false
+      },
+      {
+        "taskId": "MDC30-C-10",
+        "journeyId": "J-10",
+        "edges": [
+          "j10.web"
+        ],
+        "ownerSemanticDirection": "APPROVED_SOURCE_BOUND_RESOLUTION_DIRECTION",
+        "technicalResolution": "NOT_CLAIMED",
+        "blockedRightsApproval": false
+      },
+      {
+        "taskId": "MDC30-C-13",
+        "journeyId": "J-13",
+        "edges": [
+          "j13.web"
+        ],
+        "ownerSemanticDirection": "APPROVED_SOURCE_BOUND_RESOLUTION_DIRECTION",
+        "technicalResolution": "NOT_CLAIMED",
+        "blockedRightsApproval": false
+      },
+      {
+        "taskId": "MDC30-C-14",
+        "journeyId": "J-14",
+        "edges": [
+          "j14.web",
+          "j14.product-integration"
+        ],
+        "ownerSemanticDirection": "APPROVED_SOURCE_BOUND_RESOLUTION_DIRECTION",
+        "technicalResolution": "NOT_CLAIMED",
+        "blockedRightsApproval": false
+      },
+      {
+        "taskId": "MDC30-C-19",
+        "journeyId": "J-19",
+        "edges": [
+          "j19.web"
+        ],
+        "ownerSemanticDirection": "APPROVED_SOURCE_BOUND_RESOLUTION_DIRECTION",
+        "technicalResolution": "NOT_CLAIMED",
+        "blockedRightsApproval": false
+      },
+      {
+        "taskId": "MDC30-C-20",
+        "journeyId": "J-20",
+        "edges": [
+          "j20.web",
+          "j20.cli"
+        ],
+        "ownerSemanticDirection": "APPROVED_SOURCE_BOUND_RESOLUTION_DIRECTION",
+        "technicalResolution": "NOT_CLAIMED",
+        "blockedRightsApproval": false
+      },
+      {
+        "taskId": "MDC30-C-21",
+        "journeyId": "J-21",
+        "edges": [
+          "j21.web",
+          "j21.product-integration"
+        ],
+        "ownerSemanticDirection": "APPROVED_SOURCE_BOUND_RESOLUTION_DIRECTION",
+        "technicalResolution": "NOT_CLAIMED",
+        "blockedRightsApproval": true
+      },
+      {
+        "taskId": "MDC30-C-26",
+        "journeyId": "J-26",
+        "edges": [
+          "j26.web",
+          "j26.http-api",
+          "j26.product-integration"
+        ],
+        "ownerSemanticDirection": "APPROVED_SOURCE_BOUND_RESOLUTION_DIRECTION",
+        "technicalResolution": "NOT_CLAIMED",
+        "blockedRightsApproval": false
+      },
+      {
+        "taskId": "MDC30-C-28",
+        "journeyId": "J-28",
+        "edges": [
+          "j28.web",
+          "j28.product-integration"
+        ],
+        "ownerSemanticDirection": "APPROVED_SOURCE_BOUND_RESOLUTION_DIRECTION",
+        "technicalResolution": "NOT_CLAIMED",
+        "blockedRightsApproval": false
+      }
+    ],
+    "consequentialStepOwnerDirections": [
+      {
+        "taskId": "MDC30-S-01",
+        "stepRef": "J-09:09",
+        "ownerInterpretation": "APPROVED_WITH_SOURCE_JOIN_REQUIRED",
+        "technicalDisposition": "OPEN_UNTIL_SOURCE_GUARD_EFFECT_FINALITY_NEGATIVE_PROOF"
+      },
+      {
+        "taskId": "MDC30-S-02",
+        "stepRef": "J-22:02",
+        "ownerInterpretation": "APPROVED_WITH_SOURCE_JOIN_REQUIRED",
+        "technicalDisposition": "OPEN_UNTIL_SOURCE_GUARD_EFFECT_FINALITY_NEGATIVE_PROOF"
+      },
+      {
+        "taskId": "MDC30-S-03",
+        "stepRef": "J-01:03",
+        "ownerInterpretation": "APPROVED_WITH_SOURCE_JOIN_REQUIRED",
+        "technicalDisposition": "OPEN_UNTIL_SOURCE_GUARD_EFFECT_FINALITY_NEGATIVE_PROOF"
+      },
+      {
+        "taskId": "MDC30-S-04",
+        "stepRef": "J-20:05",
+        "ownerInterpretation": "APPROVED_WITH_SOURCE_JOIN_REQUIRED",
+        "technicalDisposition": "OPEN_UNTIL_SOURCE_GUARD_EFFECT_FINALITY_NEGATIVE_PROOF"
+      },
+      {
+        "taskId": "MDC30-S-05",
+        "stepRef": "J-20:06",
+        "ownerInterpretation": "APPROVED_WITH_SOURCE_JOIN_REQUIRED",
+        "technicalDisposition": "OPEN_UNTIL_SOURCE_GUARD_EFFECT_FINALITY_NEGATIVE_PROOF"
+      },
+      {
+        "taskId": "MDC30-S-06",
+        "stepRef": "J-06:01",
+        "ownerInterpretation": "APPROVED_WITH_SOURCE_JOIN_REQUIRED",
+        "technicalDisposition": "OPEN_UNTIL_SOURCE_GUARD_EFFECT_FINALITY_NEGATIVE_PROOF"
+      },
+      {
+        "taskId": "MDC30-S-07",
+        "stepRef": "J-02:02",
+        "ownerInterpretation": "APPROVED_WITH_SOURCE_JOIN_REQUIRED",
+        "technicalDisposition": "OPEN_UNTIL_SOURCE_GUARD_EFFECT_FINALITY_NEGATIVE_PROOF"
+      },
+      {
+        "taskId": "MDC30-S-08",
+        "stepRef": "J-03:02",
+        "ownerInterpretation": "APPROVED_WITH_SOURCE_JOIN_REQUIRED",
+        "technicalDisposition": "OPEN_UNTIL_SOURCE_GUARD_EFFECT_FINALITY_NEGATIVE_PROOF"
+      },
+      {
+        "taskId": "MDC30-S-09",
+        "stepRef": "J-03:05",
+        "ownerInterpretation": "APPROVED_WITH_SOURCE_JOIN_REQUIRED",
+        "technicalDisposition": "OPEN_UNTIL_SOURCE_GUARD_EFFECT_FINALITY_NEGATIVE_PROOF"
+      },
+      {
+        "taskId": "MDC30-S-10",
+        "stepRef": "J-03:06",
+        "ownerInterpretation": "APPROVED_WITH_SOURCE_JOIN_REQUIRED",
+        "technicalDisposition": "OPEN_UNTIL_SOURCE_GUARD_EFFECT_FINALITY_NEGATIVE_PROOF"
+      },
+      {
+        "taskId": "MDC30-S-11",
+        "stepRef": "J-03:07",
+        "ownerInterpretation": "APPROVED_WITH_SOURCE_JOIN_REQUIRED",
+        "technicalDisposition": "OPEN_UNTIL_SOURCE_GUARD_EFFECT_FINALITY_NEGATIVE_PROOF"
+      },
+      {
+        "taskId": "MDC30-S-12",
+        "stepRef": "J-16:03",
+        "ownerInterpretation": "APPROVED_WITH_SOURCE_JOIN_REQUIRED",
+        "technicalDisposition": "OPEN_UNTIL_SOURCE_GUARD_EFFECT_FINALITY_NEGATIVE_PROOF"
+      },
+      {
+        "taskId": "MDC30-S-13",
+        "stepRef": "J-18:04",
+        "ownerInterpretation": "APPROVED_WITH_SOURCE_JOIN_REQUIRED",
+        "technicalDisposition": "OPEN_UNTIL_SOURCE_GUARD_EFFECT_FINALITY_NEGATIVE_PROOF"
+      },
+      {
+        "taskId": "MDC30-S-14",
+        "stepRef": "J-02:03",
+        "ownerInterpretation": "APPROVED_WITH_SOURCE_JOIN_REQUIRED",
+        "technicalDisposition": "OPEN_UNTIL_SOURCE_GUARD_EFFECT_FINALITY_NEGATIVE_PROOF"
+      }
+    ]
+  },
+  "blockerDispositions": [
+    {
+      "id": "MDC30-I-01",
+      "decision": "CANONICAL_SOURCE_EDIT_ALREADY_APPLIED",
+      "proof": {
+        "registry": ".product-experience/surface-registry.yaml",
+        "disposition": "PDP3_APPLICABLE_CONTRACT_ONLY_HOST_DEPENDENT",
+        "appliesAllFourPdp": true,
+        "implementation": "SOURCE_ONLY",
+        "qualification": "PENDING",
+        "topology": ".product-experience/surfaces/media-physical-topology.v1.json",
+        "consumerCount": 17
+      },
+      "technicalR6Revalidation": "STILL_REQUIRED"
+    },
+    {
+      "id": "MDC30-E-01",
+      "decision": "HISTORICAL_MATCH_ONLY_FRESH_R6_RECAPTURE_REQUIRED",
+      "historicalObservation": "docs/implementation/observations/media-discovery-pdp3-mdc30-external-contract-recapture-2026-10-13-r2.json",
+      "historicalMatched": 30,
+      "expectedCount": 30,
+      "repositoryCount": 6,
+      "freshCurrentWorkingTreeByteProof": "NOT_COLLECTED"
+    }
+  ],
+  "preserve": {
+    "j21RightsApprovalQuery": "EXCLUDED_AND_BLOCKED",
+    "allTransports": "UNBOUND",
+    "runtime": "NOT_ADMITTED",
+    "pdp0To2TechnicalExits": "UNCHANGED_IMMUTABLE",
+    "historicalPhaseCaptures": "NOT_REWRITTEN",
+    "independentSpecialistSignoff": "NOT_PROVIDED",
+    "nativeClosure": "NOT_ENTERED"
+  },
+  "gates": {
+    "discovery": "FAIL",
+    "build": "NOT_ENTERED",
+    "nativePdpClosure": "NOT_ENTERED",
+    "delivery": "BLOCKED",
+    "nextLegalTask": "MDC-30"
+  },
+  "refs": {
+    "decision": "docs/implementation/MEDIA-DISCOVERY-PDP3-DELEGATED-OWNER-DECISIONS-2026-10-15.md",
+    "remainingWork": "docs/implementation/MEDIA-DISCOVERY-PDP3-EXECUTION-READY-REMAINING-2026-10-15.md",
+    "worklist": "docs/implementation/media-discovery-reconciliation-worklist-2026-10-13.json",
+    "matrix": "docs/implementation/media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json"
+  }
+}

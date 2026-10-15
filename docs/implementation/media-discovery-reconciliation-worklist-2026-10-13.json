@@ -1506,7 +1506,13 @@
       "currentEffectiveSubtaskIds": null,
       "currentEffectiveSubtaskStatus": "UNKNOWN_AFTER_PDP3_SOURCE_EDITS; R6_CAPTURE_REQUIRED",
       "currentActualSubtaskCounts": null,
-      "currentActualSubtaskCountStatus": "UNKNOWN_AFTER_PDP3_SOURCE_EDITS; R6_CAPTURE_REQUIRED"
+      "currentActualSubtaskCountStatus": "UNKNOWN_AFTER_PDP3_SOURCE_EDITS; R6_CAPTURE_REQUIRED",
+      "currentDelegatedOwnerDispositionRef": "docs/implementation/observations/media-discovery-delegated-internal-owner-acceptance-2026-10-15.json",
+      "currentSourceImplementationResolvedSubtasks": [
+        "MDC30-I-01"
+      ],
+      "historicalSubtaskIdsAreNotCurrentOpenTaskCount": true,
+      "activePdp3TechnicalWork": "MDC30_18_INCOMPLETE_EDGES_14_STEP_SOURCE_JOINS_EXTERNAL_RECAPTURE_R6"
     },
     {
       "id": "MDC30-V-01",
@@ -1643,5 +1649,29 @@
   "pdp2SourceCurrentnessStatus": "R19_PASS_SOURCE_CURRENTNESS_50_OF_50_CELLS_405_PATHS; EXACT_PREDECESSOR_PDP1_R30; ZERO_BLOCKERS; DEV_COMPLETE; OWNER_ACCEPTANCE_NOT_RECORDED",
   "pdp1LatestAttemptBlockers": [],
   "pendingCurrentPhaseReviewTargetStatus": "PDP0_R15_PASS; PDP1_R30_PASS; PDP2_R19_PASS_50_OF_50_405_PATHS_FINGERPRINT_sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b; PDP3_NOT_ESTABLISHED; MDC30_ACTIVE_R6_PENDING",
-  "currentPdp2MaterialFingerprintCaptured": "sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b"
+  "currentPdp2MaterialFingerprintCaptured": "sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b",
+  "delegatedOwnerAdjudication20261015": {
+    "sourceReviewedHead": "a43ed1d34a0fd5a2f864a16166259b96983fff71",
+    "decisionId": "MEDIA-DISCOVERY-DELEGATED-OWNER-2026-10-15-R1",
+    "decisionPath": "docs/implementation/MEDIA-DISCOVERY-PDP3-DELEGATED-OWNER-DECISIONS-2026-10-15.md",
+    "machineRecordPath": "docs/implementation/observations/media-discovery-delegated-internal-owner-acceptance-2026-10-15.json",
+    "currentExecutionPlanPath": "docs/implementation/MEDIA-DISCOVERY-PDP3-EXECUTION-READY-REMAINING-2026-10-15.md",
+    "pdp0Pdp1Pdp2InternalExactCutOwnerDecisions": "APPROVED_WITH_COMMENTS_FINGERPRINT_BOUND_NO_EXTERNAL_OR_INDEPENDENT_SIGNOFF",
+    "pdp0R15": "sha256:eff717cf2537a285cd7a1c1a72b44a75766a0a7e6eef6ea97edbc2befa2e1a95",
+    "pdp1R30": "sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4",
+    "pdp2R19": "sha256:5bc6fd43212699311a07aa3e3b3a46bbf944a6cf09b9fbbc6e5a98b82ed96e6b",
+    "mdc30I01CanonicalSourceState": "APPLIED_ALREADY_SOURCE_WRITING_DONE; ORDINARY_R6_VALIDATION_PENDING",
+    "mdc30E01ExternalState": "R2_HISTORICAL_30_OF_30_MATCHES; FRESH_R6_BYTES_NOT_YET_RECAPTURED",
+    "mdc30LiveAuditBasis": "43_SOURCE_BOUND_DEFINITION_ONLY; 18_INCOMPLETE_EDGES_IN_10_JOURNEYS; 14_CONSEQUENTIAL_STEP_OWNER_INTERPRETATIONS_APPROVED_TECHNICAL_JOINS_OPEN",
+    "all61Transports": "UNBOUND",
+    "j21Approval": "EXCLUDED_AND_BLOCKED",
+    "r6": "NOT_CAPTURED",
+    "discovery": "FAIL",
+    "build": "NOT_ENTERED",
+    "nativeClosure": "NOT_ENTERED",
+    "delivery": "BLOCKED",
+    "currentExactOpenSubtaskCount": null,
+    "historical46PlannedSubtaskIdsNotAuthoritativeCurrentOpenCount": true,
+    "currentOwnerPlanTaskVerifierBaselineCorrection": "tests/media-discovery-pdp3-owner-directions.test.mjs previously asserted 47 although 46 historical subtask IDs are present; assert the exact canonical set instead"
+  }
 }
