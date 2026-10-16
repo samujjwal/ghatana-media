@@ -14,15 +14,15 @@ const [actionRegistry, recoveryRegistry, taxonomy] = await Promise.all([
 
 test('PDP-3 typed action semantics project only exact owner definitions', () => {
   const result = resolveExperienceDefinitionSemantics(actionRegistry.actions, recoveryRegistry.contracts, taxonomy);
-  assert.equal(actionRegistry.actions.length, 146);
-  assert.equal(result.effects.length, 144, 'bounded PXD-078 candidates project with enum reversibility dispositions');
-  assert.equal(result.finality.length, 144, 'bounded PXD-078 candidates project with enum confirmation/undoability dispositions');
+  assert.equal(actionRegistry.actions.length, 147);
+  assert.equal(result.effects.length, 145, 'bounded PXD-078 candidates project with enum reversibility dispositions');
+  assert.equal(result.finality.length, 145, 'bounded PXD-078 candidates project with enum confirmation/undoability dispositions');
   assert.equal(result.unmappedPublicActions.length, 2, 'the exact Shared identity handoffs remain unmapped');
   assert.deepEqual(result.explicitUnadmittedExternalOwnerActions.sort(), [
     'media.action.select-identity-confirmed-workspace', 'media.action.start-upstream-identity-handoff',
   ], 'Shared identity actions retain their explicit external-owner role without a fabricated Media effect');
   assert.deepEqual(result.unmappedApplicableActions, [], 'explicit external-owner roles are not applicable Media effect/finality gaps');
-  assert.equal(result.effects.length + result.unmappedPublicActions.length, 146,
+  assert.equal(result.effects.length + result.unmappedPublicActions.length, 147,
     'every original action is either mapped or remains explicitly unmapped');
   assert.ok(!result.conditionalActions.includes('media.action.begin-artifact-upload'), 'conditional enum values are representable without boolean coercion');
   assert.ok(!result.conditionalActions.includes('media.action.request-transcription'));

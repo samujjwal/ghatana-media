@@ -80,7 +80,7 @@ test('J-03 binds the existing transcript review step without changing the journe
   for (const name of journeyFiles) totalSteps += (await readYaml(`${root}/journey-contracts/${name}`)).steps?.length ?? 0;
   assert.equal(journeyFiles.length, 30);
   assert.equal(totalSteps, 130);
-  assert.equal(actionRegistry.actions.length, 146);
+  assert.equal(actionRegistry.actions.length, 147);
   assert.equal(journey.journeyId, 'J-03');
   assert.equal(journey.steps.length, 8);
   assert.deepEqual(journey.steps.map(({ action }) => action ?? null), [

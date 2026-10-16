@@ -160,7 +160,7 @@ test('J-03 binds only existing save and exact-pair compare operations, preservin
   for (const file of journeyFiles) totalSteps += (await readYaml(`${root}/journey-contracts/${file}`)).steps?.length ?? 0;
   assert.equal(journeyFiles.length, 30);
   assert.equal(totalSteps, 130);
-  assert.equal(actionRegistry.actions.length, 146);
+  assert.equal(actionRegistry.actions.length, 147);
   assert.equal(journey.definitionReview.sourceDecisionRef, sourceDecision);
   assert.equal(journey.definitionReview.grammarDecisionRef, grammarDecision);
   assert.equal(journey.definitionReview.decisionRef, decision);

@@ -28,7 +28,7 @@ test('J-01 keeps its four ordered steps and five registered screens without expa
   for (const file of journeyFiles) steps += (parse(await readFile(`${base}/journey-contracts/${file}`, 'utf8')).steps ?? []).length;
   assert.equal(journeyFiles.length, 30);
   assert.equal(steps, 130);
-  assert.equal(actionRegistry.actions.length, 146);
+  assert.equal(actionRegistry.actions.length, 147);
   assert.equal(journey.journeyId, 'J-01');
   assert.equal(journey.steps.length, 4);
   assert.equal(journey.steps.filter(({ action }) => action).length, 1);

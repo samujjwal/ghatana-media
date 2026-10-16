@@ -214,7 +214,7 @@ test('J03 submission definition changes no journey, step, action, or runtime-evi
   for (const file of files) steps += (await yaml(`${root}/journey-contracts/${file}`)).steps.length;
   assert.equal(files.length, 30);
   assert.equal(steps, 130);
-  assert.equal(registry.actions.length, 146);
+  assert.equal(registry.actions.length, 147);
   assert.equal(journeyRegistry.coverageObservation.stepBindings.verification.notRun, 130);
   assert.equal(journeyRegistry.coverageObservation.stepBindings.verification.evidenceRefsPresent, 0);
   assert.equal(journeyRegistry.coverageObservation.stepBindings.verification.sourceDefinitionCheckedSteps, 6);

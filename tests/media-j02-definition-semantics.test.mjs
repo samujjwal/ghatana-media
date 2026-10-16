@@ -25,7 +25,7 @@ test('J-02 source definitions preserve the original population and bind only exi
     const doc = parse(await readFile(`${base}/journey-contracts/${path}`, 'utf8'));
     totalSteps += doc.steps?.length ?? 0;
   }
-  assert.equal(actions.actions.length, 146);
+  assert.equal(actions.actions.length, 147);
   assert.equal(journeyFiles.length, 30);
   assert.equal(totalSteps, 130);
   assert.equal(recovery.contracts.length, 5);
