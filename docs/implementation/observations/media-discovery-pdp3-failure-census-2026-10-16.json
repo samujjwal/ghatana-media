@@ -1,0 +1,497 @@
+{
+  "schemaVersion": "media.discovery-pdp3-failure-census.v1",
+  "recordKind": "DIAGNOSTIC_D3_00_FRESH_FAILURE_CENSUS_NOT_A_PHASE_EXIT",
+  "asOf": "2026-10-16",
+  "reviewSource": {
+    "repository": "samujjwal/ghatana-media",
+    "head": "7bc723c150538001a111d3be13e254b405fea7ee"
+  },
+  "suiteResult": {
+    "tests": 1760,
+    "pass": 1689,
+    "fail": 66,
+    "skipped": 5,
+    "runner": "node --test tests/**/*.test.mjs"
+  },
+  "rootCause": "The sanctioned harden commits (7ef839f, 7bc723c) advanced authoritative PDP-3 source (147 actions; J-27 sourceEnvelope; expanded taxonomy and 3-action semantics) but derived mirrors, obligation/manifest counts, migration target hashes and currentness-impact pins were not reconciled forward in one coordinated cut.",
+  "remedyClassSummary": {
+    "DERIVED_REGEN": 19,
+    "CURRENTNESS_SUCCESSOR_RECORD": 13,
+    "SEMANTIC_SOURCE_DEFINITION": 13,
+    "ACTION_MIRROR_PROJECTION": 5,
+    "MIGRATION_SUCCESSOR_OBSERVATION": 8
+  },
+  "coordinationNote": "Partial deterministic regeneration is NET-NEGATIVE (fixes ~8 derived tests, breaks ~16 currentness-impact pins). The whole DAG — ACTION_MIRROR_PROJECTION -> SEMANTIC_SOURCE_DEFINITION -> DERIVED_REGEN -> MIGRATION_SUCCESSOR_OBSERVATION -> CURRENTNESS_SUCCESSOR_RECORD + authentic R7 capture — must be applied atomically before any commit.",
+  "threeActionDrift": [
+    "media.action.revoke-authorized-consent",
+    "media.action.review-rights-approval-and-format-effects",
+    "media.action.confirm-selected-fallback"
+  ],
+  "r7CaptureFeasibility": "CONFIRMED_RUNNABLE: @ghatana/verification-planner captureRepositorySourceCurrentness returns REPOSITORY_SCOPE/CONTINUOUS/KNOWN with zero membership/external drift in this checkout.",
+  "failingSubtests": [
+    {
+      "loc": "tests/media-capability-review-source-impact.test.mjs:474",
+      "msg": "Expected values to be strictly equal:",
+      "actual": "'da420ef9636484039f64963219e8f361e1e4c35",
+      "expected": "'736b64f03b4108b5054f63debf755f322df80ba",
+      "materialSource": "PDP-0 capability-leaf-review.yaml (action-registry pin)",
+      "remedyClass": "DERIVED_REGEN"
+    },
+    {
+      "loc": "tests/media-capability-review-source-impact.test.mjs:42",
+      "msg": ".product-experience/pdp-3-product-experience/action-registry.yaml bytes equal the exact current reviewed artifact; unreviewed later changes remain stale",
+      "actual": "'736b64f03b4108b5054f63debf755f322df80ba",
+      "expected": "'da420ef9636484039f64963219e8f361e1e4c35",
+      "materialSource": "PDP-0 capability-leaf-review.yaml (action-registry pin)",
+      "remedyClass": "DERIVED_REGEN"
+    },
+    {
+      "loc": "tests/media-capability-review-source-impact.test.mjs:42",
+      "msg": ".product-experience/pdp-3-product-experience/action-registry.yaml bytes equal the exact current reviewed artifact; unreviewed later changes remain stale",
+      "actual": "'736b64f03b4108b5054f63debf755f322df80ba",
+      "expected": "'da420ef9636484039f64963219e8f361e1e4c35",
+      "materialSource": "PDP-0 capability-leaf-review.yaml (action-registry pin)",
+      "remedyClass": "DERIVED_REGEN"
+    },
+    {
+      "loc": "tests/media-dependency-inventory.test.mjs:137",
+      "msg": "The expression evaluated to a falsy value:",
+      "actual": "false,",
+      "expected": "true,",
+      "materialSource": "config/dependency-profile + obligations",
+      "remedyClass": "DERIVED_REGEN"
+    },
+    {
+      "loc": "tests/media-discovery-pdp0-supplemental-impact-join.test.mjs:96",
+      "msg": "Expected values to be strictly equal:",
+      "actual": "undefined,",
+      "expected": "'INTERNAL_PDP0_SUCCESSOR_IMPACT_DISPOSIT",
+      "materialSource": "docs/.../pdp0 supplemental impact-join",
+      "remedyClass": "CURRENTNESS_SUCCESSOR_RECORD"
+    },
+    {
+      "loc": "tests/media-discovery-pdp1-owner-status-join-repair.test.mjs:71",
+      "msg": "[{\"path\":\".product-experience/interface-parity/operation-parity.yaml\",\"predecessorSha256\":\"sha256:8b95782fe47cb7e44ec159c168399f78a674dbc1c6f72065881c278f7e3c13",
+      "actual": "false,",
+      "expected": "true,",
+      "materialSource": "docs/.../pdp1 owner-status-join (operation-parity pin)",
+      "remedyClass": "CURRENTNESS_SUCCESSOR_RECORD"
+    },
+    {
+      "loc": "tests/media-discovery-pdp1-owner-status-join-repair.test.mjs:123",
+      "msg": "Expected values to be strictly equal:",
+      "actual": "'sha256:8362bf108a1f05577e6cdc858cd1565c",
+      "expected": "'sha256:73f4a04489bc6725285624c9c6a31df2",
+      "materialSource": "docs/.../pdp1 owner-status-join (operation-parity pin)",
+      "remedyClass": "CURRENTNESS_SUCCESSOR_RECORD"
+    },
+    {
+      "loc": "tests/media-discovery-pdp2-current-cut-impact.test.mjs:794",
+      "msg": "Expected values to be strictly equal:",
+      "actual": "false,",
+      "expected": "true,",
+      "materialSource": "docs/.../pdp2 current-cut impact",
+      "remedyClass": "CURRENTNESS_SUCCESSOR_RECORD"
+    },
+    {
+      "loc": "tests/media-discovery-pdp2-r5-current-cut-impact.test.mjs:103",
+      "msg": "{\"valid\":false,\"classification\":\"PDP1_STATUS_AND_SEMANTIC_REVIEW_EVIDENCE_REFRESH_NO_PDP2_MEANING_DISPOSITION\",\"predecessorRef\":\"docs/implementation/observation",
+      "actual": "false,",
+      "expected": "true,",
+      "materialSource": "docs/.../pdp2 R5 current-cut impact",
+      "remedyClass": "CURRENTNESS_SUCCESSOR_RECORD"
+    },
+    {
+      "loc": "tests/media-discovery-pdp2-r5-current-cut-impact.test.mjs:167",
+      "msg": "Expected values to be strictly equal:",
+      "actual": "false,",
+      "expected": "true,",
+      "materialSource": "docs/.../pdp2 R5 current-cut impact",
+      "remedyClass": "CURRENTNESS_SUCCESSOR_RECORD"
+    },
+    {
+      "loc": "tests/media-discovery-pdp2-r5-current-cut-impact.test.mjs:189",
+      "msg": "{\"status\":\"FAIL\",\"checkpointRef\":\"docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json\",\"checkpointDigest\":\"sha256:3720413ea63e00a9f1d",
+      "actual": "'FAIL',",
+      "expected": "'PASS',",
+      "materialSource": "docs/.../pdp2 R5 current-cut impact",
+      "remedyClass": "CURRENTNESS_SUCCESSOR_RECORD"
+    },
+    {
+      "loc": "tests/media-discovery-pdp3-owner-directions.test.mjs:60",
+      "msg": "The input did not match the regular expression /ACTIVE_MDC30_SOURCE_GAP_RESOLUTION; R6_NOT_CAPTURED; R5_HISTORICAL_BASELINE/u. Input:",
+      "actual": "'ACTIVE_MDC30_SOURCE_GAP_RESOLUTION; R6_",
+      "expected": "/ACTIVE_MDC30_SOURCE_GAP_RESOLUTION; R6_",
+      "materialSource": "tests/media-discovery-pdp3-owner-directions (status string)",
+      "remedyClass": "CURRENTNESS_SUCCESSOR_RECORD"
+    },
+    {
+      "loc": "tests/media-explorer-manifest-authority.test.mjs:176",
+      "msg": ".product-experience/pdp-3-product-experience/journey-registry.yaml manifest content fingerprint",
+      "actual": "'23aad1bfa7e8a518a737741ac1a5402578fb0ae",
+      "expected": "'e997c6de4534ecf1d74d8bd91e0f7ad0a006098",
+      "materialSource": ".product-experience/source-manifest.yaml (journey-registry pin)",
+      "remedyClass": "DERIVED_REGEN"
+    },
+    {
+      "loc": "tests/media-lifecycle-l02-source-case-links.test.mjs:234",
+      "msg": "Expected values to be strictly deep-equal:",
+      "actual": "[",
+      "expected": "[",
+      "materialSource": "config/closure/.../{obligations,l02,l03}.json",
+      "remedyClass": "DERIVED_REGEN"
+    },
+    {
+      "loc": "tests/media-lifecycle-l03-proof-route-candidates.test.mjs:139",
+      "msg": "Expected values to be strictly deep-equal:",
+      "actual": "[",
+      "expected": "[",
+      "materialSource": "config/closure/.../{obligations,l02,l03}.json",
+      "remedyClass": "DERIVED_REGEN"
+    },
+    {
+      "loc": "tests/media-lifecycle-l03-proof-route-candidates.test.mjs:188",
+      "msg": "all current source obligations are preserved; historical 348 is a prior source cut",
+      "actual": "8640,",
+      "expected": "8664,",
+      "materialSource": "config/closure/.../{obligations,l02,l03}.json",
+      "remedyClass": "DERIVED_REGEN"
+    },
+    {
+      "loc": "tests/media-lifecycle-l03-proof-route-candidates.test.mjs:101",
+      "msg": "Expected values to be strictly equal:",
+      "actual": "'UNCHANGED_ZERO_OF_8640',",
+      "expected": "'UNCHANGED_ZERO_OF_8664',",
+      "materialSource": "config/closure/.../{obligations,l02,l03}.json",
+      "remedyClass": "DERIVED_REGEN"
+    },
+    {
+      "loc": "tests/media-lifecycle-l03-proof-route-candidates.test.mjs:132",
+      "msg": "Expected values to be strictly equal:",
+      "actual": "'UNCHANGED_ZERO_OF_8640',",
+      "expected": "'UNCHANGED_ZERO_OF_8664',",
+      "materialSource": "config/closure/.../{obligations,l02,l03}.json",
+      "remedyClass": "DERIVED_REGEN"
+    },
+    {
+      "loc": "tests/media-obligation-denominator-audit.test.mjs:32",
+      "msg": "Expected values to be strictly equal:",
+      "actual": "8640,",
+      "expected": "8664,",
+      "materialSource": "config/closure/.../obligations.json",
+      "remedyClass": "DERIVED_REGEN"
+    },
+    {
+      "loc": "tests/media-obligation-denominator-audit.test.mjs:64",
+      "msg": "Expected values to be strictly equal:",
+      "actual": "1492,",
+      "expected": "1508,",
+      "materialSource": "config/closure/.../obligations.json",
+      "remedyClass": "DERIVED_REGEN"
+    },
+    {
+      "loc": "tests/media-pdp-p3-dev-status.test.mjs:127",
+      "msg": "Expected values to be strictly equal:",
+      "actual": "43,",
+      "expected": "40,",
+      "materialSource": "docs/implementation/pdp-3-phase-dev-status.json (40->43)",
+      "remedyClass": "CURRENTNESS_SUCCESSOR_RECORD"
+    },
+    {
+      "loc": "tests/media-product-definition-residuals.test.mjs:20",
+      "msg": "Expected values to be strictly equal:",
+      "actual": "148,",
+      "expected": "147,",
+      "materialSource": "scripts/lib/media-product-definition-residuals (147 vs 148)",
+      "remedyClass": "DERIVED_REGEN"
+    },
+    {
+      "loc": "tests/media-product-definition-residuals.test.mjs:53",
+      "msg": "Expected values to be strictly deep-equal:",
+      "actual": "[ '.product-experience/interface-parity/",
+      "expected": "[],",
+      "materialSource": "scripts/lib/media-product-definition-residuals (147 vs 148)",
+      "remedyClass": "DERIVED_REGEN"
+    },
+    {
+      "loc": "tests/media-source-manifest-external-observations.test.mjs:41",
+      "msg": "ghatana HEAD pin is stale",
+      "actual": "'c83e3bbf119234c88ebd340a2cd5bcfa06f2e1d",
+      "expected": "'0acdf6d5f1ab585e0d726a7fd7ecf82a3f985a9",
+      "materialSource": ".product-experience/source-manifest.yaml (ghatana HEAD)",
+      "remedyClass": "DERIVED_REGEN"
+    },
+    {
+      "loc": "tests/pdp-3-examples.test.mjs:85",
+      "msg": "Source upload, verification, and caption correction omits source-declared candidate channel media.channel.cli from J-03",
+      "actual": "false,",
+      "expected": "true,",
+      "materialSource": ".product-experience/pdp-3/journey-channel-contract-bindings.yaml (cli channel)",
+      "remedyClass": "SEMANTIC_SOURCE_DEFINITION"
+    },
+    {
+      "loc": "tests/pdp-3-scenario-fixture-coverage.test.mjs:722",
+      "msg": "Expected values to be strictly equal:",
+      "actual": "66,",
+      "expected": "64,",
+      "materialSource": ".product-experience/pdp-3/scenario-fixture-registry.yaml (64->66)",
+      "remedyClass": "SEMANTIC_SOURCE_DEFINITION"
+    },
+    {
+      "loc": "tests/pdp-3-screen-journey-crosslinks.test.mjs:218",
+      "msg": "current exact source action refs are counted by occurrence",
+      "actual": "122,",
+      "expected": "120,",
+      "materialSource": ".product-experience/pdp-3/screen-contracts (120->122 action refs)",
+      "remedyClass": "SEMANTIC_SOURCE_DEFINITION"
+    },
+    {
+      "loc": "tests/pdp-3-screen-source-bindings.test.mjs:121",
+      "msg": "Expected values to be strictly deep-equal:",
+      "actual": "[ 'media.view.deliver-output: media.acti",
+      "expected": "[],",
+      "materialSource": ".product-experience/pdp-3/screen-contracts (deliver-output)",
+      "remedyClass": "SEMANTIC_SOURCE_DEFINITION"
+    },
+    {
+      "loc": "tests/pdp-design-interface-parity.test.mjs:1056",
+      "msg": "media.action.review-rights-approval-and-format-effects retains its source effect, reversibility, finality, guard and disposition semantics",
+      "actual": "{ actionRef: 'media.action.review-rights",
+      "expected": "{ actionRef: 'media.action.review-rights",
+      "materialSource": ".product-experience/interface-parity/operation-parity.yaml (review-rights 3-action)",
+      "remedyClass": "ACTION_MIRROR_PROJECTION"
+    },
+    {
+      "loc": "tests/pdp-experience-action-inventory.test.mjs:52",
+      "msg": "media.action.revoke-authorized-consent effect must match its source record exactly",
+      "actual": "'Request the explicitly named operation ",
+      "expected": "'Request the exact consent action for th",
+      "materialSource": ".product-experience/pdp-1/operations.yaml#actionOperationDispositionInventory.sourceEvidence (revoke)",
+      "remedyClass": "ACTION_MIRROR_PROJECTION"
+    },
+    {
+      "loc": "tests/pdp-experience-immediate-result-sources.test.mjs:101",
+      "msg": "J-18/4 preserves an explicitly declared source result",
+      "actual": "'Return the operation envelope outcome S",
+      "expected": "'Immediate result is the operation envel",
+      "materialSource": ".product-experience/pdp-3/.../step result source (J-18/4)",
+      "remedyClass": "SEMANTIC_SOURCE_DEFINITION"
+    },
+    {
+      "loc": "tests/pdp-experience-journey-purpose-bindings.test.mjs:92",
+      "msg": "media.pdp3.step-purpose-binding.j01-step-02.v1",
+      "actual": "[],",
+      "expected": "[ 'media-project/ACTIVE', 'media-project",
+      "materialSource": ".product-experience/pdp-3/journey-purpose-bindings.yaml (j01-step-02 stateRefs)",
+      "remedyClass": "SEMANTIC_SOURCE_DEFINITION"
+    },
+    {
+      "loc": "tests/pdp-experience-owner-observation-semantics.test.mjs:117",
+      "msg": "media.view-observation.use-authorized-voice.review-required.v1: source schema accepts the exact scoped disposition",
+      "actual": "false,",
+      "expected": "true,",
+      "materialSource": ".product-experience/pdp-3/view-observation (use-authorized-voice schema)",
+      "remedyClass": "SEMANTIC_SOURCE_DEFINITION"
+    },
+    {
+      "loc": "tests/pdp-experience-rights-guard-fact-evaluator.test.mjs:99",
+      "msg": "Expected values to be strictly equal:",
+      "actual": "'UNKNOWN',",
+      "expected": "'FALSE',",
+      "materialSource": ".product-experience/pdp-3/step-guard-fact-contracts.yaml (FALSE vs UNKNOWN)",
+      "remedyClass": "SEMANTIC_SOURCE_DEFINITION"
+    },
+    {
+      "loc": "tests/pdp-experience-step-semantics.test.mjs:115",
+      "msg": "J-13/3 exact stateRefs",
+      "actual": "[ '.product-experience/pdp-1-domain-data",
+      "expected": "[ '.product-experience/pdp-1-domain-data",
+      "materialSource": ".product-experience/pdp-3/step-definition-oracles (J-13/3 stateRefs)",
+      "remedyClass": "SEMANTIC_SOURCE_DEFINITION"
+    },
+    {
+      "loc": "tests/pdp-experience-transition-trigger-semantics.test.mjs:861",
+      "msg": "media.transition-trigger-definition.media-stream-session-t02.01.v1 derives only supported predicates and preserves unresolved ones",
+      "actual": "'UNKNOWN',",
+      "expected": "'APPLIED_DEFINITION_ONLY',",
+      "materialSource": ".product-experience/pdp-3/state-transition-bindings (APPLIED_DEFINITION_ONLY)",
+      "remedyClass": "SEMANTIC_SOURCE_DEFINITION"
+    },
+    {
+      "loc": "tests/pdp-migration-coordinator-p2-97-approval.test.mjs:109",
+      "msg": "Expected values to be strictly equal:",
+      "actual": "'1edb9df8782e43885b5021b0fbe228eeac8676c",
+      "expected": "'8c188d0bc642d1831e6bf0a75260f90bac842c3",
+      "materialSource": "docs/.../pdp-38 migration (operation-parity target hash)",
+      "remedyClass": "MIGRATION_SUCCESSOR_OBSERVATION"
+    },
+    {
+      "loc": "tests/pdp-migration-p2-owner-review-candidate.test.mjs:98",
+      "msg": "MPSEM-0296-C005 current target hash is covered by the claim scoped observation",
+      "actual": "'1edb9df8782e43885b5021b0fbe228eeac8676c",
+      "expected": "'8c188d0bc642d1831e6bf0a75260f90bac842c3",
+      "materialSource": "docs/.../pdp-38 migration (operation-parity target hash)",
+      "remedyClass": "MIGRATION_SUCCESSOR_OBSERVATION"
+    },
+    {
+      "loc": "tests/pdp-migration-pxd120-current-target-observations.test.mjs:59",
+      "msg": "MPSEM-0296-C005 exact serialized target bytes",
+      "actual": "'1edb9df8782e43885b5021b0fbe228eeac8676c",
+      "expected": "'8c188d0bc642d1831e6bf0a75260f90bac842c3",
+      "materialSource": "docs/.../pdp-38 pxd120 (operation-parity target hash)",
+      "remedyClass": "MIGRATION_SUCCESSOR_OBSERVATION"
+    },
+    {
+      "loc": "tests/pdp-migration-pxd120-current-target-observations.test.mjs:87",
+      "msg": "MPSEM-0296-C005 exact serialized target bytes",
+      "actual": "'1edb9df8782e43885b5021b0fbe228eeac8676c",
+      "expected": "'8c188d0bc642d1831e6bf0a75260f90bac842c3",
+      "materialSource": "docs/.../pdp-38 pxd120 (operation-parity target hash)",
+      "remedyClass": "MIGRATION_SUCCESSOR_OBSERVATION"
+    },
+    {
+      "loc": "tests/pdp-migration-semantic-reconciliation.test.mjs:292",
+      "msg": "MPSEM-0296-C005 target content changed without semantic review",
+      "actual": "'8c188d0bc642d1831e6bf0a75260f90bac842c3",
+      "expected": "'1edb9df8782e43885b5021b0fbe228eeac8676c",
+      "materialSource": "docs/.../pdp-38 migration semantic (operation-parity target hash)",
+      "remedyClass": "MIGRATION_SUCCESSOR_OBSERVATION"
+    },
+    {
+      "loc": "tests/pdp-migration-semantic-reconciliation.test.mjs:676",
+      "msg": "Expected values to be strictly equal:",
+      "actual": "'58ea37eeeb3c56b7b434a4a94648f64d0b7a317",
+      "expected": "'ab2753d89aea4b602f361a48a29f5435b8acc25",
+      "materialSource": "docs/.../pdp-38 migration semantic (operation-parity target hash)",
+      "remedyClass": "MIGRATION_SUCCESSOR_OBSERVATION"
+    },
+    {
+      "loc": "tests/pdp-overview-currentness.test.mjs:53",
+      "msg": "Expected values to be strictly deep-equal:",
+      "actual": "{ componentContracts: 31, views: 47, jou",
+      "expected": "{ componentContracts: 31, views: 47, jou",
+      "materialSource": "docs/.../PDP overview currentness",
+      "remedyClass": "CURRENTNESS_SUCCESSOR_RECORD"
+    },
+    {
+      "loc": "tests/pdp-overview-currentness.test.mjs:65",
+      "msg": "The input did not match the regular expression /PDP-1 canonical domain handoff consumed/. Input:",
+      "actual": "\"# Media Design Language\\n\\n**Authority:",
+      "expected": "/PDP-1 canonical domain handoff consumed",
+      "materialSource": "docs/.../PDP overview currentness",
+      "remedyClass": "CURRENTNESS_SUCCESSOR_RECORD"
+    },
+    {
+      "loc": "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs:114",
+      "msg": "MPSEM-0023-C002 current observation binds the exact live source file",
+      "actual": "'8b95782fe47cb7e44ec159c168399f78a674dbc",
+      "expected": "'24e4699d42dd1a2a0363628387fdf2a12c539f8",
+      "materialSource": "docs/.../truth-domain-migration-199 (operation-parity target hash)",
+      "remedyClass": "MIGRATION_SUCCESSOR_OBSERVATION"
+    },
+    {
+      "loc": "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs:300",
+      "msg": "MPSEM-0039-C004 exact current bound source file",
+      "actual": "'11d51ef9cdc69e2dde09b3a72241a19a321be40",
+      "expected": "'63e36ea20e5b5f7e6fa84d3a7f2bdd2f611835b",
+      "materialSource": "docs/.../truth-domain-migration-199 (operation-parity target hash)",
+      "remedyClass": "MIGRATION_SUCCESSOR_OBSERVATION"
+    },
+    {
+      "loc": "tests/pdp-truth-domain-observation-currentness.test.mjs:111",
+      "msg": "Expected values to be strictly equal:",
+      "actual": "15,",
+      "expected": "8,",
+      "materialSource": "docs/.../truth-domain observation (8->15)",
+      "remedyClass": "CURRENTNESS_SUCCESSOR_RECORD"
+    },
+    {
+      "loc": "tests/pdp-truth-domain.test.mjs:180",
+      "msg": "Expected values to be strictly equal:",
+      "actual": "false,",
+      "expected": "true,",
+      "materialSource": "docs/.../truth-domain",
+      "remedyClass": "CURRENTNESS_SUCCESSOR_RECORD"
+    },
+    {
+      "loc": "tests/pdp-ui-action-local-semantics.test.mjs:20",
+      "msg": "Expected values to be strictly deep-equal:",
+      "actual": "[ 'media.action.review-rights-approval-a",
+      "expected": "[],",
+      "materialSource": ".product-experience/interface-parity/operation-parity.yaml#typedUiActionSemantics (review-rights)",
+      "remedyClass": "ACTION_MIRROR_PROJECTION"
+    },
+    {
+      "loc": "tests/pdp1-current-decision-mirror-reconciliation.test.mjs:70",
+      "msg": "The input did not match the regular expression /owner-defined logical dispositions are recorded alongside source proposals and observations/u. Input:",
+      "actual": "'# PDP-1 Canonical Domain and Data Model",
+      "expected": "/owner-defined logical dispositions are ",
+      "materialSource": ".product-experience/pdp-1/DOMAIN-MODEL.md mirror",
+      "remedyClass": "SEMANTIC_SOURCE_DEFINITION"
+    },
+    {
+      "loc": "tests/pdp1-interface-current-source-review.test.mjs:17",
+      "msg": ".product-experience/pdp-3-product-experience/action-registry.yaml changed; refresh the current-source reconciliation",
+      "actual": "'736b64f03b4108b5054f63debf755f322df80ba",
+      "expected": "'832beaf50f03f9e3c4d8bf0f7e5f47ffe38b570",
+      "materialSource": ".product-experience/interface-parity/current-source-review.json",
+      "remedyClass": "DERIVED_REGEN"
+    },
+    {
+      "loc": "tests/pdp1-operation-current-source-review.test.mjs:117",
+      "msg": "Expected values to be strictly equal:",
+      "actual": "'832beaf50f03f9e3c4d8bf0f7e5f47ffe38b570",
+      "expected": "'736b64f03b4108b5054f63debf755f322df80ba",
+      "materialSource": ".product-experience/pdp-1/operations-current-source-review.json",
+      "remedyClass": "DERIVED_REGEN"
+    },
+    {
+      "loc": "tests/pdp1-operation-current-source-review.test.mjs:389",
+      "msg": "Expected values to be strictly equal:",
+      "actual": "'832beaf50f03f9e3c4d8bf0f7e5f47ffe38b570",
+      "expected": "'736b64f03b4108b5054f63debf755f322df80ba",
+      "materialSource": ".product-experience/pdp-1/operations-current-source-review.json",
+      "remedyClass": "DERIVED_REGEN"
+    },
+    {
+      "loc": "tests/pdp1-owner-action-wire-contracts.test.mjs:69",
+      "msg": "media.owner-action-wire.revoke-authorized-consent.v1 preserves exact source effect meaning",
+      "actual": "'Request the explicitly named operation ",
+      "expected": "'Request the exact consent action for th",
+      "materialSource": ".product-experience/pdp-1/owner-action-wire-contracts.yaml (revoke effect + actor binding)",
+      "remedyClass": "ACTION_MIRROR_PROJECTION"
+    },
+    {
+      "loc": "tests/pdp1-owner-action-wire-contracts.test.mjs:218",
+      "msg": "[{\"code\":\"ACTION_ACTOR_BINDING_DRIFT\",\"detail\":\"media.operation.action.review-rights-approval-and-format-effects\"},{\"code\":\"ACTION_OPERATION_CONSUMER_LINK_DRIFT",
+      "actual": "false,",
+      "expected": "true,",
+      "materialSource": ".product-experience/pdp-1/owner-action-wire-contracts.yaml (revoke effect + actor binding)",
+      "remedyClass": "ACTION_MIRROR_PROJECTION"
+    },
+    {
+      "loc": "tests/pdp3-implementation-handoff.test.mjs:27",
+      "msg": "The input did not match the regular expression /no source pin/. Input:",
+      "actual": "Error: Invalid PDP-3 implementation hand",
+      "expected": "/no source pin/,",
+      "materialSource": ".product-experience/pdp-3/generated/implementation-handoff.v1.json",
+      "remedyClass": "DERIVED_REGEN"
+    },
+    {
+      "loc": "tests/product-definition-authority.test.mjs:2674",
+      "msg": "J-13/media.view.compose-scene binding reason for surfaceRefs must remain proposal/unresolved or pass its exact bounded source-definition and NOT_ADMITTED valida",
+      "actual": "false,",
+      "expected": "true,",
+      "materialSource": ".product-experience/pdp-3/screen-contracts (J-13 compose-scene)",
+      "remedyClass": "SEMANTIC_SOURCE_DEFINITION"
+    },
+    {
+      "loc": "tests/product-experience-local.test.mjs:65",
+      "msg": "The input did not match the regular expression /18 of 18 action-bearing journey steps map through direct Action Registry capability refs/u. Input:",
+      "actual": "'Media Product Definition local check pa",
+      "expected": "/18 of 18 action-bearing journey steps m",
+      "materialSource": "scripts/check-product-experience-local (18-of-18 steps)",
+      "remedyClass": "SEMANTIC_SOURCE_DEFINITION"
+    }
+  ]
+}
