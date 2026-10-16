@@ -1,0 +1,311 @@
+{
+  "schemaVersion": "media.discovery-pdp3-owner-r2-execution-register.v1",
+  "recordKind": "DELEGATED_INTERNAL_MEDIA_OWNER_DECISIONS_AND_REMAINING_WORK_NOT_PHASE_EXIT",
+  "asOf": "2026-10-15",
+  "reviewSource": {
+    "repository": "samujjwal/ghatana-media",
+    "head": "7ef839fd9bb871782b112e370bb9f6c3c3a60556",
+    "implementedCutStatus": "PDP3_R6_UNKNOWN_PRECEDES_LATEST_SOURCE",
+    "ownerReview": "docs/implementation/MEDIA-DISCOVERY-TO-BUILD-OWNER-REVIEW-2026-10-15.md",
+    "controllingDiscoveryPlan": "docs/implementation/MEDIA-DISCOVERY-PDP3-FINISH-2026-10-15.md",
+    "controllingBuildPlan": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md",
+    "historicalR6": "docs/implementation/observations/media-discovery-pdp3-currentness-2026-10-15-r6.json"
+  },
+  "reviewAttribution": {
+    "actor": "AI_ASSISTANT_DELEGATED_INTERNAL_OWNER_SPECIALIST_DESIGN_AND_PLANNING",
+    "genuineIndependentApproval": false,
+    "testsRerunInThisReview": false,
+    "externalContractSignoff": false
+  },
+  "latestImplementerReported": {
+    "strictProjection": "PASS_REPORTED",
+    "productExperienceLocal": "PASS_REPORTED",
+    "sourceStepCountResolved": 130,
+    "reportedBroadTestFailures": 24,
+    "reportedComparisonZeroRegressions": true,
+    "reportedChangesCommittedAt": "7ef839fd9bb871782b112e370bb9f6c3c3a60556",
+    "countsAreNotCurrentR7Proof": true
+  },
+  "sourceDenominators": {
+    "pdpPhases": 4,
+    "physicalCandidates": 26,
+    "semanticCompositions": 6,
+    "root": 1,
+    "consumerCrosswalk": 17,
+    "uniqueIdentities": 50,
+    "pdpPhaseCells": 200,
+    "pdp3LogicalEdges": 61,
+    "consequentialSteps": 14,
+    "externalNamedContractsHistoricalR3": 30,
+    "r6ComparedPaths": 613,
+    "r6HistoricalMatches": 291,
+    "r6HistoricalChanged": 46,
+    "r6NoHistoricalAuthoritativePin": 276,
+    "p0CapabilityLeavesHistorical": 462,
+    "p0JourneyCapabilities": 77,
+    "p0MachineCapabilities": 383,
+    "p0ExternalPlatformDependencies": 2
+  },
+  "ownerChoices": {
+    "revokeConsent": "REQUEST_ONLY_AUTHORITY_RECEIPT_SEPARATE_NEVER_ERASURE",
+    "reviewRights": "QUERY_ONLY_NO_MUTATION_J21_BLOCKED_EXCLUDED",
+    "fallback": "PXD163_SAME_REQUEST_SELECTION_ONLY_NO_DISPATCH_OR_RETRY",
+    "J16Step02": "NO_DISPATCH_NO_CURRENT_VERSION_TUPLE_REFERENCED_OBJECTS_REMAIN",
+    "schemaRevision": "HEAD_PROVENANCE_GRAMMAR_CONTENT_COMPARISON_AUTHORITY",
+    "pdpSource": "P0_TRUTH_P1_DOMAIN_P2_GRAMMAR_P3_EXPERIENCE_PROJECTIONS_DERIVED",
+    "currentness": "NO_BULK_REPIN_OR_HISTORY_REWRITE",
+    "build": "PREPARATION_ONLY_AFTER_DISCOVERY_PASS"
+  },
+  "remainingExecutionItems": [
+    {
+      "id": "R2-D03-00",
+      "owner": "media-verification",
+      "sourcePaths": [
+        "tests/",
+        "scripts/generate-media-phase-projections.mjs"
+      ],
+      "ownerDisposition": "APPROVED_INTERNAL_MEDIA_DIRECTION",
+      "implementationStatus": "OPEN_TECHNICAL",
+      "decision": "Reuse the implementer's 24 reported residual failures as unverified historical summary; obtain new exact census",
+      "implementationInstruction": "Capture failing subtest->first violated normative source ID->owned domain package; dedupe 24 test failures by root cause; preserve baseline and pass history",
+      "acceptance": "Every current failed test has one source root; no broad rerun per minor file change",
+      "dependsOn": []
+    },
+    {
+      "id": "R2-D03-01",
+      "owner": "media-domain-and-consent",
+      "sourcePaths": [
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml"
+      ],
+      "ownerDisposition": "APPROVED_INTERNAL_MEDIA_DIRECTION",
+      "implementationStatus": "OPEN_TECHNICAL",
+      "decision": "J26 revocation requests do not establish consent authority acknowledgment or erasure",
+      "implementationInstruction": "Compare exact P1 operation and P3 action scopes/receipt/finality; repair owning P1 only if truly absent, then regenerate affected P1 sourceEvidence and P3 derivative",
+      "acceptance": "P1/P3 effect, guards, error/receipt/finality and stale/UNKNOWN tests consistent; exact impact/cut recorded",
+      "dependsOn": [
+        "R2-D03-00"
+      ]
+    },
+    {
+      "id": "R2-D03-02",
+      "owner": "media-rights-privacy",
+      "sourcePaths": [
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-1-domain-data/authority.yaml",
+        ".product-experience/pdp-1-domain-data/privacy.yaml",
+        ".product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml"
+      ],
+      "ownerDisposition": "APPROVED_INTERNAL_MEDIA_DIRECTION",
+      "implementationStatus": "OPEN_TECHNICAL",
+      "decision": "J21 rights decision is QUERY-only and approval mutation stays BLOCKED_EXCLUDED",
+      "implementationInstruction": "Normalize five source actor roles, exact rights scope, read-only typed receipt, denied/missing/expired/UNKNOWN guards and J21 negative user state",
+      "acceptance": "No side-effect or implicit approval; guard and purpose-bound tests PASS",
+      "dependsOn": [
+        "R2-D03-00"
+      ]
+    },
+    {
+      "id": "R2-D03-03",
+      "owner": "media-product-projection-engineering",
+      "sourcePaths": [
+        ".product-experience/interface-parity/operation-parity.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/step-definition-oracles.yaml",
+        ".product-experience/pdp-3-product-experience/public-effect-finality-taxonomy.yaml",
+        ".product-experience/pdp-3-product-experience/generated/implementation-handoff.v1.json"
+      ],
+      "ownerDisposition": "APPROVED_INTERNAL_MEDIA_DIRECTION",
+      "implementationStatus": "OPEN_TECHNICAL",
+      "decision": "Derived parity/action mirrors must not own independent effect/finality, and J27 fallback selection does not dispatch",
+      "implementationInstruction": "Source-based idempotent projector (or validated existing generator) for revoke-authorized-consent, review-rights-approval-and-format-effects, confirm-selected-fallback; exact actor/guard/result/finality/write scope and PXD163; no broad string replace",
+      "acceptance": "2 no-op generator runs identical bytes; local parity, action inventory, operation/step/typed contract and J27 tests PASS",
+      "dependsOn": [
+        "R2-D03-01",
+        "R2-D03-02"
+      ]
+    },
+    {
+      "id": "R2-D03-04",
+      "owner": "media-speech-experience",
+      "sourcePaths": [
+        ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
+        ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml"
+      ],
+      "ownerDisposition": "APPROVED_INTERNAL_MEDIA_DIRECTION",
+      "implementationStatus": "OPEN_TECHNICAL",
+      "decision": "J03 accepted request, immutable caption version, session-local draft/timing and rights approval are distinct",
+      "implementationInstruction": "Bind exact J03 source/timebase/authority and negative branches; preserve new J16 no-dispatch step02 and typed corrected step03",
+      "acceptance": "130/130 current step coverage and J03/J16 identity/recovery/negative tests PASS",
+      "dependsOn": [
+        "R2-D03-03"
+      ]
+    },
+    {
+      "id": "R2-D03-05",
+      "owner": "media-tools-schema-consumer",
+      "sourcePaths": [
+        "tests/pdp-experience-public-taxonomy-tools-source.test.mjs"
+      ],
+      "ownerDisposition": "APPROVED_INTERNAL_MEDIA_DIRECTION",
+      "implementationStatus": "SOURCE_PATCH_PREPARED_NOT_EXECUTED",
+      "decision": "Tools Git HEAD is provenance; exact effect/finality historical/current schema meaning is the guard",
+      "implementationInstruction": "Use structural schema comparison and historical PXD107 source; no fixed repo HEAD equality; verify PXD163 separate mapping",
+      "acceptance": "Test PASS with unchanged effect/finality despite unrelated HEAD movement; fail changed schemas; no public admission inferred",
+      "dependsOn": []
+    },
+    {
+      "id": "R2-D04",
+      "owner": "media-journey-owners",
+      "sourcePaths": [
+        ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/"
+      ],
+      "ownerDisposition": "APPROVED_INTERNAL_MEDIA_DIRECTION",
+      "implementationStatus": "OPEN_TECHNICAL",
+      "decision": "All 61 logical intended edges preserved with explicit rights-exclusion and no transport/runtime admission",
+      "implementationInstruction": "Finish only current source-confirmed incomplete logical P1 state or typed observation joins for ten journey groups MDC30-C-05/08/10/13/14/19/20/21/26/28; one shared registry writer",
+      "acceptance": "Current 61/61 source audit classifies valid definition/unavailable; J21 2 edges BLOCKED_EXCLUDED; real negative/finality tests",
+      "dependsOn": [
+        "R2-D03-03",
+        "R2-D03-04"
+      ]
+    },
+    {
+      "id": "R2-D05",
+      "owner": "media-finality",
+      "sourcePaths": [
+        ".product-experience/pdp-1-domain-data/transitions.yaml",
+        ".product-experience/pdp-3-product-experience/journey-transition-edge-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/step-definition-oracles.yaml"
+      ],
+      "ownerDisposition": "APPROVED_INTERNAL_MEDIA_DIRECTION",
+      "implementationStatus": "OPEN_TECHNICAL",
+      "decision": "Only real canonical state transitions get IDs; J20 cancellation and J22 delivery require same-subject results, no guessed terminality",
+      "implementationInstruction": "Read exact 14 selectors and P1 machines; adjust J09/22 ACK and J20 cancel/retry where required; preserve J02 T01 and J03 draft status",
+      "acceptance": "14/14 selectors sourced, negative/UNKNOWN verified and no fake transition/provider ACK",
+      "dependsOn": [
+        "R2-D03-01",
+        "R2-D03-03"
+      ]
+    },
+    {
+      "id": "R2-D06",
+      "owner": "media-source-currentness",
+      "sourcePaths": [
+        "scripts/record-media-discovery-pdp3-currentness.mjs",
+        "scripts/media-discovery-currentness.mjs",
+        "docs/implementation/observations/media-discovery-pdp3-currentness-2026-10-15-r6.json"
+      ],
+      "ownerDisposition": "APPROVED_INTERNAL_MEDIA_DIRECTION",
+      "implementationStatus": "OPEN_TECHNICAL",
+      "decision": "R6 is failed immutable historical cut with 613 paths and unknown currentness",
+      "implementationInstruction": "Classify actual changed/missing baseline by PDP owner, derived and external role; reconcile Lifecycle 2-pass journal, exact predecessor impact and new versioned R7+ recorder observation",
+      "acceptance": "613/613 R6 path observations dispositioned; current capture 50/50 cells source-current with zero unclassified material; new unique append-only receipt",
+      "dependsOn": [
+        "R2-D04",
+        "R2-D05",
+        "R2-D03-05"
+      ]
+    },
+    {
+      "id": "R2-D07",
+      "owner": "media-verification",
+      "sourcePaths": [
+        "scripts/generate-media-phase-projections.mjs",
+        "scripts/check-product-experience-local.mjs",
+        "tests/"
+      ],
+      "ownerDisposition": "APPROVED_INTERNAL_MEDIA_DIRECTION",
+      "implementationStatus": "OPEN_TECHNICAL",
+      "decision": "Real testing, not revised labels, admits source definitions",
+      "implementationInstruction": "Run strict projection, local checker, parity, J03/05/08/10/13/14/16/19/20/21/26/27/28 and 14-step suites after stable source; capture hashes and failures",
+      "acceptance": "All scoped source, status, negative tests PASS and no source gaps remain",
+      "dependsOn": [
+        "R2-D06"
+      ]
+    },
+    {
+      "id": "R2-D08",
+      "owner": "media-explorer-ux",
+      "sourcePaths": [
+        "apps/media-experience-explorer/src/",
+        ".product-experience/explorer/"
+      ],
+      "ownerDisposition": "APPROVED_INTERNAL_MEDIA_DIRECTION",
+      "implementationStatus": "OPEN_TECHNICAL",
+      "decision": "Explorer is read-only source projection for GUI and headless product; independent a11y acceptance remains separate",
+      "implementationInstruction": "Validate 47 screens, 30 journeys, 130 steps, 50 identity topology, PDP0-3, 61 channel edges and simulated/unavailable; run actual desktop/mobile browser keyboard/focus/contrast/deeplink tests",
+      "acceptance": "Actual browser/a11y evidence PASS with zero critical errors and truthful authority labels",
+      "dependsOn": [
+        "R2-D07"
+      ]
+    },
+    {
+      "id": "R2-D09",
+      "owner": "media-pdp3-status",
+      "sourcePaths": [
+        "docs/implementation/media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json",
+        "docs/implementation/observations/"
+      ],
+      "ownerDisposition": "APPROVED_INTERNAL_MEDIA_DIRECTION",
+      "implementationStatus": "OPEN_TECHNICAL",
+      "decision": "PDP3 current DEV_COMPLETE requires zero true definition tasks and no UNKNOWN",
+      "implementationInstruction": "Publish immutable source-bound PDP3 successor; preserve independent approval, native closure and runtime status separate",
+      "acceptance": "50/50 PDP3 applicable/current or justified N/A with zero definition tasks, actual checks pass",
+      "dependsOn": [
+        "R2-D08"
+      ]
+    },
+    {
+      "id": "R2-D10",
+      "owner": "media-product-stage",
+      "sourcePaths": [
+        "docs/implementation/media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json",
+        "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md"
+      ],
+      "ownerDisposition": "APPROVED_INTERNAL_MEDIA_DIRECTION",
+      "implementationStatus": "OPEN_TECHNICAL",
+      "decision": "Build implementation only after 200 current PDP cells and Discovery PASS",
+      "implementationInstruction": "Join exact source R15/R30/R19 or affected successor through P3, verify all 200, freeze handoff; then separate Plan Implementation",
+      "acceptance": "DISCOVERY PASS verifiably published, no Build/closure assertions before gate",
+      "dependsOn": [
+        "R2-D09"
+      ]
+    },
+    {
+      "id": "PBI-00-CAP",
+      "owner": "media-build-stage-planner",
+      "sourcePaths": [
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "docs/implementation/media-build-coverage-plan-2026-10-15.json"
+      ],
+      "ownerDisposition": "APPROVED_INTERNAL_MEDIA_DIRECTION",
+      "implementationStatus": "PREPARED_ONLY_BUILD_NOT_ENTERED",
+      "decision": "Complete-product Build must account for exact P0 capabilities, not only 50/30/47",
+      "implementationInstruction": "After Discovery PASS, generate immutable source-derived leaf->requirement/P1/P2/P3/physical/consumer/PBI/test/source owner mapping; 462 historical split 77/383/2; no guessing",
+      "acceptance": "Every current leaf uniquely assigned; zero orphan/duplicate/unsupported required capability hidden as preview",
+      "dependsOn": [
+        "R2-D10"
+      ]
+    }
+  ],
+  "gate": {
+    "discovery": "FAIL",
+    "pdp3SourceCurrentness": "NOT_ESTABLISHED_AFTER_SOURCE_COMMIT",
+    "build": "NOT_ENTERED",
+    "nativeClosure": "NOT_ENTERED",
+    "delivery": "BLOCKED"
+  },
+  "limitations": [
+    "No fresh local node/browser/Lifecycle suites executed by this owner review",
+    "No independent external reviewer or regulated professional has signed",
+    "R6 is not current after 7ef source edits; no R7 capture or phase exit claimed",
+    "The 24 residual failing test number is implementer-reported, not a fresh audit",
+    "The planned test source patch must run before reported as passing"
+  ]
+}

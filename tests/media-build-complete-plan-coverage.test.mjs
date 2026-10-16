@@ -91,3 +91,19 @@ test('all 47 historical post-PDP stable tasks are preserved without inventing co
   }
   assert.deepEqual(counted, map.historicalTaskStatusCounts);
 });
+
+
+test('complete-product Build requires a source-derived capability-leaf bridge, not only 50/30/47 planning coverage', () => {
+  const bridge = map.capabilityLeafBridge;
+  assert.equal(bridge.status, 'PLAN_IMPLEMENTATION_GATE_NOT_GENERATED_NOT_ADMITTED');
+  assert.equal(bridge.completed, false);
+  assert.equal(map.reviewOverlayR2.buildLane, 'NOT_ENTERED');
+  assert.equal(map.reviewOverlayR2.r6CurrentForLatestSource, false);
+  assert.equal(bridge.historicalLeafPopulation, 462);
+  assert.equal(Object.values(bridge.historicalApplicability).reduce((sum, count) => sum + count, 0), 462);
+  assert.equal(new Set(bridge.requiredFields).size, bridge.requiredFields.length);
+  assert.ok(bridge.requiredFields.includes('capabilityIntentId'));
+  assert.ok(bridge.requiredFields.includes('pdp1OperationResultRefs'));
+  assert.ok(bridge.requiredFields.includes('pbiWorkPackageId'));
+  assert.ok(bridge.requiredFields.includes('positiveDeniedUnknownRecoveryTestRefs'));
+});

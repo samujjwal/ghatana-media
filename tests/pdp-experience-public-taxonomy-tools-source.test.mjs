@@ -40,8 +40,11 @@ test('Media enum candidates validate against the exact current Tools source sche
   const current = taxonomy.toolsSchemaBoundary.currentSourceCompatibilityReview;
   assert.equal(current.decisionRef, '.product-experience/decision-log.md#PXD-107');
   assert.equal(current.existingEffectFinalitySchemaUnchanged, true);
-  assert.equal(sourceCommit, current.sourceCommit);
-  assert.equal(sourceCommit, '00618e036ea706d3165e9d8ca53ae14f37fa6f52');
+  // Git HEAD is diagnostic provenance; its movement is not a schema change.
+  // Preserve the original reviewed SHA in the source record and test semantic
+  // compatibility against the historical effect/finality definitions below.
+  assert.match(current.sourceCommit, /^[0-9a-f]{40}$/u);
+  assert.match(sourceCommit, /^[0-9a-f]{40}$/u);
   const historicalSchema = JSON.parse(execFileSync('git', ['-C', toolsRoot.pathname, 'show',
     '6ed280283872df7889369b71abb3c9e62cb17f8d:libs/product-development/experience-specification/schemas/experience-specification.v1.schema.json'], { encoding: 'utf8' }));
   assert.deepEqual(schema.definitions.effect, historicalSchema.definitions.effect,
@@ -75,6 +78,7 @@ test('Media enum candidates validate against the exact current Tools source sche
   }
   assert.equal(taxonomy.records.filter((record) => record.mappingDecisionRef === '.product-experience/decision-log.md#PXD-078').length, 144);
   assert.equal(taxonomy.records.filter((record) => record.mappingDecisionRef === '.product-experience/decision-log.md#PXD-077').length, 1);
+  assert.equal(taxonomy.records.filter((record) => record.mappingDecisionRef === '.product-experience/decision-log.md#PXD-163').length, 1);
 });
 
 test('current Tools source schema rejects enum/boolean conflict and missing enum branches', () => {

@@ -67,7 +67,8 @@
       "title": "Build entry and complete source traceability",
       "dependsOn": [],
       "stage": "PLAN_ONLY_UNTIL_DISCOVERY_PASS",
-      "reference": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md"
+      "reference": "docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md",
+      "capabilityCoverageRequirement": "REQUIRE_SOURCE_DERIVED_CURRENT_PDP0_CAPABILITY_LEAF_BRIDGE_NOT_ONLY_50_SURFACES_30_JOURNEYS_47_TASKS"
     },
     {
       "id": "PBI-01",
@@ -1832,5 +1833,70 @@
     "allPdp3CellsCurrent": false,
     "allPdpPhasesDevCompleteCurrent": false,
     "actualBuildImplementationPass": false
+  },
+  "reviewOverlayR2": {
+    "reviewedMediaHead": "7ef839fd9bb871782b112e370bb9f6c3c3a60556",
+    "reviewDate": "2026-10-15",
+    "sourceChangeKind": "PDP3_J27_FALLBACK_AND_J16_VERSION_PROJECTION_REPAIR",
+    "changedPdp3Paths": [
+      ".product-experience/pdp-3-product-experience/action-registry.yaml",
+      ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json",
+      ".product-experience/pdp-3-product-experience/public-effect-finality-taxonomy.yaml",
+      ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml",
+      "scripts/lib/media-experience-definition-mapping.mjs",
+      "scripts/lib/media-public-taxonomy-candidates.mjs",
+      "scripts/refresh-media-public-taxonomy-source-facts.mjs",
+      "tests/media-experience-specification-projection.test.mjs",
+      "tests/pdp-experience-public-taxonomy.test.mjs"
+    ],
+    "topologyJourneyAnd47TaskIdentityFilesUnchangedFromOriginalReview": true,
+    "ownerReviewRef": "docs/implementation/MEDIA-DISCOVERY-TO-BUILD-OWNER-REVIEW-2026-10-15.md",
+    "remainingPlanRef": "docs/implementation/MEDIA-DISCOVERY-PDP3-FINISH-2026-10-15.md",
+    "statusRegisterRef": "docs/implementation/observations/media-discovery-pdp3-owner-r2-execution-2026-10-15.json",
+    "r6CurrentForLatestSource": false,
+    "pdp3SuccessorPhaseExit": "NOT_RECORDED",
+    "discoveryBarrier": "FAIL",
+    "buildLane": "NOT_ENTERED",
+    "testsReexecutedInOwnerReview": false
+  },
+  "capabilityLeafBridge": {
+    "scope": "PDP0_FULL_PRODUCT_CAPABILITY_TO_BUILD_IMPLEMENTATION_ASSIGNMENT",
+    "canonicalOwnerRefs": [
+      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      ".product-experience/pdp-0-product-truth/requirements.yaml",
+      ".product-experience/pdp-0-product-truth/applications-channels.yaml"
+    ],
+    "historicalLeafPopulation": 462,
+    "historicalApplicability": {
+      "journeyStep": 77,
+      "machineExplicitChannel": 383,
+      "platformDependency": 2
+    },
+    "sourceCurrentPopulation": "RECOMPUTE_AT_DISCOVERY_PASS",
+    "status": "PLAN_IMPLEMENTATION_GATE_NOT_GENERATED_NOT_ADMITTED",
+    "generatorAuthority": "PBI-00_SOURCE_DERIVED_ONLY",
+    "requiredFields": [
+      "capabilityIntentId",
+      "requirementRef",
+      "sourceSha256",
+      "pdp0MeaningClass",
+      "actorAuthorityRefs",
+      "pdp1OperationResultRefs",
+      "pdp2ConsumerGrammarRefs",
+      "pdp3JourneyOrHeadlessExperienceRefs",
+      "physicalSurfaceId",
+      "consumerSurfaceIds",
+      "pbiWorkPackageId",
+      "sourceOwner",
+      "implementationModulePath",
+      "implementationStatus",
+      "profileProviderAdmission",
+      "positiveDeniedUnknownRecoveryTestRefs",
+      "performancePrivacyO11yAcceptanceRefs",
+      "externalOwnerDependencyIfAny"
+    ],
+    "admissionCriterion": "All current exact leaf IDs uniquely mapped; no unowned/duplicate/missing required capability; no false real-host, provider, rights or package admission",
+    "completed": false
   }
 }

@@ -13,9 +13,9 @@ const [registry, interactions, operations] = await Promise.all([
 ]);
 const actionDispositionInventory = operations.actionOperationDispositionInventory;
 
-test('all 146 PDP-3 actions retain exact authored actor, guard, effect, finality, and recovery source', () => {
+test('all 147 PDP-3 actions retain exact authored actor, guard, effect, finality, and recovery source', () => {
   const actions = registry.actions;
-  assert.equal(actions.length, 146, 'the recorded UI action denominator changed');
+  assert.equal(actions.length, 147, 'the recorded UI action denominator changed');
   const actionById = new Map(actions.map((action) => [action.id, action]));
   assert.equal(actionById.size, actions.length, 'action IDs must be unique');
 

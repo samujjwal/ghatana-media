@@ -1,5 +1,7 @@
 # Ghatana Media — complete-product Build Plan Implementation candidate
 
+> **October 15 R2 source-review update:** the nine-file J-27/J-16 hardening commit `7ef839fd9bb871782b112e370bb9f6c3c3a60556` is now on main. This plan remains **PREPARED ONLY**; PDP-3 successor/R7 and 200-cell Discovery PASS have not been proved. R2 internal decisions and the remaining PDP-3 plan are [here](MEDIA-DISCOVERY-TO-BUILD-OWNER-REVIEW-2026-10-15.md) and [here](MEDIA-DISCOVERY-PDP3-FINISH-2026-10-15.md). No Build code is authorized by this planning review. In addition to 50/30/47, `PBI-00` must materialize and validate the exact PDP0 **462-capability-leaf** implementation bridge before calling Plan Implementation complete.
+
 **Planning disposition:** `APPROVED_FOR_DETAILED_PREPARATION_ONLY`, **NOT an entered BUILD campaign**. **Source reviewed:** `samujjwal/ghatana-media@8c4a3ef8c037a8808d2744139d95f146e70f12d3`, October 15, 2026. **Prerequisite:** exact PDP-0/1/2/3 current `DEV_COMPLETE` and 200-cell Discovery barrier `PASS`. See [Discovery execution](MEDIA-DISCOVERY-PDP3-FINISH-2026-10-15.md) and [owner decisions](MEDIA-DISCOVERY-TO-BUILD-OWNER-REVIEW-2026-10-15.md).
 
 **Goal:** deliver a coherent actual, tested Media product for **all applicable definitions**—not simply four simulated journeys or green source validators. Reuse existing Media/Ghatana/Shared/Tools/Lifecycle technology and source; build real governed audio, video, image, speech, stream, timeline, editing, generation/simulation, versioning, rights, quality, delivery and machine experiences. No copied upstream engines, bypassed runtime admission or unsupported release claims.
@@ -215,3 +217,57 @@ Re-use `docs/implementation/post-pdp-owner-reviewed-execution-directive-2026-10-
 5. **DELIVER gate:** independently accepted/closed required PDP units + Build development completion + immutable signed packages, rollback/source cutover authority, real operator and environmental admission. No manufactured production evidence.
 
 **Implementation efficiency:** one owner of `operations.yaml`/shared registries/migrations, 2–3 resource-bounded parallel workers on non-overlapping packages, serialize DB/real browser/GPU qualification; granular source-diff selection, one integrated suite per stable cut. Observability and failure semantics are part of each slice, not an end-of-project patch. All owner choices here concern **Media internal planning**; external professional/signature/public-contract/production decisions remain pending their genuine accountable parties.
+
+
+---
+
+## R2 Build acceptance hardening — PDP source → exactly one implementation owner
+
+This section **strengthens existing PBI-00…15**, it is not another Build backlog or a replacement for the 16 work packages. It is authored while Discovery is active and becomes eligible for execution only after all four PDPs are current `DEV_COMPLETE` and 200/200 phase cells pass.
+
+### B-01: 462 exact PDP-0 capability leaf obligations
+
+**Canonical source:** `.product-experience/pdp-0-product-truth/capability-leaf-review.yaml` and `capabilities.yaml`, connected to `requirements.yaml`, `journey-catalog.yaml`, `applications-channels.yaml`. Existing owner-observed split is **77 journey-step capabilities + 383 machine channel capabilities + 2 platform-owned dependencies = 462**; counts must be recomputed from the actual frozen source, not hardcoded as a substitute for presence.
+
+**Implementation output (PBI-00 owned):** generate a stable source-derived `media-build-capability-coverage.v1.json` with exactly one row per current `capabilityIntentId`, fields:
+
+`capabilityIntentId`; `requirementRef`; `sourceSha256`; `pdp0MeaningClass`; `actor/tenant/authorityRefs`; `pdp1OperationRefs`; `pdp1RequestResultVersion/errorRefs`; `pdp2ConsumerGrammarRefs`; `pdp3JourneyOrHeadlessExperienceRefs`; `physicalSurfaceId`; `consumerSurfaceIds`; `pbiWorkPackageId`; `sourceOwner`; `implementationModulePath`; `implementationStatus`; `profileAndProviderAdmission`; `positiveDeniedUnknownRecoveryTestRefs`; `performancePrivacyO11yAcceptanceRefs`; `externalOwnerDependencyIfAny`.
+
+**Generation rules:** canonical PDP artifacts remain the sole editable authority. Require exact P0 requirement/capability/actor/channel joins, P1 typed operation/result and P2 interface binding where applicable; preserve legitimate machine-only capabilities without fake journey/screens; platform-owned functions become explicit upstream consumer contract work, not copied into Media. An otherwise required unimplemented capability stays `OPEN` or `NOT_ADMITTED` and cannot vanish under `N/A` or a generic “future” label. Fail duplicate, missing, ambiguous or foreign-owner links. Deduplicate each leaf, do not count each transport as a new leaf. The existing 50 surface/30 journey/47 task map is the stable **planning** crosswalk, while the generated 462 rows prove no feature is omitted.
+
+**Acceptance:** recomputed 462/462 or source-current successor denominator, zero orphan capability IDs, every required leaf has one lead PBI owner with nonempty exact source and tests, no false runtime admission. Missing model/provider/rights/public artifact remains a named, independent external blocker only to the specific required operation; Plan Implementation can be authored safely while production activation remains separate. Reconcile required technical Build completion against all applicable rows, not the easiest seeded demo.
+
+### B-02: strict single-responsibility interfaces and cross-repo ownership
+
+| Normative concern | Single authoritative owning location | Permitted generated/consumed representations |
+| --- | --- | --- |
+| Product purpose, capability/actor/quality/policy | PDP-0 Media `.product-experience/pdp-0-product-truth/` | PBI-00 implementation assignment, tests, Explorer specification projection |
+| Canonical Media effect, versions, finality, privacy, domain events | PDP-1 Media `pdp-1-domain-data/` | Java/TS typed DTOs, persistence schemas, transport adapters and PDP-3 observations |
+| GUI tokens/recipes, headless grammar, accessibility | PDP-2 Media interface declarations + admitted Shared public design primitives | Reusable UI views, exact REST/RPC/SDK/CLI/event adapters; never duplicate design tokens per screen |
+| Action/journey/screen-specific semantics and safe next step | PDP-3 Media `pdp-3-product-experience/` | Explorer preview and real product presentation via same semantics; Explorer is not a second business rules engine |
+| Artifact/job transactional state | Currently authoritative `ghatana/services/media` runtime and Media DB owner | Generated clients/selected consumer views only; standby repo does not create another live state writer |
+| Identity, messaging, generic agent framework, observability | The respective Shared/Platform/Event/Tools/Lifecycle **public** boundary | Media domain adapters, never private package imports or forked engines |
+| Generic OCR/document extraction/model governance | Document Intelligence and AI Inference public boundaries | Media frame/scene/track/time and provenance adapters |
+| Lifecycle source-currentness and closure receipts | Lifecycle public issuer | Media source-bound producer inputs, per-leaf evidence references; no Media-issued “closed” receipts |
+
+**Verification:** contract parity is typed and bidirectional (producer/consumer), no auto-generated executable surface without admitted host, and no two sources allowed to independently set the same normative meaning. Generated projections are deterministic and stable on no-op reruns.
+
+### B-03: vertical execution and partial-failure policy
+
+- **Foundation:** PBI-01 source-free compile (JVM/Node/Rust) and PBI-02 stable typed contracts, PBI-03 trusted tenant/workspace/consent. Start each actual run with exact freeze ID, owner, test environment and source-defined result. All external integrations fail closed until admitted; unqualified profiles are not silently substituted.
+- **First real vertical:** PBI-03 `J-01` → PBI-04 `J-02` → PBI-05/06 `J-20` → PBI-07 `J-03`. Each slice must include positive outcome, denial/timeout/unknown, idempotency, concurrency and crash/restart, a real UI or relevant headless route and actual authoritative readback. Zero unreconciled provider outcome replay. A submitted job is not a rendered/transcribed/delivered output.
+- **Capability-family expansion:** PBI-08 audio/TTS/dubbing/music; PBI-09 vision/grounded multimodal/repair; PBI-10 2D+3D/animation/simulation/render/spatial; PBI-11 all applicable 47 real product screens and design system; PBI-12 headless interfaces including API/SDK/gRPC/CLI/Agent/events; PBI-13 rights/ack/offline/erasure. Build one *real* governed vertical at a time per domain, share stable artifacts and retries. Existing 30 journey IDs remain the integrated verification and coverage denominator; the 383 machine capability leaves remain separately visible.
+- **Cross-cutting from the first vertical:** PBI-14 observability/cost/SLO/security/abuse/data retention and real performance experiments and PBI-15 migration readiness. Do not postpone monitoring or hardening to release or store unbounded repeated evidence. Use request → auth/consent → exact source version → job/attempt → provider → outbox → consumer receipt → UI result linked trace context with bounded cardinality, secure/redacted logs and deterministic source digests.
+- **Acceptance by leaf:** no Build leaf marked `DEV_COMPLETE` until actual runtime/function and all its required positive/negative/adversarial and qualification cases pass. An explicitly unused or archived physical candidate does not become an implicitly supported public consumer. An external unavailable profile/approval can keep that exact effect blocked without preventing completion of unrelated leaves; whole-product Build `DEV_COMPLETE` must still account for every required capability and qualified channel.
+
+### B-04: performance, scalability and storage/observability budget design
+
+PDP-0 `nonfunctional-requirements.yaml`, `quality-policy.yaml` and `qualification-policy.yaml` set the *required* performance and fidelity meaning; `docs/OPERATIONS.md` currently supplies safety invariants but no numeric production latency/throughput/availability SLO. **No numeric target is approved solely by this plan.** PBI-14 must build a real baseline and qualify SLOs for: ingress bytes/second per tenant, maximum concurrent safe jobs, queue age/lease lag, P50/P95/P99 operation and end-to-end elapsed times, worker recovery latency, provider first-token/terminal latency, GPU/CPU and network/memory per output, artifact storage growth versus retention, outbox retry/dead-letter age, and consumer finality confirmation. Partition by profile/codec/model/resolution/timebase, never mix incompatible classes in a single average.
+
+Use small deterministic fixtures for develop/test, rootless containerized PostgreSQL/object-store/event fixtures when valid, controlled multi-worker loads, defined soak/fault partitions, and real GPU/media quality certification only where hardware/licensing is qualified. Source-captured request/result replay must be fenced; chaos must never emit privileged external effects against production accounts. O11y emits OpenTelemetry/Prometheus redacted trace/metrics with bounded labels (no raw media, PII, unbounded object IDs), release health probes and actionable runbooks. Preserve compact source digest/test summary/sample trace references, not new copies of large logs/screenshots/assets on every rerun.
+
+### B-05: Plan Implementation acceptance, execution closure, and delivery separation
+
+`PBI-00` can be **planned now**, but **execution gate** is Discovery PASS and source-bound `DEV_COMPLETE` for all applicable PDP0…3 cells. At `KDEV-STAGE-PLAN-IMPLEMENTATION` entry capture actual full 462-leaf bridge and the frozen 50/30/47/61/14 trace graph, public dependency lock (released or `TEST_ONLY`), exact owner/resource paths and finite PBI DAG. Then enter Implement/Verify incrementally per leaf. Independent PDP phase acceptance/closure may progress concurrently after Discovery passes, only by authentic authorized authorities; it is neither a substitute for working software nor a global repeated prerequisite to coding. **Delivery** remains blocked until required PDP closure, actual Build development completion, signed packages/rights/security and an approved reversible `MIG-04` source/writer migration.
+
+**Do not ship partial feature preview as complete product**: the 47 screens and machine channels must be mapped to real supported effects with honest availability; all 30 journeys get end-to-end behavior or explicitly source-approved product nonapplicability; all applicable 462 capabilities retain their identity and verification. Do not fabricate a separate architecture, duplicate Media's meaning in consumers, change a source stage to bypass a blocker, or accept test coverage numbers without real tests.
