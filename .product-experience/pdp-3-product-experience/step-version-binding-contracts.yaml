@@ -9899,7 +9899,7 @@ records:
         disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
     versionFieldBindings: []
     localDraftRevisionContractRef: null
-    versionDisposition: EXACT_CANONICAL_VERSION_TUPLE_REQUIRED
+    versionDisposition: NO_CANONICAL_OBJECT_VERSION_TUPLE_IN_STEP_SOURCE
     versionBindingRule: For a canonical object whose P1 identity tuple contains version/revision fields, every tuple field
       is required from the exact immutable version applicable to this step. Missing, stale, foreign-tenant, mismatched,
       or substituted-latest identity is UNKNOWN; it cannot authorize a consequential effect.
@@ -9947,10 +9947,190 @@ records:
           - media.domain.caption-version
           - media.domain.artifact-version
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
-    objectBindings: []
-    versionFieldBindings: []
+    objectBindings:
+      - objectRef: media.domain.artifact-version
+        identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
+        identityTupleFields:
+          - tenantId
+          - artifactId
+          - versionId
+        identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version/identityComponents
+        versionTupleFields:
+          - versionId
+        disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
+      - objectRef: media.domain.transcript-version
+        identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.transcript-version
+        identityTupleFields:
+          - tenantId
+          - transcriptVersionId
+        identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.transcript-version/identityComponents
+        versionTupleFields:
+          - transcriptVersionId
+        disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
+      - objectRef: media.domain.caption-version
+        identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.caption-version
+        identityTupleFields:
+          - tenantId
+          - sourceArtifactId
+          - sourceArtifactVersionId
+          - captionVersionId
+        identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.caption-version/identityComponents
+        versionTupleFields:
+          - sourceArtifactVersionId
+          - captionVersionId
+        disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
+    versionFieldBindings:
+      - id: media.step-version-object-binding.j-16-03.artifact-version.v1
+        objectRef: media.domain.artifact-version
+        fields:
+          - direction: REQUEST
+            operationRef: media.operation.caption-draft-write
+            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/ownerWireSchema/requestSchema
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/inputSemantics/requiredFields/3
+            fieldName: sourceArtifactVersionId
+            boundObjectRefs:
+              - media.domain.artifact-version
+            semanticBranch: inputSemantics
+            versionRule: P1 inputSemantics names an exact version or parent field; this Media binding joins it to the exact object
+              identity tuple.
+            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
+          - direction: OWNER_RESULT
+            operationRef: media.operation.caption-draft-write
+            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/ownerWireSchema/requestSchema
+            resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics/successFields/3
+            fieldName: sourceArtifactVersionId
+            artifactType: null
+            boundObjectRefs:
+              - media.domain.artifact-version
+            semanticDisposition: EXACT_OWNER_RESULT_FIELD; IDENTITY_FIELD_TYPE_FROM_CANONICAL_OBJECT_CONTRACT
+            versionRule: P1 result schema exposes this owner-issued version field; it is not a runtime receipt.
+            requiredVersionBinding: OWNER_ISSUED_VERSION_IDENTITY; NOT_A_RUNTIME_RECEIPT
+        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
+        exactVersionTupleRequirement:
+          - versionId
+        transitiveVersionJoins: []
+        canonicalVersionIdentityRequirement:
+          identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
+          identityComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version/identityComponents
+          exactTupleFields:
+            - tenantId
+            - artifactId
+            - versionId
+          tupleComparison: ALL_IDENTITY_COMPONENTS_MUST_MATCH_THE_SAME_EXACT_OWNER_ISSUED_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
+          trustedContextFields:
+            - tenantId
+          missingOrStaleDisposition: UNKNOWN
+          foreignTenantOrMixedVersionDisposition: UNKNOWN
+        sourceBoundaryRefs: []
+        deferredVersionBinding: null
+        logicalVersionJoin: null
+        applicabilityContract: null
+        runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
+        acceptanceEffect: none
+      - id: media.step-version-object-binding.j-16-03.transcript-version.v1
+        objectRef: media.domain.transcript-version
+        fields:
+          - direction: REQUEST
+            operationRef: media.operation.caption-draft-write
+            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/ownerWireSchema/requestSchema
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/inputSemantics/requiredFields/5
+            fieldName: parentVersionId
+            boundObjectRefs:
+              - media.domain.transcript-version
+              - media.domain.caption-version
+            semanticBranch: inputSemantics
+            versionRule: P1 inputSemantics names an exact version or parent field; this Media binding joins it to the exact object
+              identity tuple.
+            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
+          - direction: OWNER_RESULT
+            operationRef: media.operation.caption-draft-write
+            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/ownerWireSchema/requestSchema
+            resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics/successFields/5
+            fieldName: parentVersionId
+            artifactType: null
+            boundObjectRefs:
+              - media.domain.transcript-version
+              - media.domain.caption-version
+            semanticDisposition: EXACT_OWNER_RESULT_FIELD; IDENTITY_FIELD_TYPE_FROM_CANONICAL_OBJECT_CONTRACT
+            versionRule: P1 result schema exposes this owner-issued version field; it is not a runtime receipt.
+            requiredVersionBinding: OWNER_ISSUED_VERSION_IDENTITY; NOT_A_RUNTIME_RECEIPT
+        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
+        exactVersionTupleRequirement:
+          - transcriptVersionId
+        transitiveVersionJoins: []
+        canonicalVersionIdentityRequirement:
+          identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.transcript-version
+          identityComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.transcript-version/identityComponents
+          exactTupleFields:
+            - tenantId
+            - transcriptVersionId
+          tupleComparison: ALL_IDENTITY_COMPONENTS_MUST_MATCH_THE_SAME_EXACT_OWNER_ISSUED_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
+          trustedContextFields:
+            - tenantId
+          missingOrStaleDisposition: UNKNOWN
+          foreignTenantOrMixedVersionDisposition: UNKNOWN
+        sourceBoundaryRefs: []
+        deferredVersionBinding: null
+        logicalVersionJoin: null
+        applicabilityContract: null
+        runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
+        acceptanceEffect: none
+      - id: media.step-version-object-binding.j-16-03.caption-version.v1
+        objectRef: media.domain.caption-version
+        fields:
+          - direction: REQUEST
+            operationRef: media.operation.caption-draft-write
+            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/ownerWireSchema/requestSchema
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/inputSemantics/requiredFields/5
+            fieldName: parentVersionId
+            boundObjectRefs:
+              - media.domain.transcript-version
+              - media.domain.caption-version
+            semanticBranch: inputSemantics
+            versionRule: P1 inputSemantics names an exact version or parent field; this Media binding joins it to the exact object
+              identity tuple.
+            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
+          - direction: OWNER_RESULT
+            operationRef: media.operation.caption-draft-write
+            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/ownerWireSchema/requestSchema
+            resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics/successFields/5
+            fieldName: parentVersionId
+            artifactType: null
+            boundObjectRefs:
+              - media.domain.transcript-version
+              - media.domain.caption-version
+            semanticDisposition: EXACT_OWNER_RESULT_FIELD; IDENTITY_FIELD_TYPE_FROM_CANONICAL_OBJECT_CONTRACT
+            versionRule: P1 result schema exposes this owner-issued version field; it is not a runtime receipt.
+            requiredVersionBinding: OWNER_ISSUED_VERSION_IDENTITY; NOT_A_RUNTIME_RECEIPT
+        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
+        exactVersionTupleRequirement:
+          - sourceArtifactVersionId
+          - captionVersionId
+        transitiveVersionJoins: []
+        canonicalVersionIdentityRequirement:
+          identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.caption-version
+          identityComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.caption-version/identityComponents
+          exactTupleFields:
+            - tenantId
+            - sourceArtifactId
+            - sourceArtifactVersionId
+            - captionVersionId
+          tupleComparison: ALL_IDENTITY_COMPONENTS_MUST_MATCH_THE_SAME_EXACT_OWNER_ISSUED_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
+          trustedContextFields:
+            - tenantId
+          missingOrStaleDisposition: UNKNOWN
+          foreignTenantOrMixedVersionDisposition: UNKNOWN
+        sourceBoundaryRefs: []
+        deferredVersionBinding: null
+        logicalVersionJoin: null
+        applicabilityContract: null
+        runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
+        acceptanceEffect: none
     localDraftRevisionContractRef: null
-    versionDisposition: NO_CANONICAL_OBJECT_VERSION_TUPLE_IN_STEP_SOURCE
+    versionDisposition: EXACT_CANONICAL_VERSION_TUPLE_REQUIRED
     versionBindingRule: For a canonical object whose P1 identity tuple contains version/revision fields, every tuple field
       is required from the exact immutable version applicable to this step. Missing, stale, foreign-tenant, mismatched,
       or substituted-latest identity is UNKNOWN; it cannot authorize a consequential effect.

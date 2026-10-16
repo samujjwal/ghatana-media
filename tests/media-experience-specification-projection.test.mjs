@@ -371,10 +371,10 @@ test('PDP-3 transition audit reads effective source dispositions and keeps reque
   }
   assert.deepEqual(Object.fromEntries([...dispositionCounts].sort(([a], [b]) => a.localeCompare(b))), {
     APPLICABLE_BOUNDED_CANDIDATE: 1,
-    CONDITIONAL_OR_REQUEST_OBSERVATION: 10,
+    CONDITIONAL_OR_REQUEST_OBSERVATION: 9,
     SOURCE_BACKED_INITIAL_ADMISSION_NO_EXISTING_TRANSITION: 11,
     SOURCE_BACKED_LOCAL_NO_CANONICAL_TRANSITION: 5,
-    SOURCE_BACKED_NO_TRANSITION: 103,
+    SOURCE_BACKED_NO_TRANSITION: 104,
   }, 'the effective source disposition census is exact across all 130 steps');
   assert.equal(unresolvedApplicableSourceRows.length, 0, 'no applicable command remains after source-backed local draft evidence is accounted for');
   assert.deepEqual(initialAdmissionSourceRows, [
@@ -448,8 +448,8 @@ test('PDP-3 transition audit reads effective source dispositions and keeps reque
     assert.equal(effectiveDispositionBySourceStep.get(`${journeyId}/${ordinal}`), 'SOURCE_BACKED_LOCAL_NO_CANONICAL_TRANSITION');
     if (journeyId === 'J-16' || journeyId === 'J-18') {
       const sourceStep = sourceStepsByJourney.get(journeyId)[ordinal - 1];
-      assert.equal((sourceStep.stepDefinitionSemantics?.transitionApplicability ?? sourceStep.transitionApplicability)?.status, 'TRANSITION_APPLICABILITY_UNRESOLVED',
-        'the exact P1 owner binding resolves the stale applicability marker without changing its authored contract');
+      assert.equal((sourceStep.stepDefinitionSemantics?.transitionApplicability ?? sourceStep.transitionApplicability)?.status, 'NO_P1_MACHINE_TRANSITION',
+        'the session-local caption-draft step carries the resolved no-P1-machine-transition disposition from its authored contract');
     }
   }
   const auditRow = (journeyId, stepOrdinal) => transitionAudit.rows.find((row) => row.journeyId === journeyId && row.stepOrdinal === stepOrdinal);
@@ -532,10 +532,11 @@ test('PDP-3 finality candidates preserve exact approved membership and enum disp
   const allActions = [...actionRegistry.actions, ...(actionRegistry.ownerDefinedActions ?? [])];
   const taxonomyByAction = new Map(publicTaxonomy.records.map((record) => [record.actionRef, record]));
   const sharedIds = ['media.action.select-identity-confirmed-workspace', 'media.action.start-upstream-identity-handoff'];
-  const expectedPxd078 = actionRegistry.actions.map(({ id }) => id).filter((id) => !sharedIds.includes(id)).sort();
+  const ownerDefinedOriginalIds = ['media.action.confirm-selected-fallback'];
+  const expectedPxd078 = actionRegistry.actions.map(({ id }) => id).filter((id) => !sharedIds.includes(id) && !ownerDefinedOriginalIds.includes(id)).sort();
   const actualPxd078 = publicTaxonomy.records.filter((record) => record.mappingDecisionRef === '.product-experience/decision-log.md#PXD-078'
     && record.publicFinalityCandidate).map(({ actionRef }) => actionRef).sort();
-  assert.deepEqual(actualPxd078, expectedPxd078, 'PXD-078 maps exactly the original 146 actions minus the two Shared identity handoffs');
+  assert.deepEqual(actualPxd078, expectedPxd078, 'PXD-078 maps exactly the original 146 actions minus the two Shared identity handoffs and the one PXD-163 owner-defined action');
   assert.deepEqual(publicTaxonomy.records.filter(({ actionRef }) => sharedIds.includes(actionRef))
     .map(({ actionRef, publicFinalityCandidate, mappingDecisionRef }) => ({ actionRef, publicFinalityCandidate, mappingDecisionRef })),
   sharedIds.map((actionRef) => ({ actionRef, publicFinalityCandidate: null, mappingDecisionRef: null })));
@@ -559,7 +560,7 @@ test('PDP-3 finality candidates preserve exact approved membership and enum disp
     });
   }
   assert.deepEqual(model.finality, expected);
-  assert.equal(model.finality.length, 145);
+  assert.equal(model.finality.length, 146);
   for (const finality of model.finality) {
     const action = allActions.find(({ id }) => id === finality.actionRef);
     assert.ok(action, `finality action ${finality.actionRef} resolves exactly`);
@@ -578,7 +579,7 @@ test('PDP-3 action/effect candidate projection preserves original census, review
   const allActions = [...actionRegistry.actions, ...(actionRegistry.ownerDefinedActions ?? [])];
   const taxonomyByAction = new Map(publicTaxonomy.records.map((record) => [record.actionRef, record]));
   const projectedActions = new Map(model.actions.map((action) => [action.id, action]));
-  assert.equal(projectedActions.size, 147, '146 historical actions plus the additive owner-defined reconnect action');
+  assert.equal(projectedActions.size, 148, '146 historical actions plus the additive PXD-163 confirm-selected-fallback and the owner-defined reconnect action');
   for (const source of allActions) {
     const projected = projectedActions.get(source.id);
     assert.ok(projected, `action ${source.id} is projected`);
@@ -600,7 +601,7 @@ test('PDP-3 action/effect candidate projection preserves original census, review
     });
   }
   assert.deepEqual(model.effects, expectedEffects);
-  assert.equal(model.effects.length, 145);
+  assert.equal(model.effects.length, 146);
   const historicalIds = allActions.flatMap((action) => action.actionDefinitionSemantics?.publicEffect ? [action.actionDefinitionSemantics.publicEffect.id] : []).sort();
   assert.deepEqual(historicalIds, ['media.effect.attach-source-version', 'media.effect.create-empty-project', 'media.effect.register-caption-version']);
   assert.deepEqual(model.effects.filter(({ id }) => historicalIds.includes(id)).map(({ id }) => id).sort(), historicalIds);
@@ -608,10 +609,10 @@ test('PDP-3 action/effect candidate projection preserves original census, review
     'every applicable action has an exact effect disposition; unadmitted handoffs remain explicit in the source mapping');
   assert.equal(specification.fieldMappingBlockers.find(({ field }) => field === 'actions'), undefined);
   assert.equal(specification.fieldMappingBlockers.find(({ field }) => field === 'finality'), undefined);
-  assert.match(specification.candidateMappingReview.fieldDispositions.effects.status, /145[_ ]BOUNDED[_ ]ENUM[_ ]CANDIDATES/u);
+  assert.match(specification.candidateMappingReview.fieldDispositions.effects.status, /146[_ ]BOUNDED[_ ]ENUM[_ ]CANDIDATES/u);
   assert.match(specification.candidateMappingReview.fieldDispositions.effects.status, /RUNTIME_AND_PHASE_ACCEPTANCE_PENDING/u);
   assert.match(specification.candidateMappingReview.fieldDispositions.actions.status, /TWO_SHARED_HANDOFFS_EXPLICITLY_UNADMITTED_EXTERNAL_OWNER_ROLES/u);
-  assert.match(specification.candidateMappingReview.fieldDispositions.finality.status, /145[_ ]BOUNDED[_ ]ENUM[_ ]CANDIDATES/u);
+  assert.match(specification.candidateMappingReview.fieldDispositions.finality.status, /146[_ ]BOUNDED[_ ]ENUM[_ ]CANDIDATES/u);
 });
 
 test('PDP-3 scenarios and fixture descriptors require exact state, journey, and simulation-source links', async () => {

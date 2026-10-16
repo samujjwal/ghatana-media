@@ -30,7 +30,10 @@ export function validateMediaPublicTaxonomyCandidates({ taxonomy, actions, opera
     'media.action.select-identity-confirmed-workspace',
     'media.action.start-upstream-identity-handoff',
   ]);
-  const expectedPxd078ActionIds = new Set([...originalIds].filter((id) => !sharedActionIds.has(id)));
+  const ownerDefinedOriginalActionIds = new Set([
+    'media.action.confirm-selected-fallback',
+  ]);
+  const expectedPxd078ActionIds = new Set([...originalIds].filter((id) => !sharedActionIds.has(id) && !ownerDefinedOriginalActionIds.has(id)));
   const operationById = operationIndex(operations);
   const records = taxonomy.records ?? [];
   if (records.length !== allActions.length) fail(`expected ${allActions.length} taxonomy records, got ${records.length}`);
@@ -39,6 +42,7 @@ export function validateMediaPublicTaxonomyCandidates({ taxonomy, actions, opera
 
   let reviewedOriginal = 0;
   const reviewedOriginalIds = new Set();
+  let reviewedFallbackSelection = 0;
   for (const record of records) {
     const action = actionById.get(record.actionRef);
     if (!action) fail(`unknown action identity ${record.actionRef}`);
@@ -112,6 +116,18 @@ export function validateMediaPublicTaxonomyCandidates({ taxonomy, actions, opera
       continue;
     }
 
+    if (record.actionRef === 'media.action.confirm-selected-fallback') {
+      if (record.mappingReviewStatus !== 'BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED' || record.mappingDecisionRef !== '.product-experience/decision-log.md#PXD-163'
+        || record.publicEffectCandidate?.kind !== 'external-call' || record.publicEffectCandidate?.reversibilityDisposition !== 'NOT_REVERSIBLE'
+        || record.publicFinalityCandidate?.confirmationDisposition !== 'REQUIRED' || record.publicFinalityCandidate?.undoabilityDisposition !== 'NOT_REVERSIBLE'
+        || record.operationRefs.join('\0') !== 'media.operation.fallback-selection.confirm.v1'
+        || record.canonicalOperationFacts.length !== 1 || record.canonicalOperationFacts[0].operationKind !== 'COMMAND'
+        || record.runtimeAdmission !== 'NOT_ADMITTED' || record.publicTaxonomyDisposition === 'ACCEPTED'
+        || record.semanticRole !== 'DOMAIN_OPERATION') fail('fallback-selection candidate exceeds its exact PXD-163 bounded review');
+      reviewedFallbackSelection += 1;
+      continue;
+    }
+
     if (record.semanticRole === 'LOCAL_SELECTION_OR_SESSION_DRAFT') {
       if (record.operationRefs.length !== 0 || record.publicEffectCandidate?.kind !== 'state-change') fail(`${record.actionRef} local draft must have no operation and a local state-change candidate`);
     } else if (['DOMAIN_OPERATION', 'ORDERED_DOMAIN_WORKFLOW'].includes(record.semanticRole)) {
@@ -132,6 +148,7 @@ export function validateMediaPublicTaxonomyCandidates({ taxonomy, actions, opera
     if (record.runtimeAdmission !== 'NOT_ADMITTED' || record.publicTaxonomyDisposition === 'ACCEPTED') fail(`${record.actionRef} promotes runtime admission or public acceptance`);
   }
   if (reviewedOriginal !== 144) fail(`expected 144 PXD-078 mapped original actions, got ${reviewedOriginal}`);
-  if (reviewedOriginalIds.size !== expectedPxd078ActionIds.size || [...expectedPxd078ActionIds].some((id) => !reviewedOriginalIds.has(id))) fail('PXD-078 mapped original action membership differs from all 146 originals minus the two exact Shared identity actions');
-  return { actionCount: records.length, reviewedOriginalCount: reviewedOriginal, reviewedReconnectCount: 1 };
+  if (reviewedOriginalIds.size !== expectedPxd078ActionIds.size || [...expectedPxd078ActionIds].some((id) => !reviewedOriginalIds.has(id))) fail('PXD-078 mapped original action membership differs from all 146 originals minus the two exact Shared identity actions and the one PXD-163 owner-defined action');
+  if (reviewedFallbackSelection !== 1) fail(`expected exactly one PXD-163 bounded fallback-selection mapping, got ${reviewedFallbackSelection}`);
+  return { actionCount: records.length, reviewedOriginalCount: reviewedOriginal, reviewedReconnectCount: 1, reviewedFallbackSelectionCount: reviewedFallbackSelection };
 }

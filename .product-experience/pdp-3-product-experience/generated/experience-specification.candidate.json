@@ -77,7 +77,7 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
-      "sha256": "23aad1bfa7e8a518a737741ac1a5402578fb0ae0e095298ac5f3bda2aac537c5",
+      "sha256": "e997c6de4534ecf1d74d8bd91e0f7ad0a006098145b1970c003f4db0c10cd40b",
       "bytes": 19148,
       "format": "yaml",
       "schemaVersion": "media.journey-registry.v1",
@@ -234,8 +234,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/step-definition-oracles.yaml",
-      "sha256": "8b24a6b60823c4b62aed10d57ba18b7a8ec0bb5790d8d58e13bacbab5476f385",
-      "bytes": 751109,
+      "sha256": "411eecbe43f5c7bb2a56f4fd640e3bf4545e0acb5cce18ce70052cad3dfb155d",
+      "bytes": 765751,
       "format": "yaml",
       "schemaVersion": "media.pdp-3-step-definition-oracles.v1",
       "authority": null,
@@ -390,8 +390,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
-      "sha256": "e0db7b142f24fcfca8e9c063050c7fa1f488baba3b0adddf8ea6362cb22ae3a0",
-      "bytes": 400727,
+      "sha256": "e97780cafc218bfe00a088dc911ac521c642d7bec07c81d69584eee285881da7",
+      "bytes": 431753,
       "format": "yaml",
       "schemaVersion": "media.pdp3-step-purpose-bindings.v1",
       "authority": null,
@@ -404,6 +404,12 @@
         "status"
       ],
       "declaredIds": [
+        "media.pdp3.action-binding.j04-selected-tts-command.v1",
+        "media.pdp3.action-binding.j21-read-rights-observation.v1",
+        "media.pdp3.action-binding.j21-review-decision-receipt.v1",
+        "media.pdp3.action-binding.j22-destination-ack-reconciliation.v1",
+        "media.pdp3.action-binding.j26-consent-revocation-request.v1",
+        "media.pdp3.action-binding.j27-fallback-confirmation.v1",
         "media.pdp3.step-purpose-binding.j01-step-01.v1",
         "media.pdp3.step-purpose-binding.j01-step-02.v1",
         "media.pdp3.step-purpose-binding.j01-step-03.v1",
@@ -538,8 +544,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml",
-      "sha256": "ab0eb857bf3230699e66d7ddf2cb96837e473a981315dc001c4b64e91f8d283f",
-      "bytes": 675924,
+      "sha256": "835becfc5386797db6b65964c4237b2674306f2072bf92e1ddeda5944fd47a86",
+      "bytes": 704047,
       "format": "yaml",
       "schemaVersion": "media.pdp-3-step-version-binding-contracts.v1",
       "authority": null,
@@ -757,11 +763,17 @@
         "media.step-version-object-binding.j-15-04.artifact-version.v1",
         "media.step-version-object-binding.j-15-04.quality-assessment.v1",
         "media.step-version-object-binding.j-16-01.artifact-version.v1",
+        "media.step-version-object-binding.j-16-03.artifact-version.v1",
+        "media.step-version-object-binding.j-16-03.caption-version.v1",
+        "media.step-version-object-binding.j-16-03.transcript-version.v1",
         "media.step-version-object-binding.j-16-05.artifact-version.v1",
         "media.step-version-object-binding.j-16-05.quality-assessment.v1",
         "media.step-version-object-binding.j-17-03.artifact-version.v1",
         "media.step-version-object-binding.j-17-03.quality-assessment.v1",
         "media.step-version-object-binding.j-17-04.artifact-version.v1",
+        "media.step-version-object-binding.j-18-04.artifact-version.v1",
+        "media.step-version-object-binding.j-18-04.caption-version.v1",
+        "media.step-version-object-binding.j-18-04.transcript-version.v1",
         "media.step-version-object-binding.j-18-06.artifact-version.v1",
         "media.step-version-object-binding.j-19-01.artifact-version.v1",
         "media.step-version-object-binding.j-19-01.quality-assessment.v1",
@@ -852,8 +864,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml",
-      "sha256": "da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2",
-      "bytes": 827572,
+      "sha256": "736b64f03b4108b5054f63debf755f322df80ba0ab980c819a40b8d247daba52",
+      "bytes": 837355,
       "format": "yaml",
       "schemaVersion": "media.action-registry.v1",
       "authority": null,
@@ -887,6 +899,7 @@
         "media.action.compare-candidate-on-metric",
         "media.action.compare-caption-versions",
         "media.action.compare-media-versions",
+        "media.action.confirm-selected-fallback",
         "media.action.continue-within-recorded-scope",
         "media.action.correct-caption",
         "media.action.create-project",
@@ -1031,8 +1044,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/public-effect-finality-taxonomy.yaml",
-      "sha256": "fb2f916db21133cdf51bdced8947791dd9c405445707afd0a9a208c1dea32be7",
-      "bytes": 515157,
+      "sha256": "f10c27d10725a93f87f29358c721d9fba239180947e259ad871e0b6eeb5cf9b8",
+      "bytes": 519971,
       "format": "yaml",
       "schemaVersion": "media.pdp3.public-effect-finality-taxonomy.v1",
       "authority": "Media-owner-authored-definition-only; independent PDP-3 review pending; no generated public projection is accepted by this artifact.",
@@ -1069,6 +1082,7 @@
         "media.public-taxonomy.compare-candidate-on-metric",
         "media.public-taxonomy.compare-caption-versions",
         "media.public-taxonomy.compare-media-versions",
+        "media.public-taxonomy.confirm-selected-fallback",
         "media.public-taxonomy.continue-within-recorded-scope",
         "media.public-taxonomy.correct-caption",
         "media.public-taxonomy.create-project",
@@ -1199,8 +1213,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml",
-      "sha256": "11d51ef9cdc69e2dde09b3a72241a19a321be40372b19850e4d29c3ec2fb3e04",
-      "bytes": 10772723,
+      "sha256": "63e36ea20e5b5f7e6fa84d3a7f2bdd2f611835b415aa25205bcf0b290fb7f952",
+      "bytes": 10923294,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.operations.v1",
       "authority": ".product-experience/pdp-0-product-truth/state-models.yaml",
@@ -1258,6 +1272,19 @@
         "export-request-identity.v1",
         "export-source-revision.v1",
         "iana-media-type",
+        "media.capability-binding.dub.candidate-output",
+        "media.capability-binding.dub.output-profile-version",
+        "media.capability-binding.dub.request-id",
+        "media.capability-binding.dub.source-artifact-id",
+        "media.capability-binding.dub.source-artifact-version",
+        "media.capability-binding.dub.source-clock",
+        "media.capability-binding.dub.source-content-digest",
+        "media.capability-binding.dub.source-duration",
+        "media.capability-binding.dub.source-locale",
+        "media.capability-binding.dub.target-locale",
+        "media.capability-binding.dub.ticks-per-second",
+        "media.capability-binding.dub.translated-segment-version",
+        "media.capability-binding.dub.voice-profile-version",
         "media.capability-binding.media-artifact-derive",
         "media.capability-binding.media-artifact-import",
         "media.capability-binding.media-artifact-inspect",
@@ -1798,11 +1825,35 @@
         "media.observation-binding.declared-options.dimensions",
         "media.observation-binding.declared-options.operation",
         "media.observation-binding.declared-options.profile",
+        "media.observation-binding.delegated-context.operation",
+        "media.observation-binding.delegated-context.original-request-fingerprint",
+        "media.observation-binding.delegated-context.original-request-id",
+        "media.observation-binding.delegated-context.query-id",
+        "media.observation-binding.destination-ack.artifact-version",
+        "media.observation-binding.destination-ack.delivery-request-fingerprint",
+        "media.observation-binding.destination-ack.delivery-request-id",
+        "media.observation-binding.destination-ack.delivery-request-result",
+        "media.observation-binding.destination-ack.destination",
+        "media.observation-binding.destination-ack.query-id",
+        "media.observation-binding.effective-constraints.dimension-set",
+        "media.observation-binding.effective-constraints.query-id",
+        "media.observation-binding.effective-constraints.target",
+        "media.observation-binding.job-status-seven-dimension.delivery-scope",
+        "media.observation-binding.job-status-seven-dimension.dimension-set",
+        "media.observation-binding.job-status-seven-dimension.job-id",
+        "media.observation-binding.job-status-seven-dimension.quality-scope",
+        "media.observation-binding.job-status-seven-dimension.query-id",
+        "media.observation-binding.job-status-seven-dimension.stage-scope",
         "media.observation-binding.language-uncertainty.content-kind",
         "media.observation-binding.language-uncertainty.declared-language",
         "media.observation-binding.language-uncertainty.purpose",
         "media.observation-binding.language-uncertainty.query",
         "media.observation-binding.language-uncertainty.subject",
+        "media.observation-binding.output-preview-version-lineage.query-id",
+        "media.observation-binding.output-preview-version-lineage.subject-ref",
+        "media.observation-binding.parameter-read.parameter-set",
+        "media.observation-binding.parameter-read.query-id",
+        "media.observation-binding.parameter-read.subject-version",
         "media.observation-binding.quality-action-plan.assessment-fingerprint",
         "media.observation-binding.quality-action-plan.assessment-kinds",
         "media.observation-binding.quality-action-plan.assessment-purpose",
@@ -1817,31 +1868,120 @@
         "media.observation-binding.retry-policy.attempt-id.v1",
         "media.observation-binding.retry-policy.job-id.v1",
         "media.observation-binding.retry-policy.query-id.v1",
+        "media.observation-binding.transcript-submission-lineage.accepted-request-fingerprint",
+        "media.observation-binding.transcript-submission-lineage.accepted-request-id",
+        "media.observation-binding.transcript-submission-lineage.job-id",
+        "media.observation-binding.transcript-submission-lineage.operation",
+        "media.observation-binding.transcript-submission-lineage.query-id",
+        "media.observation-binding.transcript-submission-lineage.source-artifact-id",
+        "media.observation-binding.transcript-submission-lineage.source-artifact-version",
+        "media.observation-binding.transcript-submission-lineage.source-digest",
+        "media.observation-binding.transcript-submission-lineage.transcript-version",
         "media.observation-contract.consent-revision-current-read.v1",
         "media.observation-contract.declared-options.v1",
+        "media.observation-contract.delegated-integration-result-context.v1",
+        "media.observation-contract.destination-delivery-acknowledgment.v1",
+        "media.observation-contract.effective-processing-constraints.v1",
+        "media.observation-contract.job-status-seven-dimension.v1",
         "media.observation-contract.language-uncertainty.v1",
+        "media.observation-contract.output-preview-version-lineage.v1",
+        "media.observation-contract.processing-parameter-read.v1",
         "media.observation-contract.profile-qualification.v1",
         "media.observation-contract.provenance-completeness.v1",
         "media.observation-contract.quality-action-plan.v1",
         "media.observation-contract.quality-evidence.v1",
         "media.observation-contract.retry-policy-current-read.v1",
         "media.observation-contract.rights-decision.v1",
+        "media.observation-contract.transcript-submission-lineage.v1",
+        "media.observation-resolution.delegated-context.exact-typed-result-tuple",
+        "media.observation-resolution.destination-ack.artifact-version",
+        "media.observation-resolution.destination-ack.delivery-request-fingerprint",
+        "media.observation-resolution.destination-ack.delivery-request-id",
+        "media.observation-resolution.destination-ack.destination",
         "media.observation-validation.declared-options.v1",
+        "media.observation-validation.delegated-integration-result-context.v1",
+        "media.observation-validation.destination-delivery-acknowledgment.v1",
+        "media.observation-validation.effective-processing-constraints.v1",
+        "media.observation-validation.job-status-seven-dimension.v1",
         "media.observation-validation.language-uncertainty.v1",
+        "media.observation-validation.output-preview-version-lineage.v1",
+        "media.observation-validation.processing-parameter-read.v1",
         "media.observation-validation.profile-qualification.v1",
         "media.observation-validation.provenance-completeness.v1",
         "media.observation-validation.quality-action-plan.v1",
         "media.observation-validation.quality-evidence.v1",
         "media.observation-validation.retry-policy-current-read.v1",
         "media.observation-validation.rights-decision.v1",
+        "media.observation-validation.transcript-submission-lineage.v1",
+        "media.operation-binding.fallback-confirmation.alternative-operation",
+        "media.operation-binding.fallback-confirmation.alternative-profile",
+        "media.operation-binding.fallback-confirmation.candidate-digest",
+        "media.operation-binding.fallback-confirmation.candidate-evidence-digest",
+        "media.operation-binding.fallback-confirmation.candidate-evidence-result",
+        "media.operation-binding.fallback-confirmation.candidate-evidence-version",
+        "media.operation-binding.fallback-confirmation.candidate-selected-source-digest",
+        "media.operation-binding.fallback-confirmation.candidate-selected-source-version",
+        "media.operation-binding.fallback-confirmation.candidate-version",
+        "media.operation-binding.fallback-confirmation.confirmed-rights-purpose",
+        "media.operation-binding.fallback-confirmation.confirmed-rights-region",
+        "media.operation-binding.fallback-confirmation.confirmed-rights-retention",
+        "media.operation-binding.fallback-confirmation.confirmed-rights-use",
+        "media.operation-binding.fallback-confirmation.cost-candidate-version",
+        "media.operation-binding.fallback-confirmation.cost-result",
+        "media.operation-binding.fallback-confirmation.job-id",
+        "media.operation-binding.fallback-confirmation.license-candidate-version",
+        "media.operation-binding.fallback-confirmation.license-result",
+        "media.operation-binding.fallback-confirmation.quality-candidate-version",
+        "media.operation-binding.fallback-confirmation.quality-result",
+        "media.operation-binding.fallback-confirmation.request-fingerprint",
+        "media.operation-binding.fallback-confirmation.request-id",
+        "media.operation-binding.fallback-confirmation.resource-capacity-candidate-version",
+        "media.operation-binding.fallback-confirmation.resource-result",
+        "media.operation-binding.fallback-confirmation.rights-candidate-version",
+        "media.operation-binding.fallback-confirmation.rights-purpose",
+        "media.operation-binding.fallback-confirmation.rights-region",
+        "media.operation-binding.fallback-confirmation.rights-result",
+        "media.operation-binding.fallback-confirmation.rights-retention",
+        "media.operation-binding.fallback-confirmation.rights-use",
+        "media.operation-binding.fallback-confirmation.source-digest",
+        "media.operation-binding.fallback-confirmation.source-version",
+        "media.operation-binding.fallback-confirmation.status-job",
+        "media.operation-binding.fallback-confirmation.status-result",
+        "media.operation-binding.fallback-confirmation.status-source-result",
         "media.operation-binding.list-projects-host-tuple",
         "media.operation-binding.list-projects-page-snapshot",
         "media.operation-binding.list-projects-record-workspace",
+        "media.operation-evidence-join.fallback-selection.candidate-output",
+        "media.operation-evidence-join.fallback-selection.cost",
+        "media.operation-evidence-join.fallback-selection.license",
+        "media.operation-evidence-join.fallback-selection.quality",
+        "media.operation-evidence-join.fallback-selection.resource-capacity",
+        "media.operation-evidence-join.fallback-selection.rights",
+        "media.operation-evidence-join.fallback-selection.status",
         "media.operation-profile.async-job-command.v1",
         "media.operation-profile.governed-external-effect.v1",
         "media.operation-profile.immutable-append.v1",
         "media.operation-profile.principal-preference.v1",
         "media.operation-profile.scoped-query.v1",
+        "media.operation-result-binding.fallback-selection.alternative-operation",
+        "media.operation-result-binding.fallback-selection.alternative-profile",
+        "media.operation-result-binding.fallback-selection.candidate-digest",
+        "media.operation-result-binding.fallback-selection.candidate-evidence-digest",
+        "media.operation-result-binding.fallback-selection.candidate-evidence-ref",
+        "media.operation-result-binding.fallback-selection.candidate-version",
+        "media.operation-result-binding.fallback-selection.cost-result",
+        "media.operation-result-binding.fallback-selection.job-id",
+        "media.operation-result-binding.fallback-selection.license-result",
+        "media.operation-result-binding.fallback-selection.quality-result",
+        "media.operation-result-binding.fallback-selection.request-fingerprint",
+        "media.operation-result-binding.fallback-selection.request-id",
+        "media.operation-result-binding.fallback-selection.resource-capacity-result",
+        "media.operation-result-binding.fallback-selection.rights-result",
+        "media.operation-result-binding.fallback-selection.source-digest",
+        "media.operation-result-binding.fallback-selection.source-version",
+        "media.operation-result-binding.fallback-selection.status-result-digest",
+        "media.operation-result-binding.fallback-selection.status-result-ref",
+        "media.operation-result-binding.fallback-selection.status-source-result-digest",
         "media.operation-slice.append-upload-chunk",
         "media.operation-slice.attach-source-asset",
         "media.operation-slice.begin-upload",
@@ -2454,6 +2594,7 @@
         "media.operation.consent-record-inspect.v1",
         "media.operation.consent-record-list.v1",
         "media.operation.error-response-contract.v1",
+        "media.operation.fallback-selection.confirm.v1",
         "media.operation.health-capability",
         "media.operation.job-lifecycle",
         "media.operation.job-list.v1",
@@ -3044,6 +3185,7 @@
         "media.typed-input.source-media-artifact",
         "media.typed-input.source-media-or-project-reference",
         "media.typed-input.source-media-with-speech-artifact",
+        "media.typed-input.source-media-with-speech-dub",
         "media.typed-input.source-music-audio-artifact",
         "media.typed-input.source-nerf-representation",
         "media.typed-input.source-pose-reference",
@@ -4882,8 +5024,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
-      "sha256": "e47dc82ee2b2bcb5b1908976b4be5f452c843854d578893ecf3f3d42287b35ba",
-      "bytes": 150766,
+      "sha256": "aed62bda69a5d44bccee0873eb03bada142994d2256f515fbe1ea89af50d0313",
+      "bytes": 150813,
       "format": "yaml",
       "schemaVersion": null,
       "authority": null,
@@ -11730,8 +11872,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml",
-      "sha256": "28dacec9e35e1e4a634f8e58a0b2718d9b24b07db9a4c1447f10ad65326e8851",
-      "bytes": 153529,
+      "sha256": "8024440aa9a36ee6b2823214b8bc13330241b1e757ef08815001b08c9f27073f",
+      "bytes": 274058,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -11740,6 +11882,7 @@
         "accessibilityIntentRef",
         "actors",
         "channelBindingState",
+        "channelDefinitionEvidence",
         "channelEquivalents",
         "channels",
         "conditionalHandoffRefs",
@@ -11750,6 +11893,7 @@
         "outcomes",
         "pdp0Authority",
         "pdp0JourneyRef",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -11770,8 +11914,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml",
-      "sha256": "c443ab0050d109d5a41b7708b6ec1b0a84a6909ad586e7db6f764aa295368240",
-      "bytes": 69037,
+      "sha256": "d5c712d13fe2fa186f271490cb0347a20e4537dc12c375f499feebecaabe6330",
+      "bytes": 79058,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -11790,6 +11934,7 @@
         "outcomes",
         "pdp0Authority",
         "pdp0JourneyRef",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -11797,6 +11942,7 @@
         "scenarioRefs",
         "schemaVersion",
         "scope",
+        "sourceGap",
         "status",
         "stepBindingRule",
         "steps",
@@ -11805,13 +11951,14 @@
         "unresolvedProductDecisions"
       ],
       "declaredIds": [
+        "MDC30-C-13-render-completion-and-conversion-observation",
         "phase0-critical-exception"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml",
-      "sha256": "c9d301ca2b2de0e1c82334e3000cacc968394e6ab036d775a12323f267f6253c",
-      "bytes": 52646,
+      "sha256": "426004cc15c26e8b08b84bed4b240b6b6fd1f6b87592b4532dd65a2b497ed1c8",
+      "bytes": 52692,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -11848,8 +11995,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml",
-      "sha256": "33fb881eccfcc83794cd21ca34e60022f3d73cd9157183563c559a1e4e9b220c",
-      "bytes": 70675,
+      "sha256": "5db198bb8b0b018306c49fed0105f3548bbccb19a05bb7318ef3fe8d0c6dd98a",
+      "bytes": 91135,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -11868,6 +12015,7 @@
         "outcomes",
         "pdp0Authority",
         "pdp0JourneyRef",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -11888,8 +12036,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml",
-      "sha256": "e825c2291f458159bee28a728b70947134c440fd73b3fa8ead282daedf70088b",
-      "bytes": 84647,
+      "sha256": "0bba8dde85e9f72ea4f92907215d7a2650a2c467eb9e7d406c26fd252107f3a1",
+      "bytes": 84914,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -11897,8 +12045,10 @@
       "topLevelFields": [
         "accessibilityRef",
         "actors",
+        "channelBindingState",
         "channelEquivalents",
         "channelRefs",
+        "channels",
         "completion",
         "contextAndReturn",
         "contextPreserved",
@@ -11927,8 +12077,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml",
-      "sha256": "0647c4754fc0762812b82425983417a2366b92063ea7a4f3b645dfee5b0b2e2f",
-      "bytes": 69025,
+      "sha256": "0593181a3208a9594eea642b97c333e6e1a7b8ca1b62f8c5666e79f3973d682b",
+      "bytes": 69071,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -11965,8 +12115,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml",
-      "sha256": "edff1b6219370bb38b67dd111232500bcf16555f1c24bf0fa28fd5878428a9f7",
-      "bytes": 99908,
+      "sha256": "f185195154e404a6ad382e48e2cdbcd563fab3d90c0a2049fa540a8ac3f16f43",
+      "bytes": 116854,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -11985,6 +12135,7 @@
         "outcomes",
         "pdp0Authority",
         "pdp0JourneyRef",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12005,8 +12156,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml",
-      "sha256": "67bf48d99e42a5c7278116ebd498de2afd8dae1f1b299c9460ed85a3b45678f9",
-      "bytes": 82575,
+      "sha256": "ca856781e8dff6c754865234bca06a0b662b9ff132f5758322da9fb5983197a3",
+      "bytes": 94049,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12026,6 +12177,7 @@
         "outcomes",
         "pdp0Authority",
         "pdp0JourneyRef",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12046,8 +12198,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml",
-      "sha256": "6576a2ec2dd847be99dd7792ff3a86d05d254ef94a8ba40dfdae63ee3f2b436d",
-      "bytes": 149520,
+      "sha256": "ee03ee14cd1b9779b401656ac55e0954a2e0e885ddee05db88afb103b034d545",
+      "bytes": 189116,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12066,6 +12218,7 @@
         "outcomes",
         "pdp0Authority",
         "pdp0JourneyRef",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12081,13 +12234,17 @@
         "unresolvedProductDecisions"
       ],
       "declaredIds": [
-        "phase0-critical-exception"
+        "denied-delivery-request",
+        "late-or-ambiguous-destination-acknowledgment",
+        "owner-confirmed-destination-rejection",
+        "phase0-critical-exception",
+        "wrong-destination-or-identity-mismatch"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml",
-      "sha256": "0fec7ff0e3b5f1617b9107652c7aa7f04ea4234082cb5a4082f8ef7a09f0968b",
-      "bytes": 62712,
+      "sha256": "e110fa716c453d63f5d87a8aac35775c989492edb6b637945e80e8b5403d1f34",
+      "bytes": 77616,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12107,6 +12264,7 @@
         "outcomes",
         "pdp0Authority",
         "pdp0JourneyRef",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12114,6 +12272,7 @@
         "scenarioRefs",
         "schemaVersion",
         "scope",
+        "sourceGap",
         "status",
         "stepBindingRule",
         "steps",
@@ -12122,13 +12281,14 @@
         "unresolvedProductDecisions"
       ],
       "declaredIds": [
+        "MDC30-C-26-purpose-bound-revocation-and-erasure-effect",
         "phase0-critical-exception"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml",
-      "sha256": "fe9732c7fffc2edfcea9201592933be72b842494187e403e381e6404ec1a7ef0",
-      "bytes": 68560,
+      "sha256": "d9138400b06d7fdcffe6f9392d4340ac6e6566460666c8888db0bdd958216711",
+      "bytes": 81514,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12147,6 +12307,7 @@
         "outcomes",
         "pdp0Authority",
         "pdp0JourneyRef",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12162,13 +12323,17 @@
         "unresolvedProductDecisions"
       ],
       "declaredIds": [
-        "phase0-critical-exception"
+        "delayed-or-ambiguous-acknowledgment",
+        "denied-request",
+        "owner-confirmed-destination-non-acknowledgment",
+        "phase0-critical-exception",
+        "wrong-destination-or-identity-mismatch"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml",
-      "sha256": "61f780b09da713d822829d82df73011b2731ee447fbdd54a9b1e6dab2fe9521c",
-      "bytes": 56033,
+      "sha256": "299c6983968cb22f6f514c3201351de1e87087af445424f277618eeb2342911e",
+      "bytes": 56079,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12205,8 +12370,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml",
-      "sha256": "9f3ca8eb013a6bbe7c5b737a299b5c8f8582eb983b8728d767673433ca4d0342",
-      "bytes": 78183,
+      "sha256": "248da4dd3ca5c5d267e80eedb5322a56abe95f91b6c4be8466a66da063e71b81",
+      "bytes": 91145,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12225,6 +12390,7 @@
         "outcomes",
         "pdp0Authority",
         "pdp0JourneyRef",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12232,6 +12398,7 @@
         "scenarioRefs",
         "schemaVersion",
         "scope",
+        "sourceGap",
         "status",
         "stepBindingRule",
         "steps",
@@ -12240,13 +12407,14 @@
         "unresolvedProductDecisions"
       ],
       "declaredIds": [
+        "MDC30-C-14-terminal-simulation-render-observation",
         "phase0-critical-exception"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml",
-      "sha256": "8ee9e0330ee4677510596c65538acb3d900261c8c7da51d808972c42280e2750",
-      "bytes": 83390,
+      "sha256": "377d04b63b6f89a4715601be61070ecbc80f747ecfc6838d878d98360b69ba7c",
+      "bytes": 88273,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12265,6 +12433,7 @@
         "outcomes",
         "pdp0Authority",
         "pdp0JourneyRef",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12272,6 +12441,7 @@
         "scenarioRefs",
         "schemaVersion",
         "scope",
+        "sourceGap",
         "status",
         "stepBindingRule",
         "steps",
@@ -12280,13 +12450,14 @@
         "unresolvedProductDecisions"
       ],
       "declaredIds": [
+        "MDC30-C-28-output-and-conversion-result",
         "phase0-critical-exception"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml",
-      "sha256": "13c4ac9e663dc85a9a5d139483ff62473f604f8aa0b5b34fdb1cb723451b2f4f",
-      "bytes": 76234,
+      "sha256": "4b267a851612e6812d09496a0f447e1534b5b819ddf5414ca9cb0cb336d4160a",
+      "bytes": 85100,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12294,6 +12465,7 @@
       "topLevelFields": [
         "accessibilityRef",
         "actors",
+        "channelBindingState",
         "channelEquivalents",
         "channels",
         "contextPreserved",
@@ -12303,6 +12475,7 @@
         "journeyId",
         "optionalContinuation",
         "outcomes",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12326,8 +12499,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml",
-      "sha256": "d1f92206926963d639c6c51727644d8ae99108610d70a36d737ec480e7632d17",
-      "bytes": 95241,
+      "sha256": "2df4f884be0fc8788b811e816f40f03b728527a05e372bfb08f13a7610828035",
+      "bytes": 153890,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12336,6 +12509,7 @@
         "accessibilityIntentRef",
         "actors",
         "channelBindingState",
+        "channelDefinitionEvidence",
         "channelEquivalents",
         "channels",
         "conditionalHandoffRefs",
@@ -12346,6 +12520,7 @@
         "outcomes",
         "pdp0Authority",
         "pdp0JourneyRef",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12366,8 +12541,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml",
-      "sha256": "ddea7a6980c55b6898a41c8b942c6a8545526f58b50ebf7ba2a79ced1c04b158",
-      "bytes": 91157,
+      "sha256": "3c23a8b6fbf379bcedf40920b14284cc5096662c371730d6c8727e3ed013b309",
+      "bytes": 104006,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12384,6 +12559,7 @@
         "outcomes",
         "pdp0Authority",
         "pdp0JourneyRef",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12404,8 +12580,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml",
-      "sha256": "05b0a67bf1259f32540353393d3ee6185dee64fbff4ceb481ebce6c9d48bd7ff",
-      "bytes": 110087,
+      "sha256": "68aee08bca8ba833c55089c086578cb87f3fcc7f7535719783cd67fd3c42a70b",
+      "bytes": 113774,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12413,8 +12589,10 @@
       "topLevelFields": [
         "accessibilityRef",
         "actors",
+        "channelBindingState",
         "channelEquivalents",
         "channelRefs",
+        "channels",
         "completion",
         "contextAndReturn",
         "contextPreserved",
@@ -12428,6 +12606,7 @@
         "orderedViews",
         "outcomeRefs",
         "outcomes",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12450,8 +12629,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml",
-      "sha256": "b5eb6abb656e67ca1b7f6c38832d938d22b82eff393a92e60c86f8b3b424b100",
-      "bytes": 155601,
+      "sha256": "4e46954174d0506ee1fef1d179ae4d2e64acf45afaa8cc4785caef6eb93a88f4",
+      "bytes": 189319,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12459,13 +12638,16 @@
       "topLevelFields": [
         "accessibilityRef",
         "actors",
+        "channelBindingState",
         "channelEquivalents",
         "channelLimits",
+        "channels",
         "contextPreserved",
         "criticalNonhappyPaths",
         "intent",
         "journeyId",
         "outcomes",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12477,16 +12659,26 @@
         "title"
       ],
       "declaredIds": [
+        "already-terminal",
         "browser-or-cli-detaches",
         "cancellation-unconfirmed",
+        "deadline-semantics-unavailable",
+        "denied",
+        "exhausted-budget",
+        "prior-effect-reconciliation-unknown",
         "progress-unavailable",
-        "remote-outcome-unknown"
+        "reconciliation-unknown",
+        "remote-outcome-unknown",
+        "request-unknown-or-lost-ack",
+        "retry-forbidden",
+        "retry-request-unknown-or-lost-ack",
+        "stale-authority-or-version"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml",
-      "sha256": "1fed4fd153499db8c2390f4818eaf9c222ff0319d21d5488ab2bc9c7ed288240",
-      "bytes": 85617,
+      "sha256": "3bb3a27598c9998fee3d9a6dd9d7e232448140f570175358124fc0cdd3f9f599",
+      "bytes": 85663,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12523,8 +12715,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml",
-      "sha256": "e67413811c384c7b3553c764cc39cf0dd40378b3d2780ecfdc784d3aafe0817a",
-      "bytes": 78659,
+      "sha256": "37f7fa0014993246f96d25d74f9dd0456f5f3b951996a1f0fb5bf8a4a5098ff2",
+      "bytes": 78705,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12563,8 +12755,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml",
-      "sha256": "5f5aaf48df4db6e6b92df223fc7b3f709d82ca4b55cf12c10dab11fa4329e01d",
-      "bytes": 68174,
+      "sha256": "8eef756f6cd43087437b8d13fec6971789e38f90dded7c5b59866f0ae535e6ab",
+      "bytes": 157731,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12573,6 +12765,7 @@
         "accessibilityIntentRef",
         "actors",
         "channelBindingState",
+        "channelDefinitionEvidence",
         "channelEquivalents",
         "channels",
         "contextPreserved",
@@ -12581,6 +12774,7 @@
         "outcomes",
         "pdp0Authority",
         "pdp0JourneyRef",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12601,8 +12795,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml",
-      "sha256": "0b4dd27736f26258362604a3cc61fe15a11b8a17be10c682d4954435e6005715",
-      "bytes": 69102,
+      "sha256": "0fe013bbfd3f4ae35edf57596c6cc81e92353b5a4efbe553fced2cb8c6044dba",
+      "bytes": 75471,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12621,6 +12815,7 @@
         "outcomes",
         "pdp0Authority",
         "pdp0JourneyRef",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12641,8 +12836,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml",
-      "sha256": "507f5232b105f28d94c7c1a17409ad8abe083e3be5a86e4a286b919a7b287613",
-      "bytes": 59217,
+      "sha256": "6557621a42cfd0768bcb50a7cfbe50b95784deb04e4ea6d576c83ad5ee648a7e",
+      "bytes": 74161,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12661,6 +12856,7 @@
         "outcomes",
         "pdp0Authority",
         "pdp0JourneyRef",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12676,13 +12872,18 @@
         "unresolvedProductDecisions"
       ],
       "declaredIds": [
-        "phase0-critical-exception"
+        "cancellation-boundary",
+        "generic-document-request",
+        "missing-public-api",
+        "phase0-critical-exception",
+        "privacy-denial",
+        "unqualified-fallback"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml",
-      "sha256": "ff8b386b8971666a568d7a8e18bbaa6f2223f1e9e9273d46ce0961eae9991e1e",
-      "bytes": 66866,
+      "sha256": "6d63f7fc33783acde6ee1a71987e4868542f780767f80ed7d25d01f5286446b1",
+      "bytes": 74578,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12700,6 +12901,7 @@
         "outcomes",
         "pdp0Authority",
         "pdp0JourneyRef",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12720,8 +12922,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml",
-      "sha256": "d77b2b1bec59c93db94a286a629e6ad596a4b5b883dafc586412193f41ed1051",
-      "bytes": 86833,
+      "sha256": "b3307fa0584bdbe1325ad4f3595f685a200d7cba947400aca3bdaf7493577721",
+      "bytes": 96195,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12738,6 +12940,7 @@
         "outcomes",
         "pdp0Authority",
         "pdp0JourneyRef",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12758,8 +12961,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
-      "sha256": "0116c0638bd8cfd8ad97038b70170acf9d53a9be65fa60d08529be65e2f4ba1f",
-      "bytes": 181011,
+      "sha256": "6b6b006f0c23b8b4a516264d31946dc64572812a67edce15eddf1f6687026d25",
+      "bytes": 205442,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12767,7 +12970,9 @@
       "topLevelFields": [
         "accessibilityRef",
         "actors",
+        "channelBindingState",
         "channelEquivalents",
+        "channels",
         "contextPreserved",
         "criticalNonhappyPaths",
         "definitionReview",
@@ -12775,6 +12980,7 @@
         "journeyId",
         "laneRef",
         "outcomes",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12797,8 +13003,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml",
-      "sha256": "0b9387686a75d4d389f26ddca7e859733bc8e773d6ab495db8db9ed28f7c9a59",
-      "bytes": 100685,
+      "sha256": "dea087cd119a6551c39a4666d57d9abe1927c74db14eb7b19685b322c6fff44f",
+      "bytes": 113134,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12817,6 +13023,7 @@
         "outcomes",
         "pdp0Authority",
         "pdp0JourneyRef",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12837,8 +13044,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
-      "sha256": "7cbc04c8f1870f9533b3da9e6805ee74fad9dc48ed5f6b86935050cea80d9c2e",
-      "bytes": 116481,
+      "sha256": "fd0fff233a833a2541cb51264339f9b7f23af0493da36df1acdddababef60e55",
+      "bytes": 129809,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12846,6 +13053,7 @@
       "topLevelFields": [
         "accessibilityRef",
         "actors",
+        "channelBindingState",
         "channelEquivalents",
         "channels",
         "contextPreserved",
@@ -12855,6 +13063,7 @@
         "journeyId",
         "optionalContinuation",
         "outcomes",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -12881,8 +13090,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml",
-      "sha256": "a90b215ddf40a2017ff8ab29b853339d9b3c6ee1744ca789ff0f75cb59a6f56e",
-      "bytes": 86997,
+      "sha256": "01b83d6cc5b9ce4d89a910cc0b33a1c31ba943e88386651d2bed117865c6bb5e",
+      "bytes": 92177,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12899,6 +13108,7 @@
         "outcomes",
         "pdp0Authority",
         "pdp0JourneyRef",
+        "pdp1ResultEvidence",
         "preconditions",
         "productId",
         "recovery",
@@ -14701,10 +14911,7 @@
                 "media.domain.project"
               ],
               "objectVersionRefs": [],
-              "stateRefs": [
-                ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-project/stateDefinitions/ACTIVE",
-                ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-project/stateDefinitions/ARCHIVED"
-              ],
+              "stateRefs": [],
               "guardRefs": [],
               "authorityRefs": [
                 ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
@@ -19017,7 +19224,11 @@
                 "media.domain.transcript-version",
                 "media.domain.caption-version"
               ],
-              "objectVersionRefs": [],
+              "objectVersionRefs": [
+                ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-16-03.v1/versionFieldBindings/@id=media.step-version-object-binding.j-16-03.artifact-version.v1",
+                ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-16-03.v1/versionFieldBindings/@id=media.step-version-object-binding.j-16-03.transcript-version.v1",
+                ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-16-03.v1/versionFieldBindings/@id=media.step-version-object-binding.j-16-03.caption-version.v1"
+              ],
               "stateRefs": [],
               "guardRefs": [
                 "exact-source-and-typed-parent-readable",
@@ -19483,7 +19694,11 @@
                 "media.domain.transcript-version",
                 "media.domain.caption-version"
               ],
-              "objectVersionRefs": [],
+              "objectVersionRefs": [
+                ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-18-04.v1/versionFieldBindings/@id=media.step-version-object-binding.j-18-04.artifact-version.v1",
+                ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-18-04.v1/versionFieldBindings/@id=media.step-version-object-binding.j-18-04.transcript-version.v1",
+                ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-18-04.v1/versionFieldBindings/@id=media.step-version-object-binding.j-18-04.caption-version.v1"
+              ],
               "stateRefs": [],
               "guardRefs": [
                 "exact-source-and-typed-parent-readable",
@@ -29485,7 +29700,7 @@
         "id": "media.action.revoke-authorized-consent",
         "name": "Revoke authorized consent",
         "kind": "user",
-        "description": "Request the explicitly named operation for the exact target only after fresh actor, capability, policy, and target checks.",
+        "description": "Request the exact consent action for the named authority-issued consent, purpose, and validity scope after fresh actor, capability, policy, target, and current-authority checks; no broader subject or purpose is implied.",
         "preconditions": [
           "resolve-the-current-workspace-and-exact-target-before-access-or-change",
           "confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects",
@@ -30091,6 +30306,23 @@
         ],
         "producesEffectRefs": [
           "media.public-taxonomy.switch-measurement-presentation.effect"
+        ]
+      },
+      {
+        "id": "media.action.confirm-selected-fallback",
+        "name": "Confirm this fallback",
+        "kind": "user",
+        "description": "Record a separately confirmed versioned fallback selection for the same job and request snapshot; do not dispatch or retry processing.",
+        "preconditions": [
+          "exact-original-job-and-submission-request-snapshot-are-current",
+          "exact-seven-dimension-job-status-is-current-and-matches-the-original-job",
+          "explicitly-named-versioned-alternative-and-candidate-artifact-are-exact",
+          "candidate-specific-current-rights-license-quality-resource-and-cost-evidence-is-positive",
+          "caller-resource-budget-is-only-a-ceiling-not-capacity-evidence",
+          "explicit-confirmation-matches-the-original-request-and-selected-alternative"
+        ],
+        "producesEffectRefs": [
+          "media.public-taxonomy.confirm-selected-fallback.effect"
         ]
       },
       {
@@ -30831,7 +31063,7 @@
         "id": "media.public-taxonomy.revoke-authorized-consent.effect",
         "name": "Revoke authorized consent",
         "kind": "external-call",
-        "description": "Request the explicitly named operation for the exact target only after fresh actor, capability, policy, and target checks.",
+        "description": "Request the exact consent action for the named authority-issued consent, purpose, and validity scope after fresh actor, capability, policy, target, and current-authority checks; no broader subject or purpose is implied.",
         "reversibilityDisposition": "NOT_REVERSIBLE"
       },
       {
@@ -31120,6 +31352,13 @@
         "kind": "state-change",
         "description": "Change only the current local view selection or draft; preserve source and committed versions until an explicitly defined commit.",
         "reversibilityDisposition": "REVERSIBLE"
+      },
+      {
+        "id": "media.public-taxonomy.confirm-selected-fallback.effect",
+        "name": "Confirm this fallback",
+        "kind": "external-call",
+        "description": "Record a separately confirmed versioned fallback selection for the same job and request snapshot; do not dispatch or retry processing.",
+        "reversibilityDisposition": "NOT_REVERSIBLE"
       },
       {
         "id": "media.public-taxonomy.request-live-session-reconnect.effect",
@@ -31847,7 +32086,7 @@
       {
         "id": "media.public-taxonomy.revoke-authorized-consent.finality",
         "actionRef": "media.action.revoke-authorized-consent",
-        "description": "external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure",
+        "description": "The request is not confirmation of consent change; only the consent authority receipt confirms the scoped change. UNKNOWN requires same-request reconciliation; in-flight work requires separate reconciliation; no artifact erasure is implied.",
         "confirmationDisposition": "REQUIRED",
         "undoabilityDisposition": "NOT_REVERSIBLE"
       },
@@ -32137,6 +32376,13 @@
         "description": "local-draft-only; not-a-committed-result",
         "confirmationDisposition": "NOT_REQUIRED",
         "undoabilityDisposition": "REVERSIBLE"
+      },
+      {
+        "id": "media.public-taxonomy.confirm-selected-fallback.finality",
+        "actionRef": "media.action.confirm-selected-fallback",
+        "description": "explicit-selection-receipt-only; no execution, completion, approval, or delivery",
+        "confirmationDisposition": "REQUIRED",
+        "undoabilityDisposition": "NOT_REVERSIBLE"
       },
       {
         "id": "media.public-taxonomy.request-live-session-reconnect.finality",
@@ -32845,8 +33091,8 @@
         "description": "Inspect deterministic experience scenario inputs and expected transitions as explicitly synthetic examples, never production media evidence or provider qualification."
       }
     ],
-    "createdAt": "2026-10-12T04:41:40.327Z",
-    "updatedAt": "2026-10-12T04:41:40.327Z"
+    "createdAt": "2026-10-16T00:50:32.547Z",
+    "updatedAt": "2026-10-16T00:50:32.547Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",
@@ -32918,15 +33164,15 @@
         "source": "transitions.yaml#transitionRecords joined to state-transition-bindings.yaml#ownerTransitionProjectionCandidates.records and effective journey-step transition dispositions"
       },
       "actions": {
-        "status": "DIRECT_UI_PROPOSAL_MAPPING; 145_BOUNDED_PUBLIC_TAXONOMY_CANDIDATES; TWO_SHARED_HANDOFFS_EXPLICITLY_UNADMITTED_EXTERNAL_OWNER_ROLES",
+        "status": "DIRECT_UI_PROPOSAL_MAPPING; 146_BOUNDED_PUBLIC_TAXONOMY_CANDIDATES; TWO_SHARED_HANDOFFS_EXPLICITLY_UNADMITTED_EXTERNAL_OWNER_ROLES",
         "source": "action-registry.yaml#actions and #ownerDefinedActions; public-effect-finality-taxonomy.yaml#records"
       },
       "effects": {
-        "status": "145_BOUNDED_ENUM_CANDIDATES_PLUS_HISTORICAL_PUBLIC_RECORDS; RUNTIME_AND_PHASE_ACCEPTANCE_PENDING",
+        "status": "146_BOUNDED_ENUM_CANDIDATES_PLUS_HISTORICAL_PUBLIC_RECORDS; RUNTIME_AND_PHASE_ACCEPTANCE_PENDING",
         "source": "public-effect-finality-taxonomy.yaml#records[].publicEffectCandidate"
       },
       "finality": {
-        "status": "145_BOUNDED_ENUM_CANDIDATES_PLUS_HISTORICAL_PUBLIC_RECORDS; RUNTIME_AND_PHASE_ACCEPTANCE_PENDING",
+        "status": "146_BOUNDED_ENUM_CANDIDATES_PLUS_HISTORICAL_PUBLIC_RECORDS; RUNTIME_AND_PHASE_ACCEPTANCE_PENDING",
         "source": "public-effect-finality-taxonomy.yaml#records[].publicFinalityCandidate"
       },
       "recovery": {
@@ -32968,10 +33214,10 @@
       "localViewObservationPredicates": 364,
       "registryJourneys": 30,
       "projectedJourneys": 30,
-      "registryActions": 147,
+      "registryActions": 148,
       "registryInteractions": 20,
       "projectedStates": 428,
-      "explicitFinalityCandidates": 145,
+      "explicitFinalityCandidates": 146,
       "linkedScenarioCandidates": 31,
       "linkedFixtureCandidates": 31,
       "searchContracts": 3,
@@ -33015,10 +33261,10 @@
       },
       "transitionProjection": {
         "sourceNullCount": 129,
-        "sourceNoMutationReasonCount": 104,
+        "sourceNoMutationReasonCount": 105,
         "sourceInitialAdmissionCount": 11,
         "sourceLocalNoCanonicalTransitionCount": 5,
-        "conditionalOrRequestObservationCount": 9,
+        "conditionalOrRequestObservationCount": 8,
         "unresolvedApplicableCommandCount": 0,
         "mixedOrOtherDispositionCount": 0,
         "unresolvedSourceDispositionCount": 0,
@@ -33102,14 +33348,14 @@
             "nestedStepTransitionDisposition": null,
             "nestedActionTransitionDisposition": null,
             "stepDefinitionTransitionApplicability": {
-              "status": "TRANSITION_APPLICABILITY_UNRESOLVED",
+              "status": "NO_P1_MACHINE_TRANSITION",
               "transitionRef": null,
               "stateRefs": [
                 "media-project/ACTIVE",
                 "media-project-version/COMMITTED"
               ],
               "operationRef": "media.operation-slice.create-project",
-              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records",
+              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.first-use-and-project-creation.J01-3",
               "runtimeAdmission": "NOT_ADMITTED"
             },
             "transitionApplicability": null,
@@ -33434,11 +33680,11 @@
             "nestedStepTransitionDisposition": null,
             "nestedActionTransitionDisposition": null,
             "stepDefinitionTransitionApplicability": {
-              "status": "TRANSITION_APPLICABILITY_UNRESOLVED",
+              "status": "NO_P1_MACHINE_TRANSITION",
               "transitionRef": null,
               "stateRefs": [],
               "operationRef": "media.operation.transcription-submission",
-              "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/1",
+              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-2",
               "runtimeAdmission": "NOT_ADMITTED"
             },
             "transitionApplicability": null,
@@ -33539,11 +33785,11 @@
             "nestedStepTransitionDisposition": null,
             "nestedActionTransitionDisposition": null,
             "stepDefinitionTransitionApplicability": {
-              "status": "TRANSITION_APPLICABILITY_UNRESOLVED",
+              "status": "NO_P1_MACHINE_TRANSITION",
               "transitionRef": null,
               "stateRefs": [],
               "operationRef": "media.operation.caption-draft-write",
-              "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/4",
+              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-5",
               "runtimeAdmission": "NOT_ADMITTED"
             },
             "transitionApplicability": null,
@@ -33576,11 +33822,11 @@
             "nestedStepTransitionDisposition": null,
             "nestedActionTransitionDisposition": null,
             "stepDefinitionTransitionApplicability": {
-              "status": "TRANSITION_APPLICABILITY_UNRESOLVED",
+              "status": "NO_P1_MACHINE_TRANSITION",
               "transitionRef": null,
               "stateRefs": [],
               "operationRef": "media.operation.caption-draft-write",
-              "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/5",
+              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-6",
               "runtimeAdmission": "NOT_ADMITTED"
             },
             "transitionApplicability": null,
@@ -33614,11 +33860,11 @@
             "nestedStepTransitionDisposition": null,
             "nestedActionTransitionDisposition": null,
             "stepDefinitionTransitionApplicability": {
-              "status": "TRANSITION_APPLICABILITY_UNRESOLVED",
+              "status": "NO_P1_MACHINE_TRANSITION",
               "transitionRef": null,
               "stateRefs": [],
               "operationRef": "media.operation.caption-version-write",
-              "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/6",
+              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-7",
               "runtimeAdmission": "NOT_ADMITTED"
             },
             "transitionApplicability": null,
@@ -33926,7 +34172,12 @@
             "sourceStepId": null,
             "projectedStepId": "J-06.step-01",
             "sourceTransitionRef": null,
-            "sourceTransitionDisposition": null,
+            "sourceTransitionDisposition": {
+              "status": "NO_P1_MACHINE_TRANSITION",
+              "transitionRef": null,
+              "decisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md#MD30-03",
+              "reason": "The exact source-defined chain is user action media.action.submit-validated-request to action operation media.operation.action.submit-validated-request, explicit capability media.multimodal.observe.source-grounded to versioned capability operation media.operation.capability.media-multimodal-observe-source-grounded, then the closed-schema media.operation.job.submit.v1 wrapper. A durable submit receipt proves request identity only; it does not prove a P1 job state, QUEUED, execution, completion, or output availability. Unknown outcomes retain the same request identity for authorized reconciliation before any retry."
+            },
             "nestedStepTransitionDisposition": null,
             "nestedActionTransitionDisposition": null,
             "stepDefinitionTransitionApplicability": {
@@ -34507,11 +34758,15 @@
             "sourceStepId": null,
             "projectedStepId": "J-09.step-09",
             "sourceTransitionRef": null,
-            "sourceTransitionDisposition": null,
+            "sourceTransitionDisposition": {
+              "status": "NO_EXACT_ACTION_TRANSITION",
+              "transitionRef": null,
+              "reason": "No exact P1 action-to-transition reference is defined for delivery. Preserve NO_EXACT_ACTION_TRANSITION; a delivery request result or owner receipt is not destination acknowledgement."
+            },
             "nestedStepTransitionDisposition": null,
             "nestedActionTransitionDisposition": "NOT_APPLICABLE_WITH_REASON",
             "stepDefinitionTransitionApplicability": {
-              "status": "EXTERNAL_DELIVERY_REQUEST_ONLY; NO_MEDIA_TRANSITION_OR_DELIVERY_SUCCESS_INFERRED",
+              "status": "NO_EXACT_ACTION_TRANSITION",
               "transitionRef": null,
               "stateRefs": [],
               "operationRef": "media.operation.action.deliver-exact-version",
@@ -34529,7 +34784,7 @@
             "p1OwnerResultSemantics": null,
             "p1FailClosedCases": null,
             "projectedTransitionRefs": [],
-            "disposition": "CONDITIONAL_OR_REQUEST_OBSERVATION"
+            "disposition": "SOURCE_BACKED_NO_TRANSITION"
           },
           {
             "journeyId": "J-10",
@@ -35299,15 +35554,20 @@
             "sourceStepId": null,
             "projectedStepId": "J-16.step-03",
             "sourceTransitionRef": null,
-            "sourceTransitionDisposition": null,
+            "sourceTransitionDisposition": {
+              "status": "NO_P1_MACHINE_TRANSITION",
+              "transitionRef": null,
+              "decisionRef": ".product-experience/decision-log.md#PXD-068",
+              "reason": "P1 caption-draft-write returns a session-local draft snapshot and does not register a canonical caption version. Language or timing edits remain draft-only until a separately defined save/version operation."
+            },
             "nestedStepTransitionDisposition": null,
             "nestedActionTransitionDisposition": null,
             "stepDefinitionTransitionApplicability": {
-              "status": "TRANSITION_APPLICABILITY_UNRESOLVED",
+              "status": "NO_P1_MACHINE_TRANSITION",
               "transitionRef": null,
               "stateRefs": [],
               "operationRef": "media.operation.caption-draft-write",
-              "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/steps/2",
+              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.translate-and-dub-existing-video.index-2",
               "runtimeAdmission": "NOT_ADMITTED"
             },
             "transitionApplicability": null,
@@ -35602,15 +35862,20 @@
             "sourceStepId": null,
             "projectedStepId": "J-18.step-04",
             "sourceTransitionRef": null,
-            "sourceTransitionDisposition": null,
+            "sourceTransitionDisposition": {
+              "status": "NO_P1_MACHINE_TRANSITION",
+              "transitionRef": null,
+              "decisionRef": ".product-experience/decision-log.md#PXD-068",
+              "reason": "P1 caption-draft-write returns a session-local draft snapshot and does not register a canonical caption version. The composition step does not imply a rendered or delivered output."
+            },
             "nestedStepTransitionDisposition": null,
             "nestedActionTransitionDisposition": null,
             "stepDefinitionTransitionApplicability": {
-              "status": "TRANSITION_APPLICABILITY_UNRESOLVED",
+              "status": "NO_P1_MACHINE_TRANSITION",
               "transitionRef": null,
               "stateRefs": [],
               "operationRef": "media.operation.caption-draft-write",
-              "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/3",
+              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.compose-and-render-reviewed-media.index-3",
               "runtimeAdmission": "NOT_ADMITTED"
             },
             "transitionApplicability": null,
@@ -35943,15 +36208,29 @@
             "sourceStepId": null,
             "projectedStepId": "J-20.step-05",
             "sourceTransitionRef": null,
-            "sourceTransitionDisposition": null,
+            "sourceTransitionDisposition": {
+              "status": "NO_EXACT_ACTION_TRANSITION",
+              "transitionRef": null,
+              "reason": "P1 contains candidate state-machine edges, but none has a source-backed exact action/operation binding for this step. Preserve request/observation semantics; do not infer an effect edge from names or family membership. Cancellation request and finality observation require exact current job and attempt identities; CANCEL_REQUESTED is not CANCELLED, and unknown effects remain unknown."
+            },
             "nestedStepTransitionDisposition": null,
             "nestedActionTransitionDisposition": null,
             "stepDefinitionTransitionApplicability": {
-              "status": "TRANSITION_APPLICABILITY_UNRESOLVED",
+              "status": "SOURCE_STATE_APPLICABILITY_BOUND; EXACT_TRANSITION_ID_UNRESOLVED",
               "transitionRef": null,
-              "stateRefs": [],
+              "stateRefs": [
+                ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_REQUESTED",
+                ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/CANCELLED"
+              ],
               "operationRef": "media.operation-slice.cancel-job",
-              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records",
+              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition/stateSemantics",
+              "applicability": [
+                "attempt-may-enter-CANCEL_REQUESTED-only-after-request-record-is-durable",
+                "job-remains-in-current-or-unknown-state-until-authoritative-finality-evidence",
+                "cancellation-request-is-not-CANCELLED"
+              ],
+              "finalitySourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/CANCELLED",
+              "transitionDisposition": "No exact from-state or transition ID is defined for this operation; do not infer terminal cancellation from request acknowledgement.",
               "runtimeAdmission": "NOT_ADMITTED"
             },
             "transitionApplicability": null,
@@ -35986,15 +36265,30 @@
             "sourceStepId": null,
             "projectedStepId": "J-20.step-06",
             "sourceTransitionRef": null,
-            "sourceTransitionDisposition": null,
+            "sourceTransitionDisposition": {
+              "status": "NO_EXACT_ACTION_TRANSITION",
+              "transitionRef": null,
+              "reason": "P1 contains candidate state-machine edges, but none has a source-backed exact action/operation binding for this step. Preserve request/observation semantics; do not infer an effect edge from names or family membership. Retry requires the exact prior attempt classification and bounded authority; unknown outcomes cannot be replayed, and a new CLAIMED attempt is not provider dispatch."
+            },
             "nestedStepTransitionDisposition": null,
             "nestedActionTransitionDisposition": null,
             "stepDefinitionTransitionApplicability": {
-              "status": "TRANSITION_APPLICABILITY_UNRESOLVED",
+              "status": "SOURCE_STATE_APPLICABILITY_BOUND; EXACT_TRANSITION_ID_UNRESOLVED",
               "transitionRef": null,
-              "stateRefs": [],
+              "stateRefs": [
+                ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CLAIMED",
+                ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RUNNING"
+              ],
               "operationRef": "media.operation-slice.retry-job",
-              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records",
+              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/stateSemantics",
+              "applicability": [
+                "job-may-become-RUNNING-only-after-new-attempt-is-durably-claimed",
+                "attempt-starts-CLAIMED-only-with-owner-and-fence-recorded",
+                "retry-request-alone-does-not-prove-dispatch-or-processing-result"
+              ],
+              "eligibilityAuthoritySourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/guards",
+              "eligibilityDisposition": "Conditional definition only; owner classification, current authority/policy/rights/resource checks, and budget must pass; UNKNOWN prior outcome denies retry.",
+              "transitionDisposition": "No exact from-state or transition ID is defined for this operation; do not infer retry eligibility from state labels.",
               "runtimeAdmission": "NOT_ADMITTED"
             },
             "transitionApplicability": null,
@@ -36182,13 +36476,21 @@
             "sourceStepId": null,
             "projectedStepId": "J-22.step-02",
             "sourceTransitionRef": null,
-            "sourceTransitionDisposition": null,
+            "sourceTransitionDisposition": {
+              "status": "NO_EXACT_ACTION_TRANSITION",
+              "transitionRef": null,
+              "reason": "P1 contains candidate state-machine edges, but none has a source-backed exact action/operation binding for this step. Preserve request/observation semantics; do not infer an effect edge from names or family membership. Only authoritative destination evidence can establish acknowledgement."
+            },
             "nestedStepTransitionDisposition": null,
             "nestedActionTransitionDisposition": "NOT_APPLICABLE_WITH_REASON",
             "stepDefinitionTransitionApplicability": {
               "status": "EXTERNAL_DELIVERY_REQUEST_ONLY; NO_MEDIA_STATE_TRANSITION_OR_DELIVERY_SUCCESS_INFERRED",
               "transitionRef": null,
-              "stateRefs": [],
+              "stateRefs": [
+                ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED",
+                ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED",
+                ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN"
+              ],
               "operationRef": "media.operation.action.deliver-exact-version",
               "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/steps/1",
               "runtimeAdmission": "NOT_ADMITTED"
@@ -37746,8 +38048,8 @@
     },
     "ownerDecisionStatus": "PENDING; directly projected records and schema validation do not establish semantic acceptance or phase closure.",
     "definitionSemantics": {
-      "projectedEffects": 145,
-      "projectedExplicitFinality": 145,
+      "projectedEffects": 146,
+      "projectedExplicitFinality": 146,
       "conditionalOrUnknownActions": [],
       "unmappedPublicActions": [
         "media.action.select-identity-confirmed-workspace",

@@ -78,6 +78,8 @@ for (let i = 0; i < recordBlocks.length; i += 1) {
   const ref = `.product-experience/pdp-3-product-experience/action-registry.yaml#${original.has(record.actionRef) ? 'actions' : 'ownerDefinedActions'}/@id=${record.actionRef}/actionDefinitionSemantics/sourceEnvelope`;
   block = replaceField(block, 'sourceEnvelopeRef', ref);
   block = replaceField(block, 'sourceEnvelopeSha256', createHash('sha256').update(JSON.stringify(envelope)).digest('hex'));
+  block = replaceField(block, 'sourceEffect', action.effect);
+  block = replaceField(block, 'sourceFinality', action.finality);
   block = replaceField(block, 'sourceEnvelopeOperationRefs', exactRefs);
   block = replaceField(block, 'sourceEnvelopeCanonicalBindings', canonicalBindings);
   block = replaceField(block, 'sourceEnvelopeFacts', facts);

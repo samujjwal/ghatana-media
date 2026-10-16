@@ -15,7 +15,7 @@ const generatedProjection = JSON.parse(await readFile('.product-experience/pdp-3
 
 test('PDP-3 public effect and finality candidates cover every action without coercing unresolved truth', () => {
   const actions = [...actionsDoc.actions, ...(actionsDoc.ownerDefinedActions ?? [])];
-  assert.equal(actions.length, 147);
+  assert.equal(actions.length, 148);
   assert.equal(taxonomy.records.length, actions.length);
   assert.equal(new Set(taxonomy.records.map((record) => record.id)).size, actions.length);
   assert.equal(new Set(taxonomy.records.map((record) => record.actionRef)).size, actions.length);
@@ -59,6 +59,8 @@ test('PDP-3 public effect and finality candidates cover every action without coe
       assert.equal(record.mappingReviewStatus, 'BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED');
       assert.equal(record.mappingDecisionRef, record.actionRef === 'media.action.request-live-session-reconnect'
         ? '.product-experience/decision-log.md#PXD-077'
+        : record.actionRef === 'media.action.confirm-selected-fallback'
+        ? '.product-experience/decision-log.md#PXD-163'
         : '.product-experience/decision-log.md#PXD-078');
     } else {
       assert.equal(record.mappingReviewStatus, 'UNMAPPED_PENDING_EXACT_SHARED_ROLE_BINDING');
@@ -68,22 +70,23 @@ test('PDP-3 public effect and finality candidates cover every action without coe
   assert.equal(taxonomy.projectionPolicy.status, 'OWNER_MAPPING_PENDING_REVIEW');
   assert.match(taxonomy.projectionPolicy.phaseAcceptance, /separate/u);
   assert.equal(taxonomy.records.filter((record) => !record.publicEffectCandidate).length, 2);
-  assert.equal(taxonomy.records.filter((record) => record.mappingReviewStatus === 'BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED').length, 145);
+  assert.equal(taxonomy.records.filter((record) => record.mappingReviewStatus === 'BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED').length, 146);
   assert.equal(taxonomy.records.filter((record) => record.mappingDecisionRef === '.product-experience/decision-log.md#PXD-078').length, 144);
   assert.equal(taxonomy.records.filter((record) => record.mappingDecisionRef === '.product-experience/decision-log.md#PXD-077').length, 1);
+  assert.equal(taxonomy.records.filter((record) => record.mappingDecisionRef === '.product-experience/decision-log.md#PXD-163').length, 1);
   assert.equal(taxonomy.toolsSchemaBoundary.effectDefinition.reversibilityDispositionEnum.includes('UNKNOWN'), true);
   assert.equal(taxonomy.toolsSchemaBoundary.finalityDefinition.confirmationDispositionEnum.includes('UNRESOLVED'), true);
 });
 
-test('generated experience candidate projects 145 bounded mappings and preserves the three historical public IDs', () => {
+test('generated experience candidate projects 146 bounded mappings and preserves the three historical public IDs', () => {
   const model = generatedProjection.candidateModel;
   assert.equal(generatedProjection.projectionKind, 'experience-specification');
   assert.equal(generatedProjection.validation.schemaValid, true);
   assert.equal(generatedProjection.validation.publicValidatorPassed, true);
-  assert.equal(model.actions.length, 147);
-  assert.equal(model.effects.length, 145);
-  assert.equal(model.finality.length, 145);
-  assert.equal(model.actions.filter((action) => action.producesEffectRefs.length).length, 145);
+  assert.equal(model.actions.length, 148);
+  assert.equal(model.effects.length, 146);
+  assert.equal(model.finality.length, 146);
+  assert.equal(model.actions.filter((action) => action.producesEffectRefs.length).length, 146);
   assert.deepEqual(model.effects.filter((effect) => effect.id.startsWith('media.effect.')).map((effect) => effect.id).sort(), [
     'media.effect.attach-source-version', 'media.effect.create-empty-project', 'media.effect.register-caption-version',
   ]);
@@ -113,7 +116,7 @@ test('generated experience candidate projects 145 bounded mappings and preserves
 
 test('PXD-078 candidate validation rejects forged or stale source mapping mutations', () => {
   const source = { actions: actionsDoc, operations: operationsDoc };
-  assert.deepEqual(validateMediaPublicTaxonomyCandidates({ taxonomy, ...source }), { actionCount: 147, reviewedOriginalCount: 144, reviewedReconnectCount: 1 });
+  assert.deepEqual(validateMediaPublicTaxonomyCandidates({ taxonomy, ...source }), { actionCount: 148, reviewedOriginalCount: 144, reviewedReconnectCount: 1, reviewedFallbackSelectionCount: 1 });
   const clone = () => structuredClone(taxonomy);
   const mapped = taxonomy.records.find((record) => record.publicEffectCandidate);
   const query = taxonomy.records.find((record) => record.canonicalOperationFacts.some((fact) => fact.operationKind === 'QUERY'));
@@ -152,14 +155,16 @@ test('PXD-078 candidate validation rejects forged or stale source mapping mutati
   assert.throws(() => validateMediaPublicTaxonomyCandidates({ taxonomy: altered, ...source }), /Shared identity role was fabricated/u);
 });
 
-test('PXD-078 membership is exactly the original 146 minus both Shared handoffs; PXD-077 is reconnect alone', () => {
+test('PXD-078 membership is exactly the original 146 minus both Shared handoffs and the one PXD-163 owner-defined action; PXD-077 is reconnect alone', () => {
   const source = { actions: actionsDoc, operations: operationsDoc };
   const originalActionIds = new Set(actionsDoc.actions.map((action) => action.id));
   const sharedIds = new Set(['media.action.select-identity-confirmed-workspace', 'media.action.start-upstream-identity-handoff']);
-  const expected078 = new Set([...originalActionIds].filter((id) => !sharedIds.has(id)));
+  const ownerDefinedOriginalIds = new Set(['media.action.confirm-selected-fallback']);
+  const expected078 = new Set([...originalActionIds].filter((id) => !sharedIds.has(id) && !ownerDefinedOriginalIds.has(id)));
   const actual078 = new Set(taxonomy.records.filter((record) => record.mappingDecisionRef === '.product-experience/decision-log.md#PXD-078').map((record) => record.actionRef));
   assert.deepEqual(actual078, expected078);
   assert.deepEqual(taxonomy.records.filter((record) => record.mappingDecisionRef === '.product-experience/decision-log.md#PXD-077').map((record) => record.actionRef), ['media.action.request-live-session-reconnect']);
+  assert.deepEqual(taxonomy.records.filter((record) => record.mappingDecisionRef === '.product-experience/decision-log.md#PXD-163').map((record) => record.actionRef), ['media.action.confirm-selected-fallback']);
 
   const altered = structuredClone(taxonomy);
   const transcription = altered.records.find((record) => record.actionRef === 'media.action.request-transcription');

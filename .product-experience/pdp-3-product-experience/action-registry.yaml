@@ -15919,9 +15919,11 @@ actions:
       effect: Record a separately confirmed versioned fallback selection for the same job and request snapshot; do not dispatch or retry processing.
       sourceReversibleValue: false
       finality: explicit-selection-receipt-only; no execution, completion, approval, or delivery
-      failureRecovery: Reconcile the same confirmation request ID and fingerprint; UNKNOWN does not imply denial, failure, or permission to resubmit.
+      failureRecovery: Preserve original identities and evidence; unknown or stale status does not imply failure or authorize resubmission.
       domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
       exactOperationRefs: [media.operation.fallback-selection.confirm.v1]
+      operationRef: media.operation.fallback-selection.confirm.v1
+      orderedOperationRefs: []
       runtimeAdmission: NOT_ADMITTED
       acceptanceLimit: Logical selection definition only; external owner acceptance, independent review, transport, dispatch, and runtime remain pending.
       canonicalOperationBindings:
@@ -15929,6 +15931,40 @@ actions:
         operationRef: media.operation.fallback-selection.confirm.v1
         operationKind: COMMAND
         domainObjectRefs: [media.domain.processing-job, media.domain.artifact-version, media.domain.resolved-plan]
+    sourceEnvelope:
+      operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.fallback-selection.confirm.v1
+      operationRef: media.operation.fallback-selection.confirm.v1
+      operationKind: COMMAND
+      domainObjectRefs: [media.domain.processing-job, media.domain.artifact-version, media.domain.resolved-plan]
+      stateRefs: []
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+      requirementRefs: []
+      profileRef: media.operation-profile.governed-external-effect.v1
+      sourceEffect: Record a separately confirmed versioned fallback selection for the same job and request snapshot; do not dispatch or retry processing.
+      sourceFinality: explicit-selection-receipt-only; no execution, completion, approval, or delivery
+      sourceRecovery: Preserve original identities and evidence; unknown or stale status does not imply failure or authorize resubmission.
+      scopeStatus: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      runtimeAdmission: NOT_ADMITTED
+      domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+      exactOperationRefs: [media.operation.fallback-selection.confirm.v1]
+      actorRefs:
+        - media.creator
+        - media.editor
+        - media.operator
+      preconditions:
+        - exact-original-job-and-submission-request-snapshot-are-current
+        - exact-seven-dimension-job-status-is-current-and-matches-the-original-job
+        - explicitly-named-versioned-alternative-and-candidate-artifact-are-exact
+        - candidate-specific-current-rights-license-quality-resource-and-cost-evidence-is-positive
+        - caller-resource-budget-is-only-a-ceiling-not-capacity-evidence
+        - explicit-confirmation-matches-the-original-request-and-selected-alternative
+      effect: Record a separately confirmed versioned fallback selection for the same job and request snapshot; do not dispatch or retry processing.
+      finality: explicit-selection-receipt-only; no execution, completion, approval, or delivery
+      failure: Preserve original identities and evidence; unknown or stale status does not imply failure or authorize resubmission.
   requirementRefs: []
   capabilityBindingStatus: OWNER_OPERATION_BOUND; CAPABILITY_AND_EXTERNAL_ACCEPTANCE_PENDING
   capabilityCrosswalkSources: []

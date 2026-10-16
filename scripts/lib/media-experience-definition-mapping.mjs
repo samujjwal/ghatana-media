@@ -70,7 +70,9 @@ export function resolveExperienceDefinitionSemantics(actions, recoveryContracts,
       const role = semanticRoles.get(typed.domainOperationDisposition);
       const pendingReconnectDefinition = action.id === 'media.action.request-live-session-reconnect'
         && typed.ownerDefinitionDecisionRef === '.product-experience/decision-log.md#PXD-077';
-      if ((typed.ownerDefinitionDecisionRef !== '.product-experience/decision-log.md#PXD-075' && !pendingReconnectDefinition)
+      const pendingFallbackSelectionDefinition = action.id === 'media.action.confirm-selected-fallback'
+        && typed.ownerDefinitionDecisionRef === '.product-experience/decision-log.md#PXD-163';
+      if ((typed.ownerDefinitionDecisionRef !== '.product-experience/decision-log.md#PXD-075' && !pendingReconnectDefinition && !pendingFallbackSelectionDefinition)
         || definition.actionRef !== action.id
         || !envelope
         || role !== typed.semanticRole
@@ -122,6 +124,8 @@ export function resolveExperienceDefinitionSemantics(actions, recoveryContracts,
       const mapping = taxonomyByAction.get(action.id);
       const expectedMappingDecisionRef = action.id === 'media.action.request-live-session-reconnect'
         ? '.product-experience/decision-log.md#PXD-077'
+        : action.id === 'media.action.confirm-selected-fallback'
+        ? '.product-experience/decision-log.md#PXD-163'
         : '.product-experience/decision-log.md#PXD-078';
       if (!mapping || mapping.mappingReviewStatus !== 'BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED'
         || mapping.mappingDecisionRef !== expectedMappingDecisionRef
