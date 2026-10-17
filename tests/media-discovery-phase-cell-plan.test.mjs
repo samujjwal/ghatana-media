@@ -27,11 +27,16 @@ test('Discovery execution plan retains physical/composite/consumer denominators 
   assert.equal(topology.manifestCandidates.length, 26);
   assert.equal(topology.compositions.filter(c => c.kind === 'SEMANTIC_COMPOSITION').length, 6);
   assert.equal(topology.compositions.filter(c => c.kind === 'REPOSITORY_ROOT').length, 1);
-  assert.equal(topology.consumerCrosswalk.length, 17);
+  assert.equal(topology.consumerCrosswalk.length, 21);
+  const historicalConsumerIds = topology.recorderStudioConsumerSuccessor.historicalConsumerIds;
+  assert.equal(historicalConsumerIds.length, 17);
+  assert.equal(topology.recorderStudioConsumerSuccessor.addedLogicalConsumerSurfaceIds.length, 4);
+  // Historical R15/R30/R19/MDC30 observations must not be silently rewritten
+  // as a new 54-surface/216-cell source-current exit.
   const ids = [
     ...topology.manifestCandidates.map(x => x.surfaceId),
     ...topology.compositions.map(x => x.surfaceId),
-    ...topology.consumerCrosswalk.map(x => x.surfaceId),
+    ...historicalConsumerIds,
   ];
   assert.equal(new Set(ids).size, 50);
   assert.equal(matrix.cells.length, ids.length * phases.length);
@@ -384,8 +389,11 @@ test('PDP-1 composition and consumer cells trace exact canonical authority, owne
   assert.deepEqual(rootCell.parentSourceAuthorityRefs, [rootSurface.phaseApplicability['PDP-1'].authorityRef]);
   assert.deepEqual(rootSurface.phaseApplicability['PDP-1'].domainObjectIds, []);
 
-  assert.equal(topology.consumerCrosswalk.length, 17);
-  for (const [crosswalkIndex, crosswalk] of topology.consumerCrosswalk.entries()) {
+  const historicalCrosswalk = topology.consumerCrosswalk.filter(row =>
+    topology.recorderStudioConsumerSuccessor.historicalConsumerIds.includes(row.surfaceId));
+  assert.equal(historicalCrosswalk.length, 17);
+  for (const crosswalk of historicalCrosswalk) {
+    const crosswalkIndex = topology.consumerCrosswalk.findIndex(row => row.surfaceId === crosswalk.surfaceId);
     const { owners, applicablePdpArtifacts, index: surfaceIndex } = registryRecords.get(crosswalk.surfaceId);
     const cell = cells.get(crosswalk.surfaceId);
     const archived = crosswalk.bindingState === 'ARCHIVED';

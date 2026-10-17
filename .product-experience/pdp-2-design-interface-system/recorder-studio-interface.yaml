@@ -1,0 +1,720 @@
+schemaVersion: media.recorder-studio-interface.v1
+productId: media
+sourcePhase: PDP-2
+status: SOURCE_AUTHORED_SUCCESSOR_PENDING_REVALIDATION
+predecessor: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
+authority: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml
+surfaceInterfaces:
+  - surfaceId: media.surface.recorder-orchestrator
+    kind: HEADLESS
+    modes: [yaml-config, json-config, cli, sdk, api, event-observation]
+    journeys: [author-plan, validate-admission, execute, inspect-scenes, recapture-changed-scenes, review, request-publication]
+    states: [DRAFT, VALIDATING, DENIED, ADMITTED, CAPTURING, RENDERING, QUALITY_BLOCKED, OUTCOME_UNKNOWN, REVIEW_REQUIRED, COMPLETED]
+    machineOutput: [status, sourceRevision, attemptId, resultRefs, policyDecisionRefs, traceId, recovery]
+    negative: [invalid-config, unsupported-adapter, stale-source, denied-actor, ambiguous-finality]
+  - surfaceId: media.surface.capture-adapters
+    kind: HEADLESS
+    modes: [browser, desktop, mobile, terminal, http-api, grpc-api, camera, media-file]
+    contracts: [capability-probe, policy-admission, safe-source-observation, timestamp-evidence, bounded-stop, abort, failure]
+    negative: [unsupported-signal, expired-consent, unauthorized-runtime-effect, unqualified-codec, missing-visual-source]
+  - surfaceId: media.surface.production-studio
+    kind: GUI
+    pages: [project-library, production-planner, source-review, multitrack-timeline, captions-transcript, narration-mixer, camera-multiview, effects-inspector, quality-review, render-preview, delivery]
+    composition: [timeline, inspector, preview-monitor, tracks, event-markers, revision-history, sources, property-editors]
+    keyboardParities: [timeline-scrub, trim, split, slip, slide, ripple, keyframe, mask, captions, mix, undo-redo, scene-reorder]
+    accessibility: [structured-timeline-tree, focus-order, high-contrast, screen-reader-announcements, reduced-motion, caption-preview, text-numeric-equivalents]
+    states: [EMPTY, LOADING, READY, DIRTY_DRAFT, STALE_REVISION, MERGE_CONFLICT, UNAUTHORIZED, QUALITY_BLOCKED, SAVE_UNKNOWN]
+    negative: [pointer-only-edit, second-semantic-draft, silent-manual-rewrite, hidden-external-effect]
+  - surfaceId: media.surface.interactive-demo-player
+    kind: EMBEDDED_GUI
+    components: [video-scene, transcript, captions, hotspot, branch-menu, progress-map, safe-exit, accessible-alternative]
+    states: [LOADING, READY, OFFLINE, UNSUPPORTED_FEATURE, POLICY_DENIED, UNAVAILABLE, FINISHED]
+    security: [content-security-policy, signed-bundle-integrity, no-embedded-product-credentials, sandboxed-player-actions, no-unapproved-network-egress]
+    negative: [arbitrary-script-execution, invisible-keyboard-branch, privileged-action-simulation-as-proof]
+sharedGrammar:
+  projectAuthority: same-revision-across-gui-cli-sdk-headless-no-duplicate-edit-draft
+  operations: all-mutations-require-exact-expected-revision-and-typed-PDP1-result
+  time: rational-source-time-not-wallclock; display-fraction-and-synchronization-uncertainty
+  ai: show-evidence-model-version-uncertainty-and-review-required-before-accepting-suggestions
+  a11y: every-graphical-control-has-equivalent-textual-keyboard-api-intent
+  privacy: safe-logs-and-observability-expose-redacted-correlation-only
+  finality: unknown-is-a-visible-reconcilable-state-never-success
+  editing: autosave-is-draft-only; render-or-publish-requires-exact-accepted-source-revision
+  designSystem: reuse-shared-approved-tokens-and-Media-component-contracts-no-new-design-system
+  projections: GUI-CLI-SDK-API-Experience-Explorer-all-read-identical-canonical-source-identities
+nonClaims: [no-PDP3-journey-implementation, no-browser-explorer-verification, no-capture-qualification, no-Build-admission]
+
+
+authoritativeReuse:
+  canonicalEditAuthority: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#canonicalOperationProposals
+  sharedDesignSystem: existing-Shared-tokens-and-Media-component-contracts-only
+  mediaDesignGrammar: .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml
+  productMeaning: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+  scope: no-new-public-API-or-runtime-route-claims
+manualOperationParity:
+  sourceDiscriminant: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#objects/media.recorder.edit-operation
+  canonicalOperationCount: 52
+  completenessRule: Every PDP1 manual edit kind must have one keyboard/text and SDK/CLI/API-equivalent intent; GUI never owns an alternative semantic revision.
+  operations:
+  - kind: trim
+    semanticGroup: timeline-edit
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: timeline
+    keyboardAndTextEquivalent: keyboard-shortcut-with-explicit-timecode-entry
+    cliSdkApiIntent: media.recorder.edit-operation.trim
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: roll
+    semanticGroup: timeline-edit
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: timeline
+    keyboardAndTextEquivalent: keyboard-shortcut-with-explicit-timecode-entry
+    cliSdkApiIntent: media.recorder.edit-operation.roll
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: ripple
+    semanticGroup: timeline-edit
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: timeline
+    keyboardAndTextEquivalent: keyboard-shortcut-with-explicit-timecode-entry
+    cliSdkApiIntent: media.recorder.edit-operation.ripple
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: slip
+    semanticGroup: timeline-edit
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: timeline
+    keyboardAndTextEquivalent: keyboard-shortcut-with-explicit-timecode-entry
+    cliSdkApiIntent: media.recorder.edit-operation.slip
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: slide
+    semanticGroup: timeline-edit
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: timeline
+    keyboardAndTextEquivalent: keyboard-shortcut-with-explicit-timecode-entry
+    cliSdkApiIntent: media.recorder.edit-operation.slide
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: split
+    semanticGroup: timeline-edit
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: timeline
+    keyboardAndTextEquivalent: keyboard-shortcut-with-explicit-timecode-entry
+    cliSdkApiIntent: media.recorder.edit-operation.split
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: insert
+    semanticGroup: timeline-edit
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: timeline
+    keyboardAndTextEquivalent: keyboard-shortcut-with-explicit-timecode-entry
+    cliSdkApiIntent: media.recorder.edit-operation.insert
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: move
+    semanticGroup: timeline-edit
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: timeline
+    keyboardAndTextEquivalent: keyboard-shortcut-with-explicit-timecode-entry
+    cliSdkApiIntent: media.recorder.edit-operation.move
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: reorder
+    semanticGroup: timeline-edit
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: timeline
+    keyboardAndTextEquivalent: keyboard-shortcut-with-explicit-timecode-entry
+    cliSdkApiIntent: media.recorder.edit-operation.reorder
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: snap
+    semanticGroup: timeline-edit
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: timeline
+    keyboardAndTextEquivalent: keyboard-shortcut-with-explicit-timecode-entry
+    cliSdkApiIntent: media.recorder.edit-operation.snap
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: marker
+    semanticGroup: timeline-edit
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: timeline
+    keyboardAndTextEquivalent: keyboard-shortcut-with-explicit-timecode-entry
+    cliSdkApiIntent: media.recorder.edit-operation.marker
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: nested-sequence
+    semanticGroup: timeline-edit
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: timeline
+    keyboardAndTextEquivalent: keyboard-shortcut-with-explicit-timecode-entry
+    cliSdkApiIntent: media.recorder.edit-operation.nested-sequence
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: keyframe
+    semanticGroup: visual-transform
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: property-inspector
+    keyboardAndTextEquivalent: keyboard-and-numeric-field-with-unit-and-range
+    cliSdkApiIntent: media.recorder.edit-operation.keyframe
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: easing
+    semanticGroup: visual-transform
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: property-inspector
+    keyboardAndTextEquivalent: keyboard-and-numeric-field-with-unit-and-range
+    cliSdkApiIntent: media.recorder.edit-operation.easing
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: mask
+    semanticGroup: semantic-region
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: mask-and-source-observation-editor
+    keyboardAndTextEquivalent: accessible-region-list-and-timecode-navigation
+    cliSdkApiIntent: media.recorder.edit-operation.mask
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: redact
+    semanticGroup: semantic-region
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: mask-and-source-observation-editor
+    keyboardAndTextEquivalent: accessible-region-list-and-timecode-navigation
+    cliSdkApiIntent: media.recorder.edit-operation.redact
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: cursor-highlight
+    semanticGroup: semantic-region
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: mask-and-source-observation-editor
+    keyboardAndTextEquivalent: accessible-region-list-and-timecode-navigation
+    cliSdkApiIntent: media.recorder.edit-operation.cursor-highlight
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: transform
+    semanticGroup: visual-transform
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: property-inspector
+    keyboardAndTextEquivalent: keyboard-and-numeric-field-with-unit-and-range
+    cliSdkApiIntent: media.recorder.edit-operation.transform
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: zoom
+    semanticGroup: visual-transform
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: property-inspector
+    keyboardAndTextEquivalent: keyboard-and-numeric-field-with-unit-and-range
+    cliSdkApiIntent: media.recorder.edit-operation.zoom
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: pan
+    semanticGroup: visual-transform
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: property-inspector
+    keyboardAndTextEquivalent: keyboard-and-numeric-field-with-unit-and-range
+    cliSdkApiIntent: media.recorder.edit-operation.pan
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: reframe
+    semanticGroup: visual-transform
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: property-inspector
+    keyboardAndTextEquivalent: keyboard-and-numeric-field-with-unit-and-range
+    cliSdkApiIntent: media.recorder.edit-operation.reframe
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: color-correction
+    semanticGroup: visual-transform
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: property-inspector
+    keyboardAndTextEquivalent: keyboard-and-numeric-field-with-unit-and-range
+    cliSdkApiIntent: media.recorder.edit-operation.color-correction
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: shot-color-match
+    semanticGroup: visual-transform
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: property-inspector
+    keyboardAndTextEquivalent: keyboard-and-numeric-field-with-unit-and-range
+    cliSdkApiIntent: media.recorder.edit-operation.shot-color-match
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: overlay
+    semanticGroup: graphic-and-composition
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: layer-composition-editor
+    keyboardAndTextEquivalent: source-bound-text-and-layer-order-editor
+    cliSdkApiIntent: media.recorder.edit-operation.overlay
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: title
+    semanticGroup: graphic-and-composition
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: layer-composition-editor
+    keyboardAndTextEquivalent: source-bound-text-and-layer-order-editor
+    cliSdkApiIntent: media.recorder.edit-operation.title
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: credits
+    semanticGroup: graphic-and-composition
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: layer-composition-editor
+    keyboardAndTextEquivalent: source-bound-text-and-layer-order-editor
+    cliSdkApiIntent: media.recorder.edit-operation.credits
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: brand-logo
+    semanticGroup: graphic-and-composition
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: layer-composition-editor
+    keyboardAndTextEquivalent: source-bound-text-and-layer-order-editor
+    cliSdkApiIntent: media.recorder.edit-operation.brand-logo
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: transition
+    semanticGroup: graphic-and-composition
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: layer-composition-editor
+    keyboardAndTextEquivalent: source-bound-text-and-layer-order-editor
+    cliSdkApiIntent: media.recorder.edit-operation.transition
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: caption
+    semanticGroup: timed-text
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: caption-and-narration-editor
+    keyboardAndTextEquivalent: transcript-segment-table-and-timecode-fields
+    cliSdkApiIntent: media.recorder.edit-operation.caption
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: subtitle-timing
+    semanticGroup: timed-text
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: caption-and-narration-editor
+    keyboardAndTextEquivalent: transcript-segment-table-and-timecode-fields
+    cliSdkApiIntent: media.recorder.edit-operation.subtitle-timing
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: dub
+    semanticGroup: timed-text
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: caption-and-narration-editor
+    keyboardAndTextEquivalent: transcript-segment-table-and-timecode-fields
+    cliSdkApiIntent: media.recorder.edit-operation.dub
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: narration
+    semanticGroup: timed-text
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: caption-and-narration-editor
+    keyboardAndTextEquivalent: transcript-segment-table-and-timecode-fields
+    cliSdkApiIntent: media.recorder.edit-operation.narration
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: audio-gain
+    semanticGroup: audio
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: audio-track-mixer
+    keyboardAndTextEquivalent: gain-db-numeric-fields-and-waveform-list
+    cliSdkApiIntent: media.recorder.edit-operation.audio-gain
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: audio-duck
+    semanticGroup: audio
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: audio-track-mixer
+    keyboardAndTextEquivalent: gain-db-numeric-fields-and-waveform-list
+    cliSdkApiIntent: media.recorder.edit-operation.audio-duck
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: audio-mix
+    semanticGroup: audio
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: audio-track-mixer
+    keyboardAndTextEquivalent: gain-db-numeric-fields-and-waveform-list
+    cliSdkApiIntent: media.recorder.edit-operation.audio-mix
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: audio-fade
+    semanticGroup: audio
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: audio-track-mixer
+    keyboardAndTextEquivalent: gain-db-numeric-fields-and-waveform-list
+    cliSdkApiIntent: media.recorder.edit-operation.audio-fade
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: camera-switch
+    semanticGroup: camera
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: multi-source-video-compositor
+    keyboardAndTextEquivalent: angle-source-list-and-time-ranged-properties
+    cliSdkApiIntent: media.recorder.edit-operation.camera-switch
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: picture-in-picture
+    semanticGroup: camera
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: multi-source-video-compositor
+    keyboardAndTextEquivalent: angle-source-list-and-time-ranged-properties
+    cliSdkApiIntent: media.recorder.edit-operation.picture-in-picture
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: hotspot
+    semanticGroup: interactive
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: interactive-branch-composer
+    keyboardAndTextEquivalent: focusable-branch-graph-list-and-target-picker
+    cliSdkApiIntent: media.recorder.edit-operation.hotspot
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: branch
+    semanticGroup: interactive
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: interactive-branch-composer
+    keyboardAndTextEquivalent: focusable-branch-graph-list-and-target-picker
+    cliSdkApiIntent: media.recorder.edit-operation.branch
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: undo
+    semanticGroup: history
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: revision-history
+    keyboardAndTextEquivalent: keyboard-undo-redo-with-explicit-confirmation-for-external-effects
+    cliSdkApiIntent: media.recorder.edit-operation.undo
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: redo
+    semanticGroup: history
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: revision-history
+    keyboardAndTextEquivalent: keyboard-undo-redo-with-explicit-confirmation-for-external-effects
+    cliSdkApiIntent: media.recorder.edit-operation.redo
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: scene-group
+    semanticGroup: timeline-edit
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: timeline
+    keyboardAndTextEquivalent: keyboard-shortcut-with-explicit-timecode-entry
+    cliSdkApiIntent: media.recorder.edit-operation.scene-group
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: crop
+    semanticGroup: visual-transform
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: property-inspector
+    keyboardAndTextEquivalent: keyboard-and-numeric-field-with-unit-and-range
+    cliSdkApiIntent: media.recorder.edit-operation.crop
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: cursor-click
+    semanticGroup: semantic-region
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: mask-and-source-observation-editor
+    keyboardAndTextEquivalent: accessible-region-list-and-timecode-navigation
+    cliSdkApiIntent: media.recorder.edit-operation.cursor-click
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: background
+    semanticGroup: graphic-and-composition
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: layer-composition-editor
+    keyboardAndTextEquivalent: source-bound-text-and-layer-order-editor
+    cliSdkApiIntent: media.recorder.edit-operation.background
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: frame
+    semanticGroup: graphic-and-composition
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: layer-composition-editor
+    keyboardAndTextEquivalent: source-bound-text-and-layer-order-editor
+    cliSdkApiIntent: media.recorder.edit-operation.frame
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: annotation
+    semanticGroup: graphic-and-composition
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: layer-composition-editor
+    keyboardAndTextEquivalent: source-bound-text-and-layer-order-editor
+    cliSdkApiIntent: media.recorder.edit-operation.annotation
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: track-mute
+    semanticGroup: audio-track-control
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: narration-mixer
+    keyboardAndTextEquivalent: keyboard-toggle-with-announced-source-track-state
+    cliSdkApiIntent: media.recorder.edit-operation.track-mute
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: track-solo
+    semanticGroup: audio-track-control
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: narration-mixer
+    keyboardAndTextEquivalent: keyboard-toggle-with-announced-source-track-state
+    cliSdkApiIntent: media.recorder.edit-operation.track-solo
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: speed-ramp
+    semanticGroup: timeline-edit
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: timeline
+    keyboardAndTextEquivalent: keyboard-shortcut-with-explicit-timecode-entry
+    cliSdkApiIntent: media.recorder.edit-operation.speed-ramp
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: audio-denoise
+    semanticGroup: audio-processing
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: narration-mixer
+    keyboardAndTextEquivalent: keyboard-and-numeric-field-with-unit-and-range
+    cliSdkApiIntent: media.recorder.edit-operation.audio-denoise
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+sourceBoundEditorValueContracts:
+  authority: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#derivedValueObjects
+  canonicalDataOwnership: existing-MediaProject-and-Job-Attempt-rights-audit-authorities
+  definitions:
+    - id: media.recorder.p2.binding.transform.v1
+      valueRef: media.recorder.value.transform.v1
+      editor: property-inspector-with-keyframe-curve-and-source-geometry
+      keyboardTextParity: numeric-units-timecode-and-protected-region-semantics
+      denial: stale-revision-or-overridden-lock-is-shown-without-mutating-source
+    - id: media.recorder.p2.binding.effect.v1
+      valueRef: media.recorder.value.effect.v1
+      editor: effect-inspector-with-qualified-provider-parameters-and-before-after
+      keyboardTextParity: accessible-parameter-list-versioned-effect-presets
+      denial: unsupported-codec-effect-or-license-must-block-effect-not-bypass
+    - id: media.recorder.p2.binding.render-profile.v1
+      valueRef: media.recorder.value.render-profile.v1
+      editor: rendition-profile-preview-and-qualified-export-settings
+      keyboardTextParity: full-equivalent-cli-api-profile-editor-with-exact-units
+      denial: unavailable-quality-profile-or-unsupported-aspect-is-visible
+    - id: media.recorder.p2.binding.run-receipt.v1
+      valueRef: media.recorder.value.run-receipt.v1
+      editor: source-linked-run-and-technical-semantic-quality-review
+      keyboardTextParity: JSON-JSONL-and-readable-evidence-linked-result-inspector
+      denial: unobserved-owner-effect-cannot-be-shown-as-passed
+experiencePresentationProfiles:
+  - id: media.recorder.p2.profile.video-landscape
+    sourceProfile: 16:9
+    areas: [preview-monitor, timeline, editor-inspector, caption-safe-area, protected-source-geometry]
+    fallback: report-unavailable-if-renderer-or-codec-profile-unqualified
+  - id: media.recorder.p2.profile.video-portrait
+    sourceProfile: 9:16
+    areas: [preview-monitor, reframe-safe-area, captions, foreground-speaker, protected-product-controls]
+    fallback: review-before-cropping-protected-content
+  - id: media.recorder.p2.profile.audio-only
+    sourceProfile: source-audio
+    areas: [waveform, captions-transcript, mixer, beat-markers, timecode]
+    fallback: no-synthetic-video-proof
+  - id: media.recorder.p2.profile.machine-only
+    sourceProfile: cli-api-grpc
+    areas: [structured-request-response, operation-timeline, typed-error-and-finality, semantic-state, terminal-view]
+    fallback: no-fictitious-product-screenshot
+  - id: media.recorder.p2.profile.interactive
+    sourceProfile: embedded-player
+    areas: [video-scene, accessible-hotspot, branch-graph, captions, safe-exit, offline-disclosure]
+    fallback: linear-media-only-if-admitted-and-truthfully-disclosed
+pdp0AcceptanceCaseProjection:
+  exactSource: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses
+  requiredCount: 84
+  completeCoveragePolicy: Every case has a declared owning logical surface, a positive result and explicit negative/recovery UI or machine outcome.
+  groups:
+    - id: media.recorder.p2.group.intent.v1
+      pdp1OperationRefs: [media.recorder.operation.project.plan.evaluate.v1, media.recorder.operation.run.submit.v1]
+      cases: [MEDIA-REC-P0-AC-001, MEDIA-REC-P0-AC-002, MEDIA-REC-P0-AC-003, MEDIA-REC-P0-AC-004, MEDIA-REC-P0-AC-005]
+      surfaceId: media.surface.recorder-orchestrator
+      presentation: config-form-or-cli-yaml
+      denialRecovery: purpose-audience-duration-validation
+    - id: media.recorder.p2.group.sources.v1
+      pdp1OperationRefs: [media.recorder.operation.capture.probe.v1, media.recorder.operation.capture.start.v1, media.recorder.operation.capture.stop.v1]
+      cases: [MEDIA-REC-P0-AC-006, MEDIA-REC-P0-AC-007, MEDIA-REC-P0-AC-008, MEDIA-REC-P0-AC-009, MEDIA-REC-P0-AC-010, MEDIA-REC-P0-AC-011]
+      surfaceId: media.surface.capture-adapters
+      presentation: provider-inspection-and-declared-signal-matrix
+      denialRecovery: unavailable-when-unsupported
+    - id: media.recorder.p2.group.exec.v1
+      pdp1OperationRefs: [media.recorder.operation.run.submit.v1, media.recorder.operation.run.observe.v1, media.recorder.operation.run.reconcile.v1]
+      cases: [MEDIA-REC-P0-AC-012, MEDIA-REC-P0-AC-013, MEDIA-REC-P0-AC-014, MEDIA-REC-P0-AC-015, MEDIA-REC-P0-AC-016]
+      surfaceId: media.surface.recorder-orchestrator
+      presentation: run-plan-job-detail-and-safe-ledger
+      denialRecovery: no-unobserved-business-proof
+    - id: media.recorder.p2.group.project.v1
+      pdp1OperationRefs: [media.recorder.operation.edit.commit.v1, media.recorder.operation.scene.compile.v1]
+      cases: [MEDIA-REC-P0-AC-017, MEDIA-REC-P0-AC-018, MEDIA-REC-P0-AC-019, MEDIA-REC-P0-AC-020, MEDIA-REC-P0-AC-021]
+      surfaceId: media.surface.production-studio
+      presentation: project-source-revision-history
+      denialRecovery: all-clients-see-same-cas
+    - id: media.recorder.p2.group.studio.v1
+      pdp1OperationRefs: [media.recorder.operation.edit.commit.v1, media.recorder.operation.scene.compile.v1]
+      cases: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023, MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-025, MEDIA-REC-P0-AC-026, MEDIA-REC-P0-AC-027, MEDIA-REC-P0-AC-028, MEDIA-REC-P0-AC-029, MEDIA-REC-P0-AC-079, MEDIA-REC-P0-AC-080, MEDIA-REC-P0-AC-081, MEDIA-REC-P0-AC-082, MEDIA-REC-P0-AC-083, MEDIA-REC-P0-AC-084]
+      surfaceId: media.surface.production-studio
+      presentation: full-editing-timeline-and-inspector
+      denialRecovery: every-edit-has-textual-keyboard-equivalent
+    - id: media.recorder.p2.group.ai.v1
+      pdp1OperationRefs: [media.recorder.operation.quality.assess.v1, media.recorder.operation.scene.compile.v1]
+      cases: [MEDIA-REC-P0-AC-030, MEDIA-REC-P0-AC-031, MEDIA-REC-P0-AC-032, MEDIA-REC-P0-AC-033, MEDIA-REC-P0-AC-034]
+      surfaceId: media.surface.production-studio
+      presentation: evidence-linked-advice-pane
+      denialRecovery: cannot-auto-accept-disallowed-ai-advice
+    - id: media.recorder.p2.group.pipe.v1
+      pdp1OperationRefs: [media.recorder.operation.capture.start.v1, media.recorder.operation.scene.compile.v1, media.recorder.operation.render.request.v1]
+      cases: [MEDIA-REC-P0-AC-035, MEDIA-REC-P0-AC-036, MEDIA-REC-P0-AC-037, MEDIA-REC-P0-AC-038, MEDIA-REC-P0-AC-039]
+      surfaceId: media.surface.recorder-orchestrator
+      presentation: storyboard-capture-render-review-pipeline
+      denialRecovery: not-technical-qa-pass-by-plan
+    - id: media.recorder.p2.group.regen.v1
+      pdp1OperationRefs: [media.recorder.operation.scene.recapture.v1, media.recorder.operation.run.reconcile.v1, media.recorder.operation.edit.commit.v1]
+      cases: [MEDIA-REC-P0-AC-040, MEDIA-REC-P0-AC-041, MEDIA-REC-P0-AC-042, MEDIA-REC-P0-AC-043, MEDIA-REC-P0-AC-044]
+      surfaceId: media.surface.recorder-orchestrator
+      presentation: change-impact-recapture-diff-and-conflict-ui
+      denialRecovery: locked-edit-preserved
+    - id: media.recorder.p2.group.quality.v1
+      pdp1OperationRefs: [media.recorder.operation.quality.assess.v1]
+      cases: [MEDIA-REC-P0-AC-045, MEDIA-REC-P0-AC-046, MEDIA-REC-P0-AC-047, MEDIA-REC-P0-AC-048, MEDIA-REC-P0-AC-049]
+      surfaceId: media.surface.production-studio
+      presentation: media-measurement-and-semantic-product-outcome-review
+      denialRecovery: creative-approval-independent
+    - id: media.recorder.p2.group.interactive.v1
+      pdp1OperationRefs: [media.recorder.operation.interactive.package.v1]
+      cases: [MEDIA-REC-P0-AC-050, MEDIA-REC-P0-AC-051, MEDIA-REC-P0-AC-052, MEDIA-REC-P0-AC-053]
+      surfaceId: media.surface.interactive-demo-player
+      presentation: sandboxed-scene-hotspot-branch-a11y
+      denialRecovery: no-privileged-business-effect
+    - id: media.recorder.p2.group.delivery.v1
+      pdp1OperationRefs: [media.recorder.operation.publish.request.v1]
+      cases: [MEDIA-REC-P0-AC-054, MEDIA-REC-P0-AC-055, MEDIA-REC-P0-AC-056, MEDIA-REC-P0-AC-057]
+      surfaceId: media.surface.recorder-orchestrator
+      presentation: profile-audience-publication-acknowledgment
+      denialRecovery: unknown-remote-publication-visible
+    - id: media.recorder.p2.group.security.v1
+      pdp1OperationRefs: [media.recorder.operation.capture.probe.v1, media.recorder.operation.asset.erase.request.v1]
+      cases: [MEDIA-REC-P0-AC-058, MEDIA-REC-P0-AC-059, MEDIA-REC-P0-AC-060, MEDIA-REC-P0-AC-061, MEDIA-REC-P0-AC-062]
+      surfaceId: media.surface.capture-adapters
+      presentation: permissions-redaction-consent-and-erasure-status
+      denialRecovery: deny-before-trust-boundary
+    - id: media.recorder.p2.group.o11y.v1
+      pdp1OperationRefs: [media.recorder.operation.run.observe.v1, media.recorder.operation.quality.assess.v1]
+      cases: [MEDIA-REC-P0-AC-063, MEDIA-REC-P0-AC-064, MEDIA-REC-P0-AC-065, MEDIA-REC-P0-AC-066]
+      surfaceId: media.surface.recorder-orchestrator
+      presentation: trace-linked-run-diagnostics-with-safe-logs
+      denialRecovery: no-sensitive-metric-labels
+    - id: media.recorder.p2.group.crossplatform.v1
+      pdp1OperationRefs: [media.recorder.operation.capture.probe.v1, media.recorder.operation.render.request.v1]
+      cases: [MEDIA-REC-P0-AC-067, MEDIA-REC-P0-AC-068, MEDIA-REC-P0-AC-069, MEDIA-REC-P0-AC-070]
+      surfaceId: media.surface.capture-adapters
+      presentation: os-provider-codec-profile-and-qualification-screen
+      denialRecovery: not-admitted-on-spec-only
+    - id: media.recorder.p2.group.accessibility.v1
+      pdp1OperationRefs: [media.recorder.operation.edit.commit.v1, media.recorder.operation.interactive.package.v1]
+      cases: [MEDIA-REC-P0-AC-071, MEDIA-REC-P0-AC-072, MEDIA-REC-P0-AC-073, MEDIA-REC-P0-AC-074]
+      surfaceId: media.surface.production-studio
+      presentation: keyboard-reading-order-structure-and-cli-api-only-lens
+      denialRecovery: no-invented-gui-for-api-only
+    - id: media.recorder.p2.group.manualparity.v1
+      pdp1OperationRefs: [media.recorder.operation.edit.commit.v1, media.recorder.operation.scene.compile.v1]
+      cases: [MEDIA-REC-P0-AC-075, MEDIA-REC-P0-AC-076, MEDIA-REC-P0-AC-077, MEDIA-REC-P0-AC-078]
+      surfaceId: media.surface.production-studio
+      presentation: automatic-to-manual-project-switch-and-rebase
+      denialRecovery: no-second-edit-authority
+viewStateContracts:
+  denied: always-show-policy-reason-without-protected-details-and-allowed-retry-options
+  unavailable: show-exact-unsupported-source-provider-locale-codec-or-feature
+  outOfDate: preserve-edit-draft-and-display-current-observed-revision-before-commit
+  unknownFinality: show-observation-not-failed-or-successful-and-reconcile-original-request
+  partial: show-which-scenes-and-business-results-are-measured-vs-missing
+  abstained: show-unavailable-metric-or-model-advice-with-reason-and-deterministic-fallback
+  erasurePending: distinguish-access-revoked-backup-pending-legal-hold-and-external-unknown
+  captureDegraded: preserve-qualified-dimensions-and-explicitly-unqualified-supplementary-lanes
+  releaseNotApproved: show-independent-human-and-rights-gates-despite-passing-technical-QA
+interactionAndA11yRequirements:
+  keyboard: [source-select, timecode-seek, region-select, undo, redo, save-draft, publish-denial, branch-choice, source-inspection]
+  assistiveStructure: [navigable-timeline-tree, track-grouping, authoritative-revision-label, source-provenance, labelled-controls, live-region-state-announcements, logical-reading-order]
+  visualProfiles: [high-contrast, reduced-motion, zoom-responsive, portrait-crop-safe-area, RTL-where-applicable]
+  clipboardAndExport: source-bound-versioned-content-only-with-privacy-policy
+  focusSafety: errors-and-conflicts-never-steal-focus-or-leave-unreachable-actions
+  semanticParity: machine-readable-NOT_ADMITTED-does-not-dispatch-to-fake-runtime
+interfacesAndOperations:
+  cliInput: versioned-schema-validated-YAML-or-JSON-config-with-explicit-effective-profile
+  cliOutput: [plan-hash, project-revision, runId, attemptId, sceneReceipts, measurements, finality, redacted-traceRef, remediation]
+  cliFormats: [tty-human-progress, json, jsonl]
+  api: signed-versioned-typed-request-response-with-exact-owner-admission-and-idempotency
+  sdk: same-operation-ids-errors-guards-and-result-types-as-API-when-admitted
+  graphical: same-project-revision-as-CLI-SDK-API-no-secondary-data-model
+  events: observations-are-not-publication-acknowledgements-or-domain-success
+  agentTools: untrusted-input-with-host-supplied-tenant-and-purpose
+  recovery: [read-only-inspect-original-request, qualified-retry-when-explicitly-admitted, safe-cancel-observation, manual-conflict-review]
+  never: [invented-route, rendered-cli-view-implies-API-availability, transport-status-implies-domain-success]
+productionStudioNavigation:
+  entry: [new-from-product-spec, open-source-project, open-generated-project, import-exchange-format]
+  workspace: [project-library, production-planner, scene-storyboard, source-review, multitrack-timeline, captions-transcript, narration-mixer, camera-multiview, effects-inspector, interactive-authoring, quality-review, render-preview, delivery]
+  persistentPanelState: [selection, source-timecode, active-revision, draft-dirty, locks, scene-focus, inspector-property, review-decision]
+  exit: [save-draft, compare-revision, export-draft, submit-review, request-authorized-publish, safe-close]
+  constraints: no-implicit-acceptance-no-silent-project-mutating-on-read
+nativeAIPresentation:
+  modes: [DISABLED, DETERMINISTIC_ONLY, ADVISORY, POLICY_BOUNDED_AUTO]
+  suggestionState: [PROPOSED, ABSTAINED, STALE_SOURCE, DENIED, ACCEPTED_EDIT_OPERATION, REJECTED]
+  evidence: [sourceIds, modelAndPromptFingerprint, uncertainty, supportedProfile, rightsScope, costBudget]
+  manualControl: show-why-each-recommended-edit-exists-and-provide-versioned-reject-or-modify
+  denial: no-automated-manual-lock-override-or-training-egress-by-presentation-option
+technicalAndSemanticQA:
+  separateTabs: [capture-timing, encoded-output, scene-semantic-outcomes, audio-and-captions, provenance-and-rights, human-review]
+  measures: [p50-p95-p99-frame-interval, frame-drop-and-duplication, av-drift, silence-black-gaps, source-time-map-uncertainty, output-profile-size]
+  reporting: distinguish-measured-PASS-FAIL-ABSTAIN-UNOBSERVED-from-human-approval
+securityAndPrivacyViews:
+  show: [purpose-and-consent, authorized-source, audience, egress, license-and-codec, retention, intermediate-cleanup, erasure-and-hold]
+  logs: redacted-structured-events-and-permission-gated-encrypted-artifact-references-only
+  player: CSP-sanitized-sandboxed-no-product-credentials-or-replayable-privileged-script

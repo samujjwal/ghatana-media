@@ -121,3 +121,13 @@ machineInterfaceHandoff:
     - event-name-or-publication-attempt-presented-as-command-acknowledgement-or-delivery
     - fixture-cli-or-registered-agent-tool-presented-as-production-runtime
     - missing-route-or-method-filled-by-inventing-endpoint-or-runtime-support
+
+recorderStudioInterfaceSpecialization:
+  status: SOURCE_AUTHORED_PENDING_PDP2_CURRENTNESS_AND_PDP3_BINDINGS
+  source: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml
+  consumerSurfaceIds: [media.surface.recorder-orchestrator, media.surface.capture-adapters, media.surface.production-studio, media.surface.interactive-demo-player]
+  semanticContracts: [same-project-CAS, typed-headless-JSON-JSONL, keyboard-screenreader-manual-parity, rational-time-and-audio-frame-fidelity, AI-abstention-and-review, policy-and-publication-denial, unknown-finality-reconciliation, signed-sandbox-interactive-player]
+  manualEditDiscriminants: 52
+  pdp0AcceptanceCases: 84
+  noAlternateAuthority: GUI-CLI-SDK-and-API-are-view-projections-not-separate-owner-of-product-business-actions
+  nonClaims: [no-deployed-screen, no-public-operation, no-PDP3-exit, no-human-a11y-certification]

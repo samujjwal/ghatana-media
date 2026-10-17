@@ -49,10 +49,27 @@ export function validateTopology(topology, root = repo) {
     }
   }
   const crosswalk = topology.consumerCrosswalk ?? [];
-  if (crosswalk.length !== 17 || new Set(crosswalk.map((x) => x.surfaceId)).size !== 17) fail('consumer crosswalk must contain exactly 17 unique surfaces');
+  const successor = topology.recorderStudioConsumerSuccessor;
+  if (!successor || successor.status !== 'SOURCE_DEFINED_PENDING_DISCOVERY_READMISSION'
+    || successor.historicalConsumerCount !== 17 || successor.currentConsumerCount !== 21
+    || successor.historicalPhysicalCount !== 26 || successor.historicalCompositionCount !== 7
+    || successor.historicalPhaseCells !== 200 || successor.successorProposedPhaseCells !== 216
+    || successor.externalAndRuntimeAdmission !== 'NOT_ADMITTED') {
+    fail('recorder studio successor consumer census and stage boundary must be explicit (17 retained plus four, 216 target PDP cells)');
+  }
+  const historic = new Set(successor?.historicalConsumerIds ?? []);
+  const added = new Set(successor?.addedLogicalConsumerSurfaceIds ?? []);
+  if (historic.size !== 17 || added.size !== 4
+    || [...historic].some(id => !crosswalk.some(x => x.surfaceId === id))
+    || [...added].some(id => !crosswalk.some(x => x.surfaceId === id))
+    || [...historic].some(id => added.has(id))) {
+    fail('recorder studio successor must preserve all 17 historical consumer IDs and bind exactly four new logical IDs');
+  }
+  if (crosswalk.length !== 21 || new Set(crosswalk.map((x) => x.surfaceId)).size !== 21)
+    fail('consumer crosswalk must contain exactly 21 unique surfaces (17 historical plus four Recorder Studio)');
   const registryIds = new Set([...source('.product-experience/surface-registry.yaml').matchAll(/^\s+- surfaceId:\s*([^\s]+)/gm)].map((m) => m[1]));
   const crosswalkIds = new Set(crosswalk.map((x) => x.surfaceId));
-  if (registryIds.size !== 17 || [...registryIds].some((id) => !crosswalkIds.has(id)) || [...crosswalkIds].some((id) => !registryIds.has(id))) fail('crosswalk must match every surface-registry identity in both directions');
+  if (registryIds.size !== crosswalk.length || [...registryIds].some((id) => !crosswalkIds.has(id)) || [...crosswalkIds].some((id) => !registryIds.has(id))) fail('crosswalk must match every surface-registry identity in both directions');
   const bindingStates = new Set(['PHYSICAL', 'CONTRACT_ONLY', 'HOST_DEPENDENT', 'ARCHIVED']);
   const reverse = new Map(candidates.map((c) => [c.surfaceId, []]));
   for (const consumer of crosswalk) {

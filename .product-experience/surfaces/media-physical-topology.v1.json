@@ -734,7 +734,8 @@
       },
       "consumerSurfaceRefs": [
         "media.surface.cli",
-        "media.surface.sdk"
+        "media.surface.sdk",
+        "media.surface.recorder-orchestrator"
       ],
       "consumerMappingState": "MAPPED"
     },
@@ -1413,7 +1414,9 @@
       "consumerSurfaceRefs": [
         "media.surface.embedded",
         "media.surface.ui-library",
-        "media.surface.web"
+        "media.surface.web",
+        "media.surface.production-studio",
+        "media.surface.interactive-demo-player"
       ],
       "consumerMappingState": "MAPPED"
     },
@@ -1609,7 +1612,8 @@
       },
       "consumerSurfaceRefs": [
         "media.surface.cli",
-        "media.surface.explorer"
+        "media.surface.explorer",
+        "media.surface.recorder-orchestrator"
       ],
       "consumerMappingState": "MAPPED"
     },
@@ -3352,7 +3356,8 @@
         "media.surface.agent-tools",
         "media.surface.events",
         "media.surface.public-http",
-        "media.surface.service-grpc"
+        "media.surface.service-grpc",
+        "media.surface.capture-adapters"
       ],
       "consumerMappingState": "MAPPED"
     }
@@ -3573,6 +3578,71 @@
       "bindingState": "ARCHIVED",
       "statusReason": "Archived desktop source is inactive and excluded from active physical candidates.",
       "registryAuthority": ".product-experience/surface-registry.yaml"
+    },
+    {
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentSurfaceId": "media.surface.cli",
+      "consumerType": "CLI",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-client",
+        "media.physical.libs-media-experience-simulation"
+      ],
+      "bindingState": "HOST_DEPENDENT",
+      "statusReason": "Unattended Recorder orchestration is a new source-defined CLI/API/SDK product sub-surface. Existing client and simulation packages are bound as contract/consumer hosts only; no production recorder implementation, runtime command, or qualified capture is claimed.",
+      "registryAuthority": ".product-experience/surface-registry.yaml",
+      "sourceContracts": [
+        ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml",
+        ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml",
+        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml"
+      ]
+    },
+    {
+      "surfaceId": "media.surface.capture-adapters",
+      "parentSurfaceId": "media.surface.integrations",
+      "consumerType": "SYSTEM_TO_SYSTEM_SERVICE",
+      "physicalRefs": [
+        "media.physical.runtime-contracts"
+      ],
+      "bindingState": "CONTRACT_ONLY",
+      "statusReason": "Existing runtime-contracts is the Media-facing contract host candidate; new browser, desktop, mobile, terminal, API, camera and file capture adapter implementations are not registered or qualified. Business actions remain with product-owned authorized adapters.",
+      "registryAuthority": ".product-experience/surface-registry.yaml",
+      "sourceContracts": [
+        ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml",
+        ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml",
+        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml"
+      ]
+    },
+    {
+      "surfaceId": "media.surface.production-studio",
+      "parentSurfaceId": "media.surface.web",
+      "consumerType": "GUI_WEB",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-ui"
+      ],
+      "bindingState": "HOST_DEPENDENT",
+      "statusReason": "Studio experience uses the existing Media UI package as an integration boundary. Full multitrack editor implementation, UI host, accessibility qualification, and canonical mutation/admission remain pending.",
+      "registryAuthority": ".product-experience/surface-registry.yaml",
+      "sourceContracts": [
+        ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml",
+        ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml",
+        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml"
+      ]
+    },
+    {
+      "surfaceId": "media.surface.interactive-demo-player",
+      "parentSurfaceId": "media.surface.embedded",
+      "consumerType": "GUI_EMBEDDED",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-ui"
+      ],
+      "bindingState": "HOST_DEPENDENT",
+      "statusReason": "Interactive embedded player is a planned governed projection of accepted Media assets; existing UI library hosts only common primitives, not a deployed signed, sandboxed or network-qualified interactive player.",
+      "registryAuthority": ".product-experience/surface-registry.yaml",
+      "sourceContracts": [
+        ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml",
+        ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml",
+        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml"
+      ]
     }
   ],
   "compositions": [
@@ -5017,5 +5087,41 @@
       "binding": "Service/integration semantics only; provider hosts remain separately qualified"
     }
   ],
-  "artifactId": "ART-MEDIA-PHYSICAL-TOPOLOGY-V1"
+  "artifactId": "ART-MEDIA-PHYSICAL-TOPOLOGY-V1",
+  "recorderStudioConsumerSuccessor": {
+    "status": "SOURCE_DEFINED_PENDING_DISCOVERY_READMISSION",
+    "historicalConsumerCount": 17,
+    "historicalConsumerIds": [
+      "media.surface.web",
+      "media.surface.embedded",
+      "media.surface.public-http",
+      "media.surface.service-grpc",
+      "media.surface.grpc.stt",
+      "media.surface.grpc.tts",
+      "media.surface.grpc.vision",
+      "media.surface.grpc.multimodal",
+      "media.surface.sdk",
+      "media.surface.cli",
+      "media.surface.agent-tools",
+      "media.surface.events",
+      "media.surface.integrations",
+      "media.surface.types-library",
+      "media.surface.ui-library",
+      "media.surface.explorer",
+      "media.surface.desktop-archive"
+    ],
+    "addedLogicalConsumerSurfaceIds": [
+      "media.surface.recorder-orchestrator",
+      "media.surface.capture-adapters",
+      "media.surface.production-studio",
+      "media.surface.interactive-demo-player"
+    ],
+    "currentConsumerCount": 21,
+    "historicalPhysicalCount": 26,
+    "historicalCompositionCount": 7,
+    "historicalPhaseCells": 200,
+    "successorProposedPhaseCells": 216,
+    "externalAndRuntimeAdmission": "NOT_ADMITTED",
+    "canonicalWriter": "samujjwal/ghatana:services/media"
+  }
 }

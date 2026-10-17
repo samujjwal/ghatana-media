@@ -226,3 +226,7 @@ Current local proof inputs are the generated candidate, the residual reporter
 `pnpm check:product-experience-local`, and
 `tests/product-definition-authority.test.mjs`. These checks do not generate
 Lifecycle receipts or establish independent acceptance.
+
+## Recorder/Studio PDP successor extension (new affected surfaces)
+
+The source-authored `recorder-studio-extension.yaml` records the new Recorder/Studio surface-specific semantics at this later proposed source cut. Historical `DEV_COMPLETE` remains attributable to its original source cut; this extension has **not** passed currentness/admission or PDP-3 readmission. The extension reuses existing Media identities and may not create independent project, job, rights or publishing authorities. Its exact affected obligations require native phase validation and successor acceptance before any completion claim.

@@ -411,3 +411,7 @@ endpoint belongs to its own extracted machine. Check cross-source conflicts
 and mappings as unresolved proposals, not semantic approvals. This is a local
 structural/provenance check only; it does not verify runtime behavior, select a
 canonical projection, accept meanings, or establish phase completion.
+
+## Recorder/Studio PDP successor extension (new affected surfaces)
+
+The source-authored `recorder-studio-contracts.yaml` records the new Recorder/Studio surface-specific semantics at this later proposed source cut. Historical `DEV_COMPLETE` remains attributable to its original source cut; this extension has **not** passed currentness/admission or PDP-3 readmission. The extension reuses existing Media identities and may not create independent project, job, rights or publishing authorities. Its exact affected obligations require native phase validation and successor acceptance before any completion claim.

@@ -143,3 +143,18 @@ definitionAdjudication:
       definition: Existing field names, scalar units, enum meanings, package exports and wire shapes are preserved as observations until a versioned adapter/change mapping is reviewed; structural compatibility does not license semantic reinterpretation.
       sourceRefs: [.product-experience/pdp-1-domain-data/interoperability.yaml#packageCompatibilityBoundary, .product-experience/pdp-1-domain-data/interoperability.yaml#mappingRules]
       notEstablished: Published consumer inventory, deprecation window, adapter qualification, and external acceptance.
+
+recorderStudioRevisionSemantics:
+  status: SOURCE_AUTHORED_PENDING_CURRENT_PDP1_REVIEW
+  source: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
+  canonicalProjectRevision: media.domain.project-revision
+  canonicalJobAndAttempt: [media.domain.processing-job, media.domain.job-attempt]
+  rules:
+    - immutable-source-artifacts-and-derived-versions-are-separate
+    - project-mutations-expect-exact-base-revision-and-emit-CAS-conflict
+    - semantic-scene-anchors-and-rational-time-not-file-mtime-or-commit-SHA
+    - AUTO-MANUAL_PREFERRED-LOCKED-REGENERATE_ON_SOURCE_CHANGE-REVIEW_CONFLICT-policies-preserved
+    - unknown-business-or-publication-effects-must-be-reconciled-before-retry
+    - scene-only-invalidation-cannot-discard-compatible-manual-edits
+  acceptanceAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+  runtimeAdmission: NOT_ADMITTED
