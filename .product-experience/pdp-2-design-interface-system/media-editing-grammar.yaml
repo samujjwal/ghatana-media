@@ -83,3 +83,17 @@ normativeRuleRecords:
     ruleRef: .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml#revisionProjectionRule
     sourceAuthority: .product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics
     acceptanceEffect: none
+
+recorderStudioTimelineSpecialization:
+  status: SOURCE_AUTHORED_PENDING_PDP2_REVALIDATION
+  source: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml
+  operationSource: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#objects/media.recorder.edit-operation
+  manualOperationKindCount: 42
+  capability: Same-canonical-revision-versioned-edit-and-undo-operations-for-GUI-headless-SDK-CLI
+  invariants:
+    - no-pointer-only-manual-feature
+    - no-unreviewed-loss-of-LOCKED-or-MANUAL_PREFERRED-edit
+    - source-and-versioned-captions-audio-and-narration-remain-exact
+    - preview-and-export-compare-semantic-effects-at-declared-tolerance
+    - unauthorized-external-release-not-a-creative-edit
+  noClaims: [no-canvas-implementation, no-visual-a11y-certification, no-runtime-parity]
