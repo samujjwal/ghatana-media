@@ -121,3 +121,64 @@ machineInterfaceHandoff:
     - event-name-or-publication-attempt-presented-as-command-acknowledgement-or-delivery
     - fixture-cli-or-registered-agent-tool-presented-as-production-runtime
     - missing-route-or-method-filled-by-inventing-endpoint-or-runtime-support
+
+experienceProductionChannelGrammar:
+  id: media.pdp2.experience-production.channels.v1
+  status: SOURCE_DEFINED_SUCCESSOR_NO_RUNTIME_OR_TRANSPORT_ADMISSION
+  source: .product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile
+  domain: .product-experience/pdp-1-domain-data/action-contracts.yaml#experienceProductionActionOrchestration
+  producerSource: .product-experience/surface-registry.yaml
+  invariant: One exact MediaProject revision, canonical operation, source/version and policy/finality semantic model across GUI, embedded player, CLI, SDK, HTTP, event and agent tool projections.
+  surfaces:
+    - surfaceId: media.surface.experience-recorder
+      interfaceKind: HEADLESS_CONTROL
+      presentation: inspectable-source-plan-run-attempt-scene-quality-output-and-error-status
+      stateAuthority: Media-run-attempt-and-source-version-not-transport-status
+      effects: typed-authorized-command-or-read-only-status-observation
+      unavailable: no-product-adapter-or-no-qualified-capture-is-a-blocked-plan-not-a-fake-film
+    - surfaceId: media.surface.capture-agent
+      interfaceKind: HOST_DEPENDENT_CAPTURE_PROVIDER
+      presentation: capability-probe-source-and-clock-profile-media-stream-technical-metrics-redacted-trace
+      stateAuthority: exact-source-session-and-leased-product-actor-boundary
+      effects: no-product-domain-mutation-without-product-owned-delegation
+      unavailable: explicit-probe-denial-without-unqualified-automatic-provider-substitution
+    - surfaceId: media.surface.presentation-studio
+      interfaceKind: GUI_AND_ACCESSIBLE_TEXTUAL_EDITOR
+      presentation: shared-timeline-version-provenance-suggestions-manual-locks-review-and-output-controls
+      stateAuthority: immutable-canonical-project-revision-and-versioned-artifacts
+      effects: typed-CAS-deltas-only-never-hidden-direct-record-mutation
+      unavailable: preserve-edit-draft-and-display-owner-policy-denial-stale-conflict-or-unknown-finality
+    - surfaceId: media.surface.interactive-demo-player
+      interfaceKind: SANDBOXED_READ_ONLY_EMBEDDED_MEDIA
+      presentation: declarative-hotspot-and-branch-graph-with-audio-text-transcript-alternative
+      stateAuthority: exact-published-bundle-version-and-sandbox-policy
+      effects: media-navigation-and-viewer-state-only-not-privileged-product-effects
+      unavailable: show-unsupported-or-expired-package-with-no-script-fallback
+  existingTransportReuse:
+    media.surface.web: existing-GUI-view-and-host-contract
+    media.surface.embedded: existing-embedded-view-host-contract
+    media.surface.public-http: exact-OpenAPI-operation-contract-and-authorized-tenant/version-context
+    media.surface.sdk: exact-published-public-client-shapes-no-private-sibling-source
+    media.surface.cli: TTY-human-output-and-non-TTY-JSON-or-JSONL-with-stable-reason-finality-fields
+    media.surface.agent-tools: advisory-plan-tool-results-are-untrusted-and-require-independent-owner-effect-authority
+    media.surface.events: observations-and-receipts-not-silent-execution-or-authoritative-finality
+    media.surface.service-grpc: source-specific-proto-contract-requires-exact-operation-semantic-parity
+  headlessProducerExample:
+    sourceKinds: [http-api, grpc-api, terminal]
+    resultFields: [sourceKind, sourceVersionRef, eventOrOperationId, attemptRef, observedOutcome, reasonCode, policyScope, authoritativeResultRef, mediaArtifactRefIfAny]
+    forbid: [fabricated-browser-page, invented-performed-product-action, transport-success-as-domain-success, trace-id-as-permission]
+    commandStatus: NOT_ADMITTED_UNTIL_OWNER_WIRE_CONTRACT
+  interactiveTrust:
+    defaultCSP: deny-inline-script-and-unexpected-network-egress
+    payloadPolicy: sanitized-versioned-allowlisted-hotspots-and-branch-destinations
+    scriptExecution: forbidden-in-player-bundle
+    authentication: host-viewer-policy-cannot-inherit-recording-operator-or-product-administrator-scope
+    verification: offline-policy-and-static-asset-integrity-must-be-checked-before-presentation
+  visualAndMachineStatus:
+    required: [authoritative-version, selected-actor-context, accepted-request-vs-applied-effect, observed-vs-inferred-vs-generated, quality-evidence-with-method, explicit-unknown-and-recovery, privacy-and-rights-limits]
+    humanApprovals: separately-bound-and-never-fabricated-by-technical-status
+    noRealtimePromise: plan-specification-does-not-guarantee-availability-or-live-event-ordering
+  acceptance:
+    sourceDefinitionCriteria: [four-logical-surfaces-resolve, each-channel-has-denied-unknown-and-recovery, GUI-and-machine-revision-parity, exact-source-clock-not-wall-time, interactive-player-is-read-only, independent-a11y-review-remains-explicit]
+    downstream: PDP3-revisioned-screens-steps-API-CLI-events-and-Explorer-are-not-yet-authored-for-new-scope
+    sourceOnly: true

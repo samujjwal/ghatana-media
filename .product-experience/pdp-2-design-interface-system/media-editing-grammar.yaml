@@ -83,3 +83,77 @@ normativeRuleRecords:
     ruleRef: .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml#revisionProjectionRule
     sourceAuthority: .product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics
     acceptanceEffect: none
+
+professionalStudioGrammar:
+  id: media.pdp2.professional-studio.editor-grammar.v1
+  sourceOwner: media
+  status: SOURCE_DEFINED_SUCCESSOR_WITH_UNBOUND_SCREEN_INSTANCES
+  productSurface: media.surface.presentation-studio
+  requiredSiblingSurfaces: [media.surface.experience-recorder, media.surface.capture-agent, media.surface.interactive-demo-player]
+  sourceContract: .product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract
+  operationContract: .product-experience/pdp-1-domain-data/action-contracts.yaml#experienceProductionActionOrchestration
+  templateReuse: [media.gui.template.media-composition, media.gui.template.workbench, media.gui.template.review-and-compare, media.gui.template.job-observation, media.gui.template.consent-gate, media.gui.template.render-preparation-and-review]
+  layoutReuse: [media.gui.layout.media-workbench, media.gui.layout.review, media.gui.layout.render, media.gui.layout.consent]
+  reusableComponents: [media.component.source-player, media.component.storyboard, media.component.timeline-keyframe-editor, media.component.audio-mixer, media.component.mask-tracking-editor, media.component.caption-track-editor, media.component.scene-inspector, media.component.result-comparison, media.component.quality-inspector, media.component.rights-retention-review, media.component.provenance-summary, media.component.activity-recovery-feed, media.component.delivery-profile-picker]
+  singleProjectModel:
+    projectId: existing-MediaProject
+    projectRevision: expectedProjectRevisionId-and-currentObservedRevision
+    selection: shared-scene-track-source-version-and-half-open-time-interval-across-all-projections
+    submit: exact-revision-authorized-CAS-only
+    conflicts: retain-proposed-manual-edit-current-head-and-explain-resolution-required
+    source: immutable-artifact-version-and-exact-provenance
+    generated: optional-edit-suggestions-never-the-authoritative-source-or-human-approval
+    manual: user-locks-and-approved-authored-deltas-not-overwritten-by-auto-regeneration
+  panes:
+    - name: source-and-storyboard
+      layout: project-source-provenance-and-scene-order-with-explicit-actor-session-and-experience-goal
+      semanticAlternative: ordered-scene-list-with-immutable-source-refs-and-editable-position-numbers
+    - name: multitrack-timeline
+      layout: video-audio-narration-captions-overlays-masks-effects-and-camera-tracks
+      semanticAlternative: table-of-tracks-and-half-open-time-regions-with-keyboard-reorder-and-numeric-value-entry
+    - name: properties-and-effects
+      layout: crop-zoom-reframe-color-speed-keyframe-composite-PIP-transition-parameters
+      semanticAlternative: bound-range-fields-and-enumerated-effects-with-full-typed-input-validation
+    - name: narration-and-audio
+      layout: approved-voice-and-script-audition-word-alignment-mix-and-true-peak-review
+      semanticAlternative: text-and-timestamp-narration-editor-with-sample-accurate-scrub-alternative
+    - name: review-and-quality
+      layout: original-versus-proposed-visual-comparison-technical-QA-and-semantic-business-case-evidence
+      semanticAlternative: table-of-metrics-exact-version-and-rejection-reasons; technical-pass-never-human-approval
+    - name: interactive-branch-authoring
+      layout: declarative-hotspot-regions-branch-graph-and-safe-sandboxed-preview
+      semanticAlternative: node-and-edge-table-with-explicit-link-targets-no-executable-script-actions
+    - name: output-and-publication
+      layout: multiple-aspect-ratios-caption-and-audio-alternatives-licenses-rights-approval-and-destination-finality
+      semanticAlternative: typed-profiles-output-refs-and-recipient-acknowledgement-readback
+  commands:
+    - family: capture-and-direction
+      operations: [manual-capture-start, pause-request, stop-request, cursor-path, focus-annotation, source-switch]
+      rule: capture-effects-run-only-through-admitted-capability-checked-providers-and-product-owned-adapters
+    - family: nonlinear-timeline
+      operations: [trim, split, slip, slide, ripple, reorder, group, mute, solo, undo, redo]
+      rule: exact-time-and-CAS-revision-edits; no-source-file-mutation
+    - family: visual
+      operations: [crop, zoom, smart-reframe, pan, keyframe, easing, mask, blur, highlight, color-correction, camera-PIP, transition]
+      rule: editor-selected-and-AI-suggested-values-share-typed-parameter-contract-and-manual-lock-precedence
+    - family: audio-narration
+      operations: [voice-audition, narration-record, timing-align, transcript-correct, captions, soundtrack, ducking, gain, audio-fades, normalization]
+      rule: exact-voice-rights-consent-and-time-map; no-implicit-cloning-or-mixing-with-unapproved-voice
+    - family: interactive
+      operations: [insert-hotspot, edit-branch, inspect-action, set-sandbox-profile, simulate-read-only-player]
+      rule: whitelist-declarative-media-navigation-not-product-business-command
+    - family: delivery
+      operations: [render-preview, render-master, output-variant, request-review, request-publish, inspect-finality]
+      rule: render-review-human-approval-and-external-delivery-have-distinct-typed-status
+  interaction:
+    keyboard: every-action-has-focusable-command-available-without-drag-hover-or-precision-pointer
+    timelineNumerics: editable-exact-ticks-with-disclosed-rational-unit-and-rounding
+    zoomAndResponsive: panels-reflow-without-hiding-identity-rights-policy-unknown-outcome-or-cancellation-facts
+    reducedMotion: source-media-animation-and-editor-chrome-motion-are-separately-controlled
+    accessibilityStatus: screen-reader-live-regions-announce-only-result-transitions-without-autoplaying-private-audio
+    validation: deny-unknown-codec-unavailable-model-unsupported-profile-missing-rights-and-stale-revision-before-effect
+    aiSuggestion: cite-observed-source-and-uncertainty; accept-edit-and-reject-edit-both-explicit; never-silent-overwrite
+  conflictVisualStates: [stale-CAS, incompatible-recapture-anchor, unavailable-provider, version-restricted, rights-denied, erasure-pending, unknown-external-effect, source-time-unavailable]
+  negativeCases: [drag-only-trim, context-switch-with-hidden-revision, auto-edit-erases-user-choice, fake-human-review-badge, source-time-inferred-from-wall-clock, arbitrary-hotspot-JavaScript, typed-error-replaced-by-toast-only, cross-tenant-preview-cache]
+  pdp3ScreensAndJourneys: REQUIRES_SUCCESSOR_AUTHORING_EXPLORER_IS_PROJECTION
+  runtimeAdmission: NOT_ADMITTED

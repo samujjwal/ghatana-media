@@ -140,3 +140,31 @@ normativeRuleRecords:
     ruleRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml#ownerDefinedCaptionAndAudioDescriptionOutputUse
     sourceAuthority: .product-experience/pdp-2-design-interface-system/accessibility.yaml#selectedPolicy
     acceptanceEffect: none
+
+experienceProductionAccessibility:
+  id: media.pdp2.experience-production.accessibility.v1
+  scope: [media.surface.presentation-studio, media.surface.interactive-demo-player, media.surface.experience-recorder, media.surface.capture-agent]
+  status: DEFINITION_ONLY_WCAG_22_AA_TARGET_NOT_CERTIFIED
+  source: .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml#professionalStudioGrammar
+  interfaceSource: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar
+  studio:
+    keyboardAndFocus: tab-through-panel-order-and-spatial-editor-equivalent; every-track-command-has-keyboard-and-text-form
+    time: exact-rational-tick-and-human-formatted-rounded-time-are-distinct-accessible-values
+    trackTree: semantic-list-with-track-name-kind-mute-solo-selection-locked-edit-scope-and-current-version
+    editFeedback: polite-status-only-on-actual-owner-result-not-on-every-drag-frame
+    conflict: keyboard-reachable-side-by-side-current-and-proposed-revision-details
+    reducedMotion: nonessential-chrome-motion-can-be-disabled-without-changing-source-preview-timing
+    zoom: support-200-percent-text-and-available-400-percent-reflow-without-hidden-rights-or-commit-decision
+    captionsAndNarration: script-text-time-region-per-language-with-manual-transcript-and-description-alternatives
+  interactive:
+    hotspots: each-region-has-descriptive-name-role-available-branches-and-focus-visible-without-hitting-the-video-coordinate
+    branchTraversal: ordered-graph-list-and-deterministic-backtrack-equivalent
+    mediaAlternative: captions-transcript-and-audio-description-applicability-are-exact-version-and-output-use-scoped
+    safeStatus: unavailable-denied-and-unknown-package-finality-are-not-encoded-only-in-color-audio-or-animation
+    automation: no-auto-play-private-narration-without-current-viewer-intent-and-rights
+  headless:
+    rule: No-invented-GUI-for-CLI-or-API; schema-bound-semantic-events-openAPI-examples-error-taxonomy-and-structured-user-guidance-are-the-accessible-machine-experience
+    fields: [source-kind, operation-id, request-id, result-finality, uncertainty, denied-reason, suggested-recovery, output-version]
+  negatives: [drag-only-ripple-edit, unlabeled-branch-hotspot, hidden-review-approval, no-version-in-screen-reader-output, text-sizing-hides-denial, reduced-motion-suppresses-result, API-only-pretends-screenshot]
+  independentReview: REQUIRED_FOR_ACCEPTANCE_NOT_PERFORMED
+  releaseAdmission: NOT_ADMITTED
