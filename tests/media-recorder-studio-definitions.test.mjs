@@ -3,10 +3,12 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 import { verifyRecorderStudioDefinitions } from '../scripts/check-media-recorder-studio-definitions.mjs';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = filename => fs.readFileSync(path.join(repo, filename), 'utf8');
+const { parseDocument } = createRequire(path.resolve(repo, '../ghatana-tools/package.json'))('yaml');
 test('PDP0–2 Recorder Studio requirements/surfaces/parity are structurally complete', () => {
   const result = verifyRecorderStudioDefinitions();
   assert.deepEqual(result.errors, [], result.errors.join('\n'));
@@ -58,4 +60,27 @@ test('rejects removal of a capability leaf that still owns acceptance cases', ()
   const changed = source.replace(', media.deliver.publish-governed, media.job.watch', '');
   const result = verifyRecorderStudioDefinitions({overrides:{p0:changed}});
   assert.ok(result.errors.some(s => s.includes('capability leaf not bound by feature capability group')), result.errors.join('\n'));
+});
+
+test('native YAML grammar and duplicate-key checks cover Recorder Studio changed sources', () => {
+  for (const filename of [
+    '.product-experience/surface-registry.yaml',
+    '.product-experience/pdp-0-product-truth/requirements.yaml',
+    '.product-experience/pdp-0-product-truth/journey-catalog.yaml',
+    '.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml',
+    '.product-experience/pdp-1-domain-data/domain-objects.yaml',
+    '.product-experience/pdp-1-domain-data/versioning.yaml',
+    '.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml',
+    '.product-experience/pdp-2-design-interface-system/interface-grammar.yaml',
+    '.product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml',
+    '.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml',
+  ]) {
+    const document = parseDocument(read(filename), { uniqueKeys: true, strict: true });
+    assert.deepEqual(document.errors.map(error => error.message), [], filename);
+  }
+});
+test('native YAML parser rejects malformed Recorder Studio authoring', () => {
+  const source = read('.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml');
+  const document = parseDocument(source + '\ninvalid: [unterminated', { uniqueKeys: true, strict: true });
+  assert.notEqual(document.errors.length, 0);
 });
