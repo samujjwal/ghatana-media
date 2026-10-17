@@ -185,7 +185,7 @@
     "authorityBlobSha": "b0840765ad2d8634f29baae9d03397207bd38608",
     "observedCapabilityLeaves": 462,
     "proposedGroups": 8,
-    "existingLeafReferences": 26,
+    "existingLeafReferences": 27,
     "missingLeafReferences": 0,
     "semanticReview": "PENDING",
     "pdp1OperationSourceBlobSha": "7babf82255c47c9cbf5bdff65a4d5b4287a655ef",
