@@ -3138,3 +3138,14 @@ ownerTypedIdentityContracts:
     projectionDisposition: OBSERVED_FIELDS_REQUIRE_EXACT_CANONICAL_ADAPTER
     status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
       unresolved
+
+# MediaProject/ProcessingJob/MediaRun remain canonical; Recorder Studio contributes
+# scoped value-object and relationship definitions, never an independent store.
+recorderStudioDomainSpecialization:
+  status: SOURCE_AUTHORED_PENDING_PDP1_SUCCESSOR_VALIDATION
+  source: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
+  canonicalRoots: [media.domain.project, media.domain.project-revision, media.domain.processing-job, media.domain.job-attempt, media.domain.job-lease, media.domain.media-run, media.domain.artifact-version, media.domain.timeline, media.domain.composition-config, media.domain.caption-version, media.domain.render-outcome, media.domain.delivery-outcome]
+  scopedValueObjectCount: 12
+  sourceContentAuthority: same-Media-canonical-domain-objects-and-versioned-projections
+  conflictingAuthoritiesForbidden: [second-project-store, second-job-store, derived-asset-as-original, duplicate-policy-engine, runtime-writer-claim]
+  nonClaims: [no-runtime-persistence-mapping, no-published-typed-wire-API, no-PDP1-dev-complete-successor]
