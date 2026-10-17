@@ -52,7 +52,13 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
     parsedDocs[id] = document;
     for (const issue of document.errors) fail(id+': invalid or duplicate YAML mapping: '+issue.message);
   }
-  const topology = JSON.parse(original.topology);
+  if (errors.length) return {errors, stats: {sourceDocumentsValid:false}};
+  let topology;
+  try {
+    topology = JSON.parse(original.topology);
+  } catch (error) {
+    return {errors: ['topology: invalid JSON: '+error.message], stats: {sourceDocumentsValid:false}};
+  }
   const registry = original.registry;
   const registryIds = extract(registry, /^  - surfaceId: (\S+)/gm);
   const old = topology.recorderStudioConsumerSuccessor?.historicalConsumerIds ?? [];
