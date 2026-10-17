@@ -52,6 +52,7 @@
   "devDependencies": {
     "@ghatana/evidence-contracts": "0.1.0-rc.1",
     "@ghatana/verification-planner": "workspace:*",
-    "playwright": "1.63.0"
+    "playwright": "1.63.0",
+    "yaml": "2.9.1"
   }
 }
