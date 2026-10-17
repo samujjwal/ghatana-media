@@ -84,3 +84,21 @@ test('native YAML parser rejects malformed Recorder Studio authoring', () => {
   const document = parseDocument(source + '\ninvalid: [unterminated', { uniqueKeys: true, strict: true });
   assert.notEqual(document.errors.length, 0);
 });
+
+test('mandatory definition checker rejects invalid YAML in changed journey source', () => {
+  const source = read('.product-experience/pdp-0-product-truth/journey-catalog.yaml');
+  const result = verifyRecorderStudioDefinitions({ overrides: {
+    journeyCatalog: source + '\ninvalid: [unterminated',
+  }});
+  assert.ok(result.errors.some(error => error.includes('journeyCatalog: invalid or duplicate YAML mapping')),
+    result.errors.join('\n'));
+});
+
+test('mandatory definition checker rejects duplicate keys in changed interface grammar', () => {
+  const source = read('.product-experience/pdp-2-design-interface-system/interface-grammar.yaml');
+  const result = verifyRecorderStudioDefinitions({ overrides: {
+    interfaceGrammar: source + '\nrecorderStudioDuplicateProbe: value\nrecorderStudioDuplicateProbe: other',
+  }});
+  assert.ok(result.errors.some(error => error.includes('interfaceGrammar: invalid or duplicate YAML mapping')),
+    result.errors.join('\n'));
+});
