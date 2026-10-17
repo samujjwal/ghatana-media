@@ -27,7 +27,7 @@ test('rejects missing crosswalk members and dangling physical bindings', () => {
   changed.consumerCrosswalk.pop();
   changed.consumerCrosswalk[0].physicalRefs = ['media.physical.unknown'];
   const errors = validateTopology(changed);
-  assert.ok(errors.some((error) => error.includes('exactly 17 unique surfaces')));
+  assert.ok(errors.some((error) => error.includes('exactly 21 unique surfaces')));
   assert.ok(errors.some((error) => error.includes('unknown physical ref')));
 });
 
