@@ -138,6 +138,10 @@ ownerDefinedOperationRequestBoundsRules:
 requirements:
 - id: MEDIA-REQ-CAP-PROJECT
   scopeStatus: TARGET
+  recorderStudioSpecialization:
+    sourceRef: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    scope: Recorder-Studio-source-defined-successor-not-runtime-admission
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-017, MEDIA-REC-P0-AC-018, MEDIA-REC-P0-AC-019, MEDIA-REC-P0-AC-020, MEDIA-REC-P0-AC-021, MEDIA-REC-P0-AC-075, MEDIA-REC-P0-AC-076, MEDIA-REC-P0-AC-077, MEDIA-REC-P0-AC-078]
   statement: Every operation in media.project retains the intended semantic outcome in the full product definition and is
     invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification,
     and runtime availability are separately established.
@@ -483,6 +487,10 @@ requirements:
   stateModelSource: state-models.yaml
 - id: MEDIA-REQ-CAP-JOB
   scopeStatus: TARGET
+  recorderStudioSpecialization:
+    sourceRef: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    scope: Recorder-Studio-source-defined-successor-not-runtime-admission
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-012, MEDIA-REC-P0-AC-013, MEDIA-REC-P0-AC-014, MEDIA-REC-P0-AC-015, MEDIA-REC-P0-AC-016, MEDIA-REC-P0-AC-040, MEDIA-REC-P0-AC-041, MEDIA-REC-P0-AC-042, MEDIA-REC-P0-AC-043, MEDIA-REC-P0-AC-044, MEDIA-REC-P0-AC-063, MEDIA-REC-P0-AC-064, MEDIA-REC-P0-AC-065, MEDIA-REC-P0-AC-066]
   statement: Every operation in media.job retains the intended semantic outcome in the full product definition and is invocable
     only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification,
     and runtime availability are separately established.
@@ -649,6 +657,10 @@ requirements:
   stateModelSource: state-models.yaml
 - id: MEDIA-REQ-CAP-STREAM
   scopeStatus: TARGET
+  recorderStudioSpecialization:
+    sourceRef: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    scope: Recorder-Studio-source-defined-successor-not-runtime-admission
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-006, MEDIA-REC-P0-AC-007, MEDIA-REC-P0-AC-008, MEDIA-REC-P0-AC-009, MEDIA-REC-P0-AC-010, MEDIA-REC-P0-AC-011, MEDIA-REC-P0-AC-067, MEDIA-REC-P0-AC-068, MEDIA-REC-P0-AC-069, MEDIA-REC-P0-AC-070]
   statement: Every operation in media.stream retains the intended semantic outcome in the full product definition and is invocable
     only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification,
     and runtime availability are separately established.
@@ -1122,6 +1134,10 @@ requirements:
   stateModelSource: state-models.yaml
 - id: MEDIA-REQ-CAP-RIGHTS
   scopeStatus: TARGET
+  recorderStudioSpecialization:
+    sourceRef: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    scope: Recorder-Studio-source-defined-successor-not-runtime-admission
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-058, MEDIA-REC-P0-AC-059, MEDIA-REC-P0-AC-060, MEDIA-REC-P0-AC-061, MEDIA-REC-P0-AC-062]
   statement: Every operation in media.rights retains the intended semantic outcome in the full product definition and is invocable
     only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification,
     and runtime availability are separately established.
@@ -3490,6 +3506,10 @@ requirements:
   stateModelSource: state-models.yaml
 - id: MEDIA-REQ-CAP-ANIMATION-OUTPUT
   scopeStatus: TARGET
+  recorderStudioSpecialization:
+    sourceRef: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    scope: Recorder-Studio-source-defined-successor-not-runtime-admission
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-071, MEDIA-REC-P0-AC-072, MEDIA-REC-P0-AC-073, MEDIA-REC-P0-AC-074]
   statement: Every operation in media.animation.output retains the intended semantic outcome in the full product definition
     and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission,
     qualification, and runtime availability are separately established.
@@ -4013,6 +4033,10 @@ requirements:
     decisionOwner: relevant-domain-owner
 - id: MEDIA-REQ-CAP-RECIPE-TEMPLATE
   scopeStatus: TARGET
+  recorderStudioSpecialization:
+    sourceRef: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    scope: Recorder-Studio-source-defined-successor-not-runtime-admission
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-001, MEDIA-REC-P0-AC-002, MEDIA-REC-P0-AC-003, MEDIA-REC-P0-AC-004, MEDIA-REC-P0-AC-005]
   statement: Every operation in media.recipe.template retains the intended semantic outcome in the full product definition
     and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission,
     qualification, and runtime availability are separately established.
@@ -5067,6 +5091,10 @@ requirements:
   stateModelSource: state-models.yaml
 - id: MEDIA-REQ-CAP-COMPOSE
   scopeStatus: TARGET
+  recorderStudioSpecialization:
+    sourceRef: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    scope: Recorder-Studio-source-defined-successor-not-runtime-admission
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023, MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-025, MEDIA-REC-P0-AC-026, MEDIA-REC-P0-AC-027, MEDIA-REC-P0-AC-028, MEDIA-REC-P0-AC-029, MEDIA-REC-P0-AC-035, MEDIA-REC-P0-AC-036, MEDIA-REC-P0-AC-037, MEDIA-REC-P0-AC-038, MEDIA-REC-P0-AC-039]
   statement: Every operation in media.compose retains the intended semantic outcome in the full product definition and is
     invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification,
     and runtime availability are separately established.
@@ -5593,6 +5621,10 @@ requirements:
   stateModelSource: state-models.yaml
 - id: MEDIA-REQ-CAP-QUALITY
   scopeStatus: TARGET
+  recorderStudioSpecialization:
+    sourceRef: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    scope: Recorder-Studio-source-defined-successor-not-runtime-admission
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-030, MEDIA-REC-P0-AC-031, MEDIA-REC-P0-AC-032, MEDIA-REC-P0-AC-033, MEDIA-REC-P0-AC-034, MEDIA-REC-P0-AC-045, MEDIA-REC-P0-AC-046, MEDIA-REC-P0-AC-047, MEDIA-REC-P0-AC-048, MEDIA-REC-P0-AC-049]
   statement: Every operation in media.quality retains the intended semantic outcome in the full product definition and is
     invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification,
     and runtime availability are separately established.
@@ -6220,6 +6252,10 @@ requirements:
   stateModelSource: state-models.yaml
 - id: MEDIA-REQ-CAP-DELIVER
   scopeStatus: TARGET
+  recorderStudioSpecialization:
+    sourceRef: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    scope: Recorder-Studio-source-defined-successor-not-runtime-admission
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-050, MEDIA-REC-P0-AC-051, MEDIA-REC-P0-AC-052, MEDIA-REC-P0-AC-053, MEDIA-REC-P0-AC-054, MEDIA-REC-P0-AC-055, MEDIA-REC-P0-AC-056, MEDIA-REC-P0-AC-057]
   statement: Every operation in media.deliver retains the intended semantic outcome in the full product definition and is
     invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification,
     and runtime availability are separately established.
