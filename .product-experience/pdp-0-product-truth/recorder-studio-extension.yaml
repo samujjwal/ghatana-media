@@ -41,10 +41,10 @@ capabilityBindings:
   REC-C01: [media.recipe.template.product-demonstration, media.compose.scene-storyboard-assemble, media.job.submit]
   REC-C02: [media.stream.recording.integrate, media.stream.session.open, media.stream.frame.submit]
   REC-C03: [media.project.version, media.project.composition.update, media.compose.multitrack-timeline]
-  REC-C04: [media.compose.multitrack-timeline, media.animation.editing.undo-redo.versioned, media.edit.smart-crop-auto-reframe, media.compose.track.video-audio-caption-overlay]
+  REC-C04: [media.compose.multitrack-timeline, media.animation.editing.undo-redo.versioned, media.edit.smart-crop-auto-reframe, media.compose.track.video-audio-caption-overlay, media.animation.output.accessibility.semantic-timeline]
   REC-C05: [media.animation.output.output.interactive-scene, media.deliver.interactive-scene-bundle, media.recipe.template.interactive-lesson]
   REC-C06: [media.quality.recommend, media.quality.rank, media.recipe.template.product-demonstration]
-  REC-C07: [media.rights.permitted-use.evaluate, media.quality.inspect, media.deliver.provenance-manifest, media.provenance.erasure.effect.record]
+  REC-C07: [media.rights.permitted-use.evaluate, media.quality.inspect, media.deliver.provenance-manifest, media.provenance.erasure.effect.record, media.deliver.publish-governed, media.job.watch]
   REC-C08: [media.project.version, media.job.retry, media.edit.propagate-keyframe-mask-effect, media.compose.render-manifest]
 goals:
   - exact-configured-source-to-professional-presentation-without-required-human-capture-control
