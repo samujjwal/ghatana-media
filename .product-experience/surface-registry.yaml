@@ -416,6 +416,7 @@ channelSurfaceProposals:
 # Physical materialization requires an admitted manifest-path/build-coordinate
 # and exact PDP applicability under that topology. No invented executable nodes.
   - surfaceId: media.surface.recorder-orchestrator
+    parentSurfaceId: media.surface.cli
     surfaceType: CLI
     purpose: Unattended, configuration-driven experience capture/recapture across qualified browser, CLI and API source adapters.
     consumers: [integrating-products, authorized-product-adapters, media-automation-clients]
@@ -440,6 +441,7 @@ channelSurfaceProposals:
       at this source cut; PDP-3 experience, independent acceptance and source-current
       admission remain separate. No release or runtime claim.
   - surfaceId: media.surface.capture-adapters
+    parentSurfaceId: media.surface.integrations
     surfaceType: SYSTEM_TO_SYSTEM_SERVICE
     purpose: Policy-governed source capture protocol for browser, desktop, mobile, terminal, HTTP/gRPC, camera and prerecorded media with explicit admission.
     consumers: [media-recorder-orchestrator, authorized-product-adapters]
@@ -464,6 +466,7 @@ channelSurfaceProposals:
       at this source cut; PDP-3 experience, independent acceptance and source-current
       admission remain separate. No release or runtime claim.
   - surfaceId: media.surface.production-studio
+    parentSurfaceId: media.surface.web
     surfaceType: GUI_WEB
     purpose: Complete accessible, non-destructive manual editing and automation review of one canonical versioned production project.
     consumers: [media-creators, media-editors, media-reviewers]
@@ -488,6 +491,7 @@ channelSurfaceProposals:
       at this source cut; PDP-3 experience, independent acceptance and source-current
       admission remain separate. No release or runtime claim.
   - surfaceId: media.surface.interactive-demo-player
+    parentSurfaceId: media.surface.embedded
     surfaceType: GUI_EMBEDDED
     purpose: Unprivileged sandboxed interactive demonstration package with choices, hotspots, captions and offline-safe fallback.
     consumers: [media-viewers, integrating-products]
