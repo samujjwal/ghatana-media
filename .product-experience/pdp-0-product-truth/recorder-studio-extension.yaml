@@ -72,3 +72,144 @@ negativeOutcomes:
   - unsupported-exact-brand-legal-equation-or-product-text-blocks-substitution
   - partial-clip-result-is-not-a-passed-business-demo
 nonClaims: [no-new-runtime-writer, no-PDP3-dev-complete, no-Discovery-pass, no-licensed-provider-admission, no-film-approval, no-release-authorization]
+
+
+requirementCoverage:
+  singleAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+  sourceOfCaseTruth: canonical-Media-requirements-register-not-a-second-requirement-inventory
+  acceptedHistoricalFamilyCount: 38
+  acceptedHistoricalCapabilityLeafCount: 462
+  scopedProfileCaseCount: 78
+  coverageRule: Each scoped capability requires direct positive, denial, unknown-finality, manual-parity or non-applicability evidence; a grouped label does not establish completion.
+  status: SOURCE_AUTHORED_SCOPE_PENDING_PHASE_SOURCE_CURRENTNESS
+featureProfiles:
+  - id: media.recorder.profile.intent.v1
+    ownerCapabilityGroup: REC-C01
+    ownerSurface: media.surface.recorder-orchestrator
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-001, MEDIA-REC-P0-AC-002, MEDIA-REC-P0-AC-003, MEDIA-REC-P0-AC-004, MEDIA-REC-P0-AC-005]
+    sourceAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    disposition: EXTEND_EXISTING_MEDIA_CAPABILITY_WITH_SCOPED_DEMO_PRODUCTION_MEANING
+    runtimeAdmission: NOT_ADMITTED
+  - id: media.recorder.profile.sources.v1
+    ownerCapabilityGroup: REC-C02
+    ownerSurface: media.surface.capture-adapters
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-006, MEDIA-REC-P0-AC-007, MEDIA-REC-P0-AC-008, MEDIA-REC-P0-AC-009, MEDIA-REC-P0-AC-010, MEDIA-REC-P0-AC-011]
+    sourceAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    disposition: EXTEND_EXISTING_MEDIA_CAPABILITY_WITH_SCOPED_DEMO_PRODUCTION_MEANING
+    runtimeAdmission: NOT_ADMITTED
+  - id: media.recorder.profile.exec.v1
+    ownerCapabilityGroup: REC-C01
+    ownerSurface: media.surface.recorder-orchestrator
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-012, MEDIA-REC-P0-AC-013, MEDIA-REC-P0-AC-014, MEDIA-REC-P0-AC-015, MEDIA-REC-P0-AC-016]
+    sourceAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    disposition: EXTEND_EXISTING_MEDIA_CAPABILITY_WITH_SCOPED_DEMO_PRODUCTION_MEANING
+    runtimeAdmission: NOT_ADMITTED
+  - id: media.recorder.profile.project.v1
+    ownerCapabilityGroup: REC-C03
+    ownerSurface: media.surface.production-studio
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-017, MEDIA-REC-P0-AC-018, MEDIA-REC-P0-AC-019, MEDIA-REC-P0-AC-020, MEDIA-REC-P0-AC-021]
+    sourceAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    disposition: EXTEND_EXISTING_MEDIA_CAPABILITY_WITH_SCOPED_DEMO_PRODUCTION_MEANING
+    runtimeAdmission: NOT_ADMITTED
+  - id: media.recorder.profile.studio.v1
+    ownerCapabilityGroup: REC-C04
+    ownerSurface: media.surface.production-studio
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023, MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-025, MEDIA-REC-P0-AC-026, MEDIA-REC-P0-AC-027, MEDIA-REC-P0-AC-028, MEDIA-REC-P0-AC-029]
+    sourceAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    disposition: EXTEND_EXISTING_MEDIA_CAPABILITY_WITH_SCOPED_DEMO_PRODUCTION_MEANING
+    runtimeAdmission: NOT_ADMITTED
+  - id: media.recorder.profile.ai.v1
+    ownerCapabilityGroup: REC-C06
+    ownerSurface: media.surface.production-studio
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-030, MEDIA-REC-P0-AC-031, MEDIA-REC-P0-AC-032, MEDIA-REC-P0-AC-033, MEDIA-REC-P0-AC-034]
+    sourceAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    disposition: EXTEND_EXISTING_MEDIA_CAPABILITY_WITH_SCOPED_DEMO_PRODUCTION_MEANING
+    runtimeAdmission: NOT_ADMITTED
+  - id: media.recorder.profile.pipe.v1
+    ownerCapabilityGroup: REC-C01
+    ownerSurface: media.surface.recorder-orchestrator
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-035, MEDIA-REC-P0-AC-036, MEDIA-REC-P0-AC-037, MEDIA-REC-P0-AC-038, MEDIA-REC-P0-AC-039]
+    sourceAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    disposition: EXTEND_EXISTING_MEDIA_CAPABILITY_WITH_SCOPED_DEMO_PRODUCTION_MEANING
+    runtimeAdmission: NOT_ADMITTED
+  - id: media.recorder.profile.regen.v1
+    ownerCapabilityGroup: REC-C08
+    ownerSurface: media.surface.recorder-orchestrator
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-040, MEDIA-REC-P0-AC-041, MEDIA-REC-P0-AC-042, MEDIA-REC-P0-AC-043, MEDIA-REC-P0-AC-044]
+    sourceAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    disposition: EXTEND_EXISTING_MEDIA_CAPABILITY_WITH_SCOPED_DEMO_PRODUCTION_MEANING
+    runtimeAdmission: NOT_ADMITTED
+  - id: media.recorder.profile.quality.v1
+    ownerCapabilityGroup: REC-C07
+    ownerSurface: media.surface.production-studio
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-045, MEDIA-REC-P0-AC-046, MEDIA-REC-P0-AC-047, MEDIA-REC-P0-AC-048, MEDIA-REC-P0-AC-049]
+    sourceAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    disposition: EXTEND_EXISTING_MEDIA_CAPABILITY_WITH_SCOPED_DEMO_PRODUCTION_MEANING
+    runtimeAdmission: NOT_ADMITTED
+  - id: media.recorder.profile.interactive.v1
+    ownerCapabilityGroup: REC-C05
+    ownerSurface: media.surface.interactive-demo-player
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-050, MEDIA-REC-P0-AC-051, MEDIA-REC-P0-AC-052, MEDIA-REC-P0-AC-053]
+    sourceAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    disposition: EXTEND_EXISTING_MEDIA_CAPABILITY_WITH_SCOPED_DEMO_PRODUCTION_MEANING
+    runtimeAdmission: NOT_ADMITTED
+  - id: media.recorder.profile.delivery.v1
+    ownerCapabilityGroup: REC-C07
+    ownerSurface: media.surface.recorder-orchestrator
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-054, MEDIA-REC-P0-AC-055, MEDIA-REC-P0-AC-056, MEDIA-REC-P0-AC-057]
+    sourceAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    disposition: EXTEND_EXISTING_MEDIA_CAPABILITY_WITH_SCOPED_DEMO_PRODUCTION_MEANING
+    runtimeAdmission: NOT_ADMITTED
+  - id: media.recorder.profile.security.v1
+    ownerCapabilityGroup: REC-C07
+    ownerSurface: media.surface.capture-adapters
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-058, MEDIA-REC-P0-AC-059, MEDIA-REC-P0-AC-060, MEDIA-REC-P0-AC-061, MEDIA-REC-P0-AC-062]
+    sourceAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    disposition: EXTEND_EXISTING_MEDIA_CAPABILITY_WITH_SCOPED_DEMO_PRODUCTION_MEANING
+    runtimeAdmission: NOT_ADMITTED
+  - id: media.recorder.profile.o11y.v1
+    ownerCapabilityGroup: REC-C07
+    ownerSurface: media.surface.recorder-orchestrator
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-063, MEDIA-REC-P0-AC-064, MEDIA-REC-P0-AC-065, MEDIA-REC-P0-AC-066]
+    sourceAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    disposition: EXTEND_EXISTING_MEDIA_CAPABILITY_WITH_SCOPED_DEMO_PRODUCTION_MEANING
+    runtimeAdmission: NOT_ADMITTED
+  - id: media.recorder.profile.crossplatform.v1
+    ownerCapabilityGroup: REC-C02
+    ownerSurface: media.surface.capture-adapters
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-067, MEDIA-REC-P0-AC-068, MEDIA-REC-P0-AC-069, MEDIA-REC-P0-AC-070]
+    sourceAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    disposition: EXTEND_EXISTING_MEDIA_CAPABILITY_WITH_SCOPED_DEMO_PRODUCTION_MEANING
+    runtimeAdmission: NOT_ADMITTED
+  - id: media.recorder.profile.accessibility.v1
+    ownerCapabilityGroup: REC-C04
+    ownerSurface: media.surface.production-studio
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-071, MEDIA-REC-P0-AC-072, MEDIA-REC-P0-AC-073, MEDIA-REC-P0-AC-074]
+    sourceAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    disposition: EXTEND_EXISTING_MEDIA_CAPABILITY_WITH_SCOPED_DEMO_PRODUCTION_MEANING
+    runtimeAdmission: NOT_ADMITTED
+  - id: media.recorder.profile.manualparity.v1
+    ownerCapabilityGroup: REC-C03
+    ownerSurface: media.surface.production-studio
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-075, MEDIA-REC-P0-AC-076, MEDIA-REC-P0-AC-077, MEDIA-REC-P0-AC-078]
+    sourceAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    disposition: EXTEND_EXISTING_MEDIA_CAPABILITY_WITH_SCOPED_DEMO_PRODUCTION_MEANING
+    runtimeAdmission: NOT_ADMITTED
+crossCuttingPolicies:
+  singleProductOwner: one-MediaProject-and-existing-ProcessingJob-owner
+  productAdapterOwnership: product-specific-business-stories-roles-seeds-and-authorization-stay-with-product
+  immutableMedia: no-destructive-source-asset-mutation
+  sourceTime: rational-source-time-explicit-clock-transform-and-measured-uncertainty
+  replaySafety: no-nonidempotent-product-action-retry-until-owner-finality-is-reconciled
+  humanChoice: full-automated-vs-manual-edit-parity-locks-and-typed-conflict-review
+  publication: actual-human-legal-audience-rights-approvals-separate-from-media-technical-QA
+  reuse: published-Shared-Tools-Kernel-Inference-and-Document-Intelligence-only-where-admitted
+  deployment: only-existing-ghatana-services-media-runtime-writer-until-MIG-04-cutover
+negativeAppplicability:
+  noBrowserRequiredForHeadless: true
+  noFakeUserInterfaceForApiCli: true
+  noUnqualifiedMobileDesktopCameraProviderClaim: true
+  noUnadmittedModelOrCodecAsRequiredDependency: true
+  noImplicitCreativeApprovalAsBusinessApproval: true
+  noRecordedFilmApprovalFromDefinitionEvidence: true
+  noHistoricalPdpStatusRepinWithoutSuccessor: true
