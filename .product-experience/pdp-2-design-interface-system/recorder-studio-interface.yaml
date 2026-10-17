@@ -552,7 +552,7 @@ viewStateContracts:
   releaseNotApproved: show-independent-human-and-rights-gates-despite-passing-technical-QA
 interactionAndA11yRequirements:
   keyboard: [source-select, timecode-seek, region-select, undo, redo, save-draft, publish-denial, branch-choice, source-inspection]
-  assistiveStructure: [navigable-timeline-tree, track-grouping, authorative-revision-label, source-provenance, labelled-controls, live-region-state-announcements, logical-reading-order]
+  assistiveStructure: [navigable-timeline-tree, track-grouping, authoritative-revision-label, source-provenance, labelled-controls, live-region-state-announcements, logical-reading-order]
   visualProfiles: [high-contrast, reduced-motion, zoom-responsive, portrait-crop-safe-area, RTL-where-applicable]
   clipboardAndExport: source-bound-versioned-content-only-with-privacy-policy
   focusSafety: errors-and-conflicts-never-steal-focus-or-leave-unreachable-actions
