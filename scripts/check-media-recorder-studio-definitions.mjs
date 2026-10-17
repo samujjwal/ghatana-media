@@ -169,10 +169,10 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
     positiveAndDenied.push(id);
     caseDetails.set(id, {cap, surface});
   }
-  if (caseIds.length !== 84 || new Set(caseIds).size !== 78 || caseIds.some(id => !stableCaseId.test(id)))
+  if (caseIds.length !== 84 || new Set(caseIds).size !== 84 || caseIds.some(id => !stableCaseId.test(id)))
     fail('exactly 84 stable unique canonical Recorder Studio acceptance cases required');
   if (!req.includes('requiredClauseCount: 84') && !req.includes('requiredClauseCount: 84\n'))
-    fail('profile denominator is not source-bound to 78');
+    fail('profile denominator is not source-bound to 84');
 
   const capGroupRecords = [...p0.matchAll(/^  (REC-C\d{2}): \[([^\]]+)\]$/gm)];
   const capGroupCapabilities = new Map(capGroupRecords.map(m => [m[1], new Set(yamlList(m[2]))]));
