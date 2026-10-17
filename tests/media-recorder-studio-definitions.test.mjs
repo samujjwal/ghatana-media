@@ -102,3 +102,43 @@ test('mandatory definition checker rejects duplicate keys in changed interface g
   assert.ok(result.errors.some(error => error.includes('interfaceGrammar: invalid or duplicate YAML mapping')),
     result.errors.join('\n'));
 });
+
+test('rejects mismatched logical parent in the physical consumer crosswalk', () => {
+  const topology = JSON.parse(read('.product-experience/surfaces/media-physical-topology.v1.json'));
+  const consumer = topology.consumerCrosswalk.find(item => item.surfaceId === 'media.surface.recorder-orchestrator');
+  consumer.parentSurfaceId = 'media.surface.web';
+  const result = verifyRecorderStudioDefinitions({overrides:{topology:JSON.stringify(topology)}});
+  assert.ok(result.errors.some(error => error.includes('physical consumer crosswalk parent differs')),
+    result.errors.join('\n'));
+});
+test('rejects a registry parent that conflicts with the source PDP-0 hierarchy', () => {
+  const registry = read('.product-experience/surface-registry.yaml');
+  const original = '  - surfaceId: media.surface.production-studio\n    parentSurfaceId: media.surface.web';
+  assert.ok(registry.includes(original));
+  const changed = registry.replace(original,
+    '  - surfaceId: media.surface.production-studio\n    parentSurfaceId: media.surface.cli');
+  const result = verifyRecorderStudioDefinitions({overrides:{registry:changed}});
+  assert.ok(result.errors.some(error => error.includes('surface registry parent differs')),
+    result.errors.join('\n'));
+});
+test('rejects successor surface type drift without changing the surface census', () => {
+  const topology = JSON.parse(read('.product-experience/surfaces/media-physical-topology.v1.json'));
+  const consumer = topology.consumerCrosswalk.find(item => item.surfaceId === 'media.surface.interactive-demo-player');
+  consumer.consumerType = 'PUBLIC_API';
+  const result = verifyRecorderStudioDefinitions({overrides:{topology:JSON.stringify(topology)}});
+  assert.ok(result.errors.some(error => error.includes('registry surface type differs')),
+    result.errors.join('\n'));
+});
+test('rejects false runtime qualification on a source-only logical surface', () => {
+  const registry = read('.product-experience/surface-registry.yaml');
+  const start = registry.indexOf('  - surfaceId: media.surface.recorder-orchestrator\n');
+  const next = registry.indexOf('  - surfaceId:', start + 5);
+  assert.ok(start >= 0);
+  const block = next < 0 ? registry.slice(start) : registry.slice(start, next);
+  assert.ok(block.includes('implementationStatus: SOURCE_ONLY'));
+  const changed = registry.replace(block, block.replace('implementationStatus: SOURCE_ONLY',
+    'implementationStatus: PRODUCTION_READY'));
+  const result = verifyRecorderStudioDefinitions({overrides:{registry:changed}});
+  assert.ok(result.errors.some(error => error.includes('source-only and unqualified')),
+    result.errors.join('\n'));
+});
