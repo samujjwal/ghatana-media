@@ -1652,3 +1652,14 @@ ownerMigrationSemanticRules:
         - adjacentSubstantiveCellsAreNotMergedIntoThisClaim
       acceptanceEffect: none
       runtimeEvidence: NOT_ASSERTED
+
+# Scoped Recorder/Studio entry for existing journeys; not a second PDP-3 registry.
+recorderStudioJourneySpecializations:
+  status: SOURCE_AUTHORED_PENDING_SOURCE_CURRENTNESS_AND_PDP3_REVALIDATION
+  authority: .product-experience/pdp-0-product-truth/recorder-studio-extension.yaml
+  requiredJourneyIds: [J-09, J-11, J-18, J-19, J-20, J-21, J-22, J-24, J-25, J-26, J-27, J-28]
+  additionalNewJourneyIds: []
+  sourceRequirementCases: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+  affectedSurfaces: [media.surface.recorder-orchestrator, media.surface.capture-adapters, media.surface.production-studio, media.surface.interactive-demo-player]
+  semantics: [unattended-configured-demo, authorized-multi-source-capture, non-destructive-professional-editing, incremental-scene-recapture, qualified-media-quality, human-review-separated, headless-cli-api-truth, sandboxed-interactive-player, policy-governed-publication]
+  noClaims: [no-PDP3-existing-journey-promotion, no-new-screen-identity, no-implementation, no-Build-admission]
