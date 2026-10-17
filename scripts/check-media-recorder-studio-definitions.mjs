@@ -96,6 +96,7 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
   if (!caseSection) return { errors: [...errors, 'canonical Recorder Studio requirements profile is missing'], stats: {} };
   const clauseChunks = caseSection.split(/^    - id: (MEDIA-REC-P0-AC-\d{3})\s*$/gm);
   const caseIds = [], positiveAndDenied = [];
+  const caseDetails = new Map();
   for (let i = 1; i + 1 < clauseChunks.length; i += 2) {
     const id = clauseChunks[i], body = clauseChunks[i + 1];
     caseIds.push(id);
@@ -109,12 +110,15 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
        || !/^      then: ".+"/m.test(body) || !/^      rejection: ".+"/m.test(body))
       fail(id+': complete given/when/then/negative scenario is required');
     positiveAndDenied.push(id);
+    caseDetails.set(id, {cap, surface});
   }
   if (caseIds.length !== 78 || new Set(caseIds).size !== 78 || caseIds.some(id => !stableCaseId.test(id)))
     fail('exactly 78 stable unique canonical Recorder Studio acceptance cases required');
   if (!req.includes('requiredClauseCount: 78') && !req.includes('requiredClauseCount: 78\n'))
     fail('profile denominator is not source-bound to 78');
 
+  const capGroupRecords = [...p0.matchAll(/^  (REC-C\d{2}): \[([^\]]+)\]$/gm)];
+  const capGroupCapabilities = new Map(capGroupRecords.map(m => [m[1], new Set(yamlList(m[2]))]));
   const p0BindingChunks = extract(p0, /^  REC-C\d{2}: \[([^\]]+)\]/gm);
   if (p0BindingChunks.length !== 8) fail('all eight previous Recorder Studio P0 capability groups must be present');
   for (const refs of p0BindingChunks) for (const cap of yamlList(refs))
@@ -124,6 +128,39 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
   const p0FeatureIds = extract(p0, /^  - id: (media\.recorder\.profile\.[^\s]+)/gm);
   if (p0FeatureIds.length !== 16 || new Set(p0FeatureIds).size !== 16)
     fail('P0 sixteen profile areas must each have unique source identity');
+
+  // A valid global acceptance-case set is insufficient: every case must belong
+  // to the exact capability group AND owning consumer surface of its feature.
+  // Otherwise a case may silently move between features without changing any
+  // structural denominator or breaking the previous coverage check.
+  const featureSection = p0.split('\nfeatureProfiles:\n')[1]?.split('\ncrossCuttingPolicies:\n')[0] ?? '';
+  const featureChunks = featureSection.split(/^  - id: (media\.recorder\.profile\.[^\s]+)\s*$/gm);
+  const locallyBoundCaseIds = [];
+  for (let i = 1; i + 1 < featureChunks.length; i += 2) {
+    const featureId = featureChunks[i], body = featureChunks[i + 1];
+    const group = body.match(/^    ownerCapabilityGroup: (\S+)/m)?.[1];
+    const surface = body.match(/^    ownerSurface: (\S+)/m)?.[1];
+    const caseRefs = yamlList(body.match(/^    acceptanceCaseRefs: \[([^\]]+)\]/m)?.[1] ?? '');
+    if (!capGroupCapabilities.has(group)) fail(featureId+': unrecognized owner capability group '+group);
+    if (!newSurfaceIds.includes(surface)) fail(featureId+': unrecognized owner surface '+surface);
+    if (!caseRefs.length) fail(featureId+': missing local acceptance cases');
+    for (const caseId of caseRefs) {
+      locallyBoundCaseIds.push(caseId);
+      const detail = caseDetails.get(caseId);
+      if (!detail) {
+        fail(featureId+': unknown acceptance case '+caseId);
+        continue;
+      }
+      if (detail.surface !== surface)
+        fail(featureId+': '+caseId+' case surface differs from feature owner surface');
+      if (!capGroupCapabilities.get(group)?.has(detail.cap))
+        fail(featureId+': '+caseId+' capability leaf not bound by feature capability group '+group);
+    }
+  }
+  if (!sameSet(locallyBoundCaseIds, caseIds))
+    fail('P0 feature-local acceptance cases must exactly cover canonical cases once');
+  if (featureChunks.length !== 1 + 2 * p0FeatureIds.length)
+    fail('P0 feature section parser did not account for every feature identity');
   if (!p0.includes('negativeApplicability:') || !p0.includes('noFakeUserInterfaceForApiCli'))
     fail('P0 unsupported/non-GUI and fail-closed applicability missing');
 
