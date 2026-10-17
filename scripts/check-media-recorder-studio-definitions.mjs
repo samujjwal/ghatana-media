@@ -74,6 +74,43 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
     fail('historical consumer identities were dropped or reused');
   if (new Set(physicalIds).size !== 26) fail('physical candidate identity duplicated');
 
+  // The new surfaces are logical child contracts of canonical consumer surfaces.
+  // The owning PDP-0 Product Truth states the intent; registry and physical
+  // crosswalk must project its exact parent, rather than creating orphaned or
+  // mutually contradictory surface trees.
+  let productSurfaceSpecs = [], registrySurfaceSpecs = [];
+  try {
+    productSurfaceSpecs = parseDocument(original.p0, {uniqueKeys:true, strict:true}).toJS()?.surfaces ?? [];
+    registrySurfaceSpecs = parseDocument(original.registry, {uniqueKeys:true, strict:true}).toJS()?.surfaces ?? [];
+  } catch (error) {
+    fail('Recorder Studio parent hierarchy cannot be read from valid YAML: '+error.message);
+  }
+  const specs = new Map(productSurfaceSpecs.map(x => [x.id, x]));
+  const registered = new Map(registrySurfaceSpecs.map(x => [x.surfaceId, x]));
+  if (specs.size !== newSurfaceIds.length || productSurfaceSpecs.length !== newSurfaceIds.length)
+    fail('PDP-0 must have exactly four distinct new logical surface definitions');
+  for (const id of newSurfaceIds) {
+    const sourceSurface = specs.get(id);
+    const registeredSurface = registered.get(id);
+    const consumer = consumers.find(x => x.surfaceId === id);
+    const parentId = sourceSurface?.parent;
+    if (!parentId || parentId === id || !old.includes(parentId)
+      || !consumers.some(x => x.surfaceId === parentId))
+      fail(id+': PDP-0 parent is not a retained canonical consumer surface');
+    if (registeredSurface?.parentSurfaceId !== parentId)
+      fail(id+': surface registry parent differs from PDP-0 parent');
+    if (consumer?.parentSurfaceId !== parentId)
+      fail(id+': physical consumer crosswalk parent differs from PDP-0 parent');
+    if (registeredSurface?.surfaceType !== consumer?.consumerType)
+      fail(id+': registry surface type differs from consumer crosswalk type');
+    if (registeredSurface?.semanticStatus !== 'PROPOSED'
+      || registeredSurface?.implementationStatus !== 'SOURCE_ONLY'
+      || registeredSurface?.qualificationStatus !== 'PENDING')
+      fail(id+': successor consumer must remain explicitly source-only and unqualified');
+    if (sourceSurface?.interfaceRequired !== true)
+      fail(id+': PDP-0 must declare applicable interface design even for headless surfaces');
+  }
+
   // Every new consumer is a declared logical contract/host-dependent boundary,
   // never a disguised deployed recorder or invented physical package.
   for (const id of newSurfaceIds) {
