@@ -524,6 +524,30 @@ manualOperationParity:
     expectedRevisionRequired: true
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+sourceBoundEditorValueContracts:
+  authority: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#derivedValueObjects
+  canonicalDataOwnership: existing-MediaProject-and-Job-Attempt-rights-audit-authorities
+  definitions:
+    - id: media.recorder.p2.binding.transform.v1
+      valueRef: media.recorder.value.transform.v1
+      editor: property-inspector-with-keyframe-curve-and-source-geometry
+      keyboardTextParity: numeric-units-timecode-and-protected-region-semantics
+      denial: stale-revision-or-overridden-lock-is-shown-without-mutating-source
+    - id: media.recorder.p2.binding.effect.v1
+      valueRef: media.recorder.value.effect.v1
+      editor: effect-inspector-with-qualified-provider-parameters-and-before-after
+      keyboardTextParity: accessible-parameter-list-versioned-effect-presets
+      denial: unsupported-codec-effect-or-license-must-block-effect-not-bypass
+    - id: media.recorder.p2.binding.render-profile.v1
+      valueRef: media.recorder.value.render-profile.v1
+      editor: rendition-profile-preview-and-qualified-export-settings
+      keyboardTextParity: full-equivalent-cli-api-profile-editor-with-exact-units
+      denial: unavailable-quality-profile-or-unsupported-aspect-is-visible
+    - id: media.recorder.p2.binding.run-receipt.v1
+      valueRef: media.recorder.value.run-receipt.v1
+      editor: source-linked-run-and-technical-semantic-quality-review
+      keyboardTextParity: JSON-JSONL-and-readable-evidence-linked-result-inspector
+      denial: unobserved-owner-effect-cannot-be-shown-as-passed
 experiencePresentationProfiles:
   - id: media.recorder.p2.profile.video-landscape
     sourceProfile: 16:9
