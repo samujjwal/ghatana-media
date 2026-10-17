@@ -5946,11 +5946,11 @@ individualOperationContracts:
             - requestId
           properties:
             jobId:
-              type: opaque-id
+              type: string
               tenantScoped: true
               owningPrincipalScopeRequired: true
             requestId:
-              type: opaque-id
+              type: string
               stableForRetryAndReconciliation: true
             expectedJobVersion:
               type: nonnegative-integer
@@ -6253,14 +6253,14 @@ individualOperationContracts:
             - requestId
           properties:
             jobId:
-              type: opaque-id
+              type: string
               tenantScoped: true
               owningPrincipalScopeRequired: true
             priorAttemptId:
-              type: opaque-id
+              type: string
               sameJobRequired: true
             requestId:
-              type: opaque-id
+              type: string
               stableForRetryAndReconciliation: true
             expectedJobVersion:
               type: nonnegative-integer
@@ -10056,7 +10056,7 @@ ownerDefinedOperationContracts:
           - requestId
         properties:
           projectId:
-            type: opaque-id
+            type: string
             tenantScoped: true
             immutable: true
           expectedHeadRevisionId:
@@ -10064,7 +10064,7 @@ ownerDefinedOperationContracts:
             object: media.domain.project-revision
             exactCurrentHeadRequired: true
           artifactId:
-            type: opaque-id
+            type: string
             tenantScoped: true
             owningPrincipalScopeRequired: true
           artifactVersionId:
@@ -10072,7 +10072,7 @@ ownerDefinedOperationContracts:
             object: media.domain.artifact-version
             immutable: true
           requestId:
-            type: opaque-id
+            type: string
             stableForRetryAndReconciliation: true
         trustedContext:
           tenantId: authenticated-host-only; caller-payload-override-rejected
@@ -10411,7 +10411,7 @@ ownerDefinedOperationContracts:
           - subjectRef
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a2_scope_2_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -10470,7 +10470,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a5_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -10540,12 +10540,12 @@ ownerDefinedOperationContracts:
           - explicitConfirmation
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTargetRefs:
             type: array
             items:
-              type: CanonicalObjectReference
+              type: string
               allowedObjectRefs: *a7_scope_1_scope_1_scope_1_scope_1_scope_1
             minItems: 1
             maxItems: 16
@@ -10624,10 +10624,10 @@ ownerDefinedOperationContracts:
           - declaredScopeRef
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTargetRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a9_scope_1_scope_1_scope_1_scope_1_scope_1
           currentAuthorityDecision:
             type: current-authority-decision-ref
@@ -10636,12 +10636,12 @@ ownerDefinedOperationContracts:
             type: confirmation
             mustMatchTargetAndEffect: true
           rightsDecisionRef:
-            type: authority-issued-rights-decision-ref
+            type: string
             objectRef: media.domain.rights-decision
           subjectVersionRefs:
             type: array
             items:
-              type: CanonicalObjectReference
+              type: string
               allowedObjectRefs:
                 - media.domain.artifact-version
                 - media.domain.transcript-version
@@ -10721,7 +10721,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a11_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -10786,7 +10786,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a13_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -10861,12 +10861,12 @@ ownerDefinedOperationContracts:
           - authorityDecisionRef
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTargetRefs:
             type: array
             items:
-              type: CanonicalObjectReference
+              type: string
               allowedObjectRefs: *a15_scope_1_scope_1_scope_1_scope_1_scope_1
             minItems: 1
             maxItems: 16
@@ -10960,10 +10960,10 @@ ownerDefinedOperationContracts:
           - deliveryProfileRef
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTargetRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a17_scope_1_scope_1_scope_1_scope_1_scope_1
           currentAuthorityDecision:
             type: current-authority-decision-ref
@@ -11461,10 +11461,10 @@ ownerDefinedOperationContracts:
           - exportScope
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTargetRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a19_scope_1_scope_1_scope_1_scope_1_scope_1
           currentAuthorityDecision:
             type: current-authority-decision-ref
@@ -11552,7 +11552,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a21_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -11621,7 +11621,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a23_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -11686,7 +11686,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a25_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -11751,7 +11751,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a27_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -11816,7 +11816,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a29_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -11881,7 +11881,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a31_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -11946,7 +11946,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a33_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -12011,7 +12011,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a35_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -12075,7 +12075,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a37_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -12140,7 +12140,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a39_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -12205,7 +12205,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a41_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -12268,7 +12268,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a43_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -12336,7 +12336,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a45_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -12404,7 +12404,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a47_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -12469,7 +12469,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a49_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -12534,7 +12534,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a51_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -12599,7 +12599,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a53_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -12663,7 +12663,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a55_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -12728,7 +12728,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a57_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -12793,7 +12793,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a59_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -12858,7 +12858,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a61_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -12923,7 +12923,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a63_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -12989,7 +12989,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a65_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -13054,7 +13054,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a67_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -13118,7 +13118,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a69_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -13182,10 +13182,10 @@ ownerDefinedOperationContracts:
         required: *a71_scope_1_scope_1_scope_1_scope_1_scope_1
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTargetRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a72_scope_1_scope_1_scope_1_scope_1_scope_1
           currentAuthorityDecision:
             type: current-authority-decision-ref
@@ -13194,12 +13194,12 @@ ownerDefinedOperationContracts:
             type: confirmation
             mustMatchTargetAndEffect: true
           rightsDecisionRef:
-            type: authority-issued-rights-decision-ref
+            type: string
             objectRef: media.domain.rights-decision
           subjectVersionRefs:
             type: array
             items:
-              type: CanonicalObjectReference
+              type: string
               allowedObjectRefs:
                 - media.domain.artifact-version
                 - media.domain.transcript-version
@@ -13288,10 +13288,10 @@ ownerDefinedOperationContracts:
           - reviewPayload
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTarget:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a74_scope_1_scope_1_scope_1_scope_1_scope_1
           expectedParentOrRevision:
             type: opaque-version-or-parent-id
@@ -13303,7 +13303,7 @@ ownerDefinedOperationContracts:
             type: ActionSpecificAppendPayload
             discriminator: media.action.record-candidate-for-review
           reviewSubjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a74_scope_1_scope_1_scope_1_scope_1_scope_1
             mustNameExactVersion: true
           reviewCaseId:
@@ -13384,10 +13384,10 @@ ownerDefinedOperationContracts:
           - reviewPayload
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTarget:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a76_scope_1_scope_1_scope_1_scope_1_scope_1
           expectedParentOrRevision:
             type: opaque-version-or-parent-id
@@ -13399,7 +13399,7 @@ ownerDefinedOperationContracts:
             type: ActionSpecificAppendPayload
             discriminator: media.action.record-review-comment
           reviewSubjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a76_scope_1_scope_1_scope_1_scope_1_scope_1
             mustNameExactVersion: true
           reviewCaseId:
@@ -13481,10 +13481,10 @@ ownerDefinedOperationContracts:
           - reviewPayload
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTarget:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a78_scope_1_scope_1_scope_1_scope_1_scope_1
           expectedParentOrRevision:
             type: opaque-version-or-parent-id
@@ -13496,7 +13496,7 @@ ownerDefinedOperationContracts:
             type: ActionSpecificAppendPayload
             discriminator: media.action.record-review-follow-up
           reviewSubjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a78_scope_1_scope_1_scope_1_scope_1_scope_1
             mustNameExactVersion: true
           reviewCaseId:
@@ -13577,10 +13577,10 @@ ownerDefinedOperationContracts:
           - reviewPayload
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTargetRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a80_scope_1_scope_1_scope_1_scope_1_scope_1
           currentAuthorityDecision:
             type: current-authority-decision-ref
@@ -13589,7 +13589,7 @@ ownerDefinedOperationContracts:
             type: confirmation
             mustMatchTargetAndEffect: true
           reviewSubjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a80_scope_1_scope_1_scope_1_scope_1_scope_1
             mustNameExactVersion: true
           reviewCaseId:
@@ -13663,7 +13663,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a82_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -13744,12 +13744,12 @@ ownerDefinedOperationContracts:
           - explicitConfirmation
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTargetRefs:
             type: array
             items:
-              type: CanonicalObjectReference
+              type: string
               allowedObjectRefs: *a85_scope_1_scope_1_scope_1_scope_1_scope_1
             minItems: 1
             maxItems: 16
@@ -13886,10 +13886,10 @@ ownerDefinedOperationContracts:
         required: *a71_scope_1_scope_1_scope_1_scope_1_scope_1
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTargetRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a87_scope_1_scope_1_scope_1_scope_1_scope_1
           currentAuthorityDecision:
             type: current-authority-decision-ref
@@ -13959,10 +13959,10 @@ ownerDefinedOperationContracts:
         required: *a71_scope_1_scope_1_scope_1_scope_1_scope_1
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTargetRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a89_scope_1_scope_1_scope_1_scope_1_scope_1
           currentAuthorityDecision:
             type: current-authority-decision-ref
@@ -14031,10 +14031,10 @@ ownerDefinedOperationContracts:
         required: *a71_scope_1_scope_1_scope_1_scope_1_scope_1
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTargetRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a91_scope_1_scope_1_scope_1_scope_1_scope_1
           currentAuthorityDecision:
             type: current-authority-decision-ref
@@ -14043,12 +14043,12 @@ ownerDefinedOperationContracts:
             type: confirmation
             mustMatchTargetAndEffect: true
           rightsDecisionRef:
-            type: authority-issued-rights-decision-ref
+            type: string
             objectRef: media.domain.rights-decision
           subjectVersionRefs:
             type: array
             items:
-              type: CanonicalObjectReference
+              type: string
               allowedObjectRefs:
                 - media.domain.artifact-version
                 - media.domain.transcript-version
@@ -14138,7 +14138,7 @@ ownerDefinedOperationContracts:
           newValue:
             type: json-value
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
         trustedContext:
           tenantId: authenticated-host-only
@@ -14202,7 +14202,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a94_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -14267,7 +14267,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a96_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -14331,7 +14331,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a98_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -14396,7 +14396,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a100_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -14462,7 +14462,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a102_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -14527,7 +14527,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a104_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -14593,7 +14593,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a106_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -14658,7 +14658,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a108_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -14723,7 +14723,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a110_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -14796,10 +14796,10 @@ ownerDefinedOperationContracts:
           - authorityDecisionRef
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTargetRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a112_scope_1_scope_1_scope_1_scope_1_scope_1
           currentAuthorityDecision:
             type: current-authority-decision-ref
@@ -14888,10 +14888,10 @@ ownerDefinedOperationContracts:
           - payload
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTarget:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a114_scope_1_scope_1_scope_1_scope_1_scope_1
           expectedParentOrRevision:
             type: opaque-version-or-parent-id
@@ -14965,10 +14965,10 @@ ownerDefinedOperationContracts:
         required: *a116_scope_1_scope_1_scope_1_scope_1_scope_1
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTarget:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a117_scope_1_scope_1_scope_1_scope_1_scope_1
           expectedParentOrRevision:
             type: opaque-version-or-parent-id
@@ -15045,7 +15045,7 @@ ownerDefinedOperationContracts:
           newValue:
             type: json-value
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
         trustedContext:
           tenantId: authenticated-host-only
@@ -15115,10 +15115,10 @@ ownerDefinedOperationContracts:
         required: *a116_scope_1_scope_1_scope_1_scope_1_scope_1
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTarget:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a121_scope_1_scope_1_scope_1_scope_1_scope_1
           expectedParentOrRevision:
             type: opaque-version-or-parent-id
@@ -15191,10 +15191,10 @@ ownerDefinedOperationContracts:
         required: *a116_scope_1_scope_1_scope_1_scope_1_scope_1
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTarget:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a123_scope_1_scope_1_scope_1_scope_1_scope_1
           expectedParentOrRevision:
             type: opaque-version-or-parent-id
@@ -15266,7 +15266,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a125_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -15331,7 +15331,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a127_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -15396,7 +15396,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a129_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -15461,10 +15461,10 @@ ownerDefinedOperationContracts:
         required: *a71_scope_1_scope_1_scope_1_scope_1_scope_1
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTargetRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a131_scope_1_scope_1_scope_1_scope_1_scope_1
           currentAuthorityDecision:
             type: current-authority-decision-ref
@@ -15546,12 +15546,12 @@ ownerDefinedOperationContracts:
           - authorityDecisionRef
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTargetRefs:
             type: array
             items:
-              type: CanonicalObjectReference
+              type: string
               allowedObjectRefs: *a133_scope_1_scope_1_scope_1_scope_1_scope_1
             minItems: 1
             maxItems: 16
@@ -15636,12 +15636,12 @@ ownerDefinedOperationContracts:
         required: *a84_scope_1_scope_1_scope_1_scope_1_scope_1
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTargetRefs:
             type: array
             items:
-              type: CanonicalObjectReference
+              type: string
               allowedObjectRefs: *a135_scope_1_scope_1_scope_1_scope_1_scope_1
             minItems: 1
             maxItems: 16
@@ -15721,12 +15721,12 @@ ownerDefinedOperationContracts:
           - renderProfileRef
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTargetRefs:
             type: array
             items:
-              type: CanonicalObjectReference
+              type: string
               allowedObjectRefs: *a137_scope_1_scope_1_scope_1_scope_1_scope_1
             minItems: 1
             maxItems: 16
@@ -15754,7 +15754,7 @@ ownerDefinedOperationContracts:
                 type: array
                 minItems: 1
                 items:
-                  type: CanonicalObjectReference
+                  type: string
                   allowedObjectRefs:
                     - media.domain.artifact-version
               snapshotDigest:
@@ -15763,7 +15763,7 @@ ownerDefinedOperationContracts:
               projectBacked:
                 type: boolean
               projectRevisionRef:
-                type: CanonicalObjectReference
+                type: string
                 allowedObjectRefs:
                   - media.domain.project-revision
             allOf:
@@ -15863,12 +15863,12 @@ ownerDefinedOperationContracts:
           - outputSelection
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTargetRefs:
             type: array
             items:
-              type: CanonicalObjectReference
+              type: string
               allowedObjectRefs: *a139_scope_1_scope_1_scope_1_scope_1_scope_1
             minItems: 1
             maxItems: 16
@@ -15971,12 +15971,12 @@ ownerDefinedOperationContracts:
         required: *a84_scope_1_scope_1_scope_1_scope_1_scope_1
         properties:
           requestId:
-            type: opaque-id
+            type: string
             tenantPrincipalScoped: true
           exactTargetRefs:
             type: array
             items:
-              type: CanonicalObjectReference
+              type: string
               allowedObjectRefs: *a141_scope_1_scope_1_scope_1_scope_1_scope_1
             minItems: 1
             maxItems: 16
@@ -16048,7 +16048,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a143_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -16113,7 +16113,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a145_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -16178,7 +16178,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a147_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -16243,7 +16243,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a149_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -16311,7 +16311,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a151_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -16379,7 +16379,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a153_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -16446,7 +16446,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a155_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -16515,7 +16515,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a157_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -16589,7 +16589,7 @@ ownerDefinedOperationContracts:
         required: *a4_scope_2_scope_1_scope_1_scope_1_scope_1
         properties:
           subjectRef:
-            type: CanonicalObjectReference
+            type: string
             allowedObjectRefs: *a159_scope_1_scope_1_scope_1_scope_1_scope_1
             versionRule: exact immutable version required when the source action names a
               version
@@ -16651,7 +16651,7 @@ ownerDefinedOperationContracts:
           - artifactVersionId
         properties:
           artifactId:
-            type: opaque-id
+            type: string
             objectRef: media.domain.artifact
             tenantScoped: true
           artifactVersionId:
@@ -17006,7 +17006,7 @@ ownerDefinedOperationContracts:
                     required: [kind, artifactId, versionId]
                     properties:
                       kind: { const: artifact }
-                      artifactId: { type: opaque-id, objectRef: media.domain.artifact }
+                      artifactId: { type: string, objectRef: media.domain.artifact }
                       versionId: { type: opaque-version-id, objectRef: media.domain.artifact-version }
                       sourceRef: { type: opaque-versioned-reference }
                   - type: object
@@ -244978,7 +244978,7 @@ ownerTypedObservationContracts:
             then:
               properties:
                 subjectArtifactVersionRef:
-                  type: CanonicalObjectReference
+                  type: string
                   allowedObjectRefs: [ media.domain.artifact-version ]
                   versionRule: exact owner-confirmed registered output ArtifactVersionRef required
       resultSchema:

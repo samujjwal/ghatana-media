@@ -34,7 +34,7 @@
   },
   "pdp1ImpactBasis": {
     "ref": "docs/implementation/observations/media-discovery-pdp1-pxd164-semantic-repair-impact-2026-10-14-r1.json",
-    "sha256": "sha256:1cecf8bb383d2e7607832e2a87002834d5805299878c9ace3dad4943fad06aa1"
+    "sha256": "sha256:80ee836b08a24c22b3adf0d5796a91c4319c5586695b2a2b880d997de6061b22"
   },
   "sourceDeltas": [
     {
