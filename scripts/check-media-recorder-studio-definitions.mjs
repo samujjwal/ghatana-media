@@ -316,6 +316,19 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
         || !op.denial || !op.manualLockAndUndoPolicy)
       fail('PDP2 manual operation missing exact GUI/keyboard/CLI/API/version/denial parity: '+op.kind);
   }
+  const valueDefs = parsedDocs.p1.toJS()?.derivedValueObjects ?? [];
+  const designBindings = parsedDocs.p2.toJS()?.sourceBoundEditorValueContracts?.definitions ?? [];
+  const requiredBoundedValues = ['transform','effect','render-profile','run-receipt'];
+  for (const name of requiredBoundedValues) {
+    const valueId = 'media.recorder.value.'+name+'.v1';
+    const source = valueDefs.find(v => v.id === valueId);
+    const binding = designBindings.find(v => v.valueRef === valueId);
+    if (!source || !source.fields?.length || !source.acceptanceCaseRefs?.length
+        || source.classification !== 'SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE')
+      fail('PDP1 source-bound Studio value projection missing or duplicating authority: '+valueId);
+    if (!binding || !binding.editor || !binding.keyboardTextParity || !binding.denial)
+      fail('PDP2 Studio value needs editor/keyboard/API and denial parity: '+valueId);
+  }
   if (!p1.includes('OUTCOME_UNKNOWN') || !p1.includes('no-product-proof-manufactured'))
     fail('PDP1 explicit business truth/unknown finality missing');
   if (!p1.includes('SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE'))
