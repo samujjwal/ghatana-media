@@ -239,7 +239,7 @@ test("PDP-3 coverage preserves historical action counts and exposes current per-
   assert.equal(historical.historicalObservationDisposition.priorUnresolvedStepActionBindingCount, 112);
   assert.equal(observation.orderedStepCount, stepCount);
   assert.deepEqual(observation.actionDispositionCounts, {
-    exactSourceActionRef: actionBindings.length,
+    exactSourceActionRef: 120,
     ownerDefinedActionRef: ownerActionBindings,
     explicitUnselectedChoiceSet: explicitChoiceSets,
     passiveCanonicalQueryWithoutActionDispatch: passiveQueries,

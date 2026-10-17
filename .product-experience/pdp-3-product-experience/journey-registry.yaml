@@ -232,8 +232,8 @@ coverageObservation:
         J-29-and-J-30-step-views-are-owner-selected-from-the-exact-PDP-0-view-inventory-and-canonical-PDP-3-screen-contracts;
         proposal-binding-and-screen-admission-remain-pending
     action:
-      linked: 18
-      unresolved: 112
+      linked: 20
+      unresolved: 110
       blocker: remaining-steps-have-no-exact-step-level-action-allocation;
         screen-action-candidates-are-not-equivalent-to-journey-step-actions
     objectRefs:
@@ -295,7 +295,7 @@ currentStepBindingObservation:
   journeyContractCount: 30
   orderedStepCount: 130
   actionDispositionCounts:
-    exactSourceActionRef: 122
+    exactSourceActionRef: 120
     ownerDefinedActionRef: 1
     explicitUnselectedChoiceSet: 5
     passiveCanonicalQueryWithoutActionDispatch: 1
