@@ -28,13 +28,20 @@ export function validateRecorderStudioSuccessor(topology = JSON.parse(read('.pro
   const registry = read('.product-experience/surface-registry.yaml');
   const req = read('.product-experience/pdp-0-product-truth/requirements.yaml');
   const profile = read('.product-experience/pdp-0-product-truth/profile-semantics.yaml');
+  const channels = read('.product-experience/pdp-0-product-truth/applications-channels.yaml');
+  const information = read('.product-experience/pdp-0-product-truth/information-architecture.yaml');
+  const journeyCatalog = read('.product-experience/pdp-0-product-truth/journey-catalog.yaml');
   const p1Revision = read('.product-experience/pdp-1-domain-data/versioning.yaml');
   const p1Actions = read('.product-experience/pdp-1-domain-data/action-contracts.yaml');
   const p1Objects = read('.product-experience/pdp-1-domain-data/domain-objects.yaml');
+  const p1Privacy = read('.product-experience/pdp-1-domain-data/privacy.yaml');
+  const p1Relations = read('.product-experience/pdp-1-domain-data/relationships.yaml');
+  const p1States = read('.product-experience/pdp-1-domain-data/states.yaml');
   const p2Studio = read('.product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml');
   const p2Interface = read('.product-experience/pdp-2-design-interface-system/interface-grammar.yaml');
   const p2A11y = read('.product-experience/pdp-2-design-interface-system/accessibility.yaml');
   const p2Components = read('.product-experience/pdp-2-design-interface-system/component-contracts.yaml');
+  const p2Screen = read('.product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml');
   const p2Templates = read('.product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml');
   const p2Layouts = read('.product-experience/pdp-2-design-interface-system/gui/layout.yaml');
   const canonicalOperations = read('.product-experience/pdp-1-domain-data/operations.yaml');
@@ -83,6 +90,50 @@ export function validateRecorderStudioSuccessor(topology = JSON.parse(read('.pro
     ['experienceProductionChannelGrammar:', p2Interface],
     ['experienceProductionAccessibility:', p2A11y],
   ]) reject(source.includes(ref), `missing normative source ${ref}`);
+  const relatedSections = [
+    ['ownerDefinedExperienceProductionChannelSurfaces:', channels],
+    ['experienceProductionInformationArchitecture:', information],
+    ['experienceProductionPrivacyTrustContract:', p1Privacy],
+    ['experienceProductionRelationshipProjection:', p1Relations],
+    ['experienceProductionStateProjection:', p1States],
+    ['experienceProductionScreenCompositionRules:', p2Screen],
+  ];
+  for (const [id, source] of relatedSections) reject(source.includes(id), `missing cross-phase source section ${id}`);
+  const canonicalChannelText = channels.split('channels:\n')[1]?.split('\nownerNormativeRuleRecords:')[0] ?? '';
+  const channelIds = new Set(canonicalChannelText.split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('- id: media.channel.'))
+    .map((line) => line.slice('- id: '.length)));
+  reject(channelIds.size === 9, 'existing canonical channel count must remain nine');
+  const newChannelSection = channels.slice(channels.indexOf('ownerDefinedExperienceProductionChannelSurfaces:'));
+  for (const id of expectedSurfaces) {
+    reject(newChannelSection.includes(`surfaceId: ${id}`), `missing PDP0 channel-surface binding ${id}`);
+    reject(information.includes(`surfaceId: ${id}`), `missing PDP0 information-architecture binding ${id}`);
+  }
+  const proposedChannels = newChannelSection.split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('applicableChannelRefs: ['))
+    .flatMap((line) => line.slice(line.indexOf('[') + 1, line.lastIndexOf(']')).split(',').map((id) => id.trim()));
+  for (const id of proposedChannels) reject(channelIds.has(id), `Recorder/Studio created unregistered PDP0 channel ${id}`);
+  const iaSection = information.slice(information.indexOf('experienceProductionInformationArchitecture:'));
+  const viewNames = new Set((iaSection.match(/M-[A-Z]+(?:-[A-Z]+)*/g) ?? []));
+  for (const id of viewNames) reject(journeyCatalog.includes(id), `unregistered PDP0 view ${id}`);
+  const relationshipIds = new Set(p1Relations.split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('- id: media.rel.'))
+    .map((line) => line.slice('- id: '.length)));
+  const stateMachineIds = new Set(p1States.split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('- machineId: '))
+    .map((line) => line.slice('- machineId: '.length)));
+  reject(relationshipIds.size === 13 && stateMachineIds.size === 11, 'canonical PDP1 relationship/state machine populations changed');
+  for (const ref of p1Relations.slice(p1Relations.indexOf('experienceProductionRelationshipProjection:')).match(/media\.rel\.[a-z0-9.-]+/g) ?? []) {
+    reject(relationshipIds.has(ref), `Recorder/Studio references unknown PDP1 relationship ${ref}`);
+  }
+  const machineLine = p1States.split('\n').find((line) => line.trim().startsWith('existingMachineRefs: [')) ?? '';
+  for (const ref of machineLine.slice(machineLine.indexOf('[') + 1, machineLine.lastIndexOf(']')).split(',').map((s) => s.trim()).filter(Boolean)) {
+    reject(stateMachineIds.has(ref), `Recorder/Studio references unknown PDP1 state machine ${ref}`);
+  }
   const p1OperationIds = new Set(canonicalOperations.split('\n')
     .map((line) => line.trim())
     .filter((line) => line.startsWith('- id: media.operation'))

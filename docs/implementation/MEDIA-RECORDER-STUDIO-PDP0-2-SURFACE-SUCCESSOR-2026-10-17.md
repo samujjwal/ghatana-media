@@ -63,3 +63,11 @@ Historical phase status files and immutable evidence remain untouched. Successor
 | SUCC-08 | GATE | Perform full source-current Discovery R7/readmission and required independent review; only then schedule Media Build and publish packages. |
 
 This successor does not replace the existing D01–D10 Discovery finishing queue or W01–W24 Build handoff; it supplies a source-grounded input to their controlling change-impact reconciliation. Independent licensing, real capture/media performance, outside owner authorizations and release are not certified by definition files.
+
+## Additional first-class PDP-0–2 authority bindings
+
+The source-definition extension also binds the four logical surfaces into the **existing** channels and information hierarchy (`pdp-0-product-truth/{applications-channels,information-architecture}.yaml`). No tenth channel, invented route, GUI for machine-only products, or new physical runtime has been introduced.
+
+PDP-1 now has explicit `privacy.yaml#experienceProductionPrivacyTrustContract`, `relationships.yaml#experienceProductionRelationshipProjection` and `states.yaml#experienceProductionStateProjection` sections. All reference the existing **13 relationships**, **11 state machines**, 39 domain object identities and owning Media policy/operations authorities. They do not create second privacy or event engines. PDP-2 `gui/screen-composition-schema.yaml#experienceProductionScreenCompositionRules` binds complete Studio and safe Player layout responsibilities to canonical design components while leaving new PDP-3 screen identity authoring separate.
+
+This work requires a current 55-surface source-currentness observation. The legacy 50-surface R15/R30/R19 review artifacts remain immutable historical evidence, not a PASS for the expanded scope. `resolveMediaPdp0Cells()` defaults to the full successor; `campaignScope: 'historical'` is an explicit historical read-only comparison and must never confer phase admission.

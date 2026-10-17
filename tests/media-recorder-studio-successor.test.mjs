@@ -30,3 +30,16 @@ test('PDP3 remains an explicit successor and no physical package is fabricated',
   assert.ok(errors.some((x)=>x.includes('PDP3 must remain explicit successor')));
   assert.ok(errors.some((x)=>x.includes('no phantom physical implementation')));
 });
+
+test('existing physical Media owner roles cannot be skipped when Studio is added', () => {
+  const changed=copy();
+  const leaf=changed.manifestCandidates.find((x)=>x.surfaceId==='media.physical.libs-audio-video-ui');
+  delete leaf.phaseApplicability['PDP-2'].experienceProductionSuccessor;
+  assert.ok(validateRecorderStudioSuccessor(changed).some((x)=>x.includes('must provide source-only Recorder/Studio responsibility')));
+});
+test('new capture consumer retains the canonical consumer type and registry binding', () => {
+  const changed=copy();
+  const consumer=changed.consumerCrosswalk.find((x)=>x.surfaceId==='media.surface.capture-agent');
+  delete consumer.registryAuthority;
+  assert.ok(validateRecorderStudioSuccessor(changed).some((x)=>x.includes('must bind a canonical consumer type and registry owner')));
+});
