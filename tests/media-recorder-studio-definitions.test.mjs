@@ -210,3 +210,38 @@ test('rejects falsely declared manual operation count even if all edit kinds sti
   assert.ok(result.errors.some(error => error.includes('manual operation parity denominator differs')),
     result.errors.join('\n'));
 });
+
+test('rejects an existing but wrong requirement family for a Recorder capability', () => {
+  const source = read('.product-experience/pdp-0-product-truth/requirements.yaml');
+  const changed = source.replace('parentRequirementId: MEDIA-REQ-CAP-RECIPE-TEMPLATE',
+    'parentRequirementId: MEDIA-REQ-CAP-PROJECT');
+  const result = verifyRecorderStudioDefinitions({overrides:{requirements:changed}});
+  assert.ok(result.errors.some(s => s.includes('canonical parent requirement does not own capability leaf')), result.errors.join('\n'));
+});
+test('rejects a canonical case moved into a different PDP1 operation group', () => {
+  const source = read('.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml');
+  const changed = source.replace('acceptanceCaseIds: [MEDIA-REC-P0-AC-001, MEDIA-REC-P0-AC-002',
+    'acceptanceCaseIds: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-002');
+  const result = verifyRecorderStudioDefinitions({overrides:{p1:changed}});
+  assert.ok(result.errors.some(s => s.includes('wrong canonical PDP1 case-to-operation binding')), result.errors.join('\n'));
+});
+test('rejects a valid but incorrect PDP2 operation mapping', () => {
+  const source = read('.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml');
+  const changed = source.replace('pdp1OperationRefs: [media.recorder.operation.project.plan.evaluate.v1, media.recorder.operation.run.submit.v1]',
+    'pdp1OperationRefs: [media.recorder.operation.quality.assess.v1, media.recorder.operation.run.submit.v1]');
+  const result = verifyRecorderStudioDefinitions({overrides:{p2:changed}});
+  assert.ok(result.errors.some(s => s.includes('PDP1/PDP2 operation selection mismatch')), result.errors.join('\n'));
+});
+test('rejects a Studio manual edit with the wrong CLI/API intent', () => {
+  const source = read('.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml');
+  const changed = source.replace('cliSdkApiIntent: media.recorder.edit-operation.speed-ramp',
+    'cliSdkApiIntent: media.recorder.edit-operation.trim');
+  const result = verifyRecorderStudioDefinitions({overrides:{p2:changed}});
+  assert.ok(result.errors.some(s => s.includes('PDP2 manual operation missing exact')), result.errors.join('\n'));
+});
+test('rejects a PDP1 operation without its mandatory wrong-tenant denial', () => {
+  const source = read('.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml');
+  const changed = source.replace('negativeCases: [wrong-tenant,','negativeCases: [no-tenant,');
+  const result = verifyRecorderStudioDefinitions({overrides:{p1:changed}});
+  assert.ok(result.errors.some(s => s.includes('PDP1 proposed operation missing typed effect/request/result/tenant denial/currentness')), result.errors.join('\n'));
+});
