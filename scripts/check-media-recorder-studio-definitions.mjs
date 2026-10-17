@@ -171,8 +171,16 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
   }
   if (caseIds.length !== 84 || new Set(caseIds).size !== 84 || caseIds.some(id => !stableCaseId.test(id)))
     fail('exactly 84 stable unique canonical Recorder Studio acceptance cases required');
-  if (!req.includes('requiredClauseCount: 84') && !req.includes('requiredClauseCount: 84\n'))
-    fail('profile denominator is not source-bound to 84');
+  const requiredCaseCount = Number(caseSection.match(/^  requiredClauseCount: (\d+)$/m)?.[1]);
+  const p0CaseCount = Number(p0.match(/^  scopedProfileCaseCount: (\d+)$/m)?.[1]);
+  if (requiredCaseCount !== 84 || p0CaseCount !== 84 || requiredCaseCount !== caseIds.length)
+    fail('Recorder Studio requirement and PDP-0 scoped case counts must agree at exactly 84');
+  if (!sameSet(caseIds, Array.from({length:84}, (_, i) => 'MEDIA-REC-P0-AC-'+String(i+1).padStart(3,'0'))))
+    fail('Recorder Studio canonical acceptance case IDs must be contiguous and lossless');
+  const historicalReqCount = Number(req.match(/^  historicalFamilyRequirementsPreserved: (\d+)$/m)?.[1]);
+  const historicalCapCount = Number(req.match(/^  historicalCapabilityLeavesPreserved: (\d+)$/m)?.[1]);
+  if (historicalReqCount !== canonReqIds.size || historicalCapCount !== canonCaps.size)
+    fail('Recorder Studio profile may not redefine historical family or capability denominators');
 
   const capGroupRecords = [...p0.matchAll(/^  (REC-C\d{2}): \[([^\]]+)\]$/gm)];
   const capGroupCapabilities = new Map(capGroupRecords.map(m => [m[1], new Set(yamlList(m[2]))]));
@@ -244,6 +252,9 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
     fail('PDP1 incorrectly merges Media job and attempt identity');
   const manualKinds = yamlList(p1.match(/^    operationKinds: \[([^\]]+)\]/m)?.[1] ?? '');
   const parityKinds = extract(p2, /^  - kind: ([a-z][a-z0-9-]+)$/gm);
+  const declaredManualParityCount = Number(p2.match(/^  canonicalOperationCount: (\d+)$/m)?.[1]);
+  if (declaredManualParityCount !== manualKinds.length)
+    fail('PDP-2 manual operation parity denominator differs from owning PDP-1 discriminants');
   if (manualKinds.length !== 52 || !sameSet(manualKinds, parityKinds))
     fail('all 52 versioned PDP1 edit discriminants need exactly one PDP2 GUI/keyboard/CLI parity record');
   const p1ProposedOperations = extract(p1, /^    - id: (media\.recorder\.operation\.\S+)$/gm);
