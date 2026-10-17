@@ -28,50 +28,93 @@
     {
       "candidateId": "REC-C01",
       "approval": "PENDING",
-      "exactExistingPdp0Leaf": "UNRESOLVED",
-      "semanticDisposition": "PENDING_OWNER_SOURCE_SELECTOR_REVIEW"
+      "exactExistingPdp0Leaf": "media.recipe.template.product-demonstration",
+      "semanticDisposition": "EXACT_IDENTITY_REUSE_CANDIDATES_FOUND_MEANING_REVIEW_PENDING",
+      "additionalExistingLeafCandidates": [
+        "media.compose.scene-storyboard-assemble",
+        "media.job.submit"
+      ],
+      "residualMeaningGap": "Existing template creates a MediaRecipe; storyboard operation creates local candidate; no authored unattended product-authored browser/API demo lifecycle or execution authority established."
     },
     {
       "candidateId": "REC-C02",
       "approval": "PENDING",
-      "exactExistingPdp0Leaf": "UNRESOLVED",
-      "semanticDisposition": "PENDING_OWNER_SOURCE_SELECTOR_REVIEW"
+      "exactExistingPdp0Leaf": "media.stream.recording.integrate",
+      "semanticDisposition": "EXACT_IDENTITY_REUSE_CANDIDATES_FOUND_MEANING_REVIEW_PENDING",
+      "additionalExistingLeafCandidates": [
+        "media.stream.session.open",
+        "media.stream.frame.submit"
+      ],
+      "residualMeaningGap": "Stream recording/session leaves are not automatically equivalent to browser/desktop/mobile/CLI/API capture; investigate capture-source type, host-credential delegation, and structured API-only assertions."
     },
     {
       "candidateId": "REC-C03",
       "approval": "PENDING",
-      "exactExistingPdp0Leaf": "UNRESOLVED",
-      "semanticDisposition": "PENDING_OWNER_SOURCE_SELECTOR_REVIEW"
+      "exactExistingPdp0Leaf": "media.project.version",
+      "semanticDisposition": "EXACT_IDENTITY_REUSE_CANDIDATES_FOUND_MEANING_REVIEW_PENDING",
+      "additionalExistingLeafCandidates": [
+        "media.project.composition.update",
+        "media.compose.multitrack-timeline"
+      ],
+      "residualMeaningGap": "Project versioning leaf leaves create/commit/select semantics under-specified; preserve existing MediaProject and clarify ProductionProject projection, rational time, immutable source, revision CAS, manual edit locks."
     },
     {
       "candidateId": "REC-C04",
       "approval": "PENDING",
-      "exactExistingPdp0Leaf": "UNRESOLVED",
-      "semanticDisposition": "PENDING_OWNER_SOURCE_SELECTOR_REVIEW"
+      "exactExistingPdp0Leaf": "media.compose.multitrack-timeline",
+      "semanticDisposition": "EXACT_IDENTITY_REUSE_CANDIDATES_FOUND_MEANING_REVIEW_PENDING",
+      "additionalExistingLeafCandidates": [
+        "media.animation.editing.undo-redo.versioned",
+        "media.edit.smart-crop-auto-reframe",
+        "media.compose.track.video-audio-caption-overlay"
+      ],
+      "residualMeaningGap": "Candidate composition, animation undo, reframe and overlay exist. Complete professional multi-track gestures, keyboard/text equivalents and undo/redaction must be crosswalked, not asserted supported."
     },
     {
       "candidateId": "REC-C05",
       "approval": "PENDING",
-      "exactExistingPdp0Leaf": "UNRESOLVED",
-      "semanticDisposition": "PENDING_OWNER_SOURCE_SELECTOR_REVIEW"
+      "exactExistingPdp0Leaf": "media.animation.output.output.interactive-scene",
+      "semanticDisposition": "EXACT_IDENTITY_REUSE_CANDIDATES_FOUND_MEANING_REVIEW_PENDING",
+      "additionalExistingLeafCandidates": [
+        "media.deliver.interactive-scene-bundle",
+        "media.recipe.template.interactive-lesson"
+      ],
+      "residualMeaningGap": "Interactive scene and bundle exist as proposed draft candidates, not signed, sandboxed, consent-bounded branching/hotspot player with offline/CSP and no product privilege."
     },
     {
       "candidateId": "REC-C06",
       "approval": "PENDING",
-      "exactExistingPdp0Leaf": "UNRESOLVED",
-      "semanticDisposition": "PENDING_OWNER_SOURCE_SELECTOR_REVIEW"
+      "exactExistingPdp0Leaf": "media.quality.recommend",
+      "semanticDisposition": "EXACT_IDENTITY_REUSE_CANDIDATES_FOUND_MEANING_REVIEW_PENDING",
+      "additionalExistingLeafCandidates": [
+        "media.quality.rank",
+        "media.recipe.template.product-demonstration"
+      ],
+      "residualMeaningGap": "Quality recommendation is bounded advisory; automatic edit/narration/suggestion agent with model rights, source grounding, abstention, manual locks and no implicit publishing remains to define."
     },
     {
       "candidateId": "REC-C07",
       "approval": "PENDING",
-      "exactExistingPdp0Leaf": "UNRESOLVED",
-      "semanticDisposition": "PENDING_OWNER_SOURCE_SELECTOR_REVIEW"
+      "exactExistingPdp0Leaf": "media.rights.permitted-use.evaluate",
+      "semanticDisposition": "EXACT_IDENTITY_REUSE_CANDIDATES_FOUND_MEANING_REVIEW_PENDING",
+      "additionalExistingLeafCandidates": [
+        "media.quality.inspect",
+        "media.deliver.provenance-manifest",
+        "media.provenance.erasure.effect.record"
+      ],
+      "residualMeaningGap": "Existing rights check, provenance, erasure and quality are Media-specific; integrate product seed policy, capture secret redaction, per-stage privacy, OTel and provider licensing without new policy authority."
     },
     {
       "candidateId": "REC-C08",
       "approval": "PENDING",
-      "exactExistingPdp0Leaf": "UNRESOLVED",
-      "semanticDisposition": "PENDING_OWNER_SOURCE_SELECTOR_REVIEW"
+      "exactExistingPdp0Leaf": "media.project.version",
+      "semanticDisposition": "EXACT_IDENTITY_REUSE_CANDIDATES_FOUND_MEANING_REVIEW_PENDING",
+      "additionalExistingLeafCandidates": [
+        "media.job.retry",
+        "media.edit.propagate-keyframe-mask-effect",
+        "media.compose.render-manifest"
+      ],
+      "residualMeaningGap": "Job retry is same-job new attempt after classified non-unknown finality, not automatically scene-only recapture. Define semantic input fingerprints, changed-scene DAG and exact manual-edit preservation."
     }
   ],
   "journeyReuse": [
@@ -133,5 +176,19 @@
   "links": {
     "handoff": "2026-10-17 Autonomous Experience Recorder W01–W24",
     "proposalMarkdown": "docs/implementation/MEDIA-RECORDER-STUDIO-PDP0-IMPACT-2026-10-17.md"
+  },
+  "pdp0LeafInspection": {
+    "status": "EXACT_LEAF_IDS_MATCHED_NOT_SEMANTICALLY_ADMITTED",
+    "repository": "samujjwal/ghatana-media",
+    "commit": "4ffd76c747b4cdc1829d2ba955a56185262532d0",
+    "authorityPath": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+    "authorityBlobSha": "b0840765ad2d8634f29baae9d03397207bd38608",
+    "observedCapabilityLeaves": 462,
+    "proposedGroups": 8,
+    "existingLeafReferences": 26,
+    "missingLeafReferences": 0,
+    "semanticReview": "PENDING",
+    "pdp1OperationSourceBlobSha": "7babf82255c47c9cbf5bdff65a4d5b4287a655ef",
+    "pdp1OperationResultMapping": "PENDING"
   }
 }
