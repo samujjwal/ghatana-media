@@ -27,7 +27,7 @@ test('rejects missing crosswalk members and dangling physical bindings', () => {
   changed.consumerCrosswalk.pop();
   changed.consumerCrosswalk[0].physicalRefs = ['media.physical.unknown'];
   const errors = validateTopology(changed);
-  assert.ok(errors.some((error) => error.includes('exactly 17 unique surfaces')));
+  assert.ok(errors.some((error) => error.includes('exactly 21 unique surfaces')));
   assert.ok(errors.some((error) => error.includes('unknown physical ref')));
 });
 
@@ -60,7 +60,7 @@ test('requires a physical host or semantic composition for every PDP-3 screen an
   assert.ok(errors.some((error) => error.includes('responsible physical/composition PDP-3 journey IDs must exactly match')));
 });
 
-test('root contains six compositions and only ungrouped support units directly', () => {
+test('root contains seven compositions and only ungrouped support units directly', () => {
   const changed = copy();
   const root = changed.compositions.find((item) => item.kind === 'REPOSITORY_ROOT');
   root.children.push('media.physical.launcher');
@@ -125,4 +125,22 @@ test('Agent Tool handler mappings cannot claim execution admission or lose exact
   const errors = validateTopology(changed);
   assert.ok(errors.some((error) => error.includes('must remain observational, legacy/subsumed, and not admitted')));
   assert.ok(errors.some((error) => error.includes('four exact handler files under libs/common')));
+});
+
+test('Recorder/Studio successor logical surfaces are real source-registered units, not phantom physical implementations', () => {
+  const changed = copy();
+  const required = ['media.surface.experience-recorder','media.surface.capture-agent','media.surface.presentation-studio','media.surface.interactive-demo-player'];
+  const actual = changed.consumerCrosswalk.filter((x) => required.includes(x.surfaceId));
+  assert.equal(actual.length, 4);
+  assert.equal(changed.activeManifestCandidateCount, 26);
+  assert.equal(changed.consumerSurfaceCount, 21);
+  assert.equal(changed.semanticCompositionCount, 7);
+  assert.equal(changed.succession.physicalPackageCreation, 'NONE_DISCOVERY_ONLY');
+  for (const item of actual) {
+    assert.equal(item.bindingState, 'HOST_DEPENDENT');
+    assert.ok(item.physicalRefs.length > 0);
+    assert.equal(item.PDP3SuccessorStatus, 'UNAUTHORED');
+  }
+  changed.consumerCrosswalk = changed.consumerCrosswalk.filter((x) => x.surfaceId !== 'media.surface.capture-agent');
+  assert.ok(validateTopology(changed).some((e) => e.includes('missing Recorder/Studio source surface')));
 });

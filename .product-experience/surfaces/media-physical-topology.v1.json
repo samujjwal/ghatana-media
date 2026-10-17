@@ -460,6 +460,7 @@
         }
       },
       "consumerSurfaceRefs": [
+        "media.surface.experience-recorder",
         "media.surface.public-http"
       ],
       "consumerMappingState": "MAPPED"
@@ -733,7 +734,10 @@
         }
       },
       "consumerSurfaceRefs": [
+        "media.surface.capture-agent",
         "media.surface.cli",
+        "media.surface.experience-recorder",
+        "media.surface.presentation-studio",
         "media.surface.sdk"
       ],
       "consumerMappingState": "MAPPED"
@@ -997,6 +1001,9 @@
         }
       },
       "consumerSurfaceRefs": [
+        "media.surface.capture-agent",
+        "media.surface.interactive-demo-player",
+        "media.surface.presentation-studio",
         "media.surface.sdk",
         "media.surface.types-library"
       ],
@@ -1412,6 +1419,8 @@
       },
       "consumerSurfaceRefs": [
         "media.surface.embedded",
+        "media.surface.interactive-demo-player",
+        "media.surface.presentation-studio",
         "media.surface.ui-library",
         "media.surface.web"
       ],
@@ -3350,7 +3359,9 @@
       },
       "consumerSurfaceRefs": [
         "media.surface.agent-tools",
+        "media.surface.capture-agent",
         "media.surface.events",
+        "media.surface.experience-recorder",
         "media.surface.public-http",
         "media.surface.service-grpc"
       ],
@@ -3377,13 +3388,66 @@
   ],
   "consumerCrosswalk": [
     {
-      "surfaceId": "media.surface.web",
-      "consumerType": "GUI_WEB",
+      "surfaceId": "media.surface.agent-tools",
+      "consumerType": "AGENT_TOOL",
       "physicalRefs": [
-        "media.physical.libs-audio-video-ui"
+        "media.physical.runtime-contracts",
+        "media.physical.libs-common"
+      ],
+      "bindingState": "CONTRACT_ONLY",
+      "statusReason": "Tool definitions are source-owned; execution/owner boundary remains pending.",
+      "registryAuthority": ".product-experience/surface-registry.yaml",
+      "sourceContracts": [
+        ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml"
+      ],
+      "handlerSourceObservation": {
+        "sourcePath": "libs/common/src/main/java/com/ghatana/audio/video/tools",
+        "physicalOwner": "media.physical.libs-common",
+        "classification": "LEGACY_SUBSUMED_NOT_ADMITTED",
+        "operationAssociation": "media.physical.runtime-contracts",
+        "statusReason": "Four handler files are source observations only; the runtime-contract association remains logical and none is admitted for execution."
+      }
+    },
+    {
+      "surfaceId": "media.surface.capture-agent",
+      "bindingState": "HOST_DEPENDENT",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-types",
+        "media.physical.libs-audio-video-client",
+        "media.physical.runtime-contracts"
+      ],
+      "statusReason": "Source-only logical product surface mapped to existing Media physical contracts; capture agents, Studio host or interactive-player deployment are not implemented or admitted.",
+      "sourceContracts": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
+        ".product-experience/pdp-1-domain-data/versioning.yaml",
+        ".product-experience/pdp-1-domain-data/action-contracts.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "candidatePhysicalOwner": "modules/experience-capture-adapters (candidate; no module created)",
+      "PDP3SuccessorStatus": "UNAUTHORED"
+    },
+    {
+      "surfaceId": "media.surface.cli",
+      "consumerType": "CLI",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-client",
+        "media.physical.libs-media-experience-simulation"
       ],
       "bindingState": "HOST_DEPENDENT",
-      "statusReason": "No production web host admitted; target GUI contract is host-dependent, and the Explorer remains a distinct developer consumer.",
+      "statusReason": "The installed package exposes one host-configured, GET-only artifact-inspection command; the separate 11-command simulation CLI remains fixture-only. Runtime host qualification remains open.",
+      "registryAuthority": ".product-experience/surface-registry.yaml",
+      "sourceContracts": [
+        ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml"
+      ]
+    },
+    {
+      "surfaceId": "media.surface.desktop-archive",
+      "consumerType": "OBSOLETE",
+      "physicalRefs": [],
+      "bindingState": "ARCHIVED",
+      "statusReason": "Archived desktop source is inactive and excluded from active physical candidates.",
       "registryAuthority": ".product-experience/surface-registry.yaml"
     },
     {
@@ -3397,28 +3461,54 @@
       "registryAuthority": ".product-experience/surface-registry.yaml"
     },
     {
-      "surfaceId": "media.surface.public-http",
-      "consumerType": "PUBLIC_API",
+      "surfaceId": "media.surface.events",
+      "consumerType": "EVENT_STREAM",
       "physicalRefs": [
-        "media.physical.launcher",
+        "media.physical.modules-infrastructure-messaging",
         "media.physical.runtime-contracts"
       ],
-      "bindingState": "HOST_DEPENDENT",
-      "statusReason": "OpenAPI contract is source-only; deployed host/route admission is not established.",
+      "bindingState": "CONTRACT_ONLY",
+      "statusReason": "Event interface definitions do not prove a deployed event host.",
       "registryAuthority": ".product-experience/surface-registry.yaml"
     },
     {
-      "surfaceId": "media.surface.service-grpc",
+      "surfaceId": "media.surface.experience-recorder",
+      "bindingState": "HOST_DEPENDENT",
+      "physicalRefs": [
+        "media.physical.launcher",
+        "media.physical.runtime-contracts",
+        "media.physical.libs-audio-video-client"
+      ],
+      "statusReason": "Source-only logical product surface mapped to existing Media physical contracts; capture agents, Studio host or interactive-player deployment are not implemented or admitted.",
+      "sourceContracts": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
+        ".product-experience/pdp-1-domain-data/versioning.yaml",
+        ".product-experience/pdp-1-domain-data/action-contracts.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "candidatePhysicalOwner": "modules/experience-production (candidate; no module created)",
+      "PDP3SuccessorStatus": "UNAUTHORED"
+    },
+    {
+      "surfaceId": "media.surface.explorer",
+      "consumerType": "EXPLORER_TOOLING",
+      "physicalRefs": [
+        "media.physical.apps-media-experience-explorer",
+        "media.physical.libs-media-experience-simulation"
+      ],
+      "bindingState": "PHYSICAL",
+      "statusReason": "Developer tooling consumer, read-only; not a product runtime surface.",
+      "registryAuthority": ".product-experience/surface-registry.yaml"
+    },
+    {
+      "surfaceId": "media.surface.grpc.multimodal",
       "consumerType": "SERVICE_API",
       "physicalRefs": [
-        "media.physical.runtime-contracts",
-        "media.physical.modules-speech-stt-service",
-        "media.physical.modules-speech-tts-service",
-        "media.physical.modules-vision-vision-service",
         "media.physical.modules-intelligence-multimodal-service"
       ],
       "bindingState": "CONTRACT_ONLY",
-      "statusReason": "Logical aggregate of four service RPC contracts; host/runtime qualification remains separate.",
+      "statusReason": "Proto contract and service module are present; endpoint availability is not asserted.",
       "registryAuthority": ".product-experience/surface-registry.yaml"
     },
     {
@@ -3452,13 +3542,66 @@
       "registryAuthority": ".product-experience/surface-registry.yaml"
     },
     {
-      "surfaceId": "media.surface.grpc.multimodal",
-      "consumerType": "SERVICE_API",
+      "surfaceId": "media.surface.integrations",
+      "consumerType": "SYSTEM_TO_SYSTEM_SERVICE",
       "physicalRefs": [
-        "media.physical.modules-intelligence-multimodal-service"
+        "media.physical.adapters-ledger",
+        "media.physical.providers-aws-postgresql",
+        "media.physical.modules-infrastructure-persistence",
+        "media.physical.modules-infrastructure-security",
+        "media.physical.modules-infrastructure-cache",
+        "media.physical.modules-infrastructure-messaging"
       ],
-      "bindingState": "CONTRACT_ONLY",
-      "statusReason": "Proto contract and service module are present; endpoint availability is not asserted.",
+      "bindingState": "HOST_DEPENDENT",
+      "statusReason": "Integration contracts are source records; provider/identity/storage hosts require their owner/runtime admission.",
+      "registryAuthority": ".product-experience/surface-registry.yaml"
+    },
+    {
+      "surfaceId": "media.surface.interactive-demo-player",
+      "bindingState": "HOST_DEPENDENT",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-ui",
+        "media.physical.libs-audio-video-types"
+      ],
+      "statusReason": "Source-only logical product surface mapped to existing Media physical contracts; capture agents, Studio host or interactive-player deployment are not implemented or admitted.",
+      "sourceContracts": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
+        ".product-experience/pdp-1-domain-data/versioning.yaml",
+        ".product-experience/pdp-1-domain-data/action-contracts.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "candidatePhysicalOwner": "Safe embedded player module (candidate; not active or deployed)",
+      "PDP3SuccessorStatus": "UNAUTHORED"
+    },
+    {
+      "surfaceId": "media.surface.presentation-studio",
+      "bindingState": "HOST_DEPENDENT",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-ui",
+        "media.physical.libs-audio-video-types",
+        "media.physical.libs-audio-video-client"
+      ],
+      "statusReason": "Source-only logical product surface mapped to existing Media physical contracts; capture agents, Studio host or interactive-player deployment are not implemented or admitted.",
+      "sourceContracts": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
+        ".product-experience/pdp-1-domain-data/versioning.yaml",
+        ".product-experience/pdp-1-domain-data/action-contracts.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "candidatePhysicalOwner": "Media web Studio experience (host not admitted; no duplicated UI host)",
+      "PDP3SuccessorStatus": "UNAUTHORED"
+    },
+    {
+      "surfaceId": "media.surface.public-http",
+      "consumerType": "PUBLIC_API",
+      "physicalRefs": [
+        "media.physical.launcher",
+        "media.physical.runtime-contracts"
+      ],
+      "bindingState": "HOST_DEPENDENT",
+      "statusReason": "OpenAPI contract is source-only; deployed host/route admission is not established.",
       "registryAuthority": ".product-experience/surface-registry.yaml"
     },
     {
@@ -3473,65 +3616,17 @@
       "registryAuthority": ".product-experience/surface-registry.yaml"
     },
     {
-      "surfaceId": "media.surface.cli",
-      "consumerType": "CLI",
-      "physicalRefs": [
-        "media.physical.libs-audio-video-client",
-        "media.physical.libs-media-experience-simulation"
-      ],
-      "bindingState": "HOST_DEPENDENT",
-      "statusReason": "The installed package exposes one host-configured, GET-only artifact-inspection command; the separate 11-command simulation CLI remains fixture-only. Runtime host qualification remains open.",
-      "registryAuthority": ".product-experience/surface-registry.yaml",
-      "sourceContracts": [
-        ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml",
-        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml"
-      ]
-    },
-    {
-      "surfaceId": "media.surface.agent-tools",
-      "consumerType": "AGENT_TOOL",
+      "surfaceId": "media.surface.service-grpc",
+      "consumerType": "SERVICE_API",
       "physicalRefs": [
         "media.physical.runtime-contracts",
-        "media.physical.libs-common"
+        "media.physical.modules-speech-stt-service",
+        "media.physical.modules-speech-tts-service",
+        "media.physical.modules-vision-vision-service",
+        "media.physical.modules-intelligence-multimodal-service"
       ],
       "bindingState": "CONTRACT_ONLY",
-      "statusReason": "Tool definitions are source-owned; execution/owner boundary remains pending.",
-      "registryAuthority": ".product-experience/surface-registry.yaml",
-      "sourceContracts": [
-        ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml"
-      ],
-      "handlerSourceObservation": {
-        "sourcePath": "libs/common/src/main/java/com/ghatana/audio/video/tools",
-        "physicalOwner": "media.physical.libs-common",
-        "classification": "LEGACY_SUBSUMED_NOT_ADMITTED",
-        "operationAssociation": "media.physical.runtime-contracts",
-        "statusReason": "Four handler files are source observations only; the runtime-contract association remains logical and none is admitted for execution."
-      }
-    },
-    {
-      "surfaceId": "media.surface.events",
-      "consumerType": "EVENT_STREAM",
-      "physicalRefs": [
-        "media.physical.modules-infrastructure-messaging",
-        "media.physical.runtime-contracts"
-      ],
-      "bindingState": "CONTRACT_ONLY",
-      "statusReason": "Event interface definitions do not prove a deployed event host.",
-      "registryAuthority": ".product-experience/surface-registry.yaml"
-    },
-    {
-      "surfaceId": "media.surface.integrations",
-      "consumerType": "SYSTEM_TO_SYSTEM_SERVICE",
-      "physicalRefs": [
-        "media.physical.adapters-ledger",
-        "media.physical.providers-aws-postgresql",
-        "media.physical.modules-infrastructure-persistence",
-        "media.physical.modules-infrastructure-security",
-        "media.physical.modules-infrastructure-cache",
-        "media.physical.modules-infrastructure-messaging"
-      ],
-      "bindingState": "HOST_DEPENDENT",
-      "statusReason": "Integration contracts are source records; provider/identity/storage hosts require their owner/runtime admission.",
+      "statusReason": "Logical aggregate of four service RPC contracts; host/runtime qualification remains separate.",
       "registryAuthority": ".product-experience/surface-registry.yaml"
     },
     {
@@ -3556,22 +3651,13 @@
       "registryAuthority": ".product-experience/surface-registry.yaml"
     },
     {
-      "surfaceId": "media.surface.explorer",
-      "consumerType": "EXPLORER_TOOLING",
+      "surfaceId": "media.surface.web",
+      "consumerType": "GUI_WEB",
       "physicalRefs": [
-        "media.physical.apps-media-experience-explorer",
-        "media.physical.libs-media-experience-simulation"
+        "media.physical.libs-audio-video-ui"
       ],
-      "bindingState": "PHYSICAL",
-      "statusReason": "Developer tooling consumer, read-only; not a product runtime surface.",
-      "registryAuthority": ".product-experience/surface-registry.yaml"
-    },
-    {
-      "surfaceId": "media.surface.desktop-archive",
-      "consumerType": "OBSOLETE",
-      "physicalRefs": [],
-      "bindingState": "ARCHIVED",
-      "statusReason": "Archived desktop source is inactive and excluded from active physical candidates.",
+      "bindingState": "HOST_DEPENDENT",
+      "statusReason": "No production web host admitted; target GUI contract is host-dependent, and the Explorer remains a distinct developer consumer.",
       "registryAuthority": ".product-experience/surface-registry.yaml"
     }
   ],
@@ -3587,6 +3673,7 @@
       "children": [
         "media.composition.client-and-machine-interfaces",
         "media.composition.creation-composition-and-delivery",
+        "media.composition.experience-recorder-studio",
         "media.composition.governed-job-execution",
         "media.composition.ingestion-and-versioned-artifacts",
         "media.composition.speech-and-caption-workflows",
@@ -3717,6 +3804,7 @@
           "surfaceId": "media.physical.launcher",
           "parentCompositionIds": [
             "media.composition.creation-composition-and-delivery",
+            "media.composition.experience-recorder-studio",
             "media.composition.governed-job-execution",
             "media.composition.ingestion-and-versioned-artifacts"
           ]
@@ -3725,21 +3813,24 @@
           "surfaceId": "media.physical.libs-audio-video-client",
           "parentCompositionIds": [
             "media.composition.client-and-machine-interfaces",
-            "media.composition.creation-composition-and-delivery"
+            "media.composition.creation-composition-and-delivery",
+            "media.composition.experience-recorder-studio"
           ]
         },
         {
           "surfaceId": "media.physical.libs-audio-video-types",
           "parentCompositionIds": [
             "media.composition.client-and-machine-interfaces",
-            "media.composition.creation-composition-and-delivery"
+            "media.composition.creation-composition-and-delivery",
+            "media.composition.experience-recorder-studio"
           ]
         },
         {
           "surfaceId": "media.physical.libs-audio-video-ui",
           "parentCompositionIds": [
             "media.composition.client-and-machine-interfaces",
-            "media.composition.creation-composition-and-delivery"
+            "media.composition.creation-composition-and-delivery",
+            "media.composition.experience-recorder-studio"
           ]
         },
         {
@@ -3753,6 +3844,7 @@
           "surfaceId": "media.physical.modules-infrastructure-messaging",
           "parentCompositionIds": [
             "media.composition.creation-composition-and-delivery",
+            "media.composition.experience-recorder-studio",
             "media.composition.governed-job-execution",
             "media.composition.ingestion-and-versioned-artifacts"
           ]
@@ -3761,6 +3853,7 @@
           "surfaceId": "media.physical.modules-infrastructure-persistence",
           "parentCompositionIds": [
             "media.composition.creation-composition-and-delivery",
+            "media.composition.experience-recorder-studio",
             "media.composition.governed-job-execution",
             "media.composition.ingestion-and-versioned-artifacts"
           ]
@@ -3768,6 +3861,7 @@
         {
           "surfaceId": "media.physical.modules-infrastructure-security",
           "parentCompositionIds": [
+            "media.composition.experience-recorder-studio",
             "media.composition.governed-job-execution",
             "media.composition.ingestion-and-versioned-artifacts"
           ]
@@ -3805,6 +3899,7 @@
           "parentCompositionIds": [
             "media.composition.client-and-machine-interfaces",
             "media.composition.creation-composition-and-delivery",
+            "media.composition.experience-recorder-studio",
             "media.composition.governed-job-execution",
             "media.composition.ingestion-and-versioned-artifacts",
             "media.composition.vision-and-multimodal-analysis"
@@ -4890,6 +4985,174 @@
           "status": "SOURCE_PLANNING_ONLY"
         }
       ]
+    },
+    {
+      "surfaceId": "media.composition.experience-recorder-studio",
+      "name": "experience-recorder-studio",
+      "kind": "SEMANTIC_COMPOSITION",
+      "status": "SOURCE_ONLY_PDP0_2_SUCCESSOR_NOT_ADMITTED",
+      "directMeaning": "Cross-child autonomous product-demonstration capture, canonical non-destructive studio editing, source-safe interactive playback and gated publication; product-domain effects stay with product-owned adapters.",
+      "canonicalOwner": "media",
+      "containmentSemantics": "CONTAINS; composition references existing physical source owners, not new deployable components",
+      "children": [
+        "media.physical.launcher",
+        "media.physical.libs-audio-video-client",
+        "media.physical.libs-audio-video-types",
+        "media.physical.libs-audio-video-ui",
+        "media.physical.modules-infrastructure-messaging",
+        "media.physical.modules-infrastructure-persistence",
+        "media.physical.modules-infrastructure-security",
+        "media.physical.runtime-contracts"
+      ],
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "DIRECT_CROSS_CHILD_MEANING",
+          "authorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
+          "authorityRefs": [
+            ".product-experience/pdp-0-product-truth/requirements.yaml"
+          ],
+          "capabilityFamilyIds": [
+            "media.project",
+            "media.stream",
+            "media.recipe.template",
+            "media.compose",
+            "media.edit",
+            "media.quality",
+            "media.deliver",
+            "media.rights",
+            "media.provenance",
+            "media.job",
+            "media.animation.editing",
+            "media.animation.output"
+          ],
+          "capabilityIntentIds": [
+            "media.recipe.template.product-demonstration",
+            "media.compose.scene-storyboard-assemble",
+            "media.job.submit",
+            "media.stream.recording.integrate",
+            "media.stream.session.open",
+            "media.stream.frame.submit",
+            "media.project.version",
+            "media.project.composition.update",
+            "media.compose.multitrack-timeline",
+            "media.animation.editing.undo-redo.versioned",
+            "media.edit.smart-crop-auto-reframe",
+            "media.compose.track.video-audio-caption-overlay",
+            "media.animation.output.output.interactive-scene",
+            "media.deliver.interactive-scene-bundle",
+            "media.recipe.template.interactive-lesson",
+            "media.quality.recommend",
+            "media.quality.rank",
+            "media.rights.permitted-use.evaluate",
+            "media.quality.inspect",
+            "media.deliver.provenance-manifest",
+            "media.provenance.erasure.effect.record",
+            "media.job.retry",
+            "media.edit.propagate-keyframe-mask-effect",
+            "media.compose.render-manifest"
+          ],
+          "requirementIds": [
+            "MEDIA-REQ-CAP-PROJECT",
+            "MEDIA-REQ-CAP-STREAM",
+            "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+            "MEDIA-REQ-CAP-COMPOSE",
+            "MEDIA-REQ-CAP-EDIT",
+            "MEDIA-REQ-CAP-QUALITY",
+            "MEDIA-REQ-CAP-DELIVER",
+            "MEDIA-REQ-CAP-RIGHTS",
+            "MEDIA-REQ-CAP-PROVENANCE",
+            "MEDIA-REQ-CAP-JOB",
+            "MEDIA-REQ-CAP-ANIMATION-EDITING",
+            "MEDIA-REQ-CAP-ANIMATION-OUTPUT"
+          ],
+          "intentIds": [
+            "media.intent.create",
+            "media.intent.deliver",
+            "media.intent.edit",
+            "media.intent.understand"
+          ],
+          "rationale": "Source-only Recorder/Studio audience, capture, authoring, privacy and delivery outcome combination; product capability identities remain owned by PDP-0 capabilities.yaml."
+        },
+        "PDP-1": {
+          "disposition": "DIRECT_INTEGRATION_CONTRACT",
+          "authorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml",
+          "authorityRefs": [
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml",
+            ".product-experience/pdp-1-domain-data/operations.yaml"
+          ],
+          "objectAuthorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "domainObjectIds": [
+            "media.domain.project",
+            "media.domain.project-revision",
+            "media.domain.artifact-version",
+            "media.domain.media-run",
+            "media.domain.processing-job",
+            "media.domain.job-attempt",
+            "media.domain.scene-plan",
+            "media.domain.scene-graph",
+            "media.domain.timeline",
+            "media.domain.composition-config",
+            "media.domain.render-job",
+            "media.domain.quality-assessment",
+            "media.domain.rights-decision",
+            "media.domain.provenance-manifest",
+            "media.domain.delivery-outcome"
+          ],
+          "operationIds": [
+            "media.operation.capability.media-recipe-template-product-demonstration",
+            "media.operation.capability.media-stream-recording-integrate",
+            "media.operation.capability.media-project-version",
+            "media.operation.capability.media-compose-multitrack-timeline",
+            "media.operation.capability.media-deliver-interactive-scene-bundle"
+          ],
+          "rationale": "One MediaProject, exact revision and typed operation/result/authority boundaries for multiple capture/edit/output participants; no new canonical Media operation is asserted."
+        },
+        "PDP-2": {
+          "disposition": "GUI_HEADLESS_AND_HOST_COMPOSITION",
+          "authorityRefs": [
+            ".product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml",
+            ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
+            ".product-experience/pdp-2-design-interface-system/accessibility.yaml"
+          ],
+          "rationale": "Shared revision across visual Studio and headless API/CLI, accessible editing, safe interactive player and unavailable/denied recovery."
+        },
+        "PDP-3": {
+          "disposition": "SUCCESSOR_EXPERIENCE_DEFINITION_REQUIRED",
+          "authorityRefs": [
+            ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml"
+          ],
+          "rationale": "J09/J11/J18/J19/J21/J22/J24/J25/J26/J27/J28 are reuse candidates only; new cross-surface steps, screens and scenarios are not yet authored or admitted.",
+          "journeyIds": [],
+          "screenIds": []
+        }
+      },
+      "membershipSemantics": {
+        "relation": "CONTAINS",
+        "meaning": "children are direct members only",
+        "aggregationKey": "surfaceId",
+        "aggregateUniqueMembers": true,
+        "dependenciesAreMembership": false
+      },
+      "dependencies": [],
+      "crossChildObligations": [
+        {
+          "id": "media.composition.experience-recorder-studio.direct-integration",
+          "canonicalOwner": "media",
+          "participantSurfaceIds": [
+            "media.physical.launcher",
+            "media.physical.libs-audio-video-client",
+            "media.physical.libs-audio-video-types",
+            "media.physical.libs-audio-video-ui",
+            "media.physical.modules-infrastructure-messaging",
+            "media.physical.modules-infrastructure-persistence",
+            "media.physical.modules-infrastructure-security",
+            "media.physical.runtime-contracts"
+          ],
+          "meaning": "Cross-child autonomous product-demonstration capture, canonical non-destructive studio editing, source-safe interactive playback and gated publication; product-domain effects stay with product-owned adapters.",
+          "status": "SOURCE_PLANNING_ONLY"
+        }
+      ]
     }
   ],
   "lifecycleContractStatus": {
@@ -5017,5 +5280,28 @@
       "binding": "Service/integration semantics only; provider hosts remain separately qualified"
     }
   ],
-  "artifactId": "ART-MEDIA-PHYSICAL-TOPOLOGY-V1"
+  "artifactId": "ART-MEDIA-PHYSICAL-TOPOLOGY-V1",
+  "consumerSurfaceCount": 21,
+  "semanticCompositionCount": 7,
+  "succession": {
+    "changeId": "MEDIA-EXPERIENCE-PRODUCTION-PDP0-2-2026-10-17",
+    "baseMainSha": "0c572079100d6cd784ba4a9cc62b87c1f3e7e707",
+    "historicalCounts": {
+      "physical": 26,
+      "semanticCompositions": 6,
+      "root": 1,
+      "consumers": 17,
+      "pdpCells": 200
+    },
+    "successorCounts": {
+      "physical": 26,
+      "semanticCompositions": 7,
+      "root": 1,
+      "consumers": 21,
+      "pdpCells": 220
+    },
+    "physicalPackageCreation": "NONE_DISCOVERY_ONLY",
+    "PDP3": "NOT_AUTHORED_FOR_NEW_SCOPE",
+    "build": "NOT_ADMITTED"
+  }
 }

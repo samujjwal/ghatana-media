@@ -49,10 +49,12 @@ export function validateTopology(topology, root = repo) {
     }
   }
   const crosswalk = topology.consumerCrosswalk ?? [];
-  if (crosswalk.length !== 17 || new Set(crosswalk.map((x) => x.surfaceId)).size !== 17) fail('consumer crosswalk must contain exactly 17 unique surfaces');
+  const requiredSuccessorSurfaces = ['media.surface.experience-recorder','media.surface.capture-agent','media.surface.presentation-studio','media.surface.interactive-demo-player'];
+  if (topology.consumerSurfaceCount !== 21 || crosswalk.length !== topology.consumerSurfaceCount || new Set(crosswalk.map((x) => x.surfaceId)).size !== topology.consumerSurfaceCount) fail('consumer crosswalk must contain exactly 21 unique surfaces');
+  for (const id of requiredSuccessorSurfaces) if (!crosswalk.some((x) => x.surfaceId === id)) fail(`missing Recorder/Studio source surface ${id}`);
   const registryIds = new Set([...source('.product-experience/surface-registry.yaml').matchAll(/^\s+- surfaceId:\s*([^\s]+)/gm)].map((m) => m[1]));
   const crosswalkIds = new Set(crosswalk.map((x) => x.surfaceId));
-  if (registryIds.size !== 17 || [...registryIds].some((id) => !crosswalkIds.has(id)) || [...crosswalkIds].some((id) => !registryIds.has(id))) fail('crosswalk must match every surface-registry identity in both directions');
+  if (registryIds.size !== topology.consumerSurfaceCount || [...registryIds].some((id) => !crosswalkIds.has(id)) || [...crosswalkIds].some((id) => !registryIds.has(id))) fail('crosswalk must match every surface-registry identity in both directions');
   const bindingStates = new Set(['PHYSICAL', 'CONTRACT_ONLY', 'HOST_DEPENDENT', 'ARCHIVED']);
   const reverse = new Map(candidates.map((c) => [c.surfaceId, []]));
   for (const consumer of crosswalk) {
@@ -180,7 +182,8 @@ export function validateTopology(topology, root = repo) {
   }
   const roots = compositions.filter((x) => x.kind === 'REPOSITORY_ROOT');
   if (roots.length !== 1) fail('exactly one repository root composition is required');
-  if (compositions.length !== 7) fail('topology must contain one repository root and exactly six semantic compositions');
+  if (topology.semanticCompositionCount !== 7 || compositions.length !== 8) fail('topology must contain one repository root and exactly seven semantic compositions');
+  if (!compositionById.has('media.composition.experience-recorder-studio')) fail('Recorder/Studio semantic composition is required');
   const rootNode = roots[0];
   if (rootNode) {
     const semanticIds = compositions.filter((x) => x.kind !== 'REPOSITORY_ROOT').map((x) => x.surfaceId);
@@ -189,7 +192,7 @@ export function validateTopology(topology, root = repo) {
     const expectedRootChildren = [...semanticIds, ...ungroupedSupportIds].sort();
     const actualRootChildren = [...rootNode.children].sort();
     if (JSON.stringify(actualRootChildren) !== JSON.stringify(expectedRootChildren)) {
-      fail('repository root direct CONTAINS must be the six semantic compositions plus only ungrouped physical support units');
+      fail('repository root direct CONTAINS must be the seven semantic compositions plus only ungrouped physical support units');
     }
     if (rootNode.children.some((id) => byId.has(id) && semanticPhysicalIds.has(id))) fail('repository root cannot directly repeat a physical member already grouped by a semantic composition');
     if (!rootNode.membershipSemantics || rootNode.membershipSemantics.aggregateUniqueMembers !== true) fail('repository root must declare deduplicated aggregation by surfaceId');

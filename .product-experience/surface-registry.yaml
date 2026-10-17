@@ -13,6 +13,11 @@ denominators:
   agentToolHandlers: 4
   planCliCommands: 11
   fixtureCliCommandsObserved: 12
+  canonicalConsumerSurfaces: 21
+  existingPhysicalManifestCandidates: 26
+  semanticCompositions: 7
+  successorPhaseCells: 220
+  baselinePhaseCells: 200
 statusVocabulary: [SOURCE_ONLY, PROPOSED, LOCAL_ONLY, COMPATIBILITY_ONLY, PENDING, OBSOLETE]
 applicabilityDispositionVocabulary: [TARGET_PENDING_ADMISSION, TARGET_HOST_CONTRACT_PENDING, COMPATIBILITY_CANONICALIZATION_PENDING, COMPATIBILITY_CONSOLIDATION_PENDING, TARGET_FIXTURE_ONLY, OWNER_DECISION_PENDING, TOOLING_LOCAL_ONLY, NOT_ACTIVE_ARCHIVED]
 surfaces:
@@ -352,6 +357,106 @@ surfaces:
     applicabilityDisposition: TOOLING_LOCAL_ONLY
     applicabilityRationale: >-
       Local source projection and deterministic review tooling; not a product runtime or acceptance authority.
+  - surfaceId: media.surface.experience-recorder
+    surfaceType: SYSTEM_TO_SYSTEM_SERVICE
+    purpose: "Headless, configuration-governed preparation, capture plan, recording attempt orchestration and technical review through exact product-owned authorized adapters. Source-only until admitted service and capture profiles are available."
+    consumers: [media-studio, integrating-products, automation-clients]
+    owners: [media-product, media-runtime, integrating-product-owner]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth/requirements.yaml, .product-experience/pdp-0-product-truth/profile-semantics.yaml]
+    canonicalDomainConcepts: [media.domain.project, media.domain.media-run, media.domain.processing-job, media.domain.artifact-version]
+    interactionModel: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml
+    contractAuthority: .product-experience/pdp-1-domain-data/action-contracts.yaml
+    securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    availabilityExpectations: "SOURCE_ONLY; unsupported/denied/unknown states are visible; no runtime host inferred"
+    versioningExpectations: "Exact project and immutable source/revision reference, owner policy and operator scope; no mutable alias grants authority"
+    compatibilityExpectations: "Shared MediaProject identity; versioned public contract; no duplicate job, consent, actor, or policy authority"
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    pdp0ProfileRef: .product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile
+    pdp1RevisionRef: .product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract
+    pdp2GrammarRef: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar
+    pdp3SuccessorBinding: UNAUTHORED_NEW_SCOPE
+    futurePhysicalHostCandidate: "modules/experience-production (candidate; no module created)"
+    explorerProjection: '#interfaces'
+    semanticStatus: PROPOSED
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+    applicabilityDisposition: TARGET_PENDING_ADMISSION
+    applicabilityRationale: "New logical Recorder/Studio successor surface defined over existing source-owned physical contracts; no new physical implementation or public endpoint is claimed."
+  - surfaceId: media.surface.capture-agent
+    surfaceType: SYSTEM_TO_SYSTEM_SERVICE
+    purpose: "Bounded endpoint/device capture producer for browser, desktop, mobile, terminal, HTTP/gRPC, camera and existing media, under product-delegated authority with source timing and confidential data controls. Its dedicated physical adapter is a future Build candidate."
+    consumers: [media-recorder, product-owned-browser-runners, device-capture-providers]
+    owners: [media-product, media-runtime, integrating-product-owner]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth/requirements.yaml, .product-experience/pdp-0-product-truth/profile-semantics.yaml]
+    canonicalDomainConcepts: [media.domain.artifact-version, media.domain.stream-session, media.domain.media-run]
+    interactionModel: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml
+    contractAuthority: .product-experience/pdp-1-domain-data/action-contracts.yaml
+    securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    availabilityExpectations: "SOURCE_ONLY; unsupported/denied/unknown states are visible; no runtime host inferred"
+    versioningExpectations: "Exact project and immutable source/revision reference, owner policy and operator scope; no mutable alias grants authority"
+    compatibilityExpectations: "Shared MediaProject identity; versioned public contract; no duplicate job, consent, actor, or policy authority"
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    pdp0ProfileRef: .product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile
+    pdp1RevisionRef: .product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract
+    pdp2GrammarRef: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar
+    pdp3SuccessorBinding: UNAUTHORED_NEW_SCOPE
+    futurePhysicalHostCandidate: "modules/experience-capture-adapters (candidate; no module created)"
+    explorerProjection: '#interfaces'
+    semanticStatus: PROPOSED
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+    applicabilityDisposition: TARGET_PENDING_ADMISSION
+    applicabilityRationale: "New logical Recorder/Studio successor surface defined over existing source-owned physical contracts; no new physical implementation or public endpoint is claimed."
+  - surfaceId: media.surface.presentation-studio
+    surfaceType: GUI_WEB
+    purpose: "Complete accessible manual and assisted editing of the SAME immutable source, project revision, tracks, scene anchors, narration, motion, annotations, AI suggestions and export decisions used by unattended production."
+    consumers: [media-editors, media-reviewers, integrating-products]
+    owners: [media-product, ghatana-shared-design-system]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth/requirements.yaml, .product-experience/pdp-0-product-truth/profile-semantics.yaml]
+    canonicalDomainConcepts: [media.domain.project, media.domain.project-revision, media.domain.scene-graph, media.domain.timeline, media.domain.composition-config]
+    interactionModel: .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml
+    contractAuthority: .product-experience/pdp-3-product-experience/screen-contracts/
+    securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    availabilityExpectations: "SOURCE_ONLY; unsupported/denied/unknown states are visible; no runtime host inferred"
+    versioningExpectations: "Exact project and immutable source/revision reference, owner policy and operator scope; no mutable alias grants authority"
+    compatibilityExpectations: "Shared MediaProject identity; versioned public contract; no duplicate job, consent, actor, or policy authority"
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    pdp0ProfileRef: .product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile
+    pdp1RevisionRef: .product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract
+    pdp2GrammarRef: .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml#professionalStudioGrammar
+    pdp3SuccessorBinding: UNAUTHORED_NEW_SCOPE
+    futurePhysicalHostCandidate: "Media web Studio experience (host not admitted; no duplicated UI host)"
+    explorerProjection: '#product'
+    semanticStatus: PROPOSED
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+    applicabilityDisposition: TARGET_HOST_CONTRACT_PENDING
+    applicabilityRationale: "New logical Recorder/Studio successor surface defined over existing source-owned physical contracts; no new physical implementation or public endpoint is claimed."
+  - surfaceId: media.surface.interactive-demo-player
+    surfaceType: GUI_EMBEDDED
+    purpose: "Sanitized self-contained hotspot and branching media package playback, never a privileged live-product session or an approved business action; authored branching and rights are reviewed separately."
+    consumers: [media-viewers, integrating-products, reviewers]
+    owners: [media-product, ghatana-shared-design-system, integrating-product-owner]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth/requirements.yaml, .product-experience/pdp-0-product-truth/profile-semantics.yaml]
+    canonicalDomainConcepts: [media.domain.artifact-version, media.domain.scene-graph, media.domain.delivery-outcome, media.domain.rights-decision]
+    interactionModel: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml
+    contractAuthority: .product-experience/pdp-3-product-experience/screen-contracts/
+    securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    availabilityExpectations: "SOURCE_ONLY; unsupported/denied/unknown states are visible; no runtime host inferred"
+    versioningExpectations: "Exact project and immutable source/revision reference, owner policy and operator scope; no mutable alias grants authority"
+    compatibilityExpectations: "Shared MediaProject identity; versioned public contract; no duplicate job, consent, actor, or policy authority"
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    pdp0ProfileRef: .product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile
+    pdp1RevisionRef: .product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract
+    pdp2GrammarRef: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar
+    pdp3SuccessorBinding: UNAUTHORED_NEW_SCOPE
+    futurePhysicalHostCandidate: "Safe embedded player module (candidate; not active or deployed)"
+    explorerProjection: '#interfaces'
+    semanticStatus: PROPOSED
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+    applicabilityDisposition: TARGET_HOST_CONTRACT_PENDING
+    applicabilityRationale: "New logical Recorder/Studio successor surface defined over existing source-owned physical contracts; no new physical implementation or public endpoint is claimed."
   - surfaceId: media.surface.desktop-archive
     surfaceType: OBSOLETE
     purpose: Retained historical desktop application material; not an active canonical consumer surface.
@@ -383,25 +488,25 @@ channelSurfaceProposals:
     or replace per-operation and per-consumer owner decisions.
   mappings:
     - channelRef: media.channel.web
-      candidateSurfaceRefs: [media.surface.web]
+      candidateSurfaceRefs: [media.surface.web, media.surface.presentation-studio, media.surface.interactive-demo-player]
       status: proposal; PDP-0 and PDP-3 acceptance pending
     - channelRef: media.channel.embedded
-      candidateSurfaceRefs: [media.surface.embedded]
+      candidateSurfaceRefs: [media.surface.embedded, media.surface.presentation-studio, media.surface.interactive-demo-player]
       status: proposal; host and integrating-product owner review pending
     - channelRef: media.channel.http-api
-      candidateSurfaceRefs: [media.surface.public-http]
+      candidateSurfaceRefs: [media.surface.public-http, media.surface.experience-recorder]
       status: proposal; API owner and per-operation admission pending
     - channelRef: media.channel.grpc-api
       candidateSurfaceRefs: [media.surface.service-grpc]
       status: aggregate proposal; service-specific owner and RPC mapping pending
     - channelRef: media.channel.sdk
-      candidateSurfaceRefs: [media.surface.sdk]
+      candidateSurfaceRefs: [media.surface.sdk, media.surface.experience-recorder, media.surface.capture-agent, media.surface.interactive-demo-player]
       status: proposal; publication and consumer-compatibility review pending
     - channelRef: media.channel.cli
-      candidateSurfaceRefs: [media.surface.cli]
+      candidateSurfaceRefs: [media.surface.cli, media.surface.experience-recorder]
       status: proposal; production CLI admission pending; Explorer fixture commands excluded
     - channelRef: media.channel.product-integration
-      candidateSurfaceRefs: [media.surface.integrations]
+      candidateSurfaceRefs: [media.surface.integrations, media.surface.experience-recorder, media.surface.capture-agent]
       status: proposal; each consumer/producer handoff requires owner acceptance
     - channelRef: media.channel.legacy-desktop
       candidateSurfaceRefs: [media.surface.desktop-archive]
@@ -409,3 +514,16 @@ channelSurfaceProposals:
     - channelRef: media.channel.api
       candidateSurfaceRefs: []
       status: abstract-protocol-neutral-layer; no direct consumer surface; bind only through an admitted concrete transport
+
+experienceProductionSurfaceStatus:
+  baseline: 0c572079100d6cd784ba4a9cc62b87c1f3e7e707
+  authority: .product-experience/pdp-0-product-truth/requirements.yaml
+  historicalPdp0ToPdp3Cells: 200
+  successorPopulation: {physicalCandidates: 26, semanticCompositions: 7, rootCompositions: 1, consumerSurfaces: 21, phaseCells: 220}
+  newLogicalSurfaces: [media.surface.experience-recorder, media.surface.capture-agent, media.surface.presentation-studio, media.surface.interactive-demo-player]
+  newSemanticComposition: media.composition.experience-recorder-studio
+  physicalCandidatesAdded: 0
+  phaseDefinitionStatus: {PDP-0: SUCCESSOR_AUTHORING, PDP-1: SUCCESSOR_AUTHORING, PDP-2: SUCCESSOR_AUTHORING, PDP-3: SUCCESSOR_REQUIRED}
+  admission: NOT_ADMITTED
+  writerCutover: PROHIBITED_UNTIL_SEPARATE_APPROVAL
+  historicalDevCompleteUnchanged: true

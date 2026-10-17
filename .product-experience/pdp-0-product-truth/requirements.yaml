@@ -6695,3 +6695,124 @@ ownerDefinedProductMissionCapabilityMaps:
     runtimeAdmission: NOT_ADMITTED
     qualification: NOT_EVALUATED
     acceptanceEffect: none
+
+ownerDefinedExperienceProductionRequirements:
+  id: media.p0.experience-production.requirements.v1
+  status: MATERIAL_SUCCESSOR_DEFINITION_SOURCE_ONLY
+  sourceBaseline: 0c572079100d6cd784ba4a9cc62b87c1f3e7e707
+  canonicalRequirementFamilyRule: Existing MEDIA-REQ-CAP-* family requirements remain the authority for their associated capability leaves; these are explicit cross-family quality, privacy, control and orchestration requirements, not alternate duplicated leaf meanings.
+  sourceCapabilityAuthority: .product-experience/pdp-0-product-truth/capabilities.yaml
+  sourceProfileAuthority: .product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile
+  composedSurfaces: [media.surface.experience-recorder, media.surface.capture-agent, media.surface.presentation-studio, media.surface.interactive-demo-player]
+  requirements:
+    - ruleId: MEDIA-EXP-REQ-01
+      candidateGroup: REC-C01
+      name: unattended-configured-production
+      existingCapabilityRefs: [media.recipe.template.product-demonstration, media.compose.scene-storyboard-assemble, media.job.submit]
+      requirementFamilyRefs: [MEDIA-REQ-CAP-RECIPE-TEMPLATE, MEDIA-REQ-CAP-COMPOSE, MEDIA-REQ-CAP-JOB]
+      requiredOutcome: "A complete immutable production brief identifies an exact owner-approved source/project version, audience, actor, recording goal, source adapters, rights/purpose, quality/budget and scene/acceptance oracles. A run can be prepared unattended, but no missing capability, privilege, or unspecified default is silently supplied."
+      rejectionCases:
+        - denied-product-session
+        - stale-project-or-experience-spec
+        - unqualified-source-provider
+        - missing-seed-or-owned-lease
+      runtimeAdmission: NOT_ADMITTED
+      acceptanceEffect: none
+    - ruleId: MEDIA-EXP-REQ-02
+      candidateGroup: REC-C02
+      name: explicit-capture-source-diversity
+      existingCapabilityRefs: [media.stream.recording.integrate, media.stream.session.open, media.stream.frame.submit]
+      requirementFamilyRefs: [MEDIA-REQ-CAP-STREAM]
+      requiredOutcome: "Each browser/desktop/mobile/terminal/API/gRPC/camera/media-file source has explicit capability, authorized adapter and time/observation profile; API-only and CLI-only producers emit structured semantic evidence without fabricated browser frames."
+      rejectionCases:
+        - unsupported-source-kind
+        - product-adapter-executes-without-delegation
+        - secret-material-in-source-diagnostics
+        - api-only-output-mislabeled-as-gui-film
+      runtimeAdmission: NOT_ADMITTED
+      acceptanceEffect: none
+    - ruleId: MEDIA-EXP-REQ-03
+      candidateGroup: REC-C03
+      name: one-versioned-production-project
+      existingCapabilityRefs: [media.project.version, media.project.composition.update, media.compose.multitrack-timeline]
+      requirementFamilyRefs: [MEDIA-REQ-CAP-PROJECT, MEDIA-REQ-CAP-COMPOSE]
+      requiredOutcome: "Automatic capture, Studio edits, scene regeneration, renders, approvals and interactive export reference exactly one canonical MediaProject plus immutable revision and source lineage; ProductionProject is a typed profile/projection, never another source-of-truth project store."
+      rejectionCases:
+        - parallel-edit-authority
+        - stale-revision-overwrite
+        - non-rational-source-time
+        - source-artifact-mutated-by-edit
+      runtimeAdmission: NOT_ADMITTED
+      acceptanceEffect: none
+    - ruleId: MEDIA-EXP-REQ-04
+      candidateGroup: REC-C04
+      name: complete-manual-parity
+      existingCapabilityRefs: [media.compose.multitrack-timeline, media.animation.editing.undo-redo.versioned, media.edit.smart-crop-auto-reframe, media.compose.track.video-audio-caption-overlay]
+      requirementFamilyRefs: [MEDIA-REQ-CAP-COMPOSE, MEDIA-REQ-CAP-ANIMATION-EDITING, MEDIA-REQ-CAP-EDIT]
+      requiredOutcome: "Every automated editorial and capture control has an authorized manual counterpart through the same command and revision model, including trim/split/slip/slide/ripple, audio, narration, caption, keyframe, mask, zoom, camera/PIP, reframe, transitions, color and export. Keyboard/text alternatives preserve the same effect scope."
+      rejectionCases:
+        - pointer-only-action
+        - silent-replacement-of-manual-lock
+        - stale-timeline-selection
+        - manual-ui-bypasses-permission
+      runtimeAdmission: NOT_ADMITTED
+      acceptanceEffect: none
+    - ruleId: MEDIA-EXP-REQ-05
+      candidateGroup: REC-C05
+      name: safe-interactive-demonstration
+      existingCapabilityRefs: [media.animation.output.output.interactive-scene, media.deliver.interactive-scene-bundle, media.recipe.template.interactive-lesson]
+      requirementFamilyRefs: [MEDIA-REQ-CAP-ANIMATION-OUTPUT, MEDIA-REQ-CAP-DELIVER, MEDIA-REQ-CAP-RECIPE-TEMPLATE]
+      requiredOutcome: "Interactive hotspots and branching use sanitized versioned media and declarative nonprivileged navigation; an interactive player cannot invoke product business mutations, inject script, export credentials, or claim final domain acceptance."
+      rejectionCases:
+        - untrusted-action-execution
+        - cross-origin-unsafe-egress
+        - unapproved-asset-in-player
+        - event-claims-business-completion
+      runtimeAdmission: NOT_ADMITTED
+      acceptanceEffect: none
+    - ruleId: MEDIA-EXP-REQ-06
+      candidateGroup: REC-C06
+      name: ai-as-reviewed-advice
+      existingCapabilityRefs: [media.quality.recommend, media.quality.rank, media.recipe.template.product-demonstration]
+      requirementFamilyRefs: [MEDIA-REQ-CAP-QUALITY, MEDIA-REQ-CAP-RECIPE-TEMPLATE]
+      requiredOutcome: "Native AI assistance can propose highlights, pacing, narration, framing and edits with model/provenance, confidence/abstention, consent and resource limits. It cannot auto-approve itself, train or egress without permission, or replace author-selected protected facts."
+      rejectionCases:
+        - model-output-used-as-proof
+        - ai-overrides-manual-lock
+        - unconsented-training-or-egress
+        - missing-model-fallback-pretends-success
+      runtimeAdmission: NOT_ADMITTED
+      acceptanceEffect: none
+    - ruleId: MEDIA-EXP-REQ-07
+      candidateGroup: REC-C07
+      name: first-class-security-o11y-and-quality
+      existingCapabilityRefs: [media.rights.permitted-use.evaluate, media.quality.inspect, media.deliver.provenance-manifest, media.provenance.erasure.effect.record]
+      requirementFamilyRefs: [MEDIA-REQ-CAP-RIGHTS, MEDIA-REQ-CAP-QUALITY, MEDIA-REQ-CAP-DELIVER, MEDIA-REQ-CAP-PROVENANCE]
+      requiredOutcome: "Every step enforces tenant/purpose/rights/redaction and bounded resources; safe distributed traces and metrics link source, attempts, scene, edits, quality and output without leaking secrets. Technical quality and human film approval are distinct gates."
+      rejectionCases:
+        - cross-tenant-artifact-cache
+        - canary-secret-in-log-or-video
+        - quality-pass-implies-human-acceptance
+        - external-publication-without-rights
+      runtimeAdmission: NOT_ADMITTED
+      acceptanceEffect: none
+    - ruleId: MEDIA-EXP-REQ-08
+      candidateGroup: REC-C08
+      name: selective-regeneration-with-creative-preservation
+      existingCapabilityRefs: [media.project.version, media.job.retry, media.edit.propagate-keyframe-mask-effect, media.compose.render-manifest]
+      requirementFamilyRefs: [MEDIA-REQ-CAP-PROJECT, MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-EDIT, MEDIA-REQ-CAP-COMPOSE]
+      requiredOutcome: "Material-change fingerprints and stable scene/beat anchors permit bounded affected-scene recapture/re-render, while manual edits remain immutable overlays; incompatible anchors surface conflicts and an OUTCOME_UNKNOWN effect is reconciled rather than blindly repeated."
+      rejectionCases:
+        - changed-scene-reexecutes-unrelated-scene
+        - unsafe-reuse-after-policy-change
+        - unknown-effect-blind-retry
+        - regeneration-drops-manual-overlay
+      runtimeAdmission: NOT_ADMITTED
+      acceptanceEffect: none
+
+  successCriteria:
+    - No automatic run bypasses a missing actor, scope, source, policy or qualification.
+    - All manual operations address the same revisioned project model as automation.
+    - Every capture, scene, edit, review, render, publication and delivery status retains its own finality.
+    - Machine-only products and source capture produce typed evidence without invented GUI screens or privileged effects.
+    - Technical QA does not claim human movie approval, codec/provider rights, deployment or customer acceptance.

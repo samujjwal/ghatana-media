@@ -457,3 +457,61 @@ integrationGaps:
   capabilityReferences: OWNER_DEFINED_P0_CAPABILITY_INTENT_BINDINGS_AND_BOUNDS_ENVELOPES_RESOLVED_FOR_462_LEAVES
   domainFidelityReferences: P0 capability intent and quality metric applicability are defined across the 462-leaf population; domain-specific scientific validation, fidelity thresholds, and specialist evidence remain NOT_EVALUATED.
   profileRuntimeBindings: P0 profile meanings are defined; concrete public-contract, license, and runtime qualification evidence remain NOT_EVALUATED
+
+experienceProductionProfile:
+  id: media.p0.experience-production.profile.v1
+  status: MATERIAL_SUCCESSOR_AUTHORING; owner-independent-acceptance-and-runtime-admission-pending
+  owner: media
+  boundary: "Media owns capture/media/editor/product project definitions; Gharbatai owns example-domain actor, seed, route and business-effect adapters. Ghatana services/media stays canonical runtime source writer until separate migration cutover."
+  requirementsAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedExperienceProductionRequirements
+  capabilityAuthority: .product-experience/pdp-0-product-truth/capabilities.yaml
+  policyAuthority: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+  profileSelection:
+    immutableIntentInputs: [tenantRef, authorizedPrincipalRef, sourceExperienceDefinitionVersion, productAdapterRef, projectId, sourceVersionRefs, targetAudience, qualityProfileRef, captureProfileRef, presentationProfileRef, narrationProfileRef, rightsAndPurposeRef, resourceBudgetRef]
+    optionalDeclaredSources: [browser, desktop, mobile, terminal, http-api, grpc-api, camera, media-file]
+    noDefaultsFor: [privileged-adapter, credentials, model-provider, export-rights, training-consent, delivery-target, capture-qualification, region-sensitive-source]
+    outputPurposes: [technical-demonstration, sales-presentation, training, interactive-demo, evidence-only-api-cli]
+    crossAxisIndependence: [quality-intent, preservation, execution-location, source-kind, accessibility, privacy, delivery, narration, reproducibility]
+    deterministicFields: [approved-source-references, versioned-plan-and-operation-ids, media-source-timebase, scene-anchors, declared-overlay-deltas]
+    toleranceBoundFields: [encoded-visual-media, model-output, frame-cadence, latency, perceptual-quality]
+    prohibited: [assumed-signed-human-approval, auto-elevation-of-business-permissions, implicit-external-provider-fallback, fabricated-GUI-from-API-only-source, model-output-as-proof]
+  stageSequence: [normalize-authorized-intent, resolve-sources-and-policy, qualify-runner-and-capture-provider, prepare-owned-session, execute-product-owned-adapter-journey, observe-and-seal-raw-sources, compile-versioned-scene-plan, compose-with-manual-deltas, measure-technical-and-semantic-quality, route-human-review-when-required, authorize-output-and-publish, reconcile-external-destination-finality]
+  mandatoryOutcomes: [MEDIA-EXP-REQ-01, MEDIA-EXP-REQ-02, MEDIA-EXP-REQ-03, MEDIA-EXP-REQ-04, MEDIA-EXP-REQ-05, MEDIA-EXP-REQ-06, MEDIA-EXP-REQ-07, MEDIA-EXP-REQ-08]
+  surfaceBindings:
+    - surfaceId: media.surface.experience-recorder
+      profile: recorder
+      authorityBoundary: "Headless, configuration-governed preparation, capture plan, recording attempt orchestration and technical review through exact product-owned authorized adapters. Source-only until admitted service and capture profiles are available."
+      capabilityRefs: [media.recipe.template.product-demonstration, media.compose.scene-storyboard-assemble, media.job.submit, media.rights.permitted-use.evaluate, media.quality.inspect, media.deliver.provenance-manifest, media.provenance.erasure.effect.record, media.project.version, media.job.retry, media.edit.propagate-keyframe-mask-effect, media.compose.render-manifest]
+      qualifiedRuntime: false
+      stageStatus: DEFINITION_SOURCE_ONLY
+    - surfaceId: media.surface.capture-agent
+      profile: capture
+      authorityBoundary: "Bounded endpoint/device capture producer for browser, desktop, mobile, terminal, HTTP/gRPC, camera and existing media, under product-delegated authority with source timing and confidential data controls. Its dedicated physical adapter is a future Build candidate."
+      capabilityRefs: [media.stream.recording.integrate, media.stream.session.open, media.stream.frame.submit]
+      qualifiedRuntime: false
+      stageStatus: DEFINITION_SOURCE_ONLY
+    - surfaceId: media.surface.presentation-studio
+      profile: studio
+      authorityBoundary: "Complete accessible manual and assisted editing of the SAME immutable source, project revision, tracks, scene anchors, narration, motion, annotations, AI suggestions and export decisions used by unattended production."
+      capabilityRefs: [media.project.version, media.project.composition.update, media.compose.multitrack-timeline, media.animation.editing.undo-redo.versioned, media.edit.smart-crop-auto-reframe, media.compose.track.video-audio-caption-overlay, media.quality.recommend, media.quality.rank, media.recipe.template.product-demonstration]
+      qualifiedRuntime: false
+      stageStatus: DEFINITION_SOURCE_ONLY
+    - surfaceId: media.surface.interactive-demo-player
+      profile: player
+      authorityBoundary: "Sanitized self-contained hotspot and branching media package playback, never a privileged live-product session or an approved business action; authored branching and rights are reviewed separately."
+      capabilityRefs: [media.animation.output.output.interactive-scene, media.deliver.interactive-scene-bundle, media.recipe.template.interactive-lesson]
+      qualifiedRuntime: false
+      stageStatus: DEFINITION_SOURCE_ONLY
+
+  rightsPrivacySecurityObservability:
+    checks: [verify-tenant-purpose-and-actor-at-every-effect, bounded-retention-with-holds, encrypt-sensitive-capture-output, redact-secrets-and-identifiers-in-screens-logs-frames-and-traces, disallow-unconsented-model-training, deny-unknown-license-or-rights, trace-correlation-without-authorization, preserve-auditable-diagnostic-error-taxonomy]
+    safeDiagnosticFields: [bounded-correlation-id, opaque-scoped-source-id, phase-step-id, measured-frame-cadence, resource-bounds, quality-profile-id, error-reason-code, redacted-event-hash]
+    forbiddenDiagnosticFields: [raw-secrets, bearer-or-refresh-tokens, signed-source-urls, unredacted-customer-PII, source-media-bytes, protected-principal-identities]
+    noClaim: [approved-human-film, production-ready, policy-attested-provider, external-publishing-finality, licensed-codec-binary, recorder-is-an-identity-provider]
+  manualParity: Non-destructive manual operations and unattended regeneration project to the same canonical MediaProject revision; stale edit conflicts are surfaced rather than resolved silently.
+  terminalAndHeadless: API, CLI and other GUI-less producers must render documented typed observations, denial, unknown outcome and recovery; do not create a fictitious screenshot.
+  negativeScenarios: [denied-tenant, stale-capture-profile, revoked-consent, unavailable-browser, privilege-misrouting, raw-secret-leak, unqualified-model, dropped-source-frames, outdated-anchor-rebase, conflicting-manual-edit, unknown-destination-finality, unapproved-voice-training]
+  pdp1SuccessorInput: .product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract
+  pdp2SuccessorInput: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar
+  pdp3SuccessorStatus: NOT_YET_AUTHORED
+  buildAdmission: NOT_ADMITTED

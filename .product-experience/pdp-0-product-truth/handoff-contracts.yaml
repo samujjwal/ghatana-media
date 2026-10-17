@@ -576,3 +576,18 @@ handoffs:
         does not activate a feature or establish runtime availability. Preserve the exact admitted Kernel public contract
         and owner proof boundary if selected.
       scopeStatus: OWNER_DEFINED_BOUNDARY; no Kernel materialization, runtime proof, or feature activation is claimed.
+
+recorderStudioPdp0ToPdp1SuccessorHandoff:
+  id: media.p0-p1.experience-production-successor.v1
+  status: AUTHORING_SUCCESSOR_NOT_PHASE_EXIT
+  source: .product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedExperienceProductionRequirements
+  profile: .product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile
+  surfaces: [media.surface.experience-recorder, media.surface.capture-agent, media.surface.presentation-studio, media.surface.interactive-demo-player]
+  composition: media.composition.experience-recorder-studio
+  unchangedCapSourcePopulation: 462
+  newCapabilityLeafIds: []
+  actorAuthority: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml
+  outputRequirement: One versioned MediaProject with derived source, scene, QA and interactive package artifacts; no separate product-data authority, job store or model execution engine.
+  downstreamDefinitionInputs: [versioned-source-and-scene-anchors, typed-command-result-and-guard, retained-user-creative-overlays, denied-and-unknown-reconciliation, expiry-and-privacy, technical-vs-human-gates]
+  pdp1AcceptanceEffect: none
+  runtimeAdmission: NOT_ADMITTED
