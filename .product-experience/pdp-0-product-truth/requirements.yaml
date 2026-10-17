@@ -6695,3 +6695,799 @@ ownerDefinedProductMissionCapabilityMaps:
     runtimeAdmission: NOT_ADMITTED
     qualification: NOT_EVALUATED
     acceptanceEffect: none
+
+# This additive profile is authored within the sole canonical Media requirement
+# register. The clauses below specialize existing 38 family requirements, not a
+# second requirement catalogue and not runtime/phase-acceptance evidence.
+recorderStudioProfile:
+  schemaVersion: media.recorder-studio.requirement-profile.v1
+  status: SOURCE_AUTHORED_SUCCESSOR_PENDING_CURRENTNESS
+  sourceReview: docs/implementation/MEDIA-RECORDER-STUDIO-PDP0-IMPACT-2026-10-17.md
+  pdp0Specialization: .product-experience/pdp-0-product-truth/recorder-studio-extension.yaml
+  physicalTopology: .product-experience/surfaces/media-physical-topology.v1.json
+  historicalFamilyRequirementsPreserved: 38
+  historicalCapabilityLeavesPreserved: 462
+  canonicalSourceRule: All clauses refine the named MEDIA-REQ-CAP family record and canonical leaf; no new family requirement or capability identity is minted.
+  applicability: [media.surface.recorder-orchestrator, media.surface.capture-adapters, media.surface.production-studio, media.surface.interactive-demo-player]
+  requiredClauseCount: 78
+  acceptanceClauses:
+    - id: MEDIA-REC-P0-AC-001
+      group: INTENT
+      parentRequirementId: MEDIA-REQ-CAP-RECIPE-TEMPLATE
+      capabilityLeafId: media.recipe.template.product-demonstration
+      surfaceId: media.surface.recorder-orchestrator
+      given: "An authorized user supplies a versioned product experience specification and a media goal"
+      when: "the user sets audience, purpose, duration, locale and product/surface scope"
+      then: "return a stable versioned intent whose bounds drive scene selection and review"
+      rejection: "missing required purpose, stale source identity, or unsupported locale yields a typed denial, not a default invented goal"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-002
+      group: INTENT
+      parentRequirementId: MEDIA-REQ-CAP-RECIPE-TEMPLATE
+      capabilityLeafId: media.recipe.template.product-demonstration
+      surfaceId: media.surface.recorder-orchestrator
+      given: "An authorized user supplies a versioned product experience specification and a media goal"
+      when: "the user imports a Tools ExperienceDefinition by an admitted public contract"
+      then: "preserve exact source version, journeys, actor and action/result identities; no inferred app effects"
+      rejection: "unpublished Tools contract or unknown action never becomes executable"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-003
+      group: INTENT
+      parentRequirementId: MEDIA-REQ-CAP-RECIPE-TEMPLATE
+      capabilityLeafId: media.recipe.template.product-demonstration
+      surfaceId: media.surface.recorder-orchestrator
+      given: "An authorized user supplies a versioned product experience specification and a media goal"
+      when: "the director chooses scenes for an authored product demonstration"
+      then: "include negative/denied and recovery demonstrations where in scope, trace each beat to requirement/journey"
+      rejection: "navigation alone or a staged screenshot cannot count as a passing product effect"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-004
+      group: INTENT
+      parentRequirementId: MEDIA-REQ-CAP-RECIPE-TEMPLATE
+      capabilityLeafId: media.recipe.template.product-demonstration
+      surfaceId: media.surface.recorder-orchestrator
+      given: "An authorized user supplies a versioned product experience specification and a media goal"
+      when: "a policy requests unattended creative decisions with optional manual override"
+      then: "automate safe admitted steps while keeping mandatory legal, business and release approvals independent"
+      rejection: "automatic visual quality, model preference or recorded narration never implies human approval"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-005
+      group: INTENT
+      parentRequirementId: MEDIA-REQ-CAP-RECIPE-TEMPLATE
+      capabilityLeafId: media.recipe.template.product-demonstration
+      surfaceId: media.surface.recorder-orchestrator
+      given: "An authorized user supplies a versioned product experience specification and a media goal"
+      when: "AI service is absent or abstains"
+      then: "construct the bounded deterministic baseline storyboard and declare model unavailability"
+      rejection: "an unadmitted external AI endpoint cannot be used as silent fallback"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-006
+      group: SOURCES
+      parentRequirementId: MEDIA-REQ-CAP-STREAM
+      capabilityLeafId: media.stream.recording.integrate
+      surfaceId: media.surface.capture-adapters
+      given: "A versioned, rights-eligible source has an authorized capture adapter"
+      when: "a browser Playwright provider is requested"
+      then: "probe browser/version, render and clock capabilities; capture only after actual qualification"
+      rejection: "headless compatibility, driver presence or unit mocks do not establish browser capture qualification"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-007
+      group: SOURCES
+      parentRequirementId: MEDIA-REQ-CAP-STREAM
+      capabilityLeafId: media.stream.recording.integrate
+      surfaceId: media.surface.capture-adapters
+      given: "A versioned, rights-eligible source has an authorized capture adapter"
+      when: "desktop or mobile app capture is requested"
+      then: "surface OS/device, permission and screen/audio capabilities; return declared unsupported dimensions"
+      rejection: "no generic browser screenshot is substituted for native screen or app permissions"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-008
+      group: SOURCES
+      parentRequirementId: MEDIA-REQ-CAP-STREAM
+      capabilityLeafId: media.stream.recording.integrate
+      surfaceId: media.surface.capture-adapters
+      given: "A versioned, rights-eligible source has an authorized capture adapter"
+      when: "CLI, HTTP, gRPC or event-only product demonstration is requested"
+      then: "capture typed command/request/response/state observations with a truthful generated visualization, no fabricated product GUI"
+      rejection: "a rendered UI illustration is not evidence that a CLI/API feature or domain effect occurred"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-009
+      group: SOURCES
+      parentRequirementId: MEDIA-REQ-CAP-STREAM
+      capabilityLeafId: media.stream.recording.integrate
+      surfaceId: media.surface.capture-adapters
+      given: "A versioned, rights-eligible source has an authorized capture adapter"
+      when: "microphone, camera or prerecorded file source is requested"
+      then: "record exact device/media identity, allowed signals, timebase, rights and sync policy"
+      rejection: "missing camera or unsupported codec cannot silently borrow another recorded source"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-010
+      group: SOURCES
+      parentRequirementId: MEDIA-REQ-CAP-STREAM
+      capabilityLeafId: media.stream.recording.integrate
+      surfaceId: media.surface.capture-adapters
+      given: "A versioned, rights-eligible source has an authorized capture adapter"
+      when: "a storyboard includes browser, camera and terminal streams"
+      then: "maintain explicit per-source clocks, synchronization transforms, uncertainty and provenance"
+      rejection: "unmeasured wall-clock alignment cannot be represented as exact media time"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-011
+      group: SOURCES
+      parentRequirementId: MEDIA-REQ-CAP-STREAM
+      capabilityLeafId: media.stream.recording.integrate
+      surfaceId: media.surface.capture-adapters
+      given: "A versioned, rights-eligible source has an authorized capture adapter"
+      when: "the source disappears, fails admission or loses permission"
+      then: "mark the affected scene unavailable, preserve accepted source work and offer authorized recovery"
+      rejection: "no recording claim or synthetic frames are used to mask the missing original source"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-012
+      group: EXEC
+      parentRequirementId: MEDIA-REQ-CAP-JOB
+      capabilityLeafId: media.job.submit
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A configuration-validated project and protected product adapter are available"
+      when: "the run requests a product environment, scenario fixture and identities"
+      then: "acquire bounded, fenced lease and per-run credentials; bind seed identity, actor sessions and cleanup ownership"
+      rejection: "shared tenant data, unowned leases, reused credentials or stale fencing fail closed"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-013
+      group: EXEC
+      parentRequirementId: MEDIA-REQ-CAP-JOB
+      capabilityLeafId: media.job.submit
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A configuration-validated project and protected product adapter are available"
+      when: "the scenario executes product-owned journey actions"
+      then: "record authored action, typed observed owner result, postcondition and finality under exact actor/tenant"
+      rejection: "a screenshot, click or HTTP success alone is never a passed business outcome"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-014
+      group: EXEC
+      parentRequirementId: MEDIA-REQ-CAP-JOB
+      capabilityLeafId: media.job.submit
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A configuration-validated project and protected product adapter are available"
+      when: "capture admission and environment readiness are evaluated"
+      then: "check actual source route/health, service versions, camera/codec profile, permissions and preflight before writing media"
+      rejection: "a green old canary or plan file does not admit this run's service"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-015
+      group: EXEC
+      parentRequirementId: MEDIA-REQ-CAP-JOB
+      capabilityLeafId: media.job.submit
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A configuration-validated project and protected product adapter are available"
+      when: "seed, browser or renderer fails at any stage"
+      then: "persist cause and owned resource cleanup result, preserving unrelated product data and safe accepted artifacts"
+      rejection: "failure does not delete another run's subject, leak tokens, or turn cancellation into success"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-016
+      group: EXEC
+      parentRequirementId: MEDIA-REQ-CAP-JOB
+      capabilityLeafId: media.job.submit
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A configuration-validated project and protected product adapter are available"
+      when: "parallel jobs request the same exclusive browser/database/media resource"
+      then: "apply resource broker lease/fencing, bounded backpressure and explicit queue state"
+      rejection: "timing luck, stale leases or hidden unlimited retry do not establish safe concurrency"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-017
+      group: PROJECT
+      parentRequirementId: MEDIA-REQ-CAP-PROJECT
+      capabilityLeafId: media.project.version
+      surfaceId: media.surface.production-studio
+      given: "A versioned MediaProject and immutable source artifacts already exist"
+      when: "automatic and manual producers open a production project"
+      then: "both address the same MediaProject revision and canonical source-derived data; no second project store"
+      rejection: "different screen/CLI versions or a duplicate production project ID cannot write divergent truth"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-018
+      group: PROJECT
+      parentRequirementId: MEDIA-REQ-CAP-PROJECT
+      capabilityLeafId: media.project.version
+      surfaceId: media.surface.production-studio
+      given: "A versioned MediaProject and immutable source artifacts already exist"
+      when: "video/audio/animation sources have differing native clocks"
+      then: "store rational timebase and half-open source intervals with explicit mapping uncertainty"
+      rejection: "floating-point frame indices and wall-clock milliseconds cannot silently replace media time"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-019
+      group: PROJECT
+      parentRequirementId: MEDIA-REQ-CAP-PROJECT
+      capabilityLeafId: media.project.version
+      surfaceId: media.surface.production-studio
+      given: "A versioned MediaProject and immutable source artifacts already exist"
+      when: "an editor saves a project change"
+      then: "perform an expected-revision compare-and-swap and create a successor immutable semantic revision"
+      rejection: "stale write, conflict or unknown commit cannot overwrite the last accepted revision"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-020
+      group: PROJECT
+      parentRequirementId: MEDIA-REQ-CAP-PROJECT
+      capabilityLeafId: media.project.version
+      surfaceId: media.surface.production-studio
+      given: "A versioned MediaProject and immutable source artifacts already exist"
+      when: "a derived clip, thumbnail, waveform, narration or proxy is created"
+      then: "retain source hashes, transformation/model/tool/version, policy scope and signed output identity"
+      rejection: "unreviewed generated content cannot acquire original-source status"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-021
+      group: PROJECT
+      parentRequirementId: MEDIA-REQ-CAP-PROJECT
+      capabilityLeafId: media.project.version
+      surfaceId: media.surface.production-studio
+      given: "A versioned MediaProject and immutable source artifacts already exist"
+      when: "project is serialized, reopened, exported/imported or restored"
+      then: "preserve all semantic operations, source refs, scene anchors, manual locks, captions and rights, rejecting unknown critical shapes"
+      rejection: "a lossy JSON/OTIO interchange cannot silently discard intent or misalign rational time"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-022
+      group: STUDIO
+      parentRequirementId: MEDIA-REQ-CAP-COMPOSE
+      capabilityLeafId: media.compose.multitrack-timeline
+      surfaceId: media.surface.production-studio
+      given: "An editor has a permitted scene and versioned timeline"
+      when: "multi-track composition is edited"
+      then: "support video/audio/caption/overlay tracks, nesting, scene grouping, markers, snap and time navigation"
+      rejection: "a presentation-only static screenshot is not a timeline editor"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-023
+      group: STUDIO
+      parentRequirementId: MEDIA-REQ-CAP-COMPOSE
+      capabilityLeafId: media.compose.multitrack-timeline
+      surfaceId: media.surface.production-studio
+      given: "An editor has a permitted scene and versioned timeline"
+      when: "the user trims, splits, rolls, ripples, slips or slides clips"
+      then: "preserve declared source ranges, neighbor timing, precise timebase and undo/redo inverse scope"
+      rejection: "moving a clip cannot silently rewrite originals or non-target tracks"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-024
+      group: STUDIO
+      parentRequirementId: MEDIA-REQ-CAP-COMPOSE
+      capabilityLeafId: media.compose.multitrack-timeline
+      surfaceId: media.surface.production-studio
+      given: "An editor has a permitted scene and versioned timeline"
+      when: "user changes zoom, pan, crop, reframe, masks, tracked region, mouse/click highlight, transitions or keyframes"
+      then: "create versioned reversible transform/effect operations with numerical/keyboard equivalents"
+      rejection: "auto AI reframe cannot override LOCKED human framing or exact brand/legal overlays"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-025
+      group: STUDIO
+      parentRequirementId: MEDIA-REQ-CAP-COMPOSE
+      capabilityLeafId: media.compose.multitrack-timeline
+      surfaceId: media.surface.production-studio
+      given: "An editor has a permitted scene and versioned timeline"
+      when: "user adds annotations, lower thirds, logo, typography, backgrounds and custom visual assets"
+      then: "bind exact source/version/rights, safe area, motion, opacity, easing and layer ordering"
+      rejection: "generative models cannot replace an exact approved logo, equation or product label"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-026
+      group: STUDIO
+      parentRequirementId: MEDIA-REQ-CAP-COMPOSE
+      capabilityLeafId: media.compose.multitrack-timeline
+      surfaceId: media.surface.production-studio
+      given: "An editor has a permitted scene and versioned timeline"
+      when: "user edits narration, stems, ducking, fades, gain, Foley or music"
+      then: "preserve audio sample timebase, channel mix, asset consent and per-track controls"
+      rejection: "automatic mix cannot claim silent output is intelligible or clear an unlicensed music track"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-027
+      group: STUDIO
+      parentRequirementId: MEDIA-REQ-CAP-COMPOSE
+      capabilityLeafId: media.compose.multitrack-timeline
+      surfaceId: media.surface.production-studio
+      given: "An editor has a permitted scene and versioned timeline"
+      when: "user corrects transcript, subtitles, translation, localization, timing or speaker labels"
+      then: "bind exact source version/time and keep draft separate from immutable approved caption version"
+      rejection: "uncertain translation/dubbing cannot be marked approved because it fits a duration"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-028
+      group: STUDIO
+      parentRequirementId: MEDIA-REQ-CAP-COMPOSE
+      capabilityLeafId: media.compose.multitrack-timeline
+      surfaceId: media.surface.production-studio
+      given: "An editor has a permitted scene and versioned timeline"
+      when: "external and screen sources are available"
+      then: "allow picture-in-picture, camera cuts, speaker view, split screen and time-aligned overlays with missing-source disclosure"
+      rejection: "a missing camera frame cannot be faked into an authoritative live angle"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-029
+      group: STUDIO
+      parentRequirementId: MEDIA-REQ-CAP-COMPOSE
+      capabilityLeafId: media.compose.multitrack-timeline
+      surfaceId: media.surface.production-studio
+      given: "An editor has a permitted scene and versioned timeline"
+      when: "an AUTO, MANUAL_PREFERRED, LOCKED, REGENERATE_ON_SOURCE_CHANGE or REVIEW_CONFLICT choice exists"
+      then: "preserve human choice and demand review on incompatible regenerated anchors"
+      rejection: "no replan discards a LOCKED edit or silently accepts a conflicting replacement"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-030
+      group: AI
+      parentRequirementId: MEDIA-REQ-CAP-QUALITY
+      capabilityLeafId: media.quality.recommend
+      surfaceId: media.surface.production-studio
+      given: "An optional governed AI/ML advisory provider is eligible for a media task"
+      when: "automatic pacing/highlights/scene ordering/zoom/narration is proposed"
+      then: "return typed evidence-backed advice, calibration/confidence/abstention, model version and no unapproved effects"
+      rejection: "model output cannot fabricate a product response, permission, identity, receipt or approved scene"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-031
+      group: AI
+      parentRequirementId: MEDIA-REQ-CAP-QUALITY
+      capabilityLeafId: media.quality.recommend
+      surfaceId: media.surface.production-studio
+      given: "An optional governed AI/ML advisory provider is eligible for a media task"
+      when: "remote or local model fails, abstains or times out"
+      then: "continue with deterministic heuristic where eligible, else show unavailable without blocking unrelated manual editing"
+      rejection: "fallback cannot change policy, cost, user intent or external provider residency silently"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-032
+      group: AI
+      parentRequirementId: MEDIA-REQ-CAP-QUALITY
+      capabilityLeafId: media.quality.recommend
+      surfaceId: media.surface.production-studio
+      given: "An optional governed AI/ML advisory provider is eligible for a media task"
+      when: "a model requests data egress, training or voice clone"
+      then: "separately authorize purpose, no-train setting, consent, residency, likeness and model license before any disclosure"
+      rejection: "no asset is trained on, retained by third party or egressed merely because a prompt mentions it"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-033
+      group: AI
+      parentRequirementId: MEDIA-REQ-CAP-QUALITY
+      capabilityLeafId: media.quality.recommend
+      surfaceId: media.surface.production-studio
+      given: "An optional governed AI/ML advisory provider is eligible for a media task"
+      when: "non-deterministic recommendation is accepted"
+      then: "persist approved suggestion/output bytes or digest plus model/prompt/template, parameters and scope for reproducible rendering"
+      rejection: "seed/model name alone does not promise bit-for-bit identical re-inference"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-034
+      group: AI
+      parentRequirementId: MEDIA-REQ-CAP-QUALITY
+      capabilityLeafId: media.quality.recommend
+      surfaceId: media.surface.production-studio
+      given: "An optional governed AI/ML advisory provider is eligible for a media task"
+      when: "a model edit is evaluated against truth, quality and human changes"
+      then: "store versioned per-slice semantic correctness, calibration, privacy, editing benefit and abstention results"
+      rejection: "aesthetic rank cannot substitute for product correctness or controlled model admission"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-035
+      group: PIPE
+      parentRequirementId: MEDIA-REQ-CAP-COMPOSE
+      capabilityLeafId: media.compose.scene-storyboard-assemble
+      surfaceId: media.surface.recorder-orchestrator
+      given: "An authorized project has a versioned storyboard and source evidence"
+      when: "run planning uses configured beats and product postconditions"
+      then: "compose bounded scene plan, cursor/hover/click tracking, hold points and camera paths with explainable decisions"
+      rejection: "render does not start from a plan missing actor or authoritative postcondition"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-036
+      group: PIPE
+      parentRequirementId: MEDIA-REQ-CAP-COMPOSE
+      capabilityLeafId: media.compose.scene-storyboard-assemble
+      surfaceId: media.surface.recorder-orchestrator
+      given: "An authorized project has a versioned storyboard and source evidence"
+      when: "a locale and approved voice/file/none provider is selected"
+      then: "align exact authored narration to scene outcomes, apply approved pronunciation and transcription/captions"
+      rejection: "unsupported TTS locale, missing license or voice rights fail without bogus speech"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-037
+      group: PIPE
+      parentRequirementId: MEDIA-REQ-CAP-COMPOSE
+      capabilityLeafId: media.compose.scene-storyboard-assemble
+      surfaceId: media.surface.recorder-orchestrator
+      given: "An authorized project has a versioned storyboard and source evidence"
+      when: "one accepted plan is rendered in 16:9 and 9:16 or another admitted variant"
+      then: "use the same revision and time/track graph for overlays, transitions, reframe and mixes"
+      rejection: "aspect conversion cannot cut protected text, face or essential action without disclosure/review"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-038
+      group: PIPE
+      parentRequirementId: MEDIA-REQ-CAP-COMPOSE
+      capabilityLeafId: media.compose.scene-storyboard-assemble
+      surfaceId: media.surface.recorder-orchestrator
+      given: "An authorized project has a versioned storyboard and source evidence"
+      when: "capture/encode/mux/render finishes"
+      then: "return measured dimensions, frame gaps/jitter, A/V drift, audio levels, aspect, codec, captions and derivation provenance"
+      rejection: "fake fill frames, uninspected MP4 or assumed FPS cannot be claimed technically qualified"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-039
+      group: PIPE
+      parentRequirementId: MEDIA-REQ-CAP-COMPOSE
+      capabilityLeafId: media.compose.scene-storyboard-assemble
+      surfaceId: media.surface.recorder-orchestrator
+      given: "An authorized project has a versioned storyboard and source evidence"
+      when: "Studio and unattended render preview the same source revision"
+      then: "make proxy and final render share a semantic renderer with accepted quality tolerances"
+      rejection: "preview can never silently omit an effect, mute manual audio or claim export parity when unsupported"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-040
+      group: REGEN
+      parentRequirementId: MEDIA-REQ-CAP-JOB
+      capabilityLeafId: media.job.retry
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A scene or product source has changed after a previously accepted production"
+      when: "only one scene's material inputs change"
+      then: "compute scene/track dependency graph from semantic source/config/model/policy digests and invalidate only affected descendants"
+      rejection: "commit SHA or file mtime alone cannot invalidate or prove identical semantic output"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-041
+      group: REGEN
+      parentRequirementId: MEDIA-REQ-CAP-JOB
+      capabilityLeafId: media.job.retry
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A scene or product source has changed after a previously accepted production"
+      when: "changed scene recapture is authorized"
+      then: "reuse unaffected media by reference, recapture only required scenes and retain all compatible manual edits"
+      rejection: "unrelated clips, user timing and policy-scoped caches must not change"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-042
+      group: REGEN
+      parentRequirementId: MEDIA-REQ-CAP-JOB
+      capabilityLeafId: media.job.retry
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A scene or product source has changed after a previously accepted production"
+      when: "manual edit anchor conflicts with new source timings/results"
+      then: "offer stable semantic three-way rebase, preserve both versions and require review for ambiguity"
+      rejection: "silent auto-merge or loss of manual lock fails"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-043
+      group: REGEN
+      parentRequirementId: MEDIA-REQ-CAP-JOB
+      capabilityLeafId: media.job.retry
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A scene or product source has changed after a previously accepted production"
+      when: "timeout or resource crash interrupts a product action or external publication"
+      then: "reconcile exact request identity and authoritative outcome before any classified/idempotent retry"
+      rejection: "timeout, canceled watcher or stale lease cannot authorize blind resubmission"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-044
+      group: REGEN
+      parentRequirementId: MEDIA-REQ-CAP-JOB
+      capabilityLeafId: media.job.retry
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A scene or product source has changed after a previously accepted production"
+      when: "render proxies and temporary artifacts are reused"
+      then: "key derivation by input/version/provider/license/policy and retention, with tenant isolation"
+      rejection: "cache hit cannot cross tenants/rights scopes or resurrect erased footage"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-045
+      group: QUALITY
+      parentRequirementId: MEDIA-REQ-CAP-QUALITY
+      capabilityLeafId: media.quality.inspect
+      surfaceId: media.surface.production-studio
+      given: "A recorded business scene and media artifact have technical and semantic evidence"
+      when: "a film claims product state change or operation success"
+      then: "compare observed owner result/postcondition against the authored journey and flag missing/unknown steps"
+      rejection: "a polished animation/film never proves an unexecuted action"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-046
+      group: QUALITY
+      parentRequirementId: MEDIA-REQ-CAP-QUALITY
+      capabilityLeafId: media.quality.inspect
+      surfaceId: media.surface.production-studio
+      given: "A recorded business scene and media artifact have technical and semantic evidence"
+      when: "media QA inspects audio/video/caption timing"
+      then: "record actual source and encoded frames, P50/P95/P99 gaps, dropped/duplicated frames, black/silent tails and A/V sync"
+      rejection: "unobserved frame integrity or a mocked qualification certificate cannot be reported PASS"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-047
+      group: QUALITY
+      parentRequirementId: MEDIA-REQ-CAP-QUALITY
+      capabilityLeafId: media.quality.inspect
+      surfaceId: media.surface.production-studio
+      given: "A recorded business scene and media artifact have technical and semantic evidence"
+      when: "technical quality passes"
+      then: "keep separate human creative/comprehension/brand/legal/right reviews with exact artifact versions"
+      rejection: "automated quality cannot issue legal, brand or human film approval"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-048
+      group: QUALITY
+      parentRequirementId: MEDIA-REQ-CAP-QUALITY
+      capabilityLeafId: media.quality.inspect
+      surfaceId: media.surface.production-studio
+      given: "A recorded business scene and media artifact have technical and semantic evidence"
+      when: "reference workload or profile is evaluated"
+      then: "use source-bound measurable thresholds, uncertainty, applicable metrics and abstain where inapplicable"
+      rejection: "unknown benchmark environment or missing sample count cannot satisfy pass thresholds"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-049
+      group: QUALITY
+      parentRequirementId: MEDIA-REQ-CAP-QUALITY
+      capabilityLeafId: media.quality.inspect
+      surfaceId: media.surface.production-studio
+      given: "A recorded business scene and media artifact have technical and semantic evidence"
+      when: "an approved Studio project is edited/re-rendered"
+      then: "compare exact scene/clip, color, subtitles, narration and accessibility against expected outcomes"
+      rejection: "only hash parity where content is deterministic; other differences need declared tolerance"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-050
+      group: INTERACTIVE
+      parentRequirementId: MEDIA-REQ-CAP-DELIVER
+      capabilityLeafId: media.deliver.interactive-scene-bundle
+      surfaceId: media.surface.interactive-demo-player
+      given: "An accepted video project requests a safe interactive export"
+      when: "viewer selects a hotspot, chapter choice or branch"
+      then: "display versioned, accessible branch graph linked to declared media/time and a no-action fallback"
+      rejection: "unbounded scripts, forged business mutation or an unknown branch ID are rejected"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-051
+      group: INTERACTIVE
+      parentRequirementId: MEDIA-REQ-CAP-DELIVER
+      capabilityLeafId: media.deliver.interactive-scene-bundle
+      surfaceId: media.surface.interactive-demo-player
+      given: "An accepted video project requests a safe interactive export"
+      when: "interactive package is opened without network"
+      then: "play declared self-contained assets and navigate known local branches, or explicitly show unsupported feature"
+      rejection: "offline viewer never silently invokes protected product endpoints"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-052
+      group: INTERACTIVE
+      parentRequirementId: MEDIA-REQ-CAP-DELIVER
+      capabilityLeafId: media.deliver.interactive-scene-bundle
+      surfaceId: media.surface.interactive-demo-player
+      given: "An accepted video project requests a safe interactive export"
+      when: "bundle includes HTML/CSS/DOM/screenshot or third-party assets"
+      then: "apply sanitization, CSP, content integrity, origin/egress and exact source rights checks"
+      rejection: "injection, mixed tenant assets, arbitrary network calls and embedded credentials are forbidden"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-053
+      group: INTERACTIVE
+      parentRequirementId: MEDIA-REQ-CAP-DELIVER
+      capabilityLeafId: media.deliver.interactive-scene-bundle
+      surfaceId: media.surface.interactive-demo-player
+      given: "An accepted video project requests a safe interactive export"
+      when: "interaction telemetry is requested"
+      then: "collect only consented/authorized safe viewer events under retention and data minimization policy"
+      rejection: "interactive analytics cannot reveal identities or infer domain outcomes from clicks"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-054
+      group: DELIVERY
+      parentRequirementId: MEDIA-REQ-CAP-DELIVER
+      capabilityLeafId: media.deliver.publish-governed
+      surfaceId: media.surface.recorder-orchestrator
+      given: "An exact accepted Media artifact is being exported/shared or published"
+      when: "user requests MP4/WebM, subtitles, thumbnails, 16:9/9:16, archival or interactive package"
+      then: "produce only admitted container/codec/player/profile outputs from same immutable source revision"
+      rejection: "a feature cannot silently require unqualified FFmpeg build, GPL/restricted codec or licensed model weights"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-055
+      group: DELIVERY
+      parentRequirementId: MEDIA-REQ-CAP-DELIVER
+      capabilityLeafId: media.deliver.publish-governed
+      surfaceId: media.surface.recorder-orchestrator
+      given: "An exact accepted Media artifact is being exported/shared or published"
+      when: "audience and destination are specified"
+      then: "check exact-version rights, privacy, captions/a11y, policy approval and user/tenant scope at effect boundary"
+      rejection: "creative operator cannot override mandatory legal consent or release guards"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-056
+      group: DELIVERY
+      parentRequirementId: MEDIA-REQ-CAP-DELIVER
+      capabilityLeafId: media.deliver.publish-governed
+      surfaceId: media.surface.recorder-orchestrator
+      given: "An exact accepted Media artifact is being exported/shared or published"
+      when: "destination accepts upload, rejects, times out or disappears"
+      then: "record request/ack separately from authoritative destination publication finality and reconcile UNKNOWN"
+      rejection: "HTTP 200, upload complete or signed URL existence does not imply remote publication success"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-057
+      group: DELIVERY
+      parentRequirementId: MEDIA-REQ-CAP-DELIVER
+      capabilityLeafId: media.deliver.publish-governed
+      surfaceId: media.surface.recorder-orchestrator
+      given: "An exact accepted Media artifact is being exported/shared or published"
+      when: "render/package/publish completes"
+      then: "emit signed/hashed source→edit→model→render→approval→destination manifest and exact output version"
+      rejection: "no conflicting asset/approval revision, missing output digest or unadmitted signing tool is glossed over"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-058
+      group: SECURITY
+      parentRequirementId: MEDIA-REQ-CAP-RIGHTS
+      capabilityLeafId: media.rights.permitted-use.evaluate
+      surfaceId: media.surface.capture-adapters
+      given: "Tenant, principal, purpose, consent, media rights and classification are explicitly scoped"
+      when: "browser/DOM/screenshot/terminal/voice access begins"
+      then: "check least privilege and redact sensitive source before exporting any pixels, logs or data"
+      rejection: "a post-production blur cannot retroactively protect leaked originals"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-059
+      group: SECURITY
+      parentRequirementId: MEDIA-REQ-CAP-RIGHTS
+      capabilityLeafId: media.rights.permitted-use.evaluate
+      surfaceId: media.surface.capture-adapters
+      given: "Tenant, principal, purpose, consent, media rights and classification are explicitly scoped"
+      when: "an ML, OCR, caption, codec, proxy or collaborator step is about to run"
+      then: "reevaluate permitted use, residency, egress, licensing, voice likeness, cost and retention"
+      rejection: "stale consent, unapproved endpoint or data classification change blocks the affected effect"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-060
+      group: SECURITY
+      parentRequirementId: MEDIA-REQ-CAP-RIGHTS
+      capabilityLeafId: media.rights.permitted-use.evaluate
+      surfaceId: media.surface.capture-adapters
+      given: "Tenant, principal, purpose, consent, media rights and classification are explicitly scoped"
+      when: "user revokes consent, requests deletion or applies legal hold"
+      then: "distinguish access revocation, erasure requested, pending provider/backup/caches, held data and confirmed erasure"
+      rejection: "acknowledged request cannot be represented as physical erasure across providers"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-061
+      group: SECURITY
+      parentRequirementId: MEDIA-REQ-CAP-RIGHTS
+      capabilityLeafId: media.rights.permitted-use.evaluate
+      surfaceId: media.surface.capture-adapters
+      given: "Tenant, principal, purpose, consent, media rights and classification are explicitly scoped"
+      when: "untrusted URL, archive, HTML, codec, image or model content is ingested"
+      then: "apply bounded sandbox, path, size, network/SSRF, signature, checksum and process policies"
+      rejection: "no untrusted source can break tenant isolation or execute executable code in the player"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-062
+      group: SECURITY
+      parentRequirementId: MEDIA-REQ-CAP-RIGHTS
+      capabilityLeafId: media.rights.permitted-use.evaluate
+      surfaceId: media.surface.capture-adapters
+      given: "Tenant, principal, purpose, consent, media rights and classification are explicitly scoped"
+      when: "an authorized edit, external effect or rights decision occurs"
+      then: "create separate immutable attributable audit records and sanitized operational diagnostics"
+      rejection: "logs cannot substitute audit, and protected payloads must never appear in shared tracing"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-063
+      group: O11Y
+      parentRequirementId: MEDIA-REQ-CAP-JOB
+      capabilityLeafId: media.job.watch
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A run/scene/render/AI/provider operation participates in a traceable workflow"
+      when: "processing traverses configuration, lease, seed, capture, media, QA and publishing"
+      then: "propagate trace/project/run/scene/attempt IDs through all hops with privacy-safe span events"
+      rejection: "missing trace cannot be silently interpreted as successful stage"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-064
+      group: O11Y
+      parentRequirementId: MEDIA-REQ-CAP-JOB
+      capabilityLeafId: media.job.watch
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A run/scene/render/AI/provider operation participates in a traceable workflow"
+      when: "run resource or media quality data is observed"
+      then: "emit bounded, source-measured frame, drift, runtime, latency, cache, cost, recovery, manual-override and denial metrics"
+      rejection: "planned duration and fabricated percentages are not measured telemetry"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-065
+      group: O11Y
+      parentRequirementId: MEDIA-REQ-CAP-JOB
+      capabilityLeafId: media.job.watch
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A run/scene/render/AI/provider operation participates in a traceable workflow"
+      when: "an error, model prompt or protected user event is captured"
+      then: "log stable error code and allowlisted non-sensitive metadata, with secure artifact references for privileged diagnostics"
+      rejection: "tokens, DOM text, raw prompt/audio, customer identity and screenshot bytes never reach shared logs"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-066
+      group: O11Y
+      parentRequirementId: MEDIA-REQ-CAP-JOB
+      capabilityLeafId: media.job.watch
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A run/scene/render/AI/provider operation participates in a traceable workflow"
+      when: "trace/exporter is unavailable during an operation"
+      then: "retain critical audit and an explicit degraded telemetry status without bypassing product policy"
+      rejection: "telemetry downtime cannot grant access or erase legal audit obligations"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-067
+      group: CROSSPLATFORM
+      parentRequirementId: MEDIA-REQ-CAP-STREAM
+      capabilityLeafId: media.stream.recording.integrate
+      surfaceId: media.surface.capture-adapters
+      given: "Multiple runtime operating systems, browsers and codec profiles are possible"
+      when: "OS, provider, browser version and codec profile are probed"
+      then: "report supported signals, limits, version/license/OS fingerprint and real qualification status"
+      rejection: "unsupported combination must fail closed, not silently choose a different codec"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-068
+      group: CROSSPLATFORM
+      parentRequirementId: MEDIA-REQ-CAP-STREAM
+      capabilityLeafId: media.stream.recording.integrate
+      surfaceId: media.surface.capture-adapters
+      given: "Multiple runtime operating systems, browsers and codec profiles are possible"
+      when: "Media SDK and product adapters are moved across repositories"
+      then: "use published immutable source-free public contracts, compatible versions and isolated consumer installation"
+      rejection: "sibling source import, unpinned model weights and private workspace links are not production proof"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-069
+      group: CROSSPLATFORM
+      parentRequirementId: MEDIA-REQ-CAP-STREAM
+      capabilityLeafId: media.stream.recording.integrate
+      surfaceId: media.surface.capture-adapters
+      given: "Multiple runtime operating systems, browsers and codec profiles are possible"
+      when: "source packages and canonical Media writer move in distinct phases"
+      then: "record one active writer, effective public route/client and reversible migration state per cutover"
+      rejection: "copying TS code cannot imply Java data/route or production writer handover"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-070
+      group: CROSSPLATFORM
+      parentRequirementId: MEDIA-REQ-CAP-STREAM
+      capabilityLeafId: media.stream.recording.integrate
+      surfaceId: media.surface.capture-adapters
+      given: "Multiple runtime operating systems, browsers and codec profiles are possible"
+      when: "crash, disk pressure, memory pressure or partial source occurs"
+      then: "fence leased work, preserve safe partial results and return actual retry/cleanup eligibility"
+      rejection: "unbounded frame buffering, zombie worker or hidden double execution are forbidden"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-071
+      group: ACCESSIBILITY
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION-OUTPUT
+      capabilityLeafId: media.animation.output.accessibility.semantic-timeline
+      surfaceId: media.surface.production-studio
+      given: "A user needs accessible GUI and/or a GUI-less product source"
+      when: "a Studio action is offered by drag/keyboard/mouse"
+      then: "provide focusable keyboard, numeric/text and headless semantic equivalents for each editable operation"
+      rejection: "canvas-only or pointer-only controls cannot be the exclusive editing path"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-072
+      group: ACCESSIBILITY
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION-OUTPUT
+      capabilityLeafId: media.animation.output.accessibility.semantic-timeline
+      surfaceId: media.surface.production-studio
+      given: "A user needs accessible GUI and/or a GUI-less product source"
+      when: "timeline, track, hotspot, error and review state are visible"
+      then: "expose structured semantic tree, reading order, announcements, high contrast and reduced motion"
+      rejection: "visual-only animation cannot conceal denial, pending finality or essential text"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-073
+      group: ACCESSIBILITY
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION-OUTPUT
+      capabilityLeafId: media.animation.output.accessibility.semantic-timeline
+      surfaceId: media.surface.production-studio
+      given: "A user needs accessible GUI and/or a GUI-less product source"
+      when: "captions/narration/copy require different locale, script or RTL"
+      then: "preserve exact approved content/locale/time/version with language-specific text rendering and consent"
+      rejection: "auto translation cannot silently rewrite brand, legal label, mathematics or product truth"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-074
+      group: ACCESSIBILITY
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION-OUTPUT
+      capabilityLeafId: media.animation.output.accessibility.semantic-timeline
+      surfaceId: media.surface.production-studio
+      given: "A user needs accessible GUI and/or a GUI-less product source"
+      when: "product offers only CLI/API/service with no graphical app"
+      then: "project truthful semantic events, request-response results and error recovery into useful machine/human views"
+      rejection: "PDP2 cannot mandate an invented GUI, screenshot or cursor"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-075
+      group: MANUALPARITY
+      parentRequirementId: MEDIA-REQ-CAP-PROJECT
+      capabilityLeafId: media.project.composition.update
+      surfaceId: media.surface.production-studio
+      given: "Automatic and expert manual workflows operate on one project revision"
+      when: "one product selects all metadata/config/customization without manual intervention"
+      then: "generate repeatable bounded project/scene/narration/quality plans while preserving exposed configurable parameters"
+      rejection: "implementation cannot hardcode Gharbatai stories, locations, actors or product-specific data in generic Media"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-076
+      group: MANUALPARITY
+      parentRequirementId: MEDIA-REQ-CAP-PROJECT
+      capabilityLeafId: media.project.composition.update
+      surfaceId: media.surface.production-studio
+      given: "Automatic and expert manual workflows operate on one project revision"
+      when: "expert adjusts any supported automated plan/scene/track/asset/profile"
+      then: "expose all supported operations in Studio and typed CLI/API mutation with exact revision rules"
+      rejection: "an auto-only feature with no manual parity is not feature-complete"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-077
+      group: MANUALPARITY
+      parentRequirementId: MEDIA-REQ-CAP-PROJECT
+      capabilityLeafId: media.project.composition.update
+      surfaceId: media.surface.production-studio
+      given: "Automatic and expert manual workflows operate on one project revision"
+      when: "export/edit/import round-trip uses project JSON or optional OTIO"
+      then: "preserve edit causality, source identity, rational time, rights and unknown extension policies"
+      rejection: "an interchange adapter with dropped metadata must be marked lossy, never accepted silently"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-078
+      group: MANUALPARITY
+      parentRequirementId: MEDIA-REQ-CAP-PROJECT
+      capabilityLeafId: media.project.composition.update
+      surfaceId: media.surface.production-studio
+      given: "Automatic and expert manual workflows operate on one project revision"
+      when: "an operation is blocked, conflicts or enters unknown finality"
+      then: "show what failed, trusted source identity and safe next action across GUI/headless outputs"
+      rejection: "no action is described as successful solely by transport status or toast"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
