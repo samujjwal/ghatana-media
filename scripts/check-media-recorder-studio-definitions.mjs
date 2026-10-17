@@ -44,10 +44,12 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
     return fs.readFileSync(path.join(root, filename), 'utf8');
   };
   const original = Object.fromEntries(Object.keys(paths).map(k => [k, read(k)]));
+  const parsedDocs = {};
   // Syntax and duplicate mapping keys are source-level errors, even when
   // count-based selectors coincidentally find every expected line.
   for (const id of ['registry', 'requirements', 'actorCatalog', 'p0', 'journeyCatalog', 'domain', 'domainVersioning', 'p1', 'interfaceGrammar', 'editingGrammar', 'p2']) {
     const document = parseDocument(original[id], {uniqueKeys:true, strict:true});
+    parsedDocs[id] = document;
     for (const issue of document.errors) fail(id+': invalid or duplicate YAML mapping: '+issue.message);
   }
   const topology = JSON.parse(original.topology);
@@ -144,6 +146,8 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
 
   const req = original.requirements;
   const p0 = original.p0, p1 = original.p1, p2 = original.p2;
+  const requirementLeaves = new Map((parsedDocs.requirements.toJS()?.requirements ?? [])
+    .map(r => [r.id, new Set(r.capabilityIds ?? [])]));
   const allCapIds = extract(original.capabilities.slice(original.capabilities.indexOf('\ncapabilities:\n')), /^  - id: (media\.[^\s]+)$/gm);
   const canonCaps = new Set(allCapIds);
   const canonReqIds = new Set(extract(req, /^- id: (MEDIA-REQ-CAP-[A-Z-]+)$/gm));
@@ -162,12 +166,14 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
     const surface = body.match(/^      surfaceId: (\S+)/m)?.[1];
     if (!canonReqIds.has(parent)) fail(id+': missing canonical parent requirement '+parent);
     if (!canonCaps.has(cap)) fail(id+': missing canonical capability leaf '+cap);
+    if (!requirementLeaves.get(parent)?.has(cap))
+      fail(id+': canonical parent requirement does not own capability leaf '+cap);
     if (!newSurfaceIds.includes(surface)) fail(id+': missing intended owner surface');
     if (!/^      given: ".+"/m.test(body) || !/^      when: ".+"/m.test(body)
        || !/^      then: ".+"/m.test(body) || !/^      rejection: ".+"/m.test(body))
       fail(id+': complete given/when/then/negative scenario is required');
     positiveAndDenied.push(id);
-    caseDetails.set(id, {cap, surface});
+    caseDetails.set(id, {cap, surface, group: body.match(/^      group: (\S+)/m)?.[1]});
   }
   if (caseIds.length !== 84 || new Set(caseIds).size !== 84 || caseIds.some(id => !stableCaseId.test(id)))
     fail('exactly 84 stable unique canonical Recorder Studio acceptance cases required');
@@ -260,6 +266,56 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
   const p1ProposedOperations = extract(p1, /^    - id: (media\.recorder\.operation\.\S+)$/gm);
   if (p1ProposedOperations.length !== 15 || new Set(p1ProposedOperations).size !== 15)
     fail('PDP1 15 typed proposal operation contracts missing/duplicate');
+  // Check semantic ownership rather than accepting a green count for 84
+  // source cases and 52 edit kinds that might be incorrectly cross-bound.
+  const p1Doc = parsedDocs.p1.toJS(), p2Doc = parsedDocs.p2.toJS();
+  const ownedOperations = p1Doc.canonicalOperationProposals?.records ?? [];
+  const p1Crosswalk = p1Doc.pdp0CaseOperationCrosswalk?.groups ?? [];
+  const p2Crosswalk = p2Doc.pdp0AcceptanceCaseProjection?.groups ?? [];
+  const p1Groups = new Map(p1Crosswalk.map(row => [row.groupId, row]));
+  const p2Groups = new Map(p2Crosswalk.map(row => [
+    String(row.id ?? '').split('.group.')[1]?.replace('.v1', '').toUpperCase(), row
+  ]));
+  const groups = new Set([...caseDetails.values()].map(row => row.group));
+  if (p1Groups.size !== 16 || p2Groups.size !== 16 || groups.size !== 16)
+    fail('PDP0-PDP1-PDP2 16 unique feature group identities are required');
+  const opIds = new Set(p1ProposedOperations);
+  for (const group of groups) {
+    const actualCases = caseIds.filter(id => caseDetails.get(id)?.group === group);
+    const p1Group=p1Groups.get(group), p2Group=p2Groups.get(group);
+    if (!p1Group || !p2Group) { fail(group+': missing source feature group'); continue; }
+    if (!sameSet(actualCases,p1Group.acceptanceCaseIds ?? []))
+      fail(group+': wrong canonical PDP1 case-to-operation binding');
+    if (!sameSet(actualCases,p2Group.cases ?? []))
+      fail(group+': wrong canonical PDP2 case-to-interface binding');
+    if (!sameSet(p1Group.proposedPdp1OperationRefs ?? [],p2Group.pdp1OperationRefs ?? []))
+      fail(group+': PDP1/PDP2 operation selection mismatch');
+    for (const op of [...(p1Group.proposedPdp1OperationRefs ?? []),...(p2Group.pdp1OperationRefs ?? [])])
+      if (!opIds.has(op)) fail(group+': missing PDP1 proposed operation '+op);
+    const owner=caseDetails.get(actualCases[0])?.surface;
+    if (owner !== p2Group.surfaceId || !actualCases.every(id => caseDetails.get(id)?.surface === owner))
+      fail(group+': wrong PDP2 owner surface');
+    if (!p2Group.presentation || !p2Group.denialRecovery)
+      fail(group+': PDP2 requires visible presentation and safe denial/recovery');
+  }
+  for (const op of ownedOperations) {
+    if (!['OBSERVATION_ONLY','LOCAL_CANDIDATE_OR_DRAFT','CANONICAL_PRODUCT_STATE_CHANGE','GOVERNED_EXTERNAL_REQUEST'].includes(op.effectBoundary)
+        || !Array.isArray(op.requestFields) || !op.requestFields.length
+        || !Array.isArray(op.resultVariants) || !op.resultVariants.length
+        || !Array.isArray(op.negativeCases) || !op.negativeCases.includes('wrong-tenant')
+        || !op.invariant || op.runtimeStatus !== 'NOT_ADMITTED')
+      fail('PDP1 proposed operation missing typed effect/request/result/tenant denial/currentness: '+op.id);
+  }
+  const manualParity=p2Doc.manualOperationParity?.operations ?? [];
+  if (manualParity.length !== 52 || p2Doc.manualOperationParity?.canonicalOperationCount !== 52)
+    fail('PDP2 manual parity count must match 52 canonical edit operations');
+  for (const op of manualParity) {
+    if (op.owningProjectMutation !== 'media.recorder.operation.edit.commit.v1'
+        || op.cliSdkApiIntent !== 'media.recorder.edit-operation.'+op.kind
+        || op.expectedRevisionRequired !== true || !op.gui || !op.keyboardAndTextEquivalent
+        || !op.denial || !op.manualLockAndUndoPolicy)
+      fail('PDP2 manual operation missing exact GUI/keyboard/CLI/API/version/denial parity: '+op.kind);
+  }
   if (!p1.includes('OUTCOME_UNKNOWN') || !p1.includes('no-product-proof-manufactured'))
     fail('PDP1 explicit business truth/unknown finality missing');
   if (!p1.includes('SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE'))
