@@ -416,7 +416,7 @@ channelSurfaceProposals:
 # Physical materialization requires an admitted manifest-path/build-coordinate
 # and exact PDP applicability under that topology. No invented executable nodes.
   - surfaceId: media.surface.recorder-orchestrator
-    surfaceType: HEADLESS_ORCHESTRATION
+    surfaceType: CLI
     purpose: Unattended, configuration-driven experience capture/recapture across qualified browser, CLI and API source adapters.
     consumers: [integrating-products, authorized-product-adapters, media-automation-clients]
     owners: [media-product, media-experience-owner]
@@ -440,7 +440,7 @@ channelSurfaceProposals:
       at this source cut; PDP-3 experience, independent acceptance and source-current
       admission remain separate. No release or runtime claim.
   - surfaceId: media.surface.capture-adapters
-    surfaceType: HEADLESS_ADAPTER_CONTRACT
+    surfaceType: SYSTEM_TO_SYSTEM_SERVICE
     purpose: Policy-governed source capture protocol for browser, desktop, mobile, terminal, HTTP/gRPC, camera and prerecorded media with explicit admission.
     consumers: [media-recorder-orchestrator, authorized-product-adapters]
     owners: [media-product, integrating-product-owner]
@@ -464,7 +464,7 @@ channelSurfaceProposals:
       at this source cut; PDP-3 experience, independent acceptance and source-current
       admission remain separate. No release or runtime claim.
   - surfaceId: media.surface.production-studio
-    surfaceType: GUI_EDITOR
+    surfaceType: GUI_WEB
     purpose: Complete accessible, non-destructive manual editing and automation review of one canonical versioned production project.
     consumers: [media-creators, media-editors, media-reviewers]
     owners: [media-product, media-experience-owner]
@@ -488,7 +488,7 @@ channelSurfaceProposals:
       at this source cut; PDP-3 experience, independent acceptance and source-current
       admission remain separate. No release or runtime claim.
   - surfaceId: media.surface.interactive-demo-player
-    surfaceType: GUI_EMBEDDED_PLAYER
+    surfaceType: GUI_EMBEDDED
     purpose: Unprivileged sandboxed interactive demonstration package with choices, hotspots, captions and offline-safe fallback.
     consumers: [media-viewers, integrating-products]
     owners: [media-product, media-experience-owner]
