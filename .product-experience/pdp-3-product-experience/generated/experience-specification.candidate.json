@@ -77,7 +77,7 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
-      "sha256": "412741465e9a0078e444f278cb056c0aafa8983f8b8e90b3b0c2ebc4ef40b950",
+      "sha256": "e997c6de4534ecf1d74d8bd91e0f7ad0a006098145b1970c003f4db0c10cd40b",
       "bytes": 19148,
       "format": "yaml",
       "schemaVersion": "media.journey-registry.v1",
@@ -33091,8 +33091,8 @@
         "description": "Inspect deterministic experience scenario inputs and expected transitions as explicitly synthetic examples, never production media evidence or provider qualification."
       }
     ],
-    "createdAt": "2026-10-17T09:33:23.560Z",
-    "updatedAt": "2026-10-17T09:33:23.560Z"
+    "createdAt": "2026-10-17T12:08:24.264Z",
+    "updatedAt": "2026-10-17T12:08:24.264Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",
@@ -38019,8 +38019,8 @@
       "stepBindingCounts": {
         "stepViewLinked": 130,
         "stepViewUnresolved": 0,
-        "stepActionLinked": 20,
-        "stepActionUnresolved": 110,
+        "stepActionLinked": 18,
+        "stepActionUnresolved": 112,
         "stepObjectRefsEmpty": 116,
         "stepStateRefsEmpty": 122,
         "canonicalOperationRefsNull": 111,

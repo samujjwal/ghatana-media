@@ -46,7 +46,7 @@ externalOwnerObservations:
         sha256: b95a1c0b5bd09de4f8103293f108ecf1bf24d0f62fbd20f4f36620e5e963c272
   - repositoryId: ghatana-products
     available: true
-    revision: 4b76fb5fa1e8900a3f31e98a2acfdc8ac722d666
+    revision: e4fb6649cdf3513791ee1325bb479fed12d2988f
     workingTree: MODIFIED
     files:
       - path: "config/product-extraction-records/media.yaml"
@@ -97,7 +97,7 @@ externalOwnerObservations:
         sha256: ea614e2b85ad661034e2e4441f0f2dbf36e3fd0e569e3706595a5b76844faf6e
   - repositoryId: ghatana-lifecycle
     available: true
-    revision: a7bc52a1ca4314fff1314ec14e9d6ced20fe6666
+    revision: defcb71383e922c97a318ae0eece74b9d8da8350
     workingTree: MODIFIED
     files:
       - path: "package.json"
@@ -477,7 +477,7 @@ productArtifactIndex:
     explorerProjection: DIRECT_EXPLORER_ARTIFACT
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 2ebb7747de581a2ffd82408685c38beb5a8a92188743d52eae52013aee88cc18
+      contentSha256: 1ae3f7453b961b12d258907d7604b72461509fa10af48fa81c371ba800b75e36
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P3-PHASE-3-EXPERIENCE-EXPLORER-INTERACTION-DISPOSITIONS-YAML
@@ -2754,7 +2754,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 6320a1a619c702af3f88f51f0cf3eebce4807833abc0802f9b5a5f2480e30862
+      contentSha256: 00f29ebf72113365bedb005ca341a92e29f199fda76e298bf053444e26766afc
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-COMPOSITION-VALIDATION-GRAMMAR
@@ -4456,7 +4456,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 3a0a1b2d5cad0d28378342827eb1b41518a2e7be19f419b7c51e5ec002d9d42a
+      contentSha256: 68d396e540d16ea0b17131911938f26fe9fc0578cb8de40353da5518fa3d4a9d
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P3-IMPLEMENTATION-HANDOFF-V1
@@ -4479,7 +4479,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 67452645a36c05e9f9fbff05872be264f493a2482cf327ecf266fc49ff975a9e
+      contentSha256: 02e821a5a32ddc0e4db099f60bae6e40ec31297421b116752f8d87d64cd9b55a
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-MEDIA-96177BF670D050B776EA
@@ -6342,7 +6342,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 412741465e9a0078e444f278cb056c0aafa8983f8b8e90b3b0c2ebc4ef40b950
+      contentSha256: e997c6de4534ecf1d74d8bd91e0f7ad0a006098145b1970c003f4db0c10cd40b
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P3-JOURNEY-SCENARIO-BINDINGS
