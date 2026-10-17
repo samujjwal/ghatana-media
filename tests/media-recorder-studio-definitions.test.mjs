@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createRequire } from 'node:module';
+import { parseDocument } from 'yaml';
 import { verifyRecorderStudioDefinitions } from '../scripts/check-media-recorder-studio-definitions.mjs';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = filename => fs.readFileSync(path.join(repo, filename), 'utf8');
-const { parseDocument } = createRequire(path.resolve(repo, '../ghatana-tools/package.json'))('yaml');
+
 test('PDP0–2 Recorder Studio requirements/surfaces/parity are structurally complete', () => {
   const result = verifyRecorderStudioDefinitions();
   assert.deepEqual(result.errors, [], result.errors.join('\n'));
