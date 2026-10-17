@@ -372,7 +372,14 @@
             "media.intent.review-exact-version",
             "media.intent.simulate",
             "media.intent.understand"
-          ]
+          ],
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Media-run orchestration scope and denied/unknown capture intent without taking product actor authority",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-1": {
           "disposition": "APPLICABLE",
@@ -403,7 +410,14 @@
             "media.domain.upload-chunk",
             "media.domain.upload-session"
           ],
-          "objectAuthorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml"
+          "objectAuthorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Canonical Media ProcessingJob/MediaRun and JobAttempt routing, fencing and result finality; product-owned adapters retain domain effects",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-2": {
           "disposition": "HEADLESS_CONTRACT",
@@ -412,7 +426,14 @@
             ".product-experience/pdp-2-design-interface-system/sdk/",
             ".product-experience/pdp-2-design-interface-system/gui/"
           ],
-          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages."
+          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages.",
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Headless/SDK control grammar for readiness, start, stop, error, retries and safe recovery",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-3": {
           "disposition": "CONSUMER_CONTRACT",
@@ -637,7 +658,14 @@
             "media.intent.review-exact-version",
             "media.intent.simulate",
             "media.intent.understand"
-          ]
+          ],
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Public client consumption and reverse mapping for unattended, Studio and nonvisual consumers",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-1": {
           "disposition": "APPLICABLE",
@@ -672,7 +700,14 @@
             "media.domain.upload-chunk",
             "media.domain.upload-session"
           ],
-          "objectAuthorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml"
+          "objectAuthorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Exact operation and result adapter onto canonical Media source without importing product or runtime internals",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-2": {
           "disposition": "HEADLESS_CONTRACT",
@@ -681,7 +716,14 @@
             ".product-experience/pdp-2-design-interface-system/sdk/",
             ".product-experience/pdp-2-design-interface-system/gui/"
           ],
-          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages."
+          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages.",
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Versioned public SDK contract and typed caller denial/unknown-safe recovery across browser and CLI",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-3": {
           "disposition": "CONSUMER_CONTRACT",
@@ -914,7 +956,14 @@
             "media.intent.review-exact-version",
             "media.intent.simulate",
             "media.intent.understand"
-          ]
+          ],
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Source/capture technical time, quality and editor result vocabulary without inventing product truth",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-1": {
           "disposition": "APPLICABLE",
@@ -942,7 +991,14 @@
             "media.domain.upload-chunk",
             "media.domain.upload-session"
           ],
-          "objectAuthorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml"
+          "objectAuthorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Opaque project/source version, rational-time scene, track, take, manual-lock and output provenance contract projection",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-2": {
           "disposition": "HEADLESS_CONTRACT",
@@ -951,7 +1007,14 @@
             ".product-experience/pdp-2-design-interface-system/sdk/",
             ".product-experience/pdp-2-design-interface-system/gui/"
           ],
-          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages."
+          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages.",
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Typed GUI/CLI shared value types and accessible timing/edit representation",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-3": {
           "disposition": "CONSUMER_CONTRACT",
@@ -1282,7 +1345,14 @@
             "media.intent.review-rights-and-consent",
             "media.intent.simulate",
             "media.intent.understand"
-          ]
+          ],
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Manual Studio and sandboxed-player human intent without claiming current production GUI host",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-1": {
           "disposition": "APPLICABLE",
@@ -1317,7 +1387,14 @@
             "media.domain.upload-chunk",
             "media.domain.upload-session"
           ],
-          "objectAuthorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml"
+          "objectAuthorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Single project revision/CAS time-synced editing and safe declarative player view projection",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-2": {
           "disposition": "GUI_LIBRARY",
@@ -1326,7 +1403,14 @@
             ".product-experience/pdp-2-design-interface-system/sdk/",
             ".product-experience/pdp-2-design-interface-system/gui/"
           ],
-          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages."
+          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages.",
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Reuse version-bound storyboard timeline audio/caption UI and accessible text, reduced-motion, hotspot/branch alternatives",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-3": {
           "disposition": "CONSUMER_CONTRACT",
@@ -1816,7 +1900,14 @@
           "capabilityIntentIds": [],
           "requirementIds": [],
           "rationale": "No direct Media capability ownership is established for this support/tool node; retained as scoped support only.",
-          "intentIds": []
+          "intentIds": [],
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Bounded job/capture observation, lease/outbox and telemetry context without inferring side-effect finality",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-1": {
           "disposition": "REFERENCED_ONLY",
@@ -1824,7 +1915,14 @@
           "operationAuthorityRef": ".product-experience/pdp-1-domain-data/operations.yaml",
           "operationIds": [],
           "rationale": "No separate canonical domain or operation ownership is assigned.",
-          "domainObjectIds": []
+          "domainObjectIds": [],
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Exact event, attempt, request/retry identity and durable observation/reconciliation distinctions",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-2": {
           "disposition": "NOT_APPLICABLE",
@@ -1833,7 +1931,14 @@
             ".product-experience/pdp-2-design-interface-system/sdk/",
             ".product-experience/pdp-2-design-interface-system/gui/"
           ],
-          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages."
+          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages.",
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Typed status and external acknowledgement representation without treating events as command receipts",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-3": {
           "disposition": "TOOLING_OR_SUPPORT",
@@ -1973,7 +2078,14 @@
             "media.intent.review-rights-and-consent",
             "media.intent.simulate",
             "media.intent.understand"
-          ]
+          ],
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Canonical single-writer MediaProject and artifact source preservation despite recording and Studio projections",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-1": {
           "disposition": "APPLICABLE",
@@ -2003,7 +2115,14 @@
             "media.domain.upload-chunk",
             "media.domain.upload-session"
           ],
-          "objectAuthorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml"
+          "objectAuthorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Project revision CAS, immutable derived ancestry, per-scene material fingerprint and provenance/retention state",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-2": {
           "disposition": "NOT_APPLICABLE",
@@ -2012,7 +2131,14 @@
             ".product-experience/pdp-2-design-interface-system/sdk/",
             ".product-experience/pdp-2-design-interface-system/gui/"
           ],
-          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages."
+          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages.",
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Versioned authoritative read-model projection; never a second editor-write authority",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-3": {
           "disposition": "CONSUMER_CONTRACT",
@@ -2066,7 +2192,14 @@
           "intentIds": [
             "media.intent.deliver",
             "media.intent.review-rights-and-consent"
-          ]
+          ],
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Privacy, consent, rights, provider license, tenant and egress enforcement at each Media capture effect boundary",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-1": {
           "disposition": "APPLICABLE",
@@ -2079,7 +2212,14 @@
             "media.domain.consent-reference",
             "media.domain.rights-decision"
           ],
-          "objectAuthorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml"
+          "objectAuthorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Policy-scoped immutable source/derived asset and original delegation checks without a parallel policy authority",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-2": {
           "disposition": "NOT_APPLICABLE",
@@ -2088,7 +2228,14 @@
             ".product-experience/pdp-2-design-interface-system/sdk/",
             ".product-experience/pdp-2-design-interface-system/gui/"
           ],
-          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages."
+          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages.",
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Accessible denied/revoked/unknown review semantics and safe redacted metadata",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-3": {
           "disposition": "CONSUMER_CONTRACT",
@@ -3256,7 +3403,14 @@
             "media.intent.review-rights-and-consent",
             "media.intent.simulate",
             "media.intent.understand"
-          ]
+          ],
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Versioned, source-grounded media capture/run/result contracts shared by all consumer channels",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-1": {
           "disposition": "APPLICABLE",
@@ -3292,7 +3446,14 @@
             "media.domain.upload-chunk",
             "media.domain.upload-session"
           ],
-          "objectAuthorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml"
+          "objectAuthorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Typed operation request/result, exact tenant/actor/purpose and controlled idempotency references; no new Media project identity",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-2": {
           "disposition": "HEADLESS_CONTRACT",
@@ -3301,7 +3462,14 @@
             ".product-experience/pdp-2-design-interface-system/sdk/",
             ".product-experience/pdp-2-design-interface-system/gui/"
           ],
-          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages."
+          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages.",
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar",
+            "type": "DIRECT_PHYSICAL_OWNER_ROLE",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "summary": "Machine-readable API/CLI/headless schemas, finality and source-version presentation",
+            "stageAdmission": "NOT_ADMITTED"
+          }
         },
         "PDP-3": {
           "disposition": "CONSUMER_CONTRACT",
@@ -3602,7 +3770,11 @@
         ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
       ],
       "candidatePhysicalOwner": "modules/experience-capture-adapters (candidate; no module created)",
-      "PDP3SuccessorStatus": "UNAUTHORED"
+      "PDP3SuccessorStatus": "UNAUTHORED",
+      "consumerType": "SYSTEM_TO_SYSTEM_SERVICE",
+      "registryAuthority": ".product-experience/surface-registry.yaml",
+      "admission": "NOT_ADMITTED",
+      "descriptorRole": "CANONICAL_LOGICAL_SURFACE_SOURCE_ONLY"
     },
     {
       "surfaceId": "media.surface.experience-recorder",
@@ -3621,7 +3793,11 @@
         ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
       ],
       "candidatePhysicalOwner": "modules/experience-production (candidate; no module created)",
-      "PDP3SuccessorStatus": "UNAUTHORED"
+      "PDP3SuccessorStatus": "UNAUTHORED",
+      "consumerType": "SYSTEM_TO_SYSTEM_SERVICE",
+      "registryAuthority": ".product-experience/surface-registry.yaml",
+      "admission": "NOT_ADMITTED",
+      "descriptorRole": "CANONICAL_LOGICAL_SURFACE_SOURCE_ONLY"
     },
     {
       "surfaceId": "media.surface.interactive-demo-player",
@@ -3639,7 +3815,11 @@
         ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
       ],
       "candidatePhysicalOwner": "Safe embedded player module (candidate; not active or deployed)",
-      "PDP3SuccessorStatus": "UNAUTHORED"
+      "PDP3SuccessorStatus": "UNAUTHORED",
+      "consumerType": "GUI_EMBEDDED",
+      "registryAuthority": ".product-experience/surface-registry.yaml",
+      "admission": "NOT_ADMITTED",
+      "descriptorRole": "CANONICAL_LOGICAL_SURFACE_SOURCE_ONLY"
     },
     {
       "surfaceId": "media.surface.presentation-studio",
@@ -3658,7 +3838,11 @@
         ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
       ],
       "candidatePhysicalOwner": "Media web Studio experience (host not admitted; no duplicated UI host)",
-      "PDP3SuccessorStatus": "UNAUTHORED"
+      "PDP3SuccessorStatus": "UNAUTHORED",
+      "consumerType": "GUI_WEB",
+      "registryAuthority": ".product-experience/surface-registry.yaml",
+      "admission": "NOT_ADMITTED",
+      "descriptorRole": "CANONICAL_LOGICAL_SURFACE_SOURCE_ONLY"
     }
   ],
   "compositions": [
@@ -5071,7 +5255,13 @@
             "media.intent.edit",
             "media.intent.understand"
           ],
-          "rationale": "Source-only Recorder/Studio audience, capture, authoring, privacy and delivery outcome combination; product capability identities remain owned by PDP-0 capabilities.yaml."
+          "rationale": "Source-only Recorder/Studio audience, capture, authoring, privacy and delivery outcome combination; product capability identities remain owned by PDP-0 capabilities.yaml.",
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "sourceChildren": 8,
+            "externalEffects": "NOT_ADMITTED"
+          }
         },
         "PDP-1": {
           "disposition": "DIRECT_INTEGRATION_CONTRACT",
@@ -5105,7 +5295,13 @@
             "media.operation.capability.media-compose-multitrack-timeline",
             "media.operation.capability.media-deliver-interactive-scene-bundle"
           ],
-          "rationale": "One MediaProject, exact revision and typed operation/result/authority boundaries for multiple capture/edit/output participants; no new canonical Media operation is asserted."
+          "rationale": "One MediaProject, exact revision and typed operation/result/authority boundaries for multiple capture/edit/output participants; no new canonical Media operation is asserted.",
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "sourceChildren": 8,
+            "externalEffects": "NOT_ADMITTED"
+          }
         },
         "PDP-2": {
           "disposition": "GUI_HEADLESS_AND_HOST_COMPOSITION",
@@ -5114,7 +5310,13 @@
             ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
             ".product-experience/pdp-2-design-interface-system/accessibility.yaml"
           ],
-          "rationale": "Shared revision across visual Studio and headless API/CLI, accessible editing, safe interactive player and unavailable/denied recovery."
+          "rationale": "Shared revision across visual Studio and headless API/CLI, accessible editing, safe interactive player and unavailable/denied recovery.",
+          "experienceProductionSuccessor": {
+            "authorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar",
+            "status": "SOURCE_ONLY_NEW_MEANING_REQUIRES_SUCCESSOR_VERIFICATION",
+            "sourceChildren": 8,
+            "externalEffects": "NOT_ADMITTED"
+          }
         },
         "PDP-3": {
           "disposition": "SUCCESSOR_EXPERIENCE_DEFINITION_REQUIRED",
@@ -5134,7 +5336,11 @@
         "aggregateUniqueMembers": true,
         "dependenciesAreMembership": false
       },
-      "dependencies": [],
+      "dependencies": [
+        "media.composition.client-and-machine-interfaces",
+        "media.composition.creation-composition-and-delivery",
+        "media.composition.governed-job-execution"
+      ],
       "crossChildObligations": [
         {
           "id": "media.composition.experience-recorder-studio.direct-integration",

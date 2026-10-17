@@ -106,17 +106,20 @@
         "PDP-0": {
           "disposition": "DIRECT_CROSS_CHILD_MEANING",
           "authorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
-          "changeState": "SUCCESSOR_DEFINITION_AUTHORED_PENDING_VERIFICATION"
+          "changeState": "SUCCESSOR_COMPOSITION_DEFINED_NOT_PHASE_EXIT",
+          "successorAuthorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile"
         },
         "PDP-1": {
           "disposition": "DIRECT_INTEGRATION_CONTRACT",
           "authorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml",
-          "changeState": "SUCCESSOR_DEFINITION_AUTHORED_PENDING_VERIFICATION"
+          "changeState": "SUCCESSOR_COMPOSITION_DEFINED_NOT_PHASE_EXIT",
+          "successorAuthorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract"
         },
         "PDP-2": {
           "disposition": "GUI_HEADLESS_AND_HOST_COMPOSITION",
           "authorityRef": ".product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml",
-          "changeState": "SUCCESSOR_DEFINITION_AUTHORED_PENDING_VERIFICATION"
+          "changeState": "SUCCESSOR_COMPOSITION_DEFINED_NOT_PHASE_EXIT",
+          "successorAuthorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar"
         },
         "PDP-3": {
           "disposition": "SUCCESSOR_EXPERIENCE_DEFINITION_REQUIRED",
@@ -401,22 +404,25 @@
       "surfaceId": "media.physical.launcher",
       "type": "PHYSICAL_CANDIDATE",
       "owner": "media-runtime",
-      "impact": "REUSED_PHYSICAL_CONTRACT_PARTICIPANT",
+      "impact": "SOURCE_ONLY_PHYSICAL_INTEGRATION_RESPONSIBILITY_ADDED",
       "phaseApplicability": {
         "PDP-0": {
           "disposition": "APPLICABLE",
           "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile"
         },
         "PDP-1": {
           "disposition": "APPLICABLE",
           "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract"
         },
         "PDP-2": {
           "disposition": "HEADLESS_CONTRACT",
           "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar"
         },
         "PDP-3": {
           "disposition": "CONSUMER_CONTRACT",
@@ -431,22 +437,25 @@
       "surfaceId": "media.physical.libs-audio-video-client",
       "type": "PHYSICAL_CANDIDATE",
       "owner": "media-client-owner",
-      "impact": "REUSED_PHYSICAL_CONTRACT_PARTICIPANT",
+      "impact": "SOURCE_ONLY_PHYSICAL_INTEGRATION_RESPONSIBILITY_ADDED",
       "phaseApplicability": {
         "PDP-0": {
           "disposition": "APPLICABLE",
           "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile"
         },
         "PDP-1": {
           "disposition": "APPLICABLE",
           "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract"
         },
         "PDP-2": {
           "disposition": "HEADLESS_CONTRACT",
           "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar"
         },
         "PDP-3": {
           "disposition": "CONSUMER_CONTRACT",
@@ -461,22 +470,25 @@
       "surfaceId": "media.physical.libs-audio-video-types",
       "type": "PHYSICAL_CANDIDATE",
       "owner": "media-types-owner",
-      "impact": "REUSED_PHYSICAL_CONTRACT_PARTICIPANT",
+      "impact": "SOURCE_ONLY_PHYSICAL_INTEGRATION_RESPONSIBILITY_ADDED",
       "phaseApplicability": {
         "PDP-0": {
           "disposition": "APPLICABLE",
           "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile"
         },
         "PDP-1": {
           "disposition": "APPLICABLE",
           "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract"
         },
         "PDP-2": {
           "disposition": "HEADLESS_CONTRACT",
           "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar"
         },
         "PDP-3": {
           "disposition": "CONSUMER_CONTRACT",
@@ -491,22 +503,25 @@
       "surfaceId": "media.physical.libs-audio-video-ui",
       "type": "PHYSICAL_CANDIDATE",
       "owner": "media-ui-owner",
-      "impact": "REUSED_PHYSICAL_CONTRACT_PARTICIPANT",
+      "impact": "SOURCE_ONLY_PHYSICAL_INTEGRATION_RESPONSIBILITY_ADDED",
       "phaseApplicability": {
         "PDP-0": {
           "disposition": "APPLICABLE",
           "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile"
         },
         "PDP-1": {
           "disposition": "APPLICABLE",
           "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract"
         },
         "PDP-2": {
           "disposition": "GUI_LIBRARY",
           "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar"
         },
         "PDP-3": {
           "disposition": "CONSUMER_CONTRACT",
@@ -671,22 +686,25 @@
       "surfaceId": "media.physical.modules-infrastructure-messaging",
       "type": "PHYSICAL_CANDIDATE",
       "owner": "media-platform",
-      "impact": "REUSED_PHYSICAL_CONTRACT_PARTICIPANT",
+      "impact": "SOURCE_ONLY_PHYSICAL_INTEGRATION_RESPONSIBILITY_ADDED",
       "phaseApplicability": {
         "PDP-0": {
           "disposition": "NOT_APPLICABLE_SUPPORT",
           "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile"
         },
         "PDP-1": {
           "disposition": "REFERENCED_ONLY",
           "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract"
         },
         "PDP-2": {
           "disposition": "NOT_APPLICABLE",
           "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar"
         },
         "PDP-3": {
           "disposition": "TOOLING_OR_SUPPORT",
@@ -701,22 +719,25 @@
       "surfaceId": "media.physical.modules-infrastructure-persistence",
       "type": "PHYSICAL_CANDIDATE",
       "owner": "media-platform",
-      "impact": "REUSED_PHYSICAL_CONTRACT_PARTICIPANT",
+      "impact": "SOURCE_ONLY_PHYSICAL_INTEGRATION_RESPONSIBILITY_ADDED",
       "phaseApplicability": {
         "PDP-0": {
           "disposition": "APPLICABLE",
           "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile"
         },
         "PDP-1": {
           "disposition": "APPLICABLE",
           "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract"
         },
         "PDP-2": {
           "disposition": "NOT_APPLICABLE",
           "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar"
         },
         "PDP-3": {
           "disposition": "CONSUMER_CONTRACT",
@@ -731,22 +752,25 @@
       "surfaceId": "media.physical.modules-infrastructure-security",
       "type": "PHYSICAL_CANDIDATE",
       "owner": "media-platform",
-      "impact": "REUSED_PHYSICAL_CONTRACT_PARTICIPANT",
+      "impact": "SOURCE_ONLY_PHYSICAL_INTEGRATION_RESPONSIBILITY_ADDED",
       "phaseApplicability": {
         "PDP-0": {
           "disposition": "APPLICABLE",
           "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile"
         },
         "PDP-1": {
           "disposition": "APPLICABLE",
           "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract"
         },
         "PDP-2": {
           "disposition": "NOT_APPLICABLE",
           "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar"
         },
         "PDP-3": {
           "disposition": "CONSUMER_CONTRACT",
@@ -1031,22 +1055,25 @@
       "surfaceId": "media.physical.runtime-contracts",
       "type": "PHYSICAL_CANDIDATE",
       "owner": "media-runtime",
-      "impact": "REUSED_PHYSICAL_CONTRACT_PARTICIPANT",
+      "impact": "SOURCE_ONLY_PHYSICAL_INTEGRATION_RESPONSIBILITY_ADDED",
       "phaseApplicability": {
         "PDP-0": {
           "disposition": "APPLICABLE",
           "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile"
         },
         "PDP-1": {
           "disposition": "APPLICABLE",
           "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract"
         },
         "PDP-2": {
           "disposition": "HEADLESS_CONTRACT",
           "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
-          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+          "changeState": "SUCCESSOR_PHYSICAL_ROLE_AUTHORED_NOT_CURRENTNESS_VERIFIED",
+          "successorAuthorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar"
         },
         "PDP-3": {
           "disposition": "CONSUMER_CONTRACT",
