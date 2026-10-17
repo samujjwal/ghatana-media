@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "media.recorder-studio-pdp0-technical-review.v1",
+  "observationId": "MEDIA-REC-PDP0-SOURCE-REVIEW-2026-10-17-V1",
+  "reviewDate": "2026-10-17",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "product": "media",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0",
+    "scope": "Recorder/Studio 4 new logical consumers; preserve all historic Media PDP surface identities",
+    "baseMain": "0c572079100d6cd784ba4a9cc62b87c1f3e7e707",
+    "reviewedDraftPr": 10,
+    "branch": "codex/media-recorder-pdp0-pdp2-surfaces-20261017",
+    "sourceSnapshotsAreBlobsNotCommitReceipts": true
+  },
+  "authorityEffect": "NONE_TECHNICAL_SOURCE_INSPECTION_ONLY",
+  "sourceRefs": {
+    ".product-experience/surface-registry.yaml": "bb4276f16ced31d1113e9755df4d42cd88a0adfe",
+    ".product-experience/surfaces/media-physical-topology.v1.json": "f00cbac6654bfb06c5b26350c2d4f8f495522d83",
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "167b954ed1a35a0f83aa43ac363c3592a97fe560",
+    ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml": "315f2a4302230528070efb1f1f87e4b79494ce6a",
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "b0840765ad2d8634f29baae9d03397207bd38608",
+    ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "2a6699172c0cb1bd8baabd050b32a8ee475d9eec",
+    ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": "15297063ca742707e81de4166f7135e5ee4c89c6",
+    ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml": "fd4b03c395cac1ce287480325531aae24a2dca5b"
+  },
+  "observedDefinitionCounts": {
+    "historicalPhysicalCandidates": 26,
+    "historicalCompositionsIncludingRoot": 7,
+    "historicalConsumers": 17,
+    "historicalPhaseCells": 200,
+    "newLogicalConsumers": 4,
+    "proposedTotalConsumers": 21,
+    "proposedTotalUniqueSurfaces": 54,
+    "proposedPdpPhaseCells": 216,
+    "canonicalHistoricCapabilityLeafCount": 462,
+    "canonicalHistoricRequirementFamilies": 38,
+    "distinctReusedRecorderCapabilityLeaves": 31,
+    "scopedCanonicalAcceptanceCases": 84,
+    "scopedFeatureProfiles": 16,
+    "typedPdp1OperationsProposedOnly": 15,
+    "manualEditOperationKinds": 52,
+    "pdp1AndPdp2MappedCaseGroups": 16
+  },
+  "checksActuallyPerformed": [
+    {
+      "id": "REC-OBS-01",
+      "kind": "SOURCE_STRUCTURE_NOT_NATIVE",
+      "result": "PASS",
+      "scope": "Verified 84 distinct canonical case IDs, 16 source feature profiles, 16 PDP1/PDP2 groups, exact P0->P1->P2 case/operation/owning-surface mapping and 52 manual edit kind identities from retrieved source blobs",
+      "limitations": [
+        "textual/regex and semantic ID agreement only",
+        "not a native YAML schema or parser result",
+        "no independent PDP approval"
+      ]
+    },
+    {
+      "id": "REC-OBS-02",
+      "kind": "SOURCE_STRUCTURE_NOT_NATIVE",
+      "result": "PASS",
+      "scope": "Verified four new consumer-to-parent relationships, physical candidate crosswalk source refs and host-only/contract-only classification",
+      "limitations": [
+        "does not establish deployed physical package or runtime host"
+      ]
+    }
+  ],
+  "authoredButNotExecuted": {
+    "nativeDefinitionChecker": "pnpm check:recorder-studio-definition",
+    "nativeSourceTests": "pnpm test:recorder-studio-definition",
+    "physicalTopologyChecker": "pnpm check:physical-topology",
+    "physicalTopologyTests": "pnpm test:physical-topology",
+    "localProductExperience": "pnpm check:product-experience-local",
+    "exactSourceProjection": "node scripts/generate-media-phase-projections.mjs --check --strict",
+    "summary": "29 focused source tests authored when observed; no runnable checkout, workspace dependencies or native test receipt available from this review environment"
+  },
+  "phaseDisposition": "SOURCE_AUTHORED_PENDING_NATIVE_VALIDATION_AND_EXACT_SOURCE_READMISSION",
+  "remainingPhaseLocalWork": [
+    {
+      "id": "REC-D0-01",
+      "owner": "Media product-definition implementer/reviewer",
+      "action": "Run full native YAML parser/schema/source-semantic and 29 focused tests with real workspace dependencies; resolve genuine P0 semantic failures and update evidence"
+    },
+    {
+      "id": "REC-D0-02",
+      "owner": "Media surface and topology owner",
+      "action": "Run exact physical/topology/phase-cell generator parity and validate 50 historical vs 54 proposed census with no duplicate deployable package"
+    },
+    {
+      "id": "REC-D0-03",
+      "owner": "Media product owner/Discovery gate reviewer",
+      "action": "Complete scoped owner semantic review, generate exact-source successor manifest, affected PDP0 leaf/composition/root currentness and status; require zero PDP0 definition tasks before phase advancement"
+    }
+  ],
+  "forbiddenClaims": [
+    "PDP0_DEV_COMPLETE",
+    "PDP1_OR_PDP2_ACCEPTED",
+    "PDP3_DEV_COMPLETE",
+    "BUILD_ADMITTED",
+    "PDP_CLOSED",
+    "PRODUCTION_RECORDER_QUALIFIED",
+    "RUNTIME_WRITER_CUTOVER",
+    "FILM_APPROVED",
+    "RELEASE_READY"
+  ],
+  "nextAllowedPhase": "DISCOVERY_PDP0_SOURCE_VALIDATION_AND_RECONCILIATION",
+  "canonicalRuntimeWriter": "samujjwal/ghatana:services/media",
+  "firstDogfoodConsumer": "samujjwal/gharbatai",
+  "noHistoricalReceiptsRewritten": true
+}
