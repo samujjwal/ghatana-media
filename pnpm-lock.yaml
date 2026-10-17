@@ -48,6 +48,10 @@ catalogs:
     zod:
       specifier: ^4.3.6
       version: 4.6.5
+  lifecycle:
+    typescript:
+      specifier: ^6.0.3
+      version: 6.0.3
   shared:
     '@testing-library/jest-dom':
       specifier: ^7.0.0
@@ -70,6 +74,12 @@ catalogs:
     clsx:
       specifier: ^2.1.1
       version: 2.1.1
+    jotai:
+      specifier: ^2.20.2
+      version: 2.20.3
+    jsdom:
+      specifier: ^30.0.1
+      version: 30.1.2
     lucide-react:
       specifier: ^1.28.0
       version: 1.52.0
@@ -79,6 +89,12 @@ catalogs:
     react-dom:
       specifier: ^19.2.8
       version: 19.2.8
+    react-router:
+      specifier: ^8.3.0
+      version: 8.4.0
+    tailwind-merge:
+      specifier: ^3.6.0
+      version: 3.7.0
     typescript:
       specifier: ^6.0.3
       version: 6.0.3
@@ -168,6 +184,37 @@ importers:
         specifier: workspace:*
         version: link:../tool-platform-contracts
 
+  ../ghatana-lifecycle/tools/closure-config-generator:
+    dependencies:
+      '@ghatana/contract-governance':
+        specifier: workspace:*
+        version: link:../contract-governance
+      '@ghatana/documentation-model':
+        specifier: workspace:*
+        version: link:../documentation-model
+      '@ghatana/evidence-contracts':
+        specifier: workspace:*
+        version: link:../../libs/evidence-contracts
+      '@ghatana/surface-convergence':
+        specifier: workspace:*
+        version: link:../surface-convergence
+      '@ghatana/verification-planner':
+        specifier: workspace:*
+        version: link:../verification-planner
+      ajv:
+        specifier: 8.20.0
+        version: 8.20.0
+      ajv-formats:
+        specifier: 3.0.1
+        version: 3.0.1(ajv@8.20.0)
+      yaml:
+        specifier: ^2.9.0
+        version: 2.9.1
+    devDependencies:
+      typescript:
+        specifier: catalog:lifecycle
+        version: 6.0.3
+
   ../ghatana-lifecycle/tools/contract-governance:
     dependencies:
       '@ghatana/tool-platform-contracts':
@@ -223,6 +270,30 @@ importers:
       '@ghatana/workflow-runner':
         specifier: workspace:*
         version: link:../workflow-runner
+
+  ../ghatana-lifecycle/tools/evidence-generator-runtime:
+    dependencies:
+      '@ghatana/evidence-contracts':
+        specifier: workspace:*
+        version: link:../../libs/evidence-contracts
+      '@ghatana/runtime-broker':
+        specifier: workspace:*
+        version: link:../runtime-broker
+      '@ghatana/tool-platform-contracts':
+        specifier: workspace:*
+        version: link:../../libs/tool-platform-contracts
+      '@ghatana/verification-planner':
+        specifier: workspace:*
+        version: link:../verification-planner
+      '@ghatana/work-planner':
+        specifier: workspace:*
+        version: link:../work-planner
+      '@ghatana/workflow-runner':
+        specifier: workspace:*
+        version: link:../workflow-runner
+      yaml:
+        specifier: ^2.9.0
+        version: 2.9.1
 
   ../ghatana-lifecycle/tools/execution-cache: {}
 
@@ -414,14 +485,14 @@ importers:
         specifier: ^4.11.2
         version: 4.14.0
       jsdom:
-        specifier: ^30.0.1
+        specifier: catalog:shared
         version: 30.1.2
     devDependencies:
       '@testing-library/jest-dom':
-        specifier: ^7.0.0
+        specifier: catalog:shared
         version: 7.0.1(@testing-library/dom@10.4.2)(vitest@4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1)))
       '@testing-library/react':
-        specifier: ^16.3.2
+        specifier: catalog:shared
         version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@types/jsdom':
         specifier: ^28.0.3
@@ -430,19 +501,19 @@ importers:
         specifier: catalog:shared
         version: 26.6.4
       '@types/react':
-        specifier: ^19.2.18
+        specifier: catalog:shared
         version: 19.2.18
       '@types/react-dom':
-        specifier: ^19.2.4
+        specifier: catalog:shared
         version: 19.2.4(@types/react@19.2.18)
       react:
-        specifier: ^19.2.8
+        specifier: catalog:shared
         version: 19.2.8
       typescript:
-        specifier: ^6.0.3
+        specifier: catalog:shared
         version: 6.0.3
       vitest:
-        specifier: ^4.1.10
+        specifier: catalog:shared
         version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/api:
@@ -455,10 +526,10 @@ importers:
         specifier: catalog:shared
         version: 26.6.4
       typescript:
-        specifier: ^6.0.3
+        specifier: catalog:shared
         version: 6.0.3
       vitest:
-        specifier: ^4.1.10
+        specifier: catalog:shared
         version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/audit:
@@ -476,17 +547,17 @@ importers:
   ../ghatana-shared/platform/typescript/config:
     dependencies:
       zod:
-        specifier: ^4.4.3
+        specifier: catalog:shared
         version: 4.6.5
     devDependencies:
       '@types/node':
-        specifier: ^26.1.2
+        specifier: catalog:shared
         version: 26.6.4
       typescript:
-        specifier: ^6.0.3
+        specifier: catalog:shared
         version: 6.0.3
       vitest:
-        specifier: ^4.1.10
+        specifier: catalog:shared
         version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/design-system:
@@ -550,7 +621,7 @@ importers:
         specifier: catalog:shared
         version: 19.2.8(react@19.2.8)
       react-router:
-        specifier: ^8.3.0
+        specifier: catalog:shared
         version: 8.4.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       recharts:
         specifier: ^3.10.1
@@ -597,7 +668,7 @@ importers:
         version: link:../ds-schema
     devDependencies:
       '@testing-library/react':
-        specifier: ^16.3.2
+        specifier: catalog:shared
         version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@types/node':
         specifier: catalog:shared
@@ -606,7 +677,7 @@ importers:
         specifier: catalog:shared
         version: 19.2.18
       '@types/react-dom':
-        specifier: ^19.2.4
+        specifier: catalog:shared
         version: 19.2.4(@types/react@19.2.18)
       react:
         specifier: catalog:shared
@@ -628,45 +699,45 @@ importers:
         version: link:../ds-schema
     devDependencies:
       '@types/node':
-        specifier: ^26.1.2
+        specifier: catalog:shared
         version: 26.6.4
       typescript:
-        specifier: ^6.0.3
+        specifier: catalog:shared
         version: 6.0.3
       vitest:
-        specifier: ^4.1.10
+        specifier: catalog:shared
         version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/ds-schema:
     dependencies:
       zod:
-        specifier: ^4.4.3
+        specifier: catalog:shared
         version: 4.6.5
     devDependencies:
       '@types/node':
-        specifier: ^26.1.2
+        specifier: catalog:shared
         version: 26.6.4
       typescript:
-        specifier: ^6.0.3
+        specifier: catalog:shared
         version: 6.0.3
       vitest:
-        specifier: ^4.1.10
+        specifier: catalog:shared
         version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/events:
     dependencies:
       zod:
-        specifier: ^4.4.3
+        specifier: catalog:shared
         version: 4.6.5
     devDependencies:
       '@types/node':
-        specifier: ^26.1.2
+        specifier: catalog:shared
         version: 26.6.4
       typescript:
-        specifier: ^6.0.3
+        specifier: catalog:shared
         version: 6.0.3
       vitest:
-        specifier: ^4.1.10
+        specifier: catalog:shared
         version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/i18n:
@@ -680,15 +751,12 @@ importers:
       i18next-http-backend:
         specifier: ^4.0.1
         version: 4.0.2
-      react-i18next:
-        specifier: ^17.0.11
-        version: 17.0.16(i18next@26.4.2(typescript@6.0.3))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@6.0.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.18
+        specifier: catalog:shared
         version: 19.2.18
       '@types/react-dom':
-        specifier: ^19.2.4
+        specifier: catalog:shared
         version: 19.2.4(@types/react@19.2.18)
       react:
         specifier: catalog:shared
@@ -696,8 +764,11 @@ importers:
       react-dom:
         specifier: catalog:shared
         version: 19.2.8(react@19.2.8)
+      react-i18next:
+        specifier: ^17.0.11
+        version: 17.0.16(i18next@26.4.2(typescript@6.0.3))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@6.0.3)
       typescript:
-        specifier: ^6.0.3
+        specifier: catalog:shared
         version: 6.0.3
       vitest:
         specifier: catalog:shared
@@ -709,10 +780,10 @@ importers:
         specifier: workspace:*
         version: link:../tokens
       clsx:
-        specifier: ^2.1.1
+        specifier: catalog:shared
         version: 2.1.1
       tailwind-merge:
-        specifier: ^3.6.0
+        specifier: catalog:shared
         version: 3.7.0
     devDependencies:
       '@types/node':
@@ -772,16 +843,16 @@ importers:
         specifier: catalog:shared
         version: 26.6.4
       '@types/react':
-        specifier: ^19.2.18
+        specifier: catalog:shared
         version: 19.2.18
       react:
         specifier: catalog:shared
         version: 19.2.8
       typescript:
-        specifier: ^6.0.3
+        specifier: catalog:shared
         version: 6.0.3
       vitest:
-        specifier: ^4.1.10
+        specifier: catalog:shared
         version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/state:
@@ -790,20 +861,20 @@ importers:
         specifier: workspace:*
         version: link:../platform-utils
       jotai:
-        specifier: ^2.20.2
+        specifier: catalog:shared
         version: 2.20.3(@babel/core@7.28.6)(@babel/template@7.28.6)(@types/react@19.2.18)(react@19.2.8)
       react:
         specifier: ^19.2.8
         version: 19.2.8
     devDependencies:
       '@types/node':
-        specifier: ^26.1.2
+        specifier: catalog:shared
         version: 26.6.4
       typescript:
-        specifier: ^6.0.3
+        specifier: catalog:shared
         version: 6.0.3
       vitest:
-        specifier: ^4.1.10
+        specifier: catalog:shared
         version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/theme:
@@ -849,17 +920,17 @@ importers:
   ../ghatana-shared/platform/typescript/tokens:
     dependencies:
       zod:
-        specifier: ^4.4.3
+        specifier: catalog:shared
         version: 4.6.5
     devDependencies:
       '@types/node':
-        specifier: ^26.1.2
+        specifier: catalog:shared
         version: 26.6.4
       typescript:
-        specifier: ^6.0.3
+        specifier: catalog:shared
         version: 6.0.3
       vitest:
-        specifier: ^4.1.10
+        specifier: catalog:shared
         version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/ui-mui:
