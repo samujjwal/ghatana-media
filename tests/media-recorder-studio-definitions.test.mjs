@@ -245,3 +245,18 @@ test('rejects a PDP1 operation without its mandatory wrong-tenant denial', () =>
   const result = verifyRecorderStudioDefinitions({overrides:{p1:changed}});
   assert.ok(result.errors.some(s => s.includes('PDP1 proposed operation missing typed effect/request/result/tenant denial/currentness')), result.errors.join('\n'));
 });
+
+test('PDP1 value contracts and PDP2 editor bindings use one source authority', () => {
+  const result=verifyRecorderStudioDefinitions();
+  assert.deepEqual(result.errors,[],result.errors.join('\n'));
+  const source=read('.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml');
+  const altered=source.replace('id: media.recorder.value.render-profile.v1','id: media.recorder.value.invalid-render-profile.v1');
+  const bad=verifyRecorderStudioDefinitions({overrides:{p1:altered}});
+  assert.ok(bad.errors.some(x=>x.includes('PDP1 source-bound Studio value projection missing')),bad.errors.join('\n'));
+});
+test('PDP2 source-bound editor must retain accessible denial', () => {
+  const source=read('.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml');
+  const altered=source.replace('denial: unavailable-quality-profile-or-unsupported-aspect-is-visible','denial:');
+  const bad=verifyRecorderStudioDefinitions({overrides:{p2:altered}});
+  assert.ok(bad.errors.some(x=>x.includes('PDP2 Studio value needs editor/keyboard/API and denial parity')),bad.errors.join('\n'));
+});
