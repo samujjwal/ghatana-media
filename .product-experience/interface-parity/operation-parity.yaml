@@ -64,7 +64,7 @@ dispositions:
   ownerApprovedActionIntentAssociation: PDP-3 UI action intent is associated with a PDP-1 operation; no cross-interface binding or operation behavior accepted
 surfaces:
   - surface: UI action registry
-    denominator: 147
+    denominator: 148
     historicalSnapshot:
       denominator: 146
       source: action-registry.yaml#/actions
@@ -72,8 +72,8 @@ surfaces:
       operationBindingCounts: {mappedProposal: 14, ambiguous: 0, unresolved: 132}
       note: Immutable pre-PXD-077 baseline; does not include owner-defined reconnect intent.
     source: .product-experience/pdp-3-product-experience/action-registry.yaml
-    dispositionCounts: {DOMAIN_COMMAND: 10, DOMAIN_QUERY: 49, CLIENT_ONLY: 48, NAVIGATION_OR_PRESENTATION: 11, NOT_ADMITTED: 29}
-    operationBindingCounts: {mappedProposal: 14, ownerDefinedIntentOnly: 1, ambiguous: 0, unresolved: 132}
+    dispositionCounts: {DOMAIN_COMMAND: 11, DOMAIN_QUERY: 49, CLIENT_ONLY: 48, NAVIGATION_OR_PRESENTATION: 11, NOT_ADMITTED: 29}
+    operationBindingCounts: {mappedProposal: 14, ownerDefinedIntentOnly: 1, ambiguous: 0, unresolved: 133}
     explicitlyProposed:
       media.operation.artifact-ingest: [media.action.begin-artifact-upload, media.action.resume-artifact-upload, media.action.inspect-artifact, media.action.attach-source-asset]
       media.operation.job-lifecycle: [media.action.view-job-status, media.action.check-job-outcome, media.action.request-cancellation, media.action.retry-job]
@@ -1062,10 +1062,10 @@ typedUiActionDispositions:
     mappedProposal: 14
     ownerDefinedIntentOnly: 1
     ambiguous: 0
-    unresolved: 132
+    unresolved: 133
   dispositionCounts:
     CLIENT_ONLY: 48
-    DOMAIN_COMMAND: 10
+    DOMAIN_COMMAND: 11
     DOMAIN_QUERY: 49
     NOT_ADMITTED: 29
     NAVIGATION_OR_PRESENTATION: 11
@@ -1463,6 +1463,16 @@ typedUiActionDispositions:
     - reversible
     - finality
     classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.confirm-selected-fallback
+    type: DOMAIN_COMMAND
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.confirm-selected-fallback]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: PXD-163 owner-defined exact operation reference; fallback selection receipt only; no dispatch or runtime execution
   - identity: media.action.compare-media-versions
     type: DOMAIN_QUERY
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.compare-media-versions]

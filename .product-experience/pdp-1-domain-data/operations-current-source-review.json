@@ -147,7 +147,7 @@
       },
       {
         "path": ".product-experience/interface-parity/operation-parity.yaml",
-        "sha256": "4ac32dbaeeeb83b9a7340a8de8933fa7b2440056b78b767ff8a8db48677b65f7"
+        "sha256": "41e64cc7dbb063fbd581463e65e029b4cce9bdbf01130a6aac298ba0187a22d5"
       }
     ],
     "fixtureCli": {

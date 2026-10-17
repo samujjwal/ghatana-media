@@ -84,7 +84,7 @@ test("P1 interface review pins current sources and reconciles source populations
   });
   assert.equal(sourceTruth.currentIdentityCount, 148);
   assert.equal(sourceTruth.dispositionCounts.operationIntent, 97);
-  assert.equal(ui.denominator, 147, "cross-interface UI registry denominator remains separately scoped");
+  assert.equal(ui.denominator, 148, "cross-interface UI registry denominator now includes confirmed-fallback J-27 action");
   assert.equal(ui.operationBindingCounts.unresolved, review.crossInterfaceActionBindingSnapshot.historicalUnresolvedCrossInterfaceBindings);
   assert.equal(review.crossInterfaceActionBindingSnapshot.currentActionDenominator, ui.denominator);
   assert.match(review.crossInterfaceActionBindingSnapshot.meaning, /does not override the current 148-identity semantic-role census/u);
@@ -239,8 +239,8 @@ test("P1 interface review pins current sources and reconciles source populations
   }
   assert.equal(review.scope.phaseAcceptanceClaim, "NONE");
   assert.equal(review.scope.runtimeReachability, "NOT_ESTABLISHED");
-  assert.equal(review.crossInterfaceActionBindingSnapshot.currentActionDenominator, 147);
-  assert.equal(review.crossInterfaceActionBindingSnapshot.historicalUnresolvedCrossInterfaceBindings, 132);
+  assert.equal(review.crossInterfaceActionBindingSnapshot.currentActionDenominator, 148);
+  assert.equal(review.crossInterfaceActionBindingSnapshot.historicalUnresolvedCrossInterfaceBindings, 133);
 });
 
 test("J-06 is cross-linked to the exact request action rather than guidance search", () => {

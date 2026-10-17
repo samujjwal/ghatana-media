@@ -5,7 +5,7 @@
   "sources": [
     {
       "path": ".product-experience/interface-parity/operation-parity.yaml",
-      "sha256": "4ac32dbaeeeb83b9a7340a8de8933fa7b2440056b78b767ff8a8db48677b65f7"
+      "sha256": "41e64cc7dbb063fbd581463e65e029b4cce9bdbf01130a6aac298ba0187a22d5"
     },
     {
       "path": ".product-experience/pdp-1-domain-data/operations.yaml",
@@ -13,7 +13,7 @@
     },
     {
       "path": ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
-      "sha256": "922ae29a35e839adb6062662cd11646047bcb76f428795619a7b5f3d65529ac6"
+      "sha256": "851e97179c2600886746cea9301b8217f3d77d9e19c8db8b693707bfd384f7d7"
     },
     {
       "path": ".product-experience/pdp-3-product-experience/action-registry.yaml",
@@ -166,10 +166,10 @@
     }
   },
   "crossInterfaceActionBindingSnapshot": {
-    "currentActionDenominator": 147,
+    "currentActionDenominator": 148,
     "historicalMappedProposal": 14,
     "historicalOwnerDefinedIntentOnly": 1,
-    "historicalUnresolvedCrossInterfaceBindings": 132,
+    "historicalUnresolvedCrossInterfaceBindings": 133,
     "meaning": "This separate cross-interface binding count uses the UI action registry denominator and does not override the current 148-identity semantic-role census or imply that any action lacks P1 operation-intent or non-operation dispositions."
   },
   "semanticDelta": {
@@ -362,7 +362,7 @@
     "reviewedOn": "2026-10-14",
     "operationsSha256": "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5",
     "actionRegistrySha256": "53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426",
-    "operationParitySha256": "4ac32dbaeeeb83b9a7340a8de8933fa7b2440056b78b767ff8a8db48677b65f7",
+    "operationParitySha256": "41e64cc7dbb063fbd581463e65e029b4cce9bdbf01130a6aac298ba0187a22d5",
     "meaning": "Re-reviewed the current operations source against exact interface identities, action crosswalks, and typed observation inventory. The preceding reviewed operations bytes are not available in the checked-out Git history, so this is a full current-cut parity review, not a reconstructed byte-exact delta. The exact source inventory contains 15/15 current owner typed observation contracts and 15 validation rules, including exact transcript submission lineage, seven-dimension job status, immutable output-preview/version lineage, and the rights/quality/profile evidence joins used by the affected MDC-30 result definitions. These are logical definitions only: they do not establish accepted interface mapping, transport equivalence, external owner acceptance, independent review, or runtime admission. The inspect-source action retains its exact current PDP-3 preconditions and one matching PDP-1 QUERY inventory identity. Logical operation identity remains separate from route/transport identity.",
     "outstandingMeaningIds": [],
     "runtimeAdmission": "NOT_ADMITTED",
