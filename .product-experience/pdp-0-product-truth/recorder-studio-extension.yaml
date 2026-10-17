@@ -205,7 +205,7 @@ crossCuttingPolicies:
   publication: actual-human-legal-audience-rights-approvals-separate-from-media-technical-QA
   reuse: published-Shared-Tools-Kernel-Inference-and-Document-Intelligence-only-where-admitted
   deployment: only-existing-ghatana-services-media-runtime-writer-until-MIG-04-cutover
-negativeAppplicability:
+negativeApplicability:
   noBrowserRequiredForHeadless: true
   noFakeUserInterfaceForApiCli: true
   noUnqualifiedMobileDesktopCameraProviderClaim: true
