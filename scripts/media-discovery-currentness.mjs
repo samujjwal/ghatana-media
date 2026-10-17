@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { projectHistoricalMediaTopology } from './lib/media-historical-topology-projection.mjs';
 import path from 'node:path';
 import {
   captureRepositorySourceCurrentness,
@@ -133,6 +134,7 @@ export function resolveMediaPdp0Cells(repositoryRoot, {
   ownerGraphFingerprint,
   physicalCatalogFingerprint,
   providerRegistryFingerprint,
+  campaignScope = 'historical',
 } = {}) {
   const root = path.resolve(repositoryRoot);
   const statusPath = 'docs/implementation/pdp-0-phase-dev-status.json';
@@ -140,7 +142,13 @@ export function resolveMediaPdp0Cells(repositoryRoot, {
   const registryPath = '.product-experience/surface-registry.yaml';
   const ownerDecisionPath = '.product-experience/reviews/2026-10-13-pdp0-discovery-delegated-review.md';
   const status = readJson(root, statusPath);
-  const topology = readJson(root, topologyPath);
+  const currentTopology = readJson(root, topologyPath);
+  if (!['historical', 'recorder-studio-successor'].includes(campaignScope)) {
+    throw new TypeError('Unknown Media Discovery campaign scope');
+  }
+  const topology = campaignScope === 'historical'
+    ? projectHistoricalMediaTopology(currentTopology)
+    : currentTopology;
   const registry = readText(root, registryPath);
   const ownerDecision = readText(root, ownerDecisionPath);
   if (status.phase !== 'PDP-0' || !status.sourceShaSet || typeof status.sourceShaSet !== 'object') {
@@ -155,16 +163,16 @@ export function resolveMediaPdp0Cells(repositoryRoot, {
   if (!Array.isArray(physical) || !Array.isArray(compositions) || !Array.isArray(consumers)) {
     throw new TypeError('Media physical topology is missing candidate, composition, or consumer inventory');
   }
-  if (physical.length !== 26 || compositions.length !== 7 || consumers.length !== 17) {
+  if (physical.length !== 26 || compositions.length !== (campaignScope === 'historical' ? 7 : 8) || consumers.length !== (campaignScope === 'historical' ? 17 : 21)) {
     throw new TypeError(`Unexpected Media PDP-0 denominator: physical=${physical.length}, composition+root=${compositions.length}, consumers=${consumers.length}`);
   }
 
   const physicalById = uniqueById(physical, 'physical candidate');
   const compositionsById = uniqueById(compositions, 'composition');
   uniqueById(consumers, 'consumer');
-  if ([...compositionsById.values()].filter((entry) => entry.kind === 'SEMANTIC_COMPOSITION').length !== 6
+  if ([...compositionsById.values()].filter((entry) => entry.kind === 'SEMANTIC_COMPOSITION').length !== (campaignScope === 'historical' ? 6 : 7)
       || [...compositionsById.values()].filter((entry) => entry.kind === 'REPOSITORY_ROOT').length !== 1) {
-    throw new TypeError('Media PDP-0 requires six semantic compositions and one repository root');
+    throw new TypeError('Media PDP-0 requires the campaign-scoped semantic compositions and one repository root');
   }
   const consumersById = new Map(consumers.map((entry) => [entry.surfaceId, entry]));
   for (const consumer of consumers) {
@@ -333,7 +341,7 @@ export function resolveMediaPdp0Cells(repositoryRoot, {
       physicalTopology: topologyPath,
       ownerDecision: ownerDecisionPath,
     },
-    denominator: { physicalCandidates: physical.length, semanticCompositions: 6, repositoryRoots: 1, consumers: consumers.length, totalCells: cells.length },
+    denominator: { physicalCandidates: physical.length, semanticCompositions: campaignScope === 'historical' ? 6 : 7, repositoryRoots: 1, consumers: consumers.length, totalCells: cells.length },
     cells,
   };
 }

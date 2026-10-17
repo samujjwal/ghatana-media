@@ -602,3 +602,27 @@ test('PDP-0 resolver binds the authoritative 26/6+1/17 inventory without losing 
     }
   }
 });
+
+test('PDP-0 successor currentness resolver exposes all 55 new cells without changing the historical 50-cell contract', () => {
+  const current = resolveMediaPdp0Cells(process.cwd(), {
+    ...dimensions,
+    campaignScope: 'recorder-studio-successor',
+  });
+  assert.deepEqual(current.denominator, {
+    physicalCandidates: 26,
+    semanticCompositions: 7,
+    repositoryRoots: 1,
+    consumers: 21,
+    totalCells: 55,
+  });
+  const ids = new Set(current.cells.map((cell) => cell.surfaceId));
+  for (const id of [
+    'media.surface.experience-recorder',
+    'media.surface.capture-agent',
+    'media.surface.presentation-studio',
+    'media.surface.interactive-demo-player',
+    'media.composition.experience-recorder-studio',
+  ]) assert.ok(ids.has(id), id);
+  assert.equal(current.cells.length, 55);
+  assert.ok(current.cells.every((cell) => cell.paths.length > 0));
+});

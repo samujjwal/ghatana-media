@@ -3388,66 +3388,13 @@
   ],
   "consumerCrosswalk": [
     {
-      "surfaceId": "media.surface.agent-tools",
-      "consumerType": "AGENT_TOOL",
+      "surfaceId": "media.surface.web",
+      "consumerType": "GUI_WEB",
       "physicalRefs": [
-        "media.physical.runtime-contracts",
-        "media.physical.libs-common"
-      ],
-      "bindingState": "CONTRACT_ONLY",
-      "statusReason": "Tool definitions are source-owned; execution/owner boundary remains pending.",
-      "registryAuthority": ".product-experience/surface-registry.yaml",
-      "sourceContracts": [
-        ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml"
-      ],
-      "handlerSourceObservation": {
-        "sourcePath": "libs/common/src/main/java/com/ghatana/audio/video/tools",
-        "physicalOwner": "media.physical.libs-common",
-        "classification": "LEGACY_SUBSUMED_NOT_ADMITTED",
-        "operationAssociation": "media.physical.runtime-contracts",
-        "statusReason": "Four handler files are source observations only; the runtime-contract association remains logical and none is admitted for execution."
-      }
-    },
-    {
-      "surfaceId": "media.surface.capture-agent",
-      "bindingState": "HOST_DEPENDENT",
-      "physicalRefs": [
-        "media.physical.libs-audio-video-types",
-        "media.physical.libs-audio-video-client",
-        "media.physical.runtime-contracts"
-      ],
-      "statusReason": "Source-only logical product surface mapped to existing Media physical contracts; capture agents, Studio host or interactive-player deployment are not implemented or admitted.",
-      "sourceContracts": [
-        ".product-experience/pdp-0-product-truth/requirements.yaml",
-        ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
-        ".product-experience/pdp-1-domain-data/versioning.yaml",
-        ".product-experience/pdp-1-domain-data/action-contracts.yaml",
-        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
-      ],
-      "candidatePhysicalOwner": "modules/experience-capture-adapters (candidate; no module created)",
-      "PDP3SuccessorStatus": "UNAUTHORED"
-    },
-    {
-      "surfaceId": "media.surface.cli",
-      "consumerType": "CLI",
-      "physicalRefs": [
-        "media.physical.libs-audio-video-client",
-        "media.physical.libs-media-experience-simulation"
+        "media.physical.libs-audio-video-ui"
       ],
       "bindingState": "HOST_DEPENDENT",
-      "statusReason": "The installed package exposes one host-configured, GET-only artifact-inspection command; the separate 11-command simulation CLI remains fixture-only. Runtime host qualification remains open.",
-      "registryAuthority": ".product-experience/surface-registry.yaml",
-      "sourceContracts": [
-        ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml",
-        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml"
-      ]
-    },
-    {
-      "surfaceId": "media.surface.desktop-archive",
-      "consumerType": "OBSOLETE",
-      "physicalRefs": [],
-      "bindingState": "ARCHIVED",
-      "statusReason": "Archived desktop source is inactive and excluded from active physical candidates.",
+      "statusReason": "No production web host admitted; target GUI contract is host-dependent, and the Explorer remains a distinct developer consumer.",
       "registryAuthority": ".product-experience/surface-registry.yaml"
     },
     {
@@ -3461,54 +3408,28 @@
       "registryAuthority": ".product-experience/surface-registry.yaml"
     },
     {
-      "surfaceId": "media.surface.events",
-      "consumerType": "EVENT_STREAM",
-      "physicalRefs": [
-        "media.physical.modules-infrastructure-messaging",
-        "media.physical.runtime-contracts"
-      ],
-      "bindingState": "CONTRACT_ONLY",
-      "statusReason": "Event interface definitions do not prove a deployed event host.",
-      "registryAuthority": ".product-experience/surface-registry.yaml"
-    },
-    {
-      "surfaceId": "media.surface.experience-recorder",
-      "bindingState": "HOST_DEPENDENT",
+      "surfaceId": "media.surface.public-http",
+      "consumerType": "PUBLIC_API",
       "physicalRefs": [
         "media.physical.launcher",
-        "media.physical.runtime-contracts",
-        "media.physical.libs-audio-video-client"
+        "media.physical.runtime-contracts"
       ],
-      "statusReason": "Source-only logical product surface mapped to existing Media physical contracts; capture agents, Studio host or interactive-player deployment are not implemented or admitted.",
-      "sourceContracts": [
-        ".product-experience/pdp-0-product-truth/requirements.yaml",
-        ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
-        ".product-experience/pdp-1-domain-data/versioning.yaml",
-        ".product-experience/pdp-1-domain-data/action-contracts.yaml",
-        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
-      ],
-      "candidatePhysicalOwner": "modules/experience-production (candidate; no module created)",
-      "PDP3SuccessorStatus": "UNAUTHORED"
-    },
-    {
-      "surfaceId": "media.surface.explorer",
-      "consumerType": "EXPLORER_TOOLING",
-      "physicalRefs": [
-        "media.physical.apps-media-experience-explorer",
-        "media.physical.libs-media-experience-simulation"
-      ],
-      "bindingState": "PHYSICAL",
-      "statusReason": "Developer tooling consumer, read-only; not a product runtime surface.",
+      "bindingState": "HOST_DEPENDENT",
+      "statusReason": "OpenAPI contract is source-only; deployed host/route admission is not established.",
       "registryAuthority": ".product-experience/surface-registry.yaml"
     },
     {
-      "surfaceId": "media.surface.grpc.multimodal",
+      "surfaceId": "media.surface.service-grpc",
       "consumerType": "SERVICE_API",
       "physicalRefs": [
+        "media.physical.runtime-contracts",
+        "media.physical.modules-speech-stt-service",
+        "media.physical.modules-speech-tts-service",
+        "media.physical.modules-vision-vision-service",
         "media.physical.modules-intelligence-multimodal-service"
       ],
       "bindingState": "CONTRACT_ONLY",
-      "statusReason": "Proto contract and service module are present; endpoint availability is not asserted.",
+      "statusReason": "Logical aggregate of four service RPC contracts; host/runtime qualification remains separate.",
       "registryAuthority": ".product-experience/surface-registry.yaml"
     },
     {
@@ -3542,6 +3463,74 @@
       "registryAuthority": ".product-experience/surface-registry.yaml"
     },
     {
+      "surfaceId": "media.surface.grpc.multimodal",
+      "consumerType": "SERVICE_API",
+      "physicalRefs": [
+        "media.physical.modules-intelligence-multimodal-service"
+      ],
+      "bindingState": "CONTRACT_ONLY",
+      "statusReason": "Proto contract and service module are present; endpoint availability is not asserted.",
+      "registryAuthority": ".product-experience/surface-registry.yaml"
+    },
+    {
+      "surfaceId": "media.surface.sdk",
+      "consumerType": "SDK",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-client",
+        "media.physical.libs-audio-video-types"
+      ],
+      "bindingState": "PHYSICAL",
+      "statusReason": "SDK consumer remains source/local pending publication and compatibility consolidation.",
+      "registryAuthority": ".product-experience/surface-registry.yaml"
+    },
+    {
+      "surfaceId": "media.surface.cli",
+      "consumerType": "CLI",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-client",
+        "media.physical.libs-media-experience-simulation"
+      ],
+      "bindingState": "HOST_DEPENDENT",
+      "statusReason": "The installed package exposes one host-configured, GET-only artifact-inspection command; the separate 11-command simulation CLI remains fixture-only. Runtime host qualification remains open.",
+      "registryAuthority": ".product-experience/surface-registry.yaml",
+      "sourceContracts": [
+        ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml"
+      ]
+    },
+    {
+      "surfaceId": "media.surface.agent-tools",
+      "consumerType": "AGENT_TOOL",
+      "physicalRefs": [
+        "media.physical.runtime-contracts",
+        "media.physical.libs-common"
+      ],
+      "bindingState": "CONTRACT_ONLY",
+      "statusReason": "Tool definitions are source-owned; execution/owner boundary remains pending.",
+      "registryAuthority": ".product-experience/surface-registry.yaml",
+      "sourceContracts": [
+        ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml"
+      ],
+      "handlerSourceObservation": {
+        "sourcePath": "libs/common/src/main/java/com/ghatana/audio/video/tools",
+        "physicalOwner": "media.physical.libs-common",
+        "classification": "LEGACY_SUBSUMED_NOT_ADMITTED",
+        "operationAssociation": "media.physical.runtime-contracts",
+        "statusReason": "Four handler files are source observations only; the runtime-contract association remains logical and none is admitted for execution."
+      }
+    },
+    {
+      "surfaceId": "media.surface.events",
+      "consumerType": "EVENT_STREAM",
+      "physicalRefs": [
+        "media.physical.modules-infrastructure-messaging",
+        "media.physical.runtime-contracts"
+      ],
+      "bindingState": "CONTRACT_ONLY",
+      "statusReason": "Event interface definitions do not prove a deployed event host.",
+      "registryAuthority": ".product-experience/surface-registry.yaml"
+    },
+    {
       "surfaceId": "media.surface.integrations",
       "consumerType": "SYSTEM_TO_SYSTEM_SERVICE",
       "physicalRefs": [
@@ -3555,6 +3544,84 @@
       "bindingState": "HOST_DEPENDENT",
       "statusReason": "Integration contracts are source records; provider/identity/storage hosts require their owner/runtime admission.",
       "registryAuthority": ".product-experience/surface-registry.yaml"
+    },
+    {
+      "surfaceId": "media.surface.types-library",
+      "consumerType": "LIBRARY",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-types"
+      ],
+      "bindingState": "PHYSICAL",
+      "statusReason": "Typed contract library has a distinct consumer identity; public package acceptance remains pending.",
+      "registryAuthority": ".product-experience/surface-registry.yaml"
+    },
+    {
+      "surfaceId": "media.surface.ui-library",
+      "consumerType": "LIBRARY",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-ui",
+        "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react"
+      ],
+      "bindingState": "HOST_DEPENDENT",
+      "statusReason": "UI libraries are physical packages; Shared acceptance and actual product host remain pending.",
+      "registryAuthority": ".product-experience/surface-registry.yaml"
+    },
+    {
+      "surfaceId": "media.surface.explorer",
+      "consumerType": "EXPLORER_TOOLING",
+      "physicalRefs": [
+        "media.physical.apps-media-experience-explorer",
+        "media.physical.libs-media-experience-simulation"
+      ],
+      "bindingState": "PHYSICAL",
+      "statusReason": "Developer tooling consumer, read-only; not a product runtime surface.",
+      "registryAuthority": ".product-experience/surface-registry.yaml"
+    },
+    {
+      "surfaceId": "media.surface.desktop-archive",
+      "consumerType": "OBSOLETE",
+      "physicalRefs": [],
+      "bindingState": "ARCHIVED",
+      "statusReason": "Archived desktop source is inactive and excluded from active physical candidates.",
+      "registryAuthority": ".product-experience/surface-registry.yaml"
+    },
+    {
+      "surfaceId": "media.surface.capture-agent",
+      "bindingState": "HOST_DEPENDENT",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-types",
+        "media.physical.libs-audio-video-client",
+        "media.physical.runtime-contracts"
+      ],
+      "statusReason": "Source-only logical product surface mapped to existing Media physical contracts; capture agents, Studio host or interactive-player deployment are not implemented or admitted.",
+      "sourceContracts": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
+        ".product-experience/pdp-1-domain-data/versioning.yaml",
+        ".product-experience/pdp-1-domain-data/action-contracts.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "candidatePhysicalOwner": "modules/experience-capture-adapters (candidate; no module created)",
+      "PDP3SuccessorStatus": "UNAUTHORED"
+    },
+    {
+      "surfaceId": "media.surface.experience-recorder",
+      "bindingState": "HOST_DEPENDENT",
+      "physicalRefs": [
+        "media.physical.launcher",
+        "media.physical.runtime-contracts",
+        "media.physical.libs-audio-video-client"
+      ],
+      "statusReason": "Source-only logical product surface mapped to existing Media physical contracts; capture agents, Studio host or interactive-player deployment are not implemented or admitted.",
+      "sourceContracts": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
+        ".product-experience/pdp-1-domain-data/versioning.yaml",
+        ".product-experience/pdp-1-domain-data/action-contracts.yaml",
+        ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+      ],
+      "candidatePhysicalOwner": "modules/experience-production (candidate; no module created)",
+      "PDP3SuccessorStatus": "UNAUTHORED"
     },
     {
       "surfaceId": "media.surface.interactive-demo-player",
@@ -3592,73 +3659,6 @@
       ],
       "candidatePhysicalOwner": "Media web Studio experience (host not admitted; no duplicated UI host)",
       "PDP3SuccessorStatus": "UNAUTHORED"
-    },
-    {
-      "surfaceId": "media.surface.public-http",
-      "consumerType": "PUBLIC_API",
-      "physicalRefs": [
-        "media.physical.launcher",
-        "media.physical.runtime-contracts"
-      ],
-      "bindingState": "HOST_DEPENDENT",
-      "statusReason": "OpenAPI contract is source-only; deployed host/route admission is not established.",
-      "registryAuthority": ".product-experience/surface-registry.yaml"
-    },
-    {
-      "surfaceId": "media.surface.sdk",
-      "consumerType": "SDK",
-      "physicalRefs": [
-        "media.physical.libs-audio-video-client",
-        "media.physical.libs-audio-video-types"
-      ],
-      "bindingState": "PHYSICAL",
-      "statusReason": "SDK consumer remains source/local pending publication and compatibility consolidation.",
-      "registryAuthority": ".product-experience/surface-registry.yaml"
-    },
-    {
-      "surfaceId": "media.surface.service-grpc",
-      "consumerType": "SERVICE_API",
-      "physicalRefs": [
-        "media.physical.runtime-contracts",
-        "media.physical.modules-speech-stt-service",
-        "media.physical.modules-speech-tts-service",
-        "media.physical.modules-vision-vision-service",
-        "media.physical.modules-intelligence-multimodal-service"
-      ],
-      "bindingState": "CONTRACT_ONLY",
-      "statusReason": "Logical aggregate of four service RPC contracts; host/runtime qualification remains separate.",
-      "registryAuthority": ".product-experience/surface-registry.yaml"
-    },
-    {
-      "surfaceId": "media.surface.types-library",
-      "consumerType": "LIBRARY",
-      "physicalRefs": [
-        "media.physical.libs-audio-video-types"
-      ],
-      "bindingState": "PHYSICAL",
-      "statusReason": "Typed contract library has a distinct consumer identity; public package acceptance remains pending.",
-      "registryAuthority": ".product-experience/surface-registry.yaml"
-    },
-    {
-      "surfaceId": "media.surface.ui-library",
-      "consumerType": "LIBRARY",
-      "physicalRefs": [
-        "media.physical.libs-audio-video-ui",
-        "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react"
-      ],
-      "bindingState": "HOST_DEPENDENT",
-      "statusReason": "UI libraries are physical packages; Shared acceptance and actual product host remain pending.",
-      "registryAuthority": ".product-experience/surface-registry.yaml"
-    },
-    {
-      "surfaceId": "media.surface.web",
-      "consumerType": "GUI_WEB",
-      "physicalRefs": [
-        "media.physical.libs-audio-video-ui"
-      ],
-      "bindingState": "HOST_DEPENDENT",
-      "statusReason": "No production web host admitted; target GUI contract is host-dependent, and the Explorer remains a distinct developer consumer.",
-      "registryAuthority": ".product-experience/surface-registry.yaml"
     }
   ],
   "compositions": [

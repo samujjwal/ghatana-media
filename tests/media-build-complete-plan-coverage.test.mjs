@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
+import { projectHistoricalMediaTopology } from '../scripts/lib/media-historical-topology-projection.mjs';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -29,7 +30,7 @@ test('future Build blueprint has a finite DAG but grants no current Build or Del
 });
 
 test('all 50 physical, composition, and consumer identities match canonical topology', () => {
-  const topology = json('.product-experience/surfaces/media-physical-topology.v1.json');
+  const topology = projectHistoricalMediaTopology(json('.product-experience/surfaces/media-physical-topology.v1.json'));
   const expected = [
     ...topology.manifestCandidates.map((x) => x.surfaceId),
     ...topology.compositions.map((x) => x.surfaceId),
@@ -106,4 +107,17 @@ test('complete-product Build requires a source-derived capability-leaf bridge, n
   assert.ok(bridge.requiredFields.includes('pdp1OperationResultRefs'));
   assert.ok(bridge.requiredFields.includes('pbiWorkPackageId'));
   assert.ok(bridge.requiredFields.includes('positiveDeniedUnknownRecoveryTestRefs'));
+});
+
+test('the original 50-surface Build handoff cannot silently admit five newly defined Recorder/Studio surfaces', () => {
+  const current = json('.product-experience/surfaces/media-physical-topology.v1.json');
+  const old = new Set(map.surfaces.map((x) => x.surfaceId));
+  const newOnes = [
+    ...current.compositions,
+    ...current.consumerCrosswalk,
+  ].filter((x) => !old.has(x.surfaceId));
+  assert.equal(newOnes.length, 5);
+  assert.ok(newOnes.every((x) => !map.surfaces.some((m) => m.surfaceId === x.surfaceId)));
+  assert.equal(current.succession.PDP3, 'NOT_AUTHORED_FOR_NEW_SCOPE');
+  assert.equal(current.succession.build, 'NOT_ADMITTED');
 });

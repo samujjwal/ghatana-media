@@ -71,7 +71,7 @@ test("root aggregation deduplicates shared physical candidates by surface identi
   rootNode.children.forEach(visit);
   assert.equal(members.size, topology.manifestCandidates.length);
   assert.equal(rootNode.children.filter((id) => physicalIds.has(id)).length, 7);
-  assert.equal(rootNode.children.filter((id) => compositionById.get(id)?.kind !== undefined && id !== rootNode.surfaceId).length, 6);
+  assert.equal(rootNode.children.filter((id) => compositionById.get(id)?.kind !== undefined && id !== rootNode.surfaceId).length, 7);
 });
 
 test("malformed, incomplete, and missing-node links fail closed with a selectable root fallback", () => {

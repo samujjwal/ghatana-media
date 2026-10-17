@@ -3,13 +3,15 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
+import { projectHistoricalMediaTopology } from '../scripts/lib/media-historical-topology-projection.mjs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => JSON.parse(fs.readFileSync(path.join(root, p), 'utf8'));
 const matrix = read('docs/implementation/media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json');
-const topology = read('.product-experience/surfaces/media-physical-topology.v1.json');
+const successorTopology = read('.product-experience/surfaces/media-physical-topology.v1.json');
+const topology = projectHistoricalMediaTopology(successorTopology);
 const ownerEvidence = read('docs/implementation/observations/media-discovery-delegated-owner-evidence-2026-10-13.json');
 const pdp1Exit = read('docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json');
 const pdp1CurrentCutExit = read('docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json');
@@ -492,4 +494,19 @@ test('machine owner acceptance is an exact source-bound input, never a phase-exi
   assert.equal(approval.decision.canAdvanceToPdp1, false);
   assert.equal(approval.authority.humanIndependentSignatureProvided, false);
   assert.equal(approval.authority.qualifiedExternalSpecialistSignoffProvided, false);
+});
+
+test('the historical 50-cell source observation is not silently promoted to new 55-surface Recorder/Studio scope', () => {
+  const historic = new Set(matrix.cells.map((cell) => cell.surfaceId));
+  const current = new Set([
+    ...successorTopology.manifestCandidates,
+    ...successorTopology.compositions,
+    ...successorTopology.consumerCrosswalk,
+  ].map((node) => node.surfaceId));
+  assert.equal(historic.size, 50);
+  assert.equal(current.size, 55);
+  assert.ok([...historic].every((id) => current.has(id)));
+  assert.equal([...current].filter((id) => !historic.has(id)).length, 5);
+  assert.equal(matrix.cells.length, 200);
+  assert.ok(matrix.cells.every((cell) => cell.historicalDefinitionState === 'DEV_COMPLETE'));
 });
