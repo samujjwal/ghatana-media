@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseDocument } from 'yaml';
 
 const defaultRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const paths = {
@@ -38,6 +39,12 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
     return fs.readFileSync(path.join(root, filename), 'utf8');
   };
   const original = Object.fromEntries(Object.keys(paths).map(k => [k, read(k)]));
+  // Syntax and duplicate mapping keys are source-level errors, even when
+  // count-based selectors coincidentally find every expected line.
+  for (const id of ['registry', 'requirements', 'p0', 'domain', 'p1', 'p2']) {
+    const document = parseDocument(original[id], {uniqueKeys:true, strict:true});
+    for (const issue of document.errors) fail(id+': invalid or duplicate YAML mapping: '+issue.message);
+  }
   const topology = JSON.parse(original.topology);
   const registry = original.registry;
   const registryIds = extract(registry, /^  - surfaceId: (\S+)/gm);
