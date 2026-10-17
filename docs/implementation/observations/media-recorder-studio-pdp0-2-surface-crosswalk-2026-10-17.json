@@ -1,0 +1,1754 @@
+{
+  "schemaVersion": "media.experience-production.pdp0-2-surface-crosswalk.v1",
+  "role": "DERIVED_READ_ONLY_REVIEW_INPUT_NOT_CANONICAL_PDP_MEANING",
+  "changeId": "MEDIA-EXPERIENCE-PRODUCTION-PDP0-2-2026-10-17",
+  "reviewedSourceBaseline": "0c572079100d6cd784ba4a9cc62b87c1f3e7e707",
+  "scope": "existing Media 50 identities plus 4 new logical consumers and 1 semantic composition; no new physical implementation",
+  "counts": {
+    "physicalCandidates": 26,
+    "semanticCompositions": 7,
+    "repositoryRoot": 1,
+    "consumerSurfaces": 21,
+    "allSurfaces": 55,
+    "pdp0ToPdp2Cells": 165,
+    "pdp0ToPdp3Cells": 220,
+    "historicalFullPdpCells": 200
+  },
+  "status": {
+    "historicalPhaseDefinitions": "DEV_COMPLETE_AT_HISTORICAL_CUTS",
+    "successorPdp0": "SOURCE_AUTHORED_VALIDATION_PENDING",
+    "successorPdp1": "SOURCE_AUTHORED_VALIDATION_PENDING",
+    "successorPdp2": "SOURCE_AUTHORED_VALIDATION_PENDING",
+    "successorPdp3": "DEFINITION_EXTENSION_REQUIRED",
+    "discoveryBarrier": "NOT_PROVEN_PASS",
+    "mediaBuild": "NOT_ADMITTED",
+    "runtimeSourceWriter": "ghatana/services/media",
+    "release": "NOT_AUTHORIZED"
+  },
+  "sourceAuthorities": {
+    "topology": ".product-experience/surfaces/media-physical-topology.v1.json",
+    "registry": ".product-experience/surface-registry.yaml",
+    "pdp0": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile",
+    "pdp0Requirements": ".product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedExperienceProductionRequirements",
+    "pdp1": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract",
+    "pdp1Action": ".product-experience/pdp-1-domain-data/action-contracts.yaml#experienceProductionActionOrchestration",
+    "pdp2": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar",
+    "pdp2Studio": ".product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml#professionalStudioGrammar",
+    "pdp2Accessibility": ".product-experience/pdp-2-design-interface-system/accessibility.yaml#experienceProductionAccessibility"
+  },
+  "records": [
+    {
+      "surfaceId": "media.composition.client-and-machine-interfaces",
+      "type": "SEMANTIC_COMPOSITION",
+      "owner": "media",
+      "impact": "EXISTING_COMPOSITION_REUSED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "DIRECT_CROSS_CHILD_MEANING",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "DIRECT_INTEGRATION_CONTRACT",
+          "authorityRef": ".product-experience/pdp-1-domain-data/operations.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "HEADLESS_AND_HOST_COMPOSITION",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "CROSS_CHILD_JOURNEY_DISCOVERY",
+          "authorityRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.composition.creation-composition-and-delivery",
+      "type": "SEMANTIC_COMPOSITION",
+      "owner": "media",
+      "impact": "EXISTING_COMPOSITION_REUSED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "DIRECT_CROSS_CHILD_MEANING",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "DIRECT_INTEGRATION_CONTRACT",
+          "authorityRef": ".product-experience/pdp-1-domain-data/operations.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "HEADLESS_AND_HOST_COMPOSITION",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "CROSS_CHILD_JOURNEY_DISCOVERY",
+          "authorityRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.composition.experience-recorder-studio",
+      "type": "SEMANTIC_COMPOSITION",
+      "owner": "media",
+      "impact": "NEW_SEMANTIC_COMPOSITION",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "DIRECT_CROSS_CHILD_MEANING",
+          "authorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
+          "changeState": "SUCCESSOR_DEFINITION_AUTHORED_PENDING_VERIFICATION"
+        },
+        "PDP-1": {
+          "disposition": "DIRECT_INTEGRATION_CONTRACT",
+          "authorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml",
+          "changeState": "SUCCESSOR_DEFINITION_AUTHORED_PENDING_VERIFICATION"
+        },
+        "PDP-2": {
+          "disposition": "GUI_HEADLESS_AND_HOST_COMPOSITION",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml",
+          "changeState": "SUCCESSOR_DEFINITION_AUTHORED_PENDING_VERIFICATION"
+        },
+        "PDP-3": {
+          "disposition": "SUCCESSOR_EXPERIENCE_DEFINITION_REQUIRED",
+          "authorityRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+          "changeState": "SUCCESSOR_PDP3_REQUIRED"
+        }
+      },
+      "sourceOwner": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "reviewStatus": "SUCCESSOR_AUTHORED_PENDING_VALIDATION"
+    },
+    {
+      "surfaceId": "media.composition.governed-job-execution",
+      "type": "SEMANTIC_COMPOSITION",
+      "owner": "media",
+      "impact": "EXISTING_COMPOSITION_REUSED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "DIRECT_CROSS_CHILD_MEANING",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "DIRECT_INTEGRATION_CONTRACT",
+          "authorityRef": ".product-experience/pdp-1-domain-data/operations.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "HEADLESS_AND_HOST_COMPOSITION",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "CROSS_CHILD_JOURNEY_DISCOVERY",
+          "authorityRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.composition.ingestion-and-versioned-artifacts",
+      "type": "SEMANTIC_COMPOSITION",
+      "owner": "media",
+      "impact": "EXISTING_COMPOSITION_REUSED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "DIRECT_CROSS_CHILD_MEANING",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "DIRECT_INTEGRATION_CONTRACT",
+          "authorityRef": ".product-experience/pdp-1-domain-data/operations.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "HEADLESS_AND_HOST_COMPOSITION",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "CROSS_CHILD_JOURNEY_DISCOVERY",
+          "authorityRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.composition.repository-root",
+      "type": "REPOSITORY_ROOT",
+      "owner": "media",
+      "impact": "ROOT_AGGREGATE_DENOMINATOR_IMPACT",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "ROOT_AUTHORITY_REFERENCE",
+          "authorityRef": ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
+          "changeState": "ROOT_DENOMINATOR_REVIEW_REQUIRED"
+        },
+        "PDP-1": {
+          "disposition": "ROOT_AUTHORITY_REFERENCE",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "ROOT_DENOMINATOR_REVIEW_REQUIRED"
+        },
+        "PDP-2": {
+          "disposition": "ROOT_AUTHORITY_REFERENCE",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/",
+          "changeState": "ROOT_DENOMINATOR_REVIEW_REQUIRED"
+        },
+        "PDP-3": {
+          "disposition": "ROOT_AUTHORITY_REFERENCE",
+          "authorityRef": ".product-experience/pdp-3-product-experience/",
+          "changeState": "ROOT_DENOMINATOR_REVIEW_REQUIRED"
+        }
+      },
+      "sourceOwner": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.composition.speech-and-caption-workflows",
+      "type": "SEMANTIC_COMPOSITION",
+      "owner": "media",
+      "impact": "EXISTING_COMPOSITION_REUSED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "DIRECT_CROSS_CHILD_MEANING",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "DIRECT_INTEGRATION_CONTRACT",
+          "authorityRef": ".product-experience/pdp-1-domain-data/operations.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "HEADLESS_AND_HOST_COMPOSITION",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "CROSS_CHILD_JOURNEY_DISCOVERY",
+          "authorityRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.composition.vision-and-multimodal-analysis",
+      "type": "SEMANTIC_COMPOSITION",
+      "owner": "media",
+      "impact": "EXISTING_COMPOSITION_REUSED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "DIRECT_CROSS_CHILD_MEANING",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "DIRECT_INTEGRATION_CONTRACT",
+          "authorityRef": ".product-experience/pdp-1-domain-data/operations.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "HEADLESS_AND_HOST_COMPOSITION",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "CROSS_CHILD_JOURNEY_DISCOVERY",
+          "authorityRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.adapters-ledger",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-platform",
+      "impact": "UNCHANGED_PHYSICAL_SOURCE",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "NOT_APPLICABLE_SUPPORT",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "REFERENCED_ONLY",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "NOT_APPLICABLE",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "TOOLING_OR_SUPPORT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "adapters/ledger",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.apps-media-experience-explorer",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-product-engineering",
+      "impact": "UNCHANGED_PHYSICAL_SOURCE",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "NO_IMPLEMENTATION_ADMITTED",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "REFERENCED_ONLY",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "NOT_APPLICABLE",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "TOOLING_OR_SUPPORT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "apps/media-experience-explorer",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.audio-video-observability",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-platform",
+      "impact": "UNCHANGED_PHYSICAL_SOURCE",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "NOT_APPLICABLE",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "CONSUMER_CONTRACT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "audio-video-observability",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.integration-tests",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-platform",
+      "impact": "UNCHANGED_PHYSICAL_SOURCE",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "NOT_APPLICABLE_SUPPORT",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "REFERENCED_ONLY",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "NOT_APPLICABLE",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "TOOLING_OR_SUPPORT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "integration-tests",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.launcher",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-runtime",
+      "impact": "REUSED_PHYSICAL_CONTRACT_PARTICIPANT",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "HEADLESS_CONTRACT",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "CONSUMER_CONTRACT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "launcher",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.libs-audio-video-client",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-client-owner",
+      "impact": "REUSED_PHYSICAL_CONTRACT_PARTICIPANT",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "HEADLESS_CONTRACT",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "CONSUMER_CONTRACT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "libs/audio-video-client",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.libs-audio-video-types",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-types-owner",
+      "impact": "REUSED_PHYSICAL_CONTRACT_PARTICIPANT",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "HEADLESS_CONTRACT",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "CONSUMER_CONTRACT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "libs/audio-video-types",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.libs-audio-video-ui",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-ui-owner",
+      "impact": "REUSED_PHYSICAL_CONTRACT_PARTICIPANT",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "GUI_LIBRARY",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "CONSUMER_CONTRACT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "libs/audio-video-ui",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.libs-common",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-runtime",
+      "impact": "UNCHANGED_PHYSICAL_SOURCE",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "NOT_APPLICABLE_SUPPORT",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "REFERENCED_ONLY",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "NOT_APPLICABLE",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "TOOLING_OR_SUPPORT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "libs/common",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.libs-java-common",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-runtime",
+      "impact": "UNCHANGED_PHYSICAL_SOURCE",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "NOT_APPLICABLE_SUPPORT",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "REFERENCED_ONLY",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "NOT_APPLICABLE",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "TOOLING_OR_SUPPORT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "libs/java/common",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.libs-media-experience-simulation",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-product-engineering",
+      "impact": "UNCHANGED_PHYSICAL_SOURCE",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "NOT_APPLICABLE_SUPPORT",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "REFERENCED_ONLY",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "NOT_APPLICABLE",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "TOOLING_OR_SUPPORT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "libs/media-experience-simulation",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.modules-audio-streaming",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-runtime",
+      "impact": "UNCHANGED_PHYSICAL_SOURCE",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "NO_IMPLEMENTATION_ADMITTED",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "REFERENCED_ONLY",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "HEADLESS_CONTRACT",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "CONSUMER_CONTRACT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "modules/audio-streaming",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-cache",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-platform",
+      "impact": "UNCHANGED_PHYSICAL_SOURCE",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "NOT_APPLICABLE_SUPPORT",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "REFERENCED_ONLY",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "NOT_APPLICABLE",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "TOOLING_OR_SUPPORT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "modules/infrastructure/cache",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-messaging",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-platform",
+      "impact": "REUSED_PHYSICAL_CONTRACT_PARTICIPANT",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "NOT_APPLICABLE_SUPPORT",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "REFERENCED_ONLY",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "NOT_APPLICABLE",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "TOOLING_OR_SUPPORT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "modules/infrastructure/messaging",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-persistence",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-platform",
+      "impact": "REUSED_PHYSICAL_CONTRACT_PARTICIPANT",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "NOT_APPLICABLE",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "CONSUMER_CONTRACT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "modules/infrastructure/persistence",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-security",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-platform",
+      "impact": "REUSED_PHYSICAL_CONTRACT_PARTICIPANT",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "NOT_APPLICABLE",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "CONSUMER_CONTRACT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "modules/infrastructure/security",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.modules-integration-tests",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-platform",
+      "impact": "UNCHANGED_PHYSICAL_SOURCE",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "NOT_APPLICABLE_SUPPORT",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "REFERENCED_ONLY",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "NOT_APPLICABLE",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "TOOLING_OR_SUPPORT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "modules/integration-tests",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-ui-owner",
+      "impact": "UNCHANGED_PHYSICAL_SOURCE",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "GUI_LIBRARY_HOST_DEPENDENT",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#channels/GUI",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "HOST_DEPENDENT_EXPERIENCE",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "modules/intelligence/ai-voice/libs/ai-voice-ui-react",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.modules-intelligence-multimodal-service",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-runtime",
+      "impact": "UNCHANGED_PHYSICAL_SOURCE",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "HEADLESS_CONTRACT",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "CONSUMER_CONTRACT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "modules/intelligence/multimodal-service",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-runtime",
+      "impact": "UNCHANGED_PHYSICAL_SOURCE",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "NOT_APPLICABLE",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "CONSUMER_CONTRACT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "modules/intelligence/speech/libs/speech-audio-rust",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.modules-speech-stt-service",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-runtime",
+      "impact": "UNCHANGED_PHYSICAL_SOURCE",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "HEADLESS_CONTRACT",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "CONSUMER_CONTRACT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "modules/speech/stt-service",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.modules-speech-tts-service",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-runtime",
+      "impact": "UNCHANGED_PHYSICAL_SOURCE",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "HEADLESS_CONTRACT",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "CONSUMER_CONTRACT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "modules/speech/tts-service",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.modules-video-streaming",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-runtime",
+      "impact": "UNCHANGED_PHYSICAL_SOURCE",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "NO_IMPLEMENTATION_ADMITTED",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "REFERENCED_ONLY",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "HEADLESS_CONTRACT",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "CONSUMER_CONTRACT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "modules/video-streaming",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.modules-vision-vision-service",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-runtime",
+      "impact": "UNCHANGED_PHYSICAL_SOURCE",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "HEADLESS_CONTRACT",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "CONSUMER_CONTRACT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "modules/vision/vision-service",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.providers-aws-postgresql",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-runtime",
+      "impact": "UNCHANGED_PHYSICAL_SOURCE",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "NOT_APPLICABLE",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "HOST_DEPENDENT_EXPERIENCE",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "providers/aws-postgresql",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.physical.runtime-contracts",
+      "type": "PHYSICAL_CANDIDATE",
+      "owner": "media-runtime",
+      "impact": "REUSED_PHYSICAL_CONTRACT_PARTICIPANT",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-1": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-2": {
+          "disposition": "HEADLESS_CONTRACT",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/api/",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        },
+        "PDP-3": {
+          "disposition": "CONSUMER_CONTRACT",
+          "authorityRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+          "changeState": "HISTORICAL_SOURCE_REUSED_NO_NEW_LEAF_MEANING"
+        }
+      },
+      "sourceOwner": "runtime-contracts",
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.surface.agent-tools",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "EXISTING_CONSUMER_REUSED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.agent-tools",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.agent-tools",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.agent-tools",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.agent-tools",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.runtime-contracts",
+        "media.physical.libs-common"
+      ],
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.surface.capture-agent",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "NEW_LOGICAL_CONSUMER",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE_SOURCE_ONLY",
+          "authorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile",
+          "changeState": "AUTHORING_SUCCESSOR_SOURCE_ONLY"
+        },
+        "PDP-1": {
+          "disposition": "APPLICABLE_SOURCE_ONLY",
+          "authorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract",
+          "changeState": "AUTHORING_SUCCESSOR_SOURCE_ONLY"
+        },
+        "PDP-2": {
+          "disposition": "APPLICABLE_SOURCE_ONLY",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar",
+          "changeState": "AUTHORING_SUCCESSOR_SOURCE_ONLY"
+        },
+        "PDP-3": {
+          "disposition": "SUCCESSOR_REQUIRED",
+          "authorityRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+          "changeState": "NOT_AUTHORED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.libs-audio-video-types",
+        "media.physical.libs-audio-video-client",
+        "media.physical.runtime-contracts"
+      ],
+      "reviewStatus": "SUCCESSOR_AUTHORED_PENDING_VALIDATION"
+    },
+    {
+      "surfaceId": "media.surface.cli",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "CHANNEL_MAPPING_EXTENDED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.cli",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.cli",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.cli",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.cli",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.libs-audio-video-client",
+        "media.physical.libs-media-experience-simulation"
+      ],
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.surface.desktop-archive",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "EXISTING_CONSUMER_REUSED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.desktop-archive",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.desktop-archive",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.desktop-archive",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.desktop-archive",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": [],
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.surface.embedded",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "CHANNEL_MAPPING_EXTENDED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.embedded",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.embedded",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.embedded",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.embedded",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.libs-audio-video-ui"
+      ],
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.surface.events",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "EXISTING_CONSUMER_REUSED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.events",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.events",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.events",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.events",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.modules-infrastructure-messaging",
+        "media.physical.runtime-contracts"
+      ],
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.surface.experience-recorder",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "NEW_LOGICAL_CONSUMER",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE_SOURCE_ONLY",
+          "authorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile",
+          "changeState": "AUTHORING_SUCCESSOR_SOURCE_ONLY"
+        },
+        "PDP-1": {
+          "disposition": "APPLICABLE_SOURCE_ONLY",
+          "authorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract",
+          "changeState": "AUTHORING_SUCCESSOR_SOURCE_ONLY"
+        },
+        "PDP-2": {
+          "disposition": "APPLICABLE_SOURCE_ONLY",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar",
+          "changeState": "AUTHORING_SUCCESSOR_SOURCE_ONLY"
+        },
+        "PDP-3": {
+          "disposition": "SUCCESSOR_REQUIRED",
+          "authorityRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+          "changeState": "NOT_AUTHORED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.launcher",
+        "media.physical.runtime-contracts",
+        "media.physical.libs-audio-video-client"
+      ],
+      "reviewStatus": "SUCCESSOR_AUTHORED_PENDING_VALIDATION"
+    },
+    {
+      "surfaceId": "media.surface.explorer",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "EXISTING_CONSUMER_REUSED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.explorer",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.explorer",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.explorer",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.explorer",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.apps-media-experience-explorer",
+        "media.physical.libs-media-experience-simulation"
+      ],
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.surface.grpc.multimodal",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "EXISTING_CONSUMER_REUSED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.grpc.multimodal",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.grpc.multimodal",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.grpc.multimodal",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.grpc.multimodal",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.modules-intelligence-multimodal-service"
+      ],
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.surface.grpc.stt",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "EXISTING_CONSUMER_REUSED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.grpc.stt",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.grpc.stt",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.grpc.stt",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.grpc.stt",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.modules-speech-stt-service"
+      ],
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.surface.grpc.tts",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "EXISTING_CONSUMER_REUSED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.grpc.tts",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.grpc.tts",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.grpc.tts",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.grpc.tts",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.modules-speech-tts-service"
+      ],
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.surface.grpc.vision",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "EXISTING_CONSUMER_REUSED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.grpc.vision",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.grpc.vision",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.grpc.vision",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.grpc.vision",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.modules-vision-vision-service"
+      ],
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.surface.integrations",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "CHANNEL_MAPPING_EXTENDED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.integrations",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.integrations",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.integrations",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.integrations",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.adapters-ledger",
+        "media.physical.providers-aws-postgresql",
+        "media.physical.modules-infrastructure-persistence",
+        "media.physical.modules-infrastructure-security",
+        "media.physical.modules-infrastructure-cache",
+        "media.physical.modules-infrastructure-messaging"
+      ],
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.surface.interactive-demo-player",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "NEW_LOGICAL_CONSUMER",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE_SOURCE_ONLY",
+          "authorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile",
+          "changeState": "AUTHORING_SUCCESSOR_SOURCE_ONLY"
+        },
+        "PDP-1": {
+          "disposition": "APPLICABLE_SOURCE_ONLY",
+          "authorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract",
+          "changeState": "AUTHORING_SUCCESSOR_SOURCE_ONLY"
+        },
+        "PDP-2": {
+          "disposition": "APPLICABLE_SOURCE_ONLY",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar",
+          "changeState": "AUTHORING_SUCCESSOR_SOURCE_ONLY"
+        },
+        "PDP-3": {
+          "disposition": "SUCCESSOR_REQUIRED",
+          "authorityRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+          "changeState": "NOT_AUTHORED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.libs-audio-video-ui",
+        "media.physical.libs-audio-video-types"
+      ],
+      "reviewStatus": "SUCCESSOR_AUTHORED_PENDING_VALIDATION"
+    },
+    {
+      "surfaceId": "media.surface.presentation-studio",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "NEW_LOGICAL_CONSUMER",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE_SOURCE_ONLY",
+          "authorityRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile",
+          "changeState": "AUTHORING_SUCCESSOR_SOURCE_ONLY"
+        },
+        "PDP-1": {
+          "disposition": "APPLICABLE_SOURCE_ONLY",
+          "authorityRef": ".product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract",
+          "changeState": "AUTHORING_SUCCESSOR_SOURCE_ONLY"
+        },
+        "PDP-2": {
+          "disposition": "APPLICABLE_SOURCE_ONLY",
+          "authorityRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar",
+          "changeState": "AUTHORING_SUCCESSOR_SOURCE_ONLY"
+        },
+        "PDP-3": {
+          "disposition": "SUCCESSOR_REQUIRED",
+          "authorityRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+          "changeState": "NOT_AUTHORED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.libs-audio-video-ui",
+        "media.physical.libs-audio-video-types",
+        "media.physical.libs-audio-video-client"
+      ],
+      "reviewStatus": "SUCCESSOR_AUTHORED_PENDING_VALIDATION"
+    },
+    {
+      "surfaceId": "media.surface.public-http",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "CHANNEL_MAPPING_EXTENDED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.public-http",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.public-http",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.public-http",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.public-http",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.launcher",
+        "media.physical.runtime-contracts"
+      ],
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.surface.sdk",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "CHANNEL_MAPPING_EXTENDED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.sdk",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.sdk",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.sdk",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.sdk",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.libs-audio-video-client",
+        "media.physical.libs-audio-video-types"
+      ],
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.surface.service-grpc",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "EXISTING_CONSUMER_REUSED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.service-grpc",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.service-grpc",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.service-grpc",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.service-grpc",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.runtime-contracts",
+        "media.physical.modules-speech-stt-service",
+        "media.physical.modules-speech-tts-service",
+        "media.physical.modules-vision-vision-service",
+        "media.physical.modules-intelligence-multimodal-service"
+      ],
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.surface.types-library",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "EXISTING_CONSUMER_REUSED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.types-library",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.types-library",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.types-library",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.types-library",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.libs-audio-video-types"
+      ],
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.surface.ui-library",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "EXISTING_CONSUMER_REUSED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.ui-library",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.ui-library",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.ui-library",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.ui-library",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.libs-audio-video-ui",
+        "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react"
+      ],
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    },
+    {
+      "surfaceId": "media.surface.web",
+      "type": "CONSUMER_SURFACE",
+      "owner": "media",
+      "impact": "CHANNEL_MAPPING_EXTENDED",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.web",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-1": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.web",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-2": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.web",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        },
+        "PDP-3": {
+          "disposition": "EXISTING_CANONICAL_CONSUMER",
+          "authorityRef": ".product-experience/surface-registry.yaml#surfaces/@surfaceId=media.surface.web",
+          "changeState": "HISTORICAL_SOURCE_REUSED"
+        }
+      },
+      "sourceOwner": [
+        "media.physical.libs-audio-video-ui"
+      ],
+      "reviewStatus": "HISTORICAL_SOURCE_REUSED_CURRENTNESS_NOT_RECAPTURED"
+    }
+  ]
+}
