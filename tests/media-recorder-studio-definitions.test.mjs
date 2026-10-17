@@ -38,3 +38,24 @@ test('rejects fictional Media domain identities', () => {
   const result = verifyRecorderStudioDefinitions({overrides:{p1:changed}});
   assert.ok(result.errors.some(s => s.includes('merges Media job and attempt')), result.errors.join('\n'));
 });
+
+test('rejects a valid but incorrectly grouped capability without changing case counts', () => {
+  const source = read('.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml');
+  // The capability exists in Media, but it is not REC-C01's authority.
+  const changed = source.replace('ownerCapabilityGroup: REC-C01', 'ownerCapabilityGroup: REC-C07');
+  const result = verifyRecorderStudioDefinitions({overrides:{p0:changed}});
+  assert.ok(result.errors.some(s => s.includes('capability leaf not bound by feature capability group')), result.errors.join('\n'));
+});
+test('rejects a source-valid acceptance case attached to a different owner surface', () => {
+  const source = read('.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml');
+  const changed = source.replace('ownerSurface: media.surface.recorder-orchestrator',
+    'ownerSurface: media.surface.production-studio');
+  const result = verifyRecorderStudioDefinitions({overrides:{p0:changed}});
+  assert.ok(result.errors.some(s => s.includes('case surface differs from feature owner surface')), result.errors.join('\n'));
+});
+test('rejects removal of a capability leaf that still owns acceptance cases', () => {
+  const source = read('.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml');
+  const changed = source.replace(', media.deliver.publish-governed, media.job.watch', '');
+  const result = verifyRecorderStudioDefinitions({overrides:{p0:changed}});
+  assert.ok(result.errors.some(s => s.includes('capability leaf not bound by feature capability group')), result.errors.join('\n'));
+});
