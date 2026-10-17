@@ -293,7 +293,7 @@
       "exactParentContext": [
         {
           "line": 97,
-          "text": "| REV-01 \u2014 Ghatana reuse was weaker than OSS preference | U1 \u00a715 prioritizes external candidates without an executable internal-reuse gate | Ghatana public library/service/product capability \u2192 owner extension or extraction of reusable mechanics \u2192 approved external OSS \u2192 justified new implementation. Record evidence for each choice. |",
+          "text": "| REV-01 — Ghatana reuse was weaker than OSS preference | U1 §15 prioritizes external candidates without an executable internal-reuse gate | Ghatana public library/service/product capability → owner extension or extraction of reusable mechanics → approved external OSS → justified new implementation. Record evidence for each choice. |",
           "sha256": "92c99d1f14cfb3bb89d5288aa7ed9faad858efb2e139dffa1abfa12023ff3056"
         }
       ],
@@ -394,7 +394,7 @@
     },
     {
       "claimId": "MPSEM-0022-C001",
-      "exactSourceText": "| REV-02 \u2014 Migration preceded boundary acceptance",
+      "exactSourceText": "| REV-02 — Migration preceded boundary acceptance",
       "sourceTextSha256": "7d402b655a2f8728fdc873e3dac4440423400e08d0fb1d1c04b6588c33145c0f",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
@@ -426,7 +426,7 @@
       "exactParentContext": [
         {
           "line": 98,
-          "text": "| REV-02 \u2014 Migration preceded boundary acceptance | U1 \u00a76 and \u00a728 permit cutover before Product Truth resolves ownership | Accept the Phase-0 boundary, consumer compatibility, and transfer record before cutover. Complete behavior-preserving relocation independently of new-feature implementation. |",
+          "text": "| REV-02 — Migration preceded boundary acceptance | U1 §6 and §28 permit cutover before Product Truth resolves ownership | Accept the Phase-0 boundary, consumer compatibility, and transfer record before cutover. Complete behavior-preserving relocation independently of new-feature implementation. |",
           "sha256": "e7a3dcd19110532c8447d53278cf415d4eff7f254bbb68ebaf82706dfc6a40f6"
         }
       ],
@@ -516,7 +516,7 @@
     },
     {
       "claimId": "MPSEM-0022-C002",
-      "exactSourceText": "U1 \u00a76 and \u00a728 permit cutover before Product Truth resolves ownership",
+      "exactSourceText": "U1 §6 and §28 permit cutover before Product Truth resolves ownership",
       "sourceTextSha256": "bc74973fa7f316cd49c01eb14c358fa615aebac031078532275f4a0305e16ce4",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/requirements.yaml",
@@ -538,7 +538,7 @@
       "exactParentContext": [
         {
           "line": 98,
-          "text": "| REV-02 \u2014 Migration preceded boundary acceptance | U1 \u00a76 and \u00a728 permit cutover before Product Truth resolves ownership | Accept the Phase-0 boundary, consumer compatibility, and transfer record before cutover. Complete behavior-preserving relocation independently of new-feature implementation. |",
+          "text": "| REV-02 — Migration preceded boundary acceptance | U1 §6 and §28 permit cutover before Product Truth resolves ownership | Accept the Phase-0 boundary, consumer compatibility, and transfer record before cutover. Complete behavior-preserving relocation independently of new-feature implementation. |",
           "sha256": "e7a3dcd19110532c8447d53278cf415d4eff7f254bbb68ebaf82706dfc6a40f6"
         }
       ],
@@ -611,7 +611,7 @@
       "exactParentContext": [
         {
           "line": 99,
-          "text": "| REV-03 \u2014 API redesign mixed into extraction | U1 \u00a722.8 proposes `/v1/*`; current Media and its operation client use different `/api/v1/*` shapes [R13, R19] | Preserve supported wire contracts during relocation. Reconcile canonical operations through explicit adapters and compatibility tests before admitting new contracts. |",
+          "text": "| REV-03 — API redesign mixed into extraction | U1 §22.8 proposes `/v1/*`; current Media and its operation client use different `/api/v1/*` shapes [R13, R19] | Preserve supported wire contracts during relocation. Reconcile canonical operations through explicit adapters and compatibility tests before admitting new contracts. |",
           "sha256": "208539b2f92f75e28cb6ab7c8e88e38caee9329aa809e51d55d4af33ad8cbfde"
         }
       ],
@@ -731,7 +731,7 @@
       "exactParentContext": [
         {
           "line": 99,
-          "text": "| REV-03 \u2014 API redesign mixed into extraction | U1 \u00a722.8 proposes `/v1/*`; current Media and its operation client use different `/api/v1/*` shapes [R13, R19] | Preserve supported wire contracts during relocation. Reconcile canonical operations through explicit adapters and compatibility tests before admitting new contracts. |",
+          "text": "| REV-03 — API redesign mixed into extraction | U1 §22.8 proposes `/v1/*`; current Media and its operation client use different `/api/v1/*` shapes [R13, R19] | Preserve supported wire contracts during relocation. Reconcile canonical operations through explicit adapters and compatibility tests before admitting new contracts. |",
           "sha256": "208539b2f92f75e28cb6ab7c8e88e38caee9329aa809e51d55d4af33ad8cbfde"
         }
       ],
@@ -804,7 +804,7 @@
       "exactParentContext": [
         {
           "line": 99,
-          "text": "| REV-03 \u2014 API redesign mixed into extraction | U1 \u00a722.8 proposes `/v1/*`; current Media and its operation client use different `/api/v1/*` shapes [R13, R19] | Preserve supported wire contracts during relocation. Reconcile canonical operations through explicit adapters and compatibility tests before admitting new contracts. |",
+          "text": "| REV-03 — API redesign mixed into extraction | U1 §22.8 proposes `/v1/*`; current Media and its operation client use different `/api/v1/*` shapes [R13, R19] | Preserve supported wire contracts during relocation. Reconcile canonical operations through explicit adapters and compatibility tests before admitting new contracts. |",
           "sha256": "208539b2f92f75e28cb6ab7c8e88e38caee9329aa809e51d55d4af33ad8cbfde"
         }
       ],
@@ -821,7 +821,7 @@
     },
     {
       "claimId": "MPSEM-0024-C001",
-      "exactSourceText": "| REV-04 \u2014 Existing integrations were at risk",
+      "exactSourceText": "| REV-04 — Existing integrations were at risk",
       "sourceTextSha256": "01f10b40cca3c056bee7a05d6329690361acf7a5c19d1e28ec1c34b88f7cb694",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
@@ -853,7 +853,7 @@
       "exactParentContext": [
         {
           "line": 100,
-          "text": "| REV-04 \u2014 Existing integrations were at risk | U1 \u00a76.6 could be read as deleting Data Cloud Media views | Data Cloud can retain governed generic read models and existing integration behavior. Move product-semantic ownership, not legitimate consumer experiences by assertion. |",
+          "text": "| REV-04 — Existing integrations were at risk | U1 §6.6 could be read as deleting Data Cloud Media views | Data Cloud can retain governed generic read models and existing integration behavior. Move product-semantic ownership, not legitimate consumer experiences by assertion. |",
           "sha256": "47db5928bcb6e513bc9b77d0a1810fe9d2127d9d1f877c3e998591c76cb5929b"
         }
       ],
@@ -891,7 +891,7 @@
       "exactParentContext": [
         {
           "line": 100,
-          "text": "| REV-04 \u2014 Existing integrations were at risk | U1 \u00a76.6 could be read as deleting Data Cloud Media views | Data Cloud can retain governed generic read models and existing integration behavior. Move product-semantic ownership, not legitimate consumer experiences by assertion. |",
+          "text": "| REV-04 — Existing integrations were at risk | U1 §6.6 could be read as deleting Data Cloud Media views | Data Cloud can retain governed generic read models and existing integration behavior. Move product-semantic ownership, not legitimate consumer experiences by assertion. |",
           "sha256": "47db5928bcb6e513bc9b77d0a1810fe9d2127d9d1f877c3e998591c76cb5929b"
         }
       ],
@@ -958,14 +958,14 @@
     },
     {
       "claimId": "MPSEM-0026-C001",
-      "exactSourceText": "| REV-06 \u2014 Whole-tree extraction omitted a distinct worker boundary",
+      "exactSourceText": "| REV-06 — Whole-tree extraction omitted a distinct worker boundary",
       "sourceTextSha256": "8f732bc759b562a726ead4092776cd80c740e58093dbc177b7a81dfde00c37fa",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml",
       "priorLocatorRef": ".product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml#/legacyDocumentIntelligenceDisposition/masterPlanScope",
       "currentLocatorResolution": "RESOLVED_EXACT_SOURCE_VALUE",
       "currentTargetValueSha256": "e325a0330ccc299d69d089e6e61c21ce2f2a6d8b3cb1c22d197bff739d4d7ea7",
-      "currentTargetValuePreview": "\u00a76.2 mentions PDF/Office/image parsing, OCR, schema-guided extraction, applicable embeddings, and region/fallback behavior as the former Media worker boundary.",
+      "currentTargetValuePreview": "§6.2 mentions PDF/Office/image parsing, OCR, schema-guided extraction, applicable embeddings, and region/fallback behavior as the former Media worker boundary.",
       "semanticDisposition": "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED",
       "materialGap": "The legacy locator is retained only as a candidate. An owner must compare this exact clause with the exact selected value and author a bounded definition where Media controls the meaning; no semantic equivalence is asserted.",
       "ownerSemanticReview": {
@@ -990,7 +990,7 @@
       "exactParentContext": [
         {
           "line": 102,
-          "text": "| REV-06 \u2014 Whole-tree extraction omitted a distinct worker boundary | `document-intelligence-worker` consumes frozen Shared document-extraction contracts and has its own cancellation/admission behavior [R15] | Inventory and preserve this worker, Office/PDF/OCR paths, and its consumers; do not accidentally orphan it while moving \u201caudio/video.\u201d |",
+          "text": "| REV-06 — Whole-tree extraction omitted a distinct worker boundary | `document-intelligence-worker` consumes frozen Shared document-extraction contracts and has its own cancellation/admission behavior [R15] | Inventory and preserve this worker, Office/PDF/OCR paths, and its consumers; do not accidentally orphan it while moving “audio/video.” |",
           "sha256": "8b1034faf39a556ed5782a60530ff6b65f5d26a05d83b710ae0846f05e1660d8"
         }
       ],
@@ -1000,7 +1000,7 @@
         "currentSourceFileSha256": "ccfa544afaf056b8a7ffcc77f61dc17e36289d8ddfc0fb60c75f7998a4d116af",
         "priorTargetValueSha256": "e325a0330ccc299d69d089e6e61c21ce2f2a6d8b3cb1c22d197bff739d4d7ea7",
         "currentTargetValueSha256": "e325a0330ccc299d69d089e6e61c21ce2f2a6d8b3cb1c22d197bff739d4d7ea7",
-        "currentTargetValuePreview": "\u00a76.2 mentions PDF/Office/image parsing, OCR, schema-guided extraction, applicable embeddings, and region/fallback behavior as the former Media worker boundary.",
+        "currentTargetValuePreview": "§6.2 mentions PDF/Office/image parsing, OCR, schema-guided extraction, applicable embeddings, and region/fallback behavior as the former Media worker boundary.",
         "reason": "Live owner source changed or was re-observed after the earlier candidate snapshot. Historical pins above are preserved; this current observation is a pending semantic delta and does not imply acceptance."
       }
     },
@@ -1028,7 +1028,7 @@
       "exactParentContext": [
         {
           "line": 102,
-          "text": "| REV-06 \u2014 Whole-tree extraction omitted a distinct worker boundary | `document-intelligence-worker` consumes frozen Shared document-extraction contracts and has its own cancellation/admission behavior [R15] | Inventory and preserve this worker, Office/PDF/OCR paths, and its consumers; do not accidentally orphan it while moving \u201caudio/video.\u201d |",
+          "text": "| REV-06 — Whole-tree extraction omitted a distinct worker boundary | `document-intelligence-worker` consumes frozen Shared document-extraction contracts and has its own cancellation/admission behavior [R15] | Inventory and preserve this worker, Office/PDF/OCR paths, and its consumers; do not accidentally orphan it while moving “audio/video.” |",
           "sha256": "8b1034faf39a556ed5782a60530ff6b65f5d26a05d83b710ae0846f05e1660d8"
         }
       ],
@@ -1117,7 +1117,7 @@
       "exactParentContext": [
         {
           "line": 103,
-          "text": "| REV-07 \u2014 Actual cross-product reuse was missing | TutorPutor already contains simulation, animation, renderers, export and accessibility work [R04] | Evaluate those concrete paths first. Preserve TutorPutor learning/model meaning; extract or consume only deliberately public, product-neutral mechanics. |",
+          "text": "| REV-07 — Actual cross-product reuse was missing | TutorPutor already contains simulation, animation, renderers, export and accessibility work [R04] | Evaluate those concrete paths first. Preserve TutorPutor learning/model meaning; extract or consume only deliberately public, product-neutral mechanics. |",
           "sha256": "9eecd619b7ac367f2ec13551e3cfda721acb46cc24ccf3492c9d8cc397c60e6a"
         }
       ],
@@ -1185,7 +1185,7 @@
     },
     {
       "claimId": "MPSEM-0028-C001",
-      "exactSourceText": "| REV-08 \u2014 A library name was mistaken for portable reuse",
+      "exactSourceText": "| REV-08 — A library name was mistaken for portable reuse",
       "sourceTextSha256": "e0126bb0d9b98162fb96e32c0d96bdd4a51f2f9dd1e4aaa16c1da9a3735a1b0e",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/constitution.yaml",
@@ -1217,7 +1217,7 @@
       "exactParentContext": [
         {
           "line": 104,
-          "text": "| REV-08 \u2014 A library name was mistaken for portable reuse | `@tutorputor/simulation` depends on TutorPutor contracts/core as well as render libraries [R05] | Do not import its broad barrel into Media. Perform dependency-closure analysis, isolated packaging tests, and owner-approved extraction or public integration. |",
+          "text": "| REV-08 — A library name was mistaken for portable reuse | `@tutorputor/simulation` depends on TutorPutor contracts/core as well as render libraries [R05] | Do not import its broad barrel into Media. Perform dependency-closure analysis, isolated packaging tests, and owner-approved extraction or public integration. |",
           "sha256": "6c8b62f3a65291166e13f27348b48bb60ba2d439296babf3a5a1a05353a3ae4b"
         }
       ],
@@ -1255,7 +1255,7 @@
       "exactParentContext": [
         {
           "line": 104,
-          "text": "| REV-08 \u2014 A library name was mistaken for portable reuse | `@tutorputor/simulation` depends on TutorPutor contracts/core as well as render libraries [R05] | Do not import its broad barrel into Media. Perform dependency-closure analysis, isolated packaging tests, and owner-approved extraction or public integration. |",
+          "text": "| REV-08 — A library name was mistaken for portable reuse | `@tutorputor/simulation` depends on TutorPutor contracts/core as well as render libraries [R05] | Do not import its broad barrel into Media. Perform dependency-closure analysis, isolated packaging tests, and owner-approved extraction or public integration. |",
           "sha256": "6c8b62f3a65291166e13f27348b48bb60ba2d439296babf3a5a1a05353a3ae4b"
         }
       ],
@@ -1327,7 +1327,7 @@
       "exactParentContext": [
         {
           "line": 107,
-          "text": "| REV-11 \u2014 Universal provider SPI was too broad | One interface attempts batch, streaming, simulation, inference and transport | Use a common descriptor plus typed batch, streaming, simulation and inference ports. Capability absence must be explicit, not fake implementations of irrelevant methods. |",
+          "text": "| REV-11 — Universal provider SPI was too broad | One interface attempts batch, streaming, simulation, inference and transport | Use a common descriptor plus typed batch, streaming, simulation and inference ports. Capability absence must be explicit, not fake implementations of irrelevant methods. |",
           "sha256": "d426098f6c7fb649b6b6ba96ac9b23fb713452f5d664d8e97af4f2200666a0e4"
         }
       ],
@@ -1411,7 +1411,7 @@
       "exactParentContext": [
         {
           "line": 108,
-          "text": "| REV-12 \u2014 \u201cDeterministic\u201d was undefined | A seed/version is insufficient for cross-platform identical GPU/model/physics output [W03] | Declare exact, tolerance, statistical or non-replayable classes with hardware/runtime/solver bounds. Separate Explorer determinism from production reproducibility. |",
+          "text": "| REV-12 — “Deterministic” was undefined | A seed/version is insufficient for cross-platform identical GPU/model/physics output [W03] | Declare exact, tolerance, statistical or non-replayable classes with hardware/runtime/solver bounds. Separate Explorer determinism from production reproducibility. |",
           "sha256": "3f65b7a1ee305a3eaa9380f9cca4e76c09f435d6e920f804085f6855ba762cb4"
         }
       ],
@@ -1483,7 +1483,7 @@
       "exactParentContext": [
         {
           "line": 110,
-          "text": "| REV-14 \u2014 Graph definition and execution state were mixed | U1 \u00a79 puts parameters, policies and execution state in one graph | Separate immutable specification, resolved execution plan, and run/checkpoint state; reuse cannot ignore current authorization or policy. |",
+          "text": "| REV-14 — Graph definition and execution state were mixed | U1 §9 puts parameters, policies and execution state in one graph | Separate immutable specification, resolved execution plan, and run/checkpoint state; reuse cannot ignore current authorization or policy. |",
           "sha256": "1f98016be4bd6b53e287128b7706e846dd6b140d1a71fa685781939d50012309"
         }
       ],
@@ -1588,7 +1588,7 @@
       "exactParentContext": [
         {
           "line": 111,
-          "text": "| REV-15 \u2014 Quality claims were overbroad | Automatic physics/identity assessment and selective repair are not universally reliable | Qualification per metric/domain/provider; abstention and limits; bounded repair loops; no promise of arbitrary frame-level repair or scientific truth. |",
+          "text": "| REV-15 — Quality claims were overbroad | Automatic physics/identity assessment and selective repair are not universally reliable | Qualification per metric/domain/provider; abstention and limits; bounded repair loops; no promise of arbitrary frame-level repair or scientific truth. |",
           "sha256": "a7e8acabf31ff6a1e2d276dea03aed4ba4195d56554c3aac1903b4f7f223b61e"
         }
       ],
@@ -1604,7 +1604,7 @@
     },
     {
       "claimId": "MPSEM-0038-C001",
-      "exactSourceText": "| REV-18 \u2014 Audit and telemetry failure semantics were absent",
+      "exactSourceText": "| REV-18 — Audit and telemetry failure semantics were absent",
       "sourceTextSha256": "df75faf150f0b0a9175a3d319e1d4c228bfefb5b87f3062756a62a184fec047a",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml",
@@ -1636,7 +1636,7 @@
       "exactParentContext": [
         {
           "line": 114,
-          "text": "| REV-18 \u2014 Audit and telemetry failure semantics were absent | \u201cAmbient\u201d does not specify delivery guarantees | Best-effort bounded diagnostics must not change business outcome. Required audit intent/durability may gate consequential actions; remote sink lag is separate. |",
+          "text": "| REV-18 — Audit and telemetry failure semantics were absent | “Ambient” does not specify delivery guarantees | Best-effort bounded diagnostics must not change business outcome. Required audit intent/durability may gate consequential actions; remote sink lag is separate. |",
           "sha256": "4209d1b9345a996a245241b3880675539b0d34ba578b4a9fe39b5669eb327afa"
         }
       ],
@@ -1773,7 +1773,7 @@
       "exactParentContext": [
         {
           "line": 114,
-          "text": "| REV-18 \u2014 Audit and telemetry failure semantics were absent | \u201cAmbient\u201d does not specify delivery guarantees | Best-effort bounded diagnostics must not change business outcome. Required audit intent/durability may gate consequential actions; remote sink lag is separate. |",
+          "text": "| REV-18 — Audit and telemetry failure semantics were absent | “Ambient” does not specify delivery guarantees | Best-effort bounded diagnostics must not change business outcome. Required audit intent/durability may gate consequential actions; remote sink lag is separate. |",
           "sha256": "4209d1b9345a996a245241b3880675539b0d34ba578b4a9fe39b5669eb327afa"
         }
       ],
@@ -1812,7 +1812,7 @@
       "exactParentContext": [
         {
           "line": 114,
-          "text": "| REV-18 \u2014 Audit and telemetry failure semantics were absent | \u201cAmbient\u201d does not specify delivery guarantees | Best-effort bounded diagnostics must not change business outcome. Required audit intent/durability may gate consequential actions; remote sink lag is separate. |",
+          "text": "| REV-18 — Audit and telemetry failure semantics were absent | “Ambient” does not specify delivery guarantees | Best-effort bounded diagnostics must not change business outcome. Required audit intent/durability may gate consequential actions; remote sink lag is separate. |",
           "sha256": "4209d1b9345a996a245241b3880675539b0d34ba578b4a9fe39b5669eb327afa"
         }
       ],
@@ -1998,7 +1998,7 @@
       "exactParentContext": [
         {
           "line": 115,
-          "text": "| REV-19 \u2014 Native engines widened the attack surface | Out-of-process is not automatically a sandbox | Isolate decoders, scripts, simulations and model artifacts; bound resources, filesystem, network, subprocess trees and output registration. |",
+          "text": "| REV-19 — Native engines widened the attack surface | Out-of-process is not automatically a sandbox | Isolate decoders, scripts, simulations and model artifacts; bound resources, filesystem, network, subprocess trees and output registration. |",
           "sha256": "bbbdd238d1dc217435100761cf5a56bd7f64087cb9a541886453b31208682679"
         }
       ],
@@ -2014,7 +2014,7 @@
     },
     {
       "claimId": "MPSEM-0040-C001",
-      "exactSourceText": "| REV-20 \u2014 License and feature assumptions were loose",
+      "exactSourceText": "| REV-20 — License and feature assumptions were loose",
       "sourceTextSha256": "53778ef5d4f95a6dfb554c853f34e539cc5165b229fdd3e476d2518ef843142f",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/constitution.yaml",
@@ -2046,7 +2046,7 @@
       "exactParentContext": [
         {
           "line": 116,
-          "text": "| REV-20 \u2014 License and feature assumptions were loose | FFmpeg build choices affect licensing; OpenVDB\u2019s official license page identifies MPL-2.0 [W01, W02] | Evaluate exact release, build options, transitive code, weights, assets and patents. Process isolation does not remove license obligations. |",
+          "text": "| REV-20 — License and feature assumptions were loose | FFmpeg build choices affect licensing; OpenVDB’s official license page identifies MPL-2.0 [W01, W02] | Evaluate exact release, build options, transitive code, weights, assets and patents. Process isolation does not remove license obligations. |",
           "sha256": "cda2bd78b525ca9836995bfc31018c2628dabd53d657517cad3abb0c53ca0203"
         }
       ],
@@ -2084,7 +2084,7 @@
       "exactParentContext": [
         {
           "line": 116,
-          "text": "| REV-20 \u2014 License and feature assumptions were loose | FFmpeg build choices affect licensing; OpenVDB\u2019s official license page identifies MPL-2.0 [W01, W02] | Evaluate exact release, build options, transitive code, weights, assets and patents. Process isolation does not remove license obligations. |",
+          "text": "| REV-20 — License and feature assumptions were loose | FFmpeg build choices affect licensing; OpenVDB’s official license page identifies MPL-2.0 [W01, W02] | Evaluate exact release, build options, transitive code, weights, assets and patents. Process isolation does not remove license obligations. |",
           "sha256": "cda2bd78b525ca9836995bfc31018c2628dabd53d657517cad3abb0c53ca0203"
         }
       ],
@@ -2168,7 +2168,7 @@
     },
     {
       "claimId": "MPSEM-0040-C003",
-      "exactSourceText": "OpenVDB\u2019s official license page identifies MPL-2.0 [W01, W02]",
+      "exactSourceText": "OpenVDB’s official license page identifies MPL-2.0 [W01, W02]",
       "sourceTextSha256": "ecaa0fe36b4b3d080d6c36ceb7310804a58d2da3d401b96daf9333ee5342e2d5",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/constitution.yaml",
@@ -2190,7 +2190,7 @@
       "exactParentContext": [
         {
           "line": 116,
-          "text": "| REV-20 \u2014 License and feature assumptions were loose | FFmpeg build choices affect licensing; OpenVDB\u2019s official license page identifies MPL-2.0 [W01, W02] | Evaluate exact release, build options, transitive code, weights, assets and patents. Process isolation does not remove license obligations. |",
+          "text": "| REV-20 — License and feature assumptions were loose | FFmpeg build choices affect licensing; OpenVDB’s official license page identifies MPL-2.0 [W01, W02] | Evaluate exact release, build options, transitive code, weights, assets and patents. Process isolation does not remove license obligations. |",
           "sha256": "cda2bd78b525ca9836995bfc31018c2628dabd53d657517cad3abb0c53ca0203"
         }
       ],
@@ -2274,7 +2274,7 @@
     },
     {
       "claimId": "MPSEM-0041-C002",
-      "exactSourceText": "U1 \u00a722.3 exposes many primary destinations",
+      "exactSourceText": "U1 §22.3 exposes many primary destinations",
       "sourceTextSha256": "93b586f4ca8ebbd854a0a7f4007c126feb27d6040e800808fdffe744e5889d90",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
@@ -2296,7 +2296,7 @@
       "exactParentContext": [
         {
           "line": 117,
-          "text": "| REV-21 \u2014 Low cognitive load conflicted with navigation | U1 \u00a722.3 exposes many primary destinations | Use a small stable shell with intent launchers and contextual tools. No technical-provider navigation in the ordinary path. |",
+          "text": "| REV-21 — Low cognitive load conflicted with navigation | U1 §22.3 exposes many primary destinations | Use a small stable shell with intent launchers and contextual tools. No technical-provider navigation in the ordinary path. |",
           "sha256": "30ac6b2bbb79b2ea4ca2e1769932075280f821ef086ae4f1c216ced2cc996ce8"
         }
       ],
@@ -2435,7 +2435,7 @@
       "exactParentContext": [
         {
           "line": 117,
-          "text": "| REV-21 \u2014 Low cognitive load conflicted with navigation | U1 \u00a722.3 exposes many primary destinations | Use a small stable shell with intent launchers and contextual tools. No technical-provider navigation in the ordinary path. |",
+          "text": "| REV-21 — Low cognitive load conflicted with navigation | U1 §22.3 exposes many primary destinations | Use a small stable shell with intent launchers and contextual tools. No technical-provider navigation in the ordinary path. |",
           "sha256": "30ac6b2bbb79b2ea4ca2e1769932075280f821ef086ae4f1c216ced2cc996ce8"
         }
       ],
@@ -2451,7 +2451,7 @@
     },
     {
       "claimId": "MPSEM-0042-C001",
-      "exactSourceText": "| REV-22 \u2014 CLI names and automation behavior were inconsistent",
+      "exactSourceText": "| REV-22 — CLI names and automation behavior were inconsistent",
       "sourceTextSha256": "e46639f863e4aeec88733edbdc95097d2e0b644a852bba01dafe839db5c7df3e",
       "ownerPhase": "PDP-1",
       "ownerSourceFile": ".product-experience/pdp-1-domain-data/operations.yaml",
@@ -2483,7 +2483,7 @@
       "exactParentContext": [
         {
           "line": 118,
-          "text": "| REV-22 \u2014 CLI names and automation behavior were inconsistent | `create`, `synth`, `enhance`, `audio` and aliases overlap | One command registry over canonical action IDs; finite aliases, no duplicated logic; stable JSON/JSONL, exit codes and interruption semantics. |",
+          "text": "| REV-22 — CLI names and automation behavior were inconsistent | `create`, `synth`, `enhance`, `audio` and aliases overlap | One command registry over canonical action IDs; finite aliases, no duplicated logic; stable JSON/JSONL, exit codes and interruption semantics. |",
           "sha256": "b65ab2124631eed3d8f2f2e1004fef31fd2d8544f2c0b056957bc7079c50252f"
         }
       ],
@@ -2499,7 +2499,7 @@
     },
     {
       "claimId": "MPSEM-0043-C001",
-      "exactSourceText": "| REV-23 \u2014 Scope breadth lacked a qualification model",
+      "exactSourceText": "| REV-23 — Scope breadth lacked a qualification model",
       "sourceTextSha256": "d82cb33d396398addf0705c1bdce4081da0081192fcf2999a578445a5af48c48",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml",
@@ -2531,7 +2531,7 @@
       "exactParentContext": [
         {
           "line": 119,
-          "text": "| REV-23 \u2014 Scope breadth lacked a qualification model | A complete feature list was easily confused with launch availability | Preserve full intended scope; track definition, implementation, technical qualification, licensing and runtime availability separately. |",
+          "text": "| REV-23 — Scope breadth lacked a qualification model | A complete feature list was easily confused with launch availability | Preserve full intended scope; track definition, implementation, technical qualification, licensing and runtime availability separately. |",
           "sha256": "f1963b0e861a67a50b69c11e773f786ce82c52641b4e587f8d9593d6b7a61546"
         }
       ],
@@ -2547,7 +2547,7 @@
     },
     {
       "claimId": "MPSEM-0045-C001",
-      "exactSourceText": "| REV-25 \u2014 Interoperability was underdefined",
+      "exactSourceText": "| REV-25 — Interoperability was underdefined",
       "sourceTextSha256": "fc3c7aa420f75f9738424d88023fcbdf55f48aa7cb80db02b1b58bf08bea5cfc",
       "ownerPhase": "PDP-1",
       "ownerSourceFile": ".product-experience/pdp-1-domain-data/interoperability.yaml",
@@ -2579,7 +2579,7 @@
       "exactParentContext": [
         {
           "line": 121,
-          "text": "| REV-25 \u2014 Interoperability was underdefined | A neutral scene graph cannot magically round-trip every engine | Declare supported semantic subsets and conversion-loss reports. Use interchange adapters, not claims of universal losslessness. |",
+          "text": "| REV-25 — Interoperability was underdefined | A neutral scene graph cannot magically round-trip every engine | Declare supported semantic subsets and conversion-loss reports. Use interchange adapters, not claims of universal losslessness. |",
           "sha256": "672fdc86bdf7bd7cdc16c2dba99699d61e1be802c63f675c9ceea1b59e95458e"
         }
       ],
@@ -2617,7 +2617,7 @@
       "exactParentContext": [
         {
           "line": 121,
-          "text": "| REV-25 \u2014 Interoperability was underdefined | A neutral scene graph cannot magically round-trip every engine | Declare supported semantic subsets and conversion-loss reports. Use interchange adapters, not claims of universal losslessness. |",
+          "text": "| REV-25 — Interoperability was underdefined | A neutral scene graph cannot magically round-trip every engine | Declare supported semantic subsets and conversion-loss reports. Use interchange adapters, not claims of universal losslessness. |",
           "sha256": "672fdc86bdf7bd7cdc16c2dba99699d61e1be802c63f675c9ceea1b59e95458e"
         }
       ],
@@ -2706,7 +2706,7 @@
       "exactParentContext": [
         {
           "line": 121,
-          "text": "| REV-25 \u2014 Interoperability was underdefined | A neutral scene graph cannot magically round-trip every engine | Declare supported semantic subsets and conversion-loss reports. Use interchange adapters, not claims of universal losslessness. |",
+          "text": "| REV-25 — Interoperability was underdefined | A neutral scene graph cannot magically round-trip every engine | Declare supported semantic subsets and conversion-loss reports. Use interchange adapters, not claims of universal losslessness. |",
           "sha256": "672fdc86bdf7bd7cdc16c2dba99699d61e1be802c63f675c9ceea1b59e95458e"
         }
       ],
@@ -2773,7 +2773,7 @@
     },
     {
       "claimId": "MPSEM-0046-C001",
-      "exactSourceText": "| REV-26 \u2014 Core dependency direction needed an explicit migration protocol",
+      "exactSourceText": "| REV-26 — Core dependency direction needed an explicit migration protocol",
       "sourceTextSha256": "23925992de66993eca151d50017cecc16738d55755cc0196e85681cc584ae7e2",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
@@ -2805,7 +2805,7 @@
       "exactParentContext": [
         {
           "line": 122,
-          "text": "| REV-26 \u2014 Core dependency direction needed an explicit migration protocol | Ghatana must not import product implementation; existing Media callers still need a boundary | Replace imports with neutral capability contracts/generated wire clients and approved integration providers. Test from both repositories without source coupling. |",
+          "text": "| REV-26 — Core dependency direction needed an explicit migration protocol | Ghatana must not import product implementation; existing Media callers still need a boundary | Replace imports with neutral capability contracts/generated wire clients and approved integration providers. Test from both repositories without source coupling. |",
           "sha256": "cb45459e5a0ce7b718405f48daf056eed81fa2ab5d9e2a0e6987f93280f33cbc"
         }
       ],
@@ -2901,7 +2901,7 @@
       "exactParentContext": [
         {
           "line": 144,
-          "text": "| New public packages | Select names from the product registry\u2019s allowed export policy; do not create duplicate \u201cnew-name\u201d and \u201cold-name\u201d implementations |",
+          "text": "| New public packages | Select names from the product registry’s allowed export policy; do not create duplicate “new-name” and “old-name” implementations |",
           "sha256": "209bebd2677514fe1299d62fb977e6ef2111d093d051dfc013385604349eae15"
         }
       ],
@@ -3012,7 +3012,7 @@
       "exactParentContext": [
         {
           "line": 147,
-          "text": "| Structured records | Version schemas and public contracts as needed. No parallel \u201cV2 product\u201d or indefinite compatibility code fork. |",
+          "text": "| Structured records | Version schemas and public contracts as needed. No parallel “V2 product” or indefinite compatibility code fork. |",
           "sha256": "664e8fc0e0f08a34e0747a1b555722d3867cea3ba25784e8cac3394d75d531fb"
         }
       ],
@@ -3530,7 +3530,7 @@
       ],
       "ownerSemanticReview": {
         "disposition": "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL",
-        "reason": "PXD-136 resolves MPSEM-0077-C002 through the current P0 persona \u2192 typicalGoal \u2192 proposed journey outcome-coverage chain. The five exact personas cover educational/research, marketing/campaign, archival/historical, creator, and developer/operator contexts. Each selected typicalGoal maps to one or more canonical J-IDs in outcomeCoverage. This is definition-level example coverage only; it does not assert screen/action completeness, market validation or adoption, runtime support, or phase acceptance.",
+        "reason": "PXD-136 resolves MPSEM-0077-C002 through the current P0 persona → typicalGoal → proposed journey outcome-coverage chain. The five exact personas cover educational/research, marketing/campaign, archival/historical, creator, and developer/operator contexts. Each selected typicalGoal maps to one or more canonical J-IDs in outcomeCoverage. This is definition-level example coverage only; it does not assert screen/action completeness, market validation or adoption, runtime support, or phase acceptance.",
         "proposedTargetRef": ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/personas/@id=media.persona.educator-or-researcher/context",
         "exactContractRefs": [
           ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/personas/@id=media.persona.educator-or-researcher/context",
@@ -5206,7 +5206,7 @@
       "exactParentContext": [
         {
           "line": 233,
-          "text": "| YAPPC | App-building product experience | Integrate only where a published app-authoring capability is needed; do not embed its product internals as Media\u2019s editor framework |",
+          "text": "| YAPPC | App-building product experience | Integrate only where a published app-authoring capability is needed; do not embed its product internals as Media’s editor framework |",
           "sha256": "37d577c8d2898b182fd86f66ab5826778b5c3807fe9adc00dc7578a43854b376"
         }
       ],
@@ -5256,7 +5256,7 @@
     },
     {
       "claimId": "MPSEM-0102-C003",
-      "exactSourceText": "do not embed its product internals as Media\u2019s editor framework |",
+      "exactSourceText": "do not embed its product internals as Media’s editor framework |",
       "sourceTextSha256": "e0bb93bf82a5d8ae62871b4ec9faf8cb392181b1da7ef478900fbaf01597fbcb",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
@@ -5278,7 +5278,7 @@
       "exactParentContext": [
         {
           "line": 233,
-          "text": "| YAPPC | App-building product experience | Integrate only where a published app-authoring capability is needed; do not embed its product internals as Media\u2019s editor framework |",
+          "text": "| YAPPC | App-building product experience | Integrate only where a published app-authoring capability is needed; do not embed its product internals as Media’s editor framework |",
           "sha256": "37d577c8d2898b182fd86f66ab5826778b5c3807fe9adc00dc7578a43854b376"
         }
       ],
@@ -5329,7 +5329,7 @@
     },
     {
       "claimId": "MPSEM-0157-C001",
-      "exactSourceText": "| Phase 0 \u2014 Product Truth",
+      "exactSourceText": "| Phase 0 — Product Truth",
       "sourceTextSha256": "70a0a63487c3d5b369e82b801418b98940d509300078e501b2552c06ed564a4b",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/requirements.yaml",
@@ -5351,7 +5351,7 @@
       "exactParentContext": [
         {
           "line": 329,
-          "text": "| Phase 0 \u2014 Product Truth | Meaning, actors, outcomes, requirements, capabilities, domain/time/units, authority, states, failure/finality, dependencies and NFRs | CSS, component-specific styling, provider brands as semantic truth |",
+          "text": "| Phase 0 — Product Truth | Meaning, actors, outcomes, requirements, capabilities, domain/time/units, authority, states, failure/finality, dependencies and NFRs | CSS, component-specific styling, provider brands as semantic truth |",
           "sha256": "d5d72bce2186fb2b1e347e6fac416b339ea8fef30e2eb0e166385904d79a2702"
         }
       ],
@@ -5400,7 +5400,7 @@
       "exactParentContext": [
         {
           "line": 329,
-          "text": "| Phase 0 \u2014 Product Truth | Meaning, actors, outcomes, requirements, capabilities, domain/time/units, authority, states, failure/finality, dependencies and NFRs | CSS, component-specific styling, provider brands as semantic truth |",
+          "text": "| Phase 0 — Product Truth | Meaning, actors, outcomes, requirements, capabilities, domain/time/units, authority, states, failure/finality, dependencies and NFRs | CSS, component-specific styling, provider brands as semantic truth |",
           "sha256": "d5d72bce2186fb2b1e347e6fac416b339ea8fef30e2eb0e166385904d79a2702"
         }
       ],
@@ -5450,7 +5450,7 @@
     },
     {
       "claimId": "MPSEM-0158-C001",
-      "exactSourceText": "| Phase 1 \u2014 Design Language",
+      "exactSourceText": "| Phase 1 — Design Language",
       "sourceTextSha256": "30bef0f1b09472d91032b0e878c85d9b963a4855c68578c60f5e1a750945fa59",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/schema-bindings.yaml",
@@ -5472,7 +5472,7 @@
       "exactParentContext": [
         {
           "line": 330,
-          "text": "| Phase 1 \u2014 Design Language | Reusable visual/interaction/content/accessibility/responsive and terminal grammar | New capabilities or changed action consequences |",
+          "text": "| Phase 1 — Design Language | Reusable visual/interaction/content/accessibility/responsive and terminal grammar | New capabilities or changed action consequences |",
           "sha256": "36621a10f5e5a01efb3d8a93ec44d281e72b274ae015c270094e2f13ad6178fe"
         }
       ],
@@ -5498,7 +5498,7 @@
     },
     {
       "claimId": "MPSEM-0159-C001",
-      "exactSourceText": "| Phase 2 \u2014 Complete Product Experience",
+      "exactSourceText": "| Phase 2 — Complete Product Experience",
       "sourceTextSha256": "255067791745cdc4937811be9860833e072e7a6770c515697d6c0cccf6a733f3",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/schema-bindings.yaml",
@@ -5520,7 +5520,7 @@
       "exactParentContext": [
         {
           "line": 331,
-          "text": "| Phase 2 \u2014 Complete Product Experience | Exact screens/views, CLI/API experience mappings, content, interactions, journeys, scenarios and product simulation semantics | Independent business state machines or duplicate external schemas |",
+          "text": "| Phase 2 — Complete Product Experience | Exact screens/views, CLI/API experience mappings, content, interactions, journeys, scenarios and product simulation semantics | Independent business state machines or duplicate external schemas |",
           "sha256": "1061fcddaf0c3aff1c6922368d78b32bf4264f2a983e5dafabc38fcccfa2f0ee"
         }
       ],
@@ -5821,7 +5821,7 @@
       "exactParentContext": [
         {
           "line": 359,
-          "text": "The authoritative reuse decision register is the Phase-0 `reuse-decisions.yaml`. `config/reuse-decisions.yaml`, when useful to runtime packaging, is a **generated admitted-decision projection**, never a second editable decision register. `config/dependency-bindings.yaml` records deployment-specific resolved/public artifact bindings under the runtime owner, constrained by Phase-0 dependency semantics. `config/oss-components.yaml` is the exact technical supply-chain inventory and admission evidence; it does not redefine the product\u2019s license policy. Register these roles separately.",
+          "text": "The authoritative reuse decision register is the Phase-0 `reuse-decisions.yaml`. `config/reuse-decisions.yaml`, when useful to runtime packaging, is a **generated admitted-decision projection**, never a second editable decision register. `config/dependency-bindings.yaml` records deployment-specific resolved/public artifact bindings under the runtime owner, constrained by Phase-0 dependency semantics. `config/oss-components.yaml` is the exact technical supply-chain inventory and admission evidence; it does not redefine the product’s license policy. Register these roles separately.",
           "sha256": "e8d0fc45d3eb85a5dfdff847252334a05f734c3e96903f5e21da1a562b051bcf"
         }
       ],
@@ -5894,7 +5894,7 @@
       "exactParentContext": [
         {
           "line": 359,
-          "text": "The authoritative reuse decision register is the Phase-0 `reuse-decisions.yaml`. `config/reuse-decisions.yaml`, when useful to runtime packaging, is a **generated admitted-decision projection**, never a second editable decision register. `config/dependency-bindings.yaml` records deployment-specific resolved/public artifact bindings under the runtime owner, constrained by Phase-0 dependency semantics. `config/oss-components.yaml` is the exact technical supply-chain inventory and admission evidence; it does not redefine the product\u2019s license policy. Register these roles separately.",
+          "text": "The authoritative reuse decision register is the Phase-0 `reuse-decisions.yaml`. `config/reuse-decisions.yaml`, when useful to runtime packaging, is a **generated admitted-decision projection**, never a second editable decision register. `config/dependency-bindings.yaml` records deployment-specific resolved/public artifact bindings under the runtime owner, constrained by Phase-0 dependency semantics. `config/oss-components.yaml` is the exact technical supply-chain inventory and admission evidence; it does not redefine the product’s license policy. Register these roles separately.",
           "sha256": "e8d0fc45d3eb85a5dfdff847252334a05f734c3e96903f5e21da1a562b051bcf"
         }
       ],
@@ -6011,7 +6011,7 @@
           "AUTHORED"
         ],
         "negativeCases": [
-          "A copied external schema is not the external owner\u2019s authority.",
+          "A copied external schema is not the external owner’s authority.",
           "A manifest entry without exact owner/path/role is incomplete.",
           "Generated manifest presence does not certify semantic acceptance."
         ],
@@ -6025,7 +6025,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "2a7a4a93ad7017bb5020f0f45e6ea8af99150d6dd7d8b723c1194f0600adb060",
+              "currentSourceFileSha256": "a567d1fafc9978ed8ef6c97c07e75aa59371aaaf4a7ee9737b7aa69300579a67",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "67278a175ed6f0cc952e8095f0169199ae8b26c8afd891824fb8af7d7be13849",
               "reason": "Exact source-manifest file hash re-observed after aligning the external-owner observation to the locally available origin/main cut. Historical source-file digests and selected value pins are preserved; the material review remains pending and acceptanceEffect remains none.",
@@ -6048,7 +6048,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "2a7a4a93ad7017bb5020f0f45e6ea8af99150d6dd7d8b723c1194f0600adb060",
+              "currentSourceFileSha256": "a567d1fafc9978ed8ef6c97c07e75aa59371aaaf4a7ee9737b7aa69300579a67",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "fbb4c60105fedf403d0f2cc7532815a0cfcc8e543308ed59af335359f3657531",
               "reason": "Exact source-manifest file hash re-observed after aligning the external-owner observation to the locally available origin/main cut. Historical source-file digests and selected value pins are preserved; the material review remains pending and acceptanceEffect remains none.",
@@ -6071,7 +6071,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "2a7a4a93ad7017bb5020f0f45e6ea8af99150d6dd7d8b723c1194f0600adb060",
+              "currentSourceFileSha256": "a567d1fafc9978ed8ef6c97c07e75aa59371aaaf4a7ee9737b7aa69300579a67",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "a17ac49c8e9910dde9ed73c970ecf324ac48b981daaddba6e93cf7d46b062749",
               "reason": "Exact source-manifest file hash re-observed after aligning the external-owner observation to the locally available origin/main cut. Historical source-file digests and selected value pins are preserved; the material review remains pending and acceptanceEffect remains none.",
@@ -6094,7 +6094,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "2a7a4a93ad7017bb5020f0f45e6ea8af99150d6dd7d8b723c1194f0600adb060",
+              "currentSourceFileSha256": "a567d1fafc9978ed8ef6c97c07e75aa59371aaaf4a7ee9737b7aa69300579a67",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "82b11bb8e13b567c0f76d554cfdbf2b5ef4d0802e1e47a85daf0f964fdd5e2a0",
               "reason": "Exact source-manifest file hash re-observed after aligning the external-owner observation to the locally available origin/main cut. Historical source-file digests and selected value pins are preserved; the material review remains pending and acceptanceEffect remains none.",
@@ -6123,7 +6123,7 @@
       "priorLocatorRef": ".product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml#/rules/0",
       "currentLocatorResolution": "RESOLVED_EXACT_SOURCE_VALUE",
       "currentTargetValueSha256": "40fe21f5f22665a5f4e6cdda536607dae8d43fa082d0d9c81757f53caaedde9e",
-      "currentTargetValuePreview": "Every \u00a76 family/operation is represented by one leaf or an explicit semantic alias; the current family crosswalk maps all 462 canonical capability leaf IDs exactly once, without reducing the denominator.",
+      "currentTargetValuePreview": "Every §6 family/operation is represented by one leaf or an explicit semantic alias; the current family crosswalk maps all 462 canonical capability leaf IDs exactly once, without reducing the denominator.",
       "semanticDisposition": "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED",
       "materialGap": "The legacy locator is retained only as a candidate. An owner must compare this exact clause with the exact selected value and author a bounded definition where Media controls the meaning; no semantic equivalence is asserted.",
       "priorTargetValueSha256": "a629e62fa1cbc68828b52e1b2dfd563ce7f221077eb2adb98db8b9ccda06af21",
@@ -6151,7 +6151,7 @@
         "materialBindings": [
           {
             "ref": ".product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml#/rules/0",
-            "requiredSourcePhrase": "Every \u00a76 family/operation is represented by one leaf or an explicit semantic alias; the current family crosswalk maps all 462 canonical capability leaf IDs exactly once, without reducing the denominator.",
+            "requiredSourcePhrase": "Every §6 family/operation is represented by one leaf or an explicit semantic alias; the current family crosswalk maps all 462 canonical capability leaf IDs exactly once, without reducing the denominator.",
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
@@ -6171,7 +6171,7 @@
       "exactParentContext": [
         {
           "line": 372,
-          "text": "The following families are **required product-definition scope**. They are not assertions that implementations or qualified models already exist. Phase 0 expands every named operation into a stable leaf record or an explicit alias of another leaf. An operation cannot vanish by being relabeled \u201cfuture.\u201d Record its intended channel, priority, implementation lane and availability separately.",
+          "text": "The following families are **required product-definition scope**. They are not assertions that implementations or qualified models already exist. Phase 0 expands every named operation into a stable leaf record or an explicit alias of another leaf. An operation cannot vanish by being relabeled “future.” Record its intended channel, priority, implementation lane and availability separately.",
           "sha256": "4cb132f40e8a9f85762321cbe5b3dfce4de1359c7f0ddbb5947947116b435e69"
         }
       ],
@@ -6181,7 +6181,7 @@
         "currentSourceFileSha256": "ccfa544afaf056b8a7ffcc77f61dc17e36289d8ddfc0fb60c75f7998a4d116af",
         "priorTargetValueSha256": "40fe21f5f22665a5f4e6cdda536607dae8d43fa082d0d9c81757f53caaedde9e",
         "currentTargetValueSha256": "40fe21f5f22665a5f4e6cdda536607dae8d43fa082d0d9c81757f53caaedde9e",
-        "currentTargetValuePreview": "Every \u00a76 family/operation is represented by one leaf or an explicit semantic alias; the current family crosswalk maps all 462 canonical capability leaf IDs exactly once, without re",
+        "currentTargetValuePreview": "Every §6 family/operation is represented by one leaf or an explicit semantic alias; the current family crosswalk maps all 462 canonical capability leaf IDs exactly once, without re",
         "reason": "Live owner source changed or was re-observed after the earlier candidate snapshot. Historical pins above are preserved; this current observation is a pending semantic delta and does not imply acceptance."
       }
     },
@@ -6558,7 +6558,7 @@
       "priorLocatorRef": ".product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml#/legacyDocumentIntelligenceDisposition/masterPlanScope",
       "currentLocatorResolution": "RESOLVED_EXACT_SOURCE_VALUE",
       "currentTargetValueSha256": "e325a0330ccc299d69d089e6e61c21ce2f2a6d8b3cb1c22d197bff739d4d7ea7",
-      "currentTargetValuePreview": "\u00a76.2 mentions PDF/Office/image parsing, OCR, schema-guided extraction, applicable embeddings, and region/fallback behavior as the former Media worker boundary.",
+      "currentTargetValuePreview": "§6.2 mentions PDF/Office/image parsing, OCR, schema-guided extraction, applicable embeddings, and region/fallback behavior as the former Media worker boundary.",
       "semanticDisposition": "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED",
       "materialGap": "The legacy locator is retained only as a candidate. An owner must compare this exact clause with the exact selected value and author a bounded definition where Media controls the meaning; no semantic equivalence is asserted.",
       "priorTargetValueSha256": "cd95c20350a470a3c96224243c9e61ada55c79289c50e30197f4cda814e9c1fa",
@@ -6634,7 +6634,7 @@
         "currentSourceFileSha256": "ccfa544afaf056b8a7ffcc77f61dc17e36289d8ddfc0fb60c75f7998a4d116af",
         "priorTargetValueSha256": "e325a0330ccc299d69d089e6e61c21ce2f2a6d8b3cb1c22d197bff739d4d7ea7",
         "currentTargetValueSha256": "e325a0330ccc299d69d089e6e61c21ce2f2a6d8b3cb1c22d197bff739d4d7ea7",
-        "currentTargetValuePreview": "\u00a76.2 mentions PDF/Office/image parsing, OCR, schema-guided extraction, applicable embeddings, and region/fallback behavior as the former Media worker boundary.",
+        "currentTargetValuePreview": "§6.2 mentions PDF/Office/image parsing, OCR, schema-guided extraction, applicable embeddings, and region/fallback behavior as the former Media worker boundary.",
         "reason": "Live owner source changed or was re-observed after the earlier candidate snapshot. Historical pins above are preserved; this current observation is a pending semantic delta and does not imply acceptance."
       }
     },
@@ -6801,7 +6801,7 @@
     },
     {
       "claimId": "MPSEM-0187-C002",
-      "exactSourceText": "An estimator\u2019s label is an inference, not an established fact about a person.",
+      "exactSourceText": "An estimator’s label is an inference, not an established fact about a person.",
       "sourceTextSha256": "4f5605e8df09f718076ab626cf3f0b2872b75d1fbc59763f3e6d017444796888",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
@@ -6823,7 +6823,7 @@
       "exactParentContext": [
         {
           "line": 401,
-          "text": "Identity, biometrics, emotions and gaze require explicit applicability, permission and limitation records. An estimator\u2019s label is an inference, not an established fact about a person. Speaker diarization does not require identifying the speaker. Prefer anonymous track IDs when identification is unnecessary.",
+          "text": "Identity, biometrics, emotions and gaze require explicit applicability, permission and limitation records. An estimator’s label is an inference, not an established fact about a person. Speaker diarization does not require identifying the speaker. Prefer anonymous track IDs when identification is unnecessary.",
           "sha256": "8dcb7637068b70fce48a6235c448ceb89d4ed45b6440c25d45b8755f976499d6"
         }
       ],
@@ -7003,7 +7003,7 @@
       "exactParentContext": [
         {
           "line": 441,
-          "text": "A default pipeline does not apply every enhancer. Analysis selects only eligible operations whose measured improvement outweighs artifact risk. Preserve the source and compare the result. Face restoration and generative super-resolution can alter identity/detail and must obey the preservation policy; \u201clooks sharper\u201d is insufficient acceptance.",
+          "text": "A default pipeline does not apply every enhancer. Analysis selects only eligible operations whose measured improvement outweighs artifact risk. Preserve the source and compare the result. Face restoration and generative super-resolution can alter identity/detail and must obey the preservation policy; “looks sharper” is insufficient acceptance.",
           "sha256": "f199307e6b44cf6ce469f09f13ae8ca835d3a96ca603eaa032afb478c248a2a4"
         }
       ],
@@ -7053,7 +7053,7 @@
     },
     {
       "claimId": "MPSEM-0204-C005",
-      "exactSourceText": "\u201clooks sharper\u201d is insufficient acceptance.",
+      "exactSourceText": "“looks sharper” is insufficient acceptance.",
       "sourceTextSha256": "9721fc726987f409077b4f1b70af13f66e403fcd4ff26bb9f91605d7a161f303",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
@@ -7075,7 +7075,7 @@
       "exactParentContext": [
         {
           "line": 441,
-          "text": "A default pipeline does not apply every enhancer. Analysis selects only eligible operations whose measured improvement outweighs artifact risk. Preserve the source and compare the result. Face restoration and generative super-resolution can alter identity/detail and must obey the preservation policy; \u201clooks sharper\u201d is insufficient acceptance.",
+          "text": "A default pipeline does not apply every enhancer. Analysis selects only eligible operations whose measured improvement outweighs artifact risk. Preserve the source and compare the result. Face restoration and generative super-resolution can alter identity/detail and must obey the preservation policy; “looks sharper” is insufficient acceptance.",
           "sha256": "f199307e6b44cf6ce469f09f13ae8ca835d3a96ca603eaa032afb478c248a2a4"
         }
       ],
@@ -7321,7 +7321,7 @@
       "exactParentContext": [
         {
           "line": 494,
-          "text": "The Media graph is a domain processing specification. It is not a replacement generic agent graph, Tools development lifecycle, or Kernel lifecycle engine. Ordinary non-agent recipes do not require Agent Runtime. A privileged external publication or agent-triggered consequential effect uses Action Plane\u2019s authority, while Media retains media-object state.",
+          "text": "The Media graph is a domain processing specification. It is not a replacement generic agent graph, Tools development lifecycle, or Kernel lifecycle engine. Ordinary non-agent recipes do not require Agent Runtime. A privileged external publication or agent-triggered consequential effect uses Action Plane’s authority, while Media retains media-object state.",
           "sha256": "54c83c626fc75f9c5a292241cae8c6800d3bdbab8f94cd5b4615956bf4204ce0"
         }
       ],
@@ -7535,7 +7535,7 @@
       "exactParentContext": [
         {
           "line": 573,
-          "text": "Resolution must satisfy both model-native grid/latent constraints and encoder pixel-format alignment. `720\u00d7405` is not a universal safe default; do not assume an odd height works with the chosen 4:2:0 encoding. Requested display aspect ratio, model generation dimensions and final crop/pad/scale are distinct and disclosed in the resolved plan.",
+          "text": "Resolution must satisfy both model-native grid/latent constraints and encoder pixel-format alignment. `720×405` is not a universal safe default; do not assume an odd height works with the chosen 4:2:0 encoding. Requested display aspect ratio, model generation dimensions and final crop/pad/scale are distinct and disclosed in the resolved plan.",
           "sha256": "66b76fa6e82092a4f8008f73ac643e41270586a20eef487538c402d68d771669"
         }
       ],
@@ -7556,10 +7556,10 @@
           ".product-experience/pdp-0-product-truth/domain-model.yaml#imageVideoOutputConstraints/resolutionRule"
         ],
         "materialPredicates": [
-          "A requested display size such as 720\u00d7405 is not a universal safe default. Resolve model-native grid or latent constraints, encoder pixel-format alignment, requested display aspect, and any crop/pad/scale as separate prof"
+          "A requested display size such as 720×405 is not a universal safe default. Resolve model-native grid or latent constraints, encoder pixel-format alignment, requested display aspect, and any crop/pad/scale as separate prof"
         ],
         "negativeCases": [
-          "720\u00d7405 is not a universal safe output.",
+          "720×405 is not a universal safe output.",
           "An odd height must not be assumed compatible with 4:2:0.",
           "Requested display aspect cannot silently replace the model-native grid."
         ],
@@ -7569,7 +7569,7 @@
         "materialBindings": [
           {
             "ref": ".product-experience/pdp-0-product-truth/domain-model.yaml#imageVideoOutputConstraints/resolutionRule",
-            "requiredSourcePhrase": "A requested display size such as 720\u00d7405 is not a universal safe default. Resolve model-native grid or latent constraints, encoder pixel-format alignment, requested display aspect, and any crop/pad/scale as separate prof",
+            "requiredSourcePhrase": "A requested display size such as 720×405 is not a universal safe default. Resolve model-native grid or latent constraints, encoder pixel-format alignment, requested display aspect, and any crop/pad/scale as separate prof",
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
@@ -7606,7 +7606,7 @@
       "exactParentContext": [
         {
           "line": 577,
-          "text": "Use an explicit scene-coordinate convention, units and handedness in the contract; the initial Media-native convention is right-handed, +Y up, meters, seconds, kilograms and radians unless a domain model declares converted units. The initial native convention uses camera forward \u2212Z, quaternions `[x, y, z, w]`, column vectors, local transform `T \u00d7 R \u00d7 S`, world transform `parentWorld \u00d7 local`, and column-major serialized matrices. Pivot operations are explicit transforms, not hidden engine defaults. Image-space controls use a top-left origin and pixel-center coordinates; normalized coordinates declare their mapping. Phase 0 must validate these proposed conventions against the admitted existing Ghatana scene/model contracts and record any necessary conversion rather than imposing a conflicting universal schema. Import adapters perform tested conversions; silent axis flips or degree/radian mixing fail validation.",
+          "text": "Use an explicit scene-coordinate convention, units and handedness in the contract; the initial Media-native convention is right-handed, +Y up, meters, seconds, kilograms and radians unless a domain model declares converted units. The initial native convention uses camera forward −Z, quaternions `[x, y, z, w]`, column vectors, local transform `T × R × S`, world transform `parentWorld × local`, and column-major serialized matrices. Pivot operations are explicit transforms, not hidden engine defaults. Image-space controls use a top-left origin and pixel-center coordinates; normalized coordinates declare their mapping. Phase 0 must validate these proposed conventions against the admitted existing Ghatana scene/model contracts and record any necessary conversion rather than imposing a conflicting universal schema. Import adapters perform tested conversions; silent axis flips or degree/radian mixing fail validation.",
           "sha256": "f10795ce7f44d519c4fc58931611324c673d37e277b60141ed5a5c9353f47e36"
         }
       ],
@@ -7960,7 +7960,7 @@
       "exactParentContext": [
         {
           "line": 600,
-          "text": "Scientific/domain fidelity is separate from visual quality. Adopt the domain owner\u2019s declared fidelity tiers through mapping\u2014TutorPutor uses illustrative through empirically calibrated tiers [R04]\u2014rather than relabeling a photorealistic render \u201cscientifically validated.\u201d Visual level of detail may adapt without lowering model fidelity; changing model fidelity needs explicit acceptance.",
+          "text": "Scientific/domain fidelity is separate from visual quality. Adopt the domain owner’s declared fidelity tiers through mapping—TutorPutor uses illustrative through empirically calibrated tiers [R04]—rather than relabeling a photorealistic render “scientifically validated.” Visual level of detail may adapt without lowering model fidelity; changing model fidelity needs explicit acceptance.",
           "sha256": "9c13af75cfdc4169e50519fc567b4a049324f80b182fa1439ad69e3fd82cbbd7"
         }
       ],
@@ -9553,7 +9553,7 @@
       "exactParentContext": [
         {
           "line": 690,
-          "text": "The accepted response identifies the job, canonical status, operation, request fingerprint, observation location, and whether the response is a replay. Admission persists the job/command identity before returning acceptance. Acknowledgement is not render completion. Errors distinguish validation, authentication, authorization, policy, rights/license, unavailable capability, capacity/quota, conflict, timeout, cancellation, provider ambiguity and internal failure. Include safe remediation, retry eligibility and correlation\u2014not provider bodies or secrets.",
+          "text": "The accepted response identifies the job, canonical status, operation, request fingerprint, observation location, and whether the response is a replay. Admission persists the job/command identity before returning acceptance. Acknowledgement is not render completion. Errors distinguish validation, authentication, authorization, policy, rights/license, unavailable capability, capacity/quota, conflict, timeout, cancellation, provider ambiguity and internal failure. Include safe remediation, retry eligibility and correlation—not provider bodies or secrets.",
           "sha256": "df040aa61eb5f5e68150f963729bff064f2ca56f0ea1cef9338f756713cdcf17"
         }
       ],
@@ -9570,7 +9570,7 @@
     },
     {
       "claimId": "MPSEM-0300-C005",
-      "exactSourceText": "Include safe remediation, retry eligibility and correlation\u2014not provider bodies or secrets.",
+      "exactSourceText": "Include safe remediation, retry eligibility and correlation—not provider bodies or secrets.",
       "sourceTextSha256": "e0cacdbc1c06885c80fdce483dc3aa6eebd26a82933dd94b64a2dd5c6ed55cfe",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/requirements.yaml",
@@ -9681,7 +9681,7 @@
       "exactParentContext": [
         {
           "line": 690,
-          "text": "The accepted response identifies the job, canonical status, operation, request fingerprint, observation location, and whether the response is a replay. Admission persists the job/command identity before returning acceptance. Acknowledgement is not render completion. Errors distinguish validation, authentication, authorization, policy, rights/license, unavailable capability, capacity/quota, conflict, timeout, cancellation, provider ambiguity and internal failure. Include safe remediation, retry eligibility and correlation\u2014not provider bodies or secrets.",
+          "text": "The accepted response identifies the job, canonical status, operation, request fingerprint, observation location, and whether the response is a replay. Admission persists the job/command identity before returning acceptance. Acknowledgement is not render completion. Errors distinguish validation, authentication, authorization, policy, rights/license, unavailable capability, capacity/quota, conflict, timeout, cancellation, provider ambiguity and internal failure. Include safe remediation, retry eligibility and correlation—not provider bodies or secrets.",
           "sha256": "df040aa61eb5f5e68150f963729bff064f2ca56f0ea1cef9338f756713cdcf17"
         }
       ],
@@ -11458,7 +11458,7 @@
       "exactParentContext": [
         {
           "line": 780,
-          "text": "Configuration precedence is explicit flag \u2192 environment \u2192 selected project/profile file \u2192 user config \u2192 product defaults, **all constrained by non-overridable policy**. Reject conflicting/unknown profile fields. `config show` reports effective values and safe provenance, never secrets. Configuration files are declarative data, not executable scripts.",
+          "text": "Configuration precedence is explicit flag → environment → selected project/profile file → user config → product defaults, **all constrained by non-overridable policy**. Reject conflicting/unknown profile fields. `config show` reports effective values and safe provenance, never secrets. Configuration files are declarative data, not executable scripts.",
           "sha256": "5df1e4e36bb20f476781431d72ce8b5f6ada6e09ea676082871d2782d6fd10fc"
         }
       ],
@@ -11581,7 +11581,7 @@
       "exactParentContext": [
         {
           "line": 788,
-          "text": "A concise UI can summarize policy, but the domain must keep these axes separate: access/sharing; sensitivity/classification; tenant/workspace ownership; processing locality; residency; egress; retention; provider retention; training/secondary use; consent; asset/model license; and likeness/voice rights. \u201cPrivate\u201d does not prove local processing, and \u201clocal\u201d does not prove authorized use.",
+          "text": "A concise UI can summarize policy, but the domain must keep these axes separate: access/sharing; sensitivity/classification; tenant/workspace ownership; processing locality; residency; egress; retention; provider retention; training/secondary use; consent; asset/model license; and likeness/voice rights. “Private” does not prove local processing, and “local” does not prove authorized use.",
           "sha256": "ab516037bb9577e1050d36d286ff6f7e011a85a30bc2a8689ab0b23ae44de82a"
         }
       ],
@@ -11670,7 +11670,7 @@
       "exactParentContext": [
         {
           "line": 788,
-          "text": "A concise UI can summarize policy, but the domain must keep these axes separate: access/sharing; sensitivity/classification; tenant/workspace ownership; processing locality; residency; egress; retention; provider retention; training/secondary use; consent; asset/model license; and likeness/voice rights. \u201cPrivate\u201d does not prove local processing, and \u201clocal\u201d does not prove authorized use.",
+          "text": "A concise UI can summarize policy, but the domain must keep these axes separate: access/sharing; sensitivity/classification; tenant/workspace ownership; processing locality; residency; egress; retention; provider retention; training/secondary use; consent; asset/model license; and likeness/voice rights. “Private” does not prove local processing, and “local” does not prove authorized use.",
           "sha256": "ab516037bb9577e1050d36d286ff6f7e011a85a30bc2a8689ab0b23ae44de82a"
         }
       ],
@@ -12005,7 +12005,7 @@
       "exactParentContext": [
         {
           "line": 798,
-          "text": "Sign or authenticate service context through the existing ecosystem identity mechanisms. Bind delegation, audience, permitted operations, resources, budget, expiry and parent execution. Client-provided tenant IDs, trace IDs and \u201csafety approved\u201d fields are not independent authority. Deny conflicting authorities before any paid or externally visible work.",
+          "text": "Sign or authenticate service context through the existing ecosystem identity mechanisms. Bind delegation, audience, permitted operations, resources, budget, expiry and parent execution. Client-provided tenant IDs, trace IDs and “safety approved” fields are not independent authority. Deny conflicting authorities before any paid or externally visible work.",
           "sha256": "f19337cf20830d055f85facfb28763895d8444cf249f4083a372b8a36c2160d0"
         }
       ],
@@ -12070,7 +12070,7 @@
     },
     {
       "claimId": "MPSEM-0358-C003",
-      "exactSourceText": "Client-provided tenant IDs, trace IDs and \u201csafety approved\u201d fields are not independent authority.",
+      "exactSourceText": "Client-provided tenant IDs, trace IDs and “safety approved” fields are not independent authority.",
       "sourceTextSha256": "8e9c774791d48e9039a0e954e7ff4bf1a609da4e9e743305b8bb48680b9d9c6c",
       "ownerPhase": "PDP-1",
       "ownerSourceFile": ".product-experience/pdp-1-domain-data/operations.yaml",
@@ -12092,7 +12092,7 @@
       "exactParentContext": [
         {
           "line": 798,
-          "text": "Sign or authenticate service context through the existing ecosystem identity mechanisms. Bind delegation, audience, permitted operations, resources, budget, expiry and parent execution. Client-provided tenant IDs, trace IDs and \u201csafety approved\u201d fields are not independent authority. Deny conflicting authorities before any paid or externally visible work.",
+          "text": "Sign or authenticate service context through the existing ecosystem identity mechanisms. Bind delegation, audience, permitted operations, resources, budget, expiry and parent execution. Client-provided tenant IDs, trace IDs and “safety approved” fields are not independent authority. Deny conflicting authorities before any paid or externally visible work.",
           "sha256": "f19337cf20830d055f85facfb28763895d8444cf249f4083a372b8a36c2160d0"
         }
       ],
@@ -12565,7 +12565,7 @@
       "exactParentContext": [
         {
           "line": 822,
-          "text": "A downloaded or published copy may be beyond Media\u2019s control; revoking access cannot honestly promise remote recall. Explain scope. Preserve only allowed minimal provenance/audit under retention policy; \u201cimmutable\u201d does not require retaining personal content forever. Encryption, key deletion and provider deletion claims need the deployment-specific proof they assert.",
+          "text": "A downloaded or published copy may be beyond Media’s control; revoking access cannot honestly promise remote recall. Explain scope. Preserve only allowed minimal provenance/audit under retention policy; “immutable” does not require retaining personal content forever. Encryption, key deletion and provider deletion claims need the deployment-specific proof they assert.",
           "sha256": "e8b491aab88fc0fb0aa0de7c2b7909615c49f9c81a48b0ffa908299c60f83c01"
         }
       ],
@@ -12603,7 +12603,7 @@
       "exactParentContext": [
         {
           "line": 826,
-          "text": "Reuse Shared audit [R09]. Consequential operations first persist required audit/effect intent in a failure-safe arrangement with job/state changes; delivery to a central sink may be asynchronous through an admitted durable path. If the required durable intent cannot be recorded, do not cross the external effect. If the effect might have happened and final persistence fails, report uncertainty\u2014never replay to repair the log.",
+          "text": "Reuse Shared audit [R09]. Consequential operations first persist required audit/effect intent in a failure-safe arrangement with job/state changes; delivery to a central sink may be asynchronous through an admitted durable path. If the required durable intent cannot be recorded, do not cross the external effect. If the effect might have happened and final persistence fails, report uncertainty—never replay to repair the log.",
           "sha256": "992f592d7500f38c6eebff1752ce7ede712a3001f5c7b696d3139d254b3255c3"
         }
       ],
@@ -12742,7 +12742,7 @@
       "exactParentContext": [
         {
           "line": 826,
-          "text": "Reuse Shared audit [R09]. Consequential operations first persist required audit/effect intent in a failure-safe arrangement with job/state changes; delivery to a central sink may be asynchronous through an admitted durable path. If the required durable intent cannot be recorded, do not cross the external effect. If the effect might have happened and final persistence fails, report uncertainty\u2014never replay to repair the log.",
+          "text": "Reuse Shared audit [R09]. Consequential operations first persist required audit/effect intent in a failure-safe arrangement with job/state changes; delivery to a central sink may be asynchronous through an admitted durable path. If the required durable intent cannot be recorded, do not cross the external effect. If the effect might have happened and final persistence fails, report uncertainty—never replay to repair the log.",
           "sha256": "992f592d7500f38c6eebff1752ce7ede712a3001f5c7b696d3139d254b3255c3"
         }
       ],
@@ -12759,7 +12759,7 @@
     },
     {
       "claimId": "MPSEM-0368-C005",
-      "exactSourceText": "If the effect might have happened and final persistence fails, report uncertainty\u2014never replay to repair the log.",
+      "exactSourceText": "If the effect might have happened and final persistence fails, report uncertainty—never replay to repair the log.",
       "sourceTextSha256": "fe8bed05e2bf22c6ae942738f000bda24758245253a514589fea62eb2a3ab25c",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/qualification-policy.yaml",
@@ -12836,7 +12836,7 @@
       "exactParentContext": [
         {
           "line": 826,
-          "text": "Reuse Shared audit [R09]. Consequential operations first persist required audit/effect intent in a failure-safe arrangement with job/state changes; delivery to a central sink may be asynchronous through an admitted durable path. If the required durable intent cannot be recorded, do not cross the external effect. If the effect might have happened and final persistence fails, report uncertainty\u2014never replay to repair the log.",
+          "text": "Reuse Shared audit [R09]. Consequential operations first persist required audit/effect intent in a failure-safe arrangement with job/state changes; delivery to a central sink may be asynchronous through an admitted durable path. If the required durable intent cannot be recorded, do not cross the external effect. If the effect might have happened and final persistence fails, report uncertainty—never replay to repair the log.",
           "sha256": "992f592d7500f38c6eebff1752ce7ede712a3001f5c7b696d3139d254b3255c3"
         }
       ],
@@ -13212,7 +13212,7 @@
       "exactParentContext": [
         {
           "line": 840,
-          "text": "Separate overall job status, stage progress, cancellation outcome, remote outcome certainty, quality disposition and delivery status. Avoid one enormous enum that mixes these independent facts. Proposed job states include `QUEUED`, `RUNNING`, `RETRY_PENDING`, `OUTCOME_UNKNOWN`, `RECONCILING`, `COMPLETED`, `PARTIALLY_SUCCEEDED`, `FAILED`, and `CANCELLED`. Attempt claim/lease states remain technical execution records. Cancellation is orthogonal until confirmed; stage labels such as \u201cplanning\u201d or \u201crendering\u201d do not create another job authority.",
+          "text": "Separate overall job status, stage progress, cancellation outcome, remote outcome certainty, quality disposition and delivery status. Avoid one enormous enum that mixes these independent facts. Proposed job states include `QUEUED`, `RUNNING`, `RETRY_PENDING`, `OUTCOME_UNKNOWN`, `RECONCILING`, `COMPLETED`, `PARTIALLY_SUCCEEDED`, `FAILED`, and `CANCELLED`. Attempt claim/lease states remain technical execution records. Cancellation is orthogonal until confirmed; stage labels such as “planning” or “rendering” do not create another job authority.",
           "sha256": "93493a3504931bef558d0e571fa7829b667e2bb3c7d7554a995a5dd20a90b0b0"
         }
       ],
@@ -13287,7 +13287,7 @@
       "exactParentContext": [
         {
           "line": 840,
-          "text": "Separate overall job status, stage progress, cancellation outcome, remote outcome certainty, quality disposition and delivery status. Avoid one enormous enum that mixes these independent facts. Proposed job states include `QUEUED`, `RUNNING`, `RETRY_PENDING`, `OUTCOME_UNKNOWN`, `RECONCILING`, `COMPLETED`, `PARTIALLY_SUCCEEDED`, `FAILED`, and `CANCELLED`. Attempt claim/lease states remain technical execution records. Cancellation is orthogonal until confirmed; stage labels such as \u201cplanning\u201d or \u201crendering\u201d do not create another job authority.",
+          "text": "Separate overall job status, stage progress, cancellation outcome, remote outcome certainty, quality disposition and delivery status. Avoid one enormous enum that mixes these independent facts. Proposed job states include `QUEUED`, `RUNNING`, `RETRY_PENDING`, `OUTCOME_UNKNOWN`, `RECONCILING`, `COMPLETED`, `PARTIALLY_SUCCEEDED`, `FAILED`, and `CANCELLED`. Attempt claim/lease states remain technical execution records. Cancellation is orthogonal until confirmed; stage labels such as “planning” or “rendering” do not create another job authority.",
           "sha256": "93493a3504931bef558d0e571fa7829b667e2bb3c7d7554a995a5dd20a90b0b0"
         }
       ],
@@ -13325,7 +13325,7 @@
       "exactParentContext": [
         {
           "line": 840,
-          "text": "Separate overall job status, stage progress, cancellation outcome, remote outcome certainty, quality disposition and delivery status. Avoid one enormous enum that mixes these independent facts. Proposed job states include `QUEUED`, `RUNNING`, `RETRY_PENDING`, `OUTCOME_UNKNOWN`, `RECONCILING`, `COMPLETED`, `PARTIALLY_SUCCEEDED`, `FAILED`, and `CANCELLED`. Attempt claim/lease states remain technical execution records. Cancellation is orthogonal until confirmed; stage labels such as \u201cplanning\u201d or \u201crendering\u201d do not create another job authority.",
+          "text": "Separate overall job status, stage progress, cancellation outcome, remote outcome certainty, quality disposition and delivery status. Avoid one enormous enum that mixes these independent facts. Proposed job states include `QUEUED`, `RUNNING`, `RETRY_PENDING`, `OUTCOME_UNKNOWN`, `RECONCILING`, `COMPLETED`, `PARTIALLY_SUCCEEDED`, `FAILED`, and `CANCELLED`. Attempt claim/lease states remain technical execution records. Cancellation is orthogonal until confirmed; stage labels such as “planning” or “rendering” do not create another job authority.",
           "sha256": "93493a3504931bef558d0e571fa7829b667e2bb3c7d7554a995a5dd20a90b0b0"
         }
       ],
@@ -13456,7 +13456,7 @@
       "exactParentContext": [
         {
           "line": 840,
-          "text": "Separate overall job status, stage progress, cancellation outcome, remote outcome certainty, quality disposition and delivery status. Avoid one enormous enum that mixes these independent facts. Proposed job states include `QUEUED`, `RUNNING`, `RETRY_PENDING`, `OUTCOME_UNKNOWN`, `RECONCILING`, `COMPLETED`, `PARTIALLY_SUCCEEDED`, `FAILED`, and `CANCELLED`. Attempt claim/lease states remain technical execution records. Cancellation is orthogonal until confirmed; stage labels such as \u201cplanning\u201d or \u201crendering\u201d do not create another job authority.",
+          "text": "Separate overall job status, stage progress, cancellation outcome, remote outcome certainty, quality disposition and delivery status. Avoid one enormous enum that mixes these independent facts. Proposed job states include `QUEUED`, `RUNNING`, `RETRY_PENDING`, `OUTCOME_UNKNOWN`, `RECONCILING`, `COMPLETED`, `PARTIALLY_SUCCEEDED`, `FAILED`, and `CANCELLED`. Attempt claim/lease states remain technical execution records. Cancellation is orthogonal until confirmed; stage labels such as “planning” or “rendering” do not create another job authority.",
           "sha256": "93493a3504931bef558d0e571fa7829b667e2bb3c7d7554a995a5dd20a90b0b0"
         }
       ],
@@ -13532,7 +13532,7 @@
       "exactParentContext": [
         {
           "line": 840,
-          "text": "Separate overall job status, stage progress, cancellation outcome, remote outcome certainty, quality disposition and delivery status. Avoid one enormous enum that mixes these independent facts. Proposed job states include `QUEUED`, `RUNNING`, `RETRY_PENDING`, `OUTCOME_UNKNOWN`, `RECONCILING`, `COMPLETED`, `PARTIALLY_SUCCEEDED`, `FAILED`, and `CANCELLED`. Attempt claim/lease states remain technical execution records. Cancellation is orthogonal until confirmed; stage labels such as \u201cplanning\u201d or \u201crendering\u201d do not create another job authority.",
+          "text": "Separate overall job status, stage progress, cancellation outcome, remote outcome certainty, quality disposition and delivery status. Avoid one enormous enum that mixes these independent facts. Proposed job states include `QUEUED`, `RUNNING`, `RETRY_PENDING`, `OUTCOME_UNKNOWN`, `RECONCILING`, `COMPLETED`, `PARTIALLY_SUCCEEDED`, `FAILED`, and `CANCELLED`. Attempt claim/lease states remain technical execution records. Cancellation is orthogonal until confirmed; stage labels such as “planning” or “rendering” do not create another job authority.",
           "sha256": "93493a3504931bef558d0e571fa7829b667e2bb3c7d7554a995a5dd20a90b0b0"
         }
       ],
@@ -14361,7 +14361,7 @@
       "exactParentContext": [
         {
           "line": 852,
-          "text": "Retries are bounded, classified and use the owner-defined idempotency key. Backoff is jittered and respects total deadlines, but the plan compiler\u2019s deterministic meaning does not require identical wall-clock retry timing. A retry creates a new attempt, not a second logical request. Profile/model fallback must pass policy/rights/cost/quality eligibility again. Do not multiply retries independently in CLI, SDK, API, worker and provider.",
+          "text": "Retries are bounded, classified and use the owner-defined idempotency key. Backoff is jittered and respects total deadlines, but the plan compiler’s deterministic meaning does not require identical wall-clock retry timing. A retry creates a new attempt, not a second logical request. Profile/model fallback must pass policy/rights/cost/quality eligibility again. Do not multiply retries independently in CLI, SDK, API, worker and provider.",
           "sha256": "e1f7d2e00e6b47661d6943234470568241e45b81971a1aa461c272fdf3051929"
         }
       ],
@@ -14493,7 +14493,7 @@
       "exactParentContext": [
         {
           "line": 854,
-          "text": "Terminal outputs are immutable versions; corrections append an authorized reconciliation/revision record. They do not rewrite old execution evidence. Idempotent state/effect handling can provide one canonical result publication; do not advertise \u201cexactly once\u201d remote inference without a provider contract proving it.",
+          "text": "Terminal outputs are immutable versions; corrections append an authorized reconciliation/revision record. They do not rewrite old execution evidence. Idempotent state/effect handling can provide one canonical result publication; do not advertise “exactly once” remote inference without a provider contract proving it.",
           "sha256": "be1266f294794aef7bd0c8cf547ecc22ed730cd947500033e5e95c532a95bc14"
         }
       ],
@@ -14531,7 +14531,7 @@
       "exactParentContext": [
         {
           "line": 854,
-          "text": "Terminal outputs are immutable versions; corrections append an authorized reconciliation/revision record. They do not rewrite old execution evidence. Idempotent state/effect handling can provide one canonical result publication; do not advertise \u201cexactly once\u201d remote inference without a provider contract proving it.",
+          "text": "Terminal outputs are immutable versions; corrections append an authorized reconciliation/revision record. They do not rewrite old execution evidence. Idempotent state/effect handling can provide one canonical result publication; do not advertise “exactly once” remote inference without a provider contract proving it.",
           "sha256": "be1266f294794aef7bd0c8cf547ecc22ed730cd947500033e5e95c532a95bc14"
         }
       ],
@@ -14731,7 +14731,7 @@
     },
     {
       "claimId": "MPSEM-0385-C003",
-      "exactSourceText": "The existing launcher\u2019s broader readiness prerequisites are preserved during relocation and changed only in the accepted downstream refactor, not hidden inside the move.",
+      "exactSourceText": "The existing launcher’s broader readiness prerequisites are preserved during relocation and changed only in the accepted downstream refactor, not hidden inside the move.",
       "sourceTextSha256": "eac9a134ee3541e77dad38fa8715125100159ec4ce4eb5788795e3c73ffc05ec",
       "ownerPhase": "PDP-1",
       "ownerSourceFile": ".product-experience/pdp-1-domain-data/operations.yaml",
@@ -14753,7 +14753,7 @@
       "exactParentContext": [
         {
           "line": 874,
-          "text": "Readiness is capability-scoped: the control plane requires its declared identity and durable stores, whereas streaming/model/render dependencies gate the capabilities that use them. An unavailable optional AI planner must not make deterministic editing unavailable. The existing launcher\u2019s broader readiness prerequisites are preserved during relocation and changed only in the accepted downstream refactor, not hidden inside the move.",
+          "text": "Readiness is capability-scoped: the control plane requires its declared identity and durable stores, whereas streaming/model/render dependencies gate the capabilities that use them. An unavailable optional AI planner must not make deterministic editing unavailable. The existing launcher’s broader readiness prerequisites are preserved during relocation and changed only in the accepted downstream refactor, not hidden inside the move.",
           "sha256": "f0a07059043b690d1955cee64ded44f83bb78c4eb53f884e9a47698b269fffbb"
         }
       ],
@@ -15308,7 +15308,7 @@
       "exactParentContext": [
         {
           "line": 996,
-          "text": "Automatically apply only transformations admitted by the project\u2019s preservation, quality and budget policy. Surface material changes to fidelity, identity, narration meaning, egress, spending, rights or publication. Repeated safe technical steps do not need repeated dialogs. A first-run \u201cCreate\u201d experience cannot bypass necessary authentication, permissions or missing local capabilities; explain the minimum missing prerequisite without forcing unrelated setup.",
+          "text": "Automatically apply only transformations admitted by the project’s preservation, quality and budget policy. Surface material changes to fidelity, identity, narration meaning, egress, spending, rights or publication. Repeated safe technical steps do not need repeated dialogs. A first-run “Create” experience cannot bypass necessary authentication, permissions or missing local capabilities; explain the minimum missing prerequisite without forcing unrelated setup.",
           "sha256": "a0261076e83aaf3cc0669a70370af4fb43841e48c9c04fb3675d4b6f95ed97d7"
         }
       ],
@@ -15379,7 +15379,7 @@
       "exactParentContext": [
         {
           "line": 996,
-          "text": "Automatically apply only transformations admitted by the project\u2019s preservation, quality and budget policy. Surface material changes to fidelity, identity, narration meaning, egress, spending, rights or publication. Repeated safe technical steps do not need repeated dialogs. A first-run \u201cCreate\u201d experience cannot bypass necessary authentication, permissions or missing local capabilities; explain the minimum missing prerequisite without forcing unrelated setup.",
+          "text": "Automatically apply only transformations admitted by the project’s preservation, quality and budget policy. Surface material changes to fidelity, identity, narration meaning, egress, spending, rights or publication. Repeated safe technical steps do not need repeated dialogs. A first-run “Create” experience cannot bypass necessary authentication, permissions or missing local capabilities; explain the minimum missing prerequisite without forcing unrelated setup.",
           "sha256": "a0261076e83aaf3cc0669a70370af4fb43841e48c9c04fb3675d4b6f95ed97d7"
         }
       ],
@@ -15472,7 +15472,7 @@
       "exactParentContext": [
         {
           "line": 1002,
-          "text": "Edits are versioned and non-destructive. Autosave uses explicit revision acknowledgements and indicates pending/offline/conflict state. Undo/redo has a documented scope: local edit history is not reversal of an already published external effect. Branching/duplicate projects preserve source references and access. Review comments bind to artifact version and time/region, not a moving \u201clatest\u201d frame.",
+          "text": "Edits are versioned and non-destructive. Autosave uses explicit revision acknowledgements and indicates pending/offline/conflict state. Undo/redo has a documented scope: local edit history is not reversal of an already published external effect. Branching/duplicate projects preserve source references and access. Review comments bind to artifact version and time/region, not a moving “latest” frame.",
           "sha256": "cf20659d5e93fa889cbd2e1b29ef2dbb009baf93eaecb923c139a135012030f8"
         }
       ],
@@ -15590,7 +15590,7 @@
       "exactParentContext": [
         {
           "line": 1002,
-          "text": "Edits are versioned and non-destructive. Autosave uses explicit revision acknowledgements and indicates pending/offline/conflict state. Undo/redo has a documented scope: local edit history is not reversal of an already published external effect. Branching/duplicate projects preserve source references and access. Review comments bind to artifact version and time/region, not a moving \u201clatest\u201d frame.",
+          "text": "Edits are versioned and non-destructive. Autosave uses explicit revision acknowledgements and indicates pending/offline/conflict state. Undo/redo has a documented scope: local edit history is not reversal of an already published external effect. Branching/duplicate projects preserve source references and access. Review comments bind to artifact version and time/region, not a moving “latest” frame.",
           "sha256": "cf20659d5e93fa889cbd2e1b29ef2dbb009baf93eaecb923c139a135012030f8"
         }
       ],
@@ -17623,7 +17623,7 @@
       "exactParentContext": [
         {
           "line": 1046,
-          "text": "Use available portfolio/build tooling for lockfiles, SBOM, license checks, security scanning and artifact publication; owner gaps become Tools/Shared work, not a new Media tooling framework. Pin runtimes/dependencies and validate updates before promotion. \u201cState of the art\u201d means a reviewable capability improvement against the product benchmark, not automatic installation of the newest model.",
+          "text": "Use available portfolio/build tooling for lockfiles, SBOM, license checks, security scanning and artifact publication; owner gaps become Tools/Shared work, not a new Media tooling framework. Pin runtimes/dependencies and validate updates before promotion. “State of the art” means a reviewable capability improvement against the product benchmark, not automatic installation of the newest model.",
           "sha256": "da36344197c2dd55428a5ce2c66dc235c33f6d96e1bc6df1f6cb709dd96775dd"
         }
       ],
@@ -17729,7 +17729,7 @@
       "exactParentContext": [
         {
           "line": 1046,
-          "text": "Use available portfolio/build tooling for lockfiles, SBOM, license checks, security scanning and artifact publication; owner gaps become Tools/Shared work, not a new Media tooling framework. Pin runtimes/dependencies and validate updates before promotion. \u201cState of the art\u201d means a reviewable capability improvement against the product benchmark, not automatic installation of the newest model.",
+          "text": "Use available portfolio/build tooling for lockfiles, SBOM, license checks, security scanning and artifact publication; owner gaps become Tools/Shared work, not a new Media tooling framework. Pin runtimes/dependencies and validate updates before promotion. “State of the art” means a reviewable capability improvement against the product benchmark, not automatic installation of the newest model.",
           "sha256": "da36344197c2dd55428a5ce2c66dc235c33f6d96e1bc6df1f6cb709dd96775dd"
         }
       ],
@@ -17796,7 +17796,7 @@
     },
     {
       "claimId": "MPSEM-0461-C004",
-      "exactSourceText": "\u201cState of the art\u201d means a reviewable capability improvement against the product benchmark, not automatic installation of the newest model.",
+      "exactSourceText": "“State of the art” means a reviewable capability improvement against the product benchmark, not automatic installation of the newest model.",
       "sourceTextSha256": "40dbd73aa5d6d0d00f3ce908014b6bb9098bc1cff3baba398b3cbf7406986c9e",
       "ownerPhase": "PDP-0",
       "ownerSourceFile": ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
@@ -17818,7 +17818,7 @@
       "exactParentContext": [
         {
           "line": 1046,
-          "text": "Use available portfolio/build tooling for lockfiles, SBOM, license checks, security scanning and artifact publication; owner gaps become Tools/Shared work, not a new Media tooling framework. Pin runtimes/dependencies and validate updates before promotion. \u201cState of the art\u201d means a reviewable capability improvement against the product benchmark, not automatic installation of the newest model.",
+          "text": "Use available portfolio/build tooling for lockfiles, SBOM, license checks, security scanning and artifact publication; owner gaps become Tools/Shared work, not a new Media tooling framework. Pin runtimes/dependencies and validate updates before promotion. “State of the art” means a reviewable capability improvement against the product benchmark, not automatic installation of the newest model.",
           "sha256": "da36344197c2dd55428a5ce2c66dc235c33f6d96e1bc6df1f6cb709dd96775dd"
         }
       ],
@@ -17833,7 +17833,7 @@
       },
       "ownerSemanticReview": {
         "disposition": "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL",
-        "reason": "Available portfolio/build tooling is reused for lockfiles, SBOM, licensing and security checks; updates are pinned and validated before promotion. \u201cState of the art\u201d requires a reviewable product benchmark improvement, not newest-model installation.",
+        "reason": "Available portfolio/build tooling is reused for lockfiles, SBOM, licensing and security checks; updates are pinned and validated before promotion. “State of the art” requires a reviewable product benchmark improvement, not newest-model installation.",
         "proposedTargetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/dependencyUpdatePolicy/pinning/rule",
         "exactContractRefs": [
           ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/dependencyUpdatePolicy/pinning/rule",
