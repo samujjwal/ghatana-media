@@ -6,7 +6,7 @@ predecessor: .product-experience/pdp-0-product-truth/recorder-studio-extension.y
 authority: .product-experience/pdp-1-domain-data/domain-objects.yaml
 objects:
   - id: media.recorder.production-project
-    extends: media.domain.project
+    extends: media.domain.project-revision
     identity: [tenantId, projectId, revisionId]
     rule: one-MediaProject-revision-not-a-second-canonical-project-record
     fields: [purposeRef, audienceRef, sceneOrder, sourceRefs, trackRefs, editOperationRefs, qualityProfileRef, rightsSnapshotRef, deliveryProfiles, provenanceRef]
@@ -25,11 +25,12 @@ objects:
   - id: media.recorder.edit-operation
     identity: [tenantId, projectId, operationId]
     fields: [expectedRevisionId, actorRef, requestId, targetSemanticAnchor, operationKind, parameters, provenance, manualLock, editedBy, derivationInputs]
-    operationKinds: [trim, split, slip, slide, ripple, reorder, transform, mask, zoom, reframe, keyframe, caption, narration, audio-mix, transition, camera-switch, picture-in-picture, interactive-hotspot]
+    operationKinds: [trim, roll, ripple, slip, slide, split, insert, move, reorder, snap, marker, nested-sequence, keyframe, easing, mask, redact, cursor-highlight, transform, zoom, pan, reframe, color-correction, shot-color-match, overlay, title, credits, brand-logo, transition, caption, subtitle-timing, dub, narration, audio-gain, audio-duck, audio-mix, audio-fade, camera-switch, picture-in-picture, hotspot, branch, undo, redo]
     negative: [stale-CAS-override, implicit-human-edit-discard, destructive-original-write]
   - id: media.recorder.production-run
-    extends: media.domain.media-job
-    identity: [tenantId, jobId, attemptId]
+    extends: media.domain.media-run
+    identity: [tenantId, runId]
+    relationships: [canonical-ProcessingJob-tenant-jobId, exact-JobAttempt-tenant-jobId-attemptId]
     fields: [sourceProjectRevision, planFingerprint, sceneResultRefs, runtimeQualificationRef, policyDecisionRefs, traceContext, effectReceipts]
     negative: [new-job-on-same-idempotent-retry, outcome-unknown-blind-replay, duplicate-runtime-writer]
 operations:
@@ -63,3 +64,270 @@ privacy:
   erasure: distinguish-access-revocation-from-physical-erasure-and-external-unknown
   externalEffects: request-acknowledgment-distinct-from-destination-finality
 nonClaims: [no-runtime-implementation, no-operation-registry-admission, no-legal-approval, no-Build-gate]
+
+
+canonicalOwnerReuse:
+  mediaProject: media.domain.project
+  canonicalRevision: media.domain.project-revision
+  processingJob: media.domain.processing-job
+  jobAttempt: media.domain.job-attempt
+  jobLease: media.domain.job-lease
+  mediaRun: media.domain.media-run
+  immutableArtifact: media.domain.artifact-version
+  timeline: media.domain.timeline
+  composition: media.domain.composition-config
+  captionVersion: media.domain.caption-version
+  renderOutcome: media.domain.render-outcome
+  deliveryFinalityOwner: media.domain.delivery-outcome
+  reuseRule: No object in this extension may create a second canonical repository, independent Job/Attempt identity, license/rights engine or artifact store.
+valueTypes:
+  mediaTime:
+    schema: [numerator:int64, denominator:positive-int64, timebaseId, origin, clockDomain]
+    invariant: reduced-exact-rational-half-open-time-with-explicit-clock-mapping-uncertainty
+    rejects: [zero-denominator, negative-duration, implicit-wall-clock-as-media-PTS, float-rounding-without-disclosure]
+  mediaClockTransform:
+    schema: [fromClockId, toClockId, sourceAnchor, targetAnchor, scaleRational, maxUncertainty]
+    invariant: transform-must-be-measured-and-versioned-to-use-multi-camera-or-API-event-sync
+  sourceArtifactRef:
+    schema: [tenantId, assetId, immutableAssetVersionId, digest, rightsScopeId, provenanceRef]
+    invariant: immutable-originals-and-governed-cross-tenant-dedupe
+  generationPolicy:
+    enum: [AUTO, MANUAL_PREFERRED, LOCKED, REGENERATE_ON_SOURCE_CHANGE, REVIEW_CONFLICT]
+    invariant: LOCKED-human-intent-has-precedence-over-automatic-planning
+  editAuthor:
+    enum: [AUTO_RULE, AI_ASSIST, HUMAN]
+    invariant: AI_ASSIST-is-advisory-until-admitted-user-or-policy-accepted-action
+  captureSourceKind:
+    enum: [browser, desktop, mobile, terminal, http-api, grpc-api, camera, media-file]
+    invariant: GUI-less-source-requires-truthful-semantic-render-not-invented-native-GUI
+  resultFinality:
+    enum: [NOT_STARTED, ACCEPTED, OBSERVED, COMPLETED, FAILED, CANCEL_REQUESTED, CANCEL_ACKNOWLEDGED, CANCEL_CONFIRMED, OUTCOME_UNKNOWN]
+    invariant: domain-effect-finality-independent-of-transport-success-and-media-quality
+  auditAndTraceRefs:
+    schema: [traceId, spanId, runId, sceneId, attemptId, policyDecisionRef, auditReceiptRef]
+    invariant: audit-is-separate-from-redacted-observability-events-and-no-raw-protected-payloads
+derivedValueObjects:
+  - id: media.recorder.value.source-event.v1
+    identity: [tenantId, runId, sourceId, eventSequence]
+    fields: [kind, semanticSubjectRef, sourceTimestamp, sourceTimebase, clockTransformRef, actorRef, actionRef, requestRef, resultRef, finality, classification]
+    invariant: exact-source-event-cannot-infer-product-acceptance
+    classification: SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE
+  - id: media.recorder.value.track.v1
+    identity: [tenantId, projectId, revisionId, trackId]
+    fields: [trackKind, sourceId, clipIds, muteSoloState, gainAutomation, effectRefs, ordering]
+    invariant: track-effects-are-explicit-editorial-projections
+    classification: SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE
+  - id: media.recorder.value.clip.v1
+    identity: [tenantId, projectId, revisionId, clipId]
+    fields: [sourceAssetVersionRef, sourceHalfOpenRange, projectRange, playbackRateRational, cropTransform, effectRefs, locks]
+    invariant: source-media-immutability-and-rational-time
+    classification: SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE
+  - id: media.recorder.value.timing-map.v1
+    identity: [tenantId, runId, timeMapId]
+    fields: [sourceClockDomain, projectTimebase, offsetRational, scaleRational, uncertaintyBound, observationWindow]
+    invariant: unmeasured-clock-mapping-never-exact
+    classification: SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE
+  - id: media.recorder.value.audio-narration.v1
+    identity: [tenantId, projectId, revisionId, narrationId]
+    fields: [scriptVersionRef, language, voiceRightsRef, providerProfileRef, sourceTimeMap, audioAssetRef, approvalState]
+    invariant: voice-provider-model-and-likeness-rights-gated
+    classification: SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE
+  - id: media.recorder.value.caption-track.v1
+    identity: [tenantId, projectId, revisionId, captionTrackId]
+    fields: [locale, captionVersionRefs, sourceSegmentRefs, timeMap, draftVsApproved, styleProfileRef]
+    invariant: translation-or-dub-does-not-imply-meaning-approval
+    classification: SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE
+  - id: media.recorder.value.interactive-graph.v1
+    identity: [tenantId, projectId, revisionId, interactionGraphId]
+    fields: [sceneNodes, hotspotIds, branchEdgeIds, accessibilityFallback, sandboxPolicy, offlineAssetRefs]
+    invariant: interactive-player-is-unprivileged-no-product-business-write
+    classification: SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE
+  - id: media.recorder.value.interactive-hotspot.v1
+    identity: [tenantId, projectId, revisionId, hotspotId]
+    fields: [sceneRef, halfOpenTimeRange, overlayGeometry, labelRef, targetBranchRef, focusOrder, permissions]
+    invariant: no-arbitrary-javascript-or-privileged-product-effect
+    classification: SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE
+  - id: media.recorder.value.quality-disposition.v1
+    identity: [tenantId, runId, artifactVersionRef, qualityProfileVersion]
+    fields: [technicalMeasurements, semanticPostconditions, uncertainty, abstentions, disqualifiedProviderRefs, releaseGateResult]
+    invariant: human-film-approval-is-independent
+    classification: SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE
+  - id: media.recorder.value.immutable-manifest.v1
+    identity: [tenantId, projectId, artifactManifestDigest]
+    fields: [sourceRefs, derivedRefs, modelAndToolchainIdentities, editorRevisions, rightsSnapshotRefs, renderProfiles, hashes, qualityReceipts]
+    invariant: immutable-manifest-does-not-imply-destination-publication
+    classification: SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE
+  - id: media.recorder.value.automation-suggestion.v1
+    identity: [tenantId, projectId, suggestionId]
+    fields: [taskId, evidenceRefs, calibratedConfidence, abstention, modelIdentity, promptTemplateDigest, policyRef, proposedEditOperation]
+    invariant: advice-is-not-self-approved-edit-or-domain-proof
+    classification: SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE
+  - id: media.recorder.value.publication-outcome.v1
+    identity: [tenantId, destinationRequestId, artifactVersionRef]
+    fields: [requestAcknowledgment, destinationReceipt, terminalFinality, audienceRef, rightsRef, expiration, auditRef]
+    invariant: accepted-upload-is-not-publication-confirmed
+    classification: SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE
+canonicalOperationProposals:
+  status: PDP1_DEFINITION_ONLY_NO_NEW_PUBLIC_ROUTE_OR_RUNTIME_ADMISSION
+  typedBoundary: Media versioned operation definitions inherit owner authority, rights, consent, idempotency, finality and result parity rules.
+  records:
+    - id: media.recorder.operation.project.plan.evaluate.v1
+      effectBoundary: OBSERVATION_ONLY
+      requestFields: [projectRef, sourceVersionRefs, audienceRef, purposeRef, durationBounds, qualityProfile, currentPolicyVersion]
+      resultVariants: [ELIGIBLE, NEEDS_REVIEW, DENIED, UNSUPPORTED]
+      invariant: no-environment-or-external-side-effect
+      negativeCases: [wrong-tenant, stale-source-or-revision, unadmitted-provider, revoked-rights, wrong-actor, unknown-outcome-must-reconcile]
+      runtimeStatus: NOT_ADMITTED
+      authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
+    - id: media.recorder.operation.run.submit.v1
+      effectBoundary: CANONICAL_PRODUCT_STATE_CHANGE
+      requestFields: [tenantId, projectRevisionId, scenarioRef, productAdapterRef, actorRef, idempotencyKey, policyRef]
+      resultVariants: [ACCEPTED, REJECTED, UNAVAILABLE, OUTCOME_UNKNOWN]
+      invariant: no-bypass-of-qualified-source-policy-or-product-actor
+      negativeCases: [wrong-tenant, stale-source-or-revision, unadmitted-provider, revoked-rights, wrong-actor, unknown-outcome-must-reconcile]
+      runtimeStatus: NOT_ADMITTED
+      authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
+    - id: media.recorder.operation.run.observe.v1
+      effectBoundary: OBSERVATION_ONLY
+      requestFields: [tenantId, runId, expectedJobVersion]
+      resultVariants: [OBSERVED, RUNNING, FINAL, UNAVAILABLE]
+      invariant: read-state-cannot-confirm-unknown-external-effect
+      negativeCases: [wrong-tenant, stale-source-or-revision, unadmitted-provider, revoked-rights, wrong-actor, unknown-outcome-must-reconcile]
+      runtimeStatus: NOT_ADMITTED
+      authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
+    - id: media.recorder.operation.run.reconcile.v1
+      effectBoundary: OBSERVATION_ONLY
+      requestFields: [tenantId, runId, originalRequestId, originalJobId, attemptId]
+      resultVariants: [RECONCILED, STILL_UNKNOWN, DENIED]
+      invariant: only-authoritative-same-request-same-tenant-readback
+      negativeCases: [wrong-tenant, stale-source-or-revision, unadmitted-provider, revoked-rights, wrong-actor, unknown-outcome-must-reconcile]
+      runtimeStatus: NOT_ADMITTED
+      authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
+    - id: media.recorder.operation.capture.probe.v1
+      effectBoundary: OBSERVATION_ONLY
+      requestFields: [tenantId, sourceId, providerProfileId, requestedSignals, policyRef]
+      resultVariants: [QUALIFIED, NOT_QUALIFIED, UNAVAILABLE, DENIED]
+      invariant: capability-presence-does-not-mean-qualified
+      negativeCases: [wrong-tenant, stale-source-or-revision, unadmitted-provider, revoked-rights, wrong-actor, unknown-outcome-must-reconcile]
+      runtimeStatus: NOT_ADMITTED
+      authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
+    - id: media.recorder.operation.capture.start.v1
+      effectBoundary: CANONICAL_PRODUCT_STATE_CHANGE
+      requestFields: [tenantId, runId, sourceVersion, admissionRef, leaseFence, clockProfile, idempotencyKey]
+      resultVariants: [STARTED, DENIED, UNAVAILABLE, OUTCOME_UNKNOWN]
+      invariant: capturing-requires-actual-lease-and-no-raw-secret
+      negativeCases: [wrong-tenant, stale-source-or-revision, unadmitted-provider, revoked-rights, wrong-actor, unknown-outcome-must-reconcile]
+      runtimeStatus: NOT_ADMITTED
+      authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
+    - id: media.recorder.operation.capture.stop.v1
+      effectBoundary: CANONICAL_PRODUCT_STATE_CHANGE
+      requestFields: [tenantId, runId, sourceId, captureAttemptId, stopRequestId]
+      resultVariants: [STOP_REQUESTED, STOP_ACKNOWLEDGED, STOP_CONFIRMED, OUTCOME_UNKNOWN]
+      invariant: stop-request-is-not-final-media-integrity
+      negativeCases: [wrong-tenant, stale-source-or-revision, unadmitted-provider, revoked-rights, wrong-actor, unknown-outcome-must-reconcile]
+      runtimeStatus: NOT_ADMITTED
+      authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
+    - id: media.recorder.operation.scene.compile.v1
+      effectBoundary: LOCAL_CANDIDATE_OR_DRAFT
+      requestFields: [tenantId, projectRevision, sceneSpecificationRef, authoritativeSourceEventRefs, profileRef]
+      resultVariants: [CANDIDATE, DENIED, NEEDS_REVIEW]
+      invariant: no-product-proof-manufactured-by-editorial-compilation
+      negativeCases: [wrong-tenant, stale-source-or-revision, unadmitted-provider, revoked-rights, wrong-actor, unknown-outcome-must-reconcile]
+      runtimeStatus: NOT_ADMITTED
+      authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
+    - id: media.recorder.operation.edit.commit.v1
+      effectBoundary: CANONICAL_PRODUCT_STATE_CHANGE
+      requestFields: [tenantId, projectId, expectedRevisionId, editOperationIds, editorActorRef, idempotencyKey]
+      resultVariants: [APPLIED, CONFLICT, DENIED, OUTCOME_UNKNOWN]
+      invariant: single-media-project-cas-and-lock-preservation
+      negativeCases: [wrong-tenant, stale-source-or-revision, unadmitted-provider, revoked-rights, wrong-actor, unknown-outcome-must-reconcile]
+      runtimeStatus: NOT_ADMITTED
+      authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
+    - id: media.recorder.operation.scene.recapture.v1
+      effectBoundary: CANONICAL_PRODUCT_STATE_CHANGE
+      requestFields: [tenantId, projectRevisionId, changedSceneIds, dependencyFingerprint, expectedRevision, actorRef, idempotencyKey]
+      resultVariants: [ACCEPTED, CONFLICT, DENIED, OUTCOME_UNKNOWN]
+      invariant: no-replay-of-unknown-product-or-external-effect
+      negativeCases: [wrong-tenant, stale-source-or-revision, unadmitted-provider, revoked-rights, wrong-actor, unknown-outcome-must-reconcile]
+      runtimeStatus: NOT_ADMITTED
+      authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
+    - id: media.recorder.operation.render.request.v1
+      effectBoundary: CANONICAL_PRODUCT_STATE_CHANGE
+      requestFields: [tenantId, projectRevisionId, sceneGraphDigest, renderProfileRef, codecQualificationRef, actorRef, idempotencyKey]
+      resultVariants: [ACCEPTED, DENIED, UNAVAILABLE, OUTCOME_UNKNOWN]
+      invariant: same-editorial-project-for-preview-and-final-render
+      negativeCases: [wrong-tenant, stale-source-or-revision, unadmitted-provider, revoked-rights, wrong-actor, unknown-outcome-must-reconcile]
+      runtimeStatus: NOT_ADMITTED
+      authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
+    - id: media.recorder.operation.quality.assess.v1
+      effectBoundary: OBSERVATION_ONLY
+      requestFields: [tenantId, artifactVersion, sourcePostconditionRefs, measurementProfileRef]
+      resultVariants: [PASS, FAIL, ABSTAIN, UNOBSERVED]
+      invariant: technical-pass-does-not-issue-human-review-or-publication-approval
+      negativeCases: [wrong-tenant, stale-source-or-revision, unadmitted-provider, revoked-rights, wrong-actor, unknown-outcome-must-reconcile]
+      runtimeStatus: NOT_ADMITTED
+      authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
+    - id: media.recorder.operation.interactive.package.v1
+      effectBoundary: LOCAL_CANDIDATE_OR_DRAFT
+      requestFields: [tenantId, acceptedArtifactVersion, interactionGraphId, sourceRightsRef, viewerPolicyRef]
+      resultVariants: [CANDIDATE, DENIED, UNSUPPORTED]
+      invariant: sandboxed-package-cannot-execute-authenticated-product-action
+      negativeCases: [wrong-tenant, stale-source-or-revision, unadmitted-provider, revoked-rights, wrong-actor, unknown-outcome-must-reconcile]
+      runtimeStatus: NOT_ADMITTED
+      authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
+    - id: media.recorder.operation.publish.request.v1
+      effectBoundary: GOVERNED_EXTERNAL_REQUEST
+      requestFields: [tenantId, artifactVersion, audienceRef, destinationRef, rightsAndApprovals, idempotencyKey]
+      resultVariants: [REQUEST_ACCEPTED, DENIED, OUTCOME_UNKNOWN, DELIVERY_CONFIRMED]
+      invariant: acknowledgment-never-equals-remote-finality
+      negativeCases: [wrong-tenant, stale-source-or-revision, unadmitted-provider, revoked-rights, wrong-actor, unknown-outcome-must-reconcile]
+      runtimeStatus: NOT_ADMITTED
+      authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
+    - id: media.recorder.operation.asset.erase.request.v1
+      effectBoundary: GOVERNED_EXTERNAL_REQUEST
+      requestFields: [tenantId, assetVersionRef, purpose, legalHoldRef, requestId]
+      resultVariants: [REQUESTED, ACCESS_REVOKED, PENDING_ERASURE, HELD, ERASURE_CONFIRMED, EXTERNAL_UNKNOWN]
+      invariant: no-request-acceptance-as-worldwide-erasure
+      negativeCases: [wrong-tenant, stale-source-or-revision, unadmitted-provider, revoked-rights, wrong-actor, unknown-outcome-must-reconcile]
+      runtimeStatus: NOT_ADMITTED
+      authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
+automatedProductionState:
+  states: [DRAFT, PLANNED, ADMISSION_PENDING, ADMITTED, PREPARING, CAPTURING, COMPOSING, QUALITY_REVIEW, REVIEW_REQUIRED, READY_FOR_APPROVAL, RELEASE_REQUESTED, RELEASE_ACKNOWLEDGED, RELEASE_CONFIRMED, FAILED, BLOCKED, OUTCOME_UNKNOWN]
+  failureClasses: [VALIDATION, AUTHORITY, POLICY, LICENSING, SOURCE_UNAVAILABLE, PRODUCT_BUSINESS_OUTCOME, CLOCK_UNCERTAIN, CODEC_UNQUALIFIED, MODEL_UNAVAILABLE, RESOURCE_EXHAUSTED, RECOVERY_UNSAFE, UNKNOWN_EXTERNAL_EFFECT]
+  transitions:
+    - DRAFT-PLANNED-requires-complete-versioned-metadata-and-provenance
+    - PLANNED-ADMISSION_PENDING-requires-current-tenant-actor-rights-profile-and-source
+    - ADMISSION_PENDING-ADMITTED-requires-all-mandatory-provider-lease-and-policy-guards
+    - CAPTURING-COMPOSING-requires-source-seal-and-bounded-receipts
+    - COMPOSING-QUALITY_REVIEW-requires-versioned-render-source-time-map-and-measurements
+    - QUALITY_REVIEW-REVIEW_REQUIRED-on-fail-abstain-or-required-human-review
+    - READY_FOR_APPROVAL-RELEASE_REQUESTED-requires-exact-artifact-version-and-all-independent-policy-approvals
+    - RELEASE_REQUESTED-RELEASE_ACKNOWLEDGED-does-not-imply-RELEASE_CONFIRMED
+    - OUTCOME_UNKNOWN-reconcile-by-original-request-before-any-new-effect
+  terminalClaims: [RELEASE_CONFIRMED, FAILED, BLOCKED]
+  cancellation: requested-acknowledged-confirmed-are-distinct-from-worker-observer-detach
+  idempotency: exact-tenant-operation-request-version-and-actor-no-id-reuse-with-different-input
+replayAndVersioning:
+  editCommit: expectedRevisionId-CAS-is-required-and-failed-CAS-produces-CONFLICT-without-overwrite
+  sceneImpact: changed-source-provider-policy-time-map-or-output-profile-digest-invalidates-exact-dependent-scenes
+  cacheReuse: original-source-and-derived-asset-hash-plus-tenant-policy-classification-rights-and-model-license
+  noCommitShaTruth: semantic-source-digest-not-vcs-commit-hash-or-mtime
+  manualProtection: five-generation-policies-and-provenance-retained-per-operation
+  conflict: semantic-three-way-rebase-or-review-block-no-auto-merge-of-ambiguous-edits
+  selectiveCapture: product-actions-only-when-delegated-idempotency-and-readback-guards-hold
+  trustedPolicy: owner-supplied-not-inferred-from-Media-runner-settings
+publication:
+  scopes: [local-preview, internal-film, public-film, interactive-bundle, offline-package]
+  consentAndRights: [tenant, principal, purpose, likeness, consent, residency, egress, retention, legal-hold, audience, training-opt-in]
+  acknowledgments: request-accepted-is-not-destination-finality
+  provenance: exact-project-and-asset-revision-plus-source-scene-edits-model-licensing-measurements-audit
+observabilityContract:
+  traceStages: [request, config-resolve, policy-admit, lease, seed, plan, execute, capture, ingest, compose, preview, quality, release, publish, cleanup]
+  metrics: [autonomous-yield, no-manual-effort-ratio, capture-jitter, dropped-frames, av-drift, render-latency, cpu-gpu-ram-disk, cache-reuse, cost, retry-rates, privacy-denials, manual-overrides]
+  logging: allowlisted-structured-events-with-no-dom-tokens-screenshots-voice-payloads-or-raw-prompts
+  separateAudit: immutable-attributable-consequential-actions-and-decisions-not-replaceable-by-tracing
+sourceProfileAcceptance:
+  requirementSource: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+  requiredCaseCount: 78
+  sourceScope: new-sub-surface-source-authored-only-not-PDP1-currentness
+  casePassProof: actual-typed-owner-observation-and-independent-acceptance-later
