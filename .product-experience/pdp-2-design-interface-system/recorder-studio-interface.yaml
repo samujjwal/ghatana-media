@@ -1,0 +1,45 @@
+schemaVersion: media.recorder-studio-interface.v1
+productId: media
+sourcePhase: PDP-2
+status: SOURCE_AUTHORED_SUCCESSOR_PENDING_REVALIDATION
+predecessor: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
+authority: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml
+surfaceInterfaces:
+  - surfaceId: media.surface.recorder-orchestrator
+    kind: HEADLESS
+    modes: [yaml-config, json-config, cli, sdk, api, event-observation]
+    journeys: [author-plan, validate-admission, execute, inspect-scenes, recapture-changed-scenes, review, request-publication]
+    states: [DRAFT, VALIDATING, DENIED, ADMITTED, CAPTURING, RENDERING, QUALITY_BLOCKED, OUTCOME_UNKNOWN, REVIEW_REQUIRED, COMPLETED]
+    machineOutput: [status, sourceRevision, attemptId, resultRefs, policyDecisionRefs, traceId, recovery]
+    negative: [invalid-config, unsupported-adapter, stale-source, denied-actor, ambiguous-finality]
+  - surfaceId: media.surface.capture-adapters
+    kind: HEADLESS
+    modes: [browser, desktop, mobile, terminal, http-api, grpc-api, camera, media-file]
+    contracts: [capability-probe, policy-admission, safe-source-observation, timestamp-evidence, bounded-stop, abort, failure]
+    negative: [unsupported-signal, expired-consent, unauthorized-runtime-effect, unqualified-codec, missing-visual-source]
+  - surfaceId: media.surface.production-studio
+    kind: GUI
+    pages: [project-library, production-planner, source-review, multitrack-timeline, captions-transcript, narration-mixer, camera-multiview, effects-inspector, quality-review, render-preview, delivery]
+    composition: [timeline, inspector, preview-monitor, tracks, event-markers, revision-history, sources, property-editors]
+    keyboardParities: [timeline-scrub, trim, split, slip, slide, ripple, keyframe, mask, captions, mix, undo-redo, scene-reorder]
+    accessibility: [structured-timeline-tree, focus-order, high-contrast, screen-reader-announcements, reduced-motion, caption-preview, text-numeric-equivalents]
+    states: [EMPTY, LOADING, READY, DIRTY_DRAFT, STALE_REVISION, MERGE_CONFLICT, UNAUTHORIZED, QUALITY_BLOCKED, SAVE_UNKNOWN]
+    negative: [pointer-only-edit, second-semantic-draft, silent-manual-rewrite, hidden-external-effect]
+  - surfaceId: media.surface.interactive-demo-player
+    kind: EMBEDDED_GUI
+    components: [video-scene, transcript, captions, hotspot, branch-menu, progress-map, safe-exit, accessible-alternative]
+    states: [LOADING, READY, OFFLINE, UNSUPPORTED_FEATURE, POLICY_DENIED, UNAVAILABLE, FINISHED]
+    security: [content-security-policy, signed-bundle-integrity, no-embedded-product-credentials, sandboxed-player-actions, no-unapproved-network-egress]
+    negative: [arbitrary-script-execution, invisible-keyboard-branch, privileged-action-simulation-as-proof]
+sharedGrammar:
+  projectAuthority: same-revision-across-gui-cli-sdk-headless-no-duplicate-edit-draft
+  operations: all-mutations-require-exact-expected-revision-and-typed-PDP1-result
+  time: rational-source-time-not-wallclock; display-fraction-and-synchronization-uncertainty
+  ai: show-evidence-model-version-uncertainty-and-review-required-before-accepting-suggestions
+  a11y: every-graphical-control-has-equivalent-textual-keyboard-api-intent
+  privacy: safe-logs-and-observability-expose-redacted-correlation-only
+  finality: unknown-is-a-visible-reconcilable-state-never-success
+  editing: autosave-is-draft-only; render-or-publish-requires-exact-accepted-source-revision
+  designSystem: reuse-shared-approved-tokens-and-Media-component-contracts-no-new-design-system
+  projections: GUI-CLI-SDK-API-Experience-Explorer-all-read-identical-canonical-source-identities
+nonClaims: [no-PDP3-journey-implementation, no-browser-explorer-verification, no-capture-qualification, no-Build-admission]

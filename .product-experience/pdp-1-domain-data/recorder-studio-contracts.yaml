@@ -1,0 +1,65 @@
+schemaVersion: media.recorder-studio-domain-contract.v1
+productId: media
+sourcePhase: PDP-1
+status: SOURCE_AUTHORED_SUCCESSOR_PENDING_REVALIDATION
+predecessor: .product-experience/pdp-0-product-truth/recorder-studio-extension.yaml
+authority: .product-experience/pdp-1-domain-data/domain-objects.yaml
+objects:
+  - id: media.recorder.production-project
+    extends: media.domain.project
+    identity: [tenantId, projectId, revisionId]
+    rule: one-MediaProject-revision-not-a-second-canonical-project-record
+    fields: [purposeRef, audienceRef, sceneOrder, sourceRefs, trackRefs, editOperationRefs, qualityProfileRef, rightsSnapshotRef, deliveryProfiles, provenanceRef]
+    immutable: [tenantId, projectId, revisionId, parentRevisionId]
+    negative: [foreign-tenant-reference, stale-revision, duplicate-project-store, unapproved-revision-merge]
+  - id: media.recorder.capture-source
+    identity: [tenantId, sourceId, sourceVersion]
+    fields: [sourceKind, authorizedAdapterRef, providerProfileRef, opaqueCredentialsRef, capabilitySignals, exactRightsScope, originTimebase, capturePolicy]
+    allowedSourceKinds: [browser, desktop, mobile, terminal, http-api, grpc-api, camera, media-file]
+    negative: [raw-credential-in-project, unqualified-provider, hidden-privileged-operation, fabricated-source-pixels]
+  - id: media.recorder.scene-specification
+    identity: [tenantId, projectId, revisionId, sceneId]
+    fields: [sourceAnchors, eventAnchors, actorRef, storyboardRef, narrationRef, captionRefs, visualPlan, audioPlan, constraints, outputRefs]
+    timing: rational-half-open-intervals-in-declared-source-timebase
+    negative: [wall-clock-as-media-time, missing-source-version, false-human-approval]
+  - id: media.recorder.edit-operation
+    identity: [tenantId, projectId, operationId]
+    fields: [expectedRevisionId, actorRef, requestId, targetSemanticAnchor, operationKind, parameters, provenance, manualLock, editedBy, derivationInputs]
+    operationKinds: [trim, split, slip, slide, ripple, reorder, transform, mask, zoom, reframe, keyframe, caption, narration, audio-mix, transition, camera-switch, picture-in-picture, interactive-hotspot]
+    negative: [stale-CAS-override, implicit-human-edit-discard, destructive-original-write]
+  - id: media.recorder.production-run
+    extends: media.domain.media-job
+    identity: [tenantId, jobId, attemptId]
+    fields: [sourceProjectRevision, planFingerprint, sceneResultRefs, runtimeQualificationRef, policyDecisionRefs, traceContext, effectReceipts]
+    negative: [new-job-on-same-idempotent-retry, outcome-unknown-blind-replay, duplicate-runtime-writer]
+operations:
+  - id: media.recorder.project-edit.proposed.v1
+    effect: CANONICAL_PRODUCT_STATE_CHANGE
+    request: [tenantId, projectId, expectedRevisionId, requestId, actorRef, operation, targetAnchor]
+    result: [APPLIED, CONFLICT, DENIED, UNKNOWN]
+    invariant: CAS-plus-idempotency; APPLIED-makes-one-successor-project-revision
+  - id: media.recorder.run-plan.proposed.v1
+    effect: CANONICAL_PRODUCT_STATE_CHANGE
+    request: [tenantId, projectRevisionId, intentRef, actorRef, profileRef, idempotencyKey]
+    result: [ACCEPTED, DENIED, UNAVAILABLE, OUTCOME_UNKNOWN]
+    invariant: authority-and-provider-admission-precede-any-effect
+  - id: media.recorder.scene-recapture.proposed.v1
+    effect: CANONICAL_PRODUCT_STATE_CHANGE
+    request: [tenantId, projectRevisionId, sceneIds, materialInputFingerprints, expectedRevisionId, idempotencyKey]
+    result: [ACCEPTED, CONFLICT, DENIED, OUTCOME_UNKNOWN]
+    invariant: unchanged-scene-artifacts-and-locked-manual-edits-are-immutable
+  - id: media.recorder.interactive-package.proposed.v1
+    effect: LOCAL_CANDIDATE_OR_DRAFT
+    request: [acceptedSourceVersion, branchGraph, hotspotPermissions, audienceRef, policyRef]
+    result: [CANDIDATE, DENIED, UNSUPPORTED]
+    invariant: player-executes-no-domain-command; publishing-needs-existing-governed-delivery-operation
+derivation:
+  cacheKey: [sourceDigest, sceneSemanticDigest, projectRevisionId, providerQualificationFingerprint, rightsPolicyFingerprint, renderProfile]
+  invalidation: only-affected-descendants-preserving-manual-operations
+  conflictBehavior: reviewable-three-way-semantic-rebase-or-denial-never-silent-overwrite
+  provenance: exact-source-versions-model-provider-permission-and-edit-author-per-output
+privacy:
+  rules: [no-secret-bytes-in-artifacts-or-logs, deny-cross-tenant-caches, purpose-limited-model-egress, revocation-stops-new-effects, retention-bound-intermediate-files]
+  erasure: distinguish-access-revocation-from-physical-erasure-and-external-unknown
+  externalEffects: request-acknowledgment-distinct-from-destination-finality
+nonClaims: [no-runtime-implementation, no-operation-registry-admission, no-legal-approval, no-Build-gate]

@@ -409,3 +409,101 @@ channelSurfaceProposals:
     - channelRef: media.channel.api
       candidateSurfaceRefs: []
       status: abstract-protocol-neutral-layer; no direct consumer surface; bind only through an admitted concrete transport
+
+# Recorder/Studio successor candidate surfaces; additive to historical surface population.
+  - surfaceId: media.surface.recorder-orchestrator
+    surfaceType: HEADLESS_ORCHESTRATION
+    purpose: Unattended, configuration-driven experience capture/recapture across qualified browser, CLI and API source adapters.
+    consumers: [integrating-products, authorized-product-adapters, media-automation-clients]
+    owners: [media-product, media-experience-owner]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml]
+    canonicalDomainConcepts: [media.domain.project, media.domain.media-job, media.domain.timeline]
+    interactionModel: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml
+    contractAuthority: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
+    securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    availabilityExpectations: explicit unavailable, denied, unknown-outcome, degraded and retry-reconciliation states
+    versioningExpectations: expected project revision, stable source/time identity, and compatible public interface version
+    compatibilityExpectations: no duplicate runtime writer, no hidden product effects, no fabricated approval, source and manual edit preservation
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    explorerProjection: '#experience'
+    semanticStatus: PROPOSED
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+    applicabilityDisposition: TARGET_PENDING_ADMISSION
+    applicabilityRationale: >-
+      New physical or semantic sub-surface beneath media.surface.cli, not a new service or
+      second owning data store. PDP-0 to PDP-2 successor definitions are authored
+      at this source cut; PDP-3 experience, independent acceptance and source-current
+      admission remain separate. No release or runtime claim.
+  - surfaceId: media.surface.capture-adapters
+    surfaceType: HEADLESS_ADAPTER_CONTRACT
+    purpose: Policy-governed source capture protocol for browser, desktop, mobile, terminal, HTTP/gRPC, camera and prerecorded media with explicit admission.
+    consumers: [media-recorder-orchestrator, authorized-product-adapters]
+    owners: [media-product, integrating-product-owner]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml]
+    canonicalDomainConcepts: [media.domain.artifact, media.domain.media-job]
+    interactionModel: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml
+    contractAuthority: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
+    securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    availabilityExpectations: explicit unavailable, denied, unknown-outcome, degraded and retry-reconciliation states
+    versioningExpectations: expected project revision, stable source/time identity, and compatible public interface version
+    compatibilityExpectations: no duplicate runtime writer, no hidden product effects, no fabricated approval, source and manual edit preservation
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    explorerProjection: '#experience'
+    semanticStatus: PROPOSED
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+    applicabilityDisposition: TARGET_PENDING_ADMISSION
+    applicabilityRationale: >-
+      New physical or semantic sub-surface beneath media.surface.integrations, not a new service or
+      second owning data store. PDP-0 to PDP-2 successor definitions are authored
+      at this source cut; PDP-3 experience, independent acceptance and source-current
+      admission remain separate. No release or runtime claim.
+  - surfaceId: media.surface.production-studio
+    surfaceType: GUI_EDITOR
+    purpose: Complete accessible, non-destructive manual editing and automation review of one canonical versioned production project.
+    consumers: [media-creators, media-editors, media-reviewers]
+    owners: [media-product, media-experience-owner]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml]
+    canonicalDomainConcepts: [media.domain.project, media.domain.timeline, media.domain.composition-config]
+    interactionModel: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml
+    contractAuthority: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
+    securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    availabilityExpectations: explicit unavailable, denied, unknown-outcome, degraded and retry-reconciliation states
+    versioningExpectations: expected project revision, stable source/time identity, and compatible public interface version
+    compatibilityExpectations: no duplicate runtime writer, no hidden product effects, no fabricated approval, source and manual edit preservation
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    explorerProjection: '#experience'
+    semanticStatus: PROPOSED
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+    applicabilityDisposition: TARGET_PENDING_ADMISSION
+    applicabilityRationale: >-
+      New physical or semantic sub-surface beneath media.surface.web, not a new service or
+      second owning data store. PDP-0 to PDP-2 successor definitions are authored
+      at this source cut; PDP-3 experience, independent acceptance and source-current
+      admission remain separate. No release or runtime claim.
+  - surfaceId: media.surface.interactive-demo-player
+    surfaceType: GUI_EMBEDDED_PLAYER
+    purpose: Unprivileged sandboxed interactive demonstration package with choices, hotspots, captions and offline-safe fallback.
+    consumers: [media-viewers, integrating-products]
+    owners: [media-product, media-experience-owner]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml]
+    canonicalDomainConcepts: [media.domain.artifact, media.domain.media-output]
+    interactionModel: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml
+    contractAuthority: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
+    securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    availabilityExpectations: explicit unavailable, denied, unknown-outcome, degraded and retry-reconciliation states
+    versioningExpectations: expected project revision, stable source/time identity, and compatible public interface version
+    compatibilityExpectations: no duplicate runtime writer, no hidden product effects, no fabricated approval, source and manual edit preservation
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    explorerProjection: '#experience'
+    semanticStatus: PROPOSED
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+    applicabilityDisposition: TARGET_PENDING_ADMISSION
+    applicabilityRationale: >-
+      New physical or semantic sub-surface beneath media.surface.embedded, not a new service or
+      second owning data store. PDP-0 to PDP-2 successor definitions are authored
+      at this source cut; PDP-3 experience, independent acceptance and source-current
+      admission remain separate. No release or runtime claim.

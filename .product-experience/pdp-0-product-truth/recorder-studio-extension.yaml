@@ -1,0 +1,74 @@
+schemaVersion: media.recorder-studio-product-truth.v1
+productId: media
+status: SOURCE_AUTHORED_SUCCESSOR_PENDING_REVALIDATION
+sourcePhase: PDP-0
+sourceCut: 0c572079100d6cd784ba4a9cc62b87c1f3e7e707
+authority: .product-experience/pdp-0-product-truth/capabilities.yaml
+changeRequest: docs/implementation/MEDIA-RECORDER-STUDIO-PDP0-IMPACT-2026-10-17.md
+meaning: >-
+  Extend existing Media composition, project, rights, quality, stream, delivery
+  and job capabilities to unattended demonstrations and complete manual Studio.
+  Existing 462 capability leaf identities remain the source of truth.
+  No new capability identity, duplicate job store, or reclassified old leaf is
+  declared by this document.
+surfaces:
+  - id: media.surface.recorder-orchestrator
+    parent: media.surface.cli
+    channel: media.channel.cli
+    interfaceRequired: true
+    privacy: fail-closed-source-purpose-permission-and-consent
+    unavailable: deny-with-observable-reason-and-safe-recovery
+  - id: media.surface.capture-adapters
+    parent: media.surface.integrations
+    channel: media.channel.product-integration
+    interfaceRequired: true
+    privacy: fail-closed-source-purpose-permission-and-consent
+    unavailable: deny-with-observable-reason-and-safe-recovery
+  - id: media.surface.production-studio
+    parent: media.surface.web
+    channel: media.channel.web
+    interfaceRequired: true
+    privacy: fail-closed-source-purpose-permission-and-consent
+    unavailable: deny-with-observable-reason-and-safe-recovery
+  - id: media.surface.interactive-demo-player
+    parent: media.surface.embedded
+    channel: media.channel.product-integration
+    interfaceRequired: true
+    privacy: fail-closed-source-purpose-permission-and-consent
+    unavailable: deny-with-observable-reason-and-safe-recovery
+
+capabilityBindings:
+  REC-C01: [media.recipe.template.product-demonstration, media.compose.scene-storyboard-assemble, media.job.submit]
+  REC-C02: [media.stream.recording.integrate, media.stream.session.open, media.stream.frame.submit]
+  REC-C03: [media.project.version, media.project.composition.update, media.compose.multitrack-timeline]
+  REC-C04: [media.compose.multitrack-timeline, media.animation.editing.undo-redo.versioned, media.edit.smart-crop-auto-reframe, media.compose.track.video-audio-caption-overlay]
+  REC-C05: [media.animation.output.output.interactive-scene, media.deliver.interactive-scene-bundle, media.recipe.template.interactive-lesson]
+  REC-C06: [media.quality.recommend, media.quality.rank, media.recipe.template.product-demonstration]
+  REC-C07: [media.rights.permitted-use.evaluate, media.quality.inspect, media.deliver.provenance-manifest, media.provenance.erasure.effect.record]
+  REC-C08: [media.project.version, media.job.retry, media.edit.propagate-keyframe-mask-effect, media.compose.render-manifest]
+goals:
+  - exact-configured-source-to-professional-presentation-without-required-human-capture-control
+  - complete-manual-editability-with-same-canonical-project-model
+  - deterministic-where-declared-and-uncertain-where-evidence-does-not-support-a-claim
+  - bounded-scene-only-recapture-preserving-user-edits-and-source-identity
+  - safely-interactive-and-accessible-output-without-privileged-product-execution
+actors: [media.creator, media.editor, media.reviewer, media.developer-integrator, media.automation-client]
+qualityObligations:
+  - bounded-capability-and-codec-qualification-before-run
+  - observed-semantic-action-and-finality-or-admitted-unavailable-with-exact-reason
+  - rational-media-time-and-source-timestamp-mapping-with-uncertainty
+  - inspectable-ai-suggestions-not-executable-unapproved-authority
+  - quality-thresholds-per-media-profile-with-abstention-and-real-review-separate
+  - configurable-OTel-traces-metrics-safe-logs-and-privacy-redaction
+  - per-stage-rights-consent-retention-erasure-and-no-unauthorized-egress
+negativeOutcomes:
+  - wrong-tenant-or-actor-denied-without-effect
+  - unqualified-provider-fails-before-effect
+  - unknown-external-finality-requires-reconciliation-no-blind-retry
+  - stale-project-revision-rejected-and-manual-edits-preserved
+  - missing-camera-browser-or-API-visualization-shows-unavailable-not-fake-UI
+  - forged-interactive-player-action-and-script-injection-denied
+  - late-or-revoked-rights-denies-publication-and-training
+  - unsupported-exact-brand-legal-equation-or-product-text-blocks-substitution
+  - partial-clip-result-is-not-a-passed-business-demo
+nonClaims: [no-new-runtime-writer, no-PDP3-dev-complete, no-Discovery-pass, no-licensed-provider-admission, no-film-approval, no-release-authorization]
