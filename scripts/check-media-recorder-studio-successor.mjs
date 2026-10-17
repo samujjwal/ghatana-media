@@ -83,11 +83,20 @@ export function validateRecorderStudioSuccessor(topology = JSON.parse(read('.pro
     ['experienceProductionChannelGrammar:', p2Interface],
     ['experienceProductionAccessibility:', p2A11y],
   ]) reject(source.includes(ref), `missing normative source ${ref}`);
-  const p1OperationIds = new Set([...canonicalOperations.matchAll(/^\\s+- id:\\s*(media\\.operation[^\\s]+)/gm)].map((match) => match[1]));
-  const commandRefs = [...p1Actions.matchAll(/^\\s+canonicalOperationRef:\\s*(media\\.operation[^\\s]+)/gm)].map((match) => match[1]);
+  const p1OperationIds = new Set(canonicalOperations.split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('- id: media.operation'))
+    .map((line) => line.slice('- id: '.length).split(' ')[0]));
+  const commandRefs = p1Actions.split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('canonicalOperationRef: media.operation'))
+    .map((line) => line.slice('canonicalOperationRef: '.length).split(' ')[0]);
   reject(commandRefs.length === 7 && new Set(commandRefs).size === 7, 'seven unique canonical PDP1 command compositions required');
   for (const id of commandRefs) reject(p1OperationIds.has(id), `unknown canonical PDP1 operation ${id}`);
-  const p0Rules = [...req.matchAll(/^\\s+- ruleId:\\s*(MEDIA-EXP-REQ-[0-9]+)/gm)].map((match) => match[1]);
+  const p0Rules = req.split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('- ruleId: MEDIA-EXP-REQ-'))
+    .map((line) => line.slice('- ruleId: '.length));
   reject(p0Rules.length === 8 && new Set(p0Rules).size === 8, 'eight unique PDP0 successor rules required');
   const expectedPhysicalRoles = [
     'media.physical.launcher',
@@ -116,8 +125,10 @@ export function validateRecorderStudioSuccessor(topology = JSON.parse(read('.pro
   const componentsRaw = p2Studio.match(/reusableComponents: \[([^\]]+)\]/)?.[1] ?? '';
   const components = componentsRaw.split(',').map((value) => value.trim()).filter(Boolean);
   reject(components.length >= 12, 'complete studio component reuse declaration required');
-  const templateRaw = p2Studio.match(/templateReuse: \\[([^\\]]+)\\]/)?.[1] ?? '';
-  const layoutsRaw = p2Studio.match(/layoutReuse: \\[([^\\]]+)\\]/)?.[1] ?? '';
+  const templateLine = p2Studio.split('\n').find((line) => line.trim().startsWith('templateReuse: [')) ?? '';
+  const layoutLine = p2Studio.split('\n').find((line) => line.trim().startsWith('layoutReuse: [')) ?? '';
+  const templateRaw = templateLine.slice(templateLine.indexOf('[') + 1, templateLine.lastIndexOf(']'));
+  const layoutsRaw = layoutLine.slice(layoutLine.indexOf('[') + 1, layoutLine.lastIndexOf(']'));
   for (const id of templateRaw.split(',').map((v) => v.trim()).filter(Boolean)) {
     reject(p2Templates.includes(`id: ${id}`), `Studio invented template ${id}`);
   }
