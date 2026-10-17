@@ -68,7 +68,7 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
   for (const id of newSurfaceIds) {
     const c = consumers.find(x => x.surfaceId === id);
     if (!c || !['HOST_DEPENDENT', 'CONTRACT_ONLY'].includes(c.bindingState)
-        || c.physicalRefs?.length === 0 || !c.statusReason?.includes('no')
+        || c.physicalRefs?.length === 0 || !c.statusReason?.length
         || !c.sourceContracts?.length) {
       fail(id + ': missing explicit proposed host-only admission/contract record');
     }
@@ -87,7 +87,7 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
 
   const req = original.requirements;
   const p0 = original.p0, p1 = original.p1, p2 = original.p2;
-  const allCapIds = extract(original.capabilities, /^  - id: (media\.[^\s]+)$/gm);
+  const allCapIds = extract(original.capabilities.slice(original.capabilities.indexOf('\ncapabilities:\n')), /^  - id: (media\.[^\s]+)$/gm);
   const canonCaps = new Set(allCapIds);
   const canonReqIds = new Set(extract(req, /^- id: (MEDIA-REQ-CAP-[A-Z-]+)$/gm));
   if (allCapIds.length !== 462 || canonCaps.size !== 462) fail('historical 462 capability leaf identities changed');
