@@ -65,3 +65,20 @@ normativeRuleRecords:
     ruleRef: .product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml#semanticCoverageRequirement
     sourceAuthority: .product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml#authority
     acceptanceEffect: none
+
+experienceProductionScreenCompositionRules:
+  id: media.pdp2.experience-production.screen-composition.v1
+  status: CANONICAL_DESIGN_RULE_ONLY_NO_NEW_PDP3_SCREEN_DECLARED
+  authority: .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml#professionalStudioGrammar
+  profile: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#experienceProductionChannelGrammar
+  ownerScreens: [media.surface.presentation-studio, media.surface.interactive-demo-player]
+  machineOnlySurfaces: [media.surface.experience-recorder, media.surface.capture-agent]
+  regions:
+    Studio: [source-selector, storyboard, multitrack-timeline, numeric-time-editor, effect-inspector, caption-narration, QA-review, provenance-manual-locks, export-rights-finality]
+    Player: [safe-declarative-media-canvas, accessible-hotspot-list, branch-graph, caption-transcript-alternative, viewer-policy-and-unavailable-status]
+    Headless: [typed-operation-plan, source-capability-probe, request-and-result, scene-job-technical-status, policy-denial, safe-recovery]
+  requiredBinding: [exact-MediaProject-and-revision, source-artifact-version, selected-scene-or-track, source-timebase, permitted-command-ref, outcome-finality, rights-and-consent-scope, quality-and-human-review-distinction]
+  hostReuse: [existing-Media-workbench-template, existing-semantic-components, existing-CLI-and-API-error-conventions]
+  noAuthorityClaims: [new-view-ids, new-screen-contract-ids, deployed-Studio-host, live-capture-agent, browser-only-API-products, new-user-permissions, production-a11y-conformance]
+  forbidden: [pointer-only-edit, canvas-only-hotspot, automatic-manual-lock-erasure, implicit-script-in-player, transport-result-as-human-approval, silent-unknown-effect, duplicate-project-revision-editor]
+  futurePdp3: Bind actual Studio/Player screen and headless journey IDs through the PDP3 registry and Explorer projection on the same source meanings.

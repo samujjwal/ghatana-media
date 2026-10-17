@@ -591,3 +591,9 @@ recorderStudioPdp0ToPdp1SuccessorHandoff:
   downstreamDefinitionInputs: [versioned-source-and-scene-anchors, typed-command-result-and-guard, retained-user-creative-overlays, denied-and-unknown-reconciliation, expiry-and-privacy, technical-vs-human-gates]
   pdp1AcceptanceEffect: none
   runtimeAdmission: NOT_ADMITTED
+
+experienceProductionChannelAndInformationHandoff:
+  channelSource: .product-experience/pdp-0-product-truth/applications-channels.yaml#ownerDefinedExperienceProductionChannelSurfaces
+  experienceIA: .product-experience/pdp-0-product-truth/information-architecture.yaml#experienceProductionInformationArchitecture
+  stage: DISCOVERY_NOT_RUNTIME
+  downstream: PDP1-owner-and-PDP2-channel-grammar-reconciliation

@@ -16389,3 +16389,38 @@ ownerFeatureReviewApplicability:
     leafCapabilityProfileBoundsChannelRole: PDP-0 capability profile, bounds, and channel applicability only; operation mappings are downstream non-gating context
     canonicalCapabilityOperation: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records
     canonicalCapabilityOperationRole: downstream/non-gating; PDP-1 handoff only and not a PDP-0 applicability prerequisite
+
+ownerDefinedExperienceProductionChannelSurfaces:
+  id: media.pdp0.experience-production.channel-surfaces.v1
+  status: SUCCESSOR_PRODUCT_DEFINITION_NOT_PRODUCTION_CHANNEL_ADMISSION
+  source: .product-experience/surface-registry.yaml#experienceProductionSurfaceStatus
+  canonicalChannels: channels
+  sourceProfile: .product-experience/pdp-0-product-truth/profile-semantics.yaml#experienceProductionProfile
+  rule: Existing nine channel definitions and per-capability leaf applicability remain unchanged; this crosswalk scopes four new logical consumers without granting a deployed application, qualified source provider, or new Media operation.
+  surfaces:
+    - surfaceId: media.surface.experience-recorder
+      applicableChannelRefs: [media.channel.http-api, media.channel.sdk, media.channel.cli, media.channel.product-integration]
+      headless: true
+      purpose: versioned-config-and-policy-governed-unattended-recording-orchestration
+      denial: missing-product-authorization-or-unqualified-capture-must-stop-before-product-effects
+    - surfaceId: media.surface.capture-agent
+      applicableChannelRefs: [media.channel.product-integration, media.channel.sdk]
+      sourceKinds: [browser, desktop, mobile, terminal, http-api, grpc-api, camera, media-file]
+      headless: true
+      purpose: source-observation-beyond-Media-stream-session-with-product-owned-real-effects
+      denial: no-fabricated-UI-or-product-actor-or-success-from-a-transport-or-test-fixture
+    - surfaceId: media.surface.presentation-studio
+      applicableChannelRefs: [media.channel.web, media.channel.embedded]
+      headless: false
+      purpose: full-manual-and-assisted-versioned-Studio-on-same-MediaProject-authority
+      denial: inaccessible-or-unauthorized-edit-cannot-commit-or-erase-protected-manual-overlay
+    - surfaceId: media.surface.interactive-demo-player
+      applicableChannelRefs: [media.channel.embedded, media.channel.web, media.channel.sdk]
+      headless: false
+      purpose: read-only-sandboxed-hotspot-and-branch-player
+      denial: no-business-API-mutation-script-execution-or-admin-session-inheritance
+  consumerScope: [Gharbatai-first-real-product-qualification, future-explicitly-authorized-Media-integrators]
+  pendingDefinitionOwnerChecks: [exact-capability-leaf-channel-matrix, required-provider-release-and-rights, real-API-and-CLI-owner-operation-binding, PDP3-screen-and-journey-experience]
+  runtimeAvailability: UNKNOWN
+  qualification: NOT_ADMITTED
+  acceptanceEffect: none

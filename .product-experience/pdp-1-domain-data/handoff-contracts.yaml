@@ -163,3 +163,11 @@ recorderStudioPdp1ToPdp2SuccessorHandoff:
   designConsumer: .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml#professionalStudioGrammar
   constraints: [same-revision-all-editor-projections, no-drag-only-effect, rational-source-time-and-accessible-text-value, machine-only-no-fake-screens, explicit-denied-conflict-unknown-outcome, manual-overlay-preservation, no-source-privileged-effect]
   noRunOrPhaseAcceptance: true
+
+experienceProductionPrivacyStateAndRelationshipsHandoff:
+  privacy: .product-experience/pdp-1-domain-data/privacy.yaml#experienceProductionPrivacyTrustContract
+  relationships: .product-experience/pdp-1-domain-data/relationships.yaml#experienceProductionRelationshipProjection
+  states: .product-experience/pdp-1-domain-data/states.yaml#experienceProductionStateProjection
+  identityCount: UNCHANGED_39_OBJECTS_13_RELATIONSHIPS_11_STATE_MACHINES
+  authority: Existing-PDP1-owners-retain-canonical-meaning
+  acceptanceEffect: none

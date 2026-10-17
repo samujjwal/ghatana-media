@@ -811,3 +811,18 @@ crossSourceReconciliation:
         observation: no delivery-state enum, delivery store, or recipient-acknowledgment state transition was found in this scope
         disposition: scoped inventory absence only; does not mean delivery states are unsupported and does not supply delivery ACK evidence
         owner: Media runtime, delivery, and domain owners
+
+experienceProductionStateProjection:
+  id: media.pdp1.experience-production.state-projection.v1
+  status: SOURCE_DEFINED_NOT_NEW_CANONICAL_STATE_MACHINE
+  canonicalSource: .product-experience/pdp-1-domain-data/states.yaml#stateMachines
+  existingMachineRefs: [media-job, media-attempt, media-upload-and-artifact, media-stream-session, media-rights-and-consent, media-review, media-delivery, media-quality-disposition, media-project, media-project-version]
+  displayLayers:
+    capture: probe-availability-source-capture-start-seal-cadence-QA-and-authoritative-result-are-separate-observations
+    project: local-edit-draft-review-conflict-and-CAS-committed-project-revision-are-separate
+    render: bounded-job-state-and-immutable-output-registration-are-separate
+    interaction: player-branch-local-selection-and-remote-delivery-ack-are-separate
+    approval: human-review-version-identity-rights-authorization-and-quality-assessment-are-separate
+  unknown: no-implicit-failed-or-succeeded-or-automatic-retry
+  negative: [requested-cancel-shown-as-cancelled, timeout-shown-as-error-finality, editing-draft-shown-as-committed, derived-video-shown-as-human-approved, transport-ack-shown-as-business-complete]
+  acceptanceEffect: none

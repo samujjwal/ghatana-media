@@ -573,3 +573,20 @@ ownerNormativeRuleRecords:
   - id: media.relationship-owner.assessment-subject.v1
     ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.assessment-subject/ownerDefinition
     sourceRole: flat-index-to-the-exact-nested-owner-definition
+
+experienceProductionRelationshipProjection:
+  id: media.pdp1.experience-production.existing-relationship-binding.v1
+  status: SOURCE_ONLY_REUSES_CANONICAL_13_RELATIONSHIPS
+  source: .product-experience/pdp-1-domain-data/relationships.yaml#relationships
+  noNewRelationshipIdentities: true
+  projectionName: ProductionProject
+  allowedRelationRefs: [media.rel.project-revision, media.rel.project-asset, media.rel.asset-artifact-version, media.rel.job-plan, media.rel.job-attempt, media.rel.attempt-lease, media.rel.run-checkpoint, media.rel.scene-model-binding, media.rel.derived-artifact, media.rel.assessment-subject]
+  edgeInvariants:
+    - Every-scene-or-clip-source-parent-is-exact-artifact-version-and-MediaProject-revision; stable-anchor-is-not-a-content-hash-identity.
+    - Session-and-provider-capture-observations-cannot-change-product-actor-principal-or-original-delegated-request.
+    - Scene-only-regeneration-creates-distinct-derived-artifact-parents-and-keeps-existing-raw-source.
+    - One-typed-project-revision-connects-all-visual-textual-and-CLI-delta-projections.
+    - Model-or-voice-provider-result-is-a-proposal-or-derived-version-not-an-authoritative-edit-or-rights-grant.
+    - Publisher-remote-finality-and-human-review-approval-are-not-project-revision-state.
+  unknownRelationships: scene-partial-recapture-specific-command-parent-binding-REQUIRES_NEW_PDP1_OPERATION_CONTRACT
+  noNewPersistenceOrWriterAuthority: true

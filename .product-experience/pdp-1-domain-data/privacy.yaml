@@ -623,3 +623,36 @@ ownerNormativeRuleRecords:
   - id: media.privacy.external-copy-revocation-boundary.v1
     ruleRef: .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/externalCopyBoundary
     sourceRole: stable-identifier-index-only; rule-body-remains-in-owner-erasure-contract
+
+experienceProductionPrivacyTrustContract:
+  id: media.pdp1.experience-production.privacy-trust.v1
+  status: SOURCE_DEFINED_ONLY_RUNTIME_PROVIDER_AND_INDEPENDENT_RIGHTS_ADMISSION_PENDING
+  productAuthority: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+  stateAuthority: .product-experience/pdp-1-domain-data/states.yaml#stateMachines
+  requestAuthority: .product-experience/pdp-1-domain-data/action-contracts.yaml#experienceProductionActionOrchestration
+  productionScope: [media.surface.experience-recorder, media.surface.capture-agent, media.surface.presentation-studio, media.surface.interactive-demo-player]
+  invariants:
+    - Every-product-scope-actor-action-seed-and-lease-uses-exact-tenant-principal-purpose-delegation-verification-at-effect-boundary.
+    - Capture-source-and-raw-frame-security-classification-is-preserved-or-narrowed-only-with-authoritative-deidentification.
+    - Provider-machine-fallback-must-not-change-egress-locality-rights-retention-model-training-or-voice-consent-silently.
+    - Secret-and-sensitive-region-masks-are-applied-before-telemetry-debug-thumbnails-previews-or-external-model-input.
+    - Scene-content-cache-is-keyed-by-tenant-purpose-policy-scope-source-version-and-canonical-material-fingerprint.
+    - Technical-media-QA-and-human-approvals-have-separate-record-types-and-effect-scopes.
+  boundaries:
+    productActor: product-owned-provider-only-no-Media-impersonation-or-cross-context-delegation
+    MediaStudio: exact-version-authorized-mutating-revision-CAS-and-read-only-viewer-scope
+    interactivePlayer: sandboxed-local-media-navigation-only-no-product-business-API-calls
+    inference: admitted-public-AI-inference-provider-only-no-unconsented-training-egress-or-hidden-provider-substitution
+    source: immutable-source-ArtifactVersion-with-separate-derived-provenance-and-retention-state
+    transport: TLS-bound-external-effects-independent-of-displayed-UI-acknowledgements
+  redactionTargets: [raw-capture-image, active-browser-storage, URL-query-and-cookies, log-trace, voice-asset, model-prompt, screenshot-thumbnail, output-preview, interactive-bundle]
+  forbiddenDiagnosticFields: [tokens, credentials, customer-names, unapproved-voice-samples, signed-URLs, full-source-frame-payload, protected-text, tenant-shared-content-address]
+  permittedTelemetry: [opaque-tenant-scoped-source-id, trace-ref, operation-id, scene-id, frame-interval-aggregates, budget-usage, QA-method-id, typed-error-code]
+  retentionAndErasure:
+    storageOwners: [Media-artifact-version, Media-project-revision, temporary-capture-lease, model-or-remote-provider]
+    separatedFinality: [ACCESS_REVOKED, ERASURE_REQUESTED, PHYSICAL_ERASURE_PENDING, BLOCKED_BY_HOLD, ERASURE_CONFIRMED, EXTERNAL_ERASURE_UNCONFIRMED]
+    restriction: revocation-denies-new-sensitive-effect-immediately-but-does-not-claim-physical-erasure-or-suppress-valid-hold
+    unknown: external-copy-deletion-stays-unconfirmed-until-recipient-owning-proof
+  testObligations: [secret-canary-absent-from-artifacts-logs-and-traces, wrong-tenant-denied, expired-rights-denied, no-model-transport-on-egress-denial, no-cross-tenant-cache-hit, provider-partial-erasure-unknown, no-privileged-player-action, no-forged-film-review]
+  noParallelPrivacyEngine: true
+  runtimeAdmission: NOT_ADMITTED

@@ -218,3 +218,34 @@ ownerNormativeRuleRecords:
   - id: media.information.material-change-disclosure.v1
     ruleRef: .product-experience/pdp-0-product-truth/information-architecture.yaml#/materialChangeDisclosure
     sourceRole: stable-identifier-index-only; rule-body-remains-in-information-architecture
+
+experienceProductionInformationArchitecture:
+  id: media.pdp0.experience-production.information-architecture.v1
+  status: SOURCE_ONLY_SUCCESSOR_NOT_HOST_OR_SCREEN_ADMISSION
+  purpose: Four logical surfaces project onto existing Media views; actual PDP-3 screen and component instances are a separate successor obligation.
+  source: .product-experience/surface-registry.yaml#experienceProductionSurfaceStatus
+  sourceViewAuthority: .product-experience/pdp-0-product-truth/journey-catalog.yaml
+  entryPoints:
+    - surfaceId: media.surface.experience-recorder
+      viewRefs: [M-PLAN, M-STORYBOARD, M-JOB, M-QUALITY]
+      machineOnly: typed-configuration-plan-operations-and-run-observation-no-fabricated-screen
+      returnContext: exact-project-source-version-and-request-attempt-policy
+    - surfaceId: media.surface.capture-agent
+      viewRefs: [M-JOB, M-PROVENANCE]
+      machineOnly: provider-capability-probe-redacted-capture-metadata-source-clock-and-status
+      returnContext: original-session-delegation-request-and-source-version-identity
+    - surfaceId: media.surface.presentation-studio
+      viewRefs: [M-PROJECT, M-STORYBOARD, M-EDIT, M-COMPOSER, M-RENDER, M-COMPARE, M-REVIEW]
+      machineOnly: accessible-text-timeline-is-alternative-to-visual-canvas-not-a-second-owner
+      returnContext: exact-MediaProject-and-revision-track-and-tick-position-manual-locks
+    - surfaceId: media.surface.interactive-demo-player
+      viewRefs: [M-OUTPUT, M-DELIVERY]
+      machineOnly: declarative-branch-hotspot-graph-and-versioned-media-description
+      returnContext: sandboxed-package-id-viewer-policy-no-privileged-product-context
+  navigationInvariants:
+    - Losing-audio-video-browser-capture-does-not-invent-technical-or-domain-success.
+    - Returning-from-preview-or-branch-inspection-preserves-exact-revision-time-and-selection.
+    - Review-and-publishing-screens-never-show-approved-unless-matching-human-and-rights-authority-exists.
+    - API-or-CLI-products-have-semantic-operation-and-outcome-inspection-not-pretend-visual-journeys.
+  phase0Verification: view-reference-and-applicability-source-bindings-required
+  phase3: AUTHORING_REQUIRED_BEFORE_SUCCESSOR_DEV_COMPLETE
