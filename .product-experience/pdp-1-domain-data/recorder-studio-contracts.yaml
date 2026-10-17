@@ -167,6 +167,30 @@ derivedValueObjects:
     fields: [requestAcknowledgment, destinationReceipt, terminalFinality, audienceRef, rightsRef, expiration, auditRef]
     invariant: accepted-upload-is-not-publication-confirmed
     classification: SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE
+  - id: media.recorder.value.transform.v1
+    identity: [tenantId, projectId, revisionId, editOperationId]
+    fields: [targetSemanticAnchor, sourceGeometryRef, cropBoundsRational, position, scale, rotation, opacity, keyframeRefs, easing, protectedRegionRefs, generationPolicy]
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-082]
+    invariant: exact-source-transform-bound-to-current-version-and-no-unapproved-protected-region-loss
+    classification: SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE
+  - id: media.recorder.value.effect.v1
+    identity: [tenantId, projectId, revisionId, editOperationId, effectId]
+    fields: [effectKind, allowedParameterSchemaRef, sourceClipAndRange, renderProviderProfileRef, qualifiedEffectVersion, beforeAfterRefs, provenance, manualLock]
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-026, MEDIA-REC-P0-AC-083, MEDIA-REC-P0-AC-084]
+    invariant: effect-must-have-source-qualified-parameters-and-preserve-unmodified-original
+    classification: SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE
+  - id: media.recorder.value.render-profile.v1
+    identity: [tenantId, projectId, revisionId, profileId, profileVersion]
+    fields: [resolution, frameRateRational, aspectRatioRational, codecProfileRef, colorSpace, audioMixProfileRef, accessibilityProfile, qualityThresholds, resourceBudget, licensingDecisionRef]
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-037, MEDIA-REC-P0-AC-038, MEDIA-REC-P0-AC-054]
+    invariant: qualified-output-profile-and-render-time-fidelity-cannot-be-inferred-from-preview
+    classification: SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE
+  - id: media.recorder.value.run-receipt.v1
+    identity: [tenantId, runId, attemptId, receiptId]
+    fields: [projectRevisionRef, sourceActorRef, sceneId, resultRef, terminality, clockEvidenceRef, leaseFence, providerQualificationRef, policyDecisionRef, traceRef, mediaArtifactDigest]
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-013, MEDIA-REC-P0-AC-015, MEDIA-REC-P0-AC-045, MEDIA-REC-P0-AC-057]
+    invariant: only-authoritative-product-readback-establishes-business-outcome-no-unobserved-proof
+    classification: SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE
 canonicalOperationProposals:
   status: PDP1_DEFINITION_ONLY_NO_NEW_PUBLIC_ROUTE_OR_RUNTIME_ADMISSION
   typedBoundary: Media versioned operation definitions inherit owner authority, rights, consent, idempotency, finality and result parity rules.
