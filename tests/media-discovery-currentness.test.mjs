@@ -557,7 +557,7 @@ test('stable changed cell paths stay unknown despite caller-supplied authorizati
 });
 
 test('PDP-0 resolver binds the authoritative 26/6+1/17 inventory without losing applicability details', () => {
-  const resolved = resolveMediaPdp0Cells(process.cwd(), dimensions);
+  const resolved = resolveMediaPdp0Cells(process.cwd(), {...dimensions, campaignScope: 'historical'});
   assert.deepEqual(resolved.denominator, {
     physicalCandidates: 26,
     semanticCompositions: 6,

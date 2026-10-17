@@ -134,7 +134,7 @@ export function resolveMediaPdp0Cells(repositoryRoot, {
   ownerGraphFingerprint,
   physicalCatalogFingerprint,
   providerRegistryFingerprint,
-  campaignScope = 'historical',
+  campaignScope = 'recorder-studio-successor',
 } = {}) {
   const root = path.resolve(repositoryRoot);
   const statusPath = 'docs/implementation/pdp-0-phase-dev-status.json';
@@ -142,6 +142,10 @@ export function resolveMediaPdp0Cells(repositoryRoot, {
   const registryPath = '.product-experience/surface-registry.yaml';
   const ownerDecisionPath = '.product-experience/reviews/2026-10-13-pdp0-discovery-delegated-review.md';
   const status = readJson(root, statusPath);
+ 
+  // New Recorder/Studio successor defaults to 55 exact cells.
+  // Historical R15/R30/R19 are immutable 50-cell observations and cannot issue
+  // current phase acceptance for the new population by selecting that subset.
   const currentTopology = readJson(root, topologyPath);
   if (!['historical', 'recorder-studio-successor'].includes(campaignScope)) {
     throw new TypeError('Unknown Media Discovery campaign scope');
@@ -335,6 +339,7 @@ export function resolveMediaPdp0Cells(repositoryRoot, {
   return {
     schemaVersion: 'ghatana.media-pdp0-cell-resolution.v1',
     basis: {
+      campaignScope,
       historicalPhaseStatus: statusPath,
       historicalSourceShaSetCount: Object.keys(status.sourceShaSet).length,
       surfaceRegistry: registryPath,
