@@ -3581,6 +3581,7 @@
     },
     {
       "surfaceId": "media.surface.recorder-orchestrator",
+      "parentSurfaceId": "media.surface.cli",
       "consumerType": "CLI",
       "physicalRefs": [
         "media.physical.libs-audio-video-client",
@@ -3597,6 +3598,7 @@
     },
     {
       "surfaceId": "media.surface.capture-adapters",
+      "parentSurfaceId": "media.surface.integrations",
       "consumerType": "SYSTEM_TO_SYSTEM_SERVICE",
       "physicalRefs": [
         "media.physical.runtime-contracts"
@@ -3612,6 +3614,7 @@
     },
     {
       "surfaceId": "media.surface.production-studio",
+      "parentSurfaceId": "media.surface.web",
       "consumerType": "GUI_WEB",
       "physicalRefs": [
         "media.physical.libs-audio-video-ui"
@@ -3627,6 +3630,7 @@
     },
     {
       "surfaceId": "media.surface.interactive-demo-player",
+      "parentSurfaceId": "media.surface.embedded",
       "consumerType": "GUI_EMBEDDED",
       "physicalRefs": [
         "media.physical.libs-audio-video-ui"
