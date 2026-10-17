@@ -169,9 +169,9 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
     positiveAndDenied.push(id);
     caseDetails.set(id, {cap, surface});
   }
-  if (caseIds.length !== 78 || new Set(caseIds).size !== 78 || caseIds.some(id => !stableCaseId.test(id)))
-    fail('exactly 78 stable unique canonical Recorder Studio acceptance cases required');
-  if (!req.includes('requiredClauseCount: 78') && !req.includes('requiredClauseCount: 78\n'))
+  if (caseIds.length !== 84 || new Set(caseIds).size !== 78 || caseIds.some(id => !stableCaseId.test(id)))
+    fail('exactly 84 stable unique canonical Recorder Studio acceptance cases required');
+  if (!req.includes('requiredClauseCount: 84') && !req.includes('requiredClauseCount: 84\n'))
     fail('profile denominator is not source-bound to 78');
 
   const capGroupRecords = [...p0.matchAll(/^  (REC-C\d{2}): \[([^\]]+)\]$/gm)];
@@ -181,7 +181,7 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
   for (const refs of p0BindingChunks) for (const cap of yamlList(refs))
     if (!canonCaps.has(cap)) fail('P0 Recorder Studio proposal has unbound capability '+cap);
   const p0SourceCases = extract(p0, /^    acceptanceCaseRefs: \[([^\]]+)\]/gm).flatMap(yamlList);
-  if (!sameSet(p0SourceCases, caseIds)) fail('P0 feature profiles must exactly cover 78 canonical acceptance cases once');
+  if (!sameSet(p0SourceCases, caseIds)) fail('P0 feature profiles must exactly cover 84 canonical acceptance cases once');
   const p0FeatureIds = extract(p0, /^  - id: (media\.recorder\.profile\.[^\s]+)/gm);
   if (p0FeatureIds.length !== 16 || new Set(p0FeatureIds).size !== 16)
     fail('P0 sixteen profile areas must each have unique source identity');
@@ -244,8 +244,8 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
     fail('PDP1 incorrectly merges Media job and attempt identity');
   const manualKinds = yamlList(p1.match(/^    operationKinds: \[([^\]]+)\]/m)?.[1] ?? '');
   const parityKinds = extract(p2, /^  - kind: ([a-z][a-z0-9-]+)$/gm);
-  if (manualKinds.length !== 42 || !sameSet(manualKinds, parityKinds))
-    fail('all 42 versioned PDP1 edit discriminants need exactly one PDP2 GUI/keyboard/CLI parity record');
+  if (manualKinds.length !== 52 || !sameSet(manualKinds, parityKinds))
+    fail('all 52 versioned PDP1 edit discriminants need exactly one PDP2 GUI/keyboard/CLI parity record');
   const p1ProposedOperations = extract(p1, /^    - id: (media\.recorder\.operation\.\S+)$/gm);
   if (p1ProposedOperations.length !== 15 || new Set(p1ProposedOperations).size !== 15)
     fail('PDP1 15 typed proposal operation contracts missing/duplicate');
@@ -255,7 +255,7 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
     fail('PDP1 canonical nonduplicate identity rule missing');
 
   const p2Cases = extract(p2, /^      cases: \[([^\]]+)\]/gm).flatMap(yamlList);
-  if (!sameSet(p2Cases, caseIds)) fail('PDP2 surface interface profiles must cover all 78 acceptance cases exactly once');
+  if (!sameSet(p2Cases, caseIds)) fail('PDP2 surface interface profiles must cover all 84 acceptance cases exactly once');
   if (extract(p2, /^    - id: media\.recorder\.p2\.group\./gm, 0).length !== 16)
     fail('PDP2 sixteen surface feature groups missing');
   if (!p2.includes('no-fictitious-product-screenshot') || !p2.includes('CONTENT_SECURITY_POLICY') && !p2.includes('content-security-policy'))
