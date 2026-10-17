@@ -15,6 +15,10 @@ const paths = {
   domain: '.product-experience/pdp-1-domain-data/domain-objects.yaml',
   p1: '.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml',
   p2: '.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml',
+  journeyCatalog: '.product-experience/pdp-0-product-truth/journey-catalog.yaml',
+  domainVersioning: '.product-experience/pdp-1-domain-data/versioning.yaml',
+  interfaceGrammar: '.product-experience/pdp-2-design-interface-system/interface-grammar.yaml',
+  editingGrammar: '.product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml',
 };
 const newSurfaceIds = [
   'media.surface.recorder-orchestrator',
@@ -41,7 +45,7 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
   const original = Object.fromEntries(Object.keys(paths).map(k => [k, read(k)]));
   // Syntax and duplicate mapping keys are source-level errors, even when
   // count-based selectors coincidentally find every expected line.
-  for (const id of ['registry', 'requirements', 'p0', 'domain', 'p1', 'p2']) {
+  for (const id of ['registry', 'requirements', 'p0', 'journeyCatalog', 'domain', 'domainVersioning', 'p1', 'interfaceGrammar', 'editingGrammar', 'p2']) {
     const document = parseDocument(original[id], {uniqueKeys:true, strict:true});
     for (const issue of document.errors) fail(id+': invalid or duplicate YAML mapping: '+issue.message);
   }
