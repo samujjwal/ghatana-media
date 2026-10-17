@@ -791,8 +791,7 @@ steps:
           - media.domain.job-attempt
           - media.domain.resolved-plan
         stateRefs:
-          - .product-experience/pdp-1-domain-data/states.yaml#media-job
-          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED
         canonicalOperationRef: media.operation.action.submit-render
         authorityRef: null
         transitionRef: null
@@ -843,8 +842,7 @@ steps:
           - media.domain.job-attempt
           - media.domain.resolved-plan
         stateRefs:
-          - .product-experience/pdp-1-domain-data/states.yaml#media-job
-          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED
         authorityRefs:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
@@ -887,8 +885,7 @@ steps:
         reason: The PDP-1 command contract describes a processing request and exact job/attempt state scope, but its receipt does not assert QUEUED, RUNNING, or a later result; owner state observation is required, and no initial aggregate edge is declared.
         transitionRef: null
         stateRefs:
-          - .product-experience/pdp-1-domain-data/states.yaml#media-job
-          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED
         operationRef: media.operation.action.submit-render
         sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-render
         runtimeAdmission: NOT_ADMITTED

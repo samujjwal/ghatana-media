@@ -5,19 +5,19 @@
   "sources": [
     {
       "path": ".product-experience/interface-parity/operation-parity.yaml",
-      "sha256": "24e4699d42dd1a2a0363628387fdf2a12c539f8ac697a0b8771277bbd4aa8555"
+      "sha256": "4ac32dbaeeeb83b9a7340a8de8933fa7b2440056b78b767ff8a8db48677b65f7"
     },
     {
       "path": ".product-experience/pdp-1-domain-data/operations.yaml",
-      "sha256": "63e36ea20e5b5f7e6fa84d3a7f2bdd2f611835b415aa25205bcf0b290fb7f952"
+      "sha256": "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5"
     },
     {
       "path": ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
-      "sha256": "e5a86cd601694697ad735ab10803f215ef8078b8704dc7dc2645435a490e74bc"
+      "sha256": "922ae29a35e839adb6062662cd11646047bcb76f428795619a7b5f3d65529ac6"
     },
     {
       "path": ".product-experience/pdp-3-product-experience/action-registry.yaml",
-      "sha256": "832beaf50f03f9e3c4d8bf0f7e5f47ffe38b570c3e4864bef04c7362352180fe"
+      "sha256": "53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426"
     },
     {
       "path": ".product-experience/pdp-3-product-experience/cli-command-registry.yaml",
@@ -89,7 +89,7 @@
     },
     {
       "path": ".product-experience/pdp-3-product-experience/action-registry.yaml",
-      "sha256": "832beaf50f03f9e3c4d8bf0f7e5f47ffe38b570c3e4864bef04c7362352180fe"
+      "sha256": "53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426"
     },
     {
       "path": "config/route-manifest.json",
@@ -360,9 +360,9 @@
   "currentSourceCutDeltaReview": {
     "status": "RECONCILED_CURRENT_SOURCE_CUT",
     "reviewedOn": "2026-10-14",
-    "operationsSha256": "63e36ea20e5b5f7e6fa84d3a7f2bdd2f611835b415aa25205bcf0b290fb7f952",
-    "actionRegistrySha256": "832beaf50f03f9e3c4d8bf0f7e5f47ffe38b570c3e4864bef04c7362352180fe",
-    "operationParitySha256": "24e4699d42dd1a2a0363628387fdf2a12c539f8ac697a0b8771277bbd4aa8555",
+    "operationsSha256": "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5",
+    "actionRegistrySha256": "53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426",
+    "operationParitySha256": "4ac32dbaeeeb83b9a7340a8de8933fa7b2440056b78b767ff8a8db48677b65f7",
     "meaning": "Re-reviewed the current operations source against exact interface identities, action crosswalks, and typed observation inventory. The preceding reviewed operations bytes are not available in the checked-out Git history, so this is a full current-cut parity review, not a reconstructed byte-exact delta. The exact source inventory contains 15/15 current owner typed observation contracts and 15 validation rules, including exact transcript submission lineage, seven-dimension job status, immutable output-preview/version lineage, and the rights/quality/profile evidence joins used by the affected MDC-30 result definitions. These are logical definitions only: they do not establish accepted interface mapping, transport equivalence, external owner acceptance, independent review, or runtime admission. The inspect-source action retains its exact current PDP-3 preconditions and one matching PDP-1 QUERY inventory identity. Logical operation identity remains separate from route/transport identity.",
     "outstandingMeaningIds": [],
     "runtimeAdmission": "NOT_ADMITTED",
@@ -372,7 +372,7 @@
     "previousReviewedOperationsBytesAvailableInGit": false,
     "operationsSourceReinspection": {
       "status": "REINSPECTED_CURRENT_SOURCE_CUT",
-      "sourceSha256": "63e36ea20e5b5f7e6fa84d3a7f2bdd2f611835b415aa25205bcf0b290fb7f952",
+      "sourceSha256": "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5",
       "previousReviewedSourceSha256": "2ea3da8af4d332be51c7322060641de5f59a13e3b00833e03105f5d13049d55c",
       "previousSourceBytesAvailableInGit": false,
       "populations": {

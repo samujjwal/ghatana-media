@@ -864,8 +864,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml",
-      "sha256": "736b64f03b4108b5054f63debf755f322df80ba0ab980c819a40b8d247daba52",
-      "bytes": 837355,
+      "sha256": "53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426",
+      "bytes": 837331,
       "format": "yaml",
       "schemaVersion": "media.action-registry.v1",
       "authority": null,
@@ -1044,7 +1044,7 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/public-effect-finality-taxonomy.yaml",
-      "sha256": "f10c27d10725a93f87f29358c721d9fba239180947e259ad871e0b6eeb5cf9b8",
+      "sha256": "d671a7988b0fb9d0d19eb5992df5ce0a90600256496e74a367a5c292c88d0f9b",
       "bytes": 519971,
       "format": "yaml",
       "schemaVersion": "media.pdp3.public-effect-finality-taxonomy.v1",
@@ -1213,8 +1213,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml",
-      "sha256": "63e36ea20e5b5f7e6fa84d3a7f2bdd2f611835b415aa25205bcf0b290fb7f952",
-      "bytes": 10923294,
+      "sha256": "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5",
+      "bytes": 10923871,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.operations.v1",
       "authority": ".product-experience/pdp-0-product-truth/state-models.yaml",
@@ -11914,8 +11914,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml",
-      "sha256": "d5c712d13fe2fa186f271490cb0347a20e4537dc12c375f499feebecaabe6330",
-      "bytes": 79058,
+      "sha256": "ffdc985ecb39b110800b856656b5e4c68ae922c0a409e926f2d182a8f69b2bda",
+      "bytes": 78944,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -33091,8 +33091,8 @@
         "description": "Inspect deterministic experience scenario inputs and expected transitions as explicitly synthetic examples, never production media evidence or provider qualification."
       }
     ],
-    "createdAt": "2026-10-16T00:50:32.547Z",
-    "updatedAt": "2026-10-16T00:50:32.547Z"
+    "createdAt": "2026-10-17T02:14:08.510Z",
+    "updatedAt": "2026-10-17T02:14:08.510Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",
@@ -35194,8 +35194,7 @@
               "reason": "The PDP-1 command contract describes a processing request and exact job/attempt state scope, but its receipt does not assert QUEUED, RUNNING, or a later result; owner state observation is required, and no initial aggregate edge is declared.",
               "transitionRef": null,
               "stateRefs": [
-                ".product-experience/pdp-1-domain-data/states.yaml#media-job",
-                ".product-experience/pdp-1-domain-data/states.yaml#media-attempt"
+                ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
               ],
               "operationRef": "media.operation.action.submit-render",
               "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-render",

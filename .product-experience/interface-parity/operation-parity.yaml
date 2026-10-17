@@ -6123,7 +6123,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.begin-artifact-upload
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.begin-artifact-upload]
@@ -6206,7 +6206,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation-slice.begin-upload
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "action-source-declares-operation-reference"
+        classificationBasis: action-source-declares-operation-reference
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.resume-artifact-upload
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.resume-artifact-upload]
@@ -6336,7 +6336,7 @@ typedUiActionSemantics:
           - media.operation-slice.append-upload-chunk
           - media.operation-slice.complete-upload
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "action-source-declares-operation-reference"
+        classificationBasis: action-source-declares-operation-reference
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-artifact
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-artifact]
@@ -6411,7 +6411,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation-slice.inspect-artifact
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "action-source-declares-operation-reference"
+        classificationBasis: action-source-declares-operation-reference
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.attach-source-asset
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.attach-source-asset]
@@ -6490,7 +6490,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation-slice.attach-source-asset
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.choose-intent
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.choose-intent]
@@ -6533,7 +6533,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.create-project
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.create-project]
@@ -6621,7 +6621,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation-slice.create-project
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "action-source-declares-operation-reference"
+        classificationBasis: action-source-declares-operation-reference
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-project-creation
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-project-creation]
@@ -6693,7 +6693,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation-slice.inspect-project
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "action-source-declares-operation-reference"
+        classificationBasis: action-source-declares-operation-reference
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.open-project
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.open-project]
@@ -6767,7 +6767,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation-slice.inspect-project
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "action-source-declares-operation-reference"
+        classificationBasis: action-source-declares-operation-reference
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.choose-source
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.choose-source]
@@ -6810,7 +6810,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.request-transcription
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.request-transcription]
@@ -6869,7 +6869,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.transcription-submission
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "action-source-declares-operation-reference"
+        classificationBasis: action-source-declares-operation-reference
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-source
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-source]
@@ -6931,7 +6931,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation-slice.inspect-artifact-version
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.play-source
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.play-source]
@@ -6974,7 +6974,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.seek-source
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.seek-source]
@@ -7019,7 +7019,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.review-transcript
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-transcript]
@@ -7076,7 +7076,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.transcript-version-read
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "action-source-declares-operation-reference"
+        classificationBasis: action-source-declares-operation-reference
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.view-job-status
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.view-job-status]
@@ -7137,7 +7137,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.view-job-status
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.request-cancellation
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.request-cancellation]
@@ -7204,7 +7204,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation-slice.cancel-job
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.check-job-outcome
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.check-job-outcome]
@@ -7265,7 +7265,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.check-job-outcome
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-identity-scoped evidence collection is read-only and launches no new dispatch; unknown remains unknown without an authoritative observer"
+        classificationBasis: source-identity-scoped evidence collection is read-only and launches no new dispatch; unknown remains unknown without an authoritative observer
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.retry-job
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.retry-job]
@@ -7340,7 +7340,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation-slice.retry-job
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.correct-caption
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.correct-caption]
@@ -7397,7 +7397,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.caption-draft-write
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "action-source-declares-operation-reference"
+        classificationBasis: action-source-declares-operation-reference
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.align-caption-timing
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.align-caption-timing]
@@ -7458,7 +7458,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.caption-draft-write
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "action-source-declares-operation-reference"
+        classificationBasis: action-source-declares-operation-reference
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.save-caption-version
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.save-caption-version]
@@ -7529,7 +7529,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.caption-version-write
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "action-source-declares-operation-reference"
+        classificationBasis: action-source-declares-operation-reference
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.resolve-caption-conflict
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.resolve-caption-conflict]
@@ -7572,7 +7572,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source explicitly limits conflict resolution to local draft selection against an exact newer parent; no persisted domain operation is established"
+        classificationBasis: source explicitly limits conflict resolution to local draft selection against an exact newer parent; no persisted domain operation is established
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.compare-caption-versions
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.compare-caption-versions]
@@ -7628,7 +7628,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.caption-version-read
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "action-source-declares-operation-reference"
+        classificationBasis: action-source-declares-operation-reference
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-provenance
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-provenance]
@@ -7690,7 +7690,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation-slice.inspect-provenance
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.add-scene-entity
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.add-scene-entity]
@@ -7735,7 +7735,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.add-storyboard-scene
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.add-storyboard-scene]
@@ -7780,7 +7780,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.apply-admitted-edit
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.apply-admitted-edit]
@@ -7850,7 +7850,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.apply-admitted-edit
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source explicitly requests processing against an exact source/region/constraints and requires owner-acknowledged job identity; exact canonical operation remains unbound"
+        classificationBasis: source explicitly requests processing against an exact source/region/constraints and requires owner-acknowledged job identity; exact canonical operation remains unbound
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.apply-authorized-rights-restriction
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.apply-authorized-rights-restriction]
@@ -7916,7 +7916,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.apply-authorized-rights-restriction
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.associate-authorized-reference
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.associate-authorized-reference]
@@ -7961,7 +7961,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.change-interpolation-curve
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.change-interpolation-curve]
@@ -8006,7 +8006,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.change-permitted-preference
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.change-permitted-preference]
@@ -8053,7 +8053,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.choose-admitted-audio-operation
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.choose-admitted-audio-operation]
@@ -8098,7 +8098,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.choose-alignment-basis
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.choose-alignment-basis]
@@ -8143,7 +8143,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.choose-media-improvement-intent
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.choose-media-improvement-intent]
@@ -8188,7 +8188,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.choose-named-destination
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.choose-named-destination]
@@ -8233,7 +8233,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.compare-candidate-on-metric
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.compare-candidate-on-metric]
@@ -8295,7 +8295,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.compare-candidate-on-metric
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.compare-media-versions
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.compare-media-versions]
@@ -8358,7 +8358,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.compare-media-versions
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.continue-within-recorded-scope
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.continue-within-recorded-scope]
@@ -8425,7 +8425,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.continue-within-recorded-scope
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.deliver-exact-version
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.deliver-exact-version]
@@ -8487,7 +8487,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.deliver-exact-version
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.edit-admitted-adjustment
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.edit-admitted-adjustment]
@@ -8532,7 +8532,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.edit-audio-mix-controls
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.edit-audio-mix-controls]
@@ -8577,7 +8577,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.edit-keyframe
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.edit-keyframe]
@@ -8622,7 +8622,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.edit-mask-boundary
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.edit-mask-boundary]
@@ -8667,7 +8667,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.edit-requested-outcome-and-admitted-controls
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.edit-requested-outcome-and-admitted-controls]
@@ -8712,7 +8712,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.edit-scene-timing-or-transition
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.edit-scene-timing-or-transition]
@@ -8757,7 +8757,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.edit-transition-or-caption-alignment
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.edit-transition-or-caption-alignment]
@@ -8802,7 +8802,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.edit-unresolved-plan-decision
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.edit-unresolved-plan-decision]
@@ -8847,7 +8847,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.edit-video-temporal-plan
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.edit-video-temporal-plan]
@@ -8892,7 +8892,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.enter-exact-edit-constraints
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.enter-exact-edit-constraints]
@@ -8937,7 +8937,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.export-authorized-provenance
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.export-authorized-provenance]
@@ -8999,7 +8999,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.export-authorized-provenance
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-consent-and-permitted-use
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-consent-and-permitted-use]
@@ -9065,7 +9065,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.inspect-consent-and-permitted-use
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-driver-or-constraint
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-driver-or-constraint]
@@ -9128,7 +9128,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.inspect-driver-or-constraint
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-effective-processing-constraints
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-effective-processing-constraints]
@@ -9191,7 +9191,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.inspect-effective-processing-constraints
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-generated-candidates
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-generated-candidates]
@@ -9254,7 +9254,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.inspect-generated-candidates
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-governing-evidence
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-governing-evidence]
@@ -9321,7 +9321,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.inspect-governing-evidence
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-input-output-color-interpretation
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-input-output-color-interpretation]
@@ -9384,7 +9384,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.inspect-input-output-color-interpretation
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-operation-contract
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-operation-contract]
@@ -9449,7 +9449,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.inspect-operation-contract
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-operation-readiness
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-operation-readiness]
@@ -9514,7 +9514,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.inspect-operation-readiness
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-output-preview-and-version
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-output-preview-and-version]
@@ -9576,7 +9576,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.inspect-output-preview-and-version
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-quality-evidence
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-quality-evidence]
@@ -9639,7 +9639,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.inspect-quality-evidence
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-scene-binding
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-scene-binding]
@@ -9702,7 +9702,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.inspect-scene-binding
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-setting-owner
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-setting-owner]
@@ -9765,7 +9765,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.inspect-setting-owner
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-simulation-domain-and-fidelity
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-simulation-domain-and-fidelity]
@@ -9833,7 +9833,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.inspect-simulation-domain-and-fidelity
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-simulation-result
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-simulation-result]
@@ -9901,7 +9901,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.inspect-simulation-result
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-source-measurements
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-source-measurements]
@@ -9964,7 +9964,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.inspect-source-measurements
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-version-and-review-scope
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-version-and-review-scope]
@@ -10029,7 +10029,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.inspect-version-and-review-scope
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-voice-authorization
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-voice-authorization]
@@ -10092,7 +10092,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.inspect-voice-authorization
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.limit-tracking-propagation-range
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.limit-tracking-propagation-range]
@@ -10137,7 +10137,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.open-admitted-delivery-action
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.open-admitted-delivery-action]
@@ -10199,7 +10199,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.open-admitted-delivery-action
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.open-approval-view
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.open-approval-view]
@@ -10262,7 +10262,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.open-approval-view
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.open-authorized-recovery-instruction
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.open-authorized-recovery-instruction]
@@ -10327,7 +10327,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.open-authorized-recovery-instruction
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.open-qualification-evidence
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.open-qualification-evidence]
@@ -10392,7 +10392,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.open-qualification-evidence
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.open-related-view
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.open-related-view]
@@ -10459,7 +10459,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.open-related-view
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.prepare-redacted-diagnostics
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.prepare-redacted-diagnostics]
@@ -10508,7 +10508,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.preview-current-revision
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.preview-current-revision]
@@ -10572,7 +10572,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.preview-current-revision
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.preview-motion
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.preview-motion]
@@ -10635,7 +10635,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.preview-motion
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.reconcile-delivery-acknowledgment
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.reconcile-delivery-acknowledgment]
@@ -10700,7 +10700,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.reconcile-delivery-acknowledgment
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.record-authorized-attestation
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.record-authorized-attestation]
@@ -10766,7 +10766,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.record-authorized-attestation
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.record-candidate-for-review
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.record-candidate-for-review]
@@ -10829,7 +10829,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.record-candidate-for-review
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.record-review-comment
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.record-review-comment]
@@ -10894,7 +10894,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.record-review-comment
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.record-review-follow-up
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.record-review-follow-up]
@@ -10959,7 +10959,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.record-review-follow-up
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.record-version-review-decision
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.record-version-review-decision]
@@ -11024,7 +11024,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.record-version-review-decision
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.refresh-operation-readiness
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.refresh-operation-readiness]
@@ -11089,7 +11089,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.refresh-operation-readiness
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.remove-storyboard-scene
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.remove-storyboard-scene]
@@ -11134,7 +11134,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.reorder-storyboard-scenes
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.reorder-storyboard-scenes]
@@ -11179,7 +11179,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.reorder-track
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.reorder-track]
@@ -11224,7 +11224,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.request-admitted-speech-operation
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.request-admitted-speech-operation]
@@ -11292,7 +11292,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.request-admitted-speech-operation
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.request-authorized-review
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.request-authorized-review]
@@ -11357,7 +11357,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.request-authorized-review
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.request-plan-validation
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.request-plan-validation]
@@ -11420,7 +11420,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.request-plan-validation
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.request-rights-review
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.request-rights-review]
@@ -11486,7 +11486,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.request-rights-review
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.restore-prior-setting-preference
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.restore-prior-setting-preference]
@@ -11549,7 +11549,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.restore-prior-setting-preference
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.return-to-requested-destination-after-identity-confirmation
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.return-to-requested-destination-after-identity-confirmation]
@@ -11614,7 +11614,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.return-to-requested-destination-after-identity-confirmation
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.review-bounded-repair-proposal
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-bounded-repair-proposal]
@@ -11676,7 +11676,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.review-bounded-repair-proposal
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.review-estimates-and-rights-effects
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-estimates-and-rights-effects]
@@ -11738,7 +11738,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.review-estimates-and-rights-effects
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.review-output-evidence
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-output-evidence]
@@ -11801,7 +11801,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.review-output-evidence
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.review-recognized-or-synthesized-content
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-recognized-or-synthesized-content]
@@ -11865,7 +11865,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.review-recognized-or-synthesized-content
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.review-repair-bounds
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-repair-bounds]
@@ -11928,7 +11928,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.review-repair-bounds
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.review-rights-approval-and-format-effects
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-rights-approval-and-format-effects]
@@ -11938,13 +11938,16 @@ typedUiActionSemantics:
       typedDefinition:
         ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
         semanticRole: DOMAIN_OPERATION
-        effectKind: read-only-observation-query-binding-unresolved
+        effectKind: read-only-observation-query
         reversibilityDisposition: REVERSIBLE
         confirmationDisposition: NOT_REQUIRED
         confirmationRequirement: null
         actorRefs:
           - media.creator
           - media.editor
+          - media.administrator
+          - media.privacy-rights-reviewer
+          - media.reviewer
         applicabilityGuards:
           - resolve-the-current-workspace-and-exact-target-before-access-or-change
           - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
@@ -11957,11 +11960,12 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.review-rights-approval-and-format-effects
         runtimeAdmission: NOT_ADMITTED
-        acceptanceLimit: Identity/effect classification is source definition only; unresolved binding or external contract remains explicit.
+        acceptanceLimit: Exact P1 QUERY and typed observation are source-bound; transport/runtime and independent PDP1/PDP3 review remain NOT_ADMITTED/open.
         canonicalOperationBindings:
           sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.review-rights-approval-and-format-effects
           operationRef: media.operation.action.review-rights-approval-and-format-effects
           operationKind: QUERY
+          contractVersion: 1
           domainObjectRefs:
             - media.domain.artifact-version
             - media.domain.delivery-outcome
@@ -11980,6 +11984,9 @@ typedUiActionSemantics:
         actorRefs:
           - media.creator
           - media.editor
+          - media.administrator
+          - media.privacy-rights-reviewer
+          - media.reviewer
         preconditions:
           - resolve-the-current-workspace-and-exact-target-before-access-or-change
           - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
@@ -11992,7 +11999,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.review-rights-approval-and-format-effects
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: P1 defines this exact QUERY and typed rights-decision observation with no stateRefs; transport/runtime remains NOT_ADMITTED.
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.review-translated-segment
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-translated-segment]
@@ -12055,7 +12062,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.review-translated-segment
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.review-uncertain-tracking
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-uncertain-tracking]
@@ -12118,7 +12125,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.review-uncertain-tracking
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.revise-dubbing-segment
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.revise-dubbing-segment]
@@ -12163,7 +12170,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.revoke-authorized-consent
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.revoke-authorized-consent]
@@ -12186,10 +12193,10 @@ typedUiActionSemantics:
           - resolve-the-current-workspace-and-exact-target-before-access-or-change
           - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
           - preserve-the-requested-context-and-exact-version-across-recovery
-        effect: Request the explicitly named operation for the exact target only after fresh actor, capability, policy, and target checks.
+        effect: Request the exact consent action for the named authority-issued consent, purpose, and validity scope after fresh actor, capability, policy, target, and current-authority checks; no broader subject or purpose is implied.
         sourceReversibleValue: false
-        finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure
-        failureRecovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence; never-claim-success-from-local-state
+        finality: The request is not confirmation of consent change; only the consent authority receipt confirms the scoped change. UNKNOWN requires same-request reconciliation; in-flight work requires separate reconciliation; no artifact erasure is implied.
+        failureRecovery: Preserve the exact consent target and request identity; explain denial or incomplete evidence; UNKNOWN is neither success nor failure and never claim success from local state.
         domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
         exactOperationRefs:
           - media.operation.action.revoke-authorized-consent
@@ -12199,6 +12206,7 @@ typedUiActionSemantics:
           sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.revoke-authorized-consent
           operationRef: media.operation.action.revoke-authorized-consent
           operationKind: COMMAND
+          contractVersion: 1
           domainObjectRefs:
             - media.domain.consent-reference
             - media.domain.rights-decision
@@ -12221,15 +12229,15 @@ typedUiActionSemantics:
           - resolve-the-current-workspace-and-exact-target-before-access-or-change
           - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
           - preserve-the-requested-context-and-exact-version-across-recovery
-        effect: Request the explicitly named operation for the exact target only after fresh actor, capability, policy, and target checks.
+        effect: Request the exact consent action for the named authority-issued consent, purpose, and validity scope after fresh actor, capability, policy, target, and current-authority checks; no broader subject or purpose is implied.
         reversible: false
-        finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure
-        failure: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence; never-claim-success-from-local-state
+        finality: The request is not confirmation of consent change; only the consent authority receipt confirms the scoped change. UNKNOWN requires same-request reconciliation; in-flight work requires separate reconciliation; no artifact erasure is implied.
+        failure: Preserve the exact consent target and request identity; explain denial or incomplete evidence; UNKNOWN is neither success nor failure and never claim success from local state.
         domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
         exactOperationRefs:
           - media.operation.action.revoke-authorized-consent
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.save-dubbing-version
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.save-dubbing-version]
@@ -12293,7 +12301,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.save-dubbing-version
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.save-new-revision
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.save-new-revision]
@@ -12358,7 +12366,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.save-new-revision
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.save-setting-preference
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.save-setting-preference]
@@ -12421,7 +12429,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.save-setting-preference
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.save-storyboard-revision
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.save-storyboard-revision]
@@ -12488,7 +12496,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.save-storyboard-revision
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.save-versioned-edit
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.save-versioned-edit]
@@ -12552,7 +12560,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.save-versioned-edit
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.search-by-user-outcome
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.search-by-user-outcome]
@@ -12617,7 +12625,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.search-by-user-outcome
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.search-named-profiles
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.search-named-profiles]
@@ -12680,7 +12688,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.search-named-profiles
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.search-product-guidance
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.search-product-guidance]
@@ -12747,7 +12755,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.search-product-guidance
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.select-authorized-reference
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-authorized-reference]
@@ -12792,7 +12800,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.select-eligible-processing-profile
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-eligible-processing-profile]
@@ -12837,7 +12845,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.select-exact-candidates
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-exact-candidates]
@@ -12882,7 +12890,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.select-identity-confirmed-workspace
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-identity-confirmed-workspace]
@@ -12930,7 +12938,7 @@ typedUiActionSemantics:
         domainOperationDisposition: EXTERNAL_SHARED_IDENTITY_HANDOFF_OR_OBSERVATION; NO_MEDIA_DOMAIN_MUTATION
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source delegates workspace selection to Shared and requires upstream authorization confirmation; exact Shared contract binding remains unresolved"
+        classificationBasis: source delegates workspace selection to Shared and requires upstream authorization confirmation; exact Shared contract binding remains unresolved
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.select-keyframe
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-keyframe]
@@ -12975,7 +12983,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.select-region-or-point
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-region-or-point]
@@ -13020,7 +13028,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.select-scene-entity
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-scene-entity]
@@ -13065,7 +13073,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.select-shot-or-region
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-shot-or-region]
@@ -13110,7 +13118,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.select-track-or-region
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-track-or-region]
@@ -13155,7 +13163,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.set-simulation-initial-condition
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.set-simulation-initial-condition]
@@ -13202,7 +13210,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.share-diagnostics-after-explicit-choice
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.share-diagnostics-after-explicit-choice]
@@ -13269,7 +13277,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.share-diagnostics-after-explicit-choice
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.start-upstream-identity-handoff
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.start-upstream-identity-handoff]
@@ -13317,7 +13325,7 @@ typedUiActionSemantics:
         domainOperationDisposition: EXTERNAL_SHARED_IDENTITY_HANDOFF; NO_MEDIA_DOMAIN_MUTATION
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source transfers navigation to Shared and explicitly says handoff does not confirm authentication or access; exact Shared handoff contract remains unresolved"
+        classificationBasis: source transfers navigation to Shared and explicitly says handoff does not confirm authentication or access; exact Shared handoff contract remains unresolved
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.stop-authorized-voice-use
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.stop-authorized-voice-use]
@@ -13386,7 +13394,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.stop-authorized-voice-use
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.submit-admitted-plan
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.submit-admitted-plan]
@@ -13451,7 +13459,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.submit-admitted-plan
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.submit-render
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.submit-render]
@@ -13516,7 +13524,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.submit-render
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.submit-simulation
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.submit-simulation]
@@ -13586,7 +13594,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.submit-simulation
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.submit-validated-request
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.submit-validated-request]
@@ -13651,7 +13659,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.submit-validated-request
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"
+        classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.trim-track
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.trim-track]
@@ -13696,7 +13704,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.undo-or-redo-versioned-change
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.undo-or-redo-versioned-change]
@@ -13741,7 +13749,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.update-repair-bounds
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.update-repair-bounds]
@@ -13786,7 +13794,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.update-scene-binding
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.update-scene-binding]
@@ -13831,7 +13839,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.validate-composition
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.validate-composition]
@@ -13894,7 +13902,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.validate-composition
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.validate-exact-snapshot
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.validate-exact-snapshot]
@@ -13957,7 +13965,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.validate-exact-snapshot
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.validate-processing-profile
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.validate-processing-profile]
@@ -14020,7 +14028,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.validate-processing-profile
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.validate-scene-references
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.validate-scene-references]
@@ -14083,7 +14091,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.validate-scene-references
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.validate-simulation-plan
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.validate-simulation-plan]
@@ -14151,7 +14159,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.validate-simulation-plan
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.align-source-time-interval
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.align-source-time-interval]
@@ -14198,7 +14206,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.inspect-source-grounded-observation
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-source-grounded-observation]
@@ -14266,7 +14274,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.inspect-source-grounded-observation
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.review-processing-parameters
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-processing-parameters]
@@ -14329,7 +14337,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.review-processing-parameters
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.review-scene-timing-and-transitions
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-scene-timing-and-transitions]
@@ -14394,7 +14402,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.review-scene-timing-and-transitions
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.search-authorized-artifacts
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.search-authorized-artifacts]
@@ -14464,7 +14472,7 @@ typedUiActionSemantics:
         exactOperationRefs:
           - media.operation.action.search-authorized-artifacts
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID"
+        classificationBasis: source-confirms-no-write-effect; a transport/domain query may still be needed and has no exact canonical ID
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.select-simulation-output-pass
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-simulation-output-pass]
@@ -14511,7 +14519,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.select-source-time-interval
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-source-time-interval]
@@ -14556,7 +14564,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.set-declared-simulation-input
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.set-declared-simulation-input]
@@ -14603,7 +14611,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.switch-measurement-presentation
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.switch-measurement-presentation]
@@ -14648,7 +14656,7 @@ typedUiActionSemantics:
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
         ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-        classificationBasis: "source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback"
+        classificationBasis: source-effect-and-finality-explicitly-limit-this-action-to-local-selection-draft-or-playback
         runtimeAdmission: NOT_ADMITTED
   - identity: media.action.confirm-selected-fallback
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.confirm-selected-fallback]
@@ -14662,7 +14670,10 @@ typedUiActionSemantics:
         reversibilityDisposition: NOT_REVERSIBLE
         confirmationDisposition: REQUIRED
         confirmationRequirement: Show the exact versioned alternative and its candidate-bound evidence; require a separate explicit confirmation bound to the original job and request snapshot.
-        actorRefs: [media.creator, media.editor, media.operator]
+        actorRefs:
+          - media.creator
+          - media.editor
+          - media.operator
         applicabilityGuards:
           - exact-original-job-and-submission-request-snapshot-are-current
           - exact-seven-dimension-job-status-is-current-and-matches-the-original-job
@@ -14673,18 +14684,61 @@ typedUiActionSemantics:
         effect: Record a separately confirmed versioned fallback selection for the same job and request snapshot; do not dispatch or retry processing.
         sourceReversibleValue: false
         finality: explicit-selection-receipt-only; no execution, completion, approval, or delivery
-        failureRecovery: Reconcile the same confirmation request ID and fingerprint; UNKNOWN does not imply denial, failure, or permission to resubmit.
+        failureRecovery: Preserve original identities and evidence; unknown or stale status does not imply failure or authorize resubmission.
         domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
-        exactOperationRefs: [media.operation.fallback-selection.confirm.v1]
+        exactOperationRefs:
+          - media.operation.fallback-selection.confirm.v1
+        operationRef: media.operation.fallback-selection.confirm.v1
+        orderedOperationRefs: []
         runtimeAdmission: NOT_ADMITTED
         acceptanceLimit: Logical selection definition only; external owner acceptance, independent review, transport, dispatch, and runtime remain pending.
         canonicalOperationBindings:
           sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.fallback-selection.confirm.v1
           operationRef: media.operation.fallback-selection.confirm.v1
           operationKind: COMMAND
-          domainObjectRefs: [media.domain.processing-job, media.domain.artifact-version, media.domain.resolved-plan]
-
-
+          domainObjectRefs:
+            - media.domain.processing-job
+            - media.domain.artifact-version
+            - media.domain.resolved-plan
+      sourceEnvelope:
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.fallback-selection.confirm.v1
+        operationRef: media.operation.fallback-selection.confirm.v1
+        operationKind: COMMAND
+        domainObjectRefs:
+          - media.domain.processing-job
+          - media.domain.artifact-version
+          - media.domain.resolved-plan
+        stateRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementRefs: []
+        profileRef: media.operation-profile.governed-external-effect.v1
+        sourceEffect: Record a separately confirmed versioned fallback selection for the same job and request snapshot; do not dispatch or retry processing.
+        sourceFinality: explicit-selection-receipt-only; no execution, completion, approval, or delivery
+        sourceRecovery: Preserve original identities and evidence; unknown or stale status does not imply failure or authorize resubmission.
+        scopeStatus: OWNER_DEFINED_DEFINITION_ONLY
+        implementationState: UNKNOWN
+        qualificationState: NOT_EVALUATED
+        runtimeAdmission: NOT_ADMITTED
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.fallback-selection.confirm.v1
+        actorRefs:
+          - media.creator
+          - media.editor
+          - media.operator
+        preconditions:
+          - exact-original-job-and-submission-request-snapshot-are-current
+          - exact-seven-dimension-job-status-is-current-and-matches-the-original-job
+          - explicitly-named-versioned-alternative-and-candidate-artifact-are-exact
+          - candidate-specific-current-rights-license-quality-resource-and-cost-evidence-is-positive
+          - caller-resource-budget-is-only-a-ceiling-not-capacity-evidence
+          - explicit-confirmation-matches-the-original-request-and-selected-alternative
+        effect: Record a separately confirmed versioned fallback selection for the same job and request snapshot; do not dispatch or retry processing.
+        finality: explicit-selection-receipt-only; no execution, completion, approval, or delivery
+        failure: Preserve original identities and evidence; unknown or stale status does not imply failure or authorize resubmission.
+        reversible: false
 typedRuntimeLifecycleEventDispositions:
   source: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records
   denominator: 9

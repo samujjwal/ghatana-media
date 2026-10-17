@@ -8,12 +8,12 @@
   "sourcePins": {
     ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
     ".product-experience/pdp-0-product-truth/handoff-contracts.yaml": "43c015f3e2a4af776d51025b8dbd57ec6f4e78b9d0429c8926ef6c5dbe3ced15",
-    ".product-experience/pdp-1-domain-data/operations.yaml": "11d51ef9cdc69e2dde09b3a72241a19a321be40372b19850e4d29c3ec2fb3e04",
-    ".product-experience/pdp-1-domain-data/handoff-contracts.yaml": "4e1553875033beb543aabdae013385057a3651a83a1db7949ce7c5704c2acf55",
+    ".product-experience/pdp-1-domain-data/operations.yaml": "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5",
+    ".product-experience/pdp-1-domain-data/handoff-contracts.yaml": "0055cb68ee08825d8936763353e011ffa5e3979562c42685566d525a6a074024",
     ".product-experience/pdp-2-design-interface-system/handoff-contracts.yaml": "825cf82d5c9cc556b3db8aa77b82574a16f43faae95781b5f97f81ef6891bdb3",
     ".product-experience/pdp-3-product-experience/screen-registry.yaml": "b49380a9bdedaee554a21a07b4eb26bd6891d16c784fb2ccbfb7c3bc09f1d438",
-    ".product-experience/pdp-3-product-experience/journey-registry.yaml": "23aad1bfa7e8a518a737741ac1a5402578fb0ae0e095298ac5f3bda2aac537c5",
-    ".product-experience/pdp-3-product-experience/action-registry.yaml": "da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2",
+    ".product-experience/pdp-3-product-experience/journey-registry.yaml": "e997c6de4534ecf1d74d8bd91e0f7ad0a006098145b1970c003f4db0c10cd40b",
+    ".product-experience/pdp-3-product-experience/action-registry.yaml": "53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426",
     ".product-experience/pdp-3-product-experience/api-experience-mapping.yaml": "a81e7c0b544f70edae155d4f7a164710120cb8981b4f374bf306b1a55d5bdd45",
     ".product-experience/pdp-3-product-experience/handoff-bindings.yaml": "1ab6530c7c375ff542e3fffd0328e14a63bfbe3b94d85abb1f5dc9ea7eebcdef",
     "config/development-subject-authorities.v1.json": "9013ff84d193c7ee4e851bc35698bed7faf9884978d73ea6b89969fcae6a4008"

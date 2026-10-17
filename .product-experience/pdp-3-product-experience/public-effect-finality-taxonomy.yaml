@@ -7110,7 +7110,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.revoke-authorized-consent/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: 361e3f048436023c9215bfb27dd3c347ccdfe2524eac02eec8c4f9cd09a99c83
+    sourceEnvelopeSha256: a6c50fa05c629c969ff34ba6885c72399bf3597fc6dedd26f51e33750f2f0180
     sourceEnvelopeOperationRefs:
       - media.operation.action.revoke-authorized-consent
     sourceEnvelopeCanonicalBindings:
@@ -10114,7 +10114,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-163
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.confirm-selected-fallback/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: 418fe46c0783d5468c79bdfcfd7034466b1cbd8951121db9e43505bb6323594c
+    sourceEnvelopeSha256: 3027ed13f3445d9906936341d08ce88e4279b7015d3e3a5ac0d475cbb2319bcb
     sourceEnvelopeOperationRefs:
       - media.operation.fallback-selection.confirm.v1
     sourceEnvelopeCanonicalBindings:

@@ -114,7 +114,7 @@
       "claimId": "MPSEM-0296-C005",
       "targetRef": ".product-experience/interface-parity/operation-parity.yaml#ownerDefinedSourceTruthMatrix",
       "historicalTargetTextSha256": "cd7dc0f0af3884cc1239c3764eb24d4ab47576f5fb9ca7d067f1485296e77cf1",
-      "currentTargetValueSha256": "8c188d0bc642d1831e6bf0a75260f90bac842c37c67c09f371ea1568800e3189",
+      "currentTargetValueSha256": "1edb9df8782e43885b5021b0fbe228eeac8676cd555fff3864cf170fdae12bab",
       "sourceText": "The source-of-truth matrix identifies the owner and implementation for every method/path/action.",
       "claimParityBasis": "Current ownerDefinedSourceTruthMatrix requires exact identity, owner, implementation/source evidence, explicit disposition, and an explicit gap for unknown identities across inventoried public methods, paths, SDK methods, and UI actions. The expanded population metadata does not weaken those fields. No task/phase acceptance, implementation, qualification, or runtime admission is asserted.",
       "disposition": "CURRENT_TARGET_VALUE_REHASHED_AFTER_CLAIM_SCOPED_SEMANTIC_REVIEW; CLAIM_PARITY_RETAINED",

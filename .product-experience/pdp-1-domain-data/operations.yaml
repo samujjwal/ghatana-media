@@ -9111,10 +9111,13 @@ actionOperationDispositionInventory:
       exactOperationRefs:
         - media.operation.action.revoke-authorized-consent
       sourceEvidence:
-        effect: Request the explicitly named operation for the exact target only after
-          fresh actor, capability, policy, and target checks.
-        finality: external-effect-or-request; owner-acknowledgment-required;
-          unknown-is-not-failure
+        effect: Request the exact consent action for the named authority-issued consent,
+          purpose, and validity scope after fresh actor, capability, policy, target,
+          and current-authority checks; no broader subject or purpose is implied.
+        finality: "The request is not confirmation of consent change; only the consent\
+          \ authority receipt confirms the scoped change. UNKNOWN requires same-request\
+          \ reconciliation; in-flight work requires separate reconciliation; no artifact\
+          \ erasure is implied."
         preconditions:
           - resolve-the-current-workspace-and-exact-target-before-access-or-change
           - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
@@ -14816,10 +14819,12 @@ ownerDefinedOperationContracts:
         trustedContext:
           tenantId: authenticated-host-only
           principalId: authenticated-host-only
-      sourceEffect: Request the explicitly named operation for the exact target only
-        after fresh actor, capability, policy, and target checks.
-      sourceFinality: external-effect-or-request; owner-acknowledgment-required;
-        unknown-is-not-failure
+      sourceEffect: Request the exact consent action for the named authority-issued consent, purpose,
+        and validity scope after fresh actor, capability, policy, target, and current-authority
+        checks; no broader subject or purpose is implied.
+      sourceFinality: "The request is not confirmation of consent change; only the consent authority\
+        \ receipt confirms the scoped change. UNKNOWN requires same-request reconciliation;\
+        \ in-flight work requires separate reconciliation; no artifact erasure is implied."
       sourceGuards: &a113_scope_1_scope_1_scope_1_scope_1_scope_1
         - resolve-the-current-workspace-and-exact-target-before-access-or-change
         - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects

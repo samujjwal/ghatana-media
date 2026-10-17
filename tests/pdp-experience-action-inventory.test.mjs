@@ -85,7 +85,10 @@ test('all 147 PDP-3 actions retain exact authored actor, guard, effect, finality
     assert.equal(envelope.runtimeAdmission, 'NOT_ADMITTED');
     const typed = semantics.typedDefinition;
     assert.ok(typed, `${action.id} needs an explicitly typed semantic definition`);
-    assert.equal(typed.ownerDefinitionDecisionRef, '.product-experience/decision-log.md#PXD-075');
+    assert.ok(
+      typed.ownerDefinitionDecisionRef === '.product-experience/decision-log.md#PXD-075'
+      || typed.ownerDefinitionDecisionRef === '.product-experience/decision-log.md#PXD-163',
+      `${action.id} ownerDefinitionDecisionRef must be PXD-075 or the J-27 sanctioned PXD-163`);
     assert.equal(typed.semanticRole, roleFor(disposition.domainOperationDisposition));
     assert.deepEqual(typed.actorRefs, action.actorRefs);
     assert.deepEqual(typed.applicabilityGuards, action.preconditions);

@@ -11098,9 +11098,8 @@ actions:
         - media.operation.action.revoke-authorized-consent
       ownerDefinitionStatus: Media-owner-source-classification;
         independent-PDP3-and-PDP1-review-open; runtime-not-admitted
-      classificationBasis: P1 defines an exact consent-revocation COMMAND request and
-        receipt semantics; this action has no artifact-deletion or all-copy
-        erasure authority.
+      classificationBasis: source-declares-an-exact-logical-operation-reference;
+        transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
@@ -15965,6 +15964,7 @@ actions:
       effect: Record a separately confirmed versioned fallback selection for the same job and request snapshot; do not dispatch or retry processing.
       finality: explicit-selection-receipt-only; no execution, completion, approval, or delivery
       failure: Preserve original identities and evidence; unknown or stale status does not imply failure or authorize resubmission.
+      reversible: false
   requirementRefs: []
   capabilityBindingStatus: OWNER_OPERATION_BOUND; CAPABILITY_AND_EXTERNAL_ACCEPTANCE_PENDING
   capabilityCrosswalkSources: []

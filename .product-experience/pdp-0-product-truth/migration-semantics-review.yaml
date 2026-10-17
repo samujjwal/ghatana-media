@@ -38797,7 +38797,7 @@ pdp38ClaimReconciliation:
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
           semanticReviewStatus: "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED"
           targetRef: ".product-experience/interface-parity/operation-parity.yaml#ownerDefinedSourceTruthMatrix"
-          targetTextSha256: "8c188d0bc642d1831e6bf0a75260f90bac842c37c67c09f371ea1568800e3189"
+          targetTextSha256: "1edb9df8782e43885b5021b0fbe228eeac8676cd555fff3864cf170fdae12bab"
           rationale: "PXD-100: full exact source clause reviewed against its material owner definition; historical external license statement is preserved and checked against the official source only. No runtime, independent acceptance, legal clearance or Lifecycle receipt is granted."
           acceptanceEffect: none
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0296-C005"
