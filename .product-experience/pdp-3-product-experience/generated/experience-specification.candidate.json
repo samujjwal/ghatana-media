@@ -77,7 +77,7 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
-      "sha256": "8ac89707ec6485dc2cfaf2130efed2c98819a8a897da7f218c6c03891e8da697",
+      "sha256": "412741465e9a0078e444f278cb056c0aafa8983f8b8e90b3b0c2ebc4ef40b950",
       "bytes": 19148,
       "format": "yaml",
       "schemaVersion": "media.journey-registry.v1",
@@ -11914,8 +11914,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml",
-      "sha256": "ffdc985ecb39b110800b856656b5e4c68ae922c0a409e926f2d182a8f69b2bda",
-      "bytes": 78944,
+      "sha256": "7e6858d38139c353b71b7218dd1a83a0ae4594edfc8bdf4751eef9b67efb9d3c",
+      "bytes": 79132,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12115,8 +12115,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml",
-      "sha256": "f185195154e404a6ad382e48e2cdbcd563fab3d90c0a2049fa540a8ac3f16f43",
-      "bytes": 116854,
+      "sha256": "4537482ee252f915b3429d8cd785464382911d13ff9e7de1f26f43f8008522b2",
+      "bytes": 116923,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -13003,8 +13003,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml",
-      "sha256": "dea087cd119a6551c39a4666d57d9abe1927c74db14eb7b19685b322c6fff44f",
-      "bytes": 113134,
+      "sha256": "ef49d9855fcb68eafdd9378c0c35d47ecea063674c9777aa8024892e6b6e5f37",
+      "bytes": 113203,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -33091,8 +33091,8 @@
         "description": "Inspect deterministic experience scenario inputs and expected transitions as explicitly synthetic examples, never production media evidence or provider qualification."
       }
     ],
-    "createdAt": "2026-10-17T06:53:13.977Z",
-    "updatedAt": "2026-10-17T06:53:13.977Z"
+    "createdAt": "2026-10-17T09:33:23.560Z",
+    "updatedAt": "2026-10-17T09:33:23.560Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",
@@ -38019,8 +38019,8 @@
       "stepBindingCounts": {
         "stepViewLinked": 130,
         "stepViewUnresolved": 0,
-        "stepActionLinked": 18,
-        "stepActionUnresolved": 112,
+        "stepActionLinked": 20,
+        "stepActionUnresolved": 110,
         "stepObjectRefsEmpty": 116,
         "stepStateRefsEmpty": 122,
         "canonicalOperationRefsNull": 111,

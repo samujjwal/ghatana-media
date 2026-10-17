@@ -1041,11 +1041,11 @@ steps:
         selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
       stepSourceFacts:
         intent: Edit caption wording, timing, and language for accessibility and review.
-        result: Return the operation envelope outcome SUCCEEDED, REJECTED, or
-          UNKNOWN_OUTCOME. On SUCCEEDED return exactly one complete
-          session-local draft snapshot with exact source and typed-parent
-          identities and the new draft revision; do not claim persistence, a
-          canonical caption version, render, or delivery.
+        result: "Immediate result is the operation envelope outcome SUCCEEDED, REJECTED,\
+          \ or UNKNOWN_OUTCOME; SUCCEEDED returns the complete session-local draft\
+          \ snapshot and source/parent identifiers, with no persistence or\
+          \ canonical-version claim.\
+          \ [.product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics]"
         resultSourceRef:
           - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics/result
         resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT

@@ -793,7 +793,7 @@ steps:
         stateRefs:
           - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED
         canonicalOperationRef: media.operation.action.submit-render
-        authorityRef: null
+        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
         transitionRef: null
         requirementRefs: []
         scenarioRefs: []
@@ -1103,7 +1103,7 @@ steps:
           - media.domain.artifact-version
         stateRefs: []
         canonicalOperationRef: media.operation.action.inspect-output-preview-and-version
-        authorityRef: null
+        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
         transitionRef: null
         requirementRefs: []
         scenarioRefs: []
