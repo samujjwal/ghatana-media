@@ -127,7 +127,7 @@ recorderStudioInterfaceSpecialization:
   source: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml
   consumerSurfaceIds: [media.surface.recorder-orchestrator, media.surface.capture-adapters, media.surface.production-studio, media.surface.interactive-demo-player]
   semanticContracts: [same-project-CAS, typed-headless-JSON-JSONL, keyboard-screenreader-manual-parity, rational-time-and-audio-frame-fidelity, AI-abstention-and-review, policy-and-publication-denial, unknown-finality-reconciliation, signed-sandbox-interactive-player]
-  manualEditDiscriminants: 42
-  pdp0AcceptanceCases: 78
+  manualEditDiscriminants: 52
+  pdp0AcceptanceCases: 84
   noAlternateAuthority: GUI-CLI-SDK-and-API-are-view-projections-not-separate-owner-of-product-business-actions
   nonClaims: [no-deployed-screen, no-public-operation, no-PDP3-exit, no-human-a11y-certification]

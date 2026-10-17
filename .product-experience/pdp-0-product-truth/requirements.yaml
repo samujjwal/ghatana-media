@@ -3367,6 +3367,10 @@ requirements:
   stateModelSource: state-models.yaml
 - id: MEDIA-REQ-CAP-ANIMATION-EDITING
   scopeStatus: TARGET
+  recorderStudioSpecialization:
+    sourceRef: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    scope: Recorder-Studio-source-defined-successor-not-runtime-admission
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-79, MEDIA-REC-P0-AC-80]
   statement: Every operation in media.animation.editing retains the intended semantic outcome in the full product definition
     and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission,
     qualification, and runtime availability are separately established.
@@ -4564,6 +4568,10 @@ requirements:
   stateModelSource: state-models.yaml
 - id: MEDIA-REQ-CAP-ENHANCE-AUDIO
   scopeStatus: TARGET
+  recorderStudioSpecialization:
+    sourceRef: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    scope: Recorder-Studio-source-defined-successor-not-runtime-admission
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-84]
   statement: Every operation in media.enhance.audio retains the intended semantic outcome in the full product definition and
     is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission,
     qualification, and runtime availability are separately established.
@@ -4751,6 +4759,10 @@ requirements:
   stateModelSource: state-models.yaml
 - id: MEDIA-REQ-CAP-EDIT
   scopeStatus: TARGET
+  recorderStudioSpecialization:
+    sourceRef: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+    scope: Recorder-Studio-source-defined-successor-not-runtime-admission
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-81, MEDIA-REC-P0-AC-82]
   statement: Every operation in media.edit retains the intended semantic outcome in the full product definition and is invocable
     only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification,
     and runtime availability are separately established.
@@ -5094,7 +5106,7 @@ requirements:
   recorderStudioSpecialization:
     sourceRef: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
     scope: Recorder-Studio-source-defined-successor-not-runtime-admission
-    acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023, MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-025, MEDIA-REC-P0-AC-026, MEDIA-REC-P0-AC-027, MEDIA-REC-P0-AC-028, MEDIA-REC-P0-AC-029, MEDIA-REC-P0-AC-035, MEDIA-REC-P0-AC-036, MEDIA-REC-P0-AC-037, MEDIA-REC-P0-AC-038, MEDIA-REC-P0-AC-039]
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023, MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-025, MEDIA-REC-P0-AC-026, MEDIA-REC-P0-AC-027, MEDIA-REC-P0-AC-028, MEDIA-REC-P0-AC-029, MEDIA-REC-P0-AC-083, MEDIA-REC-P0-AC-035, MEDIA-REC-P0-AC-036, MEDIA-REC-P0-AC-037, MEDIA-REC-P0-AC-038, MEDIA-REC-P0-AC-039]
   statement: Every operation in media.compose retains the intended semantic outcome in the full product definition and is
     invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification,
     and runtime availability are separately established.
@@ -6745,7 +6757,7 @@ recorderStudioProfile:
   historicalCapabilityLeavesPreserved: 462
   canonicalSourceRule: All clauses refine the named MEDIA-REQ-CAP family record and canonical leaf; no new family requirement or capability identity is minted.
   applicability: [media.surface.recorder-orchestrator, media.surface.capture-adapters, media.surface.production-studio, media.surface.interactive-demo-player]
-  requiredClauseCount: 78
+  requiredClauseCount: 84
   acceptanceClauses:
     - id: MEDIA-REC-P0-AC-001
       group: INTENT
@@ -7526,4 +7538,64 @@ recorderStudioProfile:
       when: "an operation is blocked, conflicts or enters unknown finality"
       then: "show what failed, trusted source identity and safe next action across GUI/headless outputs"
       rejection: "no action is described as successful solely by transport status or toast"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-079
+      group: STUDIO
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION-EDITING
+      capabilityLeafId: media.animation.editing.track.mute
+      surfaceId: media.surface.production-studio
+      given: "An authorized editor is working from one source-bound Media project revision"
+      when: "a reviewer mutes/unmutes a video, audio or caption track"
+      then: "commit a versioned track-specific mute and preview state with keyboard and CLI/API parity"
+      rejection: "a muted track must not be treated as an erased source, qualified silent film or global permission"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-080
+      group: STUDIO
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION-EDITING
+      capabilityLeafId: media.animation.editing.track.solo
+      surfaceId: media.surface.production-studio
+      given: "An authorized editor is working from one source-bound Media project revision"
+      when: "an editor solos a subset of source tracks"
+      then: "preserve exact solo selection and excluded audible/visible tracks as an undoable project revision"
+      rejection: "solo cannot silently change another project, discard sources or bypass locked lanes"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-081
+      group: STUDIO
+      parentRequirementId: MEDIA-REQ-CAP-EDIT
+      capabilityLeafId: media.edit.retime-slow-motion-speed-ramp
+      surfaceId: media.surface.production-studio
+      given: "An authorized editor is working from one source-bound Media project revision"
+      when: "a user changes clip rate, slow motion or time warp"
+      then: "bind an editable speed curve to rational source media intervals and declare pitch, sync and interpolation limits"
+      rejection: "no fabricated source frames, unqualified resampling, floating-point time drift or lost manually locked timing"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-082
+      group: STUDIO
+      parentRequirementId: MEDIA-REQ-CAP-EDIT
+      capabilityLeafId: media.edit.smart-crop-auto-reframe
+      surfaceId: media.surface.production-studio
+      given: "An authorized editor is working from one source-bound Media project revision"
+      when: "a user manually crops, frames or adjusts protected composition bounds"
+      then: "retain editable crop geometry, source bounds and protected-area policy for every approved output aspect ratio"
+      rejection: "automatic reframe cannot discard essential UI, text or brand marks or override locked human framing"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-083
+      group: STUDIO
+      parentRequirementId: MEDIA-REQ-CAP-COMPOSE
+      capabilityLeafId: media.compose.track.video-audio-caption-overlay
+      surfaceId: media.surface.production-studio
+      given: "An authorized editor is working from one source-bound Media project revision"
+      when: "an editor groups scenes or adds a background, visual frame, annotation or click emphasis"
+      then: "record sourced, time-bound, independently editable visual layers and semantic anchors with accessible controls"
+      rejection: "no unapproved source replacement, invented product action or loss of grouped-scene/edit provenance"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-REC-P0-AC-084
+      group: STUDIO
+      parentRequirementId: MEDIA-REQ-CAP-ENHANCE-AUDIO
+      capabilityLeafId: media.enhance.audio.noise-suppression
+      surfaceId: media.surface.production-studio
+      given: "An authorized editor is working from one source-bound Media project revision"
+      when: "a user adjusts dialogue restoration and denoising manually"
+      then: "preserve original stems, explicit enhancement parameters, before/after comparison, evidence and rights"
+      rejection: "a derived track cannot claim recovered missing speech, speaker identity, licensed music or quality pass without measurement"
       scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF

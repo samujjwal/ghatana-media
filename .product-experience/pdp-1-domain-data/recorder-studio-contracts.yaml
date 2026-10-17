@@ -25,7 +25,7 @@ objects:
   - id: media.recorder.edit-operation
     identity: [tenantId, projectId, operationId]
     fields: [expectedRevisionId, actorRef, requestId, targetSemanticAnchor, operationKind, parameters, provenance, manualLock, editedBy, derivationInputs]
-    operationKinds: [trim, roll, ripple, slip, slide, split, insert, move, reorder, snap, marker, nested-sequence, keyframe, easing, mask, redact, cursor-highlight, transform, zoom, pan, reframe, color-correction, shot-color-match, overlay, title, credits, brand-logo, transition, caption, subtitle-timing, dub, narration, audio-gain, audio-duck, audio-mix, audio-fade, camera-switch, picture-in-picture, hotspot, branch, undo, redo]
+    operationKinds: [trim, roll, ripple, slip, slide, split, insert, move, reorder, snap, marker, nested-sequence, keyframe, easing, mask, redact, cursor-highlight, transform, zoom, pan, reframe, color-correction, shot-color-match, overlay, title, credits, brand-logo, transition, caption, subtitle-timing, dub, narration, audio-gain, audio-duck, audio-mix, audio-fade, camera-switch, picture-in-picture, hotspot, branch, undo, redo, scene-group, crop, cursor-click, background, frame, annotation, track-mute, track-solo, speed-ramp, audio-denoise]
     negative: [stale-CAS-override, implicit-human-edit-discard, destructive-original-write]
   - id: media.recorder.production-run
     extends: media.domain.media-run
@@ -328,7 +328,7 @@ observabilityContract:
   separateAudit: immutable-attributable-consequential-actions-and-decisions-not-replaceable-by-tracing
 sourceProfileAcceptance:
   requirementSource: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
-  requiredCaseCount: 78
+  requiredCaseCount: 84
   sourceScope: new-sub-surface-source-authored-only-not-PDP1-currentness
   casePassProof: actual-typed-owner-observation-and-independent-acceptance-later
 
@@ -337,7 +337,7 @@ pdp0CaseOperationCrosswalk:
   sourceRequirementRegister: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
   status: PDP1_SOURCE_AUTHORED_NOT_OPERATION_REGISTRY_ADMITTED
   noSecondOperationAuthority: These are scoped proposed Recorder operation outcomes; canonical Media operations remain owned by operations.yaml and require admission.
-  expectedP0CaseCount: 78
+  expectedP0CaseCount: 84
   expectedP0Groups: 16
   groups:
     - groupId: INTENT
@@ -361,7 +361,7 @@ pdp0CaseOperationCrosswalk:
       results: typed-owner-operation-result-not-transport-status
       negative: denial-unknown-conflict-and-authorization-are-preserved-before-any-product-effect
     - groupId: STUDIO
-      acceptanceCaseIds: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023, MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-025, MEDIA-REC-P0-AC-026, MEDIA-REC-P0-AC-027, MEDIA-REC-P0-AC-028, MEDIA-REC-P0-AC-029]
+      acceptanceCaseIds: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023, MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-025, MEDIA-REC-P0-AC-026, MEDIA-REC-P0-AC-027, MEDIA-REC-P0-AC-028, MEDIA-REC-P0-AC-029, MEDIA-REC-P0-AC-079, MEDIA-REC-P0-AC-080, MEDIA-REC-P0-AC-081, MEDIA-REC-P0-AC-082, MEDIA-REC-P0-AC-083, MEDIA-REC-P0-AC-084]
       proposedPdp1OperationRefs: [media.recorder.operation.edit.commit.v1, media.recorder.operation.scene.compile.v1]
       results: typed-owner-operation-result-not-transport-status
       negative: denial-unknown-conflict-and-authorization-are-preserved-before-any-product-effect

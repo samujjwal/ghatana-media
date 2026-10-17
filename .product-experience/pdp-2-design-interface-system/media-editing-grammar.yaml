@@ -88,7 +88,7 @@ recorderStudioTimelineSpecialization:
   status: SOURCE_AUTHORED_PENDING_PDP2_REVALIDATION
   source: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml
   operationSource: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#objects/media.recorder.edit-operation
-  manualOperationKindCount: 42
+  manualOperationKindCount: 52
   capability: Same-canonical-revision-versioned-edit-and-undo-operations-for-GUI-headless-SDK-CLI
   invariants:
     - no-pointer-only-manual-feature

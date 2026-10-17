@@ -41,7 +41,7 @@ capabilityBindings:
   REC-C01: [media.recipe.template.product-demonstration, media.compose.scene-storyboard-assemble, media.job.submit]
   REC-C02: [media.stream.recording.integrate, media.stream.session.open, media.stream.frame.submit]
   REC-C03: [media.project.version, media.project.composition.update, media.compose.multitrack-timeline]
-  REC-C04: [media.compose.multitrack-timeline, media.animation.editing.undo-redo.versioned, media.edit.smart-crop-auto-reframe, media.compose.track.video-audio-caption-overlay, media.animation.output.accessibility.semantic-timeline]
+  REC-C04: [media.compose.multitrack-timeline, media.animation.editing.undo-redo.versioned, media.edit.smart-crop-auto-reframe, media.compose.track.video-audio-caption-overlay, media.animation.output.accessibility.semantic-timeline, media.animation.editing.track.mute, media.animation.editing.track.solo, media.edit.retime-slow-motion-speed-ramp, media.enhance.audio.noise-suppression]
   REC-C05: [media.animation.output.output.interactive-scene, media.deliver.interactive-scene-bundle, media.recipe.template.interactive-lesson]
   REC-C06: [media.quality.recommend, media.quality.rank, media.recipe.template.product-demonstration]
   REC-C07: [media.rights.permitted-use.evaluate, media.quality.inspect, media.deliver.provenance-manifest, media.provenance.erasure.effect.record, media.deliver.publish-governed, media.job.watch]
@@ -79,7 +79,7 @@ requirementCoverage:
   sourceOfCaseTruth: canonical-Media-requirements-register-not-a-second-requirement-inventory
   acceptedHistoricalFamilyCount: 38
   acceptedHistoricalCapabilityLeafCount: 462
-  scopedProfileCaseCount: 78
+  scopedProfileCaseCount: 84
   coverageRule: Each scoped capability requires direct positive, denial, unknown-finality, manual-parity or non-applicability evidence; a grouped label does not establish completion.
   participantAuthority: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#actors
   actorBindingRule: Participant actors identify whose intended outcomes a feature serves, never RBAC, delegated authority, consent, rights approval or execution admission; actual access is evaluated at the effect boundary.
@@ -122,7 +122,7 @@ featureProfiles:
     ownerCapabilityGroup: REC-C04
     ownerSurface: media.surface.production-studio
     participantActorRefs: [media.creator, media.editor]
-    acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023, MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-025, MEDIA-REC-P0-AC-026, MEDIA-REC-P0-AC-027, MEDIA-REC-P0-AC-028, MEDIA-REC-P0-AC-029]
+    acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023, MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-025, MEDIA-REC-P0-AC-026, MEDIA-REC-P0-AC-027, MEDIA-REC-P0-AC-028, MEDIA-REC-P0-AC-029, MEDIA-REC-P0-AC-079, MEDIA-REC-P0-AC-080, MEDIA-REC-P0-AC-081, MEDIA-REC-P0-AC-082, MEDIA-REC-P0-AC-083, MEDIA-REC-P0-AC-084]
     sourceAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
     disposition: EXTEND_EXISTING_MEDIA_CAPABILITY_WITH_SCOPED_DEMO_PRODUCTION_MEANING
     runtimeAdmission: NOT_ADMITTED

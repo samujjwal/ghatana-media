@@ -53,7 +53,7 @@ authoritativeReuse:
   scope: no-new-public-API-or-runtime-route-claims
 manualOperationParity:
   sourceDiscriminant: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#objects/media.recorder.edit-operation
-  canonicalOperationCount: 42
+  canonicalOperationCount: 52
   completenessRule: Every PDP1 manual edit kind must have one keyboard/text and SDK/CLI/API-equivalent intent; GUI never owns an alternative semantic revision.
   operations:
   - kind: trim
@@ -434,6 +434,96 @@ manualOperationParity:
     expectedRevisionRequired: true
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: scene-group
+    semanticGroup: timeline-edit
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: timeline
+    keyboardAndTextEquivalent: keyboard-shortcut-with-explicit-timecode-entry
+    cliSdkApiIntent: media.recorder.edit-operation.scene-group
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: crop
+    semanticGroup: visual-transform
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: property-inspector
+    keyboardAndTextEquivalent: keyboard-and-numeric-field-with-unit-and-range
+    cliSdkApiIntent: media.recorder.edit-operation.crop
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: cursor-click
+    semanticGroup: semantic-region
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: mask-and-source-observation-editor
+    keyboardAndTextEquivalent: accessible-region-list-and-timecode-navigation
+    cliSdkApiIntent: media.recorder.edit-operation.cursor-click
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: background
+    semanticGroup: graphic-and-composition
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: layer-composition-editor
+    keyboardAndTextEquivalent: source-bound-text-and-layer-order-editor
+    cliSdkApiIntent: media.recorder.edit-operation.background
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: frame
+    semanticGroup: graphic-and-composition
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: layer-composition-editor
+    keyboardAndTextEquivalent: source-bound-text-and-layer-order-editor
+    cliSdkApiIntent: media.recorder.edit-operation.frame
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: annotation
+    semanticGroup: graphic-and-composition
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: layer-composition-editor
+    keyboardAndTextEquivalent: source-bound-text-and-layer-order-editor
+    cliSdkApiIntent: media.recorder.edit-operation.annotation
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: track-mute
+    semanticGroup: audio-track-control
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: narration-mixer
+    keyboardAndTextEquivalent: keyboard-toggle-with-announced-source-track-state
+    cliSdkApiIntent: media.recorder.edit-operation.track-mute
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: track-solo
+    semanticGroup: audio-track-control
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: narration-mixer
+    keyboardAndTextEquivalent: keyboard-toggle-with-announced-source-track-state
+    cliSdkApiIntent: media.recorder.edit-operation.track-solo
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: speed-ramp
+    semanticGroup: timeline-edit
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: timeline
+    keyboardAndTextEquivalent: keyboard-shortcut-with-explicit-timecode-entry
+    cliSdkApiIntent: media.recorder.edit-operation.speed-ramp
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
+  - kind: audio-denoise
+    semanticGroup: audio-processing
+    owningProjectMutation: media.recorder.operation.edit.commit.v1
+    gui: narration-mixer
+    keyboardAndTextEquivalent: keyboard-and-numeric-field-with-unit-and-range
+    cliSdkApiIntent: media.recorder.edit-operation.audio-denoise
+    expectedRevisionRequired: true
+    manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
+    denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
 experiencePresentationProfiles:
   - id: media.recorder.p2.profile.video-landscape
     sourceProfile: 16:9
@@ -457,7 +547,7 @@ experiencePresentationProfiles:
     fallback: linear-media-only-if-admitted-and-truthfully-disclosed
 pdp0AcceptanceCaseProjection:
   exactSource: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses
-  requiredCount: 78
+  requiredCount: 84
   completeCoveragePolicy: Every case has a declared owning logical surface, a positive result and explicit negative/recovery UI or machine outcome.
   groups:
     - id: media.recorder.p2.group.intent.v1
@@ -486,7 +576,7 @@ pdp0AcceptanceCaseProjection:
       denialRecovery: all-clients-see-same-cas
     - id: media.recorder.p2.group.studio.v1
       pdp1OperationRefs: [media.recorder.operation.edit.commit.v1, media.recorder.operation.scene.compile.v1]
-      cases: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023, MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-025, MEDIA-REC-P0-AC-026, MEDIA-REC-P0-AC-027, MEDIA-REC-P0-AC-028, MEDIA-REC-P0-AC-029]
+      cases: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023, MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-025, MEDIA-REC-P0-AC-026, MEDIA-REC-P0-AC-027, MEDIA-REC-P0-AC-028, MEDIA-REC-P0-AC-029, MEDIA-REC-P0-AC-079, MEDIA-REC-P0-AC-080, MEDIA-REC-P0-AC-081, MEDIA-REC-P0-AC-082, MEDIA-REC-P0-AC-083, MEDIA-REC-P0-AC-084]
       surfaceId: media.surface.production-studio
       presentation: full-editing-timeline-and-inspector
       denialRecovery: every-edit-has-textual-keyboard-equivalent
