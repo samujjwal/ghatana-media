@@ -260,3 +260,15 @@ test('PDP2 source-bound editor must retain accessible denial', () => {
   const bad=verifyRecorderStudioDefinitions({overrides:{p2:altered}});
   assert.ok(bad.errors.some(x=>x.includes('PDP2 Studio value needs editor/keyboard/API and denial parity')),bad.errors.join('\n'));
 });
+
+test('returns diagnostics rather than throwing on malformed YAML in a typed contract owner', () => {
+  const p1 = read('.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml');
+  const result = verifyRecorderStudioDefinitions({overrides:{p1:p1+'\ninvalid: [unterminated'}});
+  assert.ok(result.errors.some(error => error.includes('p1: invalid or duplicate YAML mapping')),
+    result.errors.join('\n'));
+});
+test('returns diagnostics rather than throwing on invalid topology JSON', () => {
+  const result = verifyRecorderStudioDefinitions({overrides:{topology:'{"invalid":'}});
+  assert.ok(result.errors.some(error => error.includes('topology: invalid JSON')),
+    result.errors.join('\n'));
+});
