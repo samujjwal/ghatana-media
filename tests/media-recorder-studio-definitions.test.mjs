@@ -188,3 +188,25 @@ test('rejects removal of Studio mute/solo/speed-ramp parity from PDP2', () => {
   assert.ok(result.errors.some(error => error.includes('52 versioned PDP1 edit discriminants')),
     result.errors.join('\n'));
 });
+
+test('rejects a profile that claims fewer acceptance clauses than it owns', () => {
+  const p0 = read('.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml');
+  const result = verifyRecorderStudioDefinitions({overrides:{p0:p0.replace('scopedProfileCaseCount: 84',
+    'scopedProfileCaseCount: 83')}});
+  assert.ok(result.errors.some(error => error.includes('scoped case counts must agree')),
+    result.errors.join('\n'));
+});
+test('rejects canonical requirements with a stale accepted 78-case denominator', () => {
+  const req = read('.product-experience/pdp-0-product-truth/requirements.yaml');
+  const result = verifyRecorderStudioDefinitions({overrides:{requirements:req.replace('requiredClauseCount: 84',
+    'requiredClauseCount: 78')}});
+  assert.ok(result.errors.some(error => error.includes('scoped case counts must agree')),
+    result.errors.join('\n'));
+});
+test('rejects falsely declared manual operation count even if all edit kinds still match', () => {
+  const p2 = read('.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml');
+  const result = verifyRecorderStudioDefinitions({overrides:{p2:p2.replace('canonicalOperationCount: 52',
+    'canonicalOperationCount: 42')}});
+  assert.ok(result.errors.some(error => error.includes('manual operation parity denominator differs')),
+    result.errors.join('\n'));
+});
