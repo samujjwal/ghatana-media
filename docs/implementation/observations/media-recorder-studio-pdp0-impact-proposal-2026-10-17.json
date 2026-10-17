@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "media.recorder-studio-impact-proposal.v1",
+  "proposalId": "MEDIA-RECORDER-STUDIO-PDP0-2026-10-17",
+  "status": "PROPOSED_FOR_MEDIA_PRODUCT_OWNER_REVIEW",
+  "authorityEffect": "NONE",
+  "sourceBaseline": {
+    "repository": "samujjwal/ghatana-media",
+    "commit": "4ffd76c747b4cdc1829d2ba955a56185262532d0"
+  },
+  "sourceRecorderBaseline": {
+    "repository": "samujjwal/gharbatai",
+    "commit": "e2f848e680bed697f2b68d42ffe5024e2280feca"
+  },
+  "campaign": {
+    "historicalIdentities": 50,
+    "historicalPdpCells": 200,
+    "newCandidatesUnadmitted": true,
+    "newDenominator": "UNDETERMINED_PENDING_SOURCE_CENSUS"
+  },
+  "stage": {
+    "macro": "DISCOVERY",
+    "phase": "PDP-0",
+    "discoveryBarrier": "NOT_PROVEN_PASS",
+    "mediaBuildAdmission": "NOT_ADMITTED",
+    "runtimeWriter": "samujjwal/ghatana:services/media"
+  },
+  "capabilityProposals": [
+    {
+      "candidateId": "REC-C01",
+      "approval": "PENDING",
+      "exactExistingPdp0Leaf": "UNRESOLVED",
+      "semanticDisposition": "PENDING_OWNER_SOURCE_SELECTOR_REVIEW"
+    },
+    {
+      "candidateId": "REC-C02",
+      "approval": "PENDING",
+      "exactExistingPdp0Leaf": "UNRESOLVED",
+      "semanticDisposition": "PENDING_OWNER_SOURCE_SELECTOR_REVIEW"
+    },
+    {
+      "candidateId": "REC-C03",
+      "approval": "PENDING",
+      "exactExistingPdp0Leaf": "UNRESOLVED",
+      "semanticDisposition": "PENDING_OWNER_SOURCE_SELECTOR_REVIEW"
+    },
+    {
+      "candidateId": "REC-C04",
+      "approval": "PENDING",
+      "exactExistingPdp0Leaf": "UNRESOLVED",
+      "semanticDisposition": "PENDING_OWNER_SOURCE_SELECTOR_REVIEW"
+    },
+    {
+      "candidateId": "REC-C05",
+      "approval": "PENDING",
+      "exactExistingPdp0Leaf": "UNRESOLVED",
+      "semanticDisposition": "PENDING_OWNER_SOURCE_SELECTOR_REVIEW"
+    },
+    {
+      "candidateId": "REC-C06",
+      "approval": "PENDING",
+      "exactExistingPdp0Leaf": "UNRESOLVED",
+      "semanticDisposition": "PENDING_OWNER_SOURCE_SELECTOR_REVIEW"
+    },
+    {
+      "candidateId": "REC-C07",
+      "approval": "PENDING",
+      "exactExistingPdp0Leaf": "UNRESOLVED",
+      "semanticDisposition": "PENDING_OWNER_SOURCE_SELECTOR_REVIEW"
+    },
+    {
+      "candidateId": "REC-C08",
+      "approval": "PENDING",
+      "exactExistingPdp0Leaf": "UNRESOLVED",
+      "semanticDisposition": "PENDING_OWNER_SOURCE_SELECTOR_REVIEW"
+    }
+  ],
+  "journeyReuse": [
+    "J-09",
+    "J-11",
+    "J-18",
+    "J-19",
+    "J-20",
+    "J-21",
+    "J-22",
+    "J-24",
+    "J-25",
+    "J-26",
+    "J-27",
+    "J-28"
+  ],
+  "sourceRefs": {
+    "pdp0": [
+      ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      ".product-experience/pdp-0-product-truth/requirements.yaml",
+      ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
+      ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+      ".product-experience/surface-registry.yaml"
+    ],
+    "pdp1": [
+      ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+      ".product-experience/pdp-1-domain-data/operations.yaml",
+      ".product-experience/pdp-1-domain-data/versioning.yaml"
+    ],
+    "pdp2": [
+      ".product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml",
+      ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
+    ],
+    "pdp3": [
+      ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml"
+    ],
+    "controlQueue": "docs/implementation/MEDIA-DISCOVERY-PDP3-FINISH-2026-10-15.md"
+  },
+  "negativeProofRequired": [
+    "tenant-rights-consent-denial",
+    "unqualified-adapter-rejection",
+    "no-fabricated-api-ui",
+    "stale-revision-and-manual-edit-preservation",
+    "non-privileged-interactive-player",
+    "provider-unknown-finality",
+    "safe-secret-telemetry",
+    "scene-only-recapture"
+  ],
+  "forbiddenClaims": [
+    "historical-PDP-NOT_DEV_COMPLETE",
+    "DISCOVERY_PASS",
+    "MEDIA_BUILD_ADMITTED",
+    "MIG_04_CUTOVER",
+    "PRODUCTION_QUALIFIED",
+    "HUMAN_MEDIA_APPROVED",
+    "RELEASE_AUTHORIZED"
+  ],
+  "links": {
+    "handoff": "2026-10-17 Autonomous Experience Recorder W01–W24",
+    "proposalMarkdown": "docs/implementation/MEDIA-RECORDER-STUDIO-PDP0-IMPACT-2026-10-17.md"
+  }
+}
