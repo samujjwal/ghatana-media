@@ -153,3 +153,13 @@ handoffs:
           execution-reference branch; its source review records the crosswalk as reconciled. The full PDP-3 gate
           remains pending, and runtime/transport admission remains NOT_ADMITTED.
     scopeStatus: canonical-domain-and-interface-meaning-exported-for-PDP2; development-gate-status-is-recorded-separately
+
+recorderStudioPdp1ToPdp2SuccessorHandoff:
+  id: media.pdp1-pdp2.experience-production-successor.v1
+  status: SOURCE_DEFINED_SUCCESSOR_NOT_PHASE_EXIT
+  objectSource: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedExperienceProductionObjectProjection
+  revisionSource: .product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract
+  actionSource: .product-experience/pdp-1-domain-data/action-contracts.yaml#experienceProductionActionOrchestration
+  designConsumer: .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml#professionalStudioGrammar
+  constraints: [same-revision-all-editor-projections, no-drag-only-effect, rational-source-time-and-accessible-text-value, machine-only-no-fake-screens, explicit-denied-conflict-unknown-outcome, manual-overlay-preservation, no-source-privileged-effect]
+  noRunOrPhaseAcceptance: true

@@ -143,3 +143,75 @@ definitionAdjudication:
       definition: Existing field names, scalar units, enum meanings, package exports and wire shapes are preserved as observations until a versioned adapter/change mapping is reviewed; structural compatibility does not license semantic reinterpretation.
       sourceRefs: [.product-experience/pdp-1-domain-data/interoperability.yaml#packageCompatibilityBoundary, .product-experience/pdp-1-domain-data/interoperability.yaml#mappingRules]
       notEstablished: Published consumer inventory, deprecation window, adapter qualification, and external acceptance.
+
+experienceProductionRevisionContract:
+  id: media.pdp1.experience-production.revision.v1
+  status: SOURCE_DEFINED_SUCCESSOR_STORAGE_RUNTIME_UNQUALIFIED
+  owner: media
+  p0Requirements: .product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedExperienceProductionRequirements
+  operationAuthority: .product-experience/pdp-1-domain-data/operations.yaml
+  identityAuthority: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts
+  projection:
+    name: ProductionProject
+    type: purpose-and-editorial-projection-of-existing-MediaProject-and-ProjectRevision
+    canonicalProjectRef: media.domain.project
+    canonicalRevisionRef: media.domain.project-revision
+    forbidden: [second-project-id, second-project-store, second-job-store, user-owned-raw-source-mutation]
+    versionedChildren: [media.domain.artifact-version, media.domain.scene-plan, media.domain.scene-graph, media.domain.timeline, media.domain.composition-config, media.domain.media-run, media.domain.job-attempt, media.domain.quality-assessment, media.domain.render-outcome, media.domain.delivery-outcome]
+    key: [trustedTenantRef, projectId, expectedProjectRevisionId]
+    immutableSources: [artifactVersionId, sourceContentDigest, sourceClockIdentity, actorAuthority, rightsScope, sourceKind, originalCaptureProfile]
+    mutableLocalDraft: [sceneOrder, clipRanges, keyframes, captions, voiceover, animation, effects, masks, audioMix, interactiveBranches, manualLocks]
+    persistedSuccessor: one-authorized-CAS-commit-creates-one-new-project-revision-with-exact-ancestry
+    retention: immutable-inputs-and-derived-artifact-versions-have-separate-authoritative-hold-erasure-state
+  clocks:
+    master: media.value.rational-media-time
+    sourceWindow: half-open-source-tick-interval-with-positive-rational-clock-rate
+    mappings: [source-PTS, presentation-clock, frame-and-audio-sample-boundary, rate-and-rounding-provenance]
+    forbid: [wall-clock-as-media-position, invented-frame-after-VFR-gap, implicit-sample-rate-conversion]
+  semanticAnchors:
+    identity: [sceneId, sourceArtifactVersionId, semanticEventId, sourceTickWindow, bindingContractFingerprint]
+    compatibleRebase: exact-source-clock-event-and-policy-equivalence-required
+    conflict: unknown-or-incompatible-source-retains-manual-delta-for-explicit-review
+  editLayers:
+    - layer: source
+      scope: immutable-original-bytes-and-rights
+    - layer: generated
+      scope: derived-plan-and-reviewable-AI-suggestions
+    - layer: user
+      scope: CAS-versioned-manual-delta-with-protected-creative-locks
+    - layer: output
+      scope: immutable-derived-render-or-player-artifact
+    - layer: approval
+      scope: exact-version-technical-QA-human-approval-and-destination-receipt-are-independent
+  commands:
+    commonRequestFields: [trustedTenantRef, principalRef, purposeRef, projectId, expectedRevisionId, operationId, requestId, sourceVersionRefs, rightsAndPolicySnapshotRef, budgetRef]
+    editDeltaFields: [kind, sceneId, trackId, sourceTickWindow, expectedRevisionId, boundedParameters, materialFingerprint, manualLockScope]
+    manualKinds: [trim, split, slip, slide, ripple, crop, zoom, reframe, mask, color, caption, narration, soundtrack, keyframe, transition, overlay, camera-pip, hotspot, branch, reorder, undo, redo]
+    editFinality: REQUEST_ACKNOWLEDGED-is-not-revision-commit; only-authenticated-COMPLETED-for-exact-revision-is-commit
+    onConflict: preserve-proposed-delta-and-show-current-authoritative-revision
+    onUnknown: reconcile-same-request-id-and-original-object-version-before-retry
+    undo: inverse-local-revision-or-compensating-delta-not-remote-publication-reversal
+  recorderAttempt:
+    objects: [media.domain.media-run, media.domain.processing-job, media.domain.job-attempt]
+    effectBoundary: Product-owned-adapter-performs-product-domain-actions-under-current-exact-delegation
+    admission: qualified-capture-profile-with-actor-identity-owned-session-leases-purpose-consent-policy-and-source-clock
+    fatalDenials: [wrong-tenant, stale-session, missing-lease, unqualified-source, consent-revoked, policy-unknown]
+    sources: [browser, desktop, mobile, terminal, http-api, grpc-api, camera, media-file]
+    output: source-version-and-performed-beat-observations-not-inferred-business-success
+  regeneration:
+    fingerprint: [source-version, scene-event-contract, actor-scope, permission-purpose, clock-map, profile, renderer-build, model-version, codec-qualification]
+    invalidation: dependency-DAG-of-affected-scenes-and-outputs
+    reuse: only-with-equivalent-source-and-policy-and-declared-quality-tolerance
+    manualProtection: retain-matched-locked-overlays; otherwise-report-CONFLICT
+    retry: existing-Media-job-only-on-authoritatively-classified-retryable-attempt-not-unknown
+  interactive:
+    output: versioned-artifact-bundle-with-declarative-hotspot-branch-graph
+    playerPermissions: read-only-sandbox-no-product-mutation-authority
+    finality: bundle-created-not-equivalent-to-published-or-destination-acknowledged
+  observabilityPrivacy:
+    correlate: [redacted-source-ref, scene-id, attempt-id, revision-id, render-version, QA-method-id, bounded-trace-ref]
+    ban: [raw-token, signed-URL, secret-capture-log, raw-sensitive-prompt, unconsented-training, cross-tenant-cache-reuse]
+    externalEffects: require-fresh-rights-approval-recipient-policy-at-every-dispatch
+  negatives: [parallel-project-store, cross-tenant-scene-cache, overwritten-manual-lock, silent-stale-CAS, blind-retry-unknown-effect, forged-film-approval, source-VFR-time-loss, unrestricted-hotspot-script]
+  acceptanceEffect: none
+  implementationAdmission: NOT_ADMITTED

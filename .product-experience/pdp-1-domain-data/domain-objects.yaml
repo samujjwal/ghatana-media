@@ -3138,3 +3138,20 @@ ownerTypedIdentityContracts:
     projectionDisposition: OBSERVED_FIELDS_REQUIRE_EXACT_CANONICAL_ADAPTER
     status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
       unresolved
+
+ownerDefinedExperienceProductionObjectProjection:
+  name: ProductionProject
+  id: media.pdp1.experience-production.project-projection.v1
+  status: EXISTING_MEDIA_DOMAIN_OBJECTS_ONLY_NO_SECOND_OWNER
+  authority: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts
+  projectionOwner: media.domain.project
+  revisionOwner: media.domain.project-revision
+  sources: [media.domain.artifact-version, media.domain.media-asset]
+  editorial: [media.domain.scene-plan, media.domain.scene-graph, media.domain.timeline, media.domain.composition-config]
+  execution: [media.domain.media-run, media.domain.processing-job, media.domain.job-attempt]
+  trust: [media.domain.rights-decision, media.domain.provenance-manifest, media.domain.quality-assessment]
+  output: [media.domain.render-outcome, media.domain.delivery-outcome]
+  newlyMintedDomainObjectIdentities: []
+  identityTupleRule: Use-exact-existing-owner-project-revision-artifact-and-attempt-tuples; no-hash-as-identity-or-second-project-table.
+  sourceVersioning: .product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract
+  runtimeAdmission: NOT_ADMITTED

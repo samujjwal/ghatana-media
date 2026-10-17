@@ -121,3 +121,77 @@ unresolved:
   - operation-specific-completion-and-partial-success-evidence
   - cancellation-confirmation-source-and-scope
   - event-correlation-and-ordering-contract
+
+experienceProductionActionOrchestration:
+  id: media.pdp1.experience-production.operations.v1
+  status: SOURCE_DEFINED_SUCCESSOR_WITH_UNBOUND_CAPTURE_AND_RECAPTURE
+  authority: .product-experience/pdp-1-domain-data/operations.yaml
+  outcomeAuthority: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes
+  revisionAuthority: .product-experience/pdp-1-domain-data/versioning.yaml#experienceProductionRevisionContract
+  rule: These are typed compositions of existing Media operations, not new operation IDs or public routes; operation semantic meaning, finality and admission remain with their own canonical owner.
+  commandCompositions:
+    - command: experience-production.plan-demo.v1
+      canonicalOperationRef: media.operation.capability.media-recipe-template-product-demonstration
+      requestFields: [trustedTenantRef, sourceExperienceVersion, projectId, expectedRevisionId, storyboardAndCaptureProfileRef, rightsRef]
+      resultClasses: [REQUEST_STARTED, REQUEST_ACKNOWLEDGED, PROCESSING, COMPLETED, DENIED, CONFLICT, UNAVAILABLE, FAILED, UNKNOWN_OUTCOME]
+      interpretation: "A plan is a bounded candidate, not authority to execute product business actions."
+      binding: PDP1_OWNER_ACTION_BINDING_PENDING
+      admission: NOT_ADMITTED
+    - command: experience-production.capture-source.v1
+      canonicalOperationRef: media.operation.capability.media-stream-recording-integrate
+      requestFields: [productAuthorizedCaptureSourceRef, sessionAndLeaseRef, captureProfileRef, sourceClockRef, requestId]
+      resultClasses: [REQUEST_STARTED, REQUEST_ACKNOWLEDGED, PROCESSING, COMPLETED, DENIED, CONFLICT, UNAVAILABLE, FAILED, UNKNOWN_OUTCOME]
+      interpretation: "Existing recording.integrate concerns a Media stream; browser and device capture require a separately defined adapter operation before use."
+      binding: NEW_CAPTURE_OPERATION_ADAPTER_REQUIRED
+      admission: NOT_ADMITTED
+    - command: experience-production.edit-studio.v1
+      canonicalOperationRef: media.operation.capability.media-compose-multitrack-timeline
+      requestFields: [projectId, expectedRevisionId, sceneAndTrackRef, editDelta, sourceFingerprint]
+      resultClasses: [REQUEST_STARTED, REQUEST_ACKNOWLEDGED, PROCESSING, COMPLETED, DENIED, CONFLICT, UNAVAILABLE, FAILED, UNKNOWN_OUTCOME]
+      interpretation: "A manual or AI edit uses the same CAS revision transaction; conflict never silently overwrites a protected manual delta."
+      binding: OWNER_WIRE_MAPPING_PENDING
+      admission: NOT_ADMITTED
+    - command: experience-production.quality-suggestion.v1
+      canonicalOperationRef: media.operation.capability.media-quality-recommend
+      requestFields: [artifactVersionId, reviewScope, modelAndQualityProfile, rightsRef]
+      resultClasses: [REQUEST_STARTED, REQUEST_ACKNOWLEDGED, PROCESSING, COMPLETED, DENIED, CONFLICT, UNAVAILABLE, FAILED, UNKNOWN_OUTCOME]
+      interpretation: "Recommendation is a bounded advisory with abstention, never self-approved proof or an automatic canonical edit."
+      binding: ADVISORY_ONLY
+      admission: NOT_ADMITTED
+    - command: experience-production.retry-existing-attempt.v1
+      canonicalOperationRef: media.operation-slice.retry-job
+      requestFields: [jobId, priorAttemptId, knownClassifiedResult, tenantPolicyRef, requestId]
+      resultClasses: [REQUEST_STARTED, REQUEST_ACKNOWLEDGED, PROCESSING, COMPLETED, DENIED, CONFLICT, UNAVAILABLE, FAILED, UNKNOWN_OUTCOME]
+      interpretation: "Only same-job classified retry; separate scene-only recapture operation is not yet defined."
+      binding: SCENE_ONLY_RECAPTURE_OPERATION_REQUIRED
+      admission: NOT_ADMITTED
+    - command: experience-production.interactive-bundle.v1
+      canonicalOperationRef: media.operation.capability.media-deliver-interactive-scene-bundle
+      requestFields: [artifactVersions, branchGraphRevision, viewerScope, sandboxProfile]
+      resultClasses: [REQUEST_STARTED, REQUEST_ACKNOWLEDGED, PROCESSING, COMPLETED, DENIED, CONFLICT, UNAVAILABLE, FAILED, UNKNOWN_OUTCOME]
+      interpretation: "Creates a reviewable candidate; no privileged product business command, no publication finality."
+      binding: OUTPUT_NOT_PUBLISHING
+      admission: NOT_ADMITTED
+    - command: experience-production.publish-approved-version.v1
+      canonicalOperationRef: media.operation.capability.media-deliver-publish-governed
+      requestFields: [approvedArtifactVersion, destination, rightsAndConsentRef, humanApprovalIfRequired, requestId]
+      resultClasses: [REQUEST_STARTED, REQUEST_ACKNOWLEDGED, PROCESSING, COMPLETED, DENIED, CONFLICT, UNAVAILABLE, FAILED, UNKNOWN_OUTCOME]
+      interpretation: "Publication submission, destination ACK and external finality remain distinct; UNKNOWN_OUTCOME reconciles original request."
+      binding: EXTERNAL_PROVIDER_ADMISSION_REQUIRED
+      admission: NOT_ADMITTED
+
+  finalityTaxonomy:
+    capture: [provider-eligible, source-started, source-sealed, technically-qualified, semantically-qualified, owner-film-approved]
+    edit: [draft-changed, request-accepted, exact-revision-committed, rendered-output-available]
+    publication: [reviewed-output-version, publish-request-accepted, remote-recipient-acknowledged, remote-finality-confirmed]
+    cancellation: [requested, request-acknowledged, authoritative-effect-cancelled]
+    fallback: [provider-unavailable, user-approved-alternative, explicitly-requalified, execution-admitted]
+  idempotency:
+    onUnknown: READ_SAME_REQUEST_SAME_TENANT_SAME_VERSION_BEFORE_RETRY
+    onConflict: preserve-submitted-creative-delta-and-authoritative-current-head
+    onDenied: return-typed-policy-denial-without-changing-actor-or-business-effect
+    onTimeout: unknown-remote-finality-possible; no-blind-replay
+  guards: [trusted-tenant, original-product-actor-delegation, exact-object-version, consent-purpose, rights-scope, source-qualification, resource-budget, privacy-egress, license-and-provider-admission]
+  security: Media does not import, impersonate or mutate a product-owned business controller; only product-adapter-authorized effects return grounded result observations.
+  unresolved: [new-independent-capture-operation-binding, scene-selective-recapture-operation-binding, source-current-public-API-and-CLI-schema, runtime-provider-and-rights-qualification]
+  acceptanceEffect: none
