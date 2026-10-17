@@ -66,6 +66,7 @@ test('native YAML grammar and duplicate-key checks cover Recorder Studio changed
   for (const filename of [
     '.product-experience/surface-registry.yaml',
     '.product-experience/pdp-0-product-truth/requirements.yaml',
+    '.product-experience/pdp-0-product-truth/actors-responsibilities.yaml',
     '.product-experience/pdp-0-product-truth/journey-catalog.yaml',
     '.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml',
     '.product-experience/pdp-1-domain-data/domain-objects.yaml',
@@ -140,5 +141,29 @@ test('rejects false runtime qualification on a source-only logical surface', () 
     'implementationStatus: PRODUCTION_READY'));
   const result = verifyRecorderStudioDefinitions({overrides:{registry:changed}});
   assert.ok(result.errors.some(error => error.includes('source-only and unqualified')),
+    result.errors.join('\n'));
+});
+
+test('rejects a fictional actor in a scoped Recorder Studio feature', () => {
+  const source = read('.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml');
+  const changed = source.replace('participantActorRefs: [media.creator, media.automation-client, media.developer-integrator]',
+    'participantActorRefs: [media.fictional-authorizer, media.automation-client, media.developer-integrator]');
+  const result = verifyRecorderStudioDefinitions({overrides:{p0:changed}});
+  assert.ok(result.errors.some(error => error.includes('unknown or unscoped canonical participant actor')),
+    result.errors.join('\n'));
+});
+test('rejects empty feature participant actors even if the P0 aggregate is unchanged', () => {
+  const source = read('.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml');
+  const changed = source.replace('participantActorRefs: [media.creator, media.editor]',
+    'participantActorRefs: []');
+  const result = verifyRecorderStudioDefinitions({overrides:{p0:changed}});
+  assert.ok(result.errors.some(error => error.includes('unique canonical participant actor references')),
+    result.errors.join('\n'));
+});
+test('does not allow actor applicability to invent authorization or audience privileges', () => {
+  const source = read('.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml');
+  const changed = source.replace('  actorBindingRule:', '  unauthorizedBindingRule:');
+  const result = verifyRecorderStudioDefinitions({overrides:{p0:changed}});
+  assert.ok(result.errors.some(error => error.includes('actor participants may not imply grants')),
     result.errors.join('\n'));
 });
