@@ -48,7 +48,7 @@ Do not treat this candidate enumeration as complete leaf coverage. For each cand
 
 ## Source-grounded PDP-0 capability leaf reuse crosswalk (read-only W08 advancement)
 
-**Inspection source:** the complete `.product-experience/pdp-0-product-truth/capabilities.yaml` blob `b0840765ad2d8634f29baae9d03397207bd38608` at `4ffd76c747b4cdc1829d2ba955a56185262532d0`; **462** exact `capabilities[].id` records were indexed. All **26** references across the eight candidate groups below resolve to existing leaf IDs (some reused more than once). This is an exact-ID *match only*: provider/runtime admission, actor/channel applicability, complete negative semantics, official PDP-0 successor review and PDP-1 request/result reconciliation remain open.
+**Inspection source:** the complete `.product-experience/pdp-0-product-truth/capabilities.yaml` blob `b0840765ad2d8634f29baae9d03397207bd38608` at `4ffd76c747b4cdc1829d2ba955a56185262532d0`; **462** exact `capabilities[].id` records were indexed. All **27** references across the eight candidate groups below resolve to existing leaf IDs (some reused more than once). This is an exact-ID *match only*: provider/runtime admission, actor/channel applicability, complete negative semantics, official PDP-0 successor review and PDP-1 request/result reconciliation remain open.
 
 | Candidate | Exact existing P0 leaf selectors (all in `capabilities.yaml#capabilities/@id=`) | Residual meaning/gap requiring owner decision |
 | --- | --- | --- |
