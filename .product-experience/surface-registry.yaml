@@ -22,7 +22,7 @@ surfaces:
     consumers: [media-users, media-operators, integrating-products]
     owners: [media-product, ghatana-shared-design-system]
     upstreamProductTruth: [.product-experience/pdp-0-product-truth]
-    canonicalDomainConcepts: [media.domain.project, media.domain.artifact, media.domain.media-job, media.domain.transcript]
+    canonicalDomainConcepts: [media.domain.project, media.domain.artifact, media.domain.processing-job, media.domain.transcript]
     interactionModel: .product-experience/pdp-3-product-experience/screen-registry.yaml
     contractAuthority: .product-experience/pdp-3-product-experience/screen-contracts/
     securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
@@ -43,7 +43,7 @@ surfaces:
     consumers: [integrating-products]
     owners: [media-product, ghatana-shared-design-system, integrating-product-owner]
     upstreamProductTruth: [.product-experience/pdp-0-product-truth]
-    canonicalDomainConcepts: [media.domain.project, media.domain.media-job, media.domain.media-output]
+    canonicalDomainConcepts: [media.domain.project, media.domain.processing-job, media.domain.render-outcome]
     interactionModel: .product-experience/pdp-3-product-experience/screen-registry.yaml
     contractAuthority: .product-experience/pdp-3-product-experience/screen-contracts/
     securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
@@ -64,7 +64,7 @@ surfaces:
     consumers: [media-web, integrating-products, media-cli, media-sdk]
     owners: [media-runtime, media-api-owner]
     upstreamProductTruth: [.product-experience/pdp-0-product-truth]
-    canonicalDomainConcepts: [media.domain.media-job, media.domain.media-output, media.domain.artifact]
+    canonicalDomainConcepts: [media.domain.processing-job, media.domain.render-outcome, media.domain.artifact]
     interactionModel: .product-experience/pdp-2-design-interface-system/api/conventions.yaml
     contractAuthority: contracts/openapi/media.yaml
     securityAuthorityModel: .product-experience/pdp-2-design-interface-system/api/auth.yaml
@@ -85,7 +85,7 @@ surfaces:
     consumers: [media-runtime, provider-adapters, internal-integrators]
     owners: [media-runtime, provider-owners]
     upstreamProductTruth: [.product-experience/pdp-0-product-truth/capabilities.yaml]
-    canonicalDomainConcepts: [media.domain.media-job, media.domain.artifact, media.domain.media-output]
+    canonicalDomainConcepts: [media.domain.processing-job, media.domain.artifact, media.domain.render-outcome]
     interactionModel: .product-experience/pdp-2-design-interface-system/api/conventions.yaml
     contractAuthority: modules/*/src/main/proto/*.proto
     securityAuthorityModel: .product-experience/pdp-2-design-interface-system/api/auth.yaml
@@ -106,7 +106,7 @@ surfaces:
     consumers: [media-runtime, provider-adapters, internal-integrators]
     owners: [media-runtime, speech-service-owner]
     upstreamProductTruth: [.product-experience/pdp-0-product-truth/capabilities.yaml]
-    canonicalDomainConcepts: [media.domain.media-job, media.domain.transcript, media.domain.artifact]
+    canonicalDomainConcepts: [media.domain.processing-job, media.domain.transcript, media.domain.artifact]
     interactionModel: .product-experience/pdp-2-design-interface-system/api/conventions.yaml
     contractAuthority: modules/speech/stt-service/src/main/proto/stt_service.proto
     securityAuthorityModel: .product-experience/pdp-2-design-interface-system/api/auth.yaml
@@ -127,7 +127,7 @@ surfaces:
     consumers: [media-runtime, provider-adapters, internal-integrators]
     owners: [media-runtime, speech-service-owner]
     upstreamProductTruth: [.product-experience/pdp-0-product-truth/capabilities.yaml]
-    canonicalDomainConcepts: [media.domain.media-job, media.domain.media-output, media.domain.artifact]
+    canonicalDomainConcepts: [media.domain.processing-job, media.domain.render-outcome, media.domain.artifact]
     interactionModel: .product-experience/pdp-2-design-interface-system/api/conventions.yaml
     contractAuthority: modules/speech/tts-service/src/main/proto/tts_service.proto
     securityAuthorityModel: .product-experience/pdp-2-design-interface-system/api/auth.yaml
@@ -148,7 +148,7 @@ surfaces:
     consumers: [media-runtime, provider-adapters, internal-integrators]
     owners: [media-runtime, vision-service-owner]
     upstreamProductTruth: [.product-experience/pdp-0-product-truth/capabilities.yaml]
-    canonicalDomainConcepts: [media.domain.media-job, media.domain.artifact, media.domain.media-output]
+    canonicalDomainConcepts: [media.domain.processing-job, media.domain.artifact, media.domain.render-outcome]
     interactionModel: .product-experience/pdp-2-design-interface-system/api/conventions.yaml
     contractAuthority: modules/vision/vision-service/src/main/proto/vision_service.proto
     securityAuthorityModel: .product-experience/pdp-2-design-interface-system/api/auth.yaml
@@ -169,7 +169,7 @@ surfaces:
     consumers: [media-runtime, provider-adapters, internal-integrators]
     owners: [media-runtime, multimodal-service-owner]
     upstreamProductTruth: [.product-experience/pdp-0-product-truth/capabilities.yaml]
-    canonicalDomainConcepts: [media.domain.media-job, media.domain.artifact, media.domain.media-output]
+    canonicalDomainConcepts: [media.domain.processing-job, media.domain.artifact, media.domain.render-outcome]
     interactionModel: .product-experience/pdp-2-design-interface-system/api/conventions.yaml
     contractAuthority: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
     securityAuthorityModel: .product-experience/pdp-2-design-interface-system/api/auth.yaml
@@ -190,7 +190,7 @@ surfaces:
     consumers: [integrating-products, media-cli, agent-tools]
     owners: [media-client-owner, media-runtime]
     upstreamProductTruth: [.product-experience/pdp-0-product-truth]
-    canonicalDomainConcepts: [media.domain.media-job, media.domain.artifact, media.domain.transcript]
+    canonicalDomainConcepts: [media.domain.processing-job, media.domain.artifact, media.domain.transcript]
     interactionModel: .product-experience/pdp-2-design-interface-system/sdk/conventions.yaml
     contractAuthority: libs/audio-video-client/src/operations.ts
     securityAuthorityModel: .product-experience/pdp-2-design-interface-system/api/auth.yaml
@@ -211,7 +211,7 @@ surfaces:
     consumers: [media-operators, ci-automation, integrating-products]
     owners: [media-cli-owner]
     upstreamProductTruth: [.product-experience/pdp-0-product-truth/capabilities.yaml]
-    canonicalDomainConcepts: [media.domain.artifact, media.domain.media-job, media.domain.transcript]
+    canonicalDomainConcepts: [media.domain.artifact, media.domain.processing-job, media.domain.transcript]
     interactionModel: .product-experience/pdp-2-design-interface-system/cli/conventions.yaml
     contractAuthority: .product-experience/pdp-3-product-experience/cli/command-registry.yaml
     securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
@@ -232,7 +232,7 @@ surfaces:
     consumers: [agent-runtimes, ghatana-tools]
     owners: [media-agent-tool-owner, ghatana-tools-owner]
     upstreamProductTruth: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml]
-    canonicalDomainConcepts: [media.domain.media-job, media.domain.artifact, media.domain.evidence]
+    canonicalDomainConcepts: [media.domain.processing-job, media.domain.artifact, media.domain.evidence]
     interactionModel: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml
     contractAuthority: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml
     securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
@@ -253,7 +253,7 @@ surfaces:
     consumers: [media-runtime, media-web, integrating-products, audit-systems]
     owners: [media-runtime]
     upstreamProductTruth: [.product-experience/pdp-0-product-truth/state-models.yaml]
-    canonicalDomainConcepts: [media.domain.media-job, media.domain.evidence, media.domain.provenance]
+    canonicalDomainConcepts: [media.domain.processing-job, media.domain.evidence, media.domain.provenance]
     interactionModel: .product-experience/pdp-2-design-interface-system/events/conventions.yaml
     contractAuthority: .product-experience/pdp-3-product-experience/events/event-registry.yaml
     securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
@@ -274,7 +274,7 @@ surfaces:
     consumers: [media-runtime, providers, storage, identity, delivery]
     owners: [media-runtime, integration-owners]
     upstreamProductTruth: [.product-experience/pdp-0-product-truth/dependency-contracts.yaml]
-    canonicalDomainConcepts: [media.domain.artifact, media.domain.media-job, media.domain.provenance]
+    canonicalDomainConcepts: [media.domain.artifact, media.domain.processing-job, media.domain.provenance]
     interactionModel: .product-experience/pdp-2-design-interface-system/api/conventions.yaml
     contractAuthority: .product-experience/pdp-3-product-experience/services/service-registry.yaml
     securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
@@ -295,7 +295,7 @@ surfaces:
     consumers: [media-sdk, media-ui, integrating-products]
     owners: [media-types-owner, media-product]
     upstreamProductTruth: [.product-experience/pdp-0-product-truth]
-    canonicalDomainConcepts: [media.domain.artifact, media.domain.media-job, media.domain.transcript]
+    canonicalDomainConcepts: [media.domain.artifact, media.domain.processing-job, media.domain.transcript]
     interactionModel: .product-experience/pdp-1-domain-data/DOMAIN-MODEL.md
     contractAuthority: libs/audio-video-types/
     securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
@@ -316,7 +316,7 @@ surfaces:
     consumers: [media-web, media-embedded, integrating-products]
     owners: [media-ui-owner, ghatana-shared-design-system]
     upstreamProductTruth: [.product-experience/pdp-0-product-truth]
-    canonicalDomainConcepts: [media.domain.artifact, media.domain.media-job, media.domain.transcript]
+    canonicalDomainConcepts: [media.domain.artifact, media.domain.processing-job, media.domain.transcript]
     interactionModel: .product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md
     contractAuthority: libs/audio-video-ui/
     securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
@@ -421,7 +421,7 @@ channelSurfaceProposals:
     consumers: [integrating-products, authorized-product-adapters, media-automation-clients]
     owners: [media-product, media-experience-owner]
     upstreamProductTruth: [.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml]
-    canonicalDomainConcepts: [media.domain.project, media.domain.media-job, media.domain.timeline]
+    canonicalDomainConcepts: [media.domain.project, media.domain.processing-job, media.domain.timeline]
     interactionModel: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml
     contractAuthority: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
     securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
@@ -445,7 +445,7 @@ channelSurfaceProposals:
     consumers: [media-recorder-orchestrator, authorized-product-adapters]
     owners: [media-product, integrating-product-owner]
     upstreamProductTruth: [.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml]
-    canonicalDomainConcepts: [media.domain.artifact, media.domain.media-job]
+    canonicalDomainConcepts: [media.domain.artifact, media.domain.processing-job]
     interactionModel: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml
     contractAuthority: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
     securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
@@ -493,7 +493,7 @@ channelSurfaceProposals:
     consumers: [media-viewers, integrating-products]
     owners: [media-product, media-experience-owner]
     upstreamProductTruth: [.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml]
-    canonicalDomainConcepts: [media.domain.artifact, media.domain.media-output]
+    canonicalDomainConcepts: [media.domain.artifact, media.domain.render-outcome]
     interactionModel: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml
     contractAuthority: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
     securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
