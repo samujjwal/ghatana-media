@@ -410,7 +410,11 @@ channelSurfaceProposals:
       candidateSurfaceRefs: []
       status: abstract-protocol-neutral-layer; no direct consumer surface; bind only through an admitted concrete transport
 
-# Recorder/Studio successor candidate surfaces; additive to historical surface population.
+# Recorder/Studio successor LOGICAL CONSUMER SURFACES, additive to the channel inventory.
+# These are not yet physical package/manifest identities; physical ownership is
+# separately controlled by .product-experience/surfaces/media-physical-topology.v1.json.
+# Physical materialization requires an admitted manifest-path/build-coordinate
+# and exact PDP applicability under that topology. No invented executable nodes.
   - surfaceId: media.surface.recorder-orchestrator
     surfaceType: HEADLESS_ORCHESTRATION
     purpose: Unattended, configuration-driven experience capture/recapture across qualified browser, CLI and API source adapters.
@@ -431,7 +435,7 @@ channelSurfaceProposals:
     qualificationStatus: PENDING
     applicabilityDisposition: TARGET_PENDING_ADMISSION
     applicabilityRationale: >-
-      New physical or semantic sub-surface beneath media.surface.cli, not a new service or
+      New logical consumer sub-surface beneath media.surface.cli, not a new service or
       second owning data store. PDP-0 to PDP-2 successor definitions are authored
       at this source cut; PDP-3 experience, independent acceptance and source-current
       admission remain separate. No release or runtime claim.
@@ -455,7 +459,7 @@ channelSurfaceProposals:
     qualificationStatus: PENDING
     applicabilityDisposition: TARGET_PENDING_ADMISSION
     applicabilityRationale: >-
-      New physical or semantic sub-surface beneath media.surface.integrations, not a new service or
+      New logical consumer sub-surface beneath media.surface.integrations, not a new service or
       second owning data store. PDP-0 to PDP-2 successor definitions are authored
       at this source cut; PDP-3 experience, independent acceptance and source-current
       admission remain separate. No release or runtime claim.
@@ -479,7 +483,7 @@ channelSurfaceProposals:
     qualificationStatus: PENDING
     applicabilityDisposition: TARGET_PENDING_ADMISSION
     applicabilityRationale: >-
-      New physical or semantic sub-surface beneath media.surface.web, not a new service or
+      New logical consumer sub-surface beneath media.surface.web, not a new service or
       second owning data store. PDP-0 to PDP-2 successor definitions are authored
       at this source cut; PDP-3 experience, independent acceptance and source-current
       admission remain separate. No release or runtime claim.
@@ -503,7 +507,7 @@ channelSurfaceProposals:
     qualificationStatus: PENDING
     applicabilityDisposition: TARGET_PENDING_ADMISSION
     applicabilityRationale: >-
-      New physical or semantic sub-surface beneath media.surface.embedded, not a new service or
+      New logical consumer sub-surface beneath media.surface.embedded, not a new service or
       second owning data store. PDP-0 to PDP-2 successor definitions are authored
       at this source cut; PDP-3 experience, independent acceptance and source-current
       admission remain separate. No release or runtime claim.
