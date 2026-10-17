@@ -10,6 +10,7 @@ const paths = {
   registry: '.product-experience/surface-registry.yaml',
   topology: '.product-experience/surfaces/media-physical-topology.v1.json',
   requirements: '.product-experience/pdp-0-product-truth/requirements.yaml',
+  actorCatalog: '.product-experience/pdp-0-product-truth/actors-responsibilities.yaml',
   capabilities: '.product-experience/pdp-0-product-truth/capabilities.yaml',
   p0: '.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml',
   domain: '.product-experience/pdp-1-domain-data/domain-objects.yaml',
@@ -45,7 +46,7 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
   const original = Object.fromEntries(Object.keys(paths).map(k => [k, read(k)]));
   // Syntax and duplicate mapping keys are source-level errors, even when
   // count-based selectors coincidentally find every expected line.
-  for (const id of ['registry', 'requirements', 'p0', 'journeyCatalog', 'domain', 'domainVersioning', 'p1', 'interfaceGrammar', 'editingGrammar', 'p2']) {
+  for (const id of ['registry', 'requirements', 'actorCatalog', 'p0', 'journeyCatalog', 'domain', 'domainVersioning', 'p1', 'interfaceGrammar', 'editingGrammar', 'p2']) {
     const document = parseDocument(original[id], {uniqueKeys:true, strict:true});
     for (const issue of document.errors) fail(id+': invalid or duplicate YAML mapping: '+issue.message);
   }
@@ -85,6 +86,14 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
   } catch (error) {
     fail('Recorder Studio parent hierarchy cannot be read from valid YAML: '+error.message);
   }
+  const actorDocument = parseDocument(original.actorCatalog, {uniqueKeys:true, strict:true}).toJS();
+  const canonicalActorIds = new Set((actorDocument?.actors ?? []).map(x => x.id));
+  const p0Document = parseDocument(original.p0, {uniqueKeys:true, strict:true}).toJS();
+  const declaredActorIds = p0Document?.actors ?? [];
+  if (canonicalActorIds.size < 8 || declaredActorIds.length < 1)
+    fail('Recorder Studio requires a source-grounded set of canonical participant actors');
+  for (const ref of declaredActorIds)
+    if (!canonicalActorIds.has(ref)) fail('Recorder Studio declares an unknown canonical actor '+ref);
   const specs = new Map(productSurfaceSpecs.map(x => [x.id, x]));
   const registered = new Map(registrySurfaceSpecs.map(x => [x.surfaceId, x]));
   if (specs.size !== newSurfaceIds.length || productSurfaceSpecs.length !== newSurfaceIds.length)
@@ -184,11 +193,20 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
   const featureSection = p0.split('\nfeatureProfiles:\n')[1]?.split('\ncrossCuttingPolicies:\n')[0] ?? '';
   const featureChunks = featureSection.split(/^  - id: (media\.recorder\.profile\.[^\s]+)\s*$/gm);
   const locallyBoundCaseIds = [];
+  const locallyBoundActorRefs = [];
   for (let i = 1; i + 1 < featureChunks.length; i += 2) {
     const featureId = featureChunks[i], body = featureChunks[i + 1];
     const group = body.match(/^    ownerCapabilityGroup: (\S+)/m)?.[1];
     const surface = body.match(/^    ownerSurface: (\S+)/m)?.[1];
     const caseRefs = yamlList(body.match(/^    acceptanceCaseRefs: \[([^\]]+)\]/m)?.[1] ?? '');
+    const participantActors = yamlList(body.match(/^    participantActorRefs: \[([^\]]+)\]/m)?.[1] ?? '');
+    if (participantActors.length === 0 || new Set(participantActors).size !== participantActors.length)
+      fail(featureId+': unique canonical participant actor references are required');
+    for (const ref of participantActors) {
+      locallyBoundActorRefs.push(ref);
+      if (!canonicalActorIds.has(ref) || !declaredActorIds.includes(ref))
+        fail(featureId+': unknown or unscoped canonical participant actor '+ref);
+    }
     if (!capGroupCapabilities.has(group)) fail(featureId+': unrecognized owner capability group '+group);
     if (!newSurfaceIds.includes(surface)) fail(featureId+': unrecognized owner surface '+surface);
     if (!caseRefs.length) fail(featureId+': missing local acceptance cases');
@@ -205,6 +223,10 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
         fail(featureId+': '+caseId+' capability leaf not bound by feature capability group '+group);
     }
   }
+  if (!sameSet([...new Set(locallyBoundActorRefs)], declaredActorIds))
+    fail('PDP-0 participant actor aggregate differs from feature-level actor references');
+  if (!p0.includes('actorBindingRule:') || !p0.includes('interactiveAudienceRule:'))
+    fail('actor participants may not imply grants, domain effects, publication or viewer authority');
   if (!sameSet(locallyBoundCaseIds, caseIds))
     fail('P0 feature-local acceptance cases must exactly cover canonical cases once');
   if (featureChunks.length !== 1 + 2 * p0FeatureIds.length)
