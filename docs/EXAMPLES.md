@@ -98,7 +98,9 @@ full video-transcription path are not established.
   observation and separately gates verification, rights, consent, retention, and
   processing; J-03 preconditions require current rights/consent/location policy.
   J-02 candidate channels are `media.channel.web`, `media.channel.http-api`,
-  and `media.channel.sdk`; J-03 declares a Web surface but no channel binding.
+  and `media.channel.sdk`; J-03 declares `media.channel.web`, `media.channel.cli`,
+  `media.channel.grpc-api`, and `media.channel.sdk` as source-candidate channels;
+  all remain UNBOUND and NOT_ADMITTED at the logical definition stage.
   No literal source, tenant, principal, or job ID is supplied by these examples.
 - **P3-08 action/result/evidence:** J-02 ends with exact-version inspection;
   J-03 proposes transcription, draft correction/alignment, save, and compare.
@@ -150,9 +152,11 @@ and no caption editor runtime is evidenced.
   remains `NOT_ADMITTED`. Draft editing remains proposal-only.
 - **P3-08 start/identity/authority/channel:** Start from J-03's exact audio
   artifact version and reviewed transcript revision. Current rights, consent,
-  processing-location policy, and source version are preconditions. Candidate
-  channel: none bound (the contract declares `media.surface.web`). The contract
-  does not provide literal source/version IDs for this example.
+  processing-location policy, and source version are preconditions. Source-declared
+  candidate channels: `media.channel.web`, `media.channel.cli`,
+  `media.channel.grpc-api`, and `media.channel.sdk`; all remain UNBOUND and
+  NOT_ADMITTED at the logical definition stage. The contract does not provide
+  literal source/version IDs for this example.
 - **P3-08 action/result/evidence:** `correct-caption` and `align-caption-timing`
   propose draft writes; `save-caption-version` proposes an immutable version;
   `compare-caption-versions` reads the version pair. Result/finality is a

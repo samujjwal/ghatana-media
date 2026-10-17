@@ -5,8 +5,8 @@
   "sourceAuthorities": [
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
-      "sha256": "76287b8d49b3aff679b1d5cf4b26352544bfdc9eee5a7dee86d75f14f7d59753",
-      "bytes": 9281,
+      "sha256": "9bfb2fbc3adc09388cc25243f5b91a2caa00209b1dd43ac8c38e439a748a7ba2",
+      "bytes": 9586,
       "format": "markdown"
     },
     {
@@ -1384,8 +1384,8 @@
         "presentationEffect": "Processing stopped by consent change: New processing is blocked; existing output and deletion scope follow the owning lifecycle policy."
       }
     ],
-    "createdAt": "2026-10-17T03:28:23.542Z",
-    "updatedAt": "2026-10-17T03:28:23.542Z"
+    "createdAt": "2026-10-17T06:53:13.977Z",
+    "updatedAt": "2026-10-17T06:53:13.977Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",

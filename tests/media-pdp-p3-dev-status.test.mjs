@@ -41,11 +41,11 @@ test("PDP-3 census consumes the frozen PDP-0/1/2 handoffs and exact 47/30/130 de
   assert.deepEqual(census.integrityIssues, []);
   assert.deepEqual(census.channelDefinitionCoverage, {
     totalEdges: 61,
-    completeLogicalEdges: 40,
-    incompleteLogicalEdges: 21,
+    completeLogicalEdges: 43,
+    incompleteLogicalEdges: 18,
     incompleteEdgeIds: census.channelDefinitionCoverage.incompleteEdgeIds,
   });
-  assert.equal(new Set(census.channelDefinitionCoverage.incompleteEdgeIds).size, 21);
+  assert.equal(new Set(census.channelDefinitionCoverage.incompleteEdgeIds).size, 18);
   assert.deepEqual(census.populations, {
     screens: 47,
     baselineScreens: 41,
@@ -124,8 +124,8 @@ test("PDP-3 cannot report DEV_COMPLETE while canonical channel-edge meaning gaps
     projectionCheck: passingProjection(),
   });
   assert.equal(status.status, "IN_PROGRESS");
-  assert.equal(status.channelDefinitionCoverage.completeLogicalEdges, 40);
-  assert.equal(status.channelDefinitionCoverage.incompleteLogicalEdges, 21);
+  assert.equal(status.channelDefinitionCoverage.completeLogicalEdges, 43);
+  assert.equal(status.channelDefinitionCoverage.incompleteLogicalEdges, 18);
   for (const edgeId of sourceCensus.channelDefinitionCoverage.incompleteEdgeIds) {
     assert.ok(status.outstandingMeaningIds.includes(`P3-03:channel-logical-edge-incomplete:${edgeId}`));
   }

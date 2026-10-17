@@ -295,7 +295,7 @@ currentStepBindingObservation:
   journeyContractCount: 30
   orderedStepCount: 130
   actionDispositionCounts:
-    exactSourceActionRef: 120
+    exactSourceActionRef: 122
     ownerDefinedActionRef: 1
     explicitUnselectedChoiceSet: 5
     passiveCanonicalQueryWithoutActionDispatch: 1

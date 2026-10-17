@@ -62,7 +62,7 @@ test("Product Definition local invariant check covers all phase denominators", (
   assert.match(output, /currentness\.yaml is absent/u);
   assert.match(output, /47 required shapes/u);
   assert.match(output, /21 of 47 screen views have direct action-capability requirement crosswalks/u);
-  assert.match(output, /18 of 18 action-bearing journey steps map through direct Action Registry capability refs/u);
+  assert.match(output, /20 of 20 action-bearing journey steps map through direct Action Registry capability refs/u);
   assert.match(output, /Tools Product Definition\/Experience validation and lifecycle currentness outputs are not bound in this checkout/u);
 });
 

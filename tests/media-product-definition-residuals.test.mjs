@@ -14,10 +14,10 @@ import { resolve } from "node:path";
 
 test("current parity census includes owner intents, adapter-required methods and legacy reads without widening acceptance", () => {
   const parity = buildMediaProductDefinitionResidualReport().operationParity;
-  assert.equal(parity.totalObservedIdentities, 287);
+  assert.equal(parity.totalObservedIdentities, 288);
   assert.equal(parity.acceptedBindingCount, 0);
   const ui = parity.surfaces.find(({ name }) => name === "UI action registry");
-  assert.equal(ui.observedIdentities.length, 147);
+  assert.equal(ui.observedIdentities.length, 148);
   assert.equal(ui.historicalSnapshot.denominator, 146);
   assert.ok(ui.observedIdentities.includes("media.action.request-live-session-reconnect"));
   assert.equal(ui.unresolvedIdentities.includes("media.action.request-live-session-reconnect"), false);
@@ -123,11 +123,11 @@ test("residual report validates exact projection dispositions and pinned sources
   assert.equal(report.migrationSemantics.unresolvedItems.length, 260);
   assert.ok(report.migrationSemantics.unresolvedItems.every((item) => item.id && item.sourceLocations.length && item.classificationBasis));
   assert.equal(report.operationParity.surfaceCount, 9);
-  assert.equal(report.operationParity.totalObservedIdentities, 287);
+  assert.equal(report.operationParity.totalObservedIdentities, 288);
   const historicalUi = report.operationParity.surfaces.find(({ name }) => name === "UI action registry").historicalSnapshot;
   assert.equal(historicalUi.denominator, 146);
   assert.equal(historicalUi.operationBindingCounts.unresolved, 132);
-  assert.equal(report.operationParity.unresolvedIdentityCount, 144);
+  assert.equal(report.operationParity.unresolvedIdentityCount, 145);
   assert.equal(report.operationParity.unresolvedIdentityCount, report.operationParity.surfaces.reduce((sum, surface) => sum + surface.unresolvedIdentities.length, 0));
   assert.ok(report.operationParity.surfaces.every((surface) => surface.observedIdentities.length === surface.denominator));
   assert.ok(report.operationParity.surfaces.every((surface) => surface.unresolvedIdentities.length === (surface.counts.unresolved ?? 0)));

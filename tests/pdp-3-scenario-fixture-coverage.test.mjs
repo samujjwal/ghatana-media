@@ -719,7 +719,7 @@ test('P3-05 reuses the exact version-mismatch guard for all source-bound stale b
   const boundRows = versionBindingSource.records.filter((row) => row.versionDisposition === 'EXACT_CANONICAL_VERSION_TUPLE_REQUIRED'
     && unseededJourneyIds.has(row.journeyRef)
     && row.objectBindings.some((binding) => binding.versionTupleFields.length > 0));
-  assert.equal(boundRows.length, 64);
+  assert.equal(boundRows.length, 66);
   assert.equal(audit.reusableVersionMismatchGuardFixture.applicableExactVersionBoundStepCount, boundRows.length);
   const byJourney = new Map();
   for (const row of boundRows) {

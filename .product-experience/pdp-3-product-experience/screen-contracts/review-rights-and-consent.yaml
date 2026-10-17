@@ -268,22 +268,25 @@ actionConsequences:
       PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: media.operation.action.revoke-authorized-consent
     effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.revoke-authorized-consent/actionDefinitionSemantics/typedDefinition
-    consequence: Request the explicitly named operation for the exact target only
-      after fresh actor, capability, policy, and target checks.
+    consequence: Request the exact consent action for the named authority-issued
+      consent, purpose, and validity scope after fresh actor, capability, policy,
+      target, and current-authority checks; no broader subject or purpose is implied.
     bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
     operationRefs:
       - media.operation.action.revoke-authorized-consent
-    finality: external-effect-or-request; owner-acknowledgment-required;
-      unknown-is-not-failure
+    finality: "The request is not confirmation of consent change; only the consent\
+      \ authority receipt confirms the scoped change. UNKNOWN requires same-request\
+      \ reconciliation; in-flight work requires separate reconciliation; no artifact\
+      \ erasure is implied."
     reversibilityDisposition: NOT_REVERSIBLE
     confirmationDisposition: REQUIRED
     guardRefs:
       - resolve-the-current-workspace-and-exact-target-before-access-or-change
       - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
       - preserve-the-requested-context-and-exact-version-across-recovery
-    failureRecovery: preserve-the-exact-target-and-current-draft;
-      explain-denial-or-incomplete-evidence;
-      never-claim-success-from-local-state
+    failureRecovery: Preserve the exact consent target and request identity; explain
+      denial or incomplete evidence; UNKNOWN is neither success nor failure and
+      never claim success from local state.
     actorRefs:
       - media.administrator
       - media.creator

@@ -118,6 +118,10 @@ Important omissions and conflicts to resolve before semantic acceptance:
 
 ### Unresolved owner-bound decisions
 
+Owner-defined logical dispositions are recorded alongside source proposals and observations in this directory. Each owner decision is specific to the named source contract and does not imply runtime admission or independent acceptance.
+
+These owner-defined logical dispositions are recorded alongside source proposals and observations; runtime contracts, TypeScript types, OpenAPI, protobuf and publishers remain separate implementation evidence.
+
 Current owner-defined meanings include the scoped artifact-version identity
 and lineage rule in `canonical-reconciliation.yaml#currentDefinitionAdjudication`
 and offline revision-conflict behavior in

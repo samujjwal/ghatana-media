@@ -57,7 +57,7 @@ test('phase lock retains prior exits, open PDP3, no Build/closure/Delivery false
   assert.equal(matrix.status.pdp0,'R15_TECHNICAL_PASS_50_OF_50_146_PATHS; INTERNAL_IMPACT_DISPOSITION_ONLY; OWNER_ACCEPTANCE_NOT_CLAIMED');
   assert.equal(matrix.status.pdp1,'R30_PASS_50_OF_50_329_PATHS_DEV_COMPLETE_ZERO_OUTSTANDING_MEANING; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED; PASS_WITH_EXPECTED_STRICT_ADMISSION_FINDING');
   assert.equal(matrix.status.pdp2,'R19_PASS_50_OF_50_405_PATHS_AGAINST_PDP1_R30; DEV_COMPLETE_ZERO_OUTSTANDING_MEANING; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED');
-  assert.match(matrix.status.pdp3,/ACTIVE_MDC30_SOURCE_GAP_RESOLUTION; R6_NOT_CAPTURED; R5_HISTORICAL_BASELINE/u);
+  assert.match(matrix.status.pdp3,/ACTIVE_MDC30_SOURCE_GAP_RESOLUTION; R6_NOT_CAPTURED; LIVE_RAW_EDGE_REGISTRY/u);
   assert.equal(matrix.currentPhase,'PDP-3');
   assert.equal(plan.approvalRules.newMdc30ExitPublished,false);
   assert.equal(matrix.status.discovery,'FAIL_PDP3_DEFINITION_COMPLETION_PENDING');

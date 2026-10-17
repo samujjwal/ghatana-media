@@ -167,6 +167,9 @@ actionConsequences:
     actorRefs:
       - media.creator
       - media.editor
+      - media.administrator
+      - media.privacy-rights-reviewer
+      - media.reviewer
     runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.deliver-exact-version
     capabilityRefs: []

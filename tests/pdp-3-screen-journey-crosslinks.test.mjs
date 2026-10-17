@@ -184,9 +184,9 @@ test("PDP-3 screen and journey contracts preserve exact registry cross-links", (
   assert.equal(linkedViewJourneyRefs, 132);
   assert.deepEqual({ actionLinks, requirementLinks, capabilityLinks, outcomeLinks, operationLinks }, {
     // `step.action` is the retained historical screen-consequence subset. The
-    // current 120 action/actionRef bindings and one owner action are asserted
+    // current 122 action/actionRef bindings and one owner action are asserted
     // separately against currentStepBindingObservation below.
-    actionLinks: 18, requirementLinks: 41, capabilityLinks: 41, outcomeLinks: 72, operationLinks: 95,
+    actionLinks: 20, requirementLinks: 41, capabilityLinks: 41, outcomeLinks: 72, operationLinks: 95,
   });
 });
 
@@ -215,7 +215,7 @@ test("PDP-3 coverage preserves historical action counts and exposes current per-
 
   assert.equal(stepCount, 130);
   assert.equal(screenContractRefCount, 130);
-  assert.equal(actionBindings.length, 120, "current exact source action refs are counted by occurrence");
+  assert.equal(actionBindings.length, 122, "current exact source action refs are counted by occurrence");
   let ownerActionBindings = 0;
   let explicitChoiceSets = 0;
   let passiveQueries = 0;

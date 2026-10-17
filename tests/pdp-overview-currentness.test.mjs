@@ -51,7 +51,7 @@ test('PDP overview blocker summaries match generated candidate projections', () 
   assert.equal(p3.candidateMappingReview.journeyBindingAudit.typedStepSemanticsProjected, 130);
   assert.equal(p3.candidateMappingReview.journeyBindingAudit.typedStepSemanticsUnresolved, 0);
   assert.deepEqual(Object.fromEntries(['componentContracts', 'views', 'journeys', 'transitions', 'actions', 'effects', 'finality', 'recovery', 'scenarios', 'fixtures'].map((key) => [key, p3.candidateModel[key].length])), {
-    componentContracts: 31, views: 47, journeys: 30, transitions: 1, actions: 147, effects: 145, finality: 145, recovery: 5, scenarios: 31, fixtures: 31,
+    componentContracts: 31, views: 47, journeys: 30, transitions: 1, actions: 148, effects: 146, finality: 146, recovery: 5, scenarios: 31, fixtures: 31,
   });
   assert.match(contents.pdp3, /`fieldMappingBlockers` is empty/u);
   assert.match(contents.pdp3, /all 130 steps resolve typed semantics from\s+the exact step-oracle source/u);
