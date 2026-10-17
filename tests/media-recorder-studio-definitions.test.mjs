@@ -12,13 +12,13 @@ const read = filename => fs.readFileSync(path.join(repo, filename), 'utf8');
 test('PDP0–2 Recorder Studio requirements/surfaces/parity are structurally complete', () => {
   const result = verifyRecorderStudioDefinitions();
   assert.deepEqual(result.errors, [], result.errors.join('\n'));
-  assert.equal(result.stats.recorderCases, 78);
-  assert.equal(result.stats.manualEditKinds, 42);
+  assert.equal(result.stats.recorderCases, 84);
+  assert.equal(result.stats.manualEditKinds, 52);
   assert.equal(result.stats.proposedPdpCells, 216);
 });
 test('rejects an omitted PDP2 acceptance binding', () => {
   const source = read('.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml');
-  const changed = source.replace('MEDIA-REC-P0-AC-078', 'MEDIA-REC-P0-AC-077');
+  const changed = source.replace('MEDIA-REC-P0-AC-084', 'MEDIA-REC-P0-AC-083');
   const result = verifyRecorderStudioDefinitions({overrides:{p2:changed}});
   assert.ok(result.errors.some(s => s.includes('PDP2 surface interface profiles')), result.errors.join('\n'));
 });
@@ -26,7 +26,7 @@ test('rejects a missing keyboard/manual parity operation', () => {
   const source = read('.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml');
   const changed = source.replace(/^  - kind: roll\n/m, '  - kind: unsupported-roll\n');
   const result = verifyRecorderStudioDefinitions({overrides:{p2:changed}});
-  assert.ok(result.errors.some(s => s.includes('42 versioned PDP1 edit discriminants')), result.errors.join('\n'));
+  assert.ok(result.errors.some(s => s.includes('52 versioned PDP1 edit discriminants')), result.errors.join('\n'));
 });
 test('rejects removal or duplication of a logical surface', () => {
   const j = JSON.parse(read('.product-experience/surfaces/media-physical-topology.v1.json'));
@@ -165,5 +165,26 @@ test('does not allow actor applicability to invent authorization or audience pri
   const changed = source.replace('  actorBindingRule:', '  unauthorizedBindingRule:');
   const result = verifyRecorderStudioDefinitions({overrides:{p0:changed}});
   assert.ok(result.errors.some(error => error.includes('actor participants may not imply grants')),
+    result.errors.join('\n'));
+});
+
+test('additional Studio editing affordances are present in the canonical 52-kind parity inventory', () => {
+  const p1 = read('.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml');
+  const p2 = read('.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml');
+  const required = ['scene-group', 'crop', 'cursor-click', 'background', 'frame',
+    'annotation', 'track-mute', 'track-solo', 'speed-ramp', 'audio-denoise'];
+  const kinds = p1.match(/^    operationKinds: \[([^\]]+)\]$/m)?.[1]
+    .split(',').map(kind => kind.trim());
+  assert.equal(kinds?.length, 52);
+  for (const kind of required) {
+    assert.ok(kinds.includes(kind), 'missing P1 operation kind '+kind);
+    assert.ok(p2.includes('  - kind: '+kind+'\n'), 'missing P2 manual interface parity for '+kind);
+  }
+});
+test('rejects removal of Studio mute/solo/speed-ramp parity from PDP2', () => {
+  const p2 = read('.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml');
+  const changed = p2.replace('  - kind: track-solo\n', '  - kind: unsupported-track-solo\n');
+  const result = verifyRecorderStudioDefinitions({overrides:{p2:changed}});
+  assert.ok(result.errors.some(error => error.includes('52 versioned PDP1 edit discriminants')),
     result.errors.join('\n'));
 });
