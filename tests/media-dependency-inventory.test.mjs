@@ -8,7 +8,7 @@ import { assertNoDenominatorShrink, buildMediaDependencyInventory } from "../scr
 const root = resolve(new URL("..", import.meta.url).pathname);
 const EXPECTED_DENOMINATORS = Object.freeze({
   packageManifestCount: 9,
-  pnpmImporterCount: 57,
+  pnpmImporterCount: 59,
   pnpmLockedPackageCount: 328,
   cargoManifestCount: 4,
   cargoLockfileCount: 2,
@@ -134,7 +134,7 @@ test("runtime-only container candidates require generated installDist artifacts"
     "modules/speech/tts-service/build/install/tts-service/",
     "modules/vision/vision-service/build/install/vision-service/"
   ].sort());
-  assert.ok(generated.every((x) => x.status === "BUILD_OUTPUT_REQUIRED_NOT_SOURCE_PINN"
+  assert.ok(generated.every((x) => x.status === "BUILD_OUTPUT_REQUIRED_NOT_SOURCE_PINNED"
     && x.releaseAdmission === "NOT_ASSESSED"));
   assert.equal(report.containers.dockerfiles.length, 4);
 });

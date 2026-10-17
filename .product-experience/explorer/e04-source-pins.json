@@ -6,7 +6,7 @@
     {
       "path": ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
       "role": "PDP-3 scenario identities, source fixture references, and expected proposals",
-      "sha256": "70225ab64215cfba42996bcaec118b5eb73150d0c672ca348e1e55278cd9f8bb"
+      "sha256": "335f3295a109b912acb808b43ebc5a71dae4d9a706b55a6cb2243ce53fe2bc48"
     },
     {
       "path": ".product-experience/explorer/scenario-fixtures.yaml",
@@ -203,7 +203,7 @@
     {
       "path": ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
       "previousSha256": "f35b557ac1836d695fab613b49520bfcfb678c9e234933d04214e824c43c2d94",
-      "currentSha256": "70225ab64215cfba42996bcaec118b5eb73150d0c672ca348e1e55278cd9f8bb",
+      "currentSha256": "335f3295a109b912acb808b43ebc5a71dae4d9a706b55a6cb2243ce53fe2bc48",
       "reviewedAt": "2026-10-11",
       "semanticDiff": [
         "Corrected the J-02 step-05 exact-artifact-and-immutable-version-identity fixture instance reference to the canonical guardContracts/records/11/stepRefs/0 location after the new guard definition was inserted; the reference now resolves to the intended exact-version guard record.",
