@@ -92,6 +92,35 @@ export function verifyUnifiedProductionInventory({repoRoot = root, overrides = {
       fail('inventory: nonexistent Build PBI owner: ' + row.auditId);
     if (!['LEXICAL_MATCH_NOT_SEMANTIC_PROOF','WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF'].includes(row.candidateStrength))
       fail('inventory: unreviewed lexical candidate cannot be promoted by a similarity score: ' + row.auditId);
+    const candidate = row.curatedCandidate || {};
+    if (candidate.disposition !== 'CURATED_SOURCE_LEAF_IDENTITY_REVIEW_PENDING' ||
+        candidate.status !== 'PDP0_OWNER_AND_NATIVE_CURRENTNESS_REVIEW_REQUIRED' ||
+        candidate.sourceCapabilityRef !== '.product-experience/pdp-0-product-truth/capabilities.yaml#' + row.existingCapabilityLeafCandidate ||
+        !candidate.sourceLeafLabel || !candidate.meaningStillToProve ||
+        candidate.selector !== 'MANUAL_SOURCE_CATALOG_CROSSWALK_NOT_SEMANTIC_ACCEPTANCE') {
+      fail('inventory: original audit has unreviewed or falsely promoted curated source leaf: ' + row.auditId);
+    }
+    if (row.priorLexicalCandidate && (row.priorLexicalCandidate === row.existingCapabilityLeafCandidate || !owner.has(row.priorLexicalCandidate)))
+      fail('inventory: prior lexical source candidate is not a distinct real capability: ' + row.auditId);
+  }
+  if (audit.curatedCrosswalkReview?.candidatePopulation !== 428 ||
+      audit.curatedCrosswalkReview?.stillAwaitingSemanticAcceptance !== 428 ||
+      audit.curatedCrosswalkReview?.acceptanceEffect !== 'none' ||
+      observed.some(r => !r.curatedCandidate)) {
+    fail('inventory: 428 reviewed catalog candidates cannot silently become accepted PDP requirements');
+  }
+  const criticalCrossModalPairs = {
+    'AUD-ASR-002': 'media.speech.transcription.stream',
+    'AUD-EDIT-001': 'media.compose.multitrack-timeline',
+    'AUD-MOTION-003': 'media.animation.interpolation-easing',
+    'AUD-VISION-001': 'media.vision.detect.shot-boundary',
+    'AUD-COLLAB-001': 'media.project.review',
+    'AUD-TRUST-017': 'media.deliver.publish-governed'
+  };
+  for (const [auditId, expectedLeaf] of Object.entries(criticalCrossModalPairs)) {
+    const row = observed.find(r => r.auditId === auditId);
+    if (row?.existingCapabilityLeafCandidate !== expectedLeaf)
+      fail('inventory: cross-modal source-leaf mismatch at ' + auditId);
   }
   if (audit.originalAuditDefaults?.semanticMappingDisposition !== 'EXACT_LEAF_FIT_REVIEW_REQUIRED' ||
       audit.recordKind !== 'SOURCE_REVIEW_PROJECTION_NOT_CANONICAL_REQUIREMENTS_OR_ACCEPTANCE')
