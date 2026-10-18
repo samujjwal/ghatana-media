@@ -54,3 +54,22 @@ pnpm check:product-experience-local
 ```
 
 Do not repin historical PDP status, present the source-only 84-step projection as dispatched product actions, or merge this change as Discovery phase exit. The next concrete P3 implementation-authoring work is exact screen/action/step-state/scenario/fixture and Explorer binding, then native verified readmission for affected cells.
+
+## Required follow-up: canonical artifact registration and generated projections
+
+**Verified source defect:** the four new Recorder/Studio P0–P3 authorities merged through PRs #10/#11 were not present in `.product-experience/artifact-identities.yaml`. Before this follow-up, the pinned identity registry listed **356** records while the repository contained four additional canonical Recorder/Studio phase sources. The manifest generator requires an exact one-to-one authored registry inventory and cannot safely derive these IDs from paths.
+
+**Source correction:** four stable phase-appropriate identities are now pinned in the authoritative registry:
+
+| Source | Stable artifact identity | Authority class |
+|---|---|---|
+| `pdp-0-product-truth/recorder-studio-extension.yaml` | `ART-P0-RECORDER-STUDIO-EXTENSION` | `PRODUCT_TRUTH_AUTHORITY` |
+| `pdp-1-domain-data/recorder-studio-contracts.yaml` | `ART-P1-RECORDER-STUDIO-CONTRACTS` | `DOMAIN_DATA_AUTHORITY` |
+| `pdp-2-design-interface-system/recorder-studio-interface.yaml` | `ART-P2-RECORDER-STUDIO-INTERFACE` | `DESIGN_INTERFACE_AUTHORITY` |
+| `pdp-3-product-experience/recorder-studio-experience.yaml` | `ART-P3-RECORDER-STUDIO-EXPERIENCE` | `PRODUCT_EXPERIENCE_AUTHORITY` |
+
+The registry now contains 360 unique paths and identities. The existing generated manifest has 356 artifact records and the Explorer index contains 357 including its manifest entry. Their missing four records and all source-content digest/dependency changes **must be generated**, not hand-edited. The source-based PDP-3 checker now rejects missing or misclassified Recorder/Studio identity records.
+
+**Next native checkout actions:** run the focused Recorder/Studio and topology tests first; then run `pnpm generate:product-definition-manifest` (which owns both the source manifest and Explorer source index), inspect the generated diff for accidental unrelated changes and correct every dependency/identity finding, then rerun `pnpm check:product-definition-authority`, `pnpm check:product-experience-local`, focused PDP-3 tests and strict source-currentness. Do not mistake a generated manifest or hash receipt for semantic currentness, Lifecycle authorization, or PDP acceptance.
+
+Native generation, real YAML/parser tests and end-to-end Explorer conformance remain **NOT_RUN** in this remotely authored increment.
