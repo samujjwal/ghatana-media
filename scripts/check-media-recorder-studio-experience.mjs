@@ -11,11 +11,12 @@ const paths = {
   "p1": ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml",
   "p2": ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml",
   "p3": ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml",
-  "journeys": ".product-experience/pdp-3-product-experience/journey-registry.yaml"
+  "journeys": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+  "screens": ".product-experience/pdp-3-product-experience/screen-registry.yaml"
 };
 const uniqueSet = xs => new Set(xs).size === xs.length;
 const sameIds = (a,b) => Array.isArray(a) && Array.isArray(b) && a.length===b.length && uniqueSet(a) && uniqueSet(b) && a.every(x=>b.includes(x));
-const lowerGroup = id => id.match(/profile\.([a-z0-9]+)\.v1$/u)?.[1].toUpperCase();
+const lowerGroup = id => typeof id==='string' ? id.match(/profile\.([a-z0-9]+)\.v1$/u)?.[1]?.toUpperCase() : undefined;
 export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} }={}) {
   const errors=[]; const fail = s=>errors.push(s);
   const sources={};
@@ -29,7 +30,10 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
     } catch(error) {fail(k+': unreadable source: '+error.message);}
   }
   if(errors.length)return { errors, stats:{sourceDocumentsValid:false} };
-  const {p0,p1,p2,p3,req,journeys}=sources;
+  const {p0,p1,p2,p3,req,journeys,screens}=sources;
+  if(!p0 || !p1 || !p2 || !p3 || !req || !journeys || !screens) {
+    return {errors:['Missing source document contents'],stats:{sourceDocumentsValid:false}};
+  }
   const expectedSurfaces=p0.surfaces??[];
   const surfaceDefs=p3.surfaceExperiences??[];
   if(!sameIds(surfaceDefs.map(x=>x.surfaceId),expectedSurfaces.map(x=>x.id)))
@@ -54,14 +58,18 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
     fail('Recorder Studio scoped source denominators drifted');
   const allSteps=[];
   const allowedJourneyIds=new Set((journeys.journeys??[]).map(x=>x.id));
+  const canonicalScreenIds=(screens.screens??[]).map(x=>x.id);
+  if(allowedJourneyIds.size!==30 || (journeys.journeys??[]).length!==30 ||
+     !uniqueSet(canonicalScreenIds) || canonicalScreenIds.length!==47)
+    fail('historical PDP3 journey/screen inventory has drifted from the proposed successor reference');
   for(const flow of flows) {
     const profile=features.find(x=>x.id===flow.sourceProfileRef);
     if(!profile)continue;
     const groupId=lowerGroup(profile.id);
     const g1=groupP1.find(x=>x.groupId===groupId);
-    const g2=groupP2.find(x=>x.id==='media.recorder.p2.group.'+groupId.toLowerCase()+'.v1');
+    const g2=groupP2.find(x=>x.id==='media.recorder.p2.group.'+String(groupId??'').toLowerCase()+'.v1');
     const steps=flow.stepContracts??[];
-    if(flow.sourceFeatureGroup!==groupId || flow.surfaceId!==profile.ownerSurface || 
+    if(!groupId || flow.sourceFeatureGroup!==groupId || flow.surfaceId!==profile.ownerSurface || 
       !g1 || !g2 || flow.pdp2InterfaceGroupRef!==g2.id || g2.surfaceId!==flow.surfaceId)
       fail(flow.id+': feature/owner/PDP1/PDP2 group mismatch');
     if(!sameIds(steps.map(x=>x.acceptanceCaseRef),profile.acceptanceCaseRefs??[]))
@@ -112,9 +120,12 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
   const workspace=p2.productionStudioNavigation?.workspace??[];
   const declaredGui=(p2.surfaceInterfaces??[]).find(x=>x.surfaceId==='media.surface.production-studio')?.pages??[];
   if(!sameIds(workspace,declaredGui) || !sameIds(pages.map(x=>x.pdp2WorkspaceKey),workspace) ||
+     !uniqueSet(pages.map(x=>x.id)) ||
      pages.length!==13)
     fail('PDP2 Studio page inventory and PDP3 scoped workspace differ');
   for(const page of pages) {
+    if(!page.semanticIntent || !page.id?.endsWith('.'+page.pdp2WorkspaceKey+'.v1'))
+      fail(String(page.id)+': workspace page must retain a named, unique semantic intent');
     if(page.canonicalScreenBinding!=='UNBOUND_PROPOSAL' || page.implementationStatus!=='SOURCE_ONLY')
       fail(page.id+': proposed workspace page must not claim canonical screen or implementation admission');
   }

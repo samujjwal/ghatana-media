@@ -31,6 +31,10 @@ test('rejects a missing manual edit kind or implicit revision bypass',()=>{
   expectReject(probe(x=>x.manualEditExperience.editPaths.pop()),'PDP3 edit path');
   expectReject(probe(x=>x.manualEditExperience.editPaths[0].expectedRevisionRequired=false),'manual edit identity');
 });
+test('rejects a source-valid but wrong page ID or label',()=>{
+  expectReject(probe(x=>x.productionStudioWorkspace.pages[0].id='media.recorder.p3.workspace.fake-id.v1'),'named, unique semantic intent');
+  expectReject(probe(x=>x.productionStudioWorkspace.pages[0].semanticIntent=''),'named, unique semantic intent');
+});
 test('rejects a fabricated production-ready page or Explorer claim',()=>{
   expectReject(probe(x=>x.productionStudioWorkspace.pages[0].implementationStatus='IMPLEMENTED'),'proposed workspace page');
   expectReject(probe(x=>x.explorerProjection.status='VERIFIED'),'cannot claim DEV_COMPLETE');
@@ -38,6 +42,12 @@ test('rejects a fabricated production-ready page or Explorer claim',()=>{
 test('rejects fictional upstream journeys and invented operation admissions',()=>{
   expectReject(probe(x=>x.flowContracts[0].reuseExistingJourneyRefs=['J-99']),'missing or invented existing PDP3 journey');
   expectReject(probe(x=>x.flowContracts[0].operationSelectionStatus='ADMITTED'),'step operation admission not proven');
+});
+test('rejects dropped canonical journey or screen registry identities',()=>{
+  const screenSource=fs.readFileSync(path.join(root,'.product-experience/pdp-3-product-experience/screen-registry.yaml'),'utf8');
+  expectReject(verifyRecorderStudioExperience({overrides:{screens:screenSource.replace(/^- id: media.view.resume-work$/m,'- id: media.view.duplicate-deleted')}}),'historical PDP3 journey/screen inventory');
+  const journeySource=fs.readFileSync(path.join(root,'.product-experience/pdp-3-product-experience/journey-registry.yaml'),'utf8');
+  expectReject(verifyRecorderStudioExperience({overrides:{journeys:journeySource.replace(/^  - id: J-01$/m,'  - id: J-02')}}),'historical PDP3 journey/screen inventory');
 });
 test('rejects duplicate YAML keys and malformed YAML',()=>{
   expectReject(verifyRecorderStudioExperience({overrides:{p3:source+'\nsourcePhase: PDP-3\n'}}),'invalid or duplicate YAML');

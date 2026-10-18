@@ -1,9 +1,9 @@
 # Media Product Experience Specification
 
 **Authority:** Canonical Media PDP-3 experience definitions consuming PDP-0, PDP-1, and PDP-2.
-**Development status:** `DEV_COMPLETE` at its recorded source cut (47 screens, 30 journeys, 130 ordered steps); zero remaining PDP-3 authoring tasks. Independent/full production-experience acceptance and real channel implementation remain separate.
+**Development status:** The prior 47-screen / 30-journey / 130-step population was `DEV_COMPLETE` at its recorded *historical* source cut. The Recorder/Studio successor introduced afterward (four additional logical consumers, 84 scoped acceptance steps, 52 manual edit paths) remains `SOURCE_AUTHORED_SUCCESSOR_PENDING_NATIVE_VALIDATION_AND_CURRENTNESS`, **not PDP-3 DEV_COMPLETE**. Independent acceptance and runtime/channel admission are separate.
 
-**Development completion:** `docs/implementation/pdp-3-phase-dev-status.json` records all 10 criteria passing for the 47-screen/30-journey/130-step population, with strict current projections, valid schemas/public validators, and zero field-mapping blockers. The terminal cross-phase and full development suite are repository integration checks; they do not establish product-owner or independent acceptance, runtime admission, Lifecycle receipts or closure, or release qualification.\
+**Historical development completion only:** `docs/implementation/pdp-3-phase-dev-status.json` records all 10 criteria passing for the 47-screen/30-journey/130-step population, with strict current projections, valid schemas/public validators, and zero field-mapping blockers. The terminal cross-phase and full development suite are repository integration checks; they do not establish product-owner or independent acceptance, runtime admission, Lifecycle receipts or closure, or release qualification.\
 **Detailed work slices:** J-01 project setup, J-02 artifact intake, J-20 job observation/recovery, and `media.lane.transcribe-and-correct-captions`
 **Lane media scope:** Audio sources only; video audio-extraction and source-time mapping are outside this slice of J-03.
 
