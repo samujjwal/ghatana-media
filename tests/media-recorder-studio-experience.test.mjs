@@ -13,7 +13,7 @@ const expectReject=(report,part)=>assert.ok(report.errors.some(x=>x.includes(par
 test('source-derived Recorder Studio PDP3 exact coverage is 4/16/84/52/13 without runtime claims',()=>{
   const result=verifyRecorderStudioExperience();
   assert.deepEqual(result.errors,[]);
-  assert.deepEqual(result.stats,{sourceDocumentsValid:true,logicalSurfaces:4,flowContracts:16,acceptanceCaseSteps:84,manualEditPaths:52,workspaceIntents:13,reusedCanonicalScreenViews:12,unregisteredScreenCandidates:1,interactiveScreenCaseContracts:4});
+  assert.deepEqual(result.stats,{sourceDocumentsValid:true,logicalSurfaces:4,flowContracts:16,acceptanceCaseSteps:84,exactProposedPrimaryOperationSteps:63,explicitNonInvocationSteps:21,manualEditPaths:52,workspaceIntents:13,reusedCanonicalScreenViews:12,unregisteredScreenCandidates:1,interactiveScreenCaseContracts:4});
 });
 test('rejects a missing PDP0 step from an otherwise well-shaped flow',()=>{
   expectReject(probe(x=>x.flowContracts[0].stepContracts.pop()),'case-step coverage mismatch');
@@ -40,6 +40,39 @@ test('rejects incomplete source-owned acceptance oracles',()=>{
 });
 test('rejects invented step ID without changing its valid acceptance reference',()=>{
   expectReject(probe(x=>x.flowContracts[0].stepContracts[0].id='media.recorder.p3.step.999.v1'),'step identity must derive');
+});
+
+test('rejects an operation which is valid PDP1 but not selected by the owning step feature',()=>{
+  expectReject(probe(x=>x.flowContracts[0].stepContracts[0].primaryPdp1OperationRef=
+    'media.recorder.operation.edit.commit.v1'),
+    'exact operation choice is not a matching unadmitted PDP1 candidate');
+});
+test('rejects falsified PDP1 effect class or runtime admission',()=>{
+  expectReject(probe(x=>x.flowContracts[0].stepContracts[0].inheritedEffectBoundary='CANONICAL_PRODUCT_STATE_CHANGE'),
+    'exact operation choice is not a matching unadmitted PDP1 candidate');
+  const p1text=fs.readFileSync(path.join(root,'.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml'),'utf8');
+  const changed=parse(p1text);
+  changed.canonicalOperationProposals.records.find(x=>x.id==='media.recorder.operation.project.plan.evaluate.v1').runtimeStatus='ADMITTED';
+  expectReject(verifyRecorderStudioExperience({overrides:{p1:stringify(changed)}}),
+    'exact operation choice is not a matching unadmitted PDP1 candidate');
+});
+test('rejects a no-invocation policy presented as a direct product effect',()=>{
+  expectReject(probe(x=>{
+    const step=x.flowContracts.flatMap(f=>f.stepContracts).find(s=>s.acceptanceCaseRef==='MEDIA-REC-P0-AC-050');
+    step.primaryPdp1OperationRef='media.recorder.operation.interactive.package.v1';
+  }),'non-invocation cannot smuggle in a product operation or effect');
+  expectReject(probe(x=>{
+    const step=x.flowContracts.flatMap(f=>f.stepContracts).find(s=>s.acceptanceCaseRef==='MEDIA-REC-P0-AC-047');
+    step.noDirectInvocationReason='';
+  }),'explicit no-operation disposition needs a case-specific reason');
+});
+test('rejects evidence invention, missing binding or 63/21 semantic census drift',()=>{
+  expectReject(probe(x=>x.flowContracts[0].stepContracts[0].requiredSourceEvidenceClass='MOCKED_PASS'),
+    'missing or unrecognized source evidence class');
+  expectReject(probe(x=>x.flowContracts[0].stepContracts[0].bindingDisposition='RUNTIME_ADMITTED'),
+    'missing explicit step operation or no-direct-invocation disposition');
+  expectReject(probe(x=>x.population.explicitNonInvocationSteps=0),
+    'Recorder Studio 63 proposed operations and 21 non-invocations have drifted');
 });
 test('rejects duplicated per-kind policy that can drift from canonical parity',()=>{
   expectReject(probe(x=>x.manualEditExperience.editPaths[0].runtimeStatus='ADMITTED'),'duplicated manual semantic authority');
