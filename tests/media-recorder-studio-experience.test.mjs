@@ -13,7 +13,7 @@ const expectReject=(report,part)=>assert.ok(report.errors.some(x=>x.includes(par
 test('source-derived Recorder Studio PDP3 exact coverage is 4/16/84/52/13 without runtime claims',()=>{
   const result=verifyRecorderStudioExperience();
   assert.deepEqual(result.errors,[]);
-  assert.deepEqual(result.stats,{sourceDocumentsValid:true,logicalSurfaces:4,flowContracts:16,acceptanceCaseSteps:84,exactProposedPrimaryOperationSteps:63,explicitNonInvocationSteps:21,manualEditPaths:52,workspaceIntents:13,reusedCanonicalScreenViews:12,unregisteredScreenCandidates:1,interactiveScreenCaseContracts:4,interactiveFixtureDefinitions:6});
+  assert.deepEqual(result.stats,{sourceDocumentsValid:true,logicalSurfaces:4,flowContracts:16,acceptanceCaseSteps:84,exactProposedPrimaryOperationSteps:63,explicitNonInvocationSteps:21,manualEditPaths:52,workspaceIntents:13,reusedCanonicalScreenViews:12,unregisteredScreenCandidates:1,interactiveScreenCaseContracts:4,interactiveFixtureDefinitions:6,scopedExperienceScenarios:7});
 });
 test('rejects missing PDP3 owner reference in the logical surface registry',()=>{
   const filename='.product-experience/surface-registry.yaml';
@@ -235,4 +235,23 @@ test('rejects missing negative fixture, invented actor, or noncanonical case ide
     'interactive fixture keyboard-branch-positive has invented actor/case, missing oracle, or false execution status');
   expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].authoredFixtureDefinitions[0].rejection=''),
     'interactive fixture keyboard-branch-positive has invented actor/case, missing oracle, or false execution status');
+});
+
+test('rejects source-owned scenario cases moved to the wrong logical consumer',()=>{
+  expectReject(probe(x=>{
+    const scene=x.surfaceCaseScenarioContracts.records[0];
+    scene.ownerSurfaceId='media.surface.production-studio';
+  }),'source-authored scenario contracts lack exact surface ownership');
+  expectReject(probe(x=>x.surfaceCaseScenarioContracts.records[0].sourceAcceptanceCaseRefs=['MEDIA-REC-P0-AC-999']),
+    'source-authored scenario contracts lack exact surface ownership');
+});
+test('rejects a fabricated source scenario runtime, invented journey or missing denial',()=>{
+  expectReject(probe(x=>x.surfaceCaseScenarioContracts.records[0].verification='PASS'),
+    'scenario source must not claim a deployed route, accepted film or verified product effect');
+  expectReject(probe(x=>x.surfaceCaseScenarioContracts.records[0].existingJourneyRefs=['J-99']),
+    'source scenario references nonexistent or duplicated canonical journeys');
+  expectReject(probe(x=>x.surfaceCaseScenarioContracts.records[0].mandatoryDenialAndRecovery=''),
+    'missing source-grounded input, positive/negative or finality semantics');
+  expectReject(probe(x=>x.surfaceCaseScenarioContracts.records.pop()),
+    'seven Recorder Studio source-only scenario definitions must cover all four logical surfaces');
 });
