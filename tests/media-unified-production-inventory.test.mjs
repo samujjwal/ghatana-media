@@ -8,7 +8,8 @@ import {inputs, verifyUnifiedProductionInventory} from '../scripts/check-media-u
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = key => fs.readFileSync(path.join(root, inputs[key]), 'utf8');
 const mutate = (key, fn) => {
-  const content = key === 'audit' ? JSON.stringify(fn(JSON.parse(read('audit')))) : fn(read(key));
+  const isJson = new Set(['audit', 'attachedAudit', 'uploadedIdCrosswalk', 'taskLedger']);
+  const content = isJson.has(key) ? JSON.stringify(fn(JSON.parse(read(key)))) : fn(read(key));
   return verifyUnifiedProductionInventory({overrides:{[key]:content}});
 };
 test('unified audit preserves exact 428+73=501, 38/462 P0 leaves, 84+61 cases and 28+18 test candidates', () => {
@@ -156,4 +157,33 @@ test('reject deleting the two explicitly unbound specialist solver families', ()
     return doc;
   });
   assert.match(r.errors.join('\n'), /missing case and explicit semantic gap/);
+});
+
+test('preserve all original 40 plan tasks and 46 experimental acceptance rows across 16 PBIs', () => {
+  const result = verifyUnifiedProductionInventory();
+  assert.deepEqual(result.errors, [], result.errors.join('\n'));
+  const ledger = JSON.parse(read('taskLedger'));
+  assert.equal(ledger.items.length, 86);
+  assert.deepEqual(ledger.sourceFamilyCounts, {M:16,INV:12,DAS:12,C:28,'DAS-A':18});
+  assert.equal(new Set(ledger.items.flatMap(r=>r.candidateExistingPbiPackages)).size, 16);
+});
+test('reject omitted original M-00 task despite broad planning prose', () => {
+  const result = mutate('taskLedger', d => {d.items = d.items.filter(r => r.sourceTaskId !== 'M-00');return d;});
+  assert.match(result.errors.join('\n'), /expected unique 16 M|original source task dropped/);
+});
+test('reject a changed original INV-01 task acceptance description', () => {
+  const result = mutate('taskLedger', d => {d.items.find(r=>r.sourceTaskId==='INV-01').exactSourceMarkdownRow='fake text';return d;});
+  assert.match(result.errors.join('\n'), /original source task dropped, corrupted or prematurely marked complete/);
+});
+test('reject nonsensical PBI owner invented for a DAS source task', () => {
+  const result = mutate('taskLedger', d => {d.items.find(r=>r.sourceTaskId==='DAS-04').candidateExistingPbiPackages=['PBI-99'];return d;});
+  assert.match(result.errors.join('\n'), /original source task dropped, corrupted or prematurely marked complete/);
+});
+test('reject premature claimed completion of scientific experiment', () => {
+  const result = mutate('taskLedger', d => {d.items.find(r=>r.sourceTaskId==='DAS-A05').completionStatus='PASSED';return d;});
+  assert.match(result.errors.join('\n'), /original source task dropped, corrupted or prematurely marked complete/);
+});
+test('reject disappearance of a source C acceptance experiment from blueprint', () => {
+  const result = mutate('blueprint', s => s.replace(/\| \*\*C-01 Replay as truth\*\* \|/, '| **C-01 modified truth** |'));
+  assert.match(result.errors.join('\n'), /original source task dropped, corrupted or prematurely marked complete/);
 });
