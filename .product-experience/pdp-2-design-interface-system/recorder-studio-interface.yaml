@@ -847,7 +847,7 @@ recorderStudioComponentCompositions:
       headlessEquivalent: typed-adapter-probe-result-and-fail-closed-source-readback
       negative: no-synthetic-browser-UI-or-unqualified-native-camera
     - surfaceId: media.surface.production-studio
-      components: [media.component.project-browser, media.component.storyboard, media.component.source-player, media.component.timeline-keyframe-editor, media.component.waveform-spectrogram, media.component.audio-mixer, media.component.caption-track-editor, media.component.mask-tracking-editor, media.component.scene-inspector, media.component.result-comparison, media.component.quality-inspector, media.component.rights-retention-review]
+      components: [media.component.project-browser, media.component.storyboard, media.component.source-player, media.component.timeline-keyframe-editor, media.component.waveform-spectrogram, media.component.audio-mixer, media.component.caption-track-editor, media.component.mask-tracking-editor, media.component.scene-inspector, media.component.result-comparison, media.component.quality-inspector, media.component.rights-retention-review, media.component.project-context-summary, media.component.provenance-summary, media.component.intent-launcher, media.component.creation-plan-summary, media.component.source-picker, media.component.transcript-review, media.component.voice-production-workflow, media.component.task-flow, media.component.delivery-profile-picker, media.component.activity-recovery-feed]
       layout: resizable-preview-editor-timeline-inspector-with-canonical-project-revision
       narrow: one-active-editor-region-and-structured-timeline-tree-without-loss-of-actions
       headlessEquivalent: exact-same-edit-CAS-typed-operation-ids-and-denials
@@ -859,3 +859,200 @@ recorderStudioComponentCompositions:
       headlessEquivalent: sanitized-scene-branch-graph-and-offline-safe-linear-fallback
       negative: no-scriptable-product-command-or-unconsented-audience-tracking
   compositionAdmission: reuse-only-at-definition-level-concrete-PDP3-screens-and-Shared-token-qualification-pending
+
+# Source-owned page-local design composition. Do not mint new screens, token
+# values or design-system components. PDP-3 projects these exact workspace keys.
+productionStudioPageCompositionContracts:
+  status: SOURCE_AUTHORED_SUCCESSOR_PENDING_NATIVE_VALIDATION
+  ownerSurface: media.surface.production-studio
+  templateAuthority: .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#templates
+  layoutAuthority: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layouts
+  recipeAuthority: .product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml#recipes
+  componentAuthority: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#components
+  caseAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses
+  sourceOfWorkspaceIds: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml#productionStudioNavigation/workspace
+  sameRevision: single-canonical-MediaProject-expected-revision-CAS
+  nonClaims: [no-new-screen, no-runtime-UI, no-Shared-package-admission, no-PDP3-phase-exit]
+  pages:
+    - workspaceKey: "project-library"
+      proposedPdp3WorkspaceId: "media.recorder.p3.workspace.project-library.v1"
+      templateRef: "media.gui.template.collection"
+      layoutRef: "media.gui.layout.collection"
+      recipeRef: "media.gui.recipe.collection"
+      componentRefs: ["media.component.project-browser","media.component.project-context-summary","media.component.provenance-summary"]
+      acceptanceCaseRefs: ["MEDIA-REC-P0-AC-017","MEDIA-REC-P0-AC-021"]
+      wideIntent: "Review exact project identity, revisions, access and immutable source versions"
+      narrowIntent: "Preserve project-library source revision and critical user choices in a linear focus order"
+      keyboardAndTextEquivalent: "Expose named project-library controls, exact source time and result/denial with keyboard and screen reader"
+      headlessEquivalent: "Project project-library selections and state as typed source-bound JSON/CLI without invented GUI effects"
+      denialAndUnknownRecovery: "Retain project-library source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
+      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
+    - workspaceKey: "production-planner"
+      proposedPdp3WorkspaceId: "media.recorder.p3.workspace.production-planner.v1"
+      templateRef: "media.gui.template.task-setup"
+      layoutRef: "media.gui.layout.task-setup"
+      recipeRef: "media.gui.recipe.task-setup"
+      componentRefs: ["media.component.intent-launcher","media.component.creation-plan-summary","media.component.storyboard","media.component.rights-retention-review"]
+      acceptanceCaseRefs: ["MEDIA-REC-P0-AC-001","MEDIA-REC-P0-AC-003","MEDIA-REC-P0-AC-004","MEDIA-REC-P0-AC-035"]
+      wideIntent: "Bind user audience purpose duration locale plan model policy and acceptance conditions"
+      narrowIntent: "Preserve production-planner source revision and critical user choices in a linear focus order"
+      keyboardAndTextEquivalent: "Expose named production-planner controls, exact source time and result/denial with keyboard and screen reader"
+      headlessEquivalent: "Project production-planner selections and state as typed source-bound JSON/CLI without invented GUI effects"
+      denialAndUnknownRecovery: "Retain production-planner source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
+      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
+    - workspaceKey: "scene-storyboard"
+      proposedPdp3WorkspaceId: "media.recorder.p3.workspace.scene-storyboard.v1"
+      templateRef: "media.gui.template.media-composition"
+      layoutRef: "media.gui.layout.media-workbench"
+      recipeRef: "media.gui.recipe.media-composition"
+      componentRefs: ["media.component.storyboard","media.component.scene-inspector","media.component.timeline-keyframe-editor"]
+      acceptanceCaseRefs: ["MEDIA-REC-P0-AC-003","MEDIA-REC-P0-AC-022","MEDIA-REC-P0-AC-035","MEDIA-REC-P0-AC-040"]
+      wideIntent: "Inspect semantic scenes negative beats product postconditions anchors and rational media time"
+      narrowIntent: "Preserve scene-storyboard source revision and critical user choices in a linear focus order"
+      keyboardAndTextEquivalent: "Expose named scene-storyboard controls, exact source time and result/denial with keyboard and screen reader"
+      headlessEquivalent: "Project scene-storyboard selections and state as typed source-bound JSON/CLI without invented GUI effects"
+      denialAndUnknownRecovery: "Retain scene-storyboard source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
+      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
+    - workspaceKey: "source-review"
+      proposedPdp3WorkspaceId: "media.recorder.p3.workspace.source-review.v1"
+      templateRef: "media.gui.template.record-detail"
+      layoutRef: "media.gui.layout.record-detail"
+      recipeRef: "media.gui.recipe.record-detail"
+      componentRefs: ["media.component.source-picker","media.component.source-player","media.component.provenance-summary","media.component.rights-retention-review"]
+      acceptanceCaseRefs: ["MEDIA-REC-P0-AC-006","MEDIA-REC-P0-AC-008","MEDIA-REC-P0-AC-009","MEDIA-REC-P0-AC-010","MEDIA-REC-P0-AC-011","MEDIA-REC-P0-AC-058"]
+      wideIntent: "Inspect source eligibility rights version provider clock uncertainty and provenance"
+      narrowIntent: "Preserve source-review source revision and critical user choices in a linear focus order"
+      keyboardAndTextEquivalent: "Expose named source-review controls, exact source time and result/denial with keyboard and screen reader"
+      headlessEquivalent: "Project source-review selections and state as typed source-bound JSON/CLI without invented GUI effects"
+      denialAndUnknownRecovery: "Retain source-review source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
+      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
+    - workspaceKey: "multitrack-timeline"
+      proposedPdp3WorkspaceId: "media.recorder.p3.workspace.multitrack-timeline.v1"
+      templateRef: "media.gui.template.media-composition"
+      layoutRef: "media.gui.layout.media-workbench"
+      recipeRef: "media.gui.recipe.media-composition"
+      componentRefs: ["media.component.timeline-keyframe-editor","media.component.source-player","media.component.waveform-spectrogram","media.component.scene-inspector"]
+      acceptanceCaseRefs: ["MEDIA-REC-P0-AC-022","MEDIA-REC-P0-AC-023","MEDIA-REC-P0-AC-024","MEDIA-REC-P0-AC-079","MEDIA-REC-P0-AC-080","MEDIA-REC-P0-AC-081"]
+      wideIntent: "Edit video audio captions layers clip boundaries scene groups rate and source time"
+      narrowIntent: "Preserve multitrack-timeline source revision and critical user choices in a linear focus order"
+      keyboardAndTextEquivalent: "Expose named multitrack-timeline controls, exact source time and result/denial with keyboard and screen reader"
+      headlessEquivalent: "Project multitrack-timeline selections and state as typed source-bound JSON/CLI without invented GUI effects"
+      denialAndUnknownRecovery: "Retain multitrack-timeline source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
+      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
+    - workspaceKey: "captions-transcript"
+      proposedPdp3WorkspaceId: "media.recorder.p3.workspace.captions-transcript.v1"
+      templateRef: "media.gui.template.workbench"
+      layoutRef: "media.gui.layout.media-workbench"
+      recipeRef: "media.gui.recipe.workbench"
+      componentRefs: ["media.component.caption-track-editor","media.component.transcript-review","media.component.source-player","media.component.waveform-spectrogram"]
+      acceptanceCaseRefs: ["MEDIA-REC-P0-AC-027","MEDIA-REC-P0-AC-073"]
+      wideIntent: "Correct source linked captions speaker labels word timings language and approvals"
+      narrowIntent: "Preserve captions-transcript source revision and critical user choices in a linear focus order"
+      keyboardAndTextEquivalent: "Expose named captions-transcript controls, exact source time and result/denial with keyboard and screen reader"
+      headlessEquivalent: "Project captions-transcript selections and state as typed source-bound JSON/CLI without invented GUI effects"
+      denialAndUnknownRecovery: "Retain captions-transcript source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
+      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
+    - workspaceKey: "narration-mixer"
+      proposedPdp3WorkspaceId: "media.recorder.p3.workspace.narration-mixer.v1"
+      templateRef: "media.gui.template.media-composition"
+      layoutRef: "media.gui.layout.media-workbench"
+      recipeRef: "media.gui.recipe.media-composition"
+      componentRefs: ["media.component.audio-mixer","media.component.waveform-spectrogram","media.component.voice-production-workflow","media.component.rights-retention-review"]
+      acceptanceCaseRefs: ["MEDIA-REC-P0-AC-026","MEDIA-REC-P0-AC-036","MEDIA-REC-P0-AC-079","MEDIA-REC-P0-AC-080","MEDIA-REC-P0-AC-084"]
+      wideIntent: "Mix stems narration Foley gain mute solo loudness ducking denoise and voice rights"
+      narrowIntent: "Preserve narration-mixer source revision and critical user choices in a linear focus order"
+      keyboardAndTextEquivalent: "Expose named narration-mixer controls, exact source time and result/denial with keyboard and screen reader"
+      headlessEquivalent: "Project narration-mixer selections and state as typed source-bound JSON/CLI without invented GUI effects"
+      denialAndUnknownRecovery: "Retain narration-mixer source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
+      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
+    - workspaceKey: "camera-multiview"
+      proposedPdp3WorkspaceId: "media.recorder.p3.workspace.camera-multiview.v1"
+      templateRef: "media.gui.template.media-composition"
+      layoutRef: "media.gui.layout.media-workbench"
+      recipeRef: "media.gui.recipe.media-composition"
+      componentRefs: ["media.component.source-picker","media.component.source-player","media.component.scene-inspector","media.component.provenance-summary"]
+      acceptanceCaseRefs: ["MEDIA-REC-P0-AC-009","MEDIA-REC-P0-AC-010","MEDIA-REC-P0-AC-028","MEDIA-REC-P0-AC-038"]
+      wideIntent: "Synchronize qualified source angles PiP and camera cuts without synthetic proof"
+      narrowIntent: "Preserve camera-multiview source revision and critical user choices in a linear focus order"
+      keyboardAndTextEquivalent: "Expose named camera-multiview controls, exact source time and result/denial with keyboard and screen reader"
+      headlessEquivalent: "Project camera-multiview selections and state as typed source-bound JSON/CLI without invented GUI effects"
+      denialAndUnknownRecovery: "Retain camera-multiview source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
+      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
+    - workspaceKey: "effects-inspector"
+      proposedPdp3WorkspaceId: "media.recorder.p3.workspace.effects-inspector.v1"
+      templateRef: "media.gui.template.media-composition"
+      layoutRef: "media.gui.layout.media-workbench"
+      recipeRef: "media.gui.recipe.media-composition"
+      componentRefs: ["media.component.mask-tracking-editor","media.component.scene-inspector","media.component.timeline-keyframe-editor","media.component.result-comparison"]
+      acceptanceCaseRefs: ["MEDIA-REC-P0-AC-024","MEDIA-REC-P0-AC-025","MEDIA-REC-P0-AC-081","MEDIA-REC-P0-AC-082","MEDIA-REC-P0-AC-083"]
+      wideIntent: "Edit keyframes masks crops annotations cursor effects and exact brand graphics"
+      narrowIntent: "Preserve effects-inspector source revision and critical user choices in a linear focus order"
+      keyboardAndTextEquivalent: "Expose named effects-inspector controls, exact source time and result/denial with keyboard and screen reader"
+      headlessEquivalent: "Project effects-inspector selections and state as typed source-bound JSON/CLI without invented GUI effects"
+      denialAndUnknownRecovery: "Retain effects-inspector source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
+      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
+    - workspaceKey: "interactive-authoring"
+      proposedPdp3WorkspaceId: "media.recorder.p3.workspace.interactive-authoring.v1"
+      templateRef: "media.gui.template.workbench"
+      layoutRef: "media.gui.layout.media-workbench"
+      recipeRef: "media.gui.recipe.workbench"
+      componentRefs: ["media.component.task-flow","media.component.storyboard","media.component.source-player","media.component.provenance-summary"]
+      acceptanceCaseRefs: ["MEDIA-REC-P0-AC-050","MEDIA-REC-P0-AC-051","MEDIA-REC-P0-AC-052","MEDIA-REC-P0-AC-053"]
+      wideIntent: "Author sandboxed local hotspot and branch graph offline fallback and rights"
+      narrowIntent: "Preserve interactive-authoring source revision and critical user choices in a linear focus order"
+      keyboardAndTextEquivalent: "Expose named interactive-authoring controls, exact source time and result/denial with keyboard and screen reader"
+      headlessEquivalent: "Project interactive-authoring selections and state as typed source-bound JSON/CLI without invented GUI effects"
+      denialAndUnknownRecovery: "Retain interactive-authoring source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
+      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
+    - workspaceKey: "quality-review"
+      proposedPdp3WorkspaceId: "media.recorder.p3.workspace.quality-review.v1"
+      templateRef: "media.gui.template.review-and-compare"
+      layoutRef: "media.gui.layout.review"
+      recipeRef: "media.gui.recipe.review-and-compare"
+      componentRefs: ["media.component.quality-inspector","media.component.result-comparison","media.component.provenance-summary","media.component.rights-retention-review"]
+      acceptanceCaseRefs: ["MEDIA-REC-P0-AC-045","MEDIA-REC-P0-AC-046","MEDIA-REC-P0-AC-047","MEDIA-REC-P0-AC-048","MEDIA-REC-P0-AC-049"]
+      wideIntent: "Compare real product outcomes technical media QA and independent review status"
+      narrowIntent: "Preserve quality-review source revision and critical user choices in a linear focus order"
+      keyboardAndTextEquivalent: "Expose named quality-review controls, exact source time and result/denial with keyboard and screen reader"
+      headlessEquivalent: "Project quality-review selections and state as typed source-bound JSON/CLI without invented GUI effects"
+      denialAndUnknownRecovery: "Retain quality-review source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
+      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
+    - workspaceKey: "render-preview"
+      proposedPdp3WorkspaceId: "media.recorder.p3.workspace.render-preview.v1"
+      templateRef: "media.gui.template.render-preparation-and-review"
+      layoutRef: "media.gui.layout.render"
+      recipeRef: "media.gui.recipe.render-preparation-and-review"
+      componentRefs: ["media.component.source-player","media.component.result-comparison","media.component.quality-inspector","media.component.delivery-profile-picker"]
+      acceptanceCaseRefs: ["MEDIA-REC-P0-AC-037","MEDIA-REC-P0-AC-038","MEDIA-REC-P0-AC-039","MEDIA-REC-P0-AC-049"]
+      wideIntent: "Compare exact project revision render preview and output with measured tolerances"
+      narrowIntent: "Preserve render-preview source revision and critical user choices in a linear focus order"
+      keyboardAndTextEquivalent: "Expose named render-preview controls, exact source time and result/denial with keyboard and screen reader"
+      headlessEquivalent: "Project render-preview selections and state as typed source-bound JSON/CLI without invented GUI effects"
+      denialAndUnknownRecovery: "Retain render-preview source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
+      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
+    - workspaceKey: "delivery"
+      proposedPdp3WorkspaceId: "media.recorder.p3.workspace.delivery.v1"
+      templateRef: "media.gui.template.task-setup"
+      layoutRef: "media.gui.layout.task-setup"
+      recipeRef: "media.gui.recipe.task-setup"
+      componentRefs: ["media.component.delivery-profile-picker","media.component.rights-retention-review","media.component.provenance-summary","media.component.activity-recovery-feed"]
+      acceptanceCaseRefs: ["MEDIA-REC-P0-AC-054","MEDIA-REC-P0-AC-055","MEDIA-REC-P0-AC-056","MEDIA-REC-P0-AC-057"]
+      wideIntent: "Inspect version rights audience approval destinations and publication finality"
+      narrowIntent: "Preserve delivery source revision and critical user choices in a linear focus order"
+      keyboardAndTextEquivalent: "Expose named delivery controls, exact source time and result/denial with keyboard and screen reader"
+      headlessEquivalent: "Project delivery selections and state as typed source-bound JSON/CLI without invented GUI effects"
+      denialAndUnknownRecovery: "Retain delivery source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
+      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
