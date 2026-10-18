@@ -31,3 +31,26 @@
 Use the existing MediaProject immutable revision and original source/clock authority for both automated and manual modes. Product-owned fixtures, accounts, business effects, and tenant-specific policies remain with each product (Gharbatai first). No product action is demonstrated as successful without owner-readback after-action; camera/browser/etc only when qualified. Manual lock must survive regeneration; stale CAS/remote UNKNOWN cannot be force-resolved by GUI optimism. AI is native but policy-bounded, with provenance/uncertainty/abstention and no unapproved provider egress. Trace/metric/log records are redacted; rights, consent, legal holds, erasure, media quality and independently required film approval are distinct. Container, codec, voices, and model licenses remain provider-specific admission gates. A viewer hotspot is never a delegated privileged product mutation.
 
 **This review records technical source dispositions only.** It does not forge a specialist certification, an accepted Discovery phase, or a production/provider proof.
+
+## Source-only hygiene and negative-proof increment after PR #11
+
+The 84 scoped PDP-3 steps no longer copy canonical `given/when/then/rejection` text or the same group operation candidates. The canonical clause reference is the single source of truth. Shared finality and non-admission rules are flow-level; 52 manual editing paths retain exact kind/typed intent/editor mapping while shared compare-and-swap, keyboard/text/CLI/SDK/API and undo/lock rules are declared once. The authored source shrank by 75,525 bytes (**56.8%**) with an unchanged 4/16/84/52/13 denominator.
+
+All 13 planned Studio workspace pages now nominate `media.gui.template.*`, `media.gui.layout.*` and `media.gui.recipe.*` identities already defined in PDP-2. Bidirectional source comparisons found 13/13 mutually compatible design chains. These are **not** approved screen instances; there is still no admission of 13 new canonical PDP-3 screens and no Explorer runtime verification.
+
+Checks authored: schema-strict YAML/duplicate rejection; P0/P1/P2 profile, typed group operation and 84 case identity comparison; 52 exact manual paths; 13 bidirectionally compatible GUI design chains; negative mutation of source semantics, false runtime admission, swapped parent/owner and incorrect template/layout. A restricted read-only parser and direct source readback returned zero mismatches, but that is **not** a repository-native test receipt. Required exact commands on full checkout, in order:
+
+```bash
+corepack pnpm install --frozen-lockfile
+pnpm check:recorder-studio-definition
+pnpm test:recorder-studio-definition
+pnpm check:physical-topology
+pnpm test:physical-topology
+pnpm check:recorder-studio-experience
+pnpm test:recorder-studio-experience
+pnpm check:design-conformance
+pnpm check:presentation-architecture
+pnpm check:product-experience-local
+```
+
+Do not repin historical PDP status, present the source-only 84-step projection as dispatched product actions, or merge this change as Discovery phase exit. The next concrete P3 implementation-authoring work is exact screen/action/step-state/scenario/fixture and Explorer binding, then native verified readmission for affected cells.
