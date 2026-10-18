@@ -45,7 +45,7 @@ test('rejects fictional upstream journeys and invented operation admissions',()=
 });
 test('rejects dropped canonical journey or screen registry identities',()=>{
   const screenSource=fs.readFileSync(path.join(root,'.product-experience/pdp-3-product-experience/screen-registry.yaml'),'utf8');
-  expectReject(verifyRecorderStudioExperience({overrides:{screens:screenSource.replace(/^- id: media.view.resume-work$/m,'- id: media.view.duplicate-deleted')}}),'historical PDP3 journey/screen inventory');
+  expectReject(verifyRecorderStudioExperience({overrides:{screens:screenSource.replace(/^- id: media.view.resume-work$/m,'- id: media.view.find-projects')}}),'historical PDP3 journey/screen inventory');
   const journeySource=fs.readFileSync(path.join(root,'.product-experience/pdp-3-product-experience/journey-registry.yaml'),'utf8');
   expectReject(verifyRecorderStudioExperience({overrides:{journeys:journeySource.replace(/^  - id: J-01$/m,'  - id: J-02')}}),'historical PDP3 journey/screen inventory');
 });
