@@ -80,6 +80,13 @@ handoffs:
         agentTools: {count: 4, source: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml#tools}
         events: {count: 9, source: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records}
         clientNotifications: {count: 15, source: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/notificationRecords}
+    declarativeProductionSpecialization:
+      source: .product-experience/pdp-1-domain-data/declarative-production-contracts.yaml
+      caseCount: 61
+      exactOperationBindingCount: 61
+      uniqueCanonicalOperations: 39
+      status: SOURCE_AUTHORED_SUCCESSOR_CURRENTNESS_PENDING
+      boundary: Reuses existing P1 owner operations and job/project/model-state identities; no new route, solver writer or public admission.
     requiredMeaning:
       identitiesAndLineage: >-
         Preserve exact tenant and object/version identity tuples, immutable revision lineage, typed references,
