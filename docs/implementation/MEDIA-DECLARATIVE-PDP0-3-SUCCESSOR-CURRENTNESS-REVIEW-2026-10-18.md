@@ -115,3 +115,7 @@ The 73 `AUD-FOCUS-*` items in the earlier source-derived 501-item projection are
 
 The source integrity checker and six added negative/positive tests now reject source ID loss, changed original acceptance, normalized alias masquerading as source authority, a missing P0 case, missing explicit uncovered scope and false semantic promotion. They are **authored, not native executed**, and all 428 legacy audit meanings and 73 third-pass meaning decisions remain earliest-phase PDP-0 owner work until specific semantic evidence is recorded. The 61 newly authored source cases remain valid *candidate scopes*, not automatically complete coverage of the 73 uploaded audit items. Existing source-cut phase status must not be copied or upgraded without native gate validation.
 
+### Complete source-task/experiment denominator correction
+
+The same attached source contains **40 planning IDs** (`M-00…15`, `INV-01…12`, `DAS-01…12`) and **46 test IDs** (`C-01…28`, `DAS-A01…A18`). The [exact source-row task trace](observations/media-unified-source-task-and-experiment-crosswalk-2026-10-18.json) preserves all **86** source rows and maps them to candidate existing PBI-00…15 owners without introducing a second Build queue. A new mutation family checks missing/mutated tasks, invented PBI owners and prematurely completed experiments. The living plan contains updated dependency diagrams. This update is documentation and source-checker authoring, not native test execution; all newly affected PDP source-current status and actual film/scientific tests remain unproven.
+
