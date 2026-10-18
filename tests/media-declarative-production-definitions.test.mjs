@@ -11,6 +11,7 @@ const files = {
   p0: '.product-experience/pdp-0-product-truth/requirements.yaml',
   p1: '.product-experience/pdp-1-domain-data/declarative-production-contracts.yaml',
   p2: '.product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml',
+  p3: '.product-experience/pdp-3-product-experience/declarative-production-experience.yaml',
 };
 
 test('all PDP-0, PDP-1, and PDP-2 declarative production source contracts reconcile without synthetic runtime claims', () => {
@@ -20,6 +21,7 @@ test('all PDP-0, PDP-1, and PDP-2 declarative production source contracts reconc
   assert.equal(result.stats.declarativeCases, 61);
   assert.equal(result.stats.p1Bindings, 61);
   assert.equal(result.stats.p2Bindings, 61);
+  assert.equal(result.stats.p3Bindings, 61);
   assert.equal(result.stats.valueTypes, 10);
   assert.equal(result.stats.recorderManualEdits, 52);
   assert.equal(result.stats.originClasses, 5);
@@ -88,4 +90,15 @@ test('refuse premature phase DEV_COMPLETE status from an unexecuted source propo
   assert.notEqual(source, broken);
   const result = verifyDeclarativeProductionDefinitions({ overrides: { p1: broken } });
   assert.ok(result.errors.some(e => /cannot self-declare current-source DEV_COMPLETE/.test(e)), result.errors.join('\n'));
+});
+
+test('reject a PDP-3 journey/operation drift even with all 61 successor cases present', () => {
+  const source = read(files.p3);
+  const broken = source.replace(
+    'pdp1OperationRef: media.operation.capability.media-animation-vector',
+    'pdp1OperationRef: media.operation.capability.media-animation-3d'
+  );
+  assert.notEqual(source, broken);
+  const result = verifyDeclarativeProductionDefinitions({ overrides: { p3: broken } });
+  assert.ok(result.errors.some(e => /PDP-3 successor lacks exact P0\/1\/2/.test(e)), result.errors.join('\n'));
 });
