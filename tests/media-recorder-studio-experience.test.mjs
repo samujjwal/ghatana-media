@@ -13,7 +13,7 @@ const expectReject=(report,part)=>assert.ok(report.errors.some(x=>x.includes(par
 test('source-derived Recorder Studio PDP3 exact coverage is 4/16/84/52/13 without runtime claims',()=>{
   const result=verifyRecorderStudioExperience();
   assert.deepEqual(result.errors,[]);
-  assert.deepEqual(result.stats,{sourceDocumentsValid:true,logicalSurfaces:4,flowContracts:16,acceptanceCaseSteps:84,manualEditPaths:52,workspaceIntents:13});
+  assert.deepEqual(result.stats,{sourceDocumentsValid:true,logicalSurfaces:4,flowContracts:16,acceptanceCaseSteps:84,manualEditPaths:52,workspaceIntents:13,reusedCanonicalScreenViews:12,unregisteredScreenCandidates:1,interactiveScreenCaseContracts:4});
 });
 test('rejects a missing PDP0 step from an otherwise well-shaped flow',()=>{
   expectReject(probe(x=>x.flowContracts[0].stepContracts.pop()),'case-step coverage mismatch');
@@ -115,6 +115,10 @@ test('rejects a missing or fabricated PDP2 page composition',()=>{
   expectReject(mutate(x=>x.productionStudioPageCompositionContracts.pages[0].requiredStates=['READY']),
     'PDP2 page states differ');
 });
+test('rejects missing or malformed screen reuse arrays without throwing',()=>{
+  expectReject(probe(x=>delete x.productionStudioWorkspace.pages[0].candidateCanonicalScreenRefs),
+    'invalid or ungrounded existing-screen reuse proposal');
+});
 test('rejects absent, invented or accidentally admitted canonical screen reuse',()=>{
   expectReject(probe(x=>x.productionStudioWorkspace.pages[0].candidateCanonicalScreenRefs=['media.view.nonexistent']),
     'invalid or ungrounded existing-screen reuse proposal');
@@ -151,6 +155,10 @@ test('rejects ungrounded branch behavior or missing denial/recovery accessibilit
     'interactive screen candidate lacks exact positive, denial or recovery interaction contract');
   expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].interactionContracts.pop()),
     'interactive screen candidate lacks exact positive, denial or recovery interaction contract');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].preconditions=[]),
+    'interactive candidate screen lacks accessible headless fixture and nonfinal preview limits');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].nonhappyConsequences=[]),
+    'interactive candidate screen lacks accessible headless fixture and nonfinal preview limits');
   expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].accessibility=[]),
     'interactive candidate screen lacks accessible headless fixture and nonfinal preview limits');
   expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].requiredScenarioFixtures=[]),
