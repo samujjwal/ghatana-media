@@ -368,6 +368,7 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
     if (!template || !layout || !recipe ||
         !template.recipeRefs?.includes(page.recipeRef) ||
         !template.compatibleLayoutRefs?.includes(page.layoutRef) ||
+        !layout.compatibleTemplateRefs?.includes(page.templateRef) ||
         recipe.templateRef!==page.templateRef)
       fail('PDP2 Studio page has ungrounded template/layout/recipe chain: '+key);
     if (!page.componentRefs?.length ||
