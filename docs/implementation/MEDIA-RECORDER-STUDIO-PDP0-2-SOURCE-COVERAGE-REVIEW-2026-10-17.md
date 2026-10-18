@@ -141,3 +141,8 @@ partial and erasure presentation; page text/accessibility remains explicit.
 This successor patch changes no media operation, acceptance denominator, or
 PDP-3 authored journey. A source mutation regression rejects private page
 state vocabulary. Native phase checks remain required before `DEV_COMPLETE`.
+
+## October 18 forward pointer — historical source review retained
+
+The source analysis in this October 17 Recorder/Studio review remains attributable only to its original checked cut. The [current unified plan and diagrams](MEDIA-UNIFIED-PRODUCTION-CURRENT-PLAN.md) and [full 501-source audit](references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json) retain all 428 earlier voice/editor/media feature targets and 73 original third-pass Recorder/animation/simulation/TutorPutor intents. The [original stable 73-ID crosswalk](observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json) and [86 original task/experiment references](observations/media-unified-source-task-and-experiment-crosswalk-2026-10-18.json) are updated independently of this record. Do not reinterpret the legacy 84 Recorder clauses as exhaustive exact semantic acceptance of all 501 audit targets or retroactively mark this phase's new source cut `DEV_COMPLETE`. Native status remains pending.
+
