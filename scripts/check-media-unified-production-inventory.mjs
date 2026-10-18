@@ -53,11 +53,11 @@ export function verifyUnifiedProductionInventory({repoRoot = root, overrides = {
   try { taskLedger = JSON.parse(raw.taskLedger); }
   catch (e) { return {errors: ['source task ledger: invalid JSON: ' + e.message], stats: {}}; }
   const sourceTaskRowDefinitions = [
-    ['M', /^\\|\\s*(M-\\d{2})\\s*\\|[^\\n]*$/gm, 16],
-    ['INV', /^\\|\\s*(INV-\\d{2})\\s*\\|[^\\n]*$/gm, 12],
-    ['DAS', /^\\|\\s*\\*\\*(DAS-\\d{2})[^|\\n]*\\|[^\\n]*$/gm, 12],
-    ['C', /^\\|\\s*\\*\\*(C-\\d{2})[^|\\n]*\\|[^\\n]*$/gm, 28],
-    ['DAS-A', /^\\|\\s*`(DAS-A\\d{2})`\\s*\\|[^\\n]*$/gm, 18]
+    ['M', /^\|\s*(M-\d{2})\s*\|[^\n]*$/gm, 16],
+    ['INV', /^\|\s*(INV-\d{2})\s*\|[^\n]*$/gm, 12],
+    ['DAS', /^\|\s*\*\*(DAS-\d{2})[^|\n]*\|[^\n]*$/gm, 12],
+    ['C', /^\|\s*\*\*(C-\d{2})[^|\n]*\|[^\n]*$/gm, 28],
+    ['DAS-A', /^\|\s*`(DAS-A\d{2})`\s*\|[^\n]*$/gm, 18]
   ];
   const exactSourceTasks = sourceTaskRowDefinitions.flatMap(([prefix, regex, total]) => {
     const rows = [...raw.blueprint.matchAll(regex)].map(m => ({id:m[1],markdown:m[0]}));
