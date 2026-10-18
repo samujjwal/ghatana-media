@@ -12,7 +12,10 @@ const paths = {
   "p2": ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml",
   "p3": ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml",
   "journeys": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
-  "screens": ".product-experience/pdp-3-product-experience/screen-registry.yaml"
+  "screens": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+  "templates": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
+  "layouts": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
+  "recipes": ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml"
 };
 const uniqueSet = xs => new Set(xs).size === xs.length;
 const sameIds = (a,b) => Array.isArray(a) && Array.isArray(b) && a.length===b.length && uniqueSet(a) && uniqueSet(b) && a.every(x=>b.includes(x));
@@ -30,8 +33,8 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
     } catch(error) {fail(k+': unreadable source: '+error.message);}
   }
   if(errors.length)return { errors, stats:{sourceDocumentsValid:false} };
-  const {p0,p1,p2,p3,req,journeys,screens}=sources;
-  if(!p0 || !p1 || !p2 || !p3 || !req || !journeys || !screens) {
+  const {p0,p1,p2,p3,req,journeys,screens,templates,layouts,recipes}=sources;
+  if(!p0 || !p1 || !p2 || !p3 || !req || !journeys || !screens || !templates || !layouts || !recipes) {
     return {errors:['Missing source document contents'],stats:{sourceDocumentsValid:false}};
   }
   const expectedSurfaces=p0.surfaces??[];
@@ -77,26 +80,28 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
     if(!Array.isArray(flow.reuseExistingJourneyRefs) || flow.reuseExistingJourneyRefs.length===0 ||
        !flow.reuseExistingJourneyRefs.every(x=>allowedJourneyIds.has(x)))
       fail(flow.id+': missing or invented existing PDP3 journey reference');
-    if(flow.operationSelectionStatus!=='GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED')
-      fail(flow.id+': step operation admission not proven');
+    if(flow.operationSelectionStatus!=='GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED' ||
+       flow.stepDisposition!=='DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED' ||
+       flow.consequencePolicy!=='DENIAL_UNAVAILABLE_ABSTAINED_AND_UNKNOWN_OUTCOME_NEVER_SUCCESS')
+      fail(flow.id+': step operation admission or safety not proven');
+    if(flow.caseOracleMode!=='LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF')
+      fail(flow.id+': canonical case authority must remain the owning PDP0 register');
+    if(!sameIds(flow.operationCandidateRefs??[],g1?.proposedPdp1OperationRefs??[]) ||
+       !sameIds(flow.operationCandidateRefs??[],g2?.pdp1OperationRefs??[]) ||
+       !(flow.operationCandidateRefs??[]).every(x=>operations.has(x)))
+      fail(flow.id+': proposed operation candidates drifted from PDP1 and PDP2');
     for(const [index,step] of steps.entries()) {
       allSteps.push(step);
       const source=canonical.get(step.acceptanceCaseRef);
       if(!source || source.surfaceId!==flow.surfaceId || source.group!==groupId || step.order!==index+1)
         fail(step.id+': case step does not match canonical source order/ownership');
-      if(step.sourceWhen!==source?.when)
-        fail(step.id+': source presentation text drifted from canonical PDP0 when');
-      if(step.positiveOracle!==paths.req+'#recorderStudioProfile/acceptanceClauses/'+step.acceptanceCaseRef+'/then' ||
-         step.negativeOracle!==paths.req+'#recorderStudioProfile/acceptanceClauses/'+step.acceptanceCaseRef+'/rejection')
-        fail(step.id+': oracle reference must bind exact source acceptance clause');
-      if(!sameIds(step.operationCandidateRefs,g1?.proposedPdp1OperationRefs??[]) ||
-         !sameIds(step.operationCandidateRefs,g2?.pdp1OperationRefs??[]) ||
-         !step.operationCandidateRefs.every(x=>operations.has(x)))
-        fail(step.id+': proposed operation candidates drifted from PDP1 and PDP2');
-      if(step.interfaceGroupRef!==g2?.id || step.dispatchStatus!=='NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING')
-        fail(step.id+': invented or mismatched step-to-operation dispatch');
-      if(step.safetyState!=='DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS')
-        fail(step.id+': missing denied/unavailable/unknown UX contract');
+      const validCaseId = /^MEDIA-REC-P0-AC-[0-9]{3}$/u.test(String(step.acceptanceCaseRef));
+      if(!validCaseId || step.id!=='media.recorder.p3.step.'+step.acceptanceCaseRef.slice(-3)+'.v1')
+        fail(String(step.id)+': step identity must derive from canonical acceptance case ID');
+      if(!source || !['given','when','then','rejection'].every(k=>typeof source[k]==='string' && source[k].trim()))
+        fail(String(step.id)+': canonical PDP0 positive and negative oracles are incomplete');
+      if(!sameIds(Object.keys(step),['id','acceptanceCaseRef','order']))
+        fail(String(step.id)+': source acceptance and operation meaning must not be shadowed per step');
     }
   }
   if(cases.length!==84 || !sameIds(allSteps.map(x=>x.acceptanceCaseRef),cases.map(x=>x.id)) ||
@@ -109,12 +114,17 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
   const p1Kinds=(p1.objects??[]).find(x=>x.id==='media.recorder.edit-operation')?.operationKinds??[];
   if(!sameIds(editPaths.map(x=>x.kind),p1Kinds))
     fail('PDP3 manual edit paths differ from canonical PDP1 discriminants');
+  if(p3.manualEditExperience?.runtimeAdmission!=='NOT_ADMITTED' ||
+     p3.manualEditExperience?.parityAndUndoPolicy!=='EACH_CANONICAL_KIND_REQUIRES_SOURCE_REVISION_CAS_KEYBOARD_TEXT_CLI_SDK_API_EQUIVALENCE_AND_LOCK_PRESERVING_INVERSE')
+    fail('PDP3 manual editing must not claim runtime admission or weaken parity/undo policy');
   for(const e of editPaths) {
     const origin=manual.find(x=>x.kind===e.kind);
     if(!origin || e.pdp2CanonicalIntentRef!==origin.cliSdkApiIntent ||
        e.pdp2EditorArea!==origin.gui || e.owningProjectMutation!==origin.owningProjectMutation ||
-       e.expectedRevisionRequired!==true || e.runtimeStatus!=='NOT_ADMITTED')
+       e.expectedRevisionRequired!==true)
       fail(e.kind+': manual edit identity, editor parity or revision guard drifted');
+    if(!sameIds(Object.keys(e),['kind','pdp2CanonicalIntentRef','pdp2EditorArea','owningProjectMutation','expectedRevisionRequired']))
+      fail(e.kind+': duplicated manual semantic authority or runtime status');
   }
   const pages=p3.productionStudioWorkspace?.pages??[];
   const workspace=p2.productionStudioNavigation?.workspace??[];
@@ -126,8 +136,18 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
   for(const page of pages) {
     if(!page.semanticIntent || !page.id?.endsWith('.'+page.pdp2WorkspaceKey+'.v1'))
       fail(String(page.id)+': workspace page must retain a named, unique semantic intent');
-    if(page.canonicalScreenBinding!=='UNBOUND_PROPOSAL' || page.implementationStatus!=='SOURCE_ONLY')
+    if(page.canonicalScreenBinding!=='UNBOUND_PROPOSAL' || page.implementationStatus!=='SOURCE_ONLY' ||
+       page.designChainBindingStatus!=='SOURCE_VERIFIED_REUSE_PROPOSAL_SCREEN_INSTANCE_NOT_ADMITTED')
       fail(page.id+': proposed workspace page must not claim canonical screen or implementation admission');
+    const template=(templates.templates??[]).find(x=>x.id===page.templateId);
+    const layout=(layouts.layouts??[]).find(x=>x.id===page.layoutId);
+    const recipe=(recipes.recipes??[]).find(x=>x.id===page.recipeId);
+    if(!template || !layout || !recipe ||
+       !template.recipeRefs?.includes(page.recipeId) ||
+       !template.compatibleLayoutRefs?.includes(page.layoutId) ||
+       !layout.compatibleTemplateRefs?.includes(page.templateId) ||
+       recipe.templateRef!==page.templateId)
+      fail(page.id+': Studio design chain lacks exact compatible template/layout/recipe authority');
   }
   if(p3.status!=='SOURCE_AUTHORED_SUCCESSOR_PENDING_NATIVE_VALIDATION_AND_CURRENTNESS' ||
      p3.explorerProjection?.status!=='SPECIFICATION_ONLY_NOT_VERIFIED' ||
