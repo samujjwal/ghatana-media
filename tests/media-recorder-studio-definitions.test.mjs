@@ -341,3 +341,12 @@ test('PDP2 rejects a Studio page composition referencing an unregistered compone
   const result=verifyRecorderStudioDefinitions({overrides:{p2:changed}});
   assert.ok(result.errors.some(x=>x.includes('component outside canonical Media Studio composition')),result.errors.join('\n'));
 });
+
+test('PDP2 rejects a layout catalog missing its reciprocal template compatibility', () => {
+  const source=read('.product-experience/pdp-2-design-interface-system/gui/layout.yaml');
+  const changed=source.replace('compatibleTemplateRefs: [media.gui.template.collection]',
+    'compatibleTemplateRefs: [media.gui.template.task-setup]');
+  assert.notEqual(changed,source);
+  const result=verifyRecorderStudioDefinitions({overrides:{layouts:changed}});
+  assert.ok(result.errors.some(x=>x.includes('ungrounded template/layout/recipe chain')),result.errors.join('\n'));
+});
