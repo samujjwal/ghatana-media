@@ -94,3 +94,852 @@ ownerDefinedVisualVsScientificFidelityBoundary:
     - default a missing model/solver/units to a successful physics configuration
   scopeStatus: OWNER_DEFINED_PRESENTATION_BOUNDARY; solver qualification, scientific validation,
     independent review, and runtime admission remain NOT_EVALUATED
+
+# Completes source-authored presentation specialization for canonical 61 declarative production cases.
+declarativeProductionInterface:
+  schemaVersion: media.declarative-production.pdp2.v1
+  sourcePhase: PDP-2
+  status: SOURCE_AUTHORED_PENDING_NATIVE_VALIDATION_AND_CURRENT_SOURCE_REVIEW
+  normativeCaseAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile
+  operationAndValueAuthority: .product-experience/pdp-1-domain-data/declarative-production-contracts.yaml
+  componentAuthority: .product-experience/pdp-2-design-interface-system/component-contracts.yaml
+  recorderSurfaceAuthority: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml
+  noIndependentAuthority: Presentation layer cannot create operations, physics, rights, academic evidence or generated source claims
+  caseCount: 61
+  surfaces: [media.surface.recorder-orchestrator, media.surface.capture-adapters, media.surface.production-studio, media.surface.interactive-demo-player]
+  existingManualStudioOperationKinds: 52
+  manualParitySource: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml#manualOperationParity
+  existingCanonicalScreenRefs: [media.view.animate-media, media.view.arrange-scenes, media.view.compose-scene, media.view.explore-simulation, media.view.compose-media]
+  existingVisualComponents: [media.component.scene-inspector, media.component.simulation-instruments]
+  commonVisualGrammar:
+    rendererIndependent: semantic-source-object-bound-2D-and-3D-graph-with-retained-node-identity-and-scene-revision
+    geometry: [2D-vector, raster-image, 3D-geometry, camera, lighting, mesh-rig, constraints, charts, mathematical-formulas, trajectories]
+    animations: [keyframes, easing, property-curves, procedural-operators, camera-choreography, rigging, audio-voice-bound-cues]
+    timeline: Declared tStory rational ticks and source PTS, never implicit wall time or simulation-step ticks
+    proceduralSafety: Allowed bounded declarative operators only, no arbitrary imported JS Python shader source or network access
+    dataBindings: Typed immutable input snapshot plus exact semantic node and observable identifiers; no speculative measurement or hidden interpolation
+    templates: Reuse existing Media physics-math, product demonstration, infographic, scientific visualization and lesson recipes; no second template engine
+    ai: Visible provenance, model and version, confidence and disagreement; proposals use versioned reversible project edits and respect manual locks
+    accessibility: Keyboard, screen reader, high contrast, reduced motion, visual descriptions, accessible formulas, text and tabular graph equivalents
+    editing: Same selected entity/curve/scene revision across Studio, CLI, SDK and API where admitted; all 52 canonical manual discriminants preserved
+  simulationGrammar:
+    modelSource: Versioned scientific Model IR or authorized domain equation set; never infer from pixels
+    requiredFacts: [modelVersion, equationsOrRulesVersion, initialAndBoundaryConditions, parameterUnits, solverBuild, stepPolicy, numericTolerances, validityDomain, modelTimeClock]
+    state: [declared, validated, admitted, running, paused, checkpointed, completed, denied, quality-blocked, unknown]
+    commands: [run, pause, resume, step, seek-by-validated-checkpoint, fork-counterfactual, bounded-parameter-sweep, sample-observable]
+    stateRule: Pausing or seeking tStory never mutates tSim; only qualified command updates scientific model
+    scientificValidation: F0-F4 validity is model-owner-scoped, not inferred from rendering, scene attractiveness or FPS
+    instruments: Show source, exact unit, applicability, sample time, calibration, method, uncertainty, numerical error and model fidelity for each observable
+    deterministicReplay: EXACT only with supported solver and byte-stable environment; otherwise BOUNDED or STOCHASTIC with declared precision, seed and tolerances
+    safety: Invalid unit or unsupported solver/fidelity/version becomes visibly UNAVAILABLE or DENIED with preserved input and remedial action
+    visualOutputs: Scientific state drives diagram/graph/3D/number, never the reverse
+    chartEquivalent: Zoom/pan/timeseries/phase-portrait with keyboard numeric and tabular readings and explicit downsampling loss
+  tutorPutorIntegration:
+    productOwner: TutorPutor
+    mediaOwner: generic-animation-render-simulation-adapter-and-presentation
+    publicContract: Versioned ExperienceIR ModelIR SceneIR compatibility with explicit missing-field and unsupported-major-version status
+    interactionCycle: [predict, manipulate, measure, explain, compare, retry-if-admitted]
+    evidenceOwner: TutorPutor only; Media exports minimally scoped redacted content/interaction receipts, never mastery decisions or protected learner state
+    localOfflineAndMobile: Only declared and independently qualified feature subsets; accessible fallback if advanced 3D/solver provider unavailable
+    release: Model, pedagogy and scientific approval are distinct from Media technical QA
+  headlessAndEmbeddedParity:
+    apiOnly: CLI/API/grpc events and typed values rendered as semantic timelines/charts/text; do not invent a real browser screen
+    readOutput: Structured status, exact source refs, model/solver/tolerance, consent/policy, typed operation finality, redacted trace and recovery
+    gui: Desktop/web/presentation use same P1 semantics and style tokens as normal Media Studio
+    embedded: Signed sandboxed bundle, safe no-privileged-tenant-actions, CSP, offline declaration, keyboard focus and no arbitrary scripts
+    unavailable: Unsupported media devices, codec, model or sensor declare unavailable with reason and admissible fallback
+  caseInterfaceBindings:
+    - caseId: MEDIA-DECL-P0-AC-001
+      group: ANIMATION
+      capabilityRef: media.animation.vector
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-animation-vector
+      intendedPresentation: "Semantic vector nodes"
+      canonicalScreenReuseRef: media.view.animate-media
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-001"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-002
+      group: ANIMATION
+      capabilityRef: media.animation.2d
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-animation-2d
+      intendedPresentation: "Data-bound 2D diagrams and plots"
+      canonicalScreenReuseRef: media.view.animate-media
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-002"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-003
+      group: ANIMATION
+      capabilityRef: media.animation.3d
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-animation-3d
+      intendedPresentation: "Semantic 3D scene graph"
+      canonicalScreenReuseRef: media.view.animate-media
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-003"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-004
+      group: ANIMATION
+      capabilityRef: media.compose.exact-typography-logo-brand
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-compose-exact-typography-logo-brand
+      intendedPresentation: "Exact mathematical and licensed typography"
+      canonicalScreenReuseRef: media.view.animate-media
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-004"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-005
+      group: ANIMATION
+      capabilityRef: media.animation.keyframe
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-animation-keyframe
+      intendedPresentation: "Typed keyframe timeline"
+      canonicalScreenReuseRef: media.view.animate-media
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-005"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-006
+      group: ANIMATION
+      capabilityRef: media.animation.interpolation-easing
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-animation-interpolation-easing
+      intendedPresentation: "Easing and interpolation"
+      canonicalScreenReuseRef: media.view.animate-media
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-006"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-007
+      group: ANIMATION
+      capabilityRef: media.animation.procedural
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-animation-procedural
+      intendedPresentation: "Safe parameterized procedural animation"
+      canonicalScreenReuseRef: media.view.animate-media
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-007"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-008
+      group: ANIMATION
+      capabilityRef: media.animation.camera
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-animation-camera
+      intendedPresentation: "Declarative camera choreography"
+      canonicalScreenReuseRef: media.view.animate-media
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-008"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-009
+      group: ANIMATION
+      capabilityRef: media.animation.skeletal
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-animation-skeletal
+      intendedPresentation: "Rigged character and joint animation"
+      canonicalScreenReuseRef: media.view.animate-media
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-009"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-010
+      group: ANIMATION
+      capabilityRef: media.animation.constraint
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-animation-constraint
+      intendedPresentation: "Constrained animation"
+      canonicalScreenReuseRef: media.view.animate-media
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-010"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-011
+      group: ANIMATION
+      capabilityRef: media.animation.drive.audio
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-animation-drive-audio
+      intendedPresentation: "Audio-driven animation"
+      canonicalScreenReuseRef: media.view.animate-media
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-011"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-012
+      group: ANIMATION
+      capabilityRef: media.animation.drive.speech
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-animation-drive-speech
+      intendedPresentation: "Narration aligned visual steps"
+      canonicalScreenReuseRef: media.view.animate-media
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-012"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-013
+      group: ANIMATION
+      capabilityRef: media.recipe.template.physics-math-explainer
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-recipe-template-physics-math-explainer
+      intendedPresentation: "Reusable mathematical animation template"
+      canonicalScreenReuseRef: media.view.animate-media
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-013"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-014
+      group: ANIMATION
+      capabilityRef: media.animation.output.accessibility.semantic-timeline
+      surfaceId: media.surface.interactive-demo-player
+      operationRef: media.operation.capability.media-animation-output-accessibility-semantic-timeline
+      intendedPresentation: "Semantic animation accessibility"
+      canonicalScreenReuseRef: media.view.animate-media
+      interfaceKind: SANDBOXED_EMBEDDED_AND_ACCESSIBLE_ALTERNATIVE
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-014"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-015
+      group: ANIMATION
+      capabilityRef: media.animation.output.output.composited-video
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-animation-output-output-composited-video
+      intendedPresentation: "Animation export parity"
+      canonicalScreenReuseRef: media.view.animate-media
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-015"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-016
+      group: ANIMATION
+      capabilityRef: media.animation.editing.curve.edit
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-animation-editing-curve-edit
+      intendedPresentation: "Manual editing of animation curves"
+      canonicalScreenReuseRef: media.view.animate-media
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-016"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-017
+      group: ANIMATION
+      capabilityRef: media.animation.editing.undo-redo.versioned
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-animation-editing-undo-redo-versioned
+      intendedPresentation: "Manual versus AI changes"
+      canonicalScreenReuseRef: media.view.animate-media
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-017"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-018
+      group: SIMULATION
+      capabilityRef: media.simulation.scientific-demo
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-simulation-scientific-demo
+      intendedPresentation: "Immutable scientific model identity"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-018"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-019
+      group: SIMULATION
+      capabilityRef: media.simulation.educational-demo
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-simulation-educational-demo
+      intendedPresentation: "Typed parameters and dimensional units"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-019"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-020
+      group: SIMULATION
+      capabilityRef: media.simulation.rigid-body
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-simulation-rigid-body
+      intendedPresentation: "Initial and boundary conditions"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-020"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-021
+      group: SIMULATION
+      capabilityRef: media.simulation.scientific-demo
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-simulation-scientific-demo
+      intendedPresentation: "Explicit solver selection"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-021"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-022
+      group: SIMULATION
+      capabilityRef: media.simulation.output.timestamped-state
+      surfaceId: media.surface.interactive-demo-player
+      operationRef: media.operation.capability.media-simulation-output-timestamped-state
+      intendedPresentation: "Simulation time independence"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: SANDBOXED_EMBEDDED_AND_ACCESSIBLE_ALTERNATIVE
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-022"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-023
+      group: SIMULATION
+      capabilityRef: media.simulation.output.timestamped-state
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-simulation-output-timestamped-state
+      intendedPresentation: "Determinism and seed declaration"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-023"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-024
+      group: SIMULATION
+      capabilityRef: media.simulation.output.timestamped-state
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-simulation-output-timestamped-state
+      intendedPresentation: "Checkpoint state restoration"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-024"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-025
+      group: SIMULATION
+      capabilityRef: media.provenance.execution-lineage.inspect
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-provenance-execution-lineage-inspect
+      intendedPresentation: "Simulation replay provenance"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-025"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-026
+      group: SIMULATION
+      capabilityRef: media.simulation.output.measurements
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-simulation-output-measurements
+      intendedPresentation: "Analytical force motion reference"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-026"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-027
+      group: SIMULATION
+      capabilityRef: media.simulation.scientific-demo
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-simulation-scientific-demo
+      intendedPresentation: "Numerical divergence and convergence"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-027"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-028
+      group: SIMULATION
+      capabilityRef: media.simulation.educational-demo
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-simulation-educational-demo
+      intendedPresentation: "Bounded parameter sweeps"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-028"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-029
+      group: SIMULATION
+      capabilityRef: media.simulation.educational-demo
+      surfaceId: media.surface.interactive-demo-player
+      operationRef: media.operation.capability.media-simulation-educational-demo
+      intendedPresentation: "Isolated counterfactual exploration"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: SANDBOXED_EMBEDDED_AND_ACCESSIBLE_ALTERNATIVE
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-029"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-030
+      group: SIMULATION
+      capabilityRef: media.simulation.output.timestamped-state
+      surfaceId: media.surface.interactive-demo-player
+      operationRef: media.operation.capability.media-simulation-output-timestamped-state
+      intendedPresentation: "Model state and scene observable bindings"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: SANDBOXED_EMBEDDED_AND_ACCESSIBLE_ALTERNATIVE
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-030"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-031
+      group: SIMULATION
+      capabilityRef: media.simulation.output.measurements
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-simulation-output-measurements
+      intendedPresentation: "Measurement instrument calibration"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-031"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-032
+      group: SIMULATION
+      capabilityRef: media.simulation.output.measurements
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-simulation-output-measurements
+      intendedPresentation: "Chart and trajectory exploration"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-032"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-033
+      group: SIMULATION
+      capabilityRef: media.simulation.output.contacts
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-simulation-output-contacts
+      intendedPresentation: "Collision/contact diagnostics"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-033"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-034
+      group: SIMULATION
+      capabilityRef: media.simulation.agent
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-simulation-agent
+      intendedPresentation: "Stochastic simulation reproducibility"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-034"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-035
+      group: SIMULATION
+      capabilityRef: media.simulation.agent
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-simulation-agent
+      intendedPresentation: "Discrete event model adapter"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-035"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-036
+      group: SIMULATION
+      capabilityRef: media.simulation.rigid-body
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-simulation-rigid-body
+      intendedPresentation: "Qualified rigid-body reference adapter"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-036"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-037
+      group: SIMULATION
+      capabilityRef: media.simulation.scientific-demo
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-simulation-scientific-demo
+      intendedPresentation: "Fidelity and validation separation"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-037"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-038
+      group: SIMULATION
+      capabilityRef: media.simulation.output.measurements
+      surfaceId: media.surface.interactive-demo-player
+      operationRef: media.operation.capability.media-simulation-output-measurements
+      intendedPresentation: "Simulation provenance versus generated depiction"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: SANDBOXED_EMBEDDED_AND_ACCESSIBLE_ALTERNATIVE
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-038"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-039
+      group: SIMULATION
+      capabilityRef: media.quality.inspect
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-quality-inspect
+      intendedPresentation: "Synthetic fixture isolation"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-039"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-040
+      group: TUTORPUTOR
+      capabilityRef: media.recipe.template.interactive-lesson
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-recipe-template-interactive-lesson
+      intendedPresentation: "Public AEF compatibility version"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-040"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-041
+      group: TUTORPUTOR
+      capabilityRef: media.recipe.template.interactive-lesson
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-recipe-template-interactive-lesson
+      intendedPresentation: "Pedagogical authority remains with TutorPutor"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-041"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-042
+      group: TUTORPUTOR
+      capabilityRef: media.simulation.educational-demo
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-simulation-educational-demo
+      intendedPresentation: "Domain scientific authority remains with TutorPutor"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-042"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-043
+      group: TUTORPUTOR
+      capabilityRef: media.animation.2d
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-animation-2d
+      intendedPresentation: "Scene IR public semantic bindings"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-043"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-044
+      group: TUTORPUTOR
+      capabilityRef: media.simulation.output.measurements
+      surfaceId: media.surface.interactive-demo-player
+      operationRef: media.operation.capability.media-simulation-output-measurements
+      intendedPresentation: "Predict before manipulate"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: SANDBOXED_EMBEDDED_AND_ACCESSIBLE_ALTERNATIVE
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-044"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-045
+      group: TUTORPUTOR
+      capabilityRef: media.simulation.educational-demo
+      surfaceId: media.surface.interactive-demo-player
+      operationRef: media.operation.capability.media-simulation-educational-demo
+      intendedPresentation: "Safe parameter manipulation"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: SANDBOXED_EMBEDDED_AND_ACCESSIBLE_ALTERNATIVE
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-045"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-046
+      group: TUTORPUTOR
+      capabilityRef: media.simulation.output.measurements
+      surfaceId: media.surface.interactive-demo-player
+      operationRef: media.operation.capability.media-simulation-output-measurements
+      intendedPresentation: "Measure with instruments"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: SANDBOXED_EMBEDDED_AND_ACCESSIBLE_ALTERNATIVE
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-046"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-047
+      group: TUTORPUTOR
+      capabilityRef: media.animation.output.accessibility.semantic-timeline
+      surfaceId: media.surface.interactive-demo-player
+      operationRef: media.operation.capability.media-animation-output-accessibility-semantic-timeline
+      intendedPresentation: "Explain observed outcomes"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: SANDBOXED_EMBEDDED_AND_ACCESSIBLE_ALTERNATIVE
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-047"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-048
+      group: TUTORPUTOR
+      capabilityRef: media.animation.output.output.interactive-scene
+      surfaceId: media.surface.interactive-demo-player
+      operationRef: media.operation.capability.media-animation-output-output-interactive-scene
+      intendedPresentation: "Multiple synchronized representations"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: SANDBOXED_EMBEDDED_AND_ACCESSIBLE_ALTERNATIVE
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-048"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-049
+      group: TUTORPUTOR
+      capabilityRef: media.provenance.source-lineage.inspect
+      surfaceId: media.surface.interactive-demo-player
+      operationRef: media.operation-slice.inspect-provenance
+      intendedPresentation: "Learner identity and evidence segregation"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: SANDBOXED_EMBEDDED_AND_ACCESSIBLE_ALTERNATIVE
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-049"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-050
+      group: TUTORPUTOR
+      capabilityRef: media.deliver.interactive-scene-bundle
+      surfaceId: media.surface.interactive-demo-player
+      operationRef: media.operation.capability.media-deliver-interactive-scene-bundle
+      intendedPresentation: "Accessible offline and mobile experience"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: SANDBOXED_EMBEDDED_AND_ACCESSIBLE_ALTERNATIVE
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-050"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-051
+      group: TUTORPUTOR
+      capabilityRef: media.deliver.publish-governed
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-deliver-publish-governed
+      intendedPresentation: "TutorPutor content release authority"
+      canonicalScreenReuseRef: media.view.explore-simulation
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-051"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-052
+      group: UNIFIED
+      capabilityRef: media.compose.multitrack-timeline
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-compose-multitrack-timeline
+      intendedPresentation: "One production project across modalities"
+      canonicalScreenReuseRef: media.view.compose-media
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-052"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-053
+      group: UNIFIED
+      capabilityRef: media.provenance.origin.disclose
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-provenance-origin-disclose
+      intendedPresentation: "Five truthful source classifications"
+      canonicalScreenReuseRef: media.view.compose-media
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-053"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-054
+      group: UNIFIED
+      capabilityRef: media.project.version
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-project-version
+      intendedPresentation: "Selective regeneration and manual edit locks"
+      canonicalScreenReuseRef: media.view.compose-media
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-054"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-055
+      group: UNIFIED
+      capabilityRef: media.project.composition.update
+      surfaceId: media.surface.production-studio
+      operationRef: media.operation.capability.media-project-composition-update
+      intendedPresentation: "One editor and headless operation semantic"
+      canonicalScreenReuseRef: media.view.compose-media
+      interfaceKind: GUI_AND_MACHINE_PARITY
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-055"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-056
+      group: UNIFIED
+      capabilityRef: media.rights.permitted-use.evaluate
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-rights-permitted-use-evaluate
+      intendedPresentation: "Cross-media rights and consent"
+      canonicalScreenReuseRef: media.view.compose-media
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-056"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-057
+      group: UNIFIED
+      capabilityRef: media.job.watch
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-job-watch
+      intendedPresentation: "Bounded trace and privacy-safe diagnostics"
+      canonicalScreenReuseRef: media.view.compose-media
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-057"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-058
+      group: UNIFIED
+      capabilityRef: media.job.submit
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation-slice.submit-job
+      intendedPresentation: "Bounded resources and failure recovery"
+      canonicalScreenReuseRef: media.view.compose-media
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-058"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-059
+      group: UNIFIED
+      capabilityRef: media.rights.permitted-use.evaluate
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-rights-permitted-use-evaluate
+      intendedPresentation: "Permissive dependency and codec admission"
+      canonicalScreenReuseRef: media.view.compose-media
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-059"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-060
+      group: UNIFIED
+      capabilityRef: media.deliver.package
+      surfaceId: media.surface.recorder-orchestrator
+      operationRef: media.operation.capability.media-deliver-package
+      intendedPresentation: "Common video and interactive export"
+      canonicalScreenReuseRef: media.view.compose-media
+      interfaceKind: HEADLESS_DECLARATIVE_PROJECTION
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-060"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+    - caseId: MEDIA-DECL-P0-AC-061
+      group: UNIFIED
+      capabilityRef: media.deliver.interactive-scene-bundle
+      surfaceId: media.surface.interactive-demo-player
+      operationRef: media.operation.capability.media-deliver-interactive-scene-bundle
+      intendedPresentation: "Unprivileged interactive output"
+      canonicalScreenReuseRef: media.view.compose-media
+      interfaceKind: SANDBOXED_EMBEDDED_AND_ACCESSIBLE_ALTERNATIVE
+      sourceP1Binding: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-061"
+      statesRequired: [READY, DENIED, UNAVAILABLE, CONFLICT, OUTCOME_UNKNOWN, REVIEW_REQUIRED]
+      semanticParity: GUI-when-applicable-AND-keyboard-text-or-CLI-SDK-API-observations; same-canonical-revision-and-owner-outcome
+      negative: no-fake-execution-no-implied-model-validation-no-unobserved-effects-no-script-eval
+      admission: SCREEN_REUSE_PROPOSAL_NOT_RUNTIME_OR_EXPLORER_EVIDENCE
+nonClaims: [no-new-studio-screen, no-separate-simulation-product, no-canonical-API-registration, no-browser-proof, no-current-PDP2-DEV_COMPLETE-evidence]

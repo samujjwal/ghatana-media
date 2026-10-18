@@ -109,3 +109,26 @@ these local checks.
 ## Recorder/Studio PDP successor extension (new affected surfaces)
 
 The source-authored `recorder-studio-interface.yaml` records the new Recorder/Studio surface-specific semantics at this later proposed source cut. Historical `DEV_COMPLETE` remains attributable to its original source cut; this extension has **not** passed currentness/admission or PDP-3 readmission. The extension reuses existing Media identities and may not create independent project, job, rights or publishing authorities. Its exact affected obligations require native phase validation and successor acceptance before any completion claim.
+
+
+## Declarative animation, simulation and TutorPutor experience successor
+
+`.product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface` now binds 61 canonical PDP-0 specializations to the 61 exact PDP-1 case-operation projections and existing GUI, CLI/headless, and embedded surfaces. It reuses the 52 existing Recorder Studio manual-operation kinds, existing design tokens/components and existing animation/simulation screens; no parallel design system or fictitious API-only GUI is introduced. Numerical instruments, typed simulation clocks, scientific-fidelity labels, accessibility and no-privileged-interactive-player semantics are required. The historical PDP-2 development-complete snapshot is source-cut scoped; only native parse, exact cross-phase reference/negative tests, impacted source-current phase verification and qualified review can establish this **successor** as `DEV_COMPLETE`.
+
+---
+
+## Current unified-production successor source / 2026-10-18
+
+Read the [current source-gated plan](../../docs/implementation/MEDIA-UNIFIED-PRODUCTION-CURRENT-PLAN.md), `animation-simulation-grammar.yaml#declarativeProductionInterface`, and `recorder-studio-interface.yaml`. The successor provides 61 exact P0/P1/P2 declarative projections on the **existing** 13 planned Studio workspace keys, 52 typed manual edits, shared tokens/components/layouts and truthful CLI/API-only/embedded modes. Mandatory presentation now explicitly spans voice/ASR/TTS/dubbing/audio mix/caption vs actor label, source-sufficiency/verified-result warnings, keyframes/2D/3D/math/data-bound animation, model/solver/units/tSim probes, uncertainty and separate scientific/visual quality. The GharBatai audience/script/comprehension/approval requirements are authored by its product, displayed/reviewed through admitted generic Media interface semantics only.
+
+**Successor phase status:** design-interface source authored; **native/current-source PDP-2 DEV_COMPLETE not yet established**. Do not create new physical surfaces, claim 13 new routed screens, silently turn narration into product proof, invent a graphical application for a CLI-only system, or allow story scrub to mutate model execution. Run native design conformance, keyboard/numeric text/headless parity, a11y/reduced-motion/locale/mobile/denial tests, then reissue source-current handoff and owner review.
+
+
+## October 18 declarative production successor — not yet current DEV_COMPLETE
+
+The new Recorder/Animation/Simulation/TutorPutor scope is defined and reconciled through [the unified current-source handoff](../../docs/implementation/MEDIA-UNIFIED-PDP0-3-CURRENT-SOURCE-RECONCILIATION-2026-10-18.md). Its canonical PDP-0 authority is `requirements.yaml#declarativeProductionProfile` (61 additional cases alongside the Recorder's 84); PDP-1 specializes existing typed owner operations in `declarative-production-contracts.yaml`, PDP-2 adds presentation/parity meaning to `animation-simulation-grammar.yaml`, and PDP-3 provides the corresponding `declarative-production-experience.yaml` source overlay. These extensions **do not inherit this page's historical DEV_COMPLETE receipt**. No new accepted phase cell, deployed simulator, native verification result, new physical surface, scientific-model qualification or production film is implied. Preserve the existing accepted earlier-source meaning and re-admit only affected PDP cells in phase order after exact-source checks.
+
+### Full user-audit interface coverage is separate from focused 61-case projection (2026-10-18)
+
+The original uploaded [501-item audit](../../docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json) and [73 stable input-ID crosswalk](../../docs/implementation/observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json) remain the interface review denominator; the 61 current declarative case presentations are **not** a source-authorized inapplicability determination for remaining editing, voice, codec, specialty simulation or creator operations. The [86 original task and experiment rows](../../docs/implementation/observations/media-unified-source-task-and-experiment-crosswalk-2026-10-18.json) provide candidate PBI links, not 86 new UI pages. Once PDP-0/PDP-1 semantics are adjudicated, update **only affected** design/interface contracts for Studio, accessible nonvisual outputs, keyboard/headless parity, accurate scientific unit/clock labels and denied/UNKNOWN states, preserving current 13 Studio workspaces and existing screens. No new source-current PDP-2 `DEV_COMPLETE` is asserted here.
+

@@ -1,6 +1,22 @@
 # Ghatana Media product experience authority
 
-This directory is the authoring root for the four canonical Media Product
+
+> **Current successor orientation — October 18, 2026.** Start with the
+> [live Media unified production plan](../docs/implementation/MEDIA-UNIFIED-PRODUCTION-CURRENT-PLAN.md)
+> and its [501-item audit projection](../docs/implementation/observations/media-unified-production-501-feature-reconciliation-2026-10-18.json)
+> for Recorder/Studio, declarative Animation, model-backed Simulation,
+> Voice/Video/AI and TutorPutor/GharBatai use. **All 428 historical audit
+> candidates now have individually curated source-catalog suggestions**
+> (330 lexical corrections, 223 meaning-gap notes), but **all 428 still
+> require semantic owner acceptance**. The 84 existing Recorder plus 61
+> declarative scoped cases are source-authored across PDP-0–3.
+> The earlier per-phase DEV_COMPLETE status records apply only to their
+> recorded source cuts; native successor checks, independent phase
+> currentness, Build admission, real provider/solver/film proof and
+> Lifecycle receipts are not established by the source extension.
+
+
+> **Attached audit identity correction:** the [exact user-supplied 501-source audit](../docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json) contains 73 third-pass stable `AUD-REC3/ANIM3/SIM3/EDU3/CROSS3` IDs. They are **not** the derived `AUD-FOCUS-*` planning IDs. The [lossless original-ID/case-candidate crosswalk](../docs/implementation/observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json) records 71 broadly case-linked original IDs and two without a scoped acceptance candidate (`AUD-SIM3-009`, `AUD-SIM3-010`). All 73 still require PDP-0 semantic review; neither source recording nor native phase proof is claimed.\n\n> **Original worklist retention:** the [86-row source task + acceptance crosswalk](../docs/implementation/observations/media-unified-source-task-and-experiment-crosswalk-2026-10-18.json) preserves exactly M-00…15 (16), INV-01…12 (12), DAS-01…12 (12), C-01…28 (28), and DAS-A01…A18 (18). Its PBI-00…15 associations are planning candidates, not a parallel execution scheduler or native tests; this scope does not alter the PDP-0 owner review and later-stage qualification gates.\n\nThis directory is the authoring root for the four canonical Media Product
 Definition Phases and the separate Explorer projection. The Expert-Reviewed
 Master Plan is retained as migration/execution reference; the user's Four-Phase
 Product Definition Hardening Plan governs this reconciliation's phase structure

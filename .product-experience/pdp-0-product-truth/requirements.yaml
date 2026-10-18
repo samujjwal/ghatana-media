@@ -7599,3 +7599,709 @@ recorderStudioProfile:
       then: "preserve original stems, explicit enhancement parameters, before/after comparison, evidence and rights"
       rejection: "a derived track cannot claim recovered missing speech, speaker identity, licensed music or quality pass without measurement"
       scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+
+# Source-owned specialization of the existing Media requirement families.
+declarativeProductionProfile:
+  schemaVersion: media.declarative-production.requirement-profile.v1
+  status: SOURCE_AUTHORED_SUCCESSOR_PENDING_NATIVE_VALIDATION_AND_CURRENTNESS
+  sourceOwner: Media PDP-0 product-definition
+  parentAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#requirements
+  capabilityAuthority: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities
+  relatedRecorderAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
+  producerModes: [REAL_CAPTURE, DECLARATIVE_ANIMATION, MODEL_SIMULATION, GENERATIVE_MEDIA, PDP_SYNTHETIC_FIXTURE]
+  taxonomyRule: Each scene has one truthful primary origin and may have derived inputs; rendering is not proof of product effects or scientific correctness.
+  specializationRule: Cases refine the existing 38 family requirements and 462 stable capability leaves; no new family, leaf, operation, physical package, MediaProject writer or runtime is admitted.
+  phaseGate: No PDP DEV_COMPLETE or Discovery PASS follows from authoring these cases; independently validate, bind, review and refresh affected phase cells.
+  existingRecorderCaseCount: 84
+  additionalAcceptanceCaseCount: 61
+  focusedAuditTargetCount: 73
+  groupCounts: {ANIMATION: 17, SIMULATION: 22, TUTORPUTOR: 12, UNIFIED: 10}
+  referenceConsumers: [Gharbatai, TutorPutor]
+  requiredCrossPhaseBindings: [PDP1_DOMAIN_RESULT, PDP2_INTERFACE_PARITY, PDP3_EXPERIENCE_AND_CHANNEL, CURRENT_SOURCE_VERIFICATION]
+  scientificAuthority: TutorPutor owns educational Model IR and scientific acceptance for TutorPutor lessons; Media owns generic execution adapter/presentation and never learner mastery.
+  scientificValidation: F0-F4 are distinct from visual polish; missing solver, model, units, oracle or bounds means UNQUALIFIED, never PASS.
+  recorderExistingCoverageAudit:
+    - {id: DECL-REC-01, recorderCaseRef: MEDIA-REC-P0-AC-002, intent: versioned-authoritative-product-experience-source}
+    - {id: DECL-REC-02, recorderCaseRef: MEDIA-REC-P0-AC-012, intent: leased-safe-product-fixture-seeding}
+    - {id: DECL-REC-03, recorderCaseRef: MEDIA-REC-P0-AC-013, intent: witnessed-owner-action-readback}
+    - {id: DECL-REC-04, recorderCaseRef: MEDIA-REC-P0-AC-008, intent: cli-api-event-no-fake-gui}
+    - {id: DECL-REC-05, recorderCaseRef: MEDIA-REC-P0-AC-036, intent: authored-narration-and-alignment}
+    - {id: DECL-REC-06, recorderCaseRef: MEDIA-REC-P0-AC-040, intent: dependency-selective-regeneration}
+    - {id: DECL-REC-07, recorderCaseRef: MEDIA-REC-P0-AC-042, intent: user-lock-and-three-way-rebase}
+    - {id: DECL-REC-08, recorderCaseRef: MEDIA-REC-P0-AC-045, intent: business-outcome-and-film-semantic-qa}
+    - {id: DECL-REC-09, recorderCaseRef: MEDIA-REC-P0-AC-058, intent: privacy-and-permission-boundaries}
+    - {id: DECL-REC-10, recorderCaseRef: MEDIA-REC-P0-AC-063, intent: end-to-end-otel-correlation}
+    - {id: DECL-REC-11, recorderCaseRef: MEDIA-REC-P0-AC-076, intent: full-manual-and-machine-edit-parity}
+    - {id: DECL-REC-12, recorderCaseRef: MEDIA-REC-P0-AC-078, intent: denial-unknown-finality-reconciliation}
+  acceptanceClauses:
+    - id: MEDIA-DECL-P0-AC-001
+      group: ANIMATION
+      title: "Semantic vector nodes"
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+      capabilityLeafId: media.animation.vector
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "an authored vector scene is compiled from bounded declarative objects"
+      then: "preserve object identity, geometry and style as separately editable sourced nodes"
+      rejection: "reject orphaned nodes, unknown unit frames or executable expressions"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-002
+      group: ANIMATION
+      title: "Data-bound 2D diagrams and plots"
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+      capabilityLeafId: media.animation.2d
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a plot, diagram or formula value is bound to a typed data source"
+      then: "render and edit labeled 2D marks from the exact data snapshot"
+      rejection: "reject fabricated plotted measurements or unsourced value interpolation"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-003
+      group: ANIMATION
+      title: "Semantic 3D scene graph"
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+      capabilityLeafId: media.animation.3d
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a hierarchical 3D scene binds camera geometry and mesh assets"
+      then: "preserve versioned transformations, coordinate frames and child references"
+      rejection: "reject missing transforms or unqualified model-generated meshes"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-004
+      group: ANIMATION
+      title: "Exact mathematical and licensed typography"
+      parentRequirementId: MEDIA-REQ-CAP-COMPOSE
+      capabilityLeafId: media.compose.exact-typography-logo-brand
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a math expression or protected product label is displayed"
+      then: "preserve correct content, accessible textual equivalent, glyph license and reflow"
+      rejection: "reject visually similar but mathematically or legally different substitutions"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-005
+      group: ANIMATION
+      title: "Typed keyframe timeline"
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+      capabilityLeafId: media.animation.keyframe
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a user declares an object property at rational story ticks"
+      then: "create a reversible keyframe with unit, property and time provenance"
+      rejection: "reject wall-clock inference, invalid property or collapsed intervals"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-006
+      group: ANIMATION
+      title: "Easing and interpolation"
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+      capabilityLeafId: media.animation.interpolation-easing
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a bounded interpolation mode is selected between declared keyframes"
+      then: "compute and expose sampled interpolation and exact endpoints"
+      rejection: "reject overshoot beyond declared bounds or unsupported interpolation"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-007
+      group: ANIMATION
+      title: "Safe parameterized procedural animation"
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+      capabilityLeafId: media.animation.procedural
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a declarative procedural animation references admitted operators and bounded parameters"
+      then: "compile a deterministic or explicitly nondeterministic derived scene graph"
+      rejection: "reject eval, imported arbitrary code, unbounded graph or hidden network I/O"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-008
+      group: ANIMATION
+      title: "Declarative camera choreography"
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+      capabilityLeafId: media.animation.camera
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "camera path, lens, target and scene clock are specified"
+      then: "preview and render the same versioned camera motion with safe ranges"
+      rejection: "reject impossible lens ranges and inferred cross-clock mappings"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-009
+      group: ANIMATION
+      title: "Rigged character and joint animation"
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+      capabilityLeafId: media.animation.skeletal
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a rig with joint identities, constraints and poses is supplied"
+      then: "preserve rig identifiers and motion across editorial and headless render"
+      rejection: "reject unbound joints or silently retargeted geometry"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-010
+      group: ANIMATION
+      title: "Constrained animation"
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+      capabilityLeafId: media.animation.constraint
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "constraints reference actual scene entities and typed physical or artistic bounds"
+      then: "resolve explicit constraint order and surface conflicts for review"
+      rejection: "reject cyclic unresolved constraints or false physics validity claims"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-011
+      group: ANIMATION
+      title: "Audio-driven animation"
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+      capabilityLeafId: media.animation.drive.audio
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "an admitted audio track and synchronization mapping drive a scene parameter"
+      then: "record derived motion with source version and sample-clock alignment"
+      rejection: "reject unsourced speech or silent drift correction"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-012
+      group: ANIMATION
+      title: "Narration aligned visual steps"
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+      capabilityLeafId: media.animation.drive.speech
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a licensed narration clip is aligned with caption and scene anchors"
+      then: "keep reproducible cue-to-visual mappings under phrase-only regeneration"
+      rejection: "reject a stale narration alignment or a silently re-timed manual lock"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-013
+      group: ANIMATION
+      title: "Reusable mathematical animation template"
+      parentRequirementId: MEDIA-REQ-CAP-RECIPE-TEMPLATE
+      capabilityLeafId: media.recipe.template.physics-math-explainer
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a versioned mathematical lesson template receives safe typed parameters"
+      then: "emit an inspectable scene plan and dependency fingerprint"
+      rejection: "reject template operator code injection or invented reference results"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-014
+      group: ANIMATION
+      title: "Semantic animation accessibility"
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION-OUTPUT
+      capabilityLeafId: media.animation.output.accessibility.semantic-timeline
+      surfaceId: media.surface.interactive-demo-player
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "an animation is played with reduced-motion or screen-reader alternatives"
+      then: "provide ordered textual state, focus-safe timeline and equivalent meaning"
+      rejection: "reject a visual-only explanation of an essential numerical change"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-015
+      group: ANIMATION
+      title: "Animation export parity"
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION-OUTPUT
+      capabilityLeafId: media.animation.output.output.composited-video
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "one canonical animation scene is rendered into preview and delivery profiles"
+      then: "preserve semantic scene version, time and content in export receipts"
+      rejection: "reject unqualified codecs or mismatched preview and final semantics"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-016
+      group: ANIMATION
+      title: "Manual editing of animation curves"
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION-EDITING
+      capabilityLeafId: media.animation.editing.curve.edit
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "an editor changes selected easing or curve control points"
+      then: "commit exact reversible values using the canonical revision CAS semantics"
+      rejection: "reject stale revision, missing target or cursor-only changes"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-017
+      group: ANIMATION
+      title: "Manual versus AI changes"
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION-EDITING
+      capabilityLeafId: media.animation.editing.undo-redo.versioned
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "an agent suggests changes to an editor-locked scene property"
+      then: "preserve manually protected intent and allow explicit conflict review and undo"
+      rejection: "reject unapproved AI overwrite or alternate hidden project history"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-018
+      group: SIMULATION
+      title: "Immutable scientific model identity"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+      capabilityLeafId: media.simulation.scientific-demo
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a declarative simulation is submitted with model reference and semantic version"
+      then: "resolve a pinned model, equations and allowed validity domain before admission"
+      rejection: "reject unversioned models or render-derived equations"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-019
+      group: SIMULATION
+      title: "Typed parameters and dimensional units"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+      capabilityLeafId: media.simulation.educational-demo
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a parameter or equation is edited with a declared dimension and unit"
+      then: "validate dimensional consistency and retain source and display units"
+      rejection: "reject unknown units or silently mixing metres and centimetres"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-020
+      group: SIMULATION
+      title: "Initial and boundary conditions"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+      capabilityLeafId: media.simulation.rigid-body
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a mechanical model defines initial velocities, positions and boundary constraints"
+      then: "validate a complete versioned state and boundary set before solving"
+      rejection: "reject inferred defaults that materially change the experiment"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-021
+      group: SIMULATION
+      title: "Explicit solver selection"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+      capabilityLeafId: media.simulation.scientific-demo
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a model binds a solver family, pinned adapter version and step policy"
+      then: "publish the admitted method, tolerances, numeric precision and constraints"
+      rejection: "reject a missing solver or automatic downgrade of scientific fidelity"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-022
+      group: SIMULATION
+      title: "Simulation time independence"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+      capabilityLeafId: media.simulation.output.timestamped-state
+      surfaceId: media.surface.interactive-demo-player
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "the learner pauses, seeks or accelerates presentation time"
+      then: "retain the declared independent simulation-clock state until an admitted model command"
+      rejection: "reject advancement of simulation time from display scrubbing"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-023
+      group: SIMULATION
+      title: "Determinism and seed declaration"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+      capabilityLeafId: media.simulation.output.timestamped-state
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a run requests EXACT, BOUNDED or STOCHASTIC reproducibility"
+      then: "record RNG algorithm, seed, floating-point profile, environment and reproducibility class"
+      rejection: "reject false byte-exact replay claims for nondeterministic providers"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-024
+      group: SIMULATION
+      title: "Checkpoint state restoration"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+      capabilityLeafId: media.simulation.output.timestamped-state
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a checkpoint is requested at an admitted model state boundary"
+      then: "store model, solver, parameters, version, RNG and exact state digest for resume"
+      rejection: "reject cross-version restore without an admitted migration"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-025
+      group: SIMULATION
+      title: "Simulation replay provenance"
+      parentRequirementId: MEDIA-REQ-CAP-PROVENANCE
+      capabilityLeafId: media.provenance.execution-lineage.inspect
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a completed result is replayed from recorded inputs and checkpoint lineage"
+      then: "expose comparable source, state digest, code and environment fingerprints"
+      rejection: "reject fabricated state receipts and unqualified replay equivalence"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-026
+      group: SIMULATION
+      title: "Analytical force motion reference"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+      capabilityLeafId: media.simulation.output.measurements
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a one-dimensional constant net force model has mass 2 kg, force 6 N and duration 2 s"
+      then: "verify acceleration 3 m/s2, velocity 6 m/s and displacement 6 m against declared tolerance"
+      rejection: "reject inconsistent solver measurements rather than adjusting animation to hide error"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-027
+      group: SIMULATION
+      title: "Numerical divergence and convergence"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+      capabilityLeafId: media.simulation.scientific-demo
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a solver reports integration error, drift or invalid numerical stability"
+      then: "fail scientific QA with bounded residual diagnostics and evidence of chosen step size"
+      rejection: "reject a visually smooth render as proof of numerical correctness"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-028
+      group: SIMULATION
+      title: "Bounded parameter sweeps"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+      capabilityLeafId: media.simulation.educational-demo
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a learner requests a declared finite set of parameter values"
+      then: "generate isolated run identities and comparable observable series per parameter set"
+      rejection: "reject explosive combinatorics, stale model version or implicit mutating sweeps"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-029
+      group: SIMULATION
+      title: "Isolated counterfactual exploration"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+      capabilityLeafId: media.simulation.educational-demo
+      surfaceId: media.surface.interactive-demo-player
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "an alternate hypothetical input is compared to a pinned baseline"
+      then: "branch the exact model state without overwriting source or baseline receipts"
+      rejection: "reject an unmarked counterfactual as an actual observed result"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-030
+      group: SIMULATION
+      title: "Model state and scene observable bindings"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+      capabilityLeafId: media.simulation.output.timestamped-state
+      surfaceId: media.surface.interactive-demo-player
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a visual object binds to versioned model state or named output observable"
+      then: "render the mapped values without changing the model or inventing measurements"
+      rejection: "reject unknown observable paths and unmapped coordinate conversions"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-031
+      group: SIMULATION
+      title: "Measurement instrument calibration"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+      capabilityLeafId: media.simulation.output.measurements
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a probe measures an observable with domain, method, units and calibration"
+      then: "show precision, applicability, uncertainty and validity with source references"
+      rejection: "reject unitless scientific numbers or misleading instrument ranges"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-032
+      group: SIMULATION
+      title: "Chart and trajectory exploration"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+      capabilityLeafId: media.simulation.output.measurements
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a timeseries or phase portrait is generated from time-stamped model states"
+      then: "expose pan, zoom and tabular value equivalents with aligned simulation time"
+      rejection: "reject interpolation or subsampling without loss annotations"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-033
+      group: SIMULATION
+      title: "Collision/contact diagnostics"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+      capabilityLeafId: media.simulation.output.contacts
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "an admitted physical engine emits contacts and impulses"
+      then: "show source-to-contact trace, colliders and measure validity separately from art"
+      rejection: "reject treating mesh intersection as a validated physical contact"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-034
+      group: SIMULATION
+      title: "Stochastic simulation reproducibility"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+      capabilityLeafId: media.simulation.agent
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a stochastic model is qualified with distribution, seed and sample count"
+      then: "report outcome estimates, confidence bounds and sampling conditions"
+      rejection: "reject single-run stochastic output labeled deterministic truth"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-035
+      group: SIMULATION
+      title: "Discrete event model adapter"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+      capabilityLeafId: media.simulation.agent
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a discrete-event schedule has declared event ordering, state and queue bounds"
+      then: "replay timestamped events with stable causality and bounded resource use"
+      rejection: "reject an animation event queue as an admitted simulation solver"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-036
+      group: SIMULATION
+      title: "Qualified rigid-body reference adapter"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+      capabilityLeafId: media.simulation.rigid-body
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a 2D or 3D physics provider is selected for an explicit fidelity requirement"
+      then: "record capability probes and comparison against independent analytical tests"
+      rejection: "reject unqualified engine builds or photorealism as validity"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-037
+      group: SIMULATION
+      title: "Fidelity and validation separation"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+      capabilityLeafId: media.simulation.scientific-demo
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a run carries visual fidelity, model fidelity and validation tier as distinct axes"
+      then: "report F0 to F4 only when its documented acceptance evidence is present"
+      rejection: "reject promotion to scientific validation from a render score"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-038
+      group: SIMULATION
+      title: "Simulation provenance versus generated depiction"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+      capabilityLeafId: media.simulation.output.measurements
+      surfaceId: media.surface.interactive-demo-player
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "generated footage is shown alongside model-backed quantitative evidence"
+      then: "label observed, calculated, generated and illustrative values explicitly"
+      rejection: "reject AI-created visuals as new model measurements"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-039
+      group: SIMULATION
+      title: "Synthetic fixture isolation"
+      parentRequirementId: MEDIA-REQ-CAP-QUALITY
+      capabilityLeafId: media.quality.inspect
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a PDP Explorer synthetic fixture resembles a simulation run"
+      then: "expose synthetic-only classification and reject its use as solver calibration evidence"
+      rejection: "reject product effect or scientific truth inferred from fixture replay"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-040
+      group: TUTORPUTOR
+      title: "Public AEF compatibility version"
+      parentRequirementId: MEDIA-REQ-CAP-RECIPE-TEMPLATE
+      capabilityLeafId: media.recipe.template.interactive-lesson
+      surfaceId: media.surface.recorder-orchestrator
+      given: "An authorized TutorPutor consumer uses the public AEF compatibility contract"
+      when: "a TutorPutor experience references Media via a public versioned interface"
+      then: "negotiate compatible Experience IR, Model IR, Scene IR and adapter versions"
+      rejection: "reject private module imports or silent data-contract upgrades"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-041
+      group: TUTORPUTOR
+      title: "Pedagogical authority remains with TutorPutor"
+      parentRequirementId: MEDIA-REQ-CAP-RECIPE-TEMPLATE
+      capabilityLeafId: media.recipe.template.interactive-lesson
+      surfaceId: media.surface.recorder-orchestrator
+      given: "An authorized TutorPutor consumer uses the public AEF compatibility contract"
+      when: "a published lesson includes pedagogy, objectives and learner evidence policy"
+      then: "bind media presentation intent without rewriting learner assessment or mastery policy"
+      rejection: "reject Media storing or adjudicating learner mastery"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-042
+      group: TUTORPUTOR
+      title: "Domain scientific authority remains with TutorPutor"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+      capabilityLeafId: media.simulation.educational-demo
+      surfaceId: media.surface.recorder-orchestrator
+      given: "An authorized TutorPutor consumer uses the public AEF compatibility contract"
+      when: "a lesson declares TutorPutor-owned Model IR, equations and validity bounds"
+      then: "reuse pinned authoritative model through a qualified solver adapter"
+      rejection: "reject a Media-local modified model version as authoritative science"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-043
+      group: TUTORPUTOR
+      title: "Scene IR public semantic bindings"
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+      capabilityLeafId: media.animation.2d
+      surfaceId: media.surface.production-studio
+      given: "An authorized TutorPutor consumer uses the public AEF compatibility contract"
+      when: "a TutorPutor Scene IR object is mapped into a Media visual scene graph"
+      then: "preserve object and accessible-label identities, units and transformation provenance"
+      rejection: "reject unknown semantic links and lossy conversion without disclosure"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-044
+      group: TUTORPUTOR
+      title: "Predict before manipulate"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+      capabilityLeafId: media.simulation.output.measurements
+      surfaceId: media.surface.interactive-demo-player
+      given: "An authorized TutorPutor consumer uses the public AEF compatibility contract"
+      when: "a learner records a prediction before triggering a model change"
+      then: "show predicted quantity, unit and scope without fabricating a learner submission receipt"
+      rejection: "reject anonymous Media telemetry as assessment authority"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-045
+      group: TUTORPUTOR
+      title: "Safe parameter manipulation"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+      capabilityLeafId: media.simulation.educational-demo
+      surfaceId: media.surface.interactive-demo-player
+      given: "An authorized TutorPutor consumer uses the public AEF compatibility contract"
+      when: "a learner adjusts a bounded model parameter from a control"
+      then: "validate input, branch model state and show actual simulation outcome or denial"
+      rejection: "reject execution of arbitrary formulas or privileged product mutation"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-046
+      group: TUTORPUTOR
+      title: "Measure with instruments"
+      parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+      capabilityLeafId: media.simulation.output.measurements
+      surfaceId: media.surface.interactive-demo-player
+      given: "An authorized TutorPutor consumer uses the public AEF compatibility contract"
+      when: "a learner inspects force, speed or displacement on a typed probe"
+      then: "show model-calculated value with unit, time, uncertainty and validity label"
+      rejection: "reject decorated values without source observables"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-047
+      group: TUTORPUTOR
+      title: "Explain observed outcomes"
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION-OUTPUT
+      capabilityLeafId: media.animation.output.accessibility.semantic-timeline
+      surfaceId: media.surface.interactive-demo-player
+      given: "An authorized TutorPutor consumer uses the public AEF compatibility contract"
+      when: "a learner explores narrated, accessible causal annotations"
+      then: "align explanatory graphics, captions and model state without scientific substitution"
+      rejection: "reject unsupported causal claims generated only from animations"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-048
+      group: TUTORPUTOR
+      title: "Multiple synchronized representations"
+      parentRequirementId: MEDIA-REQ-CAP-ANIMATION-OUTPUT
+      capabilityLeafId: media.animation.output.output.interactive-scene
+      surfaceId: media.surface.interactive-demo-player
+      given: "An authorized TutorPutor consumer uses the public AEF compatibility contract"
+      when: "one authoritative model state drives diagram, chart, numerical value and 3D view"
+      then: "keep representations semantically synchronized with clear unavailable alternatives"
+      rejection: "reject one representation silently altering simulation state"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-049
+      group: TUTORPUTOR
+      title: "Learner identity and evidence segregation"
+      parentRequirementId: MEDIA-REQ-CAP-PROVENANCE
+      capabilityLeafId: media.provenance.source-lineage.inspect
+      surfaceId: media.surface.interactive-demo-player
+      given: "An authorized TutorPutor consumer uses the public AEF compatibility contract"
+      when: "a Media experience produces generic presentation or interaction events"
+      then: "share only admitted evidence references without copying protected learner history"
+      rejection: "reject a Media output bundle containing names, mastery scores or attempts"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-050
+      group: TUTORPUTOR
+      title: "Accessible offline and mobile experience"
+      parentRequirementId: MEDIA-REQ-CAP-DELIVER
+      capabilityLeafId: media.deliver.interactive-scene-bundle
+      surfaceId: media.surface.interactive-demo-player
+      given: "An authorized TutorPutor consumer uses the public AEF compatibility contract"
+      when: "a lesson bundle is opened on supported offline or mobile adapters"
+      then: "expose bounded local actions, keyboard/touch parity and safe fallback assets"
+      rejection: "reject network-only hidden requirements or inaccessible essential controls"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-051
+      group: TUTORPUTOR
+      title: "TutorPutor content release authority"
+      parentRequirementId: MEDIA-REQ-CAP-DELIVER
+      capabilityLeafId: media.deliver.publish-governed
+      surfaceId: media.surface.recorder-orchestrator
+      given: "An authorized TutorPutor consumer uses the public AEF compatibility contract"
+      when: "a Media bundle passes technical QA and TutorPutor requests publication"
+      then: "require independent TutorPutor content, pedagogy, scientific and rights acceptance"
+      rejection: "reject Media technical QA as product educational signoff"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-052
+      group: UNIFIED
+      title: "One production project across modalities"
+      parentRequirementId: MEDIA-REQ-CAP-COMPOSE
+      capabilityLeafId: media.compose.multitrack-timeline
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "captured clips, generated footage, simulation output, animation and narration are composed"
+      then: "use one MediaProject revision and canonical rational timeline with source provenance"
+      rejection: "reject a second project identity or mismatched source clock"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-053
+      group: UNIFIED
+      title: "Five truthful source classifications"
+      parentRequirementId: MEDIA-REQ-CAP-PROVENANCE
+      capabilityLeafId: media.provenance.origin.disclose
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a production combines real capture, animation, model simulation, generated media and PDP fixtures"
+      then: "preserve independent source class and evidence label on each scene and export"
+      rejection: "reject synthetic or generated assets classified as real observations"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-054
+      group: UNIFIED
+      title: "Selective regeneration and manual edit locks"
+      parentRequirementId: MEDIA-REQ-CAP-PROJECT
+      capabilityLeafId: media.project.version
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "one source, voice phrase or simulation parameter changes"
+      then: "rebuild only affected descendants and preserve manual CAS locks and untouched digests"
+      rejection: "reject broad rerender or silent human change replacement"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-055
+      group: UNIFIED
+      title: "One editor and headless operation semantic"
+      parentRequirementId: MEDIA-REQ-CAP-PROJECT
+      capabilityLeafId: media.project.composition.update
+      surfaceId: media.surface.production-studio
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a production task is edited through Studio or CLI API SDK"
+      then: "persist the same typed operation and revision with accessible keyboard and text equivalents"
+      rejection: "reject divergent UI-only or tool-only project effects"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-056
+      group: UNIFIED
+      title: "Cross-media rights and consent"
+      parentRequirementId: MEDIA-REQ-CAP-RIGHTS
+      capabilityLeafId: media.rights.permitted-use.evaluate
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a scene mixes camera, learner-content, generative voice, model and source assets"
+      then: "admit each effect and egress per actor, purpose, license, consent and retention policy"
+      rejection: "reject training or publication beyond explicit source rights"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-057
+      group: UNIFIED
+      title: "Bounded trace and privacy-safe diagnostics"
+      parentRequirementId: MEDIA-REQ-CAP-JOB
+      capabilityLeafId: media.job.watch
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a pipeline spans source, solver, render, QA and delivery"
+      then: "propagate redacted trace/run/scene identity and record loss or degraded telemetry"
+      rejection: "reject raw learner data, tokens or unredacted prompts in logs"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-058
+      group: UNIFIED
+      title: "Bounded resources and failure recovery"
+      parentRequirementId: MEDIA-REQ-CAP-JOB
+      capabilityLeafId: media.job.submit
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a batch requests renderer, solver, voice and encoder capacity"
+      then: "enforce limits, lease fencing, cancellation, idempotency and UNKNOWN reconciliation"
+      rejection: "reject unlimited recursion, runaway simulation or blind non-idempotent retry"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-059
+      group: UNIFIED
+      title: "Permissive dependency and codec admission"
+      parentRequirementId: MEDIA-REQ-CAP-RIGHTS
+      capabilityLeafId: media.rights.permitted-use.evaluate
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "an OSS adapter, model, font, shader, binary or codec is chosen"
+      then: "record pinned version, transitive license, provenance and redistribution admission"
+      rejection: "reject noncommercial, AGPL visual Studio or unqualified codecs in strict-permissive builds"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-060
+      group: UNIFIED
+      title: "Common video and interactive export"
+      parentRequirementId: MEDIA-REQ-CAP-DELIVER
+      capabilityLeafId: media.deliver.package
+      surfaceId: media.surface.recorder-orchestrator
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "one accepted project targets film, editable project and interactive package"
+      then: "preserve source/media/model manifest, accessible alternatives and permitted exact formats"
+      rejection: "reject missing codec rights or loss of scientific provenance"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
+    - id: MEDIA-DECL-P0-AC-061
+      group: UNIFIED
+      title: "Unprivileged interactive output"
+      parentRequirementId: MEDIA-REQ-CAP-DELIVER
+      capabilityLeafId: media.deliver.interactive-scene-bundle
+      surfaceId: media.surface.interactive-demo-player
+      given: "A declared source and authorized Media project revision are in scope"
+      when: "a viewer manipulates a published interactive demo or educational scene"
+      then: "run only sandboxed local declared actions and verified artifacts"
+      rejection: "reject embedded product credentials, scripts or privileged external effects"
+      scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF

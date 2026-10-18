@@ -51,6 +51,9 @@ authoritativeReuse:
   mediaDesignGrammar: .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml
   productMeaning: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
   scope: no-new-public-API-or-runtime-route-claims
+  declarativeProductionProjection: .product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface
+  declarativeOperationAuthority: .product-experience/pdp-1-domain-data/declarative-production-contracts.yaml
+  integrationRule: One canonical MediaProject Studio timeline for real recordings, vector/3D animation, qualified simulation presentations, generated media and voice; no second screen/operation or solver-science owner.
 manualOperationParity:
   sourceDiscriminant: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#objects/media.recorder.edit-operation
   canonicalOperationCount: 52

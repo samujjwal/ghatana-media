@@ -49,7 +49,11 @@
     "check:recorder-studio-definition": "node scripts/check-media-recorder-studio-definitions.mjs",
     "test:recorder-studio-definition": "node --test tests/media-recorder-studio-definitions.test.mjs",
     "check:recorder-studio-experience": "node scripts/check-media-recorder-studio-experience.mjs",
-    "test:recorder-studio-experience": "node --test tests/media-recorder-studio-experience.test.mjs"
+    "test:recorder-studio-experience": "node --test tests/media-recorder-studio-experience.test.mjs",
+    "check:declarative-production-definition": "node scripts/check-media-declarative-production-definitions.mjs",
+    "test:declarative-production-definition": "node --test tests/media-declarative-production-definitions.test.mjs",
+    "check:unified-production-inventory": "node scripts/check-media-unified-production-inventory.mjs",
+    "test:unified-production-inventory": "node --test tests/media-unified-production-inventory.test.mjs"
   },
   "devDependencies": {
     "@ghatana/evidence-contracts": "0.1.0-rc.1",

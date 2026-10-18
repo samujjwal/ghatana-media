@@ -27,6 +27,8 @@ handoffs:
     sourceRefs:
       - .product-experience/pdp-1-domain-data/handoff-contracts.yaml#/handoffs/pdp1ToPdp2CanonicalDomain
       - .product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md
+      - .product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml
+      - .product-experience/pdp-1-domain-data/declarative-production-contracts.yaml
       - .product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json
       - .product-experience/pdp-2-design-interface-system/component-contracts.yaml
       - .product-experience/pdp-2-design-interface-system/component-value-types.yaml

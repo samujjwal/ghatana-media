@@ -1,0 +1,1195 @@
+schemaVersion: media.declarative-production.pdp3-successor.v1
+productId: media
+sourcePhase: PDP-3
+status: SOURCE_AUTHORED_PENDING_NATIVE_VALIDATION_EXPLORER_AND_CURRENTNESS
+sourceP0: .product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile
+sourceP1: .product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings
+sourceP2: .product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface
+canonicalJourneyRegistry: .product-experience/pdp-3-product-experience/journey-registry.yaml
+canonicalScreenRegistry: .product-experience/pdp-3-product-experience/screen-registry.yaml
+recorderExperienceReuse: .product-experience/pdp-3-product-experience/recorder-studio-experience.yaml
+sourceOnly: No PDP-3 journey, screen, registered operation, provider, actual scientific solver, course or runtime route is created by this overlay.
+denominators: {existingRecorderPdp0Cases: 84, declarativeCases: 61, scopedTotal: 145, distinctNewOperations: 0, distinctNewScreens: 0, addedPhysicalPackages: 0}
+originKinds: [REAL_CAPTURE, DECLARATIVE_ANIMATION, MODEL_SIMULATION, GENERATIVE_MEDIA, PDP_SYNTHETIC_FIXTURE]
+experienceEntryKinds:
+  realCapture: [source-actor-and-tenant-permission, source-readiness-and-lease, observed-product-postcondition, verified-AV-timeline, scene-quality-and-rights]
+  declarativeAnimation: [typed-scene-and-assets, time-and-keyframe-setup, semantic-and-a11y-preview, manual-or-auto-adjustment, qualified-render-and-export]
+  modelSimulation: [versioned-domain-model-and-units, solver-and-fidelity-admission, immutable-initial-and-boundary-state, predict-manipulate-measure-explain, checkpoint-and-metrics, model-oracle-review]
+  generatedMedia: [versioned-generation-model, consent-and-license, source-class-marked-output, review-and-regeneration]
+  syntheticFixture: [visible-fixture-label, exact-fake-source-identity, no-production-proof, deny-product-or-scientific-finality-claims]
+semanticProjectBehavior:
+  commonProject: one-MediaProject-revision-for-voice-capture-animation-simulation-render-captions-and-editorial-changes
+  scenes: meaningful source-anchor-to-derived-output lineage and half-open rational time intervals
+  finality: local preview, owner-confirmed model result, external product business finality and publish acknowledgment remain distinct
+  humanEdits: all 52 Studio kinds remain reversible with CAS, lock/conflict handling and no silent AI override
+  failure: [DENIED, CONFLICT, OUTCOME_UNKNOWN, UNAVAILABLE, PARTIAL, REVIEW_REQUIRED] preserve authoritative source and typed reason
+channelApplicability:
+  media.surface.recorder-orchestrator: source-only-headless-config-and-CLI-API-with-machine-parity
+  media.surface.capture-adapters: source-only-device-API-service-contract-probe-no-synthetic-product-interface
+  media.surface.production-studio: source-only-Web-GUI-with-exact-existing-scene-animation-simulation-screens
+  media.surface.interactive-demo-player: source-only-embedded-sandboxed-and-accessible-scenes-with-local-choices
+tutorPutorLearnerExperience:
+  predict: collect local prediction text/value/unit; actual learner submission requires TutorPutor owner evidence
+  manipulate: show typed parameter bounds and model-version changes; no arbitrary code execution
+  measure: show exact solver observable, unit, uncertainty, time and validation tier in linked table/chart/scene
+  explain: align static formula, reduced-motion/narration/caption explanation and source-state evidence
+  alternative: unavailable solvers/graphics yield static accessible table/diagram with truthful provenance
+  authority: All Model IR, pedagogy, scientific validity, learner state, content and release belong to TutorPutor
+sourceBoundScenarios:
+  - id: media.declarative.p3.scenario.newton-constant-force.v1
+    journeyRef: J-14
+    screenRef: media.view.explore-simulation
+    sourceOracle: .product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#scientificReferenceOracles
+    given: versioned F2-eligible 1D constant-net-force model with mass 2 kg, force 6 N, zero initial velocity and time 2 seconds
+    then: show a 3 m/s2, v 6 m/s and displacement 6 m from model data with independently checked tolerances; animation only depicts observed state
+    denial: solver-missing-unit-invalid-or-scientific-qualification-not-established-displays-not-admitted
+    evidence: ANALYTICAL_REFERENCE_ONLY
+  - id: media.declarative.p3.scenario.story-pause-does-not-step-physics.v1
+    journeyRef: J-14
+    screenRef: media.view.explore-simulation
+    given: valid simulation paused with animation presentation seek
+    then: tSim and model state digest remain unchanged while tStory display advances
+    denial: missing-timeline-alignment-never-guesses-model-time
+    evidence: MODEL_PRESENTATION_CONTRACT_ONLY
+  - id: media.declarative.p3.scenario.animation-2d-3d-semantic-preview.v1
+    journeyRef: J-12
+    screenRef: media.view.animate-media
+    given: semantic keyframes, data-bound math and qualified art geometry
+    then: 2D and 3D render plans share versioned scene nodes, editorial parameters and accessible textual equivalents
+    denial: unsafe-formula-or-invalid-3d-coordinate-frame-prevents-unqualified-render
+    evidence: SOURCE_REUSE_CONTRACT_ONLY
+  - id: media.declarative.p3.scenario.experience-fixture-not-scientific-proof.v1
+    journeyRef: J-15
+    screenRef: media.view.explore-simulation
+    given: a PDP Explorer synthetic fixture is viewed next to real scientific model output
+    then: maintain visible simulated-fixture versus model-solver-run source labels
+    denial: never-label-generated-or-fixture-picture-as-physical-or-product-evidence
+    evidence: SOURCE_REUSE_CONTRACT_ONLY
+  - id: media.declarative.p3.scenario.solver-divergence-and-unit-mismatch.v1
+    journeyRef: J-14
+    screenRef: media.view.explore-simulation
+    given: invalid solver convergence or inconsistent dimension system
+    then: preserve source conditions, decline quantitative pass, show bounded residual and recovery
+    denial: no-silent-parameter-or-solver-substitution
+    evidence: SOURCE_REUSE_CONTRACT_ONLY
+  - id: media.declarative.p3.scenario.manual-locked-scene-selective-recapture.v1
+    journeyRef: J-18
+    screenRef: media.view.compose-media
+    given: one recorded product scene changes after an editor locks camera framing and captions
+    then: regenerate only affected descendants, preserve manual lock and rebase with explicit three-way conflict
+    denial: conflict-with-human-edits-requires-review-not-overwrite
+    evidence: SOURCE_REUSE_CONTRACT_ONLY
+  - id: media.declarative.p3.scenario.api-only-demo-no-fake-gui.v1
+    journeyRef: J-09
+    screenRef: media.view.compose-media
+    given: an API-only product journey has no browser or graphical UI
+    then: present actual structured request/result and approved explanatory animation rather than fabricated screenshots
+    denial: unknown-product-effect-remains-UNKNOWN-until-owner-readback
+    evidence: SOURCE_REUSE_CONTRACT_ONLY
+  - id: media.declarative.p3.scenario.tutorputor-predict-manipulate-measure-explain.v1
+    journeyRef: J-14
+    screenRef: media.view.explore-simulation
+    given: a versioned TutorPutor Experience IR and Model IR with a public Scene IR map
+    then: preserve learner prediction intent, bounded parameter changes, model measurements, narrated explanation and product-owned evidence boundary
+    denial: no-learner-master-data-storage-or-mastered-status-in-Media
+    evidence: PUBLIC_CONTRACT_CANDIDATE_NOT_TUTORPUTOR_ACCEPTED
+caseExperiences:
+  - id: media.declarative.p3.case.001.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-001
+    pdp1OperationRef: media.operation.capability.media-animation-vector
+    pdp2ScreenReuseRef: media.view.animate-media
+    existingJourneyRef: J-12
+    surfaceId: media.surface.production-studio
+    group: ANIMATION
+    sourceClass: DECLARATIVE_ANIMATION
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-001"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-001"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-001"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.002.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-002
+    pdp1OperationRef: media.operation.capability.media-animation-2d
+    pdp2ScreenReuseRef: media.view.animate-media
+    existingJourneyRef: J-12
+    surfaceId: media.surface.production-studio
+    group: ANIMATION
+    sourceClass: DECLARATIVE_ANIMATION
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-002"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-002"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-002"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.003.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-003
+    pdp1OperationRef: media.operation.capability.media-animation-3d
+    pdp2ScreenReuseRef: media.view.animate-media
+    existingJourneyRef: J-13
+    surfaceId: media.surface.production-studio
+    group: ANIMATION
+    sourceClass: DECLARATIVE_ANIMATION
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-003"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-003"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-003"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.004.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-004
+    pdp1OperationRef: media.operation.capability.media-compose-exact-typography-logo-brand
+    pdp2ScreenReuseRef: media.view.animate-media
+    existingJourneyRef: J-12
+    surfaceId: media.surface.production-studio
+    group: ANIMATION
+    sourceClass: DECLARATIVE_ANIMATION
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-004"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-004"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-004"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.005.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-005
+    pdp1OperationRef: media.operation.capability.media-animation-keyframe
+    pdp2ScreenReuseRef: media.view.animate-media
+    existingJourneyRef: J-12
+    surfaceId: media.surface.production-studio
+    group: ANIMATION
+    sourceClass: DECLARATIVE_ANIMATION
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-005"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-005"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-005"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.006.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-006
+    pdp1OperationRef: media.operation.capability.media-animation-interpolation-easing
+    pdp2ScreenReuseRef: media.view.animate-media
+    existingJourneyRef: J-12
+    surfaceId: media.surface.production-studio
+    group: ANIMATION
+    sourceClass: DECLARATIVE_ANIMATION
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-006"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-006"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-006"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.007.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-007
+    pdp1OperationRef: media.operation.capability.media-animation-procedural
+    pdp2ScreenReuseRef: media.view.animate-media
+    existingJourneyRef: J-12
+    surfaceId: media.surface.recorder-orchestrator
+    group: ANIMATION
+    sourceClass: DECLARATIVE_ANIMATION
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-007"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-007"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-007"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.008.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-008
+    pdp1OperationRef: media.operation.capability.media-animation-camera
+    pdp2ScreenReuseRef: media.view.animate-media
+    existingJourneyRef: J-13
+    surfaceId: media.surface.production-studio
+    group: ANIMATION
+    sourceClass: DECLARATIVE_ANIMATION
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-008"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-008"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-008"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.009.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-009
+    pdp1OperationRef: media.operation.capability.media-animation-skeletal
+    pdp2ScreenReuseRef: media.view.animate-media
+    existingJourneyRef: J-13
+    surfaceId: media.surface.production-studio
+    group: ANIMATION
+    sourceClass: DECLARATIVE_ANIMATION
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-009"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-009"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-009"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.010.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-010
+    pdp1OperationRef: media.operation.capability.media-animation-constraint
+    pdp2ScreenReuseRef: media.view.animate-media
+    existingJourneyRef: J-13
+    surfaceId: media.surface.production-studio
+    group: ANIMATION
+    sourceClass: DECLARATIVE_ANIMATION
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-010"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-010"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-010"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.011.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-011
+    pdp1OperationRef: media.operation.capability.media-animation-drive-audio
+    pdp2ScreenReuseRef: media.view.animate-media
+    existingJourneyRef: J-12
+    surfaceId: media.surface.production-studio
+    group: ANIMATION
+    sourceClass: DECLARATIVE_ANIMATION
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-011"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-011"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-011"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.012.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-012
+    pdp1OperationRef: media.operation.capability.media-animation-drive-speech
+    pdp2ScreenReuseRef: media.view.animate-media
+    existingJourneyRef: J-12
+    surfaceId: media.surface.production-studio
+    group: ANIMATION
+    sourceClass: DECLARATIVE_ANIMATION
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-012"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-012"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-012"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.013.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-013
+    pdp1OperationRef: media.operation.capability.media-recipe-template-physics-math-explainer
+    pdp2ScreenReuseRef: media.view.animate-media
+    existingJourneyRef: J-12
+    surfaceId: media.surface.recorder-orchestrator
+    group: ANIMATION
+    sourceClass: DECLARATIVE_ANIMATION
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-013"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-013"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-013"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.014.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-014
+    pdp1OperationRef: media.operation.capability.media-animation-output-accessibility-semantic-timeline
+    pdp2ScreenReuseRef: media.view.animate-media
+    existingJourneyRef: J-12
+    surfaceId: media.surface.interactive-demo-player
+    group: ANIMATION
+    sourceClass: DECLARATIVE_ANIMATION
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-014"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-014"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-014"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.015.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-015
+    pdp1OperationRef: media.operation.capability.media-animation-output-output-composited-video
+    pdp2ScreenReuseRef: media.view.animate-media
+    existingJourneyRef: J-12
+    surfaceId: media.surface.recorder-orchestrator
+    group: ANIMATION
+    sourceClass: DECLARATIVE_ANIMATION
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-015"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-015"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-015"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.016.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-016
+    pdp1OperationRef: media.operation.capability.media-animation-editing-curve-edit
+    pdp2ScreenReuseRef: media.view.animate-media
+    existingJourneyRef: J-12
+    surfaceId: media.surface.production-studio
+    group: ANIMATION
+    sourceClass: DECLARATIVE_ANIMATION
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-016"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-016"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-016"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.017.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-017
+    pdp1OperationRef: media.operation.capability.media-animation-editing-undo-redo-versioned
+    pdp2ScreenReuseRef: media.view.animate-media
+    existingJourneyRef: J-12
+    surfaceId: media.surface.production-studio
+    group: ANIMATION
+    sourceClass: DECLARATIVE_ANIMATION
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-017"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-017"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-017"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.018.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-018
+    pdp1OperationRef: media.operation.capability.media-simulation-scientific-demo
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.recorder-orchestrator
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-018"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-018"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-018"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.019.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-019
+    pdp1OperationRef: media.operation.capability.media-simulation-educational-demo
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.production-studio
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-019"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-019"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-019"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.020.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-020
+    pdp1OperationRef: media.operation.capability.media-simulation-rigid-body
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.production-studio
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-020"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-020"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-020"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.021.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-021
+    pdp1OperationRef: media.operation.capability.media-simulation-scientific-demo
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.recorder-orchestrator
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-021"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-021"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-021"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.022.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-022
+    pdp1OperationRef: media.operation.capability.media-simulation-output-timestamped-state
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.interactive-demo-player
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-022"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-022"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-022"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.023.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-023
+    pdp1OperationRef: media.operation.capability.media-simulation-output-timestamped-state
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.recorder-orchestrator
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-023"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-023"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-023"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.024.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-024
+    pdp1OperationRef: media.operation.capability.media-simulation-output-timestamped-state
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.recorder-orchestrator
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-024"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-024"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-024"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.025.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-025
+    pdp1OperationRef: media.operation.capability.media-provenance-execution-lineage-inspect
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-15
+    surfaceId: media.surface.recorder-orchestrator
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-025"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-025"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-025"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.026.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-026
+    pdp1OperationRef: media.operation.capability.media-simulation-output-measurements
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.production-studio
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-026"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-026"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-026"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.027.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-027
+    pdp1OperationRef: media.operation.capability.media-simulation-scientific-demo
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.recorder-orchestrator
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-027"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-027"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-027"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.028.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-028
+    pdp1OperationRef: media.operation.capability.media-simulation-educational-demo
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.production-studio
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-028"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-028"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-028"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.029.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-029
+    pdp1OperationRef: media.operation.capability.media-simulation-educational-demo
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.interactive-demo-player
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-029"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-029"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-029"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.030.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-030
+    pdp1OperationRef: media.operation.capability.media-simulation-output-timestamped-state
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.interactive-demo-player
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-030"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-030"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-030"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.031.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-031
+    pdp1OperationRef: media.operation.capability.media-simulation-output-measurements
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.production-studio
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-031"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-031"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-031"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.032.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-032
+    pdp1OperationRef: media.operation.capability.media-simulation-output-measurements
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.production-studio
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-032"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-032"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-032"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.033.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-033
+    pdp1OperationRef: media.operation.capability.media-simulation-output-contacts
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.production-studio
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-033"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-033"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-033"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.034.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-034
+    pdp1OperationRef: media.operation.capability.media-simulation-agent
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.recorder-orchestrator
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-034"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-034"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-034"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.035.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-035
+    pdp1OperationRef: media.operation.capability.media-simulation-agent
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.recorder-orchestrator
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-035"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-035"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-035"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.036.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-036
+    pdp1OperationRef: media.operation.capability.media-simulation-rigid-body
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.recorder-orchestrator
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-036"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-036"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-036"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.037.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-037
+    pdp1OperationRef: media.operation.capability.media-simulation-scientific-demo
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.production-studio
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-037"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-037"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-037"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.038.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-038
+    pdp1OperationRef: media.operation.capability.media-simulation-output-measurements
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.interactive-demo-player
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-038"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-038"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-038"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.039.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-039
+    pdp1OperationRef: media.operation.capability.media-quality-inspect
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-15
+    surfaceId: media.surface.recorder-orchestrator
+    group: SIMULATION
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-039"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-039"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-039"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.040.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-040
+    pdp1OperationRef: media.operation.capability.media-recipe-template-interactive-lesson
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.recorder-orchestrator
+    group: TUTORPUTOR
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-040"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-040"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-040"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.041.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-041
+    pdp1OperationRef: media.operation.capability.media-recipe-template-interactive-lesson
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.recorder-orchestrator
+    group: TUTORPUTOR
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-041"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-041"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-041"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.042.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-042
+    pdp1OperationRef: media.operation.capability.media-simulation-educational-demo
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.recorder-orchestrator
+    group: TUTORPUTOR
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-042"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-042"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-042"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.043.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-043
+    pdp1OperationRef: media.operation.capability.media-animation-2d
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.production-studio
+    group: TUTORPUTOR
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-043"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-043"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-043"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.044.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-044
+    pdp1OperationRef: media.operation.capability.media-simulation-output-measurements
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.interactive-demo-player
+    group: TUTORPUTOR
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-044"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-044"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-044"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.045.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-045
+    pdp1OperationRef: media.operation.capability.media-simulation-educational-demo
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.interactive-demo-player
+    group: TUTORPUTOR
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-045"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-045"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-045"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.046.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-046
+    pdp1OperationRef: media.operation.capability.media-simulation-output-measurements
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.interactive-demo-player
+    group: TUTORPUTOR
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-046"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-046"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-046"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.047.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-047
+    pdp1OperationRef: media.operation.capability.media-animation-output-accessibility-semantic-timeline
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.interactive-demo-player
+    group: TUTORPUTOR
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-047"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-047"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-047"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.048.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-048
+    pdp1OperationRef: media.operation.capability.media-animation-output-output-interactive-scene
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.interactive-demo-player
+    group: TUTORPUTOR
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-048"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-048"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-048"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.049.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-049
+    pdp1OperationRef: media.operation-slice.inspect-provenance
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.interactive-demo-player
+    group: TUTORPUTOR
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-049"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-049"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-049"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.050.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-050
+    pdp1OperationRef: media.operation.capability.media-deliver-interactive-scene-bundle
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.interactive-demo-player
+    group: TUTORPUTOR
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-050"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-050"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-050"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.051.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-051
+    pdp1OperationRef: media.operation.capability.media-deliver-publish-governed
+    pdp2ScreenReuseRef: media.view.explore-simulation
+    existingJourneyRef: J-14
+    surfaceId: media.surface.recorder-orchestrator
+    group: TUTORPUTOR
+    sourceClass: MODEL_SIMULATION
+    producerMode: MODEL_RUN_OR_PRESENTATION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-051"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-051"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-051"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.052.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-052
+    pdp1OperationRef: media.operation.capability.media-compose-multitrack-timeline
+    pdp2ScreenReuseRef: media.view.compose-media
+    existingJourneyRef: J-18
+    surfaceId: media.surface.production-studio
+    group: UNIFIED
+    sourceClass: MIXED_EXPLICIT_PER_SCENE
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-052"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-052"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-052"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.053.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-053
+    pdp1OperationRef: media.operation.capability.media-provenance-origin-disclose
+    pdp2ScreenReuseRef: media.view.compose-media
+    existingJourneyRef: J-18
+    surfaceId: media.surface.recorder-orchestrator
+    group: UNIFIED
+    sourceClass: MIXED_EXPLICIT_PER_SCENE
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-053"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-053"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-053"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.054.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-054
+    pdp1OperationRef: media.operation.capability.media-project-version
+    pdp2ScreenReuseRef: media.view.compose-media
+    existingJourneyRef: J-18
+    surfaceId: media.surface.recorder-orchestrator
+    group: UNIFIED
+    sourceClass: MIXED_EXPLICIT_PER_SCENE
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-054"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-054"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-054"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.055.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-055
+    pdp1OperationRef: media.operation.capability.media-project-composition-update
+    pdp2ScreenReuseRef: media.view.compose-media
+    existingJourneyRef: J-18
+    surfaceId: media.surface.production-studio
+    group: UNIFIED
+    sourceClass: MIXED_EXPLICIT_PER_SCENE
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-055"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-055"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-055"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.056.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-056
+    pdp1OperationRef: media.operation.capability.media-rights-permitted-use-evaluate
+    pdp2ScreenReuseRef: media.view.compose-media
+    existingJourneyRef: J-18
+    surfaceId: media.surface.recorder-orchestrator
+    group: UNIFIED
+    sourceClass: MIXED_EXPLICIT_PER_SCENE
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-056"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-056"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-056"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.057.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-057
+    pdp1OperationRef: media.operation.capability.media-job-watch
+    pdp2ScreenReuseRef: media.view.compose-media
+    existingJourneyRef: J-18
+    surfaceId: media.surface.recorder-orchestrator
+    group: UNIFIED
+    sourceClass: MIXED_EXPLICIT_PER_SCENE
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-057"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-057"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-057"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.058.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-058
+    pdp1OperationRef: media.operation-slice.submit-job
+    pdp2ScreenReuseRef: media.view.compose-media
+    existingJourneyRef: J-18
+    surfaceId: media.surface.recorder-orchestrator
+    group: UNIFIED
+    sourceClass: MIXED_EXPLICIT_PER_SCENE
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-058"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-058"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-058"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.059.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-059
+    pdp1OperationRef: media.operation.capability.media-rights-permitted-use-evaluate
+    pdp2ScreenReuseRef: media.view.compose-media
+    existingJourneyRef: J-18
+    surfaceId: media.surface.recorder-orchestrator
+    group: UNIFIED
+    sourceClass: MIXED_EXPLICIT_PER_SCENE
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-059"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-059"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-059"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.060.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-060
+    pdp1OperationRef: media.operation.capability.media-deliver-package
+    pdp2ScreenReuseRef: media.view.compose-media
+    existingJourneyRef: J-18
+    surfaceId: media.surface.recorder-orchestrator
+    group: UNIFIED
+    sourceClass: MIXED_EXPLICIT_PER_SCENE
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-060"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-060"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-060"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+  - id: media.declarative.p3.case.061.v1
+    pdp0CaseId: MEDIA-DECL-P0-AC-061
+    pdp1OperationRef: media.operation.capability.media-deliver-interactive-scene-bundle
+    pdp2ScreenReuseRef: media.view.compose-media
+    existingJourneyRef: J-18
+    surfaceId: media.surface.interactive-demo-player
+    group: UNIFIED
+    sourceClass: MIXED_EXPLICIT_PER_SCENE
+    producerMode: ARTIFACT_OR_CAPTURE_PRODUCTION
+    p0AcceptanceSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-061"
+    p1CaseOperationSource: ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#caseOperationBindings/@caseId=MEDIA-DECL-P0-AC-061"
+    p2CaseInterfaceSource: ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface/caseInterfaceBindings/@caseId=MEDIA-DECL-P0-AC-061"
+    startState: DECLARED_SOURCE_NOT_ADMITTED
+    dispatch: gated-owner-operation-conditional-on-typed-authentication-rights-model-units-provider-and-current-version
+    positiveObservation: source-anchored-owner-result-or-explicit-truthful-presentation-receipt
+    negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
+    recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
+    channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+nonClaims: [no-PDP3-DEV_COMPLETE, no-validated-AEF-solver, no-real-film-or-TutorPutor-certification, no-new-screen-or-job-owner, no-runtime-callability]
