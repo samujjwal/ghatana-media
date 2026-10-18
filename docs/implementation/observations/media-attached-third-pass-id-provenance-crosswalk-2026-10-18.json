@@ -5,7 +5,7 @@
   "authority": "NON_NORMATIVE_SOURCE_PRESERVATION_AND_EARLIEST_AFFECTED_PDP0_REVIEW_ONLY",
   "preservedUploadedAudit": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
   "normalized501Review": "docs/implementation/observations/media-unified-production-501-feature-reconciliation-2026-10-18.json",
-  "rule": "Stable AUD-REC3/ANIM3/SIM3/EDU3/CROSS3 source IDs remain the audit authorities. AUD-FOCUS IDs are derived planning identifiers only. Candidate case links are many-to-many and do not prove full semantic coverage, DEV_COMPLETE, qualified solvers, real film or scientific acceptance.",
+  "rule": "Stable AUD-REC3/ANIM3/SIM3/EDU3/CROSS3 source IDs remain the audit authorities. AUD-FOCUS IDs are derived planning identifiers only. Candidate case links are many-to-many and do not prove full semantic coverage, DEV_COMPLETE, qualified solvers, real film or scientific acceptance. All 73 normalized focus planning candidates have at least one broad source-ID relationship, but neither source-to-focus nor focus-to-P0 is an accepted exact semantic equivalence.",
   "totals": {
     "originalAudit": 428,
     "uploadedThirdPass": 73,
@@ -16,7 +16,8 @@
     "zeroCandidateSourceIds": [
       "AUD-SIM3-009",
       "AUD-SIM3-010"
-    ]
+    ],
+    "normalizedFocusCandidatesLinked": 73
   },
   "dispositionsRequired": [
     "SOURCE_OWNER_P0_MEANING_FIT",
@@ -76,10 +77,12 @@
         "MEDIA-REC-P0-AC-007",
         "MEDIA-REC-P0-AC-008",
         "MEDIA-REC-P0-AC-009",
-        "MEDIA-REC-P0-AC-010"
+        "MEDIA-REC-P0-AC-010",
+        "MEDIA-REC-P0-AC-058"
       ],
       "normalizedFocusedAuditCandidates": [
-        "AUD-FOCUS-REC-004"
+        "AUD-FOCUS-REC-004",
+        "AUD-FOCUS-REC-009"
       ],
       "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
       "additionalSemanticRisk": "Capture adapter/device/permission matrix needs source-specific semantics beyond broad source probe",
@@ -240,10 +243,14 @@
         "MEDIA-REC-P0-AC-014",
         "MEDIA-REC-P0-AC-040",
         "MEDIA-REC-P0-AC-041",
-        "MEDIA-REC-P0-AC-043"
+        "MEDIA-REC-P0-AC-042",
+        "MEDIA-REC-P0-AC-043",
+        "MEDIA-REC-P0-AC-076"
       ],
       "normalizedFocusedAuditCandidates": [
-        "AUD-FOCUS-REC-006"
+        "AUD-FOCUS-REC-006",
+        "AUD-FOCUS-REC-007",
+        "AUD-FOCUS-REC-011"
       ],
       "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
       "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
@@ -412,9 +419,14 @@
         "MEDIA-REC-P0-AC-016",
         "MEDIA-REC-P0-AC-043",
         "MEDIA-REC-P0-AC-056",
-        "MEDIA-REC-P0-AC-070"
+        "MEDIA-REC-P0-AC-063",
+        "MEDIA-REC-P0-AC-070",
+        "MEDIA-REC-P0-AC-078"
       ],
-      "normalizedFocusedAuditCandidates": [],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-REC-010",
+        "AUD-FOCUS-REC-012"
+      ],
       "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
       "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
       "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
@@ -423,7 +435,11 @@
         "PDP-2",
         "PDP-3"
       ],
-      "buildPbis": [],
+      "buildPbis": [
+        "PBI-03",
+        "PBI-10",
+        "PBI-14"
+      ],
       "nativeValidation": "NOT_RUN",
       "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
     },
@@ -510,10 +526,12 @@
       "originalReuseCandidate": "Three.js MIT, glTF tooling",
       "candidateP0AcceptanceCases": [
         "MEDIA-DECL-P0-AC-003",
+        "MEDIA-DECL-P0-AC-008",
         "MEDIA-DECL-P0-AC-009"
       ],
       "normalizedFocusedAuditCandidates": [
         "AUD-FOCUS-ANIMATION-003",
+        "AUD-FOCUS-ANIMATION-008",
         "AUD-FOCUS-ANIMATION-009"
       ],
       "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
@@ -2324,9 +2342,11 @@
       "originalAcceptance": "Strict permissive profile blocks GPL/AGPL/model noncommercial bundles",
       "originalReuseCandidate": "existing dependency policy",
       "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-056",
         "MEDIA-DECL-P0-AC-059"
       ],
       "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-UNIFIED-056",
         "AUD-FOCUS-UNIFIED-059"
       ],
       "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
