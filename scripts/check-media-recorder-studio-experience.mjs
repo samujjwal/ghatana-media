@@ -337,14 +337,40 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
      candidate?.finality!=='LOCAL_PREVIEW_NOT_PUBLISHED_AND_NEVER_PRODUCT_EFFECT' ||
      candidate?.acceptanceStatus!=='SOURCE_DEFINITION_ONLY_TESTS_AND_INDEPENDENT_REVIEW_NOT_RUN')
     fail('interactive candidate screen lacks accessible headless fixture and nonfinal preview limits');
+  const scenarioAuthority=p3.surfaceCaseScenarioContracts??{};
+  const scenarioContracts=scenarioAuthority.records??[];
+  const scenarioIds=scenarioContracts.map(x=>x.id);
+  const scenarioOwners=new Set(scenarioContracts.map(x=>x.ownerSurfaceId));
+  if(scenarioAuthority.status!=='PDP3_SOURCE_SCENARIO_DESCRIPTIONS_NOT_EXECUTED_OR_HOST_ADMITTED' ||
+     scenarioContracts.length!==7 || !uniqueSet(scenarioIds) || scenarioOwners.size!==4 ||
+     p3.population?.scopedExperienceScenarios!==scenarioContracts.length)
+    fail('seven Recorder Studio source-only scenario definitions must cover all four logical surfaces');
+  for(const scenario of scenarioContracts) {
+    if(!expectedSurfaces.some(x=>x.id===scenario.ownerSurfaceId) ||
+       !Array.isArray(scenario.sourceAcceptanceCaseRefs) ||
+       !scenario.sourceAcceptanceCaseRefs.length || !uniqueSet(scenario.sourceAcceptanceCaseRefs) ||
+       !scenario.sourceAcceptanceCaseRefs.every(id=>canonical.get(id)?.surfaceId===scenario.ownerSurfaceId))
+      fail(String(scenario.id)+': source-authored scenario contracts lack exact surface ownership');
+    if(!Array.isArray(scenario.existingJourneyRefs) ||
+       !scenario.existingJourneyRefs.length || !uniqueSet(scenario.existingJourneyRefs) ||
+       !scenario.existingJourneyRefs.every(x=>allowedJourneyIds.has(x)))
+      fail(String(scenario.id)+': source scenario references nonexistent or duplicated canonical journeys');
+    if(!['symbolicInputContract','proposedUserExperience','visibleObservationContract',
+         'mandatoryDenialAndRecovery','finalityBoundary'].every(k=>
+             typeof scenario[k]==='string' && scenario[k].trim().length>20))
+      fail(String(scenario.id)+': missing source-grounded input, positive/negative or finality semantics');
+    if(scenario.admission!=='SOURCE_DEFINITION_ONLY_NO_ROUTE_OR_RUNTIME_PROOF' ||
+       scenario.verification!=='NOT_RUN')
+      fail(String(scenario.id)+': scenario source must not claim a deployed route, accepted film or verified product effect');
+  }
   if(p3.status!=='SOURCE_AUTHORED_SUCCESSOR_PENDING_NATIVE_VALIDATION_AND_CURRENTNESS' ||
      p3.explorerProjection?.status!=='SPECIFICATION_ONLY_NOT_VERIFIED' ||
      (p3.nonClaims??[]).indexOf('not-PDP3-dev-complete')<0)
     fail('PDP3 successor cannot claim DEV_COMPLETE, Explorer verification or runtime admission');
   const population=p3.population??{};
-  for(const [name,value] of Object.entries({logicalSurfaces:4,featureProfiles:16,acceptanceCaseSteps:84,exactProposedPrimaryOperationSteps:63,explicitNonInvocationSteps:21,manualEditPaths:52,studioWorkspaceProposals:13,existingTopLevelJourneysPreserved:30,existingCanonicalScreensPreserved:47,physicalPackagesAdded:0}))
+  for(const [name,value] of Object.entries({logicalSurfaces:4,featureProfiles:16,acceptanceCaseSteps:84,exactProposedPrimaryOperationSteps:63,explicitNonInvocationSteps:21,manualEditPaths:52,studioWorkspaceProposals:13,scopedExperienceScenarios:7,existingTopLevelJourneysPreserved:30,existingCanonicalScreensPreserved:47,physicalPackagesAdded:0}))
     if(population[name]!==value)fail('declared PDP3 population mismatch: '+name);
-  return {errors,stats:{sourceDocumentsValid:true,logicalSurfaces:surfaceDefs.length,flowContracts:flows.length,acceptanceCaseSteps:allSteps.length,exactProposedPrimaryOperationSteps:exactOperationSteps,explicitNonInvocationSteps:explicitNonInvocationSteps,manualEditPaths:editPaths.length,workspaceIntents:pages.length,reusedCanonicalScreenViews:reusePageCount,unregisteredScreenCandidates:newPageCount,interactiveScreenCaseContracts:caseInteractions.length,interactiveFixtureDefinitions:authoredFixtures.length}};
+  return {errors,stats:{sourceDocumentsValid:true,logicalSurfaces:surfaceDefs.length,flowContracts:flows.length,acceptanceCaseSteps:allSteps.length,exactProposedPrimaryOperationSteps:exactOperationSteps,explicitNonInvocationSteps:explicitNonInvocationSteps,manualEditPaths:editPaths.length,workspaceIntents:pages.length,reusedCanonicalScreenViews:reusePageCount,unregisteredScreenCandidates:newPageCount,interactiveScreenCaseContracts:caseInteractions.length,interactiveFixtureDefinitions:authoredFixtures.length,scopedExperienceScenarios:scenarioContracts.length}};
 }
 if(process.argv[1] && path.resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
   const report=verifyRecorderStudioExperience();
