@@ -304,3 +304,40 @@ test('rejects a typed Studio parameter using an unresolved value type', () => {
   const result=verifyRecorderStudioDefinitions({overrides:{p1:changed}});
   assert.ok(result.errors.some(e=>e.includes('unresolved typed value')),result.errors.join('\n'));
 });
+
+test('PDP2 defines all thirteen Studio workspace design compositions', () => {
+  const result=verifyRecorderStudioDefinitions();
+  assert.deepEqual(result.errors, [], result.errors.join('\n'));
+  assert.equal(result.stats.studioPageDesignContracts,13);
+});
+test('PDP2 rejects a Studio page disconnected from the reusable Media template catalog', () => {
+  const source=read('.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml');
+  const changed=source.replace('templateRef: "media.gui.template.collection"', 'templateRef: "media.gui.template.not-real"');
+  assert.notEqual(changed,source);
+  const result=verifyRecorderStudioDefinitions({overrides:{p2:changed}});
+  assert.ok(result.errors.some(x=>x.includes('ungrounded template/layout/recipe chain')),result.errors.join('\n'));
+});
+test('PDP2 rejects an absent Studio workspace despite stable other phase denominators', () => {
+  const source=read('.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml');
+  const changed=source.replace('workspaceKey: "camera-multiview"', 'workspaceKey: "missing-camera-multiview"');
+  assert.notEqual(changed,source);
+  const result=verifyRecorderStudioDefinitions({overrides:{p2:changed}});
+  assert.ok(result.errors.some(x=>x.includes('13 canonical workspace keys')),result.errors.join('\n'));
+});
+test('PDP2 rejects missing Studio page headless parity and safe denial', () => {
+  const source=read('.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml');
+  const changed=source.replace(
+    'headlessEquivalent: "Project project-library selections and state as typed source-bound JSON/CLI without invented GUI effects"',
+    'headlessEquivalent: ""'
+  );
+  assert.notEqual(changed,source);
+  const result=verifyRecorderStudioDefinitions({overrides:{p2:changed}});
+  assert.ok(result.errors.some(x=>x.includes('responsive/accessibility/headless/denial/admission meaning')),result.errors.join('\n'));
+});
+test('PDP2 rejects a Studio page composition referencing an unregistered component', () => {
+  const source=read('.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml');
+  const changed=source.replace('componentRefs: ["media.component.project-browser"', 'componentRefs: ["media.component.unregistered"');
+  assert.notEqual(changed,source);
+  const result=verifyRecorderStudioDefinitions({overrides:{p2:changed}});
+  assert.ok(result.errors.some(x=>x.includes('component outside canonical Media Studio composition')),result.errors.join('\n'));
+});
