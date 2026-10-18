@@ -1,0 +1,2520 @@
+{
+  "schemaVersion": "media.attached-third-pass-provenance-crosswalk.v1",
+  "date": "2026-10-18",
+  "status": "REVIEW_PROPOSAL_PENDING_EXACT_PDP0_SEMANTIC_ACCEPTANCE",
+  "authority": "NON_NORMATIVE_SOURCE_PRESERVATION_AND_EARLIEST_AFFECTED_PDP0_REVIEW_ONLY",
+  "preservedUploadedAudit": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
+  "normalized501Review": "docs/implementation/observations/media-unified-production-501-feature-reconciliation-2026-10-18.json",
+  "rule": "Stable AUD-REC3/ANIM3/SIM3/EDU3/CROSS3 source IDs remain the audit authorities. AUD-FOCUS IDs are derived planning identifiers only. Candidate case links are many-to-many and do not prove full semantic coverage, DEV_COMPLETE, qualified solvers, real film or scientific acceptance.",
+  "totals": {
+    "originalAudit": 428,
+    "uploadedThirdPass": 73,
+    "selectedReferenceFeatures": 501,
+    "normalizedFocusedRows": 73,
+    "sourceRowsWithCaseCandidates": 71,
+    "sourceRowsExplicitlyMissingAtomicCandidates": 2,
+    "zeroCandidateSourceIds": [
+      "AUD-SIM3-009",
+      "AUD-SIM3-010"
+    ]
+  },
+  "dispositionsRequired": [
+    "SOURCE_OWNER_P0_MEANING_FIT",
+    "SOURCE_P1_EFFECT_AND_FINALITY",
+    "SOURCE_P2_ACCESSIBLE_CHANNEL_PARITY",
+    "SOURCE_P3_ACTUAL_EXPERIENCE_AND_NEGATIVES",
+    "NATIVE_PHASE_CURRENTNESS"
+  ],
+  "thirdPassTraceability": [
+    {
+      "sourceAuditId": "AUD-REC3-001",
+      "sourceFeature": "Versioned recording scenario with persona, purpose, sources and deterministic scene graph",
+      "sourceDomainCode": "REC3",
+      "sourceDomain": "Declarative capture, recorder and product demos",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-REC3-001",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Same config produces identical plan/scene selection and fingerprint; changed contract invalidates dependents",
+      "originalReuseCandidate": "existing Recorder/Studio + Gharbatai product-neutral recorder",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-REC-P0-AC-001",
+        "MEDIA-REC-P0-AC-002"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-REC-001"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-03",
+        "PBI-10",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-REC3-002",
+      "sourceFeature": "Browser/desktop/mobile/camera/microphone/file and terminal/API-only capability probing",
+      "sourceDomainCode": "REC3",
+      "sourceDomain": "Declarative capture, recorder and product demos",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-REC3-002",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "No screen claimed for CLI/API-only source; denied/unsupported state visible",
+      "originalReuseCandidate": "existing capture adapters + browser/OS APIs",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-REC-P0-AC-006",
+        "MEDIA-REC-P0-AC-007",
+        "MEDIA-REC-P0-AC-008",
+        "MEDIA-REC-P0-AC-009",
+        "MEDIA-REC-P0-AC-010"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-REC-004"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Capture adapter/device/permission matrix needs source-specific semantics beyond broad source probe",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-03",
+        "PBI-10",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-REC3-003",
+      "sourceFeature": "Per-scene deterministic action and observable business-effect readback",
+      "sourceDomainCode": "REC3",
+      "sourceDomain": "Declarative capture, recorder and product demos",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-REC3-003",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Click/HTTP success alone fails; only owner authoritative readback can certify action",
+      "originalReuseCandidate": "Gharbatai scenario and lease-qualified source",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-REC-P0-AC-012",
+        "MEDIA-REC-P0-AC-013"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-REC-002",
+        "AUD-FOCUS-REC-003"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-03",
+        "PBI-10",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-REC3-004",
+      "sourceFeature": "Seed and account setup under fenced ownership leases with targeted cleanup",
+      "sourceDomainCode": "REC3",
+      "sourceDomain": "Declarative capture, recorder and product demos",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-REC3-004",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Failed seed cleanup touches only exact owned fixture; stale lease rejected",
+      "originalReuseCandidate": "Gharbatai safe fixture adapter",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-REC-P0-AC-012",
+        "MEDIA-REC-P0-AC-015"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-REC-002"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-03",
+        "PBI-10",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-REC3-005",
+      "sourceFeature": "Frame, cursor, click, scroll, key, and camera event capture with exact source anchors",
+      "sourceDomainCode": "REC3",
+      "sourceDomain": "Declarative capture, recorder and product demos",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-REC3-005",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Event and render timestamps align within declared profile and drift is measured",
+      "originalReuseCandidate": "Media stream/source map",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-REC-P0-AC-009",
+        "MEDIA-REC-P0-AC-010",
+        "MEDIA-REC-P0-AC-035"
+      ],
+      "normalizedFocusedAuditCandidates": [],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Actual frame/action/cursor/source-anchor observation matrix requires atomic negative checks",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-REC3-006",
+      "sourceFeature": "Automated storyboard-to-shot planner with accessible CLI and structured output",
+      "sourceDomainCode": "REC3",
+      "sourceDomain": "Declarative capture, recorder and product demos",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-REC3-006",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "No shots with invented UI or unstated sources; declared fallback is explicit",
+      "originalReuseCandidate": "existing scene-plan + FireRed pattern",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-REC-P0-AC-001",
+        "MEDIA-REC-P0-AC-003",
+        "MEDIA-REC-P0-AC-005",
+        "MEDIA-REC-P0-AC-035"
+      ],
+      "normalizedFocusedAuditCandidates": [],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Unattended planning must specify deterministic storyboard compilation and truthful no-GUI output",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-REC3-007",
+      "sourceFeature": "Human-free dry-run, qualified capture and partial-scene recapture",
+      "sourceDomainCode": "REC3",
+      "sourceDomain": "Declarative capture, recorder and product demos",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-REC3-007",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Unchanged artifact hashes stable; locked manual edits survive recapture",
+      "originalReuseCandidate": "existing Media job and revision CAS",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-REC-P0-AC-014",
+        "MEDIA-REC-P0-AC-040",
+        "MEDIA-REC-P0-AC-041",
+        "MEDIA-REC-P0-AC-043"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-REC-006"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-03",
+        "PBI-10",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-REC3-008",
+      "sourceFeature": "Narration, caption, logo, highlight, and callout synchronized assembly",
+      "sourceDomainCode": "REC3",
+      "sourceDomain": "Declarative capture, recorder and product demos",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-REC3-008",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Correct original source, brand string, rational time and locale; no silent substituted text",
+      "originalReuseCandidate": "Media composition + governed TTS",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-REC-P0-AC-022",
+        "MEDIA-REC-P0-AC-036",
+        "MEDIA-REC-P0-AC-037"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-REC-005"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-03",
+        "PBI-10",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-REC3-009",
+      "sourceFeature": "Demo film QA and semantic-action receipt reconciliation",
+      "sourceDomainCode": "REC3",
+      "sourceDomain": "Declarative capture, recorder and product demos",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-REC3-009",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Decoded audio/video checked; missing tail or unmatched business evidence rejects delivery",
+      "originalReuseCandidate": "Media QA and provenance",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-REC-P0-AC-038",
+        "MEDIA-REC-P0-AC-045",
+        "MEDIA-REC-P0-AC-046",
+        "MEDIA-REC-P0-AC-047",
+        "MEDIA-REC-P0-AC-049"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-REC-008"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-03",
+        "PBI-10",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-REC3-010",
+      "sourceFeature": "Nonlinear and interactive demo branching with nonprivileged hotspots",
+      "sourceDomainCode": "REC3",
+      "sourceDomain": "Declarative capture, recorder and product demos",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-REC3-010",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Viewer branch cannot invoke privileged product mutation or claim evidence",
+      "originalReuseCandidate": "existing interactive player",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-REC-P0-AC-050",
+        "MEDIA-REC-P0-AC-051",
+        "MEDIA-REC-P0-AC-052"
+      ],
+      "normalizedFocusedAuditCandidates": [],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Interactive branching and hotspot nonprivilege must be reviewed against REC-050..053",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-REC3-011",
+      "sourceFeature": "Batch persona, locale, voice, aspect ratio and profile matrices",
+      "sourceDomainCode": "REC3",
+      "sourceDomain": "Declarative capture, recorder and product demos",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-REC3-011",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "One source can yield independent variants with identity/rights isolation and incremental caches",
+      "originalReuseCandidate": "Media production DAG",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-REC-P0-AC-036",
+        "MEDIA-REC-P0-AC-054",
+        "MEDIA-REC-P0-AC-073"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-REC-005"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Batch persona, voice, locale and aspect fan-out must be typed per profile and source dependency",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-03",
+        "PBI-10",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-REC3-012",
+      "sourceFeature": "Recording retries, cancellation, outbox, and UNKNOWN-outcome reconciliation",
+      "sourceDomainCode": "REC3",
+      "sourceDomain": "Declarative capture, recorder and product demos",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-REC3-012",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Uncertain ownership/effect never triggers blind replay; no duplicate source-run",
+      "originalReuseCandidate": "Media job attempt/fence ledger",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-REC-P0-AC-016",
+        "MEDIA-REC-P0-AC-043",
+        "MEDIA-REC-P0-AC-056",
+        "MEDIA-REC-P0-AC-070"
+      ],
+      "normalizedFocusedAuditCandidates": [],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-ANIM3-001",
+      "sourceFeature": "Typed versioned scene graph with semantic groups and renderer-neutral objects",
+      "sourceDomainCode": "ANIM3",
+      "sourceDomain": "Declarative 2D/3D, procedural and instructional animation",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-ANIM3-001",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "All objects resolve to schema-known kinds; no JS eval or arbitrary source execution",
+      "originalReuseCandidate": "Media scene-graph + TutorPutor AEF Scene IR",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-001",
+        "MEDIA-DECL-P0-AC-003"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-ANIMATION-001",
+        "AUD-FOCUS-ANIMATION-003"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-ANIM3-002",
+      "sourceFeature": "2D primitives, path morphing, vectors, charts, equations and diagrams",
+      "sourceDomainCode": "ANIM3",
+      "sourceDomain": "Declarative 2D/3D, procedural and instructional animation",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-ANIM3-002",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Stable object anchors and semantic text equivalents, even without GPU",
+      "originalReuseCandidate": "SVG/Canvas, Motion Canvas MIT, Manim MIT conditional",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-002",
+        "MEDIA-DECL-P0-AC-004"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-ANIMATION-002",
+        "AUD-FOCUS-ANIMATION-004"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-ANIM3-003",
+      "sourceFeature": "3D primitives, cameras, lighting, geometry, textures, rigs and skeletal tracks",
+      "sourceDomainCode": "ANIM3",
+      "sourceDomain": "Declarative 2D/3D, procedural and instructional animation",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-ANIM3-003",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "glTF round-trip supported with explicit loss report",
+      "originalReuseCandidate": "Three.js MIT, glTF tooling",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-003",
+        "MEDIA-DECL-P0-AC-009"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-ANIMATION-003",
+        "AUD-FOCUS-ANIMATION-009"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-ANIM3-004",
+      "sourceFeature": "Keyframes, easing, interpolation and parameter curves with rational time",
+      "sourceDomainCode": "ANIM3",
+      "sourceDomain": "Declarative 2D/3D, procedural and instructional animation",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-ANIM3-004",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Random access is stable; seeks do not mutate source data or external runtime",
+      "originalReuseCandidate": "Media timeline + Motion Canvas candidates",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-005",
+        "MEDIA-DECL-P0-AC-006"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-ANIMATION-005",
+        "AUD-FOCUS-ANIMATION-006"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-ANIM3-005",
+      "sourceFeature": "Constraint-driven layout, anchor, grouping and responsive safe areas",
+      "sourceDomainCode": "ANIM3",
+      "sourceDomain": "Declarative 2D/3D, procedural and instructional animation",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-ANIM3-005",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Aspect adaptation preserves protected regions and semantic bindings",
+      "originalReuseCandidate": "Media scene graph own layout",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-010",
+        "MEDIA-DECL-P0-AC-014"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-ANIMATION-010",
+        "AUD-FOCUS-ANIMATION-014"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-ANIM3-006",
+      "sourceFeature": "Procedural generators, particles and rule-driven visuals with bounded budgets",
+      "sourceDomainCode": "ANIM3",
+      "sourceDomain": "Declarative 2D/3D, procedural and instructional animation",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-ANIM3-006",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Seeded output is deterministic when declared; memory and iteration capped",
+      "originalReuseCandidate": "Media-owned algorithm + candidate rendering libraries",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-007"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-ANIMATION-007"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-ANIM3-007",
+      "sourceFeature": "Vector field, graph traversal, algorithm and step-trace animations",
+      "sourceDomainCode": "ANIM3",
+      "sourceDomain": "Declarative 2D/3D, procedural and instructional animation",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-ANIM3-007",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Displayed arrow/value binds exactly to source observable; trace replay reproducible",
+      "originalReuseCandidate": "TutorPutor generic AEF bridge",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-002",
+        "MEDIA-DECL-P0-AC-013"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-ANIMATION-002",
+        "AUD-FOCUS-ANIMATION-013"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-ANIM3-008",
+      "sourceFeature": "Mathematical typesetting, physics symbols and accessible formula descriptions",
+      "sourceDomainCode": "ANIM3",
+      "sourceDomain": "Declarative 2D/3D, procedural and instructional animation",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-ANIM3-008",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Equation semantics checked, no fabricated substitutions; text output equivalent",
+      "originalReuseCandidate": "Manim / KaTeX / MathJax per license",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-004",
+        "MEDIA-DECL-P0-AC-014"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-ANIMATION-004",
+        "AUD-FOCUS-ANIMATION-014"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-ANIM3-009",
+      "sourceFeature": "Audio-synchronized motion and narration-synchronized callouts",
+      "sourceDomainCode": "ANIM3",
+      "sourceDomain": "Declarative 2D/3D, procedural and instructional animation",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-ANIM3-009",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Audio sample mapping and story timing exact; scrubbing not simulation stepping",
+      "originalReuseCandidate": "Media rational clock/phrase anchors",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-011",
+        "MEDIA-DECL-P0-AC-012"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-ANIMATION-011",
+        "AUD-FOCUS-ANIMATION-012"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-ANIM3-010",
+      "sourceFeature": "Declarative gestures and interaction triggers for reusable manipulations",
+      "sourceDomainCode": "ANIM3",
+      "sourceDomain": "Declarative 2D/3D, procedural and instructional animation",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-ANIM3-010",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Events validated and scoped, no arbitrary script in player",
+      "originalReuseCandidate": "Media player typed interaction grammar",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-010"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-ANIMATION-010"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Declarative gestures and interaction-trigger grammar are not a demonstrated one-to-one case",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-ANIM3-011",
+      "sourceFeature": "Visual vs model fidelity separated for all scientific animations",
+      "sourceDomainCode": "ANIM3",
+      "sourceDomain": "Declarative 2D/3D, procedural and instructional animation",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-ANIM3-011",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Animation appearance cannot claim F3/F4 model validation",
+      "originalReuseCandidate": "existing animation-simulation grammar",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-037",
+        "MEDIA-DECL-P0-AC-053"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-037",
+        "AUD-FOCUS-UNIFIED-053"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Simulation fidelity and visual appearance separation spans two owners; requires independent proof",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-ANIM3-012",
+      "sourceFeature": "Reusable animation templates, style skills, branded scene recipes",
+      "sourceDomainCode": "ANIM3",
+      "sourceDomain": "Declarative 2D/3D, procedural and instructional animation",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-ANIM3-012",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Template override only in typed fields; lock canonical source revisions",
+      "originalReuseCandidate": "Media recipes and FireRed-style skills",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-013"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-ANIMATION-013"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-ANIM3-013",
+      "sourceFeature": "Property inspector, timeline editor, curve editor, compare/undo",
+      "sourceDomainCode": "ANIM3",
+      "sourceDomain": "Declarative 2D/3D, procedural and instructional animation",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-ANIM3-013",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Manual and agent operations commit same project revision with stale CAS denied",
+      "originalReuseCandidate": "existing 52 edit operation framework",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-016",
+        "MEDIA-DECL-P0-AC-017"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-ANIMATION-016",
+        "AUD-FOCUS-ANIMATION-017"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-ANIM3-014",
+      "sourceFeature": "Renderer adapter selection: semantic DOM/SVG, Canvas/WebGPU, 3D, offline render",
+      "sourceDomainCode": "ANIM3",
+      "sourceDomain": "Declarative 2D/3D, procedural and instructional animation",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-ANIM3-014",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Unsupported GPU uses semantically valid lighter renderer or UNSUPPORTED",
+      "originalReuseCandidate": "Three.js/PixiJS + Media rendering adapters",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-015"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-ANIMATION-015"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-ANIM3-015",
+      "sourceFeature": "Frame-accurate export with codec capability reporting and provenance",
+      "sourceDomainCode": "ANIM3",
+      "sourceDomain": "Declarative 2D/3D, procedural and instructional animation",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-ANIM3-015",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Encoded output decodes, source-to-frame diff bounded, license profile admitted",
+      "originalReuseCandidate": "Media QA + approved render worker",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-015"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-ANIMATION-015"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-ANIM3-016",
+      "sourceFeature": "Editable interchange to/from external timeline/animation standards",
+      "sourceDomainCode": "ANIM3",
+      "sourceDomain": "Declarative 2D/3D, procedural and instructional animation",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-ANIM3-016",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Lost constraints/effects explicitly reported, never guessed",
+      "originalReuseCandidate": "OpenTimelineIO/Lottie/glTF candidates",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-015"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-ANIMATION-015"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Editable interchange and semantic loss reporting require separate contract proof",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-ANIM3-017",
+      "sourceFeature": "Accessible animation alternatives with reduced-motion and nonvisual state narration",
+      "sourceDomainCode": "ANIM3",
+      "sourceDomain": "Declarative 2D/3D, procedural and instructional animation",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-ANIM3-017",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Keyboard, high zoom and screen reader can inspect meaningful state",
+      "originalReuseCandidate": "AEF semantic shadow + Media accessibility",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-014"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-ANIMATION-014"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-001",
+      "sourceFeature": "Model IR with immutable version, domain, equations/rules, state schema, units and validity",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-001",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Unknown unit/model fails admission, renderer fields cannot substitute domain truth",
+      "originalReuseCandidate": "TutorPutor AEF Model IR through public adapter",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-018"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-018"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-002",
+      "sourceFeature": "Typed simulation plan with solver selection, initial/boundary conditions and constraints",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-002",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Invalid boundary/units/timestep rejected before run; no generated code execution",
+      "originalReuseCandidate": "existing Media simulation-world/resolved-plan",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-019",
+        "MEDIA-DECL-P0-AC-020",
+        "MEDIA-DECL-P0-AC-021"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-019",
+        "AUD-FOCUS-SIMULATION-020",
+        "AUD-FOCUS-SIMULATION-021"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-003",
+      "sourceFeature": "F0/F1/F2/F3/F4 fidelity metadata and separated visual LOD",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-003",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Lower visual resolution never silently downgrades scientific tier",
+      "originalReuseCandidate": "TutorPutor AEF fidelity + Media P0 time/fidelity",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-037"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-037"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-004",
+      "sourceFeature": "Determinism classes EXACT/TOLERANCE_BOUND/DISTRIBUTION_BOUND/NON_REPLAYABLE_EXTERNAL",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-004",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Explicit reproduction contract and bound-specific validation; no false bit-for-bit claim",
+      "originalReuseCandidate": "AEF determinism model",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-023",
+        "MEDIA-DECL-P0-AC-034"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-023",
+        "AUD-FOCUS-SIMULATION-034"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-005",
+      "sourceFeature": "Independent simulation clock, story clock, source PTS and wall-clock deadlines",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-005",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Pause/scrub story never implicitly advances t_sim; mapping explicitly checked",
+      "originalReuseCandidate": "Media P1 rational time + AEF clocks",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-022"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-022"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-006",
+      "sourceFeature": "Deterministic fixed-step, adaptive/variable-step and discrete-event modes",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-006",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Time integration/step algorithm and step-size policy pinned; unresolved mapping denied",
+      "originalReuseCandidate": "Media solver adapters + SimPy",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-021",
+        "MEDIA-DECL-P0-AC-027",
+        "MEDIA-DECL-P0-AC-035"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-021",
+        "AUD-FOCUS-SIMULATION-027",
+        "AUD-FOCUS-SIMULATION-035"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Adaptive-step and numerical solver semantics are broader than the discrete-event candidate",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-007",
+      "sourceFeature": "ODE/finite-state/graph/algorithm trace execution via bounded runtimes",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-007",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Golden reference observables and transitions; worker isolation",
+      "originalReuseCandidate": "TutorPutor verified primitives + SciPy/JS",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-035",
+        "MEDIA-DECL-P0-AC-036"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-035",
+        "AUD-FOCUS-SIMULATION-036"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Bounded ODE, finite-state, graph and algorithm adapters need distinct authority and acceptance",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-008",
+      "sourceFeature": "2D/3D rigid-body, contacts, joints and collision simulation",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-008",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Reference benchmarks validate contact thresholds; GPU fallback described",
+      "originalReuseCandidate": "Rapier Apache, Box2D MIT candidates",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-033",
+        "MEDIA-DECL-P0-AC-036"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-033",
+        "AUD-FOCUS-SIMULATION-036"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-009",
+      "sourceFeature": "Cloth, soft body, ropes, particles, fluids and other specialized simulation",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-009",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Each model separately qualified; illustrative visual fallback not quantitative claim",
+      "originalReuseCandidate": "Model-specific certified solver candidates",
+      "candidateP0AcceptanceCases": [],
+      "normalizedFocusedAuditCandidates": [],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Soft-body/rope/cloth/particle/fluid solver families have no explicit atomic P0 acceptance case in the scoped 61",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-010",
+      "sourceFeature": "Agent-based, stochastic, economic and epidemiological state models",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-010",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Seed+PRNG version; distribution confidence or non-replayable flagged",
+      "originalReuseCandidate": "Tutorp domain packs + SimPy or bespoke",
+      "candidateP0AcceptanceCases": [],
+      "normalizedFocusedAuditCandidates": [],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Agent-based, economic and epidemiological scientific model families have no explicit atomic P0 acceptance case in the scoped 61",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-011",
+      "sourceFeature": "Parameters, bounded user controls, units, sliders and numerical input",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-011",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Control changes survive validation; out-of-range and dimensional errors denied",
+      "originalReuseCandidate": "Existing simulation instrument + AEF model bindings",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-019",
+        "MEDIA-DECL-P0-AC-028"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-019",
+        "AUD-FOCUS-SIMULATION-028"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-012",
+      "sourceFeature": "Sensors, probes, graphs, vectors, spectrums and derived observables",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-012",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Instrument readouts tied to exact run/state versions and units",
+      "originalReuseCandidate": "TutorPutor semantic observable projection",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-031",
+        "MEDIA-DECL-P0-AC-032"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-031",
+        "AUD-FOCUS-SIMULATION-032"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-013",
+      "sourceFeature": "Snapshot, checkpoint, run replay, reset and forked counterfactual branches",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-013",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Checkpoint reproducibility/branch semantic identity proven, not mocked",
+      "originalReuseCandidate": "existing Media checkpoint/run + AEF commands",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-024",
+        "MEDIA-DECL-P0-AC-025",
+        "MEDIA-DECL-P0-AC-029"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-024",
+        "AUD-FOCUS-SIMULATION-025",
+        "AUD-FOCUS-SIMULATION-029"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-014",
+      "sourceFeature": "Parameter sweeps and multi-run side-by-side comparisons",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-014",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Each run pinned; compare shows uncertainty and common/uncommon assumption",
+      "originalReuseCandidate": "Media batch job orchestration",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-028",
+        "MEDIA-DECL-P0-AC-029"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-028",
+        "AUD-FOCUS-SIMULATION-029"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-015",
+      "sourceFeature": "Reference solutions, invariants, numerical stability and error bounds",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-015",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Energy/invariant or analytic check fails faulty solver; uncertainty retained",
+      "originalReuseCandidate": "Domain-owned validators consumed via contracts",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-026",
+        "MEDIA-DECL-P0-AC-027"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-026",
+        "AUD-FOCUS-SIMULATION-027"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-016",
+      "sourceFeature": "Run result includes solver/build/model/code/config provenance and exact measures",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-016",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "No render-as-simulation-success; run completion separate from QA and publication",
+      "originalReuseCandidate": "existing J14 read model and Media provenance",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-025",
+        "MEDIA-DECL-P0-AC-038"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-025",
+        "AUD-FOCUS-SIMULATION-038"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-017",
+      "sourceFeature": "Live interactive preview, headless batch simulation and fixed-step film export",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-017",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Same semantic trace drives CLI/table and video; renderer does not own model state",
+      "originalReuseCandidate": "Media runtime adapters, TutorPutor AEF bridges",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-030",
+        "MEDIA-DECL-P0-AC-032",
+        "MEDIA-DECL-P0-AC-037"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-030",
+        "AUD-FOCUS-SIMULATION-032",
+        "AUD-FOCUS-SIMULATION-037"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-018",
+      "sourceFeature": "Resource caps, timeout/cancel/retry/fence, unsupported/unknown finality",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-018",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Partial results labeled, cancelled request not treated as cancelled result",
+      "originalReuseCandidate": "existing Media JobAttempt/lease/outbox",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-027",
+        "MEDIA-DECL-P0-AC-039"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-027",
+        "AUD-FOCUS-SIMULATION-039"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-019",
+      "sourceFeature": "Model promotion/validation with reviewer and qualified scientific evidence",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-019",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Novel AI model not promoted to validated science by visually convincing render",
+      "originalReuseCandidate": "TutorPutor domain owner review + Media quality profile",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-037"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-037"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Model promotion is specialist/owner-gated; a Media QA report alone cannot certify F3/F4",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-020",
+      "sourceFeature": "Cross-platform offline package and capability negotiation",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-020",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Offline mode explicit; missing model/solver yields typed unavailable choice",
+      "originalReuseCandidate": "Media player offline + native/web adapters",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-039",
+        "MEDIA-DECL-P0-AC-050"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-039",
+        "AUD-FOCUS-TUTORPUTOR-050"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Offline solver/platform capability is not established by TutorPutor web/mobile presentation alone",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-13",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-021",
+      "sourceFeature": "Unsafe input sandbox: no arbitrary code execution or network egress",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-021",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Untrusted expressions constrained grammar, resource caps, no eval/unsafe WASM",
+      "originalReuseCandidate": "Media typed compiler + security policy",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-039",
+        "MEDIA-DECL-P0-AC-058"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-039",
+        "AUD-FOCUS-UNIFIED-058"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-022",
+      "sourceFeature": "Simulation storage efficiency: input events and checkpoints not frame-by-frame source truth",
+      "sourceDomainCode": "SIM3",
+      "sourceDomain": "Declarative simulations, model execution and scientific qualification",
+      "sourceOwnerSurfaceProposal": "media.surface.production-studio",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-022",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Memory/storage budgets met, video derivatives separate, replay restored",
+      "originalReuseCandidate": "Media asset/provenance + AEF event sourcing",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-024",
+        "MEDIA-DECL-P0-AC-025",
+        "MEDIA-DECL-P0-AC-058"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-024",
+        "AUD-FOCUS-SIMULATION-025",
+        "AUD-FOCUS-UNIFIED-058"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Event/checkpoint storage efficiency requires quantified retention and replay test",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-EDU3-001",
+      "sourceFeature": "TutorPutor Learning Experience IR remains TutorPutor-owned",
+      "sourceDomainCode": "EDU3",
+      "sourceDomain": "TutorPutor educational animation/simulation public integration",
+      "sourceOwnerSurfaceProposal": "media.surface.interactive-demo-player",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-EDU3-001",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Media renders via public contract without copying learner, curriculum or grading authority",
+      "originalReuseCandidate": "TutorPutor AEF Experience IR",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-040",
+        "MEDIA-DECL-P0-AC-041"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-TUTORPUTOR-040",
+        "AUD-FOCUS-TUTORPUTOR-041"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-13"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-EDU3-002",
+      "sourceFeature": "Model IR scientific/domain authority remains TutorPutor-owned",
+      "sourceDomainCode": "EDU3",
+      "sourceDomain": "TutorPutor educational animation/simulation public integration",
+      "sourceOwnerSurfaceProposal": "media.surface.interactive-demo-player",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-EDU3-002",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Media only executes qualified adapter and returns measures; no unauthorized model mutation",
+      "originalReuseCandidate": "TutorPutor AEF Model IR",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-042"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-TUTORPUTOR-042"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-13"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-EDU3-003",
+      "sourceFeature": "Scene IR translates into Media semantic scene and timeline with versioned compatibility adapter",
+      "sourceDomainCode": "EDU3",
+      "sourceDomain": "TutorPutor educational animation/simulation public integration",
+      "sourceOwnerSurfaceProposal": "media.surface.interactive-demo-player",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-EDU3-003",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Round-trip preserves semantic controls, bindings, timing and loss report",
+      "originalReuseCandidate": "TutorPutor Scene IR + Media scene graph",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-043"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-TUTORPUTOR-043"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-13"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-EDU3-004",
+      "sourceFeature": "Prediction–manipulation–measurement–explanation interactions bind to model state",
+      "sourceDomainCode": "EDU3",
+      "sourceDomain": "TutorPutor educational animation/simulation public integration",
+      "sourceOwnerSurfaceProposal": "media.surface.interactive-demo-player",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-EDU3-004",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Proof of predictions/measurements lives in TutorPutor; Media cannot award mastery",
+      "originalReuseCandidate": "TutorPutor AEF pedagogy",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-044",
+        "MEDIA-DECL-P0-AC-045",
+        "MEDIA-DECL-P0-AC-046",
+        "MEDIA-DECL-P0-AC-047"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-TUTORPUTOR-044",
+        "AUD-FOCUS-TUTORPUTOR-045",
+        "AUD-FOCUS-TUTORPUTOR-046",
+        "AUD-FOCUS-TUTORPUTOR-047"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-13"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-EDU3-005",
+      "sourceFeature": "Learning-accessible instrument and visual alternatives across web/mobile",
+      "sourceDomainCode": "EDU3",
+      "sourceDomain": "TutorPutor educational animation/simulation public integration",
+      "sourceOwnerSurfaceProposal": "media.surface.interactive-demo-player",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-EDU3-005",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Mobile and browser parity based on declared capability, not fake preview",
+      "originalReuseCandidate": "TutorPutor player + Media semantic accessibility",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-050"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-TUTORPUTOR-050"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-13"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-EDU3-006",
+      "sourceFeature": "F0 illustrative clip vs F2 educational quantitative vs F3 validated scientific labels",
+      "sourceDomainCode": "EDU3",
+      "sourceDomain": "TutorPutor educational animation/simulation public integration",
+      "sourceOwnerSurfaceProposal": "media.surface.interactive-demo-player",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-EDU3-006",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Fidelity never inferred from graphics; missing validator blocks strong claims",
+      "originalReuseCandidate": "TutorPutor F0-F4 + Media display contract",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-037",
+        "MEDIA-DECL-P0-AC-053"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-037",
+        "AUD-FOCUS-UNIFIED-053"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "F0, F2 and F3 scientific/illustration labels require accuracy and source-specific release review",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-EDU3-007",
+      "sourceFeature": "One canonical model drives many scenes, locales and learner-appropriate presentations",
+      "sourceDomainCode": "EDU3",
+      "sourceDomain": "TutorPutor educational animation/simulation public integration",
+      "sourceOwnerSurfaceProposal": "media.surface.interactive-demo-player",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-EDU3-007",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "No model fork solely for visual age/language adaptations; private learner context minimized",
+      "originalReuseCandidate": "TutorPutor AEF cached Model/Scene",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-048",
+        "MEDIA-DECL-P0-AC-060"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-TUTORPUTOR-048",
+        "AUD-FOCUS-UNIFIED-060"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-13",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-EDU3-008",
+      "sourceFeature": "Learning evidence, learner profile, mastery and curriculum never stored as Media authority",
+      "sourceDomainCode": "EDU3",
+      "sourceDomain": "TutorPutor educational animation/simulation public integration",
+      "sourceOwnerSurfaceProposal": "media.surface.interactive-demo-player",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-EDU3-008",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Only scoped pseudonymous request and typed results cross boundary",
+      "originalReuseCandidate": "TutorPutor platform API contract",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-049"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-TUTORPUTOR-049"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-13"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-EDU3-009",
+      "sourceFeature": "Governed offline published package and read-only learner client",
+      "sourceDomainCode": "EDU3",
+      "sourceDomain": "TutorPutor educational animation/simulation public integration",
+      "sourceOwnerSurfaceProposal": "media.surface.interactive-demo-player",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-EDU3-009",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "No direct Media dependency on TutorPutor private modules; mobile resumes under TutorPutor",
+      "originalReuseCandidate": "TutorPutor public packages",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-051"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-TUTORPUTOR-051"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-13"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-EDU3-010",
+      "sourceFeature": "Published semantic traces replay identically after renderer or voice change",
+      "sourceDomainCode": "EDU3",
+      "sourceDomain": "TutorPutor educational animation/simulation public integration",
+      "sourceOwnerSurfaceProposal": "media.surface.interactive-demo-player",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-EDU3-010",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Pinned model/solver/PRNG/digests ensure historical interpretability",
+      "originalReuseCandidate": "AEF Run/Attempt + Media versioned outputs",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-025",
+        "MEDIA-DECL-P0-AC-048"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-025",
+        "AUD-FOCUS-TUTORPUTOR-048"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Replay-invariance after voice/renderer change must be specifically proved for published semantic trace",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-13",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-EDU3-011",
+      "sourceFeature": "Explainability: visible model assumptions and why a representation was selected",
+      "sourceDomainCode": "EDU3",
+      "sourceDomain": "TutorPutor educational animation/simulation public integration",
+      "sourceOwnerSurfaceProposal": "media.surface.interactive-demo-player",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-EDU3-011",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Learner and educator view appropriate units, uncertainty and chosen representation",
+      "originalReuseCandidate": "TutorPutor pedagogical selection",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-037",
+        "MEDIA-DECL-P0-AC-047"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-SIMULATION-037",
+        "AUD-FOCUS-TUTORPUTOR-047"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Exposed model assumptions and representational explainability not proven by general measurement UI",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-13",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-EDU3-012",
+      "sourceFeature": "AEF legacy USP adaptation without flag-day rewrite or duplicate deployment",
+      "sourceDomainCode": "EDU3",
+      "sourceDomain": "TutorPutor educational animation/simulation public integration",
+      "sourceOwnerSurfaceProposal": "media.surface.interactive-demo-player",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-EDU3-012",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Historical artifacts supported; replacement only after golden semantic parity tests",
+      "originalReuseCandidate": "TutorPutor existing migration adapters",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-040",
+        "MEDIA-DECL-P0-AC-043"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-TUTORPUTOR-040",
+        "AUD-FOCUS-TUTORPUTOR-043"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Legacy USP read/convert/semantic-loss policy lacks exact atomic P0 binding",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-13"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-CROSS3-001",
+      "sourceFeature": "One schema family for production, animation and simulation specs with strict discriminators",
+      "sourceDomainCode": "CROSS3",
+      "sourceDomain": "System-wide declarative production and verification",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-CROSS3-001",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Unknown kinds/version rejected; illustrative example not mistaken for shipped wire",
+      "originalReuseCandidate": "Media spec compiler proposal",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-052"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-UNIFIED-052"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-CROSS3-002",
+      "sourceFeature": "Source-owned DAG with content-based partial invalidation and manual-lock preservation",
+      "sourceDomainCode": "CROSS3",
+      "sourceDomain": "System-wide declarative production and verification",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-CROSS3-002",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Change to one scene/model parameter recomputes exact descendants only",
+      "originalReuseCandidate": "Media project revisions/cache",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-054"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-UNIFIED-054"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-CROSS3-003",
+      "sourceFeature": "Human and agent use same typed CAS operation and authorization semantics",
+      "sourceDomainCode": "CROSS3",
+      "sourceDomain": "System-wide declarative production and verification",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-CROSS3-003",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "AI cannot bypass manual lock, rights or reviews; stale revisions rejected",
+      "originalReuseCandidate": "Media PDP1 52 edits",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-055"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-UNIFIED-055"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-CROSS3-004",
+      "sourceFeature": "Static typing and execution admission separate from live runtime proof",
+      "sourceDomainCode": "CROSS3",
+      "sourceDomain": "System-wide declarative production and verification",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-CROSS3-004",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Schema PASS not runtime-qualified; no source-only success claim",
+      "originalReuseCandidate": "Media PDP0-3 + Lifecycle",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-053",
+        "MEDIA-DECL-P0-AC-058"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-UNIFIED-053",
+        "AUD-FOCUS-UNIFIED-058"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Definition authoring and live execution qualification require distinct status authorities and gates",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-CROSS3-005",
+      "sourceFeature": "License-aware model/codec/solver/renderer binary and asset admission",
+      "sourceDomainCode": "CROSS3",
+      "sourceDomain": "System-wide declarative production and verification",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-CROSS3-005",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Strict permissive profile blocks GPL/AGPL/model noncommercial bundles",
+      "originalReuseCandidate": "existing dependency policy",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-059"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-UNIFIED-059"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-CROSS3-006",
+      "sourceFeature": "Scoping of AI-generation versus verified source/simulation/model evidence",
+      "sourceDomainCode": "CROSS3",
+      "sourceDomain": "System-wide declarative production and verification",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-CROSS3-006",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Synthetic render never counted as verified product or scientific experiment",
+      "originalReuseCandidate": "Media provenance and TutorPutor assessment",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-053"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-UNIFIED-053"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-CROSS3-007",
+      "sourceFeature": "Job/lifecycle and code-change transitions bound to single runtime writer",
+      "sourceDomainCode": "CROSS3",
+      "sourceDomain": "System-wide declarative production and verification",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-CROSS3-007",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "No competing writer before MIG-04, no orphaned attempts/outbox",
+      "originalReuseCandidate": "Media canonical runtime and MIG-04",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-058"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-UNIFIED-058"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Single-writer MIG-04 and job finality require explicit active-authority proof",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-CROSS3-008",
+      "sourceFeature": "Comprehensive multi-axis qualification for CPU, mobile, offline, GPU and accessibility",
+      "sourceDomainCode": "CROSS3",
+      "sourceDomain": "System-wide declarative production and verification",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-CROSS3-008",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Pass/Fail/NOT_RUN stored per exact hardware and content profile",
+      "originalReuseCandidate": "Media QA, TutorPutor AEF conformance",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-058",
+        "MEDIA-DECL-P0-AC-060"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-UNIFIED-058",
+        "AUD-FOCUS-UNIFIED-060"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-CROSS3-009",
+      "sourceFeature": "Operator-grade OTel, cost, memory, VRAM and privacy budget controls",
+      "sourceDomainCode": "CROSS3",
+      "sourceDomain": "System-wide declarative production and verification",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-CROSS3-009",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "Redacted trace; cross-tenant isolation, quota and backpressure measured",
+      "originalReuseCandidate": "Shared/Media observability",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-057",
+        "MEDIA-DECL-P0-AC-058"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-UNIFIED-057",
+        "AUD-FOCUS-UNIFIED-058"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Verify full atomic semantics, negative states, P1 operations, P2 interface, P3 experience and exact owner/consumer authority",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    },
+    {
+      "sourceAuditId": "AUD-CROSS3-010",
+      "sourceFeature": "PDP 0-3 and Explorer source synchronization without added fictitious surfaces",
+      "sourceDomainCode": "CROSS3",
+      "sourceDomain": "System-wide declarative production and verification",
+      "sourceOwnerSurfaceProposal": "media.surface.recorder-orchestrator",
+      "originalAuditSourcePath": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-CROSS3-010",
+      "originalCanonicalId": null,
+      "originalRuntimeVerification": "NOT_RUN",
+      "originalAcceptance": "No ghost package or GUI; exact impacted cell currentness and owner review",
+      "originalReuseCandidate": "existing 4 surfaces, J13/J14, 13 pages",
+      "candidateP0AcceptanceCases": [
+        "MEDIA-DECL-P0-AC-055",
+        "MEDIA-DECL-P0-AC-061"
+      ],
+      "normalizedFocusedAuditCandidates": [
+        "AUD-FOCUS-UNIFIED-055",
+        "AUD-FOCUS-UNIFIED-061"
+      ],
+      "candidateFit": "REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE",
+      "additionalSemanticRisk": "Source-current PDP/Explorer projection synchronization is a native gate, not a media capability execution claim",
+      "p0Disposition": "P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED",
+      "downstreamPhases": [
+        "PDP-1",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "buildPbis": [
+        "PBI-10",
+        "PBI-11",
+        "PBI-14"
+      ],
+      "nativeValidation": "NOT_RUN",
+      "sourceAuthority": "NON_NORMATIVE_REVIEW_CROSSWALK"
+    }
+  ]
+}
