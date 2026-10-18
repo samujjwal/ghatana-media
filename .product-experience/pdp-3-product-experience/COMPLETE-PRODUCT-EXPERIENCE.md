@@ -220,3 +220,7 @@ GharBatai's [current product editorial handoff](https://github.com/samujjwal/gha
 
 **Successor phase status:** source authored; native P3 journey/step/action/positive+negative+unknown/Explorer verification and final Discovery currentness **NOT_RUN** here. Historical complete status applies only to recorded old source cuts.
 
+
+## October 18 declarative production successor — not yet current DEV_COMPLETE
+
+The new Recorder/Animation/Simulation/TutorPutor scope is defined and reconciled through [the unified current-source handoff](../../docs/implementation/MEDIA-UNIFIED-PDP0-3-CURRENT-SOURCE-RECONCILIATION-2026-10-18.md). Its canonical PDP-0 authority is `requirements.yaml#declarativeProductionProfile` (61 additional cases alongside the Recorder's 84); PDP-1 specializes existing typed owner operations in `declarative-production-contracts.yaml`, PDP-2 adds presentation/parity meaning to `animation-simulation-grammar.yaml`, and PDP-3 provides the corresponding `declarative-production-experience.yaml` source overlay. These extensions **do not inherit this page's historical DEV_COMPLETE receipt**. No new accepted phase cell, deployed simulator, native verification result, new physical surface, scientific-model qualification or production film is implied. Preserve the existing accepted earlier-source meaning and re-admit only affected PDP cells in phase order after exact-source checks.
