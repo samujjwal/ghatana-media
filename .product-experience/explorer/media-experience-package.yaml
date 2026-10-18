@@ -25,3 +25,15 @@ separationRules:
   simulatedRuntimeProof: prohibited
   genericExplorerHostImplementedByMedia: false
 blockers: [GAP-MEDIA-TOOLS-SCHEMA-BINDING, GAP-11, GAP-12]
+plannedDeclarativeExperienceSuccessor:
+  source: .product-experience/pdp-3-product-experience/declarative-production-experience.yaml
+  sourceP0: .product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile
+  sourceP1: .product-experience/pdp-1-domain-data/declarative-production-contracts.yaml
+  sourceP2: .product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface
+  sourceOnly: true
+  plannedJourneyRefs: [J-12, J-13, J-14, J-15, J-18]
+  caseCount: 61
+  currentExplorerFixtureSimulationIsScientificSolver: false
+  implementationState: NOT_ADMITTED
+  mandatoryEvidenceBeforeExpansion: [native-pdp-source-check, screen-and-operation-parity, admitted-fixtures-and-scientific-labels, keyboard-a11y-browser-verification, source-current-review]
+  prohibition: Do not add planned journeys to actual journeyRefs or claim local/browser runtime support before their source-bound implementation and verification.
