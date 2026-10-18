@@ -420,3 +420,12 @@ The source-authored `recorder-studio-contracts.yaml` records the new Recorder/St
 ## Declarative production successor domain/operation bindings
 
 `.product-experience/pdp-1-domain-data/declarative-production-contracts.yaml` is the source-owned PDP-1 specialization for **61** declarative cases: it binds **39 distinct existing operation contracts** and existing project, scene, animation graph, simulation world, checkpoint, job/attempt, timeline and provenance owners. It declares typed specifications for source classification, scene/animation/model execution, simulation states, measurements, analytical validation, time alignment and the TutorPutor public AEF bridge. The existing canonical `operations.yaml` and `value-objects.yaml` remain authoritative; no second job store, model-science owner, arbitrary-script executor, route, or new operation identity is admitted. The previous source-cut `DEV_COMPLETE` statement is **not an acceptance of this successor**; source-current native parser/contract verification and independent PDP-1 re-review remain required.
+
+---
+
+## Current unified-production successor source / 2026-10-18
+
+Read the [current phase-gated plan](../../docs/implementation/MEDIA-UNIFIED-PRODUCTION-CURRENT-PLAN.md) and `declarative-production-contracts.yaml` for the **61 exact P0→P1 declarative case bindings**, ten source-defined semantic value projections, explicit provenance classes, scientific result/clock/report semantics, and public AEF/Recorder adapter distinctions. The specialized file binds **39 existing canonical operation identities** (37 ordinary capability leaves plus existing specialized job/provenance slices) and does not create new MediaProject, ProcessingJob, JobAttempt, solver database, producer route, or persistence owner. The existing Recorder 52 edit discriminants and GharBatai product-owned seed/readback and audience/claim/script decisions remain under their own sources.
+
+**Successor phase status:** definitions authored; **native/current-source PDP-1 DEV_COMPLETE not yet established**. Verify the current predecessor P0 handoff, closed canonical P1 request/result schemas, unit/fidelity/model authority, clock separation, CAS/manual protection, versioning, denial/UNKNOWN/reconciliation, audit/privacy, and all 61 operation joins before producing a new independent status record. Never treat a media thumbnail or synthetic Explorer event as a solver result or product business effect.
+
