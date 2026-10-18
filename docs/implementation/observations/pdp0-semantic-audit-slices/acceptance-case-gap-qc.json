@@ -1,0 +1,1670 @@
+{
+  "reportId": "PDP0-ACCEPTANCE-CASE-GAP-QC-2026-10-18",
+  "campaignScope": "Read-only independent PDP-0 QC of the 49 declarative acceptance-case actor/outcome finding in acceptance-cases-84-61-review.json",
+  "macroStage": "DISCOVERY",
+  "phase": "PDP-0",
+  "reviewKind": "independent semantic QC; no canonical sources edited; no owner approval or phase completion claimed",
+  "sourceFingerprints": {
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "87f09fa9e4315896ccef2b683c2d20128d01e81c1d13b7790badf1bd4ef1c3bb",
+    ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml": "2359ae53756a4d35d84387707345c439c87050c6efafed40e5426e1c8e3e5ca4",
+    ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
+    ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md": "7c4fe45e3c2ed6e1e42926e418acb7f2d6bb7d02600b6479e0e63831d3eb08f8",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/acceptance-cases-84-61-review.json": "96cc7463c9764328da3be9393e04ff90794430dfd696fd380fe607b3e6298aef"
+  },
+  "findingDisposition": "REVISE",
+  "aggregateFinding": "The submitted 49-item finding is not supported as 49 independent missing PDP-0 actor/outcome meanings. Every flagged case points to a canonical parent requirement whose actorRefs/actorRoles, intent traces, and expectedBehavior already express the intended actor/outcome semantics; the actor IDs resolve in actors-responsibilities.yaml, whose authority states actor/responsibility references are descriptive and confer no permission. The declarative profile itself lacks a visible actorBindingRule/inheritance rule analogous to Recorder/Studio, so at most this is one profile-level inheritance semantics/validation question. Whether the parentRequirementId relationship already normatively carries inheritance should be resolved before reopening cases.",
+  "explicitBoundary": "This QC does not claim all acceptance semantics are complete, authorize edits, or assert DEV_COMPLETE. It addresses only the report’s actor/outcome claim for the 49 listed IDs. Exact domain/consumer authority boundaries still need explicit statements where the outcome meaning changes; TutorPutor clauses 040-051 show such a specific boundary. The shared given need not repeat actor information if the profile establishes normative inheritance.",
+  "counts": {
+    "flaggedCaseCount": 49,
+    "idsReviewed": 49,
+    "parentActorRefResolutionFailures": 0,
+    "recommendedCaseLevelPDP0MeaningGaps": 0,
+    "profileLevelInheritanceRuleQuestion": 1
+  },
+  "exactFlaggedIds": [
+    "MEDIA-DECL-P0-AC-001",
+    "MEDIA-DECL-P0-AC-002",
+    "MEDIA-DECL-P0-AC-003",
+    "MEDIA-DECL-P0-AC-004",
+    "MEDIA-DECL-P0-AC-005",
+    "MEDIA-DECL-P0-AC-006",
+    "MEDIA-DECL-P0-AC-007",
+    "MEDIA-DECL-P0-AC-008",
+    "MEDIA-DECL-P0-AC-009",
+    "MEDIA-DECL-P0-AC-010",
+    "MEDIA-DECL-P0-AC-011",
+    "MEDIA-DECL-P0-AC-012",
+    "MEDIA-DECL-P0-AC-013",
+    "MEDIA-DECL-P0-AC-014",
+    "MEDIA-DECL-P0-AC-015",
+    "MEDIA-DECL-P0-AC-016",
+    "MEDIA-DECL-P0-AC-017",
+    "MEDIA-DECL-P0-AC-018",
+    "MEDIA-DECL-P0-AC-019",
+    "MEDIA-DECL-P0-AC-020",
+    "MEDIA-DECL-P0-AC-021",
+    "MEDIA-DECL-P0-AC-022",
+    "MEDIA-DECL-P0-AC-023",
+    "MEDIA-DECL-P0-AC-024",
+    "MEDIA-DECL-P0-AC-025",
+    "MEDIA-DECL-P0-AC-026",
+    "MEDIA-DECL-P0-AC-027",
+    "MEDIA-DECL-P0-AC-028",
+    "MEDIA-DECL-P0-AC-029",
+    "MEDIA-DECL-P0-AC-030",
+    "MEDIA-DECL-P0-AC-031",
+    "MEDIA-DECL-P0-AC-032",
+    "MEDIA-DECL-P0-AC-033",
+    "MEDIA-DECL-P0-AC-034",
+    "MEDIA-DECL-P0-AC-035",
+    "MEDIA-DECL-P0-AC-036",
+    "MEDIA-DECL-P0-AC-037",
+    "MEDIA-DECL-P0-AC-038",
+    "MEDIA-DECL-P0-AC-039",
+    "MEDIA-DECL-P0-AC-052",
+    "MEDIA-DECL-P0-AC-053",
+    "MEDIA-DECL-P0-AC-054",
+    "MEDIA-DECL-P0-AC-055",
+    "MEDIA-DECL-P0-AC-056",
+    "MEDIA-DECL-P0-AC-057",
+    "MEDIA-DECL-P0-AC-058",
+    "MEDIA-DECL-P0-AC-059",
+    "MEDIA-DECL-P0-AC-060",
+    "MEDIA-DECL-P0-AC-061"
+  ],
+  "findings": [
+    {
+      "stableId": "MEDIA-DECL-P0-AC-001",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "capabilityLeafId": "media.animation.vector",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.animate"
+      ],
+      "caseOutcome": "preserve object identity, geometry and style as separately editable sourced nodes",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-001",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-002",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "capabilityLeafId": "media.animation.2d",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.animate"
+      ],
+      "caseOutcome": "render and edit labeled 2D marks from the exact data snapshot",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-002",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-003",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "capabilityLeafId": "media.animation.3d",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.animate"
+      ],
+      "caseOutcome": "preserve versioned transformations, coordinate frames and child references",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-003",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-004",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-COMPOSE",
+      "capabilityLeafId": "media.compose.exact-typography-logo-brand",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor",
+        "media.reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.create",
+        "media.intent.edit"
+      ],
+      "caseOutcome": "preserve correct content, accessible textual equivalent, glyph license and reflow",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-004",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-COMPOSE/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-COMPOSE/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-COMPOSE/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-COMPOSE/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-005",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "capabilityLeafId": "media.animation.keyframe",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.animate"
+      ],
+      "caseOutcome": "create a reversible keyframe with unit, property and time provenance",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-005",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-006",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "capabilityLeafId": "media.animation.interpolation-easing",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.animate"
+      ],
+      "caseOutcome": "compute and expose sampled interpolation and exact endpoints",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-006",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-007",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "capabilityLeafId": "media.animation.procedural",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.animate"
+      ],
+      "caseOutcome": "compile a deterministic or explicitly nondeterministic derived scene graph",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-007",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-008",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "capabilityLeafId": "media.animation.camera",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.animate"
+      ],
+      "caseOutcome": "preview and render the same versioned camera motion with safe ranges",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-008",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-009",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "capabilityLeafId": "media.animation.skeletal",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.animate"
+      ],
+      "caseOutcome": "preserve rig identifiers and motion across editorial and headless render",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-009",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-010",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "capabilityLeafId": "media.animation.constraint",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.animate"
+      ],
+      "caseOutcome": "resolve explicit constraint order and surface conflicts for review",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-010",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-011",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "capabilityLeafId": "media.animation.drive.audio",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.animate"
+      ],
+      "caseOutcome": "record derived motion with source version and sample-clock alignment",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-011",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-012",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "capabilityLeafId": "media.animation.drive.speech",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.animate"
+      ],
+      "caseOutcome": "keep reproducible cue-to-visual mappings under phrase-only regeneration",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-012",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-013",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "capabilityLeafId": "media.recipe.template.physics-math-explainer",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.create",
+        "media.intent.animate",
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "emit an inspectable scene plan and dependency fingerprint",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-013",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-014",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-OUTPUT",
+      "capabilityLeafId": "media.animation.output.accessibility.semantic-timeline",
+      "surfaceId": "media.surface.interactive-demo-player",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.animate"
+      ],
+      "caseOutcome": "provide ordered textual state, focus-safe timeline and equivalent meaning",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-014",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION-OUTPUT/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION-OUTPUT/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION-OUTPUT/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION-OUTPUT/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-015",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-OUTPUT",
+      "capabilityLeafId": "media.animation.output.output.composited-video",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.animate"
+      ],
+      "caseOutcome": "preserve semantic scene version, time and content in export receipts",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-015",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION-OUTPUT/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION-OUTPUT/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION-OUTPUT/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION-OUTPUT/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-016",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "capabilityLeafId": "media.animation.editing.curve.edit",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.editor"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.animate"
+      ],
+      "caseOutcome": "commit exact reversible values using the canonical revision CAS semantics",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-016",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-017",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "capabilityLeafId": "media.animation.editing.undo-redo.versioned",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.editor"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.animate"
+      ],
+      "caseOutcome": "preserve manually protected intent and allow explicit conflict review and undo",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-017",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-018",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "capabilityLeafId": "media.simulation.scientific-demo",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.creator",
+        "media.operator",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "resolve a pinned model, equations and allowed validity domain before admission",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-018",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-019",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "capabilityLeafId": "media.simulation.educational-demo",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.operator",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "validate dimensional consistency and retain source and display units",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-019",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-020",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "capabilityLeafId": "media.simulation.rigid-body",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.operator",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "validate a complete versioned state and boundary set before solving",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-020",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-021",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "capabilityLeafId": "media.simulation.scientific-demo",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.creator",
+        "media.operator",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "publish the admitted method, tolerances, numeric precision and constraints",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-021",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-022",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "capabilityLeafId": "media.simulation.output.timestamped-state",
+      "surfaceId": "media.surface.interactive-demo-player",
+      "parentActorRefs": [
+        "media.creator",
+        "media.reviewer",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "retain the declared independent simulation-clock state until an admitted model command",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-022",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-023",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "capabilityLeafId": "media.simulation.output.timestamped-state",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.creator",
+        "media.reviewer",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "record RNG algorithm, seed, floating-point profile, environment and reproducibility class",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-023",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-024",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "capabilityLeafId": "media.simulation.output.timestamped-state",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.creator",
+        "media.reviewer",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "store model, solver, parameters, version, RNG and exact state digest for resume",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-024",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-025",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROVENANCE",
+      "capabilityLeafId": "media.provenance.execution-lineage.inspect",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.creator",
+        "media.reviewer",
+        "media.privacy-rights-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.understand",
+        "media.intent.improve",
+        "media.intent.deliver",
+        "media.intent.inspect-provenance",
+        "media.intent.manage-artifact-lifecycle"
+      ],
+      "caseOutcome": "expose comparable source, state digest, code and environment fingerprints",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-025",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-026",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "capabilityLeafId": "media.simulation.output.measurements",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.reviewer",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "verify acceleration 3 m/s2, velocity 6 m/s and displacement 6 m against declared tolerance",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-026",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-027",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "capabilityLeafId": "media.simulation.scientific-demo",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.creator",
+        "media.operator",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "fail scientific QA with bounded residual diagnostics and evidence of chosen step size",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-027",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-028",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "capabilityLeafId": "media.simulation.educational-demo",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.operator",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "generate isolated run identities and comparable observable series per parameter set",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-028",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-029",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "capabilityLeafId": "media.simulation.educational-demo",
+      "surfaceId": "media.surface.interactive-demo-player",
+      "parentActorRefs": [
+        "media.creator",
+        "media.operator",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "branch the exact model state without overwriting source or baseline receipts",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-029",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-030",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "capabilityLeafId": "media.simulation.output.timestamped-state",
+      "surfaceId": "media.surface.interactive-demo-player",
+      "parentActorRefs": [
+        "media.creator",
+        "media.reviewer",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "render the mapped values without changing the model or inventing measurements",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-030",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-031",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "capabilityLeafId": "media.simulation.output.measurements",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.reviewer",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "show precision, applicability, uncertainty and validity with source references",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-031",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-032",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "capabilityLeafId": "media.simulation.output.measurements",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.reviewer",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "expose pan, zoom and tabular value equivalents with aligned simulation time",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-032",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-033",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "capabilityLeafId": "media.simulation.output.contacts",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.reviewer",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "show source-to-contact trace, colliders and measure validity separately from art",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-033",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-034",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "capabilityLeafId": "media.simulation.agent",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.creator",
+        "media.operator",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "report outcome estimates, confidence bounds and sampling conditions",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-034",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-035",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "capabilityLeafId": "media.simulation.agent",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.creator",
+        "media.operator",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "replay timestamped events with stable causality and bounded resource use",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-035",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-036",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "capabilityLeafId": "media.simulation.rigid-body",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.creator",
+        "media.operator",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "record capability probes and comparison against independent analytical tests",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-036",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-037",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "capabilityLeafId": "media.simulation.scientific-demo",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.operator",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "report F0 to F4 only when its documented acceptance evidence is present",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-037",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-038",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "capabilityLeafId": "media.simulation.output.measurements",
+      "surfaceId": "media.surface.interactive-demo-player",
+      "parentActorRefs": [
+        "media.creator",
+        "media.reviewer",
+        "media.domain-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.simulate"
+      ],
+      "caseOutcome": "label observed, calculated, generated and illustrative values explicitly",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-038",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-039",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY",
+      "capabilityLeafId": "media.quality.inspect",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.editor",
+        "media.reviewer",
+        "media.operator"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.understand",
+        "media.intent.improve"
+      ],
+      "caseOutcome": "expose synthetic-only classification and reject its use as solver calibration evidence",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-039",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-052",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-COMPOSE",
+      "capabilityLeafId": "media.compose.multitrack-timeline",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor",
+        "media.reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.create",
+        "media.intent.edit"
+      ],
+      "caseOutcome": "use one MediaProject revision and canonical rational timeline with source provenance",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-052",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-COMPOSE/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-COMPOSE/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-COMPOSE/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-COMPOSE/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-053",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROVENANCE",
+      "capabilityLeafId": "media.provenance.origin.disclose",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.creator",
+        "media.reviewer",
+        "media.privacy-rights-reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.understand",
+        "media.intent.improve",
+        "media.intent.deliver",
+        "media.intent.inspect-provenance",
+        "media.intent.manage-artifact-lifecycle"
+      ],
+      "caseOutcome": "preserve independent source class and evidence label on each scene and export",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-053",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-054",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROJECT",
+      "capabilityLeafId": "media.project.version",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor",
+        "media.reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.create",
+        "media.intent.edit",
+        "media.intent.review-exact-version",
+        "media.intent.restore-project"
+      ],
+      "caseOutcome": "rebuild only affected descendants and preserve manual CAS locks and untouched digests",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-054",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-055",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROJECT",
+      "capabilityLeafId": "media.project.composition.update",
+      "surfaceId": "media.surface.production-studio",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor",
+        "media.reviewer"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.create",
+        "media.intent.edit",
+        "media.intent.review-exact-version",
+        "media.intent.restore-project"
+      ],
+      "caseOutcome": "persist the same typed operation and revision with accessible keyboard and text equivalents",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-055",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-056",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-RIGHTS",
+      "capabilityLeafId": "media.rights.permitted-use.evaluate",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.creator",
+        "media.privacy-rights-reviewer",
+        "media.operator"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.deliver",
+        "media.intent.review-rights-and-consent"
+      ],
+      "caseOutcome": "admit each effect and egress per actor, purpose, license, consent and retention policy",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-056",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-057",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-JOB",
+      "capabilityLeafId": "media.job.watch",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.creator",
+        "media.operator",
+        "media.automation-client"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.create",
+        "media.intent.understand",
+        "media.intent.improve",
+        "media.intent.edit",
+        "media.intent.animate",
+        "media.intent.simulate",
+        "media.intent.deliver",
+        "media.intent.resolve-job"
+      ],
+      "caseOutcome": "propagate redacted trace/run/scene identity and record loss or degraded telemetry",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-057",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-058",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-JOB",
+      "capabilityLeafId": "media.job.submit",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.creator",
+        "media.operator",
+        "media.automation-client"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.create",
+        "media.intent.understand",
+        "media.intent.improve",
+        "media.intent.edit",
+        "media.intent.animate",
+        "media.intent.simulate",
+        "media.intent.deliver",
+        "media.intent.resolve-job"
+      ],
+      "caseOutcome": "enforce limits, lease fencing, cancellation, idempotency and UNKNOWN reconciliation",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-058",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-059",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-RIGHTS",
+      "capabilityLeafId": "media.rights.permitted-use.evaluate",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.creator",
+        "media.privacy-rights-reviewer",
+        "media.operator"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.deliver",
+        "media.intent.review-rights-and-consent"
+      ],
+      "caseOutcome": "record pinned version, transitive license, provenance and redistribution admission",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-059",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-060",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "capabilityLeafId": "media.deliver.package",
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor",
+        "media.reviewer",
+        "media.operator"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.deliver"
+      ],
+      "caseOutcome": "preserve source/media/model manifest, accessible alternatives and permitted exact formats",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-060",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-DELIVER/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-DELIVER/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-DELIVER/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-DELIVER/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    },
+    {
+      "stableId": "MEDIA-DECL-P0-AC-061",
+      "candidateDisposition": "BOUND_EXISTING_WITH_PROFILE_INHERITANCE_RULE_TO_VERIFY",
+      "reason": "The case has a direct parentRequirementId. That canonical requirement supplies actorRefs, actorRoles, traceToIntentIds, and expectedBehavior; actorReferenceAuthority resolves actor/role identity to actors-responsibilities.yaml and expressly says role assignment never grants permission. The clause also states the particular product behavior/outcome in its then field. Therefore the audit report does not establish a missing actor/outcome meaning for this individual case. The declarative profile should explicitly define that participant/outcome inheritance so a consumer cannot mistake the shared given for the complete actor binding; this is one profile-level rule/validation concern, not 49 separate semantic gaps.",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "capabilityLeafId": "media.deliver.interactive-scene-bundle",
+      "surfaceId": "media.surface.interactive-demo-player",
+      "parentActorRefs": [
+        "media.creator",
+        "media.editor",
+        "media.reviewer",
+        "media.operator"
+      ],
+      "parentActorRefsResolve": true,
+      "parentTraceToIntentIds": [
+        "media.intent.deliver"
+      ],
+      "caseOutcome": "run only sandboxed local declared actions and verified artifacts",
+      "sourceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-061",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-DELIVER/actorRefs",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-DELIVER/actorRoles",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-DELIVER/traceToIntentIds",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-DELIVER/expectedBehavior",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/actorReferenceAuthority",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource"
+      ],
+      "predecessor": "Canonical PDP-0 parent requirement and actor/intent authorities; for parent MEDIA-REQ-CAP-SIMULATION, note actorBindingState is resolved to a proposed domain-reviewer role while owner appointment/evidence scope remains pending. This is not permission to infer external owner acceptance.",
+      "acceptanceCriterion": "At the declarativeProductionProfile level, explicitly specify that each case inherits participant actor/outcome semantics from its referenced parent requirement and canonical intent/actor records unless an explicit case-level override is present. Validate every inherited actorRef resolves; preserve the distinction between participant identity, responsibility, authorization, rights, consent, effect admission, and consumer-domain authority. For consumer-specific authority changes, name the responsible owner explicitly (as clauses 040-051 do for TutorPutor); do not add PDP-1 operation mechanics, PDP-2 channel interactions, or PDP-3 journeys here.",
+      "nextAction": "Revise the aggregate 49-case finding into one profile-level inheritance-rule/validator question, then test that rule against all 49 case IDs. Keep this as a PDP-0 source task only if the profile owner confirms no existing general requirement-reference inheritance semantics already governs it."
+    }
+  ],
+  "authorityAndStatus": {
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "developmentCompletion": "NOT_CLAIMED"
+  }
+}

@@ -1105,6 +1105,34 @@ channels:
           nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
           nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
 
+      consumerSpecificApplicability:
+        rule: A source-authored owner profile may define an exact consumer-specific
+          capability scope where it names a distinct logical consumer. Such a
+          scope does not widen the generic Web 77/385 partition, is not inferred
+          from inherited channel labels, and applies only to the exact surface
+          and exact current Recorder capability bindings.
+        records:
+          - surfaceRef: media.surface.production-studio
+            channelRef: media.channel.web
+            status: DELEGATED_SOURCE_DEFINITION_SELECTION; DEFINITION_ONLY
+            capabilityIntentRefs:
+              - media.animation.editing.track.mute
+              - media.animation.editing.track.solo
+              - media.animation.editing.undo-redo.versioned
+              - media.animation.output.accessibility.semantic-timeline
+              - media.compose.multitrack-timeline
+              - media.compose.track.video-audio-caption-overlay
+              - media.deliver.provenance-manifest
+              - media.deliver.publish-governed
+              - media.edit.retime-slow-motion-speed-ramp
+              - media.edit.smart-crop-auto-reframe
+              - media.enhance.audio.noise-suppression
+              - media.quality.inspect
+              - media.quality.rank
+              - media.quality.recommend
+              - media.recipe.template.product-demonstration
+            sourceRef: .product-experience/pdp-0-product-truth/recorder-studio-extension.yaml#/featureProfiles/@ownerSurface=media.surface.production-studio
+            rationale: The coordinator selects these exact profile-bound capabilities as the Production Studio Web definition scope under user delegation. Owner approval, generic Web applicability, screen definition, and runtime support are not implied.
   - id: media.channel.api
     name: Protocol-neutral API
     definitionState: proposed
@@ -16389,3 +16417,128 @@ ownerFeatureReviewApplicability:
     leafCapabilityProfileBoundsChannelRole: PDP-0 capability profile, bounds, and channel applicability only; operation mappings are downstream non-gating context
     canonicalCapabilityOperation: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records
     canonicalCapabilityOperationRole: downstream/non-gating; PDP-1 handoff only and not a PDP-0 applicability prerequisite
+
+# Exact PDP-0 logical-consumer scope resolution. Channel applicability is a
+# definition-scope decision only; it never admits a concrete interface, runtime,
+# package publication, license, qualification, or owner acceptance.
+logicalConsumerPdp0Scope:
+  schemaVersion: media.logical-consumer-pdp0-scope.v1
+  authority: user-delegated-Media-source-definition-coordinator-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  status: SOURCE_CURRENT_DEFINITION_SCOPE; owner-acceptance-and-runtime-admission-pending
+  sourceRefs:
+    - .product-experience/surface-registry.yaml#/channelSurfaceProposals/mappings
+    - .product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk
+    - .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#/ownerCapabilityLeafAdjudication/records
+    - .product-experience/pdp-0-product-truth/recorder-studio-extension.yaml#/surfaces
+    - .product-experience/pdp-0-product-truth/recorder-studio-extension.yaml#/featureProfiles
+    - .product-experience/pdp-0-product-truth/recorder-studio-extension.yaml#/capabilityBindings
+  records:
+    - surfaceRef: media.surface.web
+      scopeMode: CHANNEL_LEAF_APPLICABILITY
+      channelRefs: [media.channel.web]
+      scopeSourceRef: channels/@id=media.channel.web/ownerDefinitionApplicability/familyConsumers
+      rationale: Uses the current owner-defined exact Web leaf overlay; proposed-channel labels and family names do not promote unlisted leaves.
+    - surfaceRef: media.surface.embedded
+      scopeMode: CHANNEL_LEAF_APPLICABILITY
+      channelRefs: [media.channel.embedded]
+      scopeSourceRef: capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/channelApplicability
+      rationale: Embedded capability definition scope is resolved by exact leaf channel rows; host and runtime admission remain pending.
+    - surfaceRef: media.surface.public-http
+      scopeMode: CHANNEL_LEAF_APPLICABILITY
+      channelRefs: [media.channel.http-api]
+      scopeSourceRef: capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/channelApplicability
+      rationale: HTTP definition scope includes exact protocol-neutral API leaves pending concrete transport contracts; excluded leaves remain excluded.
+    - surfaceRef: media.surface.service-grpc
+      scopeMode: TOPOLOGY_PHYSICAL_PDP0_SCOPE
+      channelRefs: [media.channel.grpc-api]
+      scopeSourceRef: .product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/@surfaceId=media.surface.service-grpc
+      rationale: Aggregate gRPC scope is the union of its explicitly linked physical PDP-0 capability selections; this does not assert RPC parity or service availability.
+    - surfaceRef: media.surface.grpc.stt
+      scopeMode: TOPOLOGY_PHYSICAL_PDP0_SCOPE
+      channelRefs: [media.channel.grpc-api]
+      scopeSourceRef: .product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/@surfaceId=media.surface.grpc.stt
+      rationale: STT specialization inherits only the exact linked STT service PDP-0 capability selection.
+    - surfaceRef: media.surface.grpc.tts
+      scopeMode: TOPOLOGY_PHYSICAL_PDP0_SCOPE
+      channelRefs: [media.channel.grpc-api]
+      scopeSourceRef: .product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/@surfaceId=media.surface.grpc.tts
+      rationale: TTS specialization inherits only the exact linked TTS service PDP-0 capability selection.
+    - surfaceRef: media.surface.grpc.vision
+      scopeMode: TOPOLOGY_PHYSICAL_PDP0_SCOPE
+      channelRefs: [media.channel.grpc-api]
+      scopeSourceRef: .product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/@surfaceId=media.surface.grpc.vision
+      rationale: Vision specialization inherits only the exact linked Vision service PDP-0 capability selection.
+    - surfaceRef: media.surface.grpc.multimodal
+      scopeMode: TOPOLOGY_PHYSICAL_PDP0_SCOPE
+      channelRefs: [media.channel.grpc-api]
+      scopeSourceRef: .product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/@surfaceId=media.surface.grpc.multimodal
+      rationale: Multimodal specialization inherits only the exact linked multimodal service PDP-0 capability selection.
+    - surfaceRef: media.surface.sdk
+      scopeMode: CHANNEL_LEAF_APPLICABILITY
+      channelRefs: [media.channel.sdk]
+      scopeSourceRef: capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/channelApplicability
+      rationale: SDK definition scope follows exact protocol-neutral API leaf decisions; package publication and transport parity remain pending.
+    - surfaceRef: media.surface.cli
+      scopeMode: CHANNEL_LEAF_APPLICABILITY
+      channelRefs: [media.channel.cli]
+      scopeSourceRef: capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/channelApplicability
+      rationale: CLI definition scope follows exact leaf decisions; fixture commands do not gain product admission.
+    - surfaceRef: media.surface.agent-tools
+      scopeMode: CHANNEL_LEAF_APPLICABILITY
+      channelRefs: [media.channel.agent]
+      scopeSourceRef: capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/channelApplicability
+      rationale: Only exact leaves selected for agent invocation are in scope; exact tool binding and host authorization remain pending.
+    - surfaceRef: media.surface.events
+      scopeMode: NON_INVOCATION_CHANNEL
+      channelRefs: [media.channel.event]
+      scopeSourceRef: ownerLeafApplicabilityRules/rules/EVENTS_ARE_VERSIONED_NOTIFICATIONS_NOT_COMMAND_TRANSPORT
+      rationale: Events are versioned observations, not capability invocations; event schemas and delivery contracts are separate PDP-1 work.
+    - surfaceRef: media.surface.integrations
+      scopeMode: CHANNEL_LEAF_APPLICABILITY
+      channelRefs: [media.channel.product-integration]
+      scopeSourceRef: capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/channelApplicability
+      rationale: Only exact P0 leaves marked applicable to product integration are in scope; per-handoff owner acceptance remains pending.
+    - surfaceRef: media.surface.types-library
+      scopeMode: INHERITED_PHYSICAL_DEFINITION
+      inheritedChannelRefs: [media.channel.sdk]
+      scopeSourceRef: .product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/@surfaceId=media.surface.types-library
+      rationale: Typed exports project canonical leaf meaning selected by their linked physical package; the library is not a separate capability invocation channel.
+    - surfaceRef: media.surface.ui-library
+      scopeMode: INHERITED_PHYSICAL_DEFINITION
+      inheritedChannelRefs: [media.channel.web, media.channel.embedded]
+      scopeSourceRef: .product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/@surfaceId=media.surface.ui-library
+      rationale: UI primitives project canonical meaning selected by linked physical packages and host channels; the library is not a separate capability invocation channel.
+    - surfaceRef: media.surface.explorer
+      scopeMode: TOOLING_NON_INVOCATION
+      scopeSourceRef: .product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/@surfaceId=media.surface.explorer
+      rationale: Read-only source projection and local verification tooling; it owns no Media capability invocation or product runtime behavior.
+    - surfaceRef: media.surface.recorder-orchestrator
+      scopeMode: RECORDER_PROFILE_CAPABILITY_BINDING
+      channelRefs: [media.channel.cli]
+      recorderOwnerSurfaceRef: media.surface.recorder-orchestrator
+      scopeSourceRef: .product-experience/pdp-0-product-truth/recorder-studio-extension.yaml#/featureProfiles/@ownerSurface=media.surface.recorder-orchestrator
+      rationale: Exact capability scope is selected by the Recorder feature-profile groups bound to this owner surface and their canonical leaf requirements.
+    - surfaceRef: media.surface.capture-adapters
+      scopeMode: RECORDER_PROFILE_CAPABILITY_BINDING
+      channelRefs: [media.channel.api]
+      recorderOwnerSurfaceRef: media.surface.capture-adapters
+      scopeSourceRef: .product-experience/pdp-0-product-truth/recorder-studio-extension.yaml#/featureProfiles/@ownerSurface=media.surface.capture-adapters
+      transportBinding: DEFERRED_TO_PDP-1
+      sourceChannelOverrideRef: .product-experience/pdp-0-product-truth/recorder-studio-extension.yaml#/surfaces/@id=media.surface.capture-adapters/channel
+      sourceChannelOverrideRationale: The canonical nine capture leaves are definition-applicable to protocol-neutral API and explicitly not applicable to product-integration in the 462-leaf P0 matrix; transport specialization is deferred to PDP-1.
+      rationale: Exact nine Recorder capture leaves use protocol-neutral API definition applicability; concrete transport binding is PDP-1 work and no runtime support is claimed.
+    - surfaceRef: media.surface.production-studio
+      scopeMode: RECORDER_PROFILE_CAPABILITY_BINDING
+      channelRefs: [media.channel.web]
+      recorderOwnerSurfaceRef: media.surface.production-studio
+      scopeSourceRef: .product-experience/pdp-0-product-truth/recorder-studio-extension.yaml#/featureProfiles/@ownerSurface=media.surface.production-studio
+      consumerApplicabilityRef: channels/@id=media.channel.web/ownerDefinitionApplicability/consumerSpecificApplicability/@surfaceRef=media.surface.production-studio
+      rationale: Exact capability scope is selected by Studio feature-profile groups bound to this owner surface and their canonical leaf requirements.
+    - surfaceRef: media.surface.interactive-demo-player
+      scopeMode: RECORDER_PROFILE_CAPABILITY_BINDING
+      channelRefs: [media.channel.embedded]
+      recorderOwnerSurfaceRef: media.surface.interactive-demo-player
+      scopeSourceRef: .product-experience/pdp-0-product-truth/recorder-studio-extension.yaml#/featureProfiles/@ownerSurface=media.surface.interactive-demo-player
+      sourceChannelOverrideRef: .product-experience/pdp-0-product-truth/recorder-studio-extension.yaml#/surfaces/@id=media.surface.interactive-demo-player/channel
+      sourceChannelOverrideRationale: The three exact interactive output leaves are definition-applicable to embedded and explicitly not applicable to product-integration in the 462-leaf P0 matrix; their audience is an embedded viewer, not a product adapter.
+      rationale: Exact interactive output leaves use embedded definition applicability; audience interaction grants no Media mutation or publication authority.

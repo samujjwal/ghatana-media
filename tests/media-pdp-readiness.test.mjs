@@ -36,7 +36,7 @@ test('current PDP-0 corrective source fingerprints exclude generated verificatio
   }
  }
 });
-test('PXD-153 is a separate narrow current review and PXD-142 remains historical',()=>{
+test('PXD-165 is a current PDP-0 surface-scope review and prior reviews remain historical',()=>{
  const artifact=JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/direct-definition-criteria-review.json','utf8'));
  const sha=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
  const byId=new Map(artifact.records.map(record=>[record.taskId,record]));
@@ -48,21 +48,36 @@ test('PXD-153 is a separate narrow current review and PXD-142 remains historical
   assert.equal(historical.sourceFingerprints['tests/pdp0-existing-operation-semantic-corrections.test.mjs'],'bf28351e12327accacbda1b61cfd7a7aa2b587de9f485af11ae8af313fdd9df2');
   assert.match(historical.scope,/exact three capability typed-input corrections and five conditional-success output families/u);
   const current=record.currentCorrectiveReview;
-  assert.equal(current.decisionRef,'.product-experience/decision-log.md#PXD-153');
+  const expectedDecision=id==='P0-07'?'.product-experience/decision-log.md#PXD-165':'.product-experience/decision-log.md#PXD-153';
+  assert.equal(current.decisionRef,expectedDecision);
   assert.equal(current.status,id==='P0-06'||id==='P0-07'?'APPROVED_CURRENT_SOURCE_REVIEW':'APPROVED_CURRENT_CORRECTION');
-  assert.match(current.scope,/declaredByteLength\.minimum/u);
+  if(id==='P0-07'){
+   assert.match(current.scope,/20 active logical consumers/u);
+   assert.match(current.scope,/generic Web partition remains 77 applicable and 385 non-applicable/u);
+   assert.equal(current.reviewKind,'SCOPED_SOURCE_DEFINITION_REVIEW');
+   assert.ok(record.historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-153'));
+   assert.equal(current.sourceFingerprints['.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml'],sha('.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml'));
+   assert.equal(current.sourceFingerprints['.product-experience/surface-registry.yaml'],sha('.product-experience/surface-registry.yaml'));
+   assert.equal(current.sourceFingerprints['.product-experience/surfaces/media-physical-topology.v1.json'],sha('.product-experience/surfaces/media-physical-topology.v1.json'));
+  } else assert.match(current.scope,/declaredByteLength\.minimum/u);
   assert.doesNotMatch(current.scope,/three capability typed-input corrections|five conditional-success output families/u);
   assert.equal(current.sourceFingerprints['.product-experience/pdp-0-product-truth/capabilities.yaml'],sha('.product-experience/pdp-0-product-truth/capabilities.yaml'));
-  assert.equal(resolveCriterionReviewSourceCut(record,sha).sourceCutCurrent,true,`${id} has a current scoped PXD-153 review`);
+  assert.equal(resolveCriterionReviewSourceCut(record,sha).sourceCutCurrent,true,`${id} has a current scoped corrective review`);
  }
  for(const id of ['P0-06','P0-07']){
-  const current=byId.get(id).currentCorrectiveReview;
-  assert.match(current.scope,/no-effect/iu);
-  assert.match(current.scope,/unchanged/u);
+ const current=byId.get(id).currentCorrectiveReview;
+  if(id==='P0-07'){
+   assert.match(current.scope,/exact logical-consumer scope/u);
+   assert.doesNotMatch(current.scope,/no-effect|unchanged/iu);
+  } else {
+   assert.match(current.scope,/no-effect/iu);
+   assert.match(current.scope,/unchanged/u);
+  }
   assert.equal(current.status,'APPROVED_CURRENT_SOURCE_REVIEW');
   assert.ok(byId.get(id).historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-142'));
  }
- assert.equal(byId.get('P0-05').currentCorrectiveReview.decisionRef,'.product-experience/decision-log.md#PXD-138');
+ assert.equal(byId.get('P0-05').currentCorrectiveReview.decisionRef,'.product-experience/decision-log.md#PXD-166');
+ assert.ok(byId.get('P0-05').historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-138'));
  assert.equal(byId.get('P0-05').currentSourceReview,undefined);
 });
 broadTest('a corrective approval uses its own reviewed source cut and preserves historical pins',()=>{
@@ -175,13 +190,16 @@ test('PDP-0 development status can close only with the exact full source invento
  const criteria=['P0-01','P0-02','P0-03','P0-04','P0-05','P0-06','P0-07','P0-08'];
  const verification=Object.fromEntries(criteria.map(id=>[id,{status:'PASS',command:`node --test ${id}`,testCount:id==='P0-03'?11:1,passedTestCount:1,skippedTestCount:id==='P0-03'?10:0,outputSha256:'observed',testSourceFingerprints:{'tests/p0.test.mjs':'abc'},sourceCut:{fingerprints:{'tests/p0.test.mjs':'abc'},changedDuringVerification:[],changedBeforeReport:[]}}]));
  const counts={capabilityLeafAdjudications:462,requirementGroups:38,intents:19,journeys:30,profileBoundCapabilityLeaves:462,qualityDimensions:6,qualityMetricDefinitions:16,qualityApplicabilityLeaves:462,channelApplicabilityLeaves:462,featureReviewDimensions:15,featureReviewCapabilityLeaves:462,masterPlanClaims:129,constitutionalRequirements:32};
- const integrityChecks={capabilities:true,profiles:true,quality:true,features:true,claims:true,requirements:true,constitution:true,handoff:true};
+ const integrityChecks={capabilities:true,profiles:true,quality:true,features:true,claims:true,requirements:true,constitution:true,handoff:true,pdp0SurfaceDenominatorComplete:true,pdp0AuditDispositionsComplete:true};
  const p0ScopeReviews=Object.fromEntries(['P0-01','P0-02','P0-05','P0-06','P0-07'].map(id=>[id,{
   status:'APPROVED_DIRECT_DEFINITION_CRITERION',sourceCutCurrent:true,
   currentCorrectiveReview:{status:'APPROVED_CURRENT_CORRECTION',phaseScope:'PDP-0',decisionRef:'.product-experience/decision-log.md#PXD-138'},
  }]));
  integrityChecks.currentP0CriterionScopesComplete=true;
- const completeInventory={sourceCutStable:true,integrityChecks,sourceRecordCount:counts,semanticallyResolvedCount:{...counts},sourceReconciliations:[{id:'legacy-summary',status:'HISTORICAL_SOURCE_ONLY',currentOwnerRef:'current-owner.yaml#/records'}]};
+ const completeInventory={sourceCutStable:true,integrityChecks,sourceRecordCount:counts,semanticallyResolvedCount:{...counts},
+  campaignDenominator:{physicalManifestCandidates:26,compositions:7,logicalConsumers:21,registrySurfaces:21,archivedConsumers:1,activeLogicalConsumers:20,activeLogicalScopesResolved:20,denominator:54},
+  auditDispositions:{original:428,focused:73,total:501,boundExisting:501,resolvedPdp0:501,unresolvedPdp0:0},
+  sourceReconciliations:[{id:'legacy-summary',status:'HISTORICAL_SOURCE_ONLY',currentOwnerRef:'current-owner.yaml#/records'}]};
  const handoffs=['media.pdp0-pdp1.capability-intent-handoff.v1','MSC-07-MSD-015-L0584-C05'];
  const dev=buildPdp0DevStatus({mainSha:'fixture',sourceShaSet:{'capabilities.yaml':'abc'},verification,definitionCriterionReviews:p0ScopeReviews,sourceInventory:completeInventory,exportedHandoffIds:handoffs});
  assert.equal(dev.status,'DEV_COMPLETE');
@@ -209,6 +227,9 @@ test('PDP-0 development status can close only with the exact full source invento
  expectOpen(({inventory})=>{delete inventory.sourceReconciliations[0].currentOwnerRef;},'an unbound historical source reconciliation cannot establish completion');
  expectOpen(({inventory})=>{inventory.integrityChecks.quality=false;},'failed inventory integrity cannot establish completion');
  expectOpen(({inventory})=>{inventory.integrityChecks.currentP0CriterionScopesComplete=false;},'unresolved sequential phase criterion scopes cannot establish completion');
+ expectOpen(({inventory})=>{inventory.campaignDenominator.denominator=53;},'a narrowed physical/composite/logical surface denominator cannot establish completion');
+ expectOpen(({inventory})=>{inventory.auditDispositions.unresolvedPdp0=1;},'an unresolved PDP-0 audit definition cannot establish completion');
+ expectOpen(({inventory})=>{inventory.integrityChecks.pdp0AuditDispositionsComplete=false;},'a failed 501-row source crosswalk cannot establish completion');
  expectOpen(({reviews})=>{delete reviews['P0-01'];},'missing current P0 criterion review cannot establish completion');
  expectOpen(({reviews})=>{reviews['P0-06'].currentCorrectiveReview.phaseScope='PDP-1';},'downstream criterion scope cannot gate PDP-0 completion');
  expectOpen(({reviews})=>{reviews['P0-07'].sourceCutCurrent=false;},'stale criterion review cannot establish completion');

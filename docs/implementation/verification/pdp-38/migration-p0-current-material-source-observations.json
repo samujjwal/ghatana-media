@@ -13,7 +13,7 @@
           "requiredSourcePhrase": "Each capability declares an explicit trust/reconstruction disposition against its P0 semantic inputs and outputs.",
           "historicalCurrentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
           "historicalCurrentTargetValueSha256": "528d2743c10dc3678364a3c4ff7ea6f096c002316bd511b155b11e777c65a6c5",
-          "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+          "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
           "currentTargetValueSha256": "528d2743c10dc3678364a3c4ff7ea6f096c002316bd511b155b11e777c65a6c5",
           "semanticEquivalence": "NOT_ASSERTED",
           "acceptanceEffect": "none"
@@ -121,7 +121,7 @@
           "requiredSourcePhrase": "propose safe bounded batch rendering through CLI; exact commands and installed behavior remain to be authored.",
           "historicalCurrentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
           "historicalCurrentTargetValueSha256": "7df1f201b2d1066f644f3966b78258589911b8c55c130c80e8dff42e4cfbcbc2",
-          "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
           "currentTargetValueSha256": "7df1f201b2d1066f644f3966b78258589911b8c55c130c80e8dff42e4cfbcbc2",
           "semanticEquivalence": "NOT_ASSERTED",
           "acceptanceEffect": "none"
@@ -131,7 +131,7 @@
           "requiredSourcePhrase": "A CLI command binds one exact canonical operation/action and one invocation mode.",
           "historicalCurrentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
           "historicalCurrentTargetValueSha256": "578eec1a25745b4d4eace7e340238c6020074802c6e661504e95e93f2eb806b9",
-          "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
           "currentTargetValueSha256": "578eec1a25745b4d4eace7e340238c6020074802c6e661504e95e93f2eb806b9",
           "semanticEquivalence": "NOT_ASSERTED",
           "acceptanceEffect": "none"
@@ -141,7 +141,7 @@
           "requiredSourcePhrase": "BATCH_EXECUTION",
           "historicalCurrentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
           "historicalCurrentTargetValueSha256": "908b3439fcddd83bb0c2aaf73fbbb09221dfe2b6e1f45c806669a830f281d5a7",
-          "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
           "currentTargetValueSha256": "908b3439fcddd83bb0c2aaf73fbbb09221dfe2b6e1f45c806669a830f281d5a7",
           "semanticEquivalence": "NOT_ASSERTED",
           "acceptanceEffect": "none"
@@ -151,7 +151,7 @@
           "requiredSourcePhrase": "no executable or channel behavior is admitted",
           "historicalCurrentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
           "historicalCurrentTargetValueSha256": "0b70c048e73f4a70e28285ec5dcf788bd05c5dde008ffd5d5057779e54fb2b76",
-          "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
           "currentTargetValueSha256": "0b70c048e73f4a70e28285ec5dcf788bd05c5dde008ffd5d5057779e54fb2b76",
           "semanticEquivalence": "NOT_ASSERTED",
           "acceptanceEffect": "none"
@@ -161,7 +161,7 @@
           "requiredSourcePhrase": "NOT_ADMITTED",
           "historicalCurrentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
           "historicalCurrentTargetValueSha256": "0549d46d0e3897e429f607a99d5a5a375d8a3851c50da6ae838e539fcba7e102",
-          "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
           "currentTargetValueSha256": "0549d46d0e3897e429f607a99d5a5a375d8a3851c50da6ae838e539fcba7e102",
           "semanticEquivalence": "NOT_ASSERTED",
           "acceptanceEffect": "none"

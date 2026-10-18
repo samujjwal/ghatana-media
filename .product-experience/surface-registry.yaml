@@ -373,43 +373,6 @@ surfaces:
     applicabilityDisposition: NOT_ACTIVE_ARCHIVED
     applicabilityRationale: >-
       Historical source only; do not infer current support or reactivate from source presence.
-channelSurfaceProposals:
-  schemaVersion: media.channel-surface-proposals.v1
-  status: owner-reviewed-candidate-crosswalk; channel-admission-and-runtime-support-remain-pending
-  source: .product-experience/pdp-0-product-truth/applications-channels.yaml
-  rule: >-
-    Candidate mappings normalize product channel identifiers to surface identifiers for
-    contract references only. They do not admit the channel, establish runtime support,
-    or replace per-operation and per-consumer owner decisions.
-  mappings:
-    - channelRef: media.channel.web
-      candidateSurfaceRefs: [media.surface.web]
-      status: proposal; PDP-0 and PDP-3 acceptance pending
-    - channelRef: media.channel.embedded
-      candidateSurfaceRefs: [media.surface.embedded]
-      status: proposal; host and integrating-product owner review pending
-    - channelRef: media.channel.http-api
-      candidateSurfaceRefs: [media.surface.public-http]
-      status: proposal; API owner and per-operation admission pending
-    - channelRef: media.channel.grpc-api
-      candidateSurfaceRefs: [media.surface.service-grpc]
-      status: aggregate proposal; service-specific owner and RPC mapping pending
-    - channelRef: media.channel.sdk
-      candidateSurfaceRefs: [media.surface.sdk]
-      status: proposal; publication and consumer-compatibility review pending
-    - channelRef: media.channel.cli
-      candidateSurfaceRefs: [media.surface.cli]
-      status: proposal; production CLI admission pending; Explorer fixture commands excluded
-    - channelRef: media.channel.product-integration
-      candidateSurfaceRefs: [media.surface.integrations]
-      status: proposal; each consumer/producer handoff requires owner acceptance
-    - channelRef: media.channel.legacy-desktop
-      candidateSurfaceRefs: [media.surface.desktop-archive]
-      status: historical-only; not an active or supported surface
-    - channelRef: media.channel.api
-      candidateSurfaceRefs: []
-      status: abstract-protocol-neutral-layer; no direct consumer surface; bind only through an admitted concrete transport
-
 # Recorder/Studio successor LOGICAL CONSUMER SURFACES, additive to the channel inventory.
 # These are not yet physical package/manifest identities; physical ownership is
 # separately controlled by .product-experience/surfaces/media-physical-topology.v1.json.
@@ -519,3 +482,46 @@ channelSurfaceProposals:
       second owning data store. PDP-0 to PDP-2 successor definitions are authored
       at this source cut; PDP-3 experience, independent acceptance and source-current
       admission remain separate. No release or runtime claim.
+
+channelSurfaceProposals:
+  schemaVersion: media.channel-surface-proposals.v1
+  status: owner-reviewed-candidate-crosswalk; channel-admission-and-runtime-support-remain-pending
+  source: .product-experience/pdp-0-product-truth/applications-channels.yaml
+  rule: >-
+    Candidate mappings normalize product channel identifiers to surface identifiers for
+    contract references only. They do not admit the channel, establish runtime support,
+    or replace per-operation and per-consumer owner decisions.
+  mappings:
+    - channelRef: media.channel.web
+      candidateSurfaceRefs: [media.surface.web, media.surface.production-studio]
+      status: definition-scope crosswalk; PDP-0 acceptance, PDP-3 acceptance, host admission, and runtime support remain pending
+    - channelRef: media.channel.embedded
+      candidateSurfaceRefs: [media.surface.embedded, media.surface.interactive-demo-player]
+      status: definition-scope crosswalk; host and integrating-product owner review, PDP-3 acceptance, and runtime admission remain pending
+    - channelRef: media.channel.http-api
+      candidateSurfaceRefs: [media.surface.public-http]
+      status: proposal; API owner and per-operation admission pending
+    - channelRef: media.channel.grpc-api
+      candidateSurfaceRefs: [media.surface.service-grpc, media.surface.grpc.stt, media.surface.grpc.tts, media.surface.grpc.vision, media.surface.grpc.multimodal]
+      status: aggregate and service-specialization definition-scope crosswalk; per-RPC owner mapping, PDP-1 contracts, qualification, and runtime admission remain pending
+    - channelRef: media.channel.sdk
+      candidateSurfaceRefs: [media.surface.sdk]
+      status: proposal; publication and consumer-compatibility review pending
+    - channelRef: media.channel.cli
+      candidateSurfaceRefs: [media.surface.cli, media.surface.recorder-orchestrator]
+      status: definition-scope crosswalk; production CLI admission pending; Explorer fixture commands excluded
+    - channelRef: media.channel.product-integration
+      candidateSurfaceRefs: [media.surface.integrations]
+      status: proposal; each consumer/producer handoff requires owner acceptance
+    - channelRef: media.channel.agent
+      candidateSurfaceRefs: [media.surface.agent-tools]
+      status: definition-only owner-defined agent scope; exact tool binding, host authority, independent review, acceptance, and execution admission remain pending
+    - channelRef: media.channel.event
+      candidateSurfaceRefs: [media.surface.events]
+      status: definition-only observer scope; not a capability invocation channel; event schema and delivery contracts remain separate
+    - channelRef: media.channel.legacy-desktop
+      candidateSurfaceRefs: [media.surface.desktop-archive]
+      status: historical-only; not an active or supported surface
+    - channelRef: media.channel.api
+      candidateSurfaceRefs: [media.surface.capture-adapters]
+      status: protocol-neutral PDP-0 definition scope for the exact Recorder capture leaves; concrete transport binding is deferred to PDP-1; no transport or runtime support is claimed

@@ -227,6 +227,16 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-PROJECT-AC-03
+    given: A user requests a consequential composition update through natural language.
+    when: the request is interpreted against a versioned project revision.
+    then: produce a reviewable edit proposal before the consequential project state changes.
+    rejection: reject silently committing an ambiguous or unreviewed proposal as an applied edit.
+  - id: MEDIA-REQ-CAP-PROJECT-AC-04
+    given: A project has a confirmed revision and automatic checkpointing is in scope.
+    when: the product checkpoints and later recovers project state after interruption.
+    then: preserve the last confirmed revision and state which unsaved changes may be absent or lost before recovery is accepted.
+    rejection: reject silently overwriting the confirmed revision or implying a durability or recovery-point guarantee not defined for the product.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -1206,6 +1216,21 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-RIGHTS-AC-03
+    given: A requested transformation derives content from an identified source recording.
+    when: the system evaluates whether the requested use is admitted.
+    then: preserve the source identity and block the derivative use when the applicable permitted-use decision is absent, unknown, denied, restricted, revoked, or expired.
+    rejection: reject treating a similarity observation or source possession as a permitted-use decision.
+  - id: MEDIA-REQ-CAP-RIGHTS-AC-04
+    given: A requested synthetic or altered presenter involves an identifiable person, voice, or model.
+    when: the product evaluates eligibility for the requested use.
+    then: block use while applicable rights, consent, or license is missing, unknown, denied, restricted, revoked, or expired; disclosure remains separate from authorization.
+    rejection: reject treating generated disclosure, an asserted right, or possession of a source as sufficient authorization.
+  - id: MEDIA-REQ-CAP-RIGHTS-AC-05
+    given: A creator requests singing-voice synthesis conditioned on an identifiable voice, source recording, or voice model.
+    when: the product evaluates whether synthesis is permitted for the declared purpose.
+    then: preserve voice, source, and model provenance and block use when applicable rights, consent, or license is missing, unknown, denied, restricted, revoked, or expired.
+    rejection: reject inferring clearance from voice similarity, source possession, or the act of synthesis.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -1362,6 +1387,11 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-PROVENANCE-AC-03
+    given: A factual narration claim has one or more associated source citations.
+    when: the product presents the claim and its provenance.
+    then: associate each citation with the claim it supports and preserve unsupported or unresolved links as unknown.
+    rejection: reject a generic artifact link as proof that it supports every claim or filling an unknown claim-source relation with an invented citation.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -1735,6 +1765,11 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-03
+    given: A user explicitly initiates dictation and selects a target that is authorized by the operating system.
+    when: the product inserts the resulting dictated text into that selected target.
+    then: limit capture and insertion to the user-initiated session and selected OS-authorized target; report unavailable when permission or the required adapter is missing.
+    rejection: reject background or global capture/insertion, choosing an unselected target, or bypassing denied or unavailable permission.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -2580,6 +2615,11 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-GENERATE-VIDEO-AC-03
+    given: An authorized creator requests a synthetic or altered presenter output involving an identifiable person or model.
+    when: the product prepares or presents the generated output.
+    then: disclose that the presenter is generated or altered and require applicable rights and consent eligibility before use.
+    rejection: reject treating disclosure as authorization or permitting use when the required rights or consent status is missing or unknown.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -2739,6 +2779,16 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-GENERATE-AUDIO-AC-03
+    given: A creator requests music conditioned on an existing source recording.
+    when: the system prepares a cover, continuation, or variation.
+    then: identify the result as source-conditioned derived media and require the applicable permitted-use decision before use.
+    rejection: reject treating source-free generation rules as authorization for source-conditioned output or treating generation as rights clearance.
+  - id: MEDIA-REQ-CAP-GENERATE-AUDIO-AC-04
+    given: An authorized editor selects a region of an identified source recording for localized audio editing.
+    when: the product applies the requested transformation to that region.
+    then: preserve the exact source recording and all non-selected regions as unchanged source material and identify the edited region as derived media.
+    rejection: reject changing non-selected regions or replacing the source recording; exact region coordinate and boundary contracts are defined downstream.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -2908,6 +2958,16 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-03
+    given: A creator requests conversational text composition or rewriting for a declared voice profile.
+    when: the system prepares text for speech synthesis.
+    then: treat the text as authored content distinct from speaker-conditioned audio and preserve the declared source and identity boundaries.
+    rejection: reject implying that voice conditioning authored, verified, or authorized the text or its claims.
+  - id: MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-04
+    given: A creator requests singing-voice synthesis conditioned on an identifiable voice, source recording, or voice model.
+    when: the product produces a permitted synthesis result.
+    then: retain the declared voice, source, and model provenance with the resulting media.
+    rejection: reject omitting the provenance needed to distinguish the source and model used for the derived voice result.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -3271,6 +3331,11 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-ANIMATION-AC-03
+    given: A project uses gaze correction as an authored visual effect on source-derived footage.
+    when: the effect is applied or represented in the product definition.
+    then: retain the distinction between observed gaze and authored correction and disclose that a visual transformation occurred; eligibility remains governed by applicable rights and consent authority.
+    rejection: reject representing corrected gaze as an unmodified source observation or treating disclosure as consent or likeness authorization.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -3759,6 +3824,11 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-SIMULATION-AC-03
+    given: A user supplies a versioned agent, economic, or epidemiological model with declared assumptions, seed, and distribution.
+    when: Media executes or presents the supplied model output.
+    then: retain the model identity and declared assumptions and label results UNQUALIFIED unless the applicable independent scientific validation is present.
+    rejection: reject presenting the output as causal inference, validated science, or real-world truth based only on execution or visualization.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -4120,6 +4190,26 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-03
+    given: A creator uses a reusable agent or director package to prepare a production recipe.
+    when: the package is selected for reuse.
+    then: identify the package version and make its declared dependencies reviewable before they guide a production outcome.
+    rejection: reject silently changing package dependencies or treating reuse as approval of those dependencies.
+  - id: MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-04
+    given: A creator supplies multiple production references and constraints with an explicit relative priority.
+    when: a recipe is prepared from those inputs.
+    then: use the supplied references and priority to guide the intended outcome while retaining their source identity.
+    rejection: reject silently dropping a reference or inventing a priority when the supplied ordering is absent or ambiguous.
+  - id: MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-05
+    given: A creator prepares script or narration content using declared source facts.
+    when: the recipe produces factual narration and connective language.
+    then: distinguish source-supported factual claims from authored connective language and retain the source basis for supported claims.
+    rejection: reject fabricated factual claims or presenting unsupported connective language as source fact.
+  - id: MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-06
+    given: An authorized production supplies facts for audience-specific content personalization.
+    when: the recipe personalizes the content.
+    then: transform only the supplied facts that are authorized for the declared purpose and preserve their source attribution.
+    rejection: reject inventing a person identity, personal attribute, or factual claim not present in the admitted inputs.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -5530,6 +5620,11 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-MASTER-AUDIO-AC-03
+    given: An editor applies an admitted creative audio effect or assembles a reusable effect chain.
+    when: the audio transformation is authored for a project revision.
+    then: preserve the source and identify the result as a derived transformation; allow the chain intent to be reused without implying quality approval.
+    rejection: reject treating room matching as a substitute for creative delay, chorus, flanger, or reverb, or treating effect presence as a quality pass.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -5709,6 +5804,36 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-QUALITY-AC-03
+    given: A submitted asset is within the declared quality-inspection scope and has a suspicious-input disposition.
+    when: the asset is evaluated for use in a project.
+    then: keep it unavailable to downstream use while its disposition is pending review; report the unresolved disposition without treating inspection as clearance.
+    rejection: reject making a pending or suspicious asset available based only on a read-only quality score.
+  - id: MEDIA-REQ-CAP-QUALITY-AC-04
+    given: An editor compares eligible voice candidates for one declared speech task.
+    when: the editor requests a comparison across quality, cost, and latency.
+    then: return each dimension when available and preserve unavailable or unknown dimensions as such; do not imply one dimension proves another.
+    rejection: reject silently substituting a missing metric or ranking unknown values as measured results.
+  - id: MEDIA-REQ-CAP-QUALITY-AC-05
+    given: A reviewer requests a similarity observation for a declared source and candidate output.
+    when: the system performs a bounded similarity review.
+    then: label the result as an observation for the declared comparison only, with its scope and unknowns.
+    rejection: reject presenting similarity as copyright clearance, legal judgment, or permission to use.
+  - id: MEDIA-REQ-CAP-QUALITY-AC-06
+    given: A reviewer evaluates speech that may contain a synthetic watermark and declares any transformation under which its detectability or robustness is observed.
+    when: the system checks for the declared watermark signal under that declared transformation.
+    then: report detection, non-detection, or inconclusive robustness observation only within the declared check and transformation scope; preserve an inconclusive result as unknown.
+    rejection: reject treating watermark presence, absence, or observed robustness as proof of authorship, rights, or authenticity; no watermark stripping or removal capability is implied.
+  - id: MEDIA-REQ-CAP-QUALITY-AC-07
+    given: A creator requests a preflight estimate for a declared production configuration.
+    when: the product forecasts expected render time or cost from the declared inputs.
+    then: present each result as an estimate with its assumptions, scope, and unknowns; keep it distinct from measured usage, quality assessment, or admission.
+    rejection: reject presenting an estimate as measured cost, a quality result, or authorization to run.
+  - id: MEDIA-REQ-CAP-QUALITY-AC-08
+    given: A reviewer compares performance observations supplied or admitted by the user with exact source attribution, variant identity, and observation time.
+    when: the reviewer requests a variant comparison and possible feedback action.
+    then: compare only the attributed observations and prepare a feedback proposal for explicit user approval without inferring causal effect.
+    rejection: reject implying access to external platform APIs or data, silently importing observations, or claiming a variant caused an outcome.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -7618,6 +7743,12 @@ declarativeProductionProfile:
   groupCounts: {ANIMATION: 17, SIMULATION: 22, TUTORPUTOR: 12, UNIFIED: 10}
   referenceConsumers: [Gharbatai, TutorPutor]
   requiredCrossPhaseBindings: [PDP1_DOMAIN_RESULT, PDP2_INTERFACE_PARITY, PDP3_EXPERIENCE_AND_CHANNEL, CURRENT_SOURCE_VERIFICATION]
+  actorBindingRule: >-
+    Each acceptance clause inherits its actor references, responsibility roles, and product intent from its
+    parentRequirementId. The clause-local given, when, then, and rejection specialize the outcome but do not
+    redefine or grant authority. A clause may narrow the parent actor set only when the requirement itself
+    explicitly defines that narrower actor scope; otherwise missing or unresolved parent actor bindings remain
+    unresolved for the clause.
   scientificAuthority: TutorPutor owns educational Model IR and scientific acceptance for TutorPutor lessons; Media owns generic execution adapter/presentation and never learner mastery.
   scientificValidation: F0-F4 are distinct from visual polish; missing solver, model, units, oracle or bounds means UNQUALIFIED, never PASS.
   recorderExistingCoverageAudit:

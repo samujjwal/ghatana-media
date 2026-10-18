@@ -2,50 +2,50 @@ TAP version 13
 # Subtest: P0 model acquisition and reuse policy separates package licenses from model and asset terms
 ok 1 - P0 model acquisition and reuse policy separates package licenses from model and asset terms
   ---
-  duration_ms: 32.993209
+  duration_ms: 169.065477
   type: 'test'
   ...
 # Subtest: P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
 ok 2 - P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
   ---
-  duration_ms: 153.152042
+  duration_ms: 646.934527
   type: 'test'
   ...
 1..0
-# Subtest: /Users/samujjwal/Development/ghatana-media/tests/pdp0-constitution-normative-completeness.test.mjs
-ok 2 - /Users/samujjwal/Development/ghatana-media/tests/pdp0-constitution-normative-completeness.test.mjs
+# Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-constitution-normative-completeness.test.mjs
+ok 2 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-constitution-normative-completeness.test.mjs
   ---
-  duration_ms: 572.188584
+  duration_ms: 3174.854945
   type: 'test'
   ...
 # Subtest: P0 policy assigns one semantic authority and keeps platform mechanics separate
 ok 4 - P0 policy assigns one semantic authority and keeps platform mechanics separate
   ---
-  duration_ms: 0.60025
+  duration_ms: 11.675869
   type: 'test'
   ...
 # Subtest: identity, consent, rights, version and revocation checks fail closed at policy boundaries
 ok 5 - identity, consent, rights, version and revocation checks fail closed at policy boundaries
   ---
-  duration_ms: 0.210708
+  duration_ms: 0.81075
   type: 'test'
   ...
 # Subtest: policy definitions do not claim runtime/provider admission or acceptance
 ok 6 - policy definitions do not claim runtime/provider admission or acceptance
   ---
-  duration_ms: 0.069583
+  duration_ms: 0.294459
   type: 'test'
   ...
 # Subtest: P0 input inspection, simulation, trust, and mission rules have no PDP-1 contract prerequisites
 ok 7 - P0 input inspection, simulation, trust, and mission rules have no PDP-1 contract prerequisites
   ---
-  duration_ms: 1.272792
+  duration_ms: 4.776258
   type: 'test'
   ...
 # Subtest: historical migration source stays provenance and cannot become current phase acceptance
 ok 8 - historical migration source stays provenance and cannot become current phase acceptance
   ---
-  duration_ms: 0.117541
+  duration_ms: 0.657747
   type: 'test'
   ...
 1..8
@@ -56,4 +56,4 @@ ok 8 - historical migration source stays provenance and cannot become current ph
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1727.180666
+# duration_ms 9050.098503

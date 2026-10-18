@@ -1,0 +1,291 @@
+{
+  "schemaVersion": "ghatana.media.pdp0-meaning-gap-qc.v1",
+  "recordKind": "read-only-independent-semantic-gap-qc",
+  "campaignScope": "Media Discovery / PDP-0 Product Truth; QC of the 27 candidate meaning-gap rows only",
+  "sourceBaseline": {
+    "currentCheckout": "main",
+    "sourceAudit": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
+    "canonicalPdp0Sources": [
+      ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      ".product-experience/pdp-0-product-truth/requirements.yaml",
+      ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
+      ".product-experience/pdp-0-product-truth/qualification-policy.yaml",
+      ".product-experience/pdp-0-product-truth/state-models.yaml"
+    ],
+    "method": "Compared exact source IDs and feature text to current PDP-0 meanings, including capability/requirement contracts and relevant policy/NFR owners. Findings separate P0 product meaning from typed domain/operation detail (PDP-1), interface (PDP-2), journey (PDP-3), and qualification/Build."
+  },
+  "reviewLimit": "Recommendations only. No canonical source edited; no owner, independent-review, external legal/scientific authorization, acceptance, or DEV_COMPLETE claim. A downstream handoff is not added to this PDP-0 work queue.",
+  "count": 27,
+  "records": [
+    {
+      "sourceAuditId": "AUD-SPEC-008",
+      "sourceFeature": "Preflight preview with predicted cost and render time",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-SPEC-008",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#AUD-SPEC-008",
+      "qcRecommendation": "REFINE_EXISTING_P0",
+      "narrowestOwnerOrDisposition": "The current inspection contract is read-only and distinguishes observed from inferred dimensions, but does not define a preflight resource forecast as a user result. Refine the existing quality/cost-estimation owner only if scope confirms prediction is a product outcome; keep estimator, confidence, units and admission thresholds in PDP-1/qualification. Do not classify as ordinary quality score.",
+      "phaseBoundaryRationale": "media.quality.inspect; MEDIA-REQ-CAP-QUALITY",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-SPEC-011",
+      "sourceFeature": "Reusable agent/director skills with reviewable dependencies",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-SPEC-011",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#AUD-SPEC-011",
+      "qcRecommendation": "REFINE_EXISTING_P0",
+      "narrowestOwnerOrDisposition": "The template currently returns a versioned recipe with content/schema bindings. Reusable agent/director packages and reviewable dependencies are absent as product purpose. Refine the recipe/template intent to specify package reuse and dependency review; dependency graph schemas and review interface are PDP-1/PDP-2.",
+      "phaseBoundaryRationale": "media.recipe.template.product-demonstration; MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-SPEC-014",
+      "sourceFeature": "Multi-reference production briefs with ranked constraints",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-SPEC-014",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#AUD-SPEC-014",
+      "qcRecommendation": "REFINE_EXISTING_P0",
+      "narrowestOwnerOrDisposition": "A content/schema-bound template does not state that multiple references and ranked constraints guide the production outcome. Refine this P0 intent if this is in-scope; exact ranking representation and editor controls belong to PDP-1/PDP-2.",
+      "phaseBoundaryRationale": "media.recipe.template.product-demonstration; MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-CAP-020",
+      "sourceFeature": "Mouse/keyboard overlay and keystroke privacy masking",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-CAP-020",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#AUD-CAP-020",
+      "qcRecommendation": "BOUND_EXISTING",
+      "narrowestOwnerOrDisposition": "The P0 security acceptance already requires redacting sensitive captured source before exporting pixels/logs/data and explicitly says post-production blur cannot protect leaked originals. This is a stronger exact product-protection meaning than the cited rights-evaluation leaf. Rebind to that existing requirement; any visible overlays and keyboard workflow are PDP-2. Do not add duplicate P0 meaning absent a demonstrated gap in the exact protected-input scope.",
+      "phaseBoundaryRationale": "MEDIA-REC-P0-AC-058; MEDIA-REQ-CAP-RIGHTS",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-ASSET-019",
+      "sourceFeature": "Per-asset QC and quarantined suspicious input",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-ASSET-019",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#AUD-ASSET-019",
+      "qcRecommendation": "REFINE_EXISTING_P0",
+      "narrowestOwnerOrDisposition": "The inspect capability is expressly read-only and cannot alone claim quarantine. P0 contains QUARANTINED as an artifact disposition/state across canonical requirements, but the evidence found here does not establish a precise per-asset suspicious-input rule. Refine the existing quality/disposition owner to make suspicious input unavailable pending review and state the safe outcome; type/state transitions and scanner behavior are PDP-1/Build.",
+      "phaseBoundaryRationale": "media.quality.inspect; media.quality-disposition/state owner; MEDIA-REQ-CAP-QUALITY",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-EDIT-020",
+      "sourceFeature": "Deterministic manual lock preservation on regeneration",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-EDIT-020",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#AUD-EDIT-020",
+      "qcRecommendation": "BOUND_EXISTING",
+      "narrowestOwnerOrDisposition": "MEDIA-REC-P0-AC-041 and MEDIA-REC-P0-AC-042; media.job.retry; media.project.version",
+      "phaseBoundaryRationale": "P0 already requires retaining compatible manual edits during regeneration (AC-041) and when an anchor conflicts, offering semantic three-way rebase, preserving both versions, requiring review for ambiguity, and rejecting silent auto-merge or lost manual lock (AC-042). This is directly covered. Typed lock anchors and merge semantics are PDP-1; interaction is PDP-2/3.",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-EDIT-023",
+      "sourceFeature": "Semantic three-way merge of conflicting revisions",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-EDIT-023",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#AUD-EDIT-023",
+      "qcRecommendation": "BOUND_EXISTING",
+      "narrowestOwnerOrDisposition": "MEDIA-REC-P0-AC-042; media.job.retry; MEDIA-REQ-CAP-JOB",
+      "phaseBoundaryRationale": "AC-042 explicitly calls for stable semantic three-way rebase, preserving both versions, review for ambiguity, and rejection of silent auto-merge or loss of manual lock. The source candidate overstates a P0 gap. Exact conflict data structures and merge algorithm are PDP-1/Build; do not promise automatic merge correctness.",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-EDIT-027",
+      "sourceFeature": "Timeline auto-backup and crash recovery",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-EDIT-027",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#AUD-EDIT-027",
+      "qcRecommendation": "REFINE_EXISTING_P0",
+      "narrowestOwnerOrDisposition": "media.project.restore; NFR-RECOVERY-001; MEDIA-REC-P0-AC-070",
+      "phaseBoundaryRationale": "Existing P0 defines restoring a selected versioned project and safe crash/partial-result fencing, but these do not define a timeline user outcome for automatic backup and recovery of the latest recoverable project state. Refine the existing restore/recovery intent only if auto-backup is confirmed in scope. Checkpoint formats, durability and recovery-point objectives are PDP-1/qualification.",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-TTS-017",
+      "sourceFeature": "Per-voice personality compose/rewrite/respond (local LLM)",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-TTS-017",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#AUD-TTS-017",
+      "qcRecommendation": "REFINE_EXISTING_P0",
+      "narrowestOwnerOrDisposition": "Speaker-conditioned synthesis does not itself define authorship of conversational text. If local composition/rewrite/respond is in product scope, refine the existing content-generation intent to state that distinct result and its factual/identity limits; local model choice/runtime is Build and interaction turns are PDP-3.",
+      "phaseBoundaryRationale": "media.speech.synthesis.text-to-speech; media.recipe/template content-generation intent",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-TTS-018",
+      "sourceFeature": "Voice-driven agent response / full duplex voice loop",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-TTS-018",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#AUD-TTS-018",
+      "qcRecommendation": "BOUND_EXISTING",
+      "narrowestOwnerOrDisposition": "A full-duplex loop combines streaming session, speech input/output and conversational agent behavior; candidate evidence does not establish a separate P0 product meaning gap. Reuse existing streaming/speech capabilities and keep turn-taking states in PDP-1 and conversation flows in PDP-3. Do not conflate TTS alone with a dialog agent.",
+      "phaseBoundaryRationale": "media.stream.session; media.speech.synthesis.text-to-speech; interaction journey owners",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-TTS-020",
+      "sourceFeature": "Side-by-side voice quality/cost/latency comparisons",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-TTS-020",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#AUD-TTS-020",
+      "qcRecommendation": "REFINE_EXISTING_P0",
+      "narrowestOwnerOrDisposition": "The existing quality-comparison purpose is the narrow owner, but the exact requested multi-voice selection result across quality, cost and latency was not found. Refine comparison intent to include those dimensions when available and preserve unknown/unavailable values; metric definitions, cost units and comparator inputs are PDP-1, selection UI PDP-2.",
+      "phaseBoundaryRationale": "media.quality.compare; MEDIA-REQ-CAP-QUALITY",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-CLONE-012",
+      "sourceFeature": "Watermark recognition, stripping analysis and robustness test",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-CLONE-012",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#AUD-CLONE-012",
+      "qcRecommendation": "REFINE_EXISTING_P0",
+      "narrowestOwnerOrDisposition": "Synthetic speech watermark recognition/robustness is distinct from naturalness assessment and speaker similarity. If in scope, define the product outcome as watermark detection/robustness observation, not proof of authorship or rights clearance. Detection protocol and robustness metrics require qualified technical/rights owners; no stripping capability should be inferred.",
+      "phaseBoundaryRationale": "media.provenance/source-lineage and speech quality owners",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-DSP-007",
+      "sourceFeature": "Delay, chorus, flanger and reverb effects",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-DSP-007",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#AUD-DSP-007",
+      "qcRecommendation": "REFINE_EXISTING_P0",
+      "narrowestOwnerOrDisposition": "Room matching does not mean creative delay/chorus/flanger/reverb processing. If these are admitted user effects, refine the existing audio transform capability intent with that outcome. Parameter schema and signal processing belong to PDP-1/Build; avoid asserting quality from effect presence.",
+      "phaseBoundaryRationale": "media.audio effect/transform owner; MEDIA-REQ-CAP-AUDIO",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-DSP-019",
+      "sourceFeature": "Preset and user-defined effect chains",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-DSP-019",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#AUD-DSP-019",
+      "qcRecommendation": "REFINE_EXISTING_P0",
+      "narrowestOwnerOrDisposition": "Equalization does not define reusable or user-authored effect-chain intent. Refine the existing audio transform/template owner to state chain authoring/reuse at product level; graph schema/order/serialization are PDP-1 and controls are PDP-2.",
+      "phaseBoundaryRationale": "media.audio effect/transform owner; MEDIA-REQ-CAP-AUDIO",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-MUSIC-008",
+      "sourceFeature": "Localized lyrics repainting and music-inpainting from exact source region",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-MUSIC-008",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-215-428.json#AUD-MUSIC-008",
+      "qcRecommendation": "REFINE_EXISTING_P0",
+      "narrowestOwnerOrDisposition": "The exact source region and source-derived transformation carry an explicit source-rights boundary; generic provenance alone is not enough to define this particular derivative outcome. Refine the existing localized audio edit owner to state source preservation and permitted-use/rights gating. Region coordinates and transform semantics are PDP-1; rights clearance remains an external authority.",
+      "phaseBoundaryRationale": "source-derived audio edit owner; MEDIA-REQ-CAP-MUSIC / MEDIA-REQ-CAP-RIGHTS",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-MUSIC-011",
+      "sourceFeature": "Singing voice synthesis and melody-conditioned vocal generation when admitted",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-MUSIC-011",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-215-428.json#AUD-MUSIC-011",
+      "qcRecommendation": "EXTERNAL_OWNER_BLOCKER",
+      "narrowestOwnerOrDisposition": "The output family can be covered as a product intent, but whether singing voice synthesis is allowed for a given person/model requires rights, likeness and model-license authority; no source can substitute for that owner decision. Record product scope conditionally and block admission pending applicable consent/license authority. Do not claim legal clearance or runtime support.",
+      "phaseBoundaryRationale": "media.speech.synthesis.voice.convert; MEDIA-REQ-CAP-RIGHTS; likeness/consent authority",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-MUSIC-012",
+      "sourceFeature": "Reference-audio conditioned music cover generation with rights/reuse checks",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-MUSIC-012",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-215-428.json#AUD-MUSIC-012",
+      "qcRecommendation": "REFINE_EXISTING_P0",
+      "narrowestOwnerOrDisposition": "Source-conditioned cover generation is distinct from source-free music generation. Refine the existing generation intent to preserve that product distinction and require permitted-use review before use; exact rights rules are an external authority, and reference/transform data contracts are PDP-1.",
+      "phaseBoundaryRationale": "source-conditioned music generation owner; MEDIA-REQ-CAP-MUSIC and MEDIA-REQ-CAP-RIGHTS",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-MUSIC-014",
+      "sourceFeature": "Copyright fingerprint / potentially infringing similarity review",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-MUSIC-014",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-215-428.json#AUD-MUSIC-014",
+      "qcRecommendation": "REFINE_EXISTING_P0",
+      "narrowestOwnerOrDisposition": "Copyright similarity review is not speaker similarity. Existing quality/similarity assessments cannot imply copyright clearance. Refine an existing review/rights owner only to define a bounded similarity observation and explicit non-clearance; licensed reference corpora, thresholds and legal judgments are external-owner/qualification matters.",
+      "phaseBoundaryRationale": "media.quality.inspect/compare; MEDIA-REQ-CAP-RIGHTS",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-VISION-018",
+      "sourceFeature": "Eye-contact/gaze correction as disclosed non-source-grounded visual effect",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-VISION-018",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-215-428.json#AUD-VISION-018",
+      "qcRecommendation": "REFINE_EXISTING_P0",
+      "narrowestOwnerOrDisposition": "Gaze correction is an authored visual transformation, while gaze analysis is observational. Refine the existing animation/edit intent to retain that origin distinction and disclose the transformation; consent/likeness admission must be governed by applicable owner authority. Tracking schema and UI are downstream.",
+      "phaseBoundaryRationale": "media.animation.gaze; media.provenance.origin.disclose; MEDIA-REQ-CAP-RIGHTS",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-MOTION-012",
+      "sourceFeature": "Charts and animated data visualization from exact data",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-MOTION-012",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-215-428.json#AUD-MOTION-012",
+      "qcRecommendation": "BOUND_EXISTING",
+      "narrowestOwnerOrDisposition": "Exact data-backed charts are already explicitly covered: labels and marks bind to the exact data snapshot, and rejection prohibits fabricated measurements or unsourced interpolation. The candidate’s decorative-image comparison is already resolved by this P0 case; case-level tests may need exact ID linkage, not new meaning.",
+      "phaseBoundaryRationale": "MEDIA-DECL-P0-AC-002; media.animation.2d; MEDIA-REQ-CAP-ANIMATION",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-DIRECT-002",
+      "sourceFeature": "Script and narration generation from source facts",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-DIRECT-002",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-215-428.json#AUD-DIRECT-002",
+      "qcRecommendation": "REFINE_EXISTING_P0",
+      "narrowestOwnerOrDisposition": "Generic artifact lineage does not ground each factual narration claim. Refine the existing script/narration intent to distinguish source-supported claims from authored connective language and prohibit fabricated facts. Claim-level citations and typed source relations are PDP-1; presentation is PDP-2/3.",
+      "phaseBoundaryRationale": "media.recipe.template.product-demonstration; media.provenance.source-lineage.inspect; MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-DIRECT-013",
+      "sourceFeature": "Source-grounded verified citations for narration claims",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-DIRECT-013",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-215-428.json#AUD-DIRECT-013",
+      "qcRecommendation": "REFINE_EXISTING_P0",
+      "narrowestOwnerOrDisposition": "Current provenance returns supported source links but does not define a claim-to-source relation. Refine the provenance product intent to state that citations support their associated claim and unknown links remain unknown; claim/source graph shape is PDP-1, citation UI PDP-2.",
+      "phaseBoundaryRationale": "media.provenance.source-lineage.inspect; MEDIA-REQ-CAP-PROVENANCE",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-DIRECT-014",
+      "sourceFeature": "Agent distinguishes illustration vs actual product activity",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-DIRECT-014",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-215-428.json#AUD-DIRECT-014",
+      "qcRecommendation": "BOUND_EXISTING",
+      "narrowestOwnerOrDisposition": "Current origin disclosure distinguishes authored intent from source-derived provenance, and educational/demo capabilities separate plausible illustration from validated activity. Use these exact owner meanings to cover the demo boundary; do not create duplicate meaning. If a particular demo makes a real-world claim, source grounding is separately required.",
+      "phaseBoundaryRationale": "media.provenance.origin.disclose; MEDIA-REQ-CAP-PROVENANCE; media.simulation.educational-demo",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-DIRECT-015",
+      "sourceFeature": "Natural language -> explicit structured edit proposal",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-DIRECT-015",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-215-428.json#AUD-DIRECT-015",
+      "qcRecommendation": "REFINE_EXISTING_P0",
+      "narrowestOwnerOrDisposition": "The composition update currently says apply user intent to versioned project state; it does not distinguish proposal from committed effect. Refine P0 to require a reviewable proposal before consequential update. Structured proposal schema and confirmation interface are PDP-1/PDP-2; journey sequencing PDP-3.",
+      "phaseBoundaryRationale": "media.project.composition.update; project revision/edit owner",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-SOCIAL-012",
+      "sourceFeature": "Brand-safe generative talking presenter with verified synthetic disclosure",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-SOCIAL-012",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-215-428.json#AUD-SOCIAL-012",
+      "qcRecommendation": "EXTERNAL_OWNER_BLOCKER",
+      "narrowestOwnerOrDisposition": "Generated presenter output raises subject likeness and synthetic-content representation. Define the conditional product intent/disclosure, but eligibility requires applicable subject authorization and rights/legal policy owners. Block use where authority is absent or unknown; do not author legal sufficiency or treat disclosure as authorization.",
+      "phaseBoundaryRationale": "media.generate.video.drive.speech; MEDIA-REQ-CAP-GENERATE-VIDEO; MEDIA-REQ-CAP-RIGHTS",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-SOCIAL-014",
+      "sourceFeature": "Bulk personalization without identity/claim invention",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#audit_id=AUD-SOCIAL-014",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-215-428.json#AUD-SOCIAL-014",
+      "qcRecommendation": "REFINE_EXISTING_P0",
+      "narrowestOwnerOrDisposition": "Project duplication does not specify generated personalization. Refine the actual content-generation owner, not duplication, to preserve factual and identity boundaries: personalization may transform supplied authorized facts but cannot invent identity or claims. Attribute/data schema is PDP-1; audience/consent eligibility may require external owner decisions.",
+      "phaseBoundaryRationale": "media.project.duplicate / product content-generation owner; MEDIA-REQ-CAP-PROJECT",
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "sourceAuditId": "AUD-SIM3-010",
+      "sourceFeature": "Agent-based, stochastic, economic and epidemiological state models",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#thirdPassAdditions/@audit_id=AUD-SIM3-010",
+      "candidateGapSidecarRef": "docs/implementation/observations/pdp0-semantic-audit-slices/third-pass-001-073.json#AUD-SIM3-010",
+      "qcRecommendation": "EXTERNAL_OWNER_BLOCKER",
+      "narrowestOwnerOrDisposition": "P0 acceptance AC-034 already defines stochastic estimates, distribution, seed, sample count, confidence bounds, and rejects deterministic-truth labeling. Thus a generic stochastic-contract gap is overstated. It does not establish economic/epidemiological model scope or PRNG identity semantics. Require a qualified domain owner to decide those families’ applicability and scope before adding a P0 definition; if accepted, refine existing agent capability/requirement, then put typed PRNG/version details in PDP-1. No scientific qualification implied.",
+      "phaseBoundaryRationale": "media.simulation.agent; MEDIA-DECL-P0-AC-034; MEDIA-REQ-CAP-SIMULATION",
+      "ownerApproval": "NOT_CLAIMED"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "reportId": "PDP0-ACCEPTANCE-CASE-AUDIT-84-61-2026-10-18",
+  "campaignScope": "Ghatana Media PDP-0 Product Truth; Recorder/Studio successor and declarative production acceptance cases",
+  "macroStage": "DISCOVERY",
+  "phase": "PDP-0",
+  "reviewKind": "read-only semantic observation; no canonical sources edited",
+  "sourceFingerprints": {
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "sha256:87f09fa9e4315896ccef2b683c2d20128d01e81c1d13b7790badf1bd4ef1c3bb",
+    ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "sha256:a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "sha256:4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+    ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml": "sha256:2359ae53756a4d35d84387707345c439c87050c6efafed40e5426e1c8e3e5ca4",
+    "scripts/check-media-recorder-studio-definitions.mjs": "sha256:e479e52dbb397a96d5d36a3b4d2ea625d84d41d2673e1705bb8545527c625709",
+    "scripts/check-media-declarative-production-definitions.mjs": "sha256:8127eb7362829aeca1d292d45ffb9f9fb7f55d970b3eaa0a390aee7fae2eeb1f",
+    "tests/media-recorder-studio-definitions.test.mjs": "sha256:0d0a8a32ae549eef8b111897e607357b301ffce50d1690e9eb925704a97b210e",
+    "tests/media-declarative-production-definitions.test.mjs": "sha256:e2a3372fa4dbf0c88f6ee5388ee58fab955fb5bb9672648598fd793c6f9f9643"
+  },
+  "denominator": {
+    "recorderCaseCountExpected": 84,
+    "recorderCaseCountFound": 84,
+    "declarativeCaseCountExpected": 61,
+    "declarativeCaseCountFound": 61,
+    "totalExpected": 145,
+    "totalFound": 145,
+    "uniqueStableIds": 145,
+    "missingIds": [],
+    "duplicateIds": [],
+    "missingGivenWhenThenRejection": 0,
+    "missingParentRequirementCapabilityOrSurfaceTrace": 0
+  },
+  "dispositionCounts": {
+    "BOUND_EXISTING": 96,
+    "PDP0_MEANING_CHANGE_REQUIRED": 49,
+    "EXPLICIT_NOT_APPLICABLE": 0,
+    "POST_PDP_IMPLEMENTATION_ONLY": 0,
+    "BLOCKED_EXTERNAL_OWNER_DECISION": 0
+  },
+  "findings": [
+    {
+      "stableId": "PDP0-AC-001-ACTOR-AND-AUTHORITY-CONTEXT",
+      "disposition": "PDP0_MEANING_CHANGE_REQUIRED",
+      "phase": "PDP-0",
+      "owner": "Media PDP-0 declarativeProductionProfile",
+      "source": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "jsonPointer": "#/declarativeProductionProfile/acceptanceClauses[id=MEDIA-DECL-P0-AC-001..039,052..061]/given",
+      "affectedSourceIds": [
+        "MEDIA-DECL-P0-AC-001", "MEDIA-DECL-P0-AC-002", "MEDIA-DECL-P0-AC-003", "MEDIA-DECL-P0-AC-004", "MEDIA-DECL-P0-AC-005", "MEDIA-DECL-P0-AC-006", "MEDIA-DECL-P0-AC-007", "MEDIA-DECL-P0-AC-008", "MEDIA-DECL-P0-AC-009", "MEDIA-DECL-P0-AC-010", "MEDIA-DECL-P0-AC-011", "MEDIA-DECL-P0-AC-012", "MEDIA-DECL-P0-AC-013", "MEDIA-DECL-P0-AC-014", "MEDIA-DECL-P0-AC-015", "MEDIA-DECL-P0-AC-016", "MEDIA-DECL-P0-AC-017", "MEDIA-DECL-P0-AC-018", "MEDIA-DECL-P0-AC-019", "MEDIA-DECL-P0-AC-020", "MEDIA-DECL-P0-AC-021", "MEDIA-DECL-P0-AC-022", "MEDIA-DECL-P0-AC-023", "MEDIA-DECL-P0-AC-024", "MEDIA-DECL-P0-AC-025", "MEDIA-DECL-P0-AC-026", "MEDIA-DECL-P0-AC-027", "MEDIA-DECL-P0-AC-028", "MEDIA-DECL-P0-AC-029", "MEDIA-DECL-P0-AC-030", "MEDIA-DECL-P0-AC-031", "MEDIA-DECL-P0-AC-032", "MEDIA-DECL-P0-AC-033", "MEDIA-DECL-P0-AC-034", "MEDIA-DECL-P0-AC-035", "MEDIA-DECL-P0-AC-036", "MEDIA-DECL-P0-AC-037", "MEDIA-DECL-P0-AC-038", "MEDIA-DECL-P0-AC-039", "MEDIA-DECL-P0-AC-052", "MEDIA-DECL-P0-AC-053", "MEDIA-DECL-P0-AC-054", "MEDIA-DECL-P0-AC-055", "MEDIA-DECL-P0-AC-056", "MEDIA-DECL-P0-AC-057", "MEDIA-DECL-P0-AC-058", "MEDIA-DECL-P0-AC-059", "MEDIA-DECL-P0-AC-060", "MEDIA-DECL-P0-AC-061"
+      ],
+      "whatIsWrong": "These 49 cases use only the shared precondition 'A declared source and authorized Media project revision are in scope.' The declarative-production profile defines a source owner but no shared participant-actor binding or actor applicability rule. Consequently the cases do not identify whose product outcome is being served or distinguish the participant actor from the authority that admits a Media effect. This leaves an ambiguity in product-truth intent across animation, simulation, and unified production cases; it is not a request to add authorization mechanics to each case.",
+      "predecessor": "PDP-0 canonical actor and responsibility definitions (requirements.yaml actorReferenceAuthority; actors-responsibilities.yaml); resolve their applicability for the declarativeProductionProfile before refining the cases.",
+      "acceptanceCriteria": "For each affected case, identify or normatively inherit the intended participant actor/outcome from a source-grounded canonical actor and state that participant identity does not itself grant effect authority; name the relevant product/consumer authority owner where that boundary changes meaning. Preserve stable case IDs, existing requirement/capability/surface traces, and keep detailed authorization checks out of the case if they belong to platform/PDP-1 contracts. A validator should reject an unbound case/profile while accepting an explicit shared profile-level actor rule.",
+      "nextAction": "Reconcile actor/outcome meaning at PDP-0, then refresh only dependent profile projections and re-run the PDP-0 definition validation. No owner approval or phase completion is asserted."
+    }
+  ],
+  "coverageNotes": {
+    "recorder84": "All 84 clauses have stable IDs, given/when/then/rejection, canonical parent requirement, capability leaf and owner surface. Feature profiles reference all 84 exactly once; the definition checker additionally verifies actor bindings at feature-profile level, exact surface/capability group ownership and denominator preservation. Reviewed as BOUND_EXISTING for PDP-0 in this bounded subtask.",
+    "declarative61": "All 61 clauses have stable IDs, given/when/then/rejection, parent requirement, capability leaf and surface. Twelve TutorPutor-specific clauses (MEDIA-DECL-P0-AC-040..051) explicitly identify an authorized TutorPutor consumer and the public AEF contract; the remaining 49 are the finding above.",
+    "authorityAndReadback": "Across the cases, explicit rejection semantics cover unsupported/unavailable/unknown or denied states in the areas reviewed; Recorder business outcome readback is explicit in MEDIA-REC-P0-AC-013 and MEDIA-REC-P0-AC-045. The declarative cases make source/model/origin and product-versus-science authority boundaries explicit in relevant cases (notably AC-034..039, AC-041..051, AC-053, AC-056, AC-059, AC-061). No independent owner acceptance is evidenced.",
+    "phaseBoundaries": "Typed schema/solver/RNG/time representation detail belongs to PDP-1; UI/API/CLI interaction parity belongs to PDP-2; end-to-end journeys and surface completion belong to PDP-3. Findings discovered in these lanes were not included as PDP-0 tasks."
+  },
+  "nativeCheckResults": {
+    "pnpm check:recorder-studio-definition": "PASS; structurally reconciled 84 cases, 462 leaves, 38 parent requirements and 4 surfaces. Checker explicitly does not assert DEV_COMPLETE, acceptance, runtime or release.",
+    "pnpm test:recorder-studio-definition": "PASS; 44 tests (per native command output).",
+    "pnpm check:declarative-production-definition": "FAIL; reads a PDP-3 YAML syntax error at .product-experience/pdp-3-product-experience/declarative-production-experience.yaml line 25 column 87, then reports missing PDP-3 successor bindings for all 61 cases. This is a later-phase handoff, not a PDP-0 source defect.",
+    "pnpm test:declarative-production-definition": "8/9 pass; aggregate test fails due to the same PDP-3 parse/binding issue. PDP-0-specific tests for case removal/duplication, PDP-1 operation omission and PDP-2 binding drift pass."
+  },
+  "authorization": {
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "developmentCompletion": "NOT_CLAIMED"
+  }
+}

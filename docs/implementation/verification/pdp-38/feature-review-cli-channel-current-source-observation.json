@@ -10,7 +10,7 @@
   "scope": "Additive current-source observation for the single PXD-098 CLI channel referent in the client-channel-applicability clause. It records substantive additions without asserting parity.",
   "sourcePath": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
   "sourcePinSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
-  "currentSourceSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+  "currentSourceSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
   "record": {
     "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.cli",
     "identity": "media.channel.cli",
@@ -204,7 +204,7 @@
     "status": "ADDITIVE_CURRENT_SOURCE_OBSERVATION; PROPOSED_DECISION_REFERENCE",
     "sourcePath": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
     "priorPxd105CurrentSourceSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
-    "currentSourceSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+    "currentSourceSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
     "cliRecordContentSha256": "5a70a1fb9b9f4bcbd26a57b987b264006272b03a1d68c45ed14906bce7b65f92",
     "cliRecordUnchangedSincePxd105": true,
     "changedPaths": [
@@ -306,7 +306,7 @@
           "ownerDefinitionApplicability"
         ],
         "prior": null,
-        "currentSha256": "c6c66520fee24d5be55fa160133d78b2a5e954116611bab398ad789a50f7f0c1"
+        "currentSha256": "4e6cedc190bf1cf009c6f4c0b01613051118cffce41971f02b4d4611ec438fd3"
       },
       {
         "path": [
@@ -337,13 +337,13 @@
       }
     ],
     "acceptanceEffect": "none",
-    "interpretation": "The CLI channel record itself is unchanged from its PXD-105 current-source content. This additive supplement pins the new full source cut and records the P0 feature-review authority and Web applicability changes in the same source document; the historical CLI and PXD-098/PXD-105 pins remain unchanged.",
+    "interpretation": "The CLI channel record remains unchanged. This supplement pins the current full source cut, including unrelated current P0 owner-scope additions elsewhere in the same file; only the separately enumerated P0 feature-review authority and Web applicability paths are recorded here. No CLI clause approval or channel admission is renewed.",
     "webJourneyViewCurrentSourceObservation": {
       "status": "ADDITIVE_CURRENT_SOURCE_OBSERVATION; PROPOSED_DECISION_REFERENCE",
       "scope": "P0-07 Web definition applicability for the media.project family only, grounded in owner-linked journey J-21 and its proposed views.",
       "reason": "The P0 source correction adds J-21 to the media.project Web consumer map and includes J-21's proposed view context. This Web applicability update is unrelated to the CLI channel referent.",
       "priorApplicationsChannelsSha256": "2cc8a91ef71ca49f74fdeb5e929ec7b414963a814fa493e9b3687370a675d883",
-      "currentApplicationsChannelsSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+      "currentApplicationsChannelsSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
       "journeySourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-21",
       "journeyContentSha256": "8451825b6892be01432ee1b5791a88c49eb808dbddb28890204e67a77354f78c",
       "consumerSourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.web/ownerDefinitionApplicability/familyConsumers/0",
@@ -353,5 +353,6 @@
       "cliRecordUnchanged": true,
       "acceptanceEffect": "none"
     }
-  }
+  },
+  "interpretation": "The CLI channel record remains unchanged at its exact PXD-105 referent. The full applications-channels source hash is refreshed to the current P0-07 source cut; unrelated owner-scope additions elsewhere in that document do not change the CLI referent. This observation records source currentness only and does not assert semantic equivalence, clause renewal, implementation, or channel admission."
 }

@@ -1,0 +1,65 @@
+{
+  "reportId": "PDP0-ACCEPTANCE-OUTCOME-QC-2026-10-18",
+  "campaignScope": "Media PDP-0 acceptance outcome quality; Recorder/Studio and declarative production cases",
+  "macroStage": "DISCOVERY",
+  "exactPhase": "PDP-0 Product Truth",
+  "reviewMode": "Independent read-only second pass; complements actor-inheritance review in acceptance-cases-84-61-review.json",
+  "sourceFingerprints": {
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "sha256:87f09fa9e4315896ccef2b683c2d20128d01e81c1d13b7790badf1bd4ef1c3bb",
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "sha256:4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+    ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "sha256:a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
+    ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml": "sha256:6a2fc2108a7f03456777294f1eb5edebf9d5f2d0317a5b9cd32ab6b488175b4f",
+    ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml": "sha256:c9c44eb9b1fcd3df5ae8b7e2980e2ee0ac1c643d6bf834d2abcb440777189ecf",
+    ".product-experience/pdp-3-product-experience/declarative-production-experience.yaml": "sha256:7842d131ddc7b5a7e4e4399f48ceba0f29387afe431f3543c92cf7412dcf076c"
+  },
+  "denominator": {
+    "recorder": 84,
+    "declarative": 61,
+    "total": 145,
+    "uniqueExpectedIds": 145,
+    "uniqueFoundIds": 145,
+    "missingIds": [],
+    "duplicateIds": [],
+    "missingRequiredFields": [],
+    "invalidRequirementCapabilitySurfaceTraces": []
+  },
+  "remainingChecklistDisposition": {
+    "BOUND_EXISTING": 145,
+    "PDP0_MEANING_CHANGE_REQUIRED": 0,
+    "EXPLICIT_NOT_APPLICABLE": 0,
+    "POST_PDP_IMPLEMENTATION_ONLY": 0,
+    "BLOCKED_EXTERNAL_OWNER_DECISION": 0
+  },
+  "reviewFindings": [],
+  "criteria": {
+    "givenPreconditions": "Every case has a nonempty given. Recorder cases state the intent/source/project/admission condition; declarative cases state the shared source+authorized revision condition or the TutorPutor public-contract condition. The separate actor inheritance finding from the first pass remains outstanding for 49 declarative cases; this second pass found no additional condition gap beyond it.",
+    "whenAndPositiveOutcome": "All 145 have nonempty, case-specific when and then; evaluated the positive outcome for alignment with the declared source capability and parent requirement.",
+    "rejectionAndUnavailable": "All 145 have a rejection condition. Cases that depend on a provider, permission, source, solver, finality or rights also define denied/unavailable/unknown behavior in the case or a shared source-bound downstream profile. Cases not claiming those contingent effects do not need a fabricated unavailable state.",
+    "authoritativeReadback": "Explicit product-effect/readback claims are bounded: Recorder AC-013 records typed owner result/postcondition/finality; AC-043 reconciles exact request identity and authoritative outcome; AC-045 compares the owner result/postcondition to the authored journey. Declarative result contracts require exact model/media result, source version, effect finality, denial and safe recovery. Scientific outputs remain model-owner-scoped and are not treated as business-effect receipts.",
+    "surfaceAndRequirementTrace": "Every case has an owning logical surface, canonical parent requirement, capability leaf and direct ownership of that capability by the cited parent requirement; all cited leaf IDs exist in the canonical capabilities source.",
+    "downstreamObligations": "Recorder 84-case downstream counts are explicitly 84 in the PDP-1 operation crosswalk and PDP-2 acceptance-case projection. Declarative 61 IDs have exact PDP-1 operation bindings, exact PDP-2 interface bindings, and 61 PDP-3 case-experience source IDs in raw source. These are trace-obligation observations, not proof that the later PDP definitions are complete or accepted."
+  },
+  "downstreamHandoffs": [
+    {
+      "phase": "PDP-3",
+      "source": ".product-experience/pdp-3-product-experience/declarative-production-experience.yaml",
+      "issue": "Source contains 61 exact case IDs but is not parseable YAML (parser error line 25, column 87); native declarative checker reports the P3 successor bindings missing. Repair and validate only when the campaign reaches PDP-3.",
+      "affectedIds": "MEDIA-DECL-P0-AC-001..061",
+      "classification": "later-phase definition source defect; not a PDP-0 finding"
+    },
+    {
+      "phase": "PDP-1/PDP-2/PDP-3",
+      "source": "Cross-phase contracts and bindings named above",
+      "issue": "Review their phase-local typed domain, interface, journey and channel contracts when those phases are reached in order; this pass does not certify them.",
+      "affectedIds": "All 145 P0 cases",
+      "classification": "required successor work; not a PDP-0 defect"
+    }
+  ],
+  "nativeSourceCheck": "PDP-1 and PDP-2 declarative bindings are 61 unique exact matches. PDP-3 raw case IDs are 61 but YAML parsing fails. Canonical PDP-0 schema fields and requirement/capability/surface traces validated by direct read-only parse and identity comparison.",
+  "authority": {
+    "ownerApproval": "NOT_CLAIMED",
+    "acceptance": "NOT_CLAIMED",
+    "phaseStatus": "NOT_CLAIMED",
+    "canonicalFilesEdited": false
+  }
+}

@@ -538,7 +538,7 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     sourceRef === policyAuthority.sourceRef && identity === policyAuthority.identity && contentSha256 === policyAuthority.historicalPxd098ContentSha256));
   if (!policyAuthorityHistoricalReferent) fail("PXD-098 policy-authority observation lacks its exact historical referent");
   approvedCurrentSourceObservation.set(policyAuthority.sourceRef, policyAuthority);
-  const cliChannelExpectedSha256 = "8f7dd8bb2b745dc1ad21002cd536feb560241a9b6ed9d61612e338c687471ed9";
+  const cliChannelExpectedSha256 = "5e7c542991535ea4084faec0ec80a359650acf81f99259f1db3cc66cac3966d6";
   const cliChannel = cliChannelObservation?.record;
   const cliChannelSource = cliChannel ? resolveSelector(cliChannel.sourceRef, sourceDocuments) : undefined;
   const cliChannelHash = cliChannelSource === undefined ? null : createHash("sha256").update(JSON.stringify(cliChannelSource)).digest("hex");

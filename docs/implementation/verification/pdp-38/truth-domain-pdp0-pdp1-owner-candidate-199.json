@@ -579,7 +579,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "241b497e5b8fda11098cd91f1349d3f581bb96aa05132cbee61754ae9f31a37d",
-        "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+        "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
         "priorTargetValueSha256": "50880334741263b2de9ce0c352d4a04efc120ec30901ebf865cdaa9e01b173b4",
         "currentTargetValueSha256": "50880334741263b2de9ce0c352d4a04efc120ec30901ebf865cdaa9e01b173b4",
         "currentTargetValuePreview": "prospective-Phase-0-definition; not accepted Product Truth",
@@ -1334,7 +1334,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
-        "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+        "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
         "priorTargetValueSha256": "cd5a15b61dedc49bb53667afd3cdb8802d845b13d0eb420b3dfd2e6799049516",
         "currentTargetValueSha256": "cd5a15b61dedc49bb53667afd3cdb8802d845b13d0eb420b3dfd2e6799049516",
         "currentTargetValuePreview": "Command-line batch interface",
@@ -1366,7 +1366,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+              "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "1df50f0d3783381d5331bd1f75db0166154f8a5398bf62f807d4b4afef79e019",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved."
@@ -1378,7 +1378,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+              "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "1df50f0d3783381d5331bd1f75db0166154f8a5398bf62f807d4b4afef79e019",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved."
@@ -1780,7 +1780,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "241b497e5b8fda11098cd91f1349d3f581bb96aa05132cbee61754ae9f31a37d",
-        "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+        "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
         "priorTargetValueSha256": "6f18e212dee2a06f021a4c7a7ba8649f904a53839523b812dacd28cfd4c46ea1",
         "currentTargetValueSha256": "6f18e212dee2a06f021a4c7a7ba8649f904a53839523b812dacd28cfd4c46ea1",
         "currentTargetValuePreview": "durable audit/effect intent for consequential effects",
@@ -2370,7 +2370,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
-        "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+        "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
         "priorTargetValueSha256": "ca5f8b409a7d60077f4a3138ab937e34d87e7539a3c18f4fa95c13683f177b5a",
         "currentTargetValueSha256": "ca5f8b409a7d60077f4a3138ab937e34d87e7539a3c18f4fa95c13683f177b5a",
         "currentTargetValuePreview": "Primary interactive product surface if selected and admitted.",
@@ -2812,7 +2812,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
-        "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+        "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
         "priorTargetValueSha256": "93381cb916f3638e245c4639248e30d8df79c996fe12607f84ab53bcaf0afc58",
         "currentTargetValueSha256": "93381cb916f3638e245c4639248e30d8df79c996fe12607f84ab53bcaf0afc58",
         "currentTargetValuePreview": "docs/migration/expert-reviewed-master-plan.md",
@@ -2860,7 +2860,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
-        "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+        "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
         "priorTargetValueSha256": "e32189fe2659770c10339b63b3a0a10e79f1a2071c61c073322858d23153cd95",
         "currentTargetValueSha256": "e32189fe2659770c10339b63b3a0a10e79f1a2071c61c073322858d23153cd95",
         "currentTargetValuePreview": "media.channel.cli",
@@ -3734,7 +3734,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "167d8f3509a5120b43d004d489a8605d78db40a022776b974d51e85065fdd03f",
-              "currentSourceFileSha256": "557558efb724959262aecf069d58869fa7e5870ac3b9813ac9791585eafdf455",
+              "currentSourceFileSha256": "0b30f351633d5d0209ea5f20a8a1b89d8641b086b3c554119014c22cf4e7d7ad",
               "priorSourceValueSha256": "4664b7f37af759b0b9f978da8a2f50b83d4e74d15fab50e8b7e1893aff63d8ee",
               "currentSourceValueSha256": "4664b7f37af759b0b9f978da8a2f50b83d4e74d15fab50e8b7e1893aff63d8ee",
               "reason": "Exact current owner material re-observed after bounded PDP-0 migration review; historical pins are preserved, and this observation does not imply runtime or phase acceptance."
@@ -3748,7 +3748,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "167d8f3509a5120b43d004d489a8605d78db40a022776b974d51e85065fdd03f",
-              "currentSourceFileSha256": "557558efb724959262aecf069d58869fa7e5870ac3b9813ac9791585eafdf455",
+              "currentSourceFileSha256": "0b30f351633d5d0209ea5f20a8a1b89d8641b086b3c554119014c22cf4e7d7ad",
               "priorSourceValueSha256": "542e802bc885218129b369f5b792a7b82c2924330c7216e844f152b4c7502552",
               "currentSourceValueSha256": "542e802bc885218129b369f5b792a7b82c2924330c7216e844f152b4c7502552",
               "reason": "Exact current owner material re-observed after bounded PDP-0 migration review; historical pins are preserved, and this observation does not imply runtime or phase acceptance."
@@ -3762,7 +3762,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "167d8f3509a5120b43d004d489a8605d78db40a022776b974d51e85065fdd03f",
-              "currentSourceFileSha256": "557558efb724959262aecf069d58869fa7e5870ac3b9813ac9791585eafdf455",
+              "currentSourceFileSha256": "0b30f351633d5d0209ea5f20a8a1b89d8641b086b3c554119014c22cf4e7d7ad",
               "priorSourceValueSha256": "e6be8c860894bfa0fd19eb7b8afb2b6d180211bdddfb842ee37e0f52b40718df",
               "currentSourceValueSha256": "e6be8c860894bfa0fd19eb7b8afb2b6d180211bdddfb842ee37e0f52b40718df",
               "reason": "Exact current owner material re-observed after bounded PDP-0 migration review; historical pins are preserved, and this observation does not imply runtime or phase acceptance."
@@ -3776,7 +3776,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "167d8f3509a5120b43d004d489a8605d78db40a022776b974d51e85065fdd03f",
-              "currentSourceFileSha256": "557558efb724959262aecf069d58869fa7e5870ac3b9813ac9791585eafdf455",
+              "currentSourceFileSha256": "0b30f351633d5d0209ea5f20a8a1b89d8641b086b3c554119014c22cf4e7d7ad",
               "priorSourceValueSha256": "90a625c54a04242f2667eee2433658714da12ed47ed4245c942ab64435b1d0fa",
               "currentSourceValueSha256": "90a625c54a04242f2667eee2433658714da12ed47ed4245c942ab64435b1d0fa",
               "reason": "Exact current owner material re-observed after bounded PDP-0 migration review; historical pins are preserved, and this observation does not imply runtime or phase acceptance."
@@ -3790,7 +3790,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "167d8f3509a5120b43d004d489a8605d78db40a022776b974d51e85065fdd03f",
-              "currentSourceFileSha256": "557558efb724959262aecf069d58869fa7e5870ac3b9813ac9791585eafdf455",
+              "currentSourceFileSha256": "0b30f351633d5d0209ea5f20a8a1b89d8641b086b3c554119014c22cf4e7d7ad",
               "priorSourceValueSha256": "57fadcab1871773b6084fb843387b968f56e5e4fec286bb7522d83268dd1b947",
               "currentSourceValueSha256": "57fadcab1871773b6084fb843387b968f56e5e4fec286bb7522d83268dd1b947",
               "reason": "Exact current owner material re-observed after bounded PDP-0 migration review; historical pins are preserved, and this observation does not imply runtime or phase acceptance."
@@ -3804,7 +3804,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "167d8f3509a5120b43d004d489a8605d78db40a022776b974d51e85065fdd03f",
-              "currentSourceFileSha256": "557558efb724959262aecf069d58869fa7e5870ac3b9813ac9791585eafdf455",
+              "currentSourceFileSha256": "0b30f351633d5d0209ea5f20a8a1b89d8641b086b3c554119014c22cf4e7d7ad",
               "priorSourceValueSha256": "1576e527384355c822754c978ccda352051788392b63c89abf2c153dd6b33029",
               "currentSourceValueSha256": "1576e527384355c822754c978ccda352051788392b63c89abf2c153dd6b33029",
               "reason": "Exact current owner material re-observed after bounded PDP-0 migration review; historical pins are preserved, and this observation does not imply runtime or phase acceptance."
@@ -3818,7 +3818,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "167d8f3509a5120b43d004d489a8605d78db40a022776b974d51e85065fdd03f",
-              "currentSourceFileSha256": "557558efb724959262aecf069d58869fa7e5870ac3b9813ac9791585eafdf455",
+              "currentSourceFileSha256": "0b30f351633d5d0209ea5f20a8a1b89d8641b086b3c554119014c22cf4e7d7ad",
               "priorSourceValueSha256": "0cccae50a9ea24ff02702636cde7e5ad75ccba24cf24e8ce0d5b183a0c9e46d4",
               "currentSourceValueSha256": "0cccae50a9ea24ff02702636cde7e5ad75ccba24cf24e8ce0d5b183a0c9e46d4",
               "reason": "Exact current owner material re-observed after bounded PDP-0 migration review; historical pins are preserved, and this observation does not imply runtime or phase acceptance."
@@ -3832,7 +3832,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "167d8f3509a5120b43d004d489a8605d78db40a022776b974d51e85065fdd03f",
-              "currentSourceFileSha256": "557558efb724959262aecf069d58869fa7e5870ac3b9813ac9791585eafdf455",
+              "currentSourceFileSha256": "0b30f351633d5d0209ea5f20a8a1b89d8641b086b3c554119014c22cf4e7d7ad",
               "priorSourceValueSha256": "732b3dbccdb1b514b46710fb79d10f308028260c352f2b5d1324f4bc9ebfcd06",
               "currentSourceValueSha256": "732b3dbccdb1b514b46710fb79d10f308028260c352f2b5d1324f4bc9ebfcd06",
               "reason": "Exact current owner material re-observed after bounded PDP-0 migration review; historical pins are preserved, and this observation does not imply runtime or phase acceptance."
@@ -3960,7 +3960,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "6735c58f3358fd2d6d64139b3f57c6586d59cae27969f546a7574541afeaeb30",
-              "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+              "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
               "priorSourceValueSha256": "e692e1ac261c84451574ea611bd42b5fb9413ca79e52d64b9acffae6ba389191",
               "currentSourceValueSha256": "528d2743c10dc3678364a3c4ff7ea6f096c002316bd511b155b11e777c65a6c5",
               "reason": "Exact current owner material re-observed after bounded PDP-0 migration review; historical pins are preserved, and this observation does not imply runtime or phase acceptance.",
@@ -4067,7 +4067,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
-        "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+        "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
         "priorTargetValueSha256": "8cbd225741c0493143989457008f9228930dc073384bf0c9dc7ab603f16288a9",
         "currentTargetValueSha256": "8cbd225741c0493143989457008f9228930dc073384bf0c9dc7ab603f16288a9",
         "currentTargetValuePreview": "A TypeScript client package source is present.",
@@ -4245,7 +4245,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
-        "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+        "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
         "priorTargetValueSha256": "e881064440088c2cc2a417831f6c33c3321cac1b3f36f39c7ed7232ba1fb8deb",
         "currentTargetValueSha256": "e881064440088c2cc2a417831f6c33c3321cac1b3f36f39c7ed7232ba1fb8deb",
         "currentTargetValuePreview": "gRPC service contracts",
@@ -5097,7 +5097,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+              "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "881caa800f1fee5a160ae0f70f58db790f50da17baebef3c4c585c0707551a68",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved.",
@@ -5244,7 +5244,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+              "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "440872ae8ebe03aa844f532b4fc8cd87e4204894442a91ca9c2be47454e669d9",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved.",
@@ -5317,7 +5317,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+              "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "440872ae8ebe03aa844f532b4fc8cd87e4204894442a91ca9c2be47454e669d9",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved.",
@@ -5368,7 +5368,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "241b497e5b8fda11098cd91f1349d3f581bb96aa05132cbee61754ae9f31a37d",
-        "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+        "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
         "priorTargetValueSha256": "50880334741263b2de9ce0c352d4a04efc120ec30901ebf865cdaa9e01b173b4",
         "currentTargetValueSha256": "50880334741263b2de9ce0c352d4a04efc120ec30901ebf865cdaa9e01b173b4",
         "currentTargetValuePreview": "prospective-Phase-0-definition; not accepted Product Truth",
@@ -5438,7 +5438,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+              "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "654a50253717b5971920a2482914ed29c7032f6e1473078f488bb364a251f4c0",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved.",
@@ -5934,7 +5934,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+              "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "aaa28d71312a8561ac51259f5c5bb69c783240c009dbe69f68399fe16b316b8f",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved.",
@@ -5947,7 +5947,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+              "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "5e87a2ce8009480799c3b29bf3afd25e5bfe722359ae3691c062376ea67ee868",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved.",
@@ -6344,7 +6344,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+              "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "27023b82572c4255153a777eea8a7ab772e37f0379f570574be05dc619178721",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved.",
@@ -6357,7 +6357,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+              "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "02ba5e63d5a396e96fdf66a296e766ddd8094167d54b3b0836ba1a9b30ec1815",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved.",
@@ -6930,7 +6930,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "17f04d99a828604094e807f5294157d1014636b04c2f7eef28c4a28fe95b7bb6",
-              "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+              "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
               "priorSourceValueSha256": "e2a7f2f6f02ee0d77484fc85891d3c74c9a128d9800ff2e0f568b0af604759fd",
               "currentSourceValueSha256": "cf7e5a02993d17ecb9bb1084fef51c50b254a7f5b7768d9b380267dad14cf526",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved.",
@@ -6945,7 +6945,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "17f04d99a828604094e807f5294157d1014636b04c2f7eef28c4a28fe95b7bb6",
-              "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+              "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
               "priorSourceValueSha256": "e2a7f2f6f02ee0d77484fc85891d3c74c9a128d9800ff2e0f568b0af604759fd",
               "currentSourceValueSha256": "cf7e5a02993d17ecb9bb1084fef51c50b254a7f5b7768d9b380267dad14cf526",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved.",
@@ -6960,7 +6960,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "17f04d99a828604094e807f5294157d1014636b04c2f7eef28c4a28fe95b7bb6",
-              "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+              "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
               "priorSourceValueSha256": "09d2a8dc6844c9dc8ce372195962856a0966a29c8905ab31a3ad488cb206bf71",
               "currentSourceValueSha256": "09d2a8dc6844c9dc8ce372195962856a0966a29c8905ab31a3ad488cb206bf71",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved.",
@@ -7751,7 +7751,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
-        "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+        "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
         "priorTargetValueSha256": "ae09864fc0cd26d151590334faef7410e6c3b44d256c631c9b22620daf7502c0",
         "currentTargetValueSha256": "ae09864fc0cd26d151590334faef7410e6c3b44d256c631c9b22620daf7502c0",
         "currentTargetValuePreview": "An active or supported desktop application.",
@@ -8670,7 +8670,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
-        "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+        "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
         "priorTargetValueSha256": "93381cb916f3638e245c4639248e30d8df79c996fe12607f84ab53bcaf0afc58",
         "currentTargetValueSha256": "93381cb916f3638e245c4639248e30d8df79c996fe12607f84ab53bcaf0afc58",
         "currentTargetValuePreview": "docs/migration/expert-reviewed-master-plan.md",
@@ -9560,7 +9560,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "241b497e5b8fda11098cd91f1349d3f581bb96aa05132cbee61754ae9f31a37d",
-        "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+        "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
         "priorTargetValueSha256": "006527183de799928b50e84c36fdf65e04ca37f3225b29d75e7b0b224c8988ea",
         "currentTargetValueSha256": "006527183de799928b50e84c36fdf65e04ca37f3225b29d75e7b0b224c8988ea",
         "currentTargetValuePreview": "Return typed validation, authority, rights/license, unsupported-capability, capacity, timeout, cancellation, provider-ambiguity, and internal-failure outcomes as applicable.",
@@ -9688,7 +9688,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "241b497e5b8fda11098cd91f1349d3f581bb96aa05132cbee61754ae9f31a37d",
-        "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+        "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
         "priorTargetValueSha256": "268ddcff8092e53f2471f04f7f626ae11504feb9358b76b49116ec71304adeb9",
         "currentTargetValueSha256": "268ddcff8092e53f2471f04f7f626ae11504feb9358b76b49116ec71304adeb9",
         "currentTargetValuePreview": "Expose safe remediation, retry/cancel/reconcile eligibility, and finality; do not silently downgrade preservation, quality, spatial/scientific fidelity, or delivery constraints.",
@@ -10452,7 +10452,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
-              "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+              "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
               "priorSourceValueSha256": "42dc91b6c24d19e4bcf2ca59b365907e2889dab3d523c183af3167ddda324e35",
               "currentSourceValueSha256": "42dc91b6c24d19e4bcf2ca59b365907e2889dab3d523c183af3167ddda324e35",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved."
@@ -10466,7 +10466,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
-              "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+              "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
               "priorSourceValueSha256": "be88adfd0d8acc54053c1d2f6f5636b186e66fa59bac9a2e226a20eaf8328274",
               "currentSourceValueSha256": "be88adfd0d8acc54053c1d2f6f5636b186e66fa59bac9a2e226a20eaf8328274",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved."
@@ -11134,7 +11134,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+              "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "66df608965199c60abce30d33040d8b30f8b78349266ad8564df4b169c9b773f",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved."
@@ -11146,7 +11146,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+              "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "053ea1960d8559e44a0a25001a229d017bc12eb4fce64dbbc2dec8c44fa84c64",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved."
@@ -11497,7 +11497,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "e28e65020b4695616fb810147f30c107dfb70eb1bbfb9ca415c4594cf8420177",
-              "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+              "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
               "priorSourceValueSha256": "7d483d93dfd01d1896399779add5e434968744e6994fc6f5e5f9a0dcaf34bbf8",
               "currentSourceValueSha256": "7d483d93dfd01d1896399779add5e434968744e6994fc6f5e5f9a0dcaf34bbf8",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved."
@@ -11511,7 +11511,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "e28e65020b4695616fb810147f30c107dfb70eb1bbfb9ca415c4594cf8420177",
-              "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+              "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
               "priorSourceValueSha256": "b50e8e653571dc6935c0fd7d849ecaa2bb4bb84fbe7a635388ca5eba6081895a",
               "currentSourceValueSha256": "b50e8e653571dc6935c0fd7d849ecaa2bb4bb84fbe7a635388ca5eba6081895a",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved."
@@ -11525,7 +11525,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "e28e65020b4695616fb810147f30c107dfb70eb1bbfb9ca415c4594cf8420177",
-              "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+              "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
               "priorSourceValueSha256": "0a83a6245b942e44bcb0aff2105f075febad4d2050392ecddcd6aed83b901a2c",
               "currentSourceValueSha256": "0a83a6245b942e44bcb0aff2105f075febad4d2050392ecddcd6aed83b901a2c",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved."
@@ -11539,7 +11539,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "e28e65020b4695616fb810147f30c107dfb70eb1bbfb9ca415c4594cf8420177",
-              "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+              "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
               "priorSourceValueSha256": "fc376295672f3d551b4f6f9881d797c6ba453ac729df5624c708c539ef63ceb2",
               "currentSourceValueSha256": "fc376295672f3d551b4f6f9881d797c6ba453ac729df5624c708c539ef63ceb2",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved."
@@ -11550,7 +11550,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
-        "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+        "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
         "priorTargetValueSha256": "7cb83a2f3113aa3dea63189a8165273582fdbac881e5bb5e30a8dd874aba1cbb",
         "currentTargetValueSha256": "7cb83a2f3113aa3dea63189a8165273582fdbac881e5bb5e30a8dd874aba1cbb",
         "currentTargetValuePreview": "Native Android and iOS are not admitted by the archived Tauri configuration files.",
@@ -12749,7 +12749,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "241b497e5b8fda11098cd91f1349d3f581bb96aa05132cbee61754ae9f31a37d",
-        "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+        "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
         "priorTargetValueSha256": "6f18e212dee2a06f021a4c7a7ba8649f904a53839523b812dacd28cfd4c46ea1",
         "currentTargetValueSha256": "6f18e212dee2a06f021a4c7a7ba8649f904a53839523b812dacd28cfd4c46ea1",
         "currentTargetValuePreview": "durable audit/effect intent for consequential effects",
@@ -14277,7 +14277,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+              "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "4bce5ab163ca24920207dc8d39c1b4e88d9c06f8ad2e1a8a0b1fdf62081e0882",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved.",
@@ -14329,7 +14329,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "241b497e5b8fda11098cd91f1349d3f581bb96aa05132cbee61754ae9f31a37d",
-        "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+        "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
         "priorTargetValueSha256": "4bce5ab163ca24920207dc8d39c1b4e88d9c06f8ad2e1a8a0b1fdf62081e0882",
         "currentTargetValueSha256": "4bce5ab163ca24920207dc8d39c1b4e88d9c06f8ad2e1a8a0b1fdf62081e0882",
         "currentTargetValuePreview": "Detaching changes no job state; cancellation remains pending until stop evidence is confirmed; an uncertain effect is reconciled under the same job identity before any new attempt ",
@@ -16048,7 +16048,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+              "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "7d3dad10f1cd5d7475bdbf44db03f002eb084bc9c220bc414f93d8f7f79476ae",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved.",
@@ -16084,7 +16084,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "17f04d99a828604094e807f5294157d1014636b04c2f7eef28c4a28fe95b7bb6",
-        "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+        "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
         "priorTargetValueSha256": "7d3dad10f1cd5d7475bdbf44db03f002eb084bc9c220bc414f93d8f7f79476ae",
         "currentTargetValueSha256": "7d3dad10f1cd5d7475bdbf44db03f002eb084bc9c220bc414f93d8f7f79476ae",
         "currentTargetValuePreview": "The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported as available.",
@@ -16618,7 +16618,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
-        "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+        "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
         "priorTargetValueSha256": "e345e937dc9030500d3a6361d14d7c76f036c3d2074a20a5fd104f13e0eadde2",
         "currentTargetValueSha256": "e345e937dc9030500d3a6361d14d7c76f036c3d2074a20a5fd104f13e0eadde2",
         "currentTargetValuePreview": "200-percent text zoom and relevant browser zoom/reflow",
@@ -16844,7 +16844,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+              "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "65f21c8d1622f2dacd50113cabd71806378764f1bb5005f4d567199b9e22b9c4",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved."
@@ -16867,7 +16867,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
-        "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+        "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
         "priorTargetValueSha256": "65f21c8d1622f2dacd50113cabd71806378764f1bb5005f4d567199b9e22b9c4",
         "currentTargetValueSha256": "65f21c8d1622f2dacd50113cabd71806378764f1bb5005f4d567199b9e22b9c4",
         "currentTargetValuePreview": "Locale admission requires testing long labels, translated-caption wrapping, bidi/RTL, shaping, licensed font fallback, and formatting independently per capability.",
@@ -16934,7 +16934,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "b379ebf81596beb499703b33f4252d930682d0a1e42c6aaf9c42fa9622b17d66",
-              "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+              "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
               "priorSourceValueSha256": "7032180fa878883cae53a94bb23e4cb70fa3072b2e4c4b478e180e958ce19980",
               "currentSourceValueSha256": "7032180fa878883cae53a94bb23e4cb70fa3072b2e4c4b478e180e958ce19980",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved."
@@ -17021,7 +17021,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+              "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "722d232999e3f690be3d81a0d0f0a5b57a3189b7079f0848510150c96c33245b",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved."
@@ -17044,7 +17044,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
-        "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+        "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
         "priorTargetValueSha256": "722d232999e3f690be3d81a0d0f0a5b57a3189b7079f0848510150c96c33245b",
         "currentTargetValueSha256": "722d232999e3f690be3d81a0d0f0a5b57a3189b7079f0848510150c96c33245b",
         "currentTargetValuePreview": "Unadmitted or unqualified language/voice choices appear as unavailable with a reason; never silently fall back to English.",
@@ -17143,7 +17143,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+              "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "7032180fa878883cae53a94bb23e4cb70fa3072b2e4c4b478e180e958ce19980",
               "reason": "Exact material binding re-observed against the live source after earlier proposal capture; historical source/value pins are preserved and current semantic delta remains unapproved."
@@ -17291,7 +17291,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
-        "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+        "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
         "priorTargetValueSha256": "ca63280f6e6ad347c7a7349444e5273d02c204f9a691d776ff490932e65df779",
         "currentTargetValueSha256": "ca63280f6e6ad347c7a7349444e5273d02c204f9a691d776ff490932e65df779",
         "currentTargetValuePreview": "Repository/API/client presence is evidence of a source surface only. It does not prove package publication, deployment, qualification, licensing, end-user support, or runtime avail",
@@ -18069,7 +18069,7 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
-        "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+        "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
         "priorTargetValueSha256": "7df1f201b2d1066f644f3966b78258589911b8c55c130c80e8dff42e4cfbcbc2",
         "currentTargetValueSha256": "7df1f201b2d1066f644f3966b78258589911b8c55c130c80e8dff42e4cfbcbc2",
         "currentTargetValuePreview": "Master-plan sections 17 and 20 propose safe bounded batch rendering through CLI; exact commands and installed behavior remain to be authored.",
@@ -18110,7 +18110,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "0c7cd7ebe17de6b614e88a35924e0723f084b89087aab66f05a8173b0437aec1",
-              "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+              "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
               "priorSourceValueSha256": "7df1f201b2d1066f644f3966b78258589911b8c55c130c80e8dff42e4cfbcbc2",
               "currentSourceValueSha256": "7df1f201b2d1066f644f3966b78258589911b8c55c130c80e8dff42e4cfbcbc2",
               "reason": "Exact current owner material re-observed after bounded PDP-0 migration review; historical pins are preserved, and this observation does not imply runtime or phase acceptance."
@@ -18124,7 +18124,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "0c7cd7ebe17de6b614e88a35924e0723f084b89087aab66f05a8173b0437aec1",
-              "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+              "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
               "priorSourceValueSha256": "578eec1a25745b4d4eace7e340238c6020074802c6e661504e95e93f2eb806b9",
               "currentSourceValueSha256": "578eec1a25745b4d4eace7e340238c6020074802c6e661504e95e93f2eb806b9",
               "reason": "Exact current owner material re-observed after bounded PDP-0 migration review; historical pins are preserved, and this observation does not imply runtime or phase acceptance."
@@ -18138,7 +18138,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "0c7cd7ebe17de6b614e88a35924e0723f084b89087aab66f05a8173b0437aec1",
-              "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+              "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
               "priorSourceValueSha256": "908b3439fcddd83bb0c2aaf73fbbb09221dfe2b6e1f45c806669a830f281d5a7",
               "currentSourceValueSha256": "908b3439fcddd83bb0c2aaf73fbbb09221dfe2b6e1f45c806669a830f281d5a7",
               "reason": "Exact current owner material re-observed after bounded PDP-0 migration review; historical pins are preserved, and this observation does not imply runtime or phase acceptance."
@@ -18152,7 +18152,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "0c7cd7ebe17de6b614e88a35924e0723f084b89087aab66f05a8173b0437aec1",
-              "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+              "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
               "priorSourceValueSha256": "0b70c048e73f4a70e28285ec5dcf788bd05c5dde008ffd5d5057779e54fb2b76",
               "currentSourceValueSha256": "0b70c048e73f4a70e28285ec5dcf788bd05c5dde008ffd5d5057779e54fb2b76",
               "reason": "Exact current owner material re-observed after bounded PDP-0 migration review; historical pins are preserved, and this observation does not imply runtime or phase acceptance."
@@ -18166,7 +18166,7 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": "0c7cd7ebe17de6b614e88a35924e0723f084b89087aab66f05a8173b0437aec1",
-              "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+              "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
               "priorSourceValueSha256": "0549d46d0e3897e429f607a99d5a5a375d8a3851c50da6ae838e539fcba7e102",
               "currentSourceValueSha256": "0549d46d0e3897e429f607a99d5a5a375d8a3851c50da6ae838e539fcba7e102",
               "reason": "Exact current owner material re-observed after bounded PDP-0 migration review; historical pins are preserved, and this observation does not imply runtime or phase acceptance."

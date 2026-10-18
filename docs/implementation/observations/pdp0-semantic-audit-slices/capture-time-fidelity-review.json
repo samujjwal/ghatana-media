@@ -1,0 +1,172 @@
+{
+  "schemaVersion": "media.pdp0.capture-time-fidelity-review.v1",
+  "review": {
+    "campaignScope": "PDP-0 source provenance/capture classes and time/model-fidelity meanings from pasted A4/A5 requirements",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "surfaceScope": "Media PDP-0 producer/source truth and cross-cutting temporal/fidelity meaning; no surface applicability or closure decision",
+    "permittedWork": "Read-only semantic review; report downstream ownership separately",
+    "reviewType": "recommendation-only; no owner acceptance or approval claimed",
+    "baselineCommit": "1c65a033d37fd8c2f9b3951c42c92b88fb725c13",
+    "materialInputs": {
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "87f09fa9e4315896ccef2b683c2d20128d01e81c1d13b7790badf1bd4ef1c3bb",
+      ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "65923f1d333c0b7cf259eb1bc0ddfaab30f115dda8993b5685b253526d397904",
+      ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+    }
+  },
+  "summary": {
+    "pdp0DefinitionDisposition": "COVERED_IN_AUTHORED_SOURCE; no phase-local semantic defect identified in the reviewed A4/A5 scope",
+    "nativeValidationDisposition": "NOT_RUN_BY_THIS_READ_ONLY_REVIEW; source checks are validation evidence, not semantic owner acceptance",
+    "statusCaveat": "time-units-fidelity.yaml explicitly labels detailed clock/unit/conversion and fidelity records as proposals, acceptance not submitted, and conversions unqualified. This is not evidence that a conversion is accepted or implemented.",
+    "ownerAcceptance": "NOT_CLAIMED"
+  },
+  "coverage": {
+    "A4_source_classes": [
+      {
+        "class": "REAL_CAPTURE",
+        "disposition": "COVERED",
+        "pdp0Sources": [
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/recorderStudioProfile/acceptanceClauses/@id=MEDIA-REC-P0-AC-006",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/recorderStudioProfile/acceptanceClauses/@id=MEDIA-REC-P0-AC-013",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/recorderStudioProfile/acceptanceClauses/@id=MEDIA-REC-P0-AC-045",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/producerModes",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-053"
+        ],
+        "rationale": "Capture requires an authorized, versioned, rights-eligible source and qualified adapter (REC-006); authored action, typed owner-result readback, postcondition and finality (REC-013); and business-result comparison rather than visual polish or a click/screenshot (REC-045). The five-class composition case rejects generated/synthetic assets represented as real observations (DECL-053)."
+      },
+      {
+        "class": "DECLARATIVE_ANIMATION",
+        "disposition": "COVERED",
+        "pdp0Sources": [
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-001",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-002",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-005",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-007"
+        ],
+        "rationale": "Specification-backed visuals have bounded declarative inputs, stable editable semantic nodes/data bindings, explicit story-time keyframes, and bounded procedural operators. The general taxonomy says rendering does not prove product effects or scientific correctness."
+      },
+      {
+        "class": "MODEL_SIMULATION",
+        "disposition": "COVERED",
+        "pdp0Sources": [
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/ownerDefinedSimulationScopeRules/media.requirement.simulation-family-and-domain-owner-boundary.v1",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-018",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-019",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-021",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-026",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-031",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-036",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-037"
+        ],
+        "rationale": "The source distinguishes model family and typed/model semantics from visual appearance, requires model identity/equations/validity, unit-bearing quantities and explicit solver selection, and separates visual fidelity, model fidelity, and validation tier. Missing qualification facts remain UNQUALIFIED; domain-science authority stays with the named qualified domain owner."
+      },
+      {
+        "class": "GENERATIVE_MEDIA",
+        "disposition": "COVERED",
+        "pdp0Sources": [
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.origin.disclose",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-038",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-053",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-056"
+        ],
+        "rationale": "Origin disclosure distinguishes source-free authored/generated output from consumed source lineage and requires model/engine/profile provenance when applicable, plus produced-versus-estimated labeling. Generated and illustrative values cannot become measurements; generated assets cannot be classified as real observations; rights/consent govern each mixed-source effect and egress."
+      },
+      {
+        "class": "PDP_SYNTHETIC_FIXTURE",
+        "disposition": "COVERED",
+        "pdp0Sources": [
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/recorderStudioProfile/acceptanceClauses/@id=MEDIA-REC-P0-AC-012",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-039",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-053"
+        ],
+        "rationale": "The fixture case requires synthetic-only classification and rejects solver calibration, product-effect, and scientific-truth claims from Explorer fixture replay. Recorder execution fixture seeding is fenced and scoped; it does not convert a fixture into an observed product result."
+      },
+      {
+        "stableId": "P0-OBS-CAPTURE-TRUTH-SEPARATION-001",
+        "disposition": "COVERED",
+        "pdp0Sources": [
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/recorderStudioProfile/acceptanceClauses/@id=MEDIA-REC-P0-AC-013",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/recorderStudioProfile/acceptanceClauses/@id=MEDIA-REC-P0-AC-045",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-037",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-038",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-039"
+        ],
+        "rationale": "Business-state proof requires owner result/postcondition; scientific validity requires documented model/validation facts; render polish cannot stand in for either; generated values and fixture replay retain distinct evidence labels."
+      }
+    ],
+    "A5_clocks_and_fidelity": {
+      "disposition": "COVERED_AT_PDP0_PRODUCT_TRUTH_LEVEL",
+      "pdp0Sources": [
+        ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks",
+        ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/conversionRequirements",
+        ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/simulationAndFidelity/stateSeparation",
+        ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/simulationAndFidelity/domainFidelity",
+        ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/simulationAndFidelity/replayClasses",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-005",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-022",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-023",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#/declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-034"
+      ],
+      "clockDistinctions": {
+        "sourceVideoPTS_DTS": "source_decode_and_presentation_timestamps has original time base, PTS/DTS, stream identity, and mapping; VFR preserves a presentation map or produces a separately identified normalized artifact with explicit report.",
+        "audioSampleTime": "audio_sample_time uses integer sample index plus rational rate; sample format/layout/count and encoder priming/padding are explicit metadata.",
+        "t_story": "story/explanation/editorial presentation time uses rational seconds or exact frame/sample position; pause/seek does not alter model state absent a declared timeline action.",
+        "t_sim": "domain/model simulation time has explicit domain unit; story pause/scrub does not advance it absent bounded model command.",
+        "wall_clock": "operational deadlines, timeout/lease durations, and monotonic process elapsed time are separate from media and simulation time.",
+        "conversion_and_uncertainty": "Each mapping names source/destination clock/rate, origin, rounding/interval policy and measured loss or unknown; rational PTS/rate rather than rounded fps drives mapping; VFR, drift, rounding, encoder priming/padding, and unavailable policies are explicit."
+      },
+      "fidelityDistinctions": {
+        "LOD_vs_model_fidelity": "simulationAndFidelity.domainFidelity explicitly separates scientific/model fidelity from visual quality and visual level of detail; it prohibits a Media alias for TutorPutor-owned F0-F4.",
+        "qualification_expectations": "Replay classes distinguish exact-environment, tolerance-bound, statistical, and replay-unavailable claims. Unqualified solver/output replay remains unavailable/unresolved. P0 simulation rules prohibit cross-family solver substitution and require exact family, inputs/outputs, units/bounds, domain owner, and validation meaning; visual plausibility is not scientific correctness."
+      },
+      "acceptanceCriterion": "Keep all named clocks independent absent explicit conversion/action; unknown/inexact mappings disclose uncertainty/loss or fail closed; never infer scientific F0-F4 from visual polish/LOD; unsupported or unqualified model behavior remains unavailable/unqualified rather than silently substituted.",
+      "disposition": "No P0 semantic defect identified. Detailed typed value definitions and conversion ownership are explicitly pending in P0 source authorityBoundary/owner handoff and belong to a later phase; do not count that as omitted P0 product meaning."
+    }
+  },
+  "phaseLocalTasks": [],
+  "downstreamHandoffs": [
+    {
+      "stableId": "P0-HANDOFF-TIME-TYPED-CONTRACTS-001",
+      "ownerPhase": "PDP-1 Domain & Data",
+      "sourcePointer": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/ownerDefinitionHandoff",
+      "issue": "Bind selected time, sample-boundary, dimensioned scalar, and descriptor meanings to canonical typed domain/value-object contracts and reviewed adapter mappings; retain unresolved legacy fields as unknown.",
+      "predecessor": "PDP-0 source definitions above",
+      "acceptanceCriterion": "Canonical types and conversion profiles preserve clock/stream/origin identity, exact rational mapping, explicit rounding/loss/unknown and do not claim calibration, runtime qualification, or scientific accuracy.",
+      "status": "HANDOFF_ONLY; not a PDP-0 task or review of PDP-1 implementation"
+    },
+    {
+      "stableId": "P0-HANDOFF-FIDELITY-OWNER-ACCEPTANCE-001",
+      "ownerPhase": "External/domain-owner acceptance lane after applicable definition work",
+      "sourcePointer": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/simulationAndFidelity/domainFidelity",
+      "issue": "TutorPutor owns AEF F0-F4 tier meanings and scientific acceptance; Media cannot independently accept a mapping or certify model-specific validity.",
+      "predecessor": "PDP-0 truth-separation requirements",
+      "acceptanceCriterion": "Use a genuine source-bound owner mapping/acceptance for any F0-F4 compatibility claim; preserve NOT_EVALUATED/UNQUALIFIED absent it.",
+      "status": "HANDOFF_ONLY; no owner approval asserted"
+    }
+  ],
+  "nativeChecksReviewed": [
+    {
+      "path": "scripts/check-media-declarative-production-definitions.mjs",
+      "finding": "Checks exact five producer mode set, 61-case identity/coverage and per-case positive/negative/surface fields with cross-phase bindings. Its named-class check alone does not prove each class's semantics; human source review above connects the definitions to REC/DECL clauses. Checker also reads later PDP sources, so this review did not execute it."
+    },
+    {
+      "path": "tests/media-declarative-production-definitions.test.mjs",
+      "finding": "Includes negative mutations for source case removal/duplication, Newton oracle inconsistency and story-time mutation of simulation time; no dedicated per-source-class semantic mutation was identified in the reviewed test."
+    },
+    {
+      "path": "tests/media-temporal-spatial-semantics.test.mjs",
+      "finding": "Checks temporal/spatial source inventory, P0 proposal/status boundary, exact source field distinctions, and guards against premature P0/P1 promotion."
+    },
+    {
+      "path": "tests/media-temporal-spatial-definition-model.test.mjs",
+      "finding": "Tests exact rational source PTS/frame/sample conversions and explicit rounding/loss behavior; this is contract implementation evidence and does not establish external clock calibration or scientific qualification."
+    }
+  ],
+  "reviewLimits": [
+    "No canonical PDP-0 files edited.",
+    "No PDP-1, PDP-2, or PDP-3 implementation reviewed or edited; only their ownership is named when referenced by PDP-0 handoff.",
+    "No tests/checkers executed as part of this read-only review.",
+    "No source-current DEV_COMPLETE, owner approval, closure, implementation admission, or release claim made."
+  ]
+}
