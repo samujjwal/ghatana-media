@@ -15,7 +15,8 @@ const paths = {
   "screens": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
   "templates": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
   "layouts": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
-  "recipes": ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml"
+  "recipes": ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml",
+  "identities": ".product-experience/artifact-identities.yaml"
 };
 const uniqueSet = xs => new Set(xs).size === xs.length;
 const sameIds = (a,b) => Array.isArray(a) && Array.isArray(b) && a.length===b.length && uniqueSet(a) && uniqueSet(b) && a.every(x=>b.includes(x));
@@ -33,10 +34,24 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
     } catch(error) {fail(k+': unreadable source: '+error.message);}
   }
   if(errors.length)return { errors, stats:{sourceDocumentsValid:false} };
-  const {p0,p1,p2,p3,req,journeys,screens,templates,layouts,recipes}=sources;
-  if(!p0 || !p1 || !p2 || !p3 || !req || !journeys || !screens || !templates || !layouts || !recipes) {
+  const {p0,p1,p2,p3,req,journeys,screens,templates,layouts,recipes,identities}=sources;
+  if(!p0 || !p1 || !p2 || !p3 || !req || !journeys || !screens || !templates || !layouts || !recipes || !identities) {
     return {errors:['Missing source document contents'],stats:{sourceDocumentsValid:false}};
   }
+  const requiredIdentities=[
+    ['.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml','ART-P0-RECORDER-STUDIO-EXTENSION','PRODUCT_TRUTH_AUTHORITY'],
+    ['.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml','ART-P1-RECORDER-STUDIO-CONTRACTS','DOMAIN_DATA_AUTHORITY'],
+    ['.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml','ART-P2-RECORDER-STUDIO-INTERFACE','DESIGN_INTERFACE_AUTHORITY'],
+    ['.product-experience/pdp-3-product-experience/recorder-studio-experience.yaml','ART-P3-RECORDER-STUDIO-EXPERIENCE','PRODUCT_EXPERIENCE_AUTHORITY'],
+  ];
+  const identityEntries=identities.records??[];
+  for(const [sourcePath,sourceId,authorityClass] of requiredIdentities){
+    const entry=identityEntries.filter(x=>x.path===sourcePath);
+    if(entry.length!==1 || entry[0].artifactId!==sourceId || entry[0].authorityClass!==authorityClass)
+      fail('missing or misclassified Recorder Studio manifest identity '+sourcePath);
+  }
+  if(!uniqueSet(identityEntries.map(x=>x.path)) || !uniqueSet(identityEntries.map(x=>x.artifactId)))
+    fail('canonical artifact identities contain duplicate paths or IDs');
   const expectedSurfaces=p0.surfaces??[];
   const surfaceDefs=p3.surfaceExperiences??[];
   if(!sameIds(surfaceDefs.map(x=>x.surfaceId),expectedSurfaces.map(x=>x.id)))
