@@ -21,6 +21,7 @@ population:
   explicitNonInvocationSteps: 21
   manualEditPaths: 52
   studioWorkspaceProposals: 13
+  scopedExperienceScenarios: 7
   existingTopLevelJourneysPreserved: 30
   existingCanonicalScreensPreserved: 47
   physicalPackagesAdded: 0
