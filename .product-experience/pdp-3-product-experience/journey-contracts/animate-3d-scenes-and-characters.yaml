@@ -122,17 +122,17 @@ steps:
       reason: Required checks are proposal requirements only; no step-level execution
         evidence is present.
     bindingStatus:
-      status: SOURCE_BOUND_LOCAL_DRAFT_EFFECT; NO_PDP1_TRANSITION; RUNTIME_NOT_ADMITTED
-      surfaceRefs: journey screen surfaces remain source references; channel equivalence is unbound
-      objectRefs: exact purpose binding scope; local session draft only
-      stateRefs: NO_PDP1_STATE; LOCAL_SESSION_DRAFT_STATE_ONLY
-      canonicalOperationRef: no PDP-1 operation; exact local effect contract applies
-      authorityRef: no governed PDP-1 authority applies to this local draft effect
-      decisionRef: PXD-075 source definition; independent review remains open
-      transitionRef: no PDP-1 transition is asserted by this step
-      handoffRef: no step-specific handoff is defined
-      result: exact immediate result and UNKNOWN semantics remain in stepDefinitionSemantics and pdp1ResultEvidence
-      requirementRefs: no additional requirement mapping inferred
+      status: SOURCE_BOUND_LOCAL_DRAFT_EFFECT; NO_PDP1_TRANSITION; RUNTIME_NOT_ADMITTED; unresolved proposal
+      surfaceRefs: journey screen surfaces remain source references; channel equivalence is unbound; unresolved proposal; unresolved proposal
+      objectRefs: exact purpose binding scope; local session draft only; unresolved proposal; unresolved proposal
+      stateRefs: NO_PDP1_STATE; LOCAL_SESSION_DRAFT_STATE_ONLY; unresolved proposal; unresolved proposal
+      canonicalOperationRef: no PDP-1 operation; exact local effect contract applies; unresolved proposal; unresolved proposal
+      authorityRef: no governed PDP-1 authority applies to this local draft effect; unresolved proposal; unresolved proposal
+      decisionRef: PXD-075 source definition; independent review remains open; unresolved proposal; unresolved proposal
+      transitionRef: no PDP-1 transition is asserted by this step; unresolved proposal; unresolved proposal
+      handoffRef: no step-specific handoff is defined; unresolved proposal; unresolved proposal
+      result: exact immediate result and UNKNOWN semantics remain in stepDefinitionSemantics and pdp1ResultEvidence; unresolved proposal; unresolved proposal
+      requirementRefs: no additional requirement mapping inferred; unresolved proposal; unresolved proposal
       runtimeAdmission: NOT_ADMITTED
       channelTransport: UNBOUND
     stepDefinitionSemantics:
@@ -410,17 +410,17 @@ steps:
       reason: Required checks are proposal requirements only; no step-level execution
         evidence is present.
     bindingStatus:
-      status: SOURCE_BOUND_LOCAL_DRAFT_EFFECT; NO_PDP1_TRANSITION; RUNTIME_NOT_ADMITTED
-      surfaceRefs: journey screen surfaces remain source references; channel equivalence is unbound
-      objectRefs: exact purpose binding scope; local session draft only
-      stateRefs: NO_PDP1_STATE; LOCAL_SESSION_DRAFT_STATE_ONLY
-      canonicalOperationRef: no PDP-1 operation; exact local effect contract applies
-      authorityRef: no governed PDP-1 authority applies to this local draft effect
-      decisionRef: PXD-075 source definition; independent review remains open
-      transitionRef: no PDP-1 transition is asserted by this step
-      handoffRef: no step-specific handoff is defined
-      result: exact immediate result and UNKNOWN semantics remain in stepDefinitionSemantics and pdp1ResultEvidence
-      requirementRefs: no additional requirement mapping inferred
+      status: SOURCE_BOUND_LOCAL_DRAFT_EFFECT; NO_PDP1_TRANSITION; RUNTIME_NOT_ADMITTED; unresolved proposal
+      surfaceRefs: journey screen surfaces remain source references; channel equivalence is unbound; unresolved proposal
+      objectRefs: exact purpose binding scope; local session draft only; unresolved proposal
+      stateRefs: NO_PDP1_STATE; LOCAL_SESSION_DRAFT_STATE_ONLY; unresolved proposal
+      canonicalOperationRef: no PDP-1 operation; exact local effect contract applies; unresolved proposal
+      authorityRef: no governed PDP-1 authority applies to this local draft effect; unresolved proposal
+      decisionRef: PXD-075 source definition; independent review remains open; unresolved proposal
+      transitionRef: no PDP-1 transition is asserted by this step; unresolved proposal
+      handoffRef: no step-specific handoff is defined; unresolved proposal
+      result: exact immediate result and UNKNOWN semantics remain in stepDefinitionSemantics and pdp1ResultEvidence; unresolved proposal
+      requirementRefs: no additional requirement mapping inferred; unresolved proposal
       runtimeAdmission: NOT_ADMITTED
       channelTransport: UNBOUND
     stepDefinitionSemantics:
@@ -702,17 +702,17 @@ steps:
       reason: Required checks are proposal requirements only; no step-level execution
         evidence is present.
     bindingStatus:
-      status: SOURCE_BOUND_LOGICAL_MAPPING; ACCEPTANCE_REVIEW_OPEN; RUNTIME_NOT_ADMITTED; CHANNEL_TRANSPORT_AND_AUTH_BINDING_UNBOUND
-      surfaceRefs: journey screen surfaces remain source references; channel equivalence is unbound
-      objectRefs: exact purpose binding scope; PDP-1 operation object scope
-      stateRefs: EXACT_ACCEPTED_JOB_SUBMISSION_RECEIPT_MAPS_TO_QUEUED_ONLY; NO_ATTEMPT_STATE_OR_COMPLETION_INFERRED; NO_TRANSITION_ASSERTED
-      canonicalOperationRef: exact purpose-bound PDP-1 operation; transport remains unbound
-      authorityRef: exact PDP-1 identity/privileged-effect authority references; enforcement not admitted
-      decisionRef: PXD-075 source definition; independent review remains open
-      transitionRef: no PDP-1 transition is asserted by this step
-      handoffRef: no step-specific handoff is defined
-      result: exact immediate result and UNKNOWN semantics remain in stepDefinitionSemantics and pdp1ResultEvidence
-      requirementRefs: no additional requirement mapping inferred
+      status: SOURCE_BOUND_LOGICAL_MAPPING; ACCEPTANCE_REVIEW_OPEN; RUNTIME_NOT_ADMITTED; CHANNEL_TRANSPORT_AND_AUTH_BINDING_UNBOUND; unresolved proposal
+      surfaceRefs: journey screen surfaces remain source references; channel equivalence is unbound; unresolved proposal
+      objectRefs: exact purpose binding scope; PDP-1 operation object scope; unresolved proposal
+      stateRefs: EXACT_ACCEPTED_JOB_SUBMISSION_RECEIPT_MAPS_TO_QUEUED_ONLY; NO_ATTEMPT_STATE_OR_COMPLETION_INFERRED; NO_TRANSITION_ASSERTED; unresolved proposal
+      canonicalOperationRef: exact purpose-bound PDP-1 operation; transport remains unbound; unresolved proposal
+      authorityRef: exact PDP-1 identity/privileged-effect authority references; enforcement not admitted; unresolved proposal
+      decisionRef: PXD-075 source definition; independent review remains open; unresolved proposal
+      transitionRef: no PDP-1 transition is asserted by this step; unresolved proposal
+      handoffRef: no step-specific handoff is defined; unresolved proposal
+      result: exact immediate result and UNKNOWN semantics remain in stepDefinitionSemantics and pdp1ResultEvidence; unresolved proposal
+      requirementRefs: no additional requirement mapping inferred; unresolved proposal
       runtimeAdmission: NOT_ADMITTED
       channelTransport: UNBOUND
     stepDefinitionSemantics:
@@ -1012,17 +1012,17 @@ steps:
       reason: Required checks are proposal requirements only; no step-level execution
         evidence is present.
     bindingStatus:
-      status: SOURCE_BOUND_LOGICAL_MAPPING; ACCEPTANCE_REVIEW_OPEN; RUNTIME_NOT_ADMITTED; CHANNEL_TRANSPORT_AND_AUTH_BINDING_UNBOUND
-      surfaceRefs: journey screen surfaces remain source references; channel equivalence is unbound
-      objectRefs: exact purpose binding scope; PDP-1 operation object scope
-      stateRefs: OBSERVATION_ONLY; NO_P1_MUTATING_TRANSITION; SUBJECT_STATE_NOT_CHANGED
-      canonicalOperationRef: exact purpose-bound PDP-1 operation; transport remains unbound
-      authorityRef: exact PDP-1 identity/privileged-effect authority references; enforcement not admitted
-      decisionRef: PXD-075 source definition; independent review remains open
-      transitionRef: no PDP-1 transition is asserted by this step
-      handoffRef: no step-specific handoff is defined
-      result: exact immediate result and UNKNOWN semantics remain in stepDefinitionSemantics and pdp1ResultEvidence
-      requirementRefs: no additional requirement mapping inferred
+      status: SOURCE_BOUND_LOGICAL_MAPPING; ACCEPTANCE_REVIEW_OPEN; RUNTIME_NOT_ADMITTED; CHANNEL_TRANSPORT_AND_AUTH_BINDING_UNBOUND; unresolved proposal
+      surfaceRefs: journey screen surfaces remain source references; channel equivalence is unbound; unresolved proposal
+      objectRefs: exact purpose binding scope; PDP-1 operation object scope; unresolved proposal
+      stateRefs: OBSERVATION_ONLY; NO_P1_MUTATING_TRANSITION; SUBJECT_STATE_NOT_CHANGED; unresolved proposal
+      canonicalOperationRef: exact purpose-bound PDP-1 operation; transport remains unbound; unresolved proposal
+      authorityRef: exact PDP-1 identity/privileged-effect authority references; enforcement not admitted; unresolved proposal
+      decisionRef: PXD-075 source definition; independent review remains open; unresolved proposal
+      transitionRef: no PDP-1 transition is asserted by this step; unresolved proposal
+      handoffRef: no step-specific handoff is defined; unresolved proposal
+      result: exact immediate result and UNKNOWN semantics remain in stepDefinitionSemantics and pdp1ResultEvidence; unresolved proposal
+      requirementRefs: no additional requirement mapping inferred; unresolved proposal
       runtimeAdmission: NOT_ADMITTED
       channelTransport: UNBOUND
     stepDefinitionSemantics:

@@ -2729,6 +2729,17 @@ steps:
         No exact P1 action-to-transition reference is defined for delivery. Preserve NO_EXACT_ACTION_TRANSITION; a delivery request result or owner receipt is not destination acknowledgement.
     bindingStatus:
       status: SOURCE_BOUND_DEFINITION_ONLY; RUNTIME_AND_INDEPENDENT_ACCEPTANCE_OPEN
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-owner-bound-state-reference-and-transition
+      canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
       candidateFields: []
       pendingFields:
         - channel-equivalence-and-runtime-admission

@@ -95,11 +95,17 @@ function immutableSnapshotProjectionIssues(catalog, sourceOperations) {
   const projectedSourceDefinition = structuredClone(sourceSnapshot);
   const sourceCondition = sourceSnapshot.allOf?.find((clause) => clause.if && clause.then);
   delete projectedSourceDefinition.allOf;
-  if (projectedSourceDefinition.properties?.artifactVersionRefs?.items?.type === "CanonicalObjectReference") {
-    projectedSourceDefinition.properties.artifactVersionRefs.items = normalizeSourceProperty(sourceSnapshot.properties.artifactVersionRefs.items, { scalarTypes });
+  if (projectedSourceDefinition.properties?.artifactVersionRefs?.items?.type === "CanonicalObjectReference"
+    || (projectedSourceDefinition.properties?.artifactVersionRefs?.items?.type === "string"
+      && (Array.isArray(projectedSourceDefinition.properties.artifactVersionRefs.items.allowedObjectRefs)
+        || typeof projectedSourceDefinition.properties.artifactVersionRefs.items.objectRef === "string"))) {
+    projectedSourceDefinition.properties.artifactVersionRefs.items = normalizeSourceProperty(sourceSnapshot.properties.artifactVersionRefs.items, { scalarTypes, operationId: source.id, propertyName: "artifactVersionRefs" });
   }
-  if (projectedSourceDefinition.properties?.projectRevisionRef?.type === "CanonicalObjectReference") {
-    projectedSourceDefinition.properties.projectRevisionRef = normalizeSourceProperty(sourceSnapshot.properties.projectRevisionRef, { scalarTypes });
+  if (projectedSourceDefinition.properties?.projectRevisionRef?.type === "CanonicalObjectReference"
+    || (projectedSourceDefinition.properties?.projectRevisionRef?.type === "string"
+      && (typeof projectedSourceDefinition.properties.projectRevisionRef.objectRef === "string"
+        || Array.isArray(projectedSourceDefinition.properties.projectRevisionRef.allowedObjectRefs)))) {
+    projectedSourceDefinition.properties.projectRevisionRef = normalizeSourceProperty(sourceSnapshot.properties.projectRevisionRef, { scalarTypes, operationId: source.id, propertyName: "projectRevisionRef" });
   }
   if (sourceCondition) {
     projectedSourceDefinition.if = structuredClone(sourceCondition.if);
@@ -141,6 +147,12 @@ function normalizeSourceProperty(schema, { actionRef, operationId, propertyName,
   let projected;
   if (type === "CanonicalObjectReference") {
     projected = { oneOf: (schema.allowedObjectRefs ?? []).map((ref) => ({ $ref: CANONICAL_REFERENCE_PATH(ref) })) };
+  } else if (type === "string" && Array.isArray(schema.allowedObjectRefs) && schema.allowedObjectRefs.length > 0) {
+    projected = { oneOf: schema.allowedObjectRefs.map((ref) => ({ $ref: CANONICAL_REFERENCE_PATH(ref) })) };
+  } else if (type === "string" && typeof schema.objectRef === "string") {
+    projected = { oneOf: [{ $ref: CANONICAL_REFERENCE_PATH(schema.objectRef) }] };
+  } else if (type === "string" && schema.tenantPrincipalScoped === true) {
+    projected = STRING_SCHEMA("^[A-Za-z0-9][A-Za-z0-9._:-]*$", 128);
   } else if (type === "array") {
     projected = { type: "array" };
     if (schema.items) projected.items = normalizeSourceProperty(schema.items, { actionRef, operationId, propertyName, scalarTypes });

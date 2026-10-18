@@ -767,7 +767,7 @@ steps:
       - media.domain.transcript-version
       - media.domain.caption-version
     canonicalOperationRef: media.operation.caption-draft-write
-    authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+    authorityRef: null
     decisionRef: null
     transitionRef: null
     handoffRef: null
@@ -837,15 +837,15 @@ steps:
       status: SOURCE_BOUND_ACTION_OPERATION_OBJECT_RESULT;
         JOURNEY_BRANCH_ALLOCATION_OPEN
       surfaceRefs: candidate-copied-from-explicit-screen-contract; channel-transport-unbound
-      objectRefs: source-bound-by-purpose-and-owner-operation-binding
+      objectRefs: pending-explicit-step-domain-object-reference
       stateRefs: no canonical domain state machine applies to a session-local caption
         draft
-      canonicalOperationRef: source-bound-by-purpose-and-owner-operation-binding
+      canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
+      authorityRef: pending-explicit-step-authority-binding
       authorityRefsRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j16-step-03.v1/authorityRefs
-      decisionRef: transitionDisposition remains bound to PXD-068; no separate action
-        decision is inferred
+      decisionRef: pending-explicit-owner-decision-binding
       transitionRef: NO_P1_MACHINE_TRANSITION; session-local draft snapshot only
-      handoffRef: no handoff binding is source-defined for this local draft write
+      handoffRef: pending-explicit-step-handoff-allocation
       success: step-scoped immediate result defined by
         .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics;
         later journey outcome remains separate
@@ -1085,7 +1085,7 @@ steps:
             blindly replay.
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: NO_P1_MACHINE_TRANSITION
+        status: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_P1_MACHINE_TRANSITION
         transitionRef: null
         stateRefs: []
         operationRef: media.operation.caption-draft-write

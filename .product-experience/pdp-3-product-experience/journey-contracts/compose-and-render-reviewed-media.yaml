@@ -985,7 +985,7 @@ steps:
         imply a rendered or delivered output.
     bindingStatus:
       status: SOURCE_BOUND_ACTION_OPERATION_OBJECT_RESULT;
-        JOURNEY_BRANCH_ALLOCATION_OPEN
+        JOURNEY_BRANCH_ALLOCATION_OPEN; unresolved proposal
       candidateFields:
         - surfaceRefs
       sourceBoundFields:
@@ -996,9 +996,9 @@ steps:
         - requirementRefs
         - transitionDisposition
       authorityRefsRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j18-step-04.v1/authorityRefs
-      decisionRef: transitionDisposition remains bound to PXD-068; no separate action
-        decision is inferred
-      handoffRef: no handoff binding is source-defined for this local draft write
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      handoffRef: pending-explicit-step-handoff-allocation
       pendingFields:
         - failure
         - recovery
@@ -1235,7 +1235,7 @@ steps:
             blindly replay.
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: NO_P1_MACHINE_TRANSITION
+        status: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_P1_MACHINE_TRANSITION
         transitionRef: null
         stateRefs: []
         operationRef: media.operation.caption-draft-write
@@ -1249,7 +1249,7 @@ steps:
           stateRefs: NO_PDP1_MACHINE_STATE; SESSION_LOCAL_DRAFT_REVISION_ONLY
           canonicalOperationRef: EXACT_OPERATION_REF
           authorityRef: EXACT_P1_OWNER_BINDING_AUTHORITY_REFS
-          transitionRef: NO_P1_MACHINE_TRANSITION; SESSION_LOCAL_DRAFT_REVISION_ONLY
+          transitionRef: NO_PDP1_MACHINE_TRANSITION; SESSION_LOCAL_DRAFT_REVISION_ONLY
           requirementRefs: EXACT_P1_OWNER_BINDING_REQUIREMENT_REFS
           scenarioRefs: NO_STEP_SCENARIO_FIXTURE
         operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write

@@ -1674,8 +1674,8 @@ steps:
       - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/OUTCOME_UNKNOWN
       - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUPERSEDED
     canonicalOperationRef: media.operation-slice.cancel-job
-    authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
-    decisionRef: .product-experience/decision-log.md#PXD-075
+    authorityRef: null
+    decisionRef: null
     transitionRef: null
     handoffRef: null
     success:
@@ -1756,23 +1756,23 @@ steps:
         P1 contains candidate state-machine edges, but none has a source-backed exact action/operation binding for this step. Preserve request/observation semantics; do not infer an effect edge from names or family membership.
         Cancellation request and finality observation require exact current job and attempt identities; CANCEL_REQUESTED is not CANCELLED, and unknown effects remain unknown.
     bindingStatus:
-      surfaceRefs: no exact step surface mapping in the source binding; leave unmapped
-      objectRefs: "[media.domain.processing-job, media.domain.job-attempt]; exact PDP-1 owner binding"
+      surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+      objectRefs: pending-explicit-domain-object-reference
       stateRefs: exact P1 media-job and media-attempt state observations linked; no terminal effect inferred
-      canonicalOperationRef: media.operation-slice.cancel-job; exact PDP-1 owner binding; runtime NOT_ADMITTED
-      authorityRef: exact PDP-1 identity and product-policy authority refs bound
-      decisionRef: .product-experience/decision-log.md#PXD-075
+      canonicalOperationRef: pending-canonical-step-operation-binding; exact source operation is recorded but no runtime product binding is inferred
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
       transitionRef: NO_EXACT_ACTION_TRANSITION; job family refs are unresolved and attempt edges have no operation binding
-      handoffRef: none defined by the exact operation binding
+      handoffRef: pending-explicit-step-handoff-binding
       success: step-scoped immediate result defined by
         .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema;
         later journey outcome remains separate
-      failure: denied or unknown command outcome has no effect; UNKNOWN retains the same request identity and requires reconciliation
+      failure: candidate-proposal-only; denied or unknown command outcome has no effect and remains a journey-level exception outside the exact step binding
       degradedBehavior: source-backed immediate-step degraded disposition defined by
         .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema
-      recovery: reconcile owner evidence using the same request identity; cancellation acknowledgement does not establish stop
-      postconditions: cancellation request recorded for the exact logical job; terminal finality remains unproven until owner evidence
-      requirementRefs: MEDIA-REQ-CAP-JOB; exact action capability is media.job.cancel
+      recovery: candidate-proposal-only; reconcile owner evidence using the same request identity; cancellation acknowledgement does not establish stop
+      postconditions: candidate-proposal-only; cancellation request recorded for the exact logical job; terminal finality remains unproven until owner evidence
+      requirementRefs: pending-explicit-requirement-crosswalk
       verification: not-run; no evidence refs recorded
       contextPreservation: exact logical job identity, cancellation request identity, and current job/attempt observations
     stepDefinitionSemantics:
@@ -2109,8 +2109,8 @@ steps:
       - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/OUTCOME_UNKNOWN
       - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUPERSEDED
     canonicalOperationRef: media.operation-slice.retry-job
-    authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
-    decisionRef: .product-experience/decision-log.md#PXD-075
+    authorityRef: null
+    decisionRef: null
     transitionRef: null
     handoffRef: null
     success:
@@ -2119,7 +2119,7 @@ steps:
       sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema
       operationRef: media.operation-slice.retry-job
-      meaning: After prior-effect reconciliation, current authority and policy, deadline, and retry budget pass, the exact P1 result is at most one fenced new-attempt identity under the same logical job; the receipt does not establish provider dispatch or processing outcome. Retry remains conditional and runtime NOT_ADMITTED.
+      meaning: After prior-effect reconciliation, current authority and policy, deadline, and retry budget pass, the exact P1 result is at most one fenced new-attempt identity under the same logical job; provider dispatch and outcome remain separate, and the receipt does not establish provider dispatch or processing outcome. Retry remains conditional and runtime NOT_ADMITTED.
       evidenceBoundary: definition-grade operation contract only; runtimeAdmission
         NOT_ADMITTED and no owner evidence/result is asserted
       laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/terminalSuccess
@@ -2195,23 +2195,23 @@ steps:
         P1 contains candidate state-machine edges, but none has a source-backed exact action/operation binding for this step. Preserve request/observation semantics; do not infer an effect edge from names or family membership.
         Retry requires the exact prior attempt classification and bounded authority; unknown outcomes cannot be replayed, and a new CLAIMED attempt is not provider dispatch.
     bindingStatus:
-      surfaceRefs: no exact step surface mapping in the source binding; leave unmapped
-      objectRefs: "[media.domain.processing-job, media.domain.job-attempt]; exact PDP-1 owner binding"
+      surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+      objectRefs: pending-explicit-domain-object-reference
       stateRefs: exact P1 media-job and media-attempt state observations linked; no terminal effect inferred
-      canonicalOperationRef: media.operation-slice.retry-job; exact PDP-1 owner binding; runtime NOT_ADMITTED
-      authorityRef: exact PDP-1 identity and product-policy authority refs bound
-      decisionRef: .product-experience/decision-log.md#PXD-075
+      canonicalOperationRef: pending-canonical-step-operation-binding; exact source operation is recorded but no runtime product binding is inferred
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
       transitionRef: NO_EXACT_ACTION_TRANSITION; job family refs are unresolved and attempt edges have no operation binding
-      handoffRef: none defined by the exact operation binding
+      handoffRef: pending-explicit-step-handoff-binding
       success: step-scoped immediate result defined by
         .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema;
         later journey outcome remains separate
-      failure: denied or unknown command outcome has no effect; UNKNOWN requires reconciliation of the same request identity before any new request
+      failure: candidate-proposal-only; denied or unknown command outcome has no effect and remains a journey-level exception outside the exact step binding
       degradedBehavior: source-backed immediate-step degraded disposition defined by
         .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema
-      recovery: preserve job and prior-attempt history; dispatch only after exact owner classification, current authority/policy, and budget pass
-      postconditions: at most one new fenced attempt identity under the existing logical job; processing outcome remains pending
-      requirementRefs: MEDIA-REQ-CAP-JOB; exact action capability is media.job.retry
+      recovery: candidate-proposal-only; preserve job and prior-attempt history; dispatch only after exact owner classification, current authority/policy, and budget pass
+      postconditions: candidate-proposal-only; at most one new fenced attempt identity under the existing logical job; processing outcome remains pending
+      requirementRefs: pending-explicit-requirement-crosswalk
       verification: not-run; no evidence refs recorded
       contextPreservation: exact logical job identity, retry request identity, and prior-attempt history
     stepDefinitionSemantics:
