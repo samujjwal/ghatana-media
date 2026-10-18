@@ -16,7 +16,7 @@
 > Lifecycle receipts are not established by the source extension.
 
 
-This directory is the authoring root for the four canonical Media Product
+> **Attached audit identity correction:** the [exact user-supplied 501-source audit](../docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json) contains 73 third-pass stable `AUD-REC3/ANIM3/SIM3/EDU3/CROSS3` IDs. They are **not** the derived `AUD-FOCUS-*` planning IDs. The [lossless original-ID/case-candidate crosswalk](../docs/implementation/observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json) records 71 broadly case-linked original IDs and two without a scoped acceptance candidate (`AUD-SIM3-009`, `AUD-SIM3-010`). All 73 still require PDP-0 semantic review; neither source recording nor native phase proof is claimed.\n\nThis directory is the authoring root for the four canonical Media Product
 Definition Phases and the separate Explorer projection. The Expert-Reviewed
 Master Plan is retained as migration/execution reference; the user's Four-Phase
 Product Definition Hardening Plan governs this reconciliation's phase structure
