@@ -21,6 +21,9 @@ const paths = {
   interfaceGrammar: '.product-experience/pdp-2-design-interface-system/interface-grammar.yaml',
   editingGrammar: '.product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml',
   componentContracts: '.product-experience/pdp-2-design-interface-system/component-contracts.yaml',
+  templates: '.product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml',
+  recipes: '.product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml',
+  layouts: '.product-experience/pdp-2-design-interface-system/gui/layout.yaml',
 };
 const newSurfaceIds = [
   'media.surface.recorder-orchestrator',
@@ -48,7 +51,7 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
   const parsedDocs = {};
   // Syntax and duplicate mapping keys are source-level errors, even when
   // count-based selectors coincidentally find every expected line.
-  for (const id of ['registry', 'requirements', 'actorCatalog', 'p0', 'journeyCatalog', 'domain', 'domainVersioning', 'p1', 'interfaceGrammar', 'editingGrammar', 'p2']) {
+  for (const id of ['registry', 'requirements', 'actorCatalog', 'p0', 'journeyCatalog', 'domain', 'domainVersioning', 'p1', 'interfaceGrammar', 'editingGrammar', 'p2', 'templates', 'recipes', 'layouts']) {
     const document = parseDocument(original[id], {uniqueKeys:true, strict:true});
     parsedDocs[id] = document;
     for (const issue of document.errors) fail(id+': invalid or duplicate YAML mapping: '+issue.message);
@@ -343,6 +346,45 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
     for (const c of view.components??[]) if (!canonicalComponents.has(c))
       fail('PDP2 composed component not in canonical component catalog: '+c);
   }
+  // PDP-2 page-level composition authority must cover every Studio workspace.
+  // PDP-3 descriptions cannot substitute for template/layout/recipe design.
+  const designPageSource = p2Doc.productionStudioPageCompositionContracts;
+  const designedPages = designPageSource?.pages ?? [];
+  const workspaceKeys = p2Doc.productionStudioNavigation?.workspace ?? [];
+  if (designPageSource?.ownerSurface !== 'media.surface.production-studio' ||
+      workspaceKeys.length !== 13 ||
+      !sameSet(designedPages.map(page => page.workspaceKey), workspaceKeys))
+    fail('PDP2 Studio page-level design must bind the 13 canonical workspace keys');
+  const templates = parsedDocs.templates.toJS()?.templates ?? [];
+  const recipes = parsedDocs.recipes.toJS()?.recipes ?? [];
+  const layouts = parsedDocs.layouts.toJS()?.layouts ?? [];
+  const studioComponents = viewCompositions.find(x=>x.surfaceId==='media.surface.production-studio')?.components ?? [];
+  const requiredPageStates = ['EMPTY','LOADING','READY','DENIED','UNAVAILABLE','STALE_REVISION','CONFLICT','OUTCOME_UNKNOWN'];
+  for (const page of designedPages) {
+    const key=page.workspaceKey;
+    const template=templates.find(x=>x.id===page.templateRef);
+    const layout=layouts.find(x=>x.id===page.layoutRef);
+    const recipe=recipes.find(x=>x.id===page.recipeRef);
+    if (!template || !layout || !recipe ||
+        !template.recipeRefs?.includes(page.recipeRef) ||
+        !template.compatibleLayoutRefs?.includes(page.layoutRef) ||
+        !layout.compatibleTemplateRefs?.includes(page.templateRef) ||
+        recipe.templateRef!==page.templateRef)
+      fail('PDP2 Studio page has ungrounded template/layout/recipe chain: '+key);
+    if (!page.componentRefs?.length ||
+        !page.componentRefs.every(ref=>canonicalComponents.has(ref) && studioComponents.includes(ref)))
+      fail('PDP2 Studio page references component outside canonical Media Studio composition: '+key);
+    if (!page.acceptanceCaseRefs?.length ||
+        !page.acceptanceCaseRefs.every(ref=>caseIds.includes(ref)) ||
+        new Set(page.acceptanceCaseRefs).size!==page.acceptanceCaseRefs.length)
+      fail('PDP2 Studio page has missing, duplicate or unbound PDP0 acceptance cases: '+key);
+    if (page.proposedPdp3WorkspaceId!=='media.recorder.p3.workspace.'+key+'.v1' ||
+        !page.wideIntent || !page.narrowIntent || !page.keyboardAndTextEquivalent ||
+        !page.headlessEquivalent || !page.denialAndUnknownRecovery ||
+        page.admission!=='DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN' ||
+        !sameSet(page.requiredStates ?? [],requiredPageStates))
+      fail('PDP2 Studio page lacks responsive/accessibility/headless/denial/admission meaning: '+key);
+  }
   for (const item of typedKinds) {
     const parity=manualParity.find(p=>p.kind===item.kind);
     if (!item.parameters||typeof item.parameters!=='object'||Object.keys(item.parameters).length<2
@@ -392,7 +434,7 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
       capabilityLeaves:canonCaps.size,parentRequirements:canonReqIds.size,
       recorderCases:caseIds.length,p0Groups:p0FeatureIds.length,
       p1OperationProposals:p1ProposedOperations.length,manualEditKinds:manualKinds.length,
-      surfaceCount:newSurfaceIds.length,
+      surfaceCount:newSurfaceIds.length,studioPageDesignContracts:designedPages.length,
     }
   };
 }
