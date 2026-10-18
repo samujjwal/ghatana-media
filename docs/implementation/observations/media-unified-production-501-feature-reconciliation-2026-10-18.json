@@ -68,7 +68,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.recipe.template.product-demonstration",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-RECIPE-TEMPLATE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-02",
@@ -90,7 +90,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.profile.validate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROFILE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROFILE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-02",
@@ -112,7 +112,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.compose.scene-storyboard-assemble",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-COMPOSE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-COMPOSE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-02",
@@ -134,7 +134,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.compose.render-manifest",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-COMPOSE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-COMPOSE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-02",
@@ -177,7 +177,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.recipe.template.infographic",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-RECIPE-TEMPLATE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-02",
@@ -199,7 +199,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.speech.synthesis.control.pronunciation",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-SPEECH-SYNTHESIS",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-02",
@@ -221,7 +221,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.quality.inspect",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-QUALITY",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-QUALITY",
       "candidateStrength": "LEXICAL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-02",
@@ -243,7 +243,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.recipe.template.product-demonstration",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-RECIPE-TEMPLATE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-02",
@@ -265,7 +265,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.compose.scene-storyboard-assemble",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-COMPOSE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-COMPOSE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-02",
@@ -287,7 +287,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.recipe.template.product-demonstration",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-RECIPE-TEMPLATE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-02",
@@ -309,7 +309,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.recipe.template.product-demonstration",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-RECIPE-TEMPLATE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-02",
@@ -331,7 +331,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.deliver.renditions.aspect-ratio",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-DELIVER",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-DELIVER",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-02",
@@ -353,7 +353,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.recipe.template.product-demonstration",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-RECIPE-TEMPLATE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-02",
@@ -396,7 +396,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.capability.check-declared-options",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-CAPABILITY",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-CAPABILITY",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-02",
@@ -418,7 +418,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.stream.recording.integrate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-STREAM",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-STREAM",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-02",
@@ -440,7 +440,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.provenance.source-lineage.inspect",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROVENANCE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROVENANCE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-02",
@@ -462,7 +462,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.profile.discover",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROFILE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROFILE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-02",
@@ -484,7 +484,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.profile.validate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROFILE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROFILE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-02",
@@ -506,7 +506,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.stream.recording.integrate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-STREAM",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-STREAM",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -528,7 +528,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.stream.recording.integrate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-STREAM",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-STREAM",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -550,7 +550,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.stream.recording.integrate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-STREAM",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-STREAM",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -572,7 +572,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.stream.recording.integrate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-STREAM",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-STREAM",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -615,7 +615,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.stream.recording.integrate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-STREAM",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-STREAM",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -637,7 +637,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.compose.track.video-audio-caption-overlay",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-COMPOSE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-COMPOSE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -659,7 +659,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.compose.track.video-audio-caption-overlay",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-COMPOSE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-COMPOSE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -702,7 +702,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.stream.live-processing.integrate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-STREAM",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-STREAM",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -745,7 +745,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.stream.recording.integrate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-STREAM",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-STREAM",
       "candidateStrength": "LEXICAL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -767,7 +767,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.sync.drift-detect-correct",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-SYNC",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-SYNC",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -789,7 +789,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.speech.transcription.speaker.diarize",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-SPEECH-TRANSCRIPTION",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -811,7 +811,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.capability.execution.compatibility",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-CAPABILITY",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-CAPABILITY",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -833,7 +833,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.animation.path",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ANIMATION",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ANIMATION",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -876,7 +876,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.animation.path",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ANIMATION",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ANIMATION",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -898,7 +898,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.animation.editing.keyframe.insert",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ANIMATION-EDITING",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ANIMATION-EDITING",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -920,7 +920,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.rights.permitted-use.evaluate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-RIGHTS",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-RIGHTS",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -942,7 +942,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.compose.safe-area",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-COMPOSE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-COMPOSE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -964,7 +964,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.edit.smart-crop-auto-reframe",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-EDIT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-EDIT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -986,7 +986,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.project.version",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -1029,7 +1029,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.provenance.execution-lineage.inspect",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROVENANCE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROVENANCE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -1051,7 +1051,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.quality.video.video.assess-frame-artifacts",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-QUALITY-VIDEO",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-QUALITY-VIDEO",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -1073,7 +1073,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.sync.drift-detect-correct",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-SYNC",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-SYNC",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -1095,7 +1095,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.capture-adapters",
       "existingCapabilityLeafCandidate": "media.stream.session.reconnect",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-STREAM",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-STREAM",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-03",
@@ -1532,7 +1532,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.compose.multitrack-timeline",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-COMPOSE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-COMPOSE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -1575,7 +1575,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.compose.multitrack-timeline",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-COMPOSE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-COMPOSE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -1597,7 +1597,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.compose.reusable-composition",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-COMPOSE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-COMPOSE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -1640,7 +1640,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.animation.editing.curve.edit",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ANIMATION-EDITING",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ANIMATION-EDITING",
       "candidateStrength": "LEXICAL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -1704,7 +1704,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.animation.editing.playback-scrub",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ANIMATION-EDITING",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ANIMATION-EDITING",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -1726,7 +1726,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.compose.multitrack-timeline",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-COMPOSE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-COMPOSE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -1769,7 +1769,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.project.settings.update",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -1791,7 +1791,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.edit.retime-slow-motion-speed-ramp",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-EDIT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-EDIT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -1876,7 +1876,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.compose.track.video-audio-caption-overlay",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-COMPOSE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-COMPOSE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -1898,7 +1898,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.animation.editing.layer",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ANIMATION-EDITING",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ANIMATION-EDITING",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -1920,7 +1920,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.compose.titles-credits-lower-thirds",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-COMPOSE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-COMPOSE",
       "candidateStrength": "LEXICAL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -1942,7 +1942,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.project.version",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -1964,7 +1964,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.project.composition.update",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -1986,7 +1986,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.project.review",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -2029,7 +2029,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.animation.editing.select",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ANIMATION-EDITING",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ANIMATION-EDITING",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -2051,7 +2051,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.project.composition.update",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -2094,7 +2094,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.project.version",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -2116,7 +2116,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.compose.render-manifest",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-COMPOSE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-COMPOSE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -2528,7 +2528,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.speech.transcription.stream",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-SPEECH-TRANSCRIPTION",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-07",
@@ -2634,7 +2634,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.speech.transcription.speaker.segment",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-SPEECH-TRANSCRIPTION",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-07",
@@ -2656,7 +2656,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.speech.transcription.stream",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-SPEECH-TRANSCRIPTION",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-07",
@@ -2678,7 +2678,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.speech.transcription.stream",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-SPEECH-TRANSCRIPTION",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-07",
@@ -2700,7 +2700,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.audio.analysis.detect.silence",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-AUDIO-ANALYSIS",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-07",
@@ -2722,7 +2722,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.compose.multitrack-timeline",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-COMPOSE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-COMPOSE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-07",
@@ -2744,7 +2744,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.speech.transcription.punctuate-capitalize",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-SPEECH-TRANSCRIPTION",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-07",
@@ -2787,7 +2787,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.sync.dub-subtitle-voiceover-time",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-SYNC",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-SYNC",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-07",
@@ -2809,7 +2809,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.artifact.search",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ARTIFACT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ARTIFACT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-07",
@@ -2831,7 +2831,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.speech.transcription.stream",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-SPEECH-TRANSCRIPTION",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
       "candidateStrength": "LEXICAL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-07",
@@ -2853,7 +2853,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.stream.recording.integrate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-STREAM",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-STREAM",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-07",
@@ -2875,7 +2875,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.speech.transcription.translate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-SPEECH-TRANSCRIPTION",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-07",
@@ -2897,7 +2897,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.speech.transcription.punctuate-capitalize",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-SPEECH-TRANSCRIPTION",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-07",
@@ -2919,7 +2919,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.audio.analysis.segment.content-kind",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-AUDIO-ANALYSIS",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
       "candidateStrength": "LEXICAL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-07",
@@ -6007,7 +6007,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.animation.interpolation-easing",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ANIMATION",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ANIMATION",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6029,7 +6029,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.animation.3d",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ANIMATION",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ANIMATION",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6051,7 +6051,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.animation.skeletal",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ANIMATION",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ANIMATION",
       "candidateStrength": "LEXICAL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6094,7 +6094,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.recipe.template.infographic",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-RECIPE-TEMPLATE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6116,7 +6116,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.animation.material",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ANIMATION",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ANIMATION",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6138,7 +6138,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.compose.reusable-composition",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-COMPOSE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-COMPOSE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6160,7 +6160,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.animation.3d",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ANIMATION",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ANIMATION",
       "candidateStrength": "LEXICAL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6182,7 +6182,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.generate.video.keyframe.intermediate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-GENERATE-VIDEO",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-GENERATE-VIDEO",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6204,7 +6204,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.recipe.template.infographic",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-RECIPE-TEMPLATE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6226,7 +6226,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.animation.2d",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ANIMATION",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ANIMATION",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6332,7 +6332,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.recipe.template.product-demonstration",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-RECIPE-TEMPLATE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6354,7 +6354,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.quality.recommend",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-QUALITY",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-QUALITY",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6376,7 +6376,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.compose.scene-storyboard-assemble",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-COMPOSE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-COMPOSE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6398,7 +6398,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.quality.rank",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-QUALITY",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-QUALITY",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6420,7 +6420,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.quality.recommend",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-QUALITY",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-QUALITY",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6442,7 +6442,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.recipe.template.product-demonstration",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-RECIPE-TEMPLATE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6464,7 +6464,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.project.composition.update",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6486,7 +6486,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.project.composition.update",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6508,7 +6508,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.project.review",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6530,7 +6530,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.job.watch",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-JOB",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-JOB",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6552,7 +6552,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.project.composition.update",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6574,7 +6574,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.provenance.source-lineage.inspect",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROVENANCE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROVENANCE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6596,7 +6596,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.provenance.origin.disclose",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROVENANCE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROVENANCE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6618,7 +6618,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.project.composition.update",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6640,7 +6640,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.animation.procedural",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ANIMATION",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ANIMATION",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6662,7 +6662,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.quality.rank",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-QUALITY",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-QUALITY",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6684,7 +6684,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.capability.check-declared-options",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-CAPABILITY",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-CAPABILITY",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6706,7 +6706,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.quality.recommend",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-QUALITY",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-QUALITY",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6728,7 +6728,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.quality.inspect",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-QUALITY",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-QUALITY",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -6750,7 +6750,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.rights.permitted-use.evaluate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-RIGHTS",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-RIGHTS",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-10",
@@ -7318,7 +7318,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.project.review",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-11",
@@ -7361,7 +7361,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.project.review",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-11",
@@ -7404,7 +7404,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.project.collaborate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-11",
@@ -7426,7 +7426,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.artifact.share",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ARTIFACT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ARTIFACT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-11",
@@ -7448,7 +7448,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.artifact.share",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ARTIFACT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ARTIFACT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-11",
@@ -7470,7 +7470,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.project.review",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-11",
@@ -7492,7 +7492,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.project.version",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-11",
@@ -7514,7 +7514,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.project.collaborate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-11",
@@ -7536,7 +7536,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.project.organize",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-11",
@@ -7558,7 +7558,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.project.review",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-11",
@@ -7580,7 +7580,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.artifact.provenance.export",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ARTIFACT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ARTIFACT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-11",
@@ -8143,7 +8143,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.provenance.execution-lineage.inspect",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROVENANCE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROVENANCE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-14",
@@ -8186,7 +8186,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.quality.video.video.assess-av-sync",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-QUALITY-VIDEO",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-QUALITY-VIDEO",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-14",
@@ -8250,7 +8250,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.quality.audio.audio.assess-loudness",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-QUALITY-AUDIO",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-QUALITY-AUDIO",
       "candidateStrength": "LEXICAL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-14",
@@ -8314,7 +8314,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.quality.video.video.assess-temporal-consistency",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-QUALITY-VIDEO",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-QUALITY-VIDEO",
       "candidateStrength": "LEXICAL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-14",
@@ -8336,7 +8336,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.compose.safe-area",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-COMPOSE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-COMPOSE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-14",
@@ -8358,7 +8358,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.vision.scene-text.observation.create",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-VISION-SCENE-TEXT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-VISION-SCENE-TEXT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-14",
@@ -8380,7 +8380,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.quality.image.image.assess-color",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-QUALITY-IMAGE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-QUALITY-IMAGE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-14",
@@ -8423,7 +8423,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.quality.compare",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-QUALITY",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-QUALITY",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-14",
@@ -8445,7 +8445,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.job.check-outcome",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-JOB",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-JOB",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-14",
@@ -8467,7 +8467,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.production-studio",
       "existingCapabilityLeafCandidate": "media.quality.video.video.assess-encoding",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-QUALITY-VIDEO",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-QUALITY-VIDEO",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-14",
@@ -8489,7 +8489,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.rights.permitted-use.evaluate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-RIGHTS",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-RIGHTS",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-13",
@@ -8532,7 +8532,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.rights.permitted-use.evaluate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-RIGHTS",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-RIGHTS",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-13",
@@ -8554,7 +8554,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.rights.permitted-use.evaluate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-RIGHTS",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-RIGHTS",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-13",
@@ -8576,7 +8576,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.provenance.erasure.effect.record",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROVENANCE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROVENANCE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-13",
@@ -8598,7 +8598,7 @@
       "priorReviewCode": "N",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.deliver.provenance-manifest",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-DELIVER",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-DELIVER",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-13",
@@ -8620,7 +8620,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.provenance.origin.disclose",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROVENANCE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROVENANCE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-13",
@@ -8642,7 +8642,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.provenance.execution-lineage.inspect",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROVENANCE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROVENANCE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-13",
@@ -8664,7 +8664,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.provenance.origin.disclose",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROVENANCE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROVENANCE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-13",
@@ -8686,7 +8686,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.artifact.provenance.export",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ARTIFACT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ARTIFACT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-13",
@@ -8708,7 +8708,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.rights.permitted-use.evaluate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-RIGHTS",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-RIGHTS",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-13",
@@ -8730,7 +8730,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.artifact.ingest",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-ARTIFACT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-ARTIFACT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-13",
@@ -8752,7 +8752,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.rights.permitted-use.evaluate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-RIGHTS",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-RIGHTS",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-13",
@@ -8795,7 +8795,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.project.derived-asset.attach",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROJECT",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROJECT",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-13",
@@ -8817,7 +8817,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.provenance.execution-lineage.inspect",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROVENANCE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROVENANCE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-13",
@@ -8839,7 +8839,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.deliver.publish-governed",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-DELIVER",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-DELIVER",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-13",
@@ -8861,7 +8861,7 @@
       "priorReviewCode": "B",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.provenance.erasure.effect.record",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-PROVENANCE",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-PROVENANCE",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-13",
@@ -8883,7 +8883,7 @@
       "priorReviewCode": "E",
       "proposedSurface": "media.surface.recorder-orchestrator",
       "existingCapabilityLeafCandidate": "media.rights.permitted-use.evaluate",
-      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-MEDIA-RIGHTS",
+      "existingParentRequirementCandidate": "MEDIA-REQ-CAP-RIGHTS",
       "candidateStrength": "WEAK_OR_FAMILY_LEVEL_MATCH_NOT_SEMANTIC_PROOF",
       "buildPackageCandidates": [
         "PBI-13",
@@ -10620,6 +10620,8 @@
       "not-PDP0-current-DEV_COMPLETE",
       "not-PDP1-2-3-native-proof",
       "not-runtime-or-public-API"
-    ]
+    ],
+    "canonicalParentRequirementFixCount": 141,
+    "sourceAuthorityForParent": ".product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml#familyCrosswalk"
   }
 }
