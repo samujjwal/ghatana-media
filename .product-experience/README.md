@@ -1,5 +1,21 @@
 # Ghatana Media product experience authority
 
+
+> **Current successor orientation — October 18, 2026.** Start with the
+> [live Media unified production plan](../docs/implementation/MEDIA-UNIFIED-PRODUCTION-CURRENT-PLAN.md)
+> and its [501-item audit projection](../docs/implementation/observations/media-unified-production-501-feature-reconciliation-2026-10-18.json)
+> for Recorder/Studio, declarative Animation, model-backed Simulation,
+> Voice/Video/AI and TutorPutor/GharBatai use. **All 428 historical audit
+> candidates now have individually curated source-catalog suggestions**
+> (330 lexical corrections, 223 meaning-gap notes), but **all 428 still
+> require semantic owner acceptance**. The 84 existing Recorder plus 61
+> declarative scoped cases are source-authored across PDP-0–3.
+> The earlier per-phase DEV_COMPLETE status records apply only to their
+> recorded source cuts; native successor checks, independent phase
+> currentness, Build admission, real provider/solver/film proof and
+> Lifecycle receipts are not established by the source extension.
+
+
 This directory is the authoring root for the four canonical Media Product
 Definition Phases and the separate Explorer projection. The Expert-Reviewed
 Master Plan is retained as migration/execution reference; the user's Four-Phase
