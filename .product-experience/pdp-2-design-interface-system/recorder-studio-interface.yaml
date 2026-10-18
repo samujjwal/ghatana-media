@@ -57,6 +57,8 @@ manualOperationParity:
   completenessRule: Every PDP1 manual edit kind must have one keyboard/text and SDK/CLI/API-equivalent intent; GUI never owns an alternative semantic revision.
   operations:
   - kind: trim
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=trim
+    componentRef: media.component.timeline-keyframe-editor
     semanticGroup: timeline-edit
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: timeline
@@ -66,6 +68,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: roll
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=roll
+    componentRef: media.component.timeline-keyframe-editor
     semanticGroup: timeline-edit
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: timeline
@@ -75,6 +79,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: ripple
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=ripple
+    componentRef: media.component.timeline-keyframe-editor
     semanticGroup: timeline-edit
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: timeline
@@ -84,6 +90,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: slip
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=slip
+    componentRef: media.component.timeline-keyframe-editor
     semanticGroup: timeline-edit
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: timeline
@@ -93,6 +101,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: slide
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=slide
+    componentRef: media.component.timeline-keyframe-editor
     semanticGroup: timeline-edit
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: timeline
@@ -102,6 +112,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: split
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=split
+    componentRef: media.component.timeline-keyframe-editor
     semanticGroup: timeline-edit
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: timeline
@@ -111,6 +123,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: insert
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=insert
+    componentRef: media.component.timeline-keyframe-editor
     semanticGroup: timeline-edit
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: timeline
@@ -120,6 +134,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: move
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=move
+    componentRef: media.component.timeline-keyframe-editor
     semanticGroup: timeline-edit
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: timeline
@@ -129,6 +145,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: reorder
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=reorder
+    componentRef: media.component.timeline-keyframe-editor
     semanticGroup: timeline-edit
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: timeline
@@ -138,6 +156,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: snap
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=snap
+    componentRef: media.component.timeline-keyframe-editor
     semanticGroup: timeline-edit
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: timeline
@@ -147,6 +167,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: marker
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=marker
+    componentRef: media.component.timeline-keyframe-editor
     semanticGroup: timeline-edit
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: timeline
@@ -156,6 +178,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: nested-sequence
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=nested-sequence
+    componentRef: media.component.timeline-keyframe-editor
     semanticGroup: timeline-edit
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: timeline
@@ -165,6 +189,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: keyframe
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=keyframe
+    componentRef: media.component.scene-inspector
     semanticGroup: visual-transform
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: property-inspector
@@ -174,6 +200,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: easing
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=easing
+    componentRef: media.component.scene-inspector
     semanticGroup: visual-transform
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: property-inspector
@@ -183,6 +211,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: mask
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=mask
+    componentRef: media.component.mask-tracking-editor
     semanticGroup: semantic-region
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: mask-and-source-observation-editor
@@ -192,6 +222,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: redact
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=redact
+    componentRef: media.component.mask-tracking-editor
     semanticGroup: semantic-region
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: mask-and-source-observation-editor
@@ -201,6 +233,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: cursor-highlight
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=cursor-highlight
+    componentRef: media.component.mask-tracking-editor
     semanticGroup: semantic-region
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: mask-and-source-observation-editor
@@ -210,6 +244,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: transform
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=transform
+    componentRef: media.component.scene-inspector
     semanticGroup: visual-transform
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: property-inspector
@@ -219,6 +255,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: zoom
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=zoom
+    componentRef: media.component.scene-inspector
     semanticGroup: visual-transform
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: property-inspector
@@ -228,6 +266,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: pan
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=pan
+    componentRef: media.component.scene-inspector
     semanticGroup: visual-transform
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: property-inspector
@@ -237,6 +277,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: reframe
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=reframe
+    componentRef: media.component.scene-inspector
     semanticGroup: visual-transform
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: property-inspector
@@ -246,6 +288,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: color-correction
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=color-correction
+    componentRef: media.component.scene-inspector
     semanticGroup: visual-transform
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: property-inspector
@@ -255,6 +299,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: shot-color-match
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=shot-color-match
+    componentRef: media.component.scene-inspector
     semanticGroup: visual-transform
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: property-inspector
@@ -264,6 +310,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: overlay
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=overlay
+    componentRef: media.component.scene-inspector
     semanticGroup: graphic-and-composition
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: layer-composition-editor
@@ -273,6 +321,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: title
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=title
+    componentRef: media.component.scene-inspector
     semanticGroup: graphic-and-composition
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: layer-composition-editor
@@ -282,6 +332,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: credits
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=credits
+    componentRef: media.component.scene-inspector
     semanticGroup: graphic-and-composition
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: layer-composition-editor
@@ -291,6 +343,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: brand-logo
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=brand-logo
+    componentRef: media.component.scene-inspector
     semanticGroup: graphic-and-composition
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: layer-composition-editor
@@ -300,6 +354,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: transition
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=transition
+    componentRef: media.component.scene-inspector
     semanticGroup: graphic-and-composition
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: layer-composition-editor
@@ -309,6 +365,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: caption
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=caption
+    componentRef: media.component.caption-track-editor
     semanticGroup: timed-text
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: caption-and-narration-editor
@@ -318,6 +376,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: subtitle-timing
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=subtitle-timing
+    componentRef: media.component.caption-track-editor
     semanticGroup: timed-text
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: caption-and-narration-editor
@@ -327,6 +387,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: dub
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=dub
+    componentRef: media.component.caption-track-editor
     semanticGroup: timed-text
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: caption-and-narration-editor
@@ -336,6 +398,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: narration
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=narration
+    componentRef: media.component.caption-track-editor
     semanticGroup: timed-text
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: caption-and-narration-editor
@@ -345,6 +409,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: audio-gain
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=audio-gain
+    componentRef: media.component.audio-mixer
     semanticGroup: audio
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: audio-track-mixer
@@ -354,6 +420,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: audio-duck
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=audio-duck
+    componentRef: media.component.audio-mixer
     semanticGroup: audio
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: audio-track-mixer
@@ -363,6 +431,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: audio-mix
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=audio-mix
+    componentRef: media.component.audio-mixer
     semanticGroup: audio
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: audio-track-mixer
@@ -372,6 +442,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: audio-fade
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=audio-fade
+    componentRef: media.component.audio-mixer
     semanticGroup: audio
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: audio-track-mixer
@@ -381,6 +453,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: camera-switch
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=camera-switch
+    componentRef: media.component.scene-inspector
     semanticGroup: camera
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: multi-source-video-compositor
@@ -390,6 +464,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: picture-in-picture
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=picture-in-picture
+    componentRef: media.component.scene-inspector
     semanticGroup: camera
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: multi-source-video-compositor
@@ -399,6 +475,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: hotspot
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=hotspot
+    componentRef: media.component.task-flow
     semanticGroup: interactive
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: interactive-branch-composer
@@ -408,6 +486,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: branch
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=branch
+    componentRef: media.component.task-flow
     semanticGroup: interactive
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: interactive-branch-composer
@@ -417,6 +497,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: undo
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=undo
+    componentRef: media.component.timeline-keyframe-editor
     semanticGroup: history
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: revision-history
@@ -426,6 +508,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: redo
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=redo
+    componentRef: media.component.timeline-keyframe-editor
     semanticGroup: history
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: revision-history
@@ -435,6 +519,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: scene-group
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=scene-group
+    componentRef: media.component.timeline-keyframe-editor
     semanticGroup: timeline-edit
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: timeline
@@ -444,6 +530,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: crop
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=crop
+    componentRef: media.component.scene-inspector
     semanticGroup: visual-transform
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: property-inspector
@@ -453,6 +541,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: cursor-click
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=cursor-click
+    componentRef: media.component.mask-tracking-editor
     semanticGroup: semantic-region
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: mask-and-source-observation-editor
@@ -462,6 +552,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: background
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=background
+    componentRef: media.component.scene-inspector
     semanticGroup: graphic-and-composition
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: layer-composition-editor
@@ -471,6 +563,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: frame
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=frame
+    componentRef: media.component.scene-inspector
     semanticGroup: graphic-and-composition
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: layer-composition-editor
@@ -480,6 +574,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: annotation
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=annotation
+    componentRef: media.component.scene-inspector
     semanticGroup: graphic-and-composition
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: layer-composition-editor
@@ -489,6 +585,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: track-mute
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=track-mute
+    componentRef: media.component.audio-mixer
     semanticGroup: audio-track-control
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: narration-mixer
@@ -498,6 +596,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: track-solo
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=track-solo
+    componentRef: media.component.audio-mixer
     semanticGroup: audio-track-control
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: narration-mixer
@@ -507,6 +607,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: speed-ramp
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=speed-ramp
+    componentRef: media.component.timeline-keyframe-editor
     semanticGroup: timeline-edit
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: timeline
@@ -516,6 +618,8 @@ manualOperationParity:
     manualLockAndUndoPolicy: source-bound-edit-with-versioned-inverse-or-compensating-revision
     denial: stale-version-or-insufficient-rights-shows-unmodified-current-revision
   - kind: audio-denoise
+    parameterContractRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/kinds/@kind=audio-denoise
+    componentRef: media.component.audio-mixer
     semanticGroup: audio-processing
     owningProjectMutation: media.recorder.operation.edit.commit.v1
     gui: narration-mixer
@@ -718,3 +822,40 @@ securityAndPrivacyViews:
   show: [purpose-and-consent, authorized-source, audience, egress, license-and-codec, retention, intermediate-cleanup, erasure-and-hold]
   logs: redacted-structured-events-and-permission-gated-encrypted-artifact-references-only
   player: CSP-sanitized-sandboxed-no-product-credentials-or-replayable-privileged-script
+
+# Composition source map reuses Media PDP-2 component contracts, not a second
+# component library. PDP-3 owns concrete view/journey/action registrations.
+recorderStudioComponentCompositions:
+  status: SOURCE_AUTHORED_SUCCESSOR_PENDING_REVALIDATION
+  designPrimitiveAuthority: ghatana-shared-public-design-system-after-artifact-admission
+  mediaComponentAuthority: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#components
+  interactionSource: .product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml
+  commonStateContract: [loading, ready, denied, unavailable, stale-version, conflict, unknown-outcome, policy-review-required]
+  commonAccessibilityContract: [keyboard-operable, text-or-numeric-equivalent, screen-reader-announcement, logical-reading-order, focus-return, reduced-motion, source-time-units]
+  commonProhibition: visual-selection-or-component-state-never-confers-authorization-or-business-finality
+  surfaceContracts:
+    - surfaceId: media.surface.recorder-orchestrator
+      components: [media.component.intent-launcher, media.component.storyboard, media.component.job-status-card, media.component.activity-recovery-feed, media.component.quality-inspector, media.component.cli-output]
+      layout: progressive-plan-queue-state-and-audit-with-source-revision-always-visible
+      narrow: stacked-step-status-with-no-hidden-denial-recovery-and-selectable-profiles
+      headlessEquivalent: versioned-json-jsonl-and-readable-cli-exposes-all-safe-observations
+      negative: no-running-indicator-or-transport-acknowledgment-as-business-success
+    - surfaceId: media.surface.capture-adapters
+      components: [media.component.source-picker, media.component.source-player, media.component.provenance-summary, media.component.quality-inspector, media.component.cli-output]
+      layout: per-source-capability-qualification-signal-and-clock-mapping-inspection
+      narrow: source-at-a-time-with-unsupported-dimensions-in-text
+      headlessEquivalent: typed-adapter-probe-result-and-fail-closed-source-readback
+      negative: no-synthetic-browser-UI-or-unqualified-native-camera
+    - surfaceId: media.surface.production-studio
+      components: [media.component.project-browser, media.component.storyboard, media.component.source-player, media.component.timeline-keyframe-editor, media.component.waveform-spectrogram, media.component.audio-mixer, media.component.caption-track-editor, media.component.mask-tracking-editor, media.component.scene-inspector, media.component.result-comparison, media.component.quality-inspector, media.component.rights-retention-review]
+      layout: resizable-preview-editor-timeline-inspector-with-canonical-project-revision
+      narrow: one-active-editor-region-and-structured-timeline-tree-without-loss-of-actions
+      headlessEquivalent: exact-same-edit-CAS-typed-operation-ids-and-denials
+      negative: no-pointer-only-operation-or-secondary-canonical-project-draft
+    - surfaceId: media.surface.interactive-demo-player
+      components: [media.component.source-player, media.component.caption-track-editor, media.component.task-flow, media.component.provenance-summary]
+      layout: safe-media-scene-with-readable-branch-list-and-focusable-local-navigation
+      narrow: linear-reading-order-and-branch-choices-before-secondary-analytics
+      headlessEquivalent: sanitized-scene-branch-graph-and-offline-safe-linear-fallback
+      negative: no-scriptable-product-command-or-unconsented-audience-tracking
+  compositionAdmission: reuse-only-at-definition-level-concrete-PDP3-screens-and-Shared-token-qualification-pending

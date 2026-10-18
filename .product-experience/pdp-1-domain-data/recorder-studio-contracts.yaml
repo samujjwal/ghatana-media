@@ -444,3 +444,498 @@ pdp0CaseOperationCrosswalk:
       proposedPdp1OperationRefs: [media.recorder.operation.edit.commit.v1, media.recorder.operation.scene.compile.v1]
       results: typed-owner-operation-result-not-transport-status
       negative: denial-unknown-conflict-and-authorization-are-preserved-before-any-product-effect
+
+# Source-owned discriminated-edit parameter meaning. This is not a new
+# operation registry, endpoint, provider, persistence owner or Build admission.
+editKindParameterContracts:
+  schemaVersion: media.recorder.edit-kind-parameters.v1
+  status: SOURCE_AUTHORED_SUCCESSOR_PENDING_REVALIDATION
+  canonicalEditCommitOperation: media.recorder.operation.edit.commit.v1
+  originalEditKindAuthority: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#objects/@id=media.recorder.edit-operation/operationKinds
+  globalEnvelopeRequired: [tenantId, projectId, expectedRevisionId, editOperationId, actorRef, sourceVersionRefs, stableTargetAnchor, purposePolicyRef, idempotencyKey]
+  paramTypeRules:
+    MediaTime: exact-rational-numerator-denominator-and-declared-timebase
+    MediaDuration: nonnegative-exact-rational-with-clock-domain
+    HalfOpenMediaRange: start-inclusive-end-exclusive-same-timebase
+    BoundedGeometryRef: finite-geometry-with-declared-source-bounds
+    PositiveRational: positive-finite-rational-no-implicit-float
+    ClipRef: source-version-bound-clip-and-canonical-project-revision
+    TrackRef: canonical-track-reference-with-rights-and-signal-kind
+    SourceAssetVersionRef: immutable-rights-checked-source-reference
+  globalInvariants:
+    - input-values-validated-before-the-canonical-MediaProject-CAS
+    - no-float-or-wall-clock-substitution-for-source-media-time
+    - all-edits-are-scope-and-rights-bound-nondestructive-derivations
+    - preserve-manual-locks-and-unaffected-scenes
+    - every-edit-has-a-versioned-inverse-or-explicit-compensating-revision
+    - no-hidden-product-command-or-business-outcome-created-by-visual-effects
+    - unknown-finality-must-reconcile-original-request-before-repeat
+  kinds:
+    - kind: trim
+      parameters: {clipId: ClipRef, edge: StartOrEnd, newBoundary: MediaTime}
+      requiredFields: [clipId, edge, newBoundary]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: nonpositive-clip-or-crossed-source-boundary
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: roll
+      parameters: {leftClipId: ClipRef, rightClipId: ClipRef, sharedBoundary: MediaTime}
+      requiredFields: [leftClipId, rightClipId, sharedBoundary]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: clips-not-contiguous-or-different-track
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: ripple
+      parameters: {trackId: TrackRef, timeInterval: HalfOpenMediaRange, delta: MediaDuration}
+      requiredFields: [trackId, timeInterval, delta]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: locked-following-clip-or-negative-project-time
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: slip
+      parameters: {clipId: ClipRef, sourceDelta: MediaDuration}
+      requiredFields: [clipId, sourceDelta]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: source-window-exceeds-immutable-source
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: slide
+      parameters: {clipId: ClipRef, projectDelta: MediaDuration}
+      requiredFields: [clipId, projectDelta]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: adjacent-clip-loss-or-misordered-neighbors
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: split
+      parameters: {clipId: ClipRef, splitTime: MediaTime}
+      requiredFields: [clipId, splitTime]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: outside-open-clip-interior
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: insert
+      parameters: {sourceAssetRef: SourceAssetVersionRef, trackId: TrackRef, projectStart: MediaTime, duration: MediaDuration}
+      requiredFields: [sourceAssetRef, trackId, projectStart, duration]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: unqualified-track-source-or-overlap-conflict
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: move
+      parameters: {clipId: ClipRef, destinationTrackId: TrackRef, destinationStart: MediaTime}
+      requiredFields: [clipId, destinationTrackId, destinationStart]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: cross-track-incompatible-signal-or-locked-source
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: reorder
+      parameters: {itemRef: SceneOrTrackRef, beforeItemRef: SceneOrTrackRef}
+      requiredFields: [itemRef, beforeItemRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: cyclic-nesting-or-unrelated-project-item
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: snap
+      parameters: {anchorRef: StableAnchorRef, targetAnchorRef: StableAnchorRef, tolerance: MediaDuration}
+      requiredFields: [anchorRef, targetAnchorRef, tolerance]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: unmeasured-or-cross-clock-snap
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: marker
+      parameters: {markerId: MarkerRef, time: MediaTime, labelRef: ApprovedTextRef}
+      requiredFields: [markerId, time, labelRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: unbound-source-clock-or-prohibited-text
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: nested-sequence
+      parameters: {parentSceneRef: SceneRef, childSequenceRef: SequenceRef, timeMappingRef: ClockTransformRef}
+      requiredFields: [parentSceneRef, childSequenceRef, timeMappingRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: recursive-cycle-or-non-invertible-clock-map
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: keyframe
+      parameters: {targetPropertyRef: PropertyRef, time: MediaTime, value: TypedPropertyValue}
+      requiredFields: [targetPropertyRef, time, value]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-082]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: unqualified-property-or-out-of-range-value
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: easing
+      parameters: {keyframeRangeRef: KeyframeRangeRef, interpolation: QualifiedInterpolation, controlPoints: BoundedCurve}
+      requiredFields: [keyframeRangeRef, interpolation, controlPoints]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-082]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: overshoot-protected-region-or-unsupported-interpolation
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: mask
+      parameters: {sourceRef: SourceAssetVersionRef, regionRef: RegionRef, timeRange: HalfOpenMediaRange, pathRef: BoundedGeometryRef}
+      requiredFields: [sourceRef, regionRef, timeRange, pathRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-058]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: unsourced-mask-or-propagation-outside-admitted-region
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: redact
+      parameters: {sourceRef: SourceAssetVersionRef, regionRef: RegionRef, timeRange: HalfOpenMediaRange, redactionPolicyRef: PolicyRef}
+      requiredFields: [sourceRef, regionRef, timeRange, redactionPolicyRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-058]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: sensitive-pixel-exposed-before-processing-or-unauthorized-redaction-removal
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: cursor-highlight
+      parameters: {sourceEventRef: SourceEventRef, timeRange: HalfOpenMediaRange, styleRef: ApprovedStyleRef}
+      requiredFields: [sourceEventRef, timeRange, styleRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-058]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: invented-click-or-no-authoritative-event
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: transform
+      parameters: {clipId: ClipRef, transformRef: RationalTransformRef, timeRange: HalfOpenMediaRange}
+      requiredFields: [clipId, transformRef, timeRange]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-082]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: overflow-or-protected-region-loss
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: zoom
+      parameters: {clipId: ClipRef, scale: PositiveRational, anchorPoint: NormalizedPoint, timeRange: HalfOpenMediaRange}
+      requiredFields: [clipId, scale, anchorPoint, timeRange]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-082]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: unbounded-scale-or-cropped-critical-meaning
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: pan
+      parameters: {clipId: ClipRef, offset: NormalizedVector, timeRange: HalfOpenMediaRange}
+      requiredFields: [clipId, offset, timeRange]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-082]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: outside-source-frame-or-stale-protected-region
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: reframe
+      parameters: {clipId: ClipRef, targetAspect: PositiveRational, sourceRegionRef: RegionRef, policyRef: PolicyRef}
+      requiredFields: [clipId, targetAspect, sourceRegionRef, policyRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-082]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: unapproved-face-logo-control-cropping
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: color-correction
+      parameters: {clipId: ClipRef, colorSpaceRef: ColorSpaceRef, correctionCurveRef: BoundedCurve}
+      requiredFields: [clipId, colorSpaceRef, correctionCurveRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-082]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: unsupported-color-transform-or-clipped-gamut
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: shot-color-match
+      parameters: {sourceClipRef: ClipRef, referenceClipRef: ClipRef, colorSpaceRef: ColorSpaceRef}
+      requiredFields: [sourceClipRef, referenceClipRef, colorSpaceRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-082]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: unlicensed-reference-or-color-space-ambiguity
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: overlay
+      parameters: {assetRef: SourceAssetVersionRef, layerRef: LayerRef, projectTimeRange: HalfOpenMediaRange}
+      requiredFields: [assetRef, layerRef, projectTimeRange]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-025, MEDIA-REC-P0-AC-083]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: missing-exact-asset-rights-or-layer-conflict
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: title
+      parameters: {approvedTextVersionRef: ApprovedTextRef, layerRef: LayerRef, timeRange: HalfOpenMediaRange}
+      requiredFields: [approvedTextVersionRef, layerRef, timeRange]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-025, MEDIA-REC-P0-AC-083]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: generated-title-substitutes-required-product-truth
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: credits
+      parameters: {approvedTextVersionRef: ApprovedTextRef, layerRef: LayerRef, timeRange: HalfOpenMediaRange}
+      requiredFields: [approvedTextVersionRef, layerRef, timeRange]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-025, MEDIA-REC-P0-AC-083]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: unauthorized-attribution-or-rights-omission
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: brand-logo
+      parameters: {exactLogoAssetRef: SourceAssetVersionRef, rightsScopeRef: RightsRef, layerRef: LayerRef}
+      requiredFields: [exactLogoAssetRef, rightsScopeRef, layerRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-025, MEDIA-REC-P0-AC-083]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: generated-logo-instead-of-exact-authorized-source
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: transition
+      parameters: {leftSceneRef: SceneRef, rightSceneRef: SceneRef, transitionType: QualifiedTransition, duration: MediaDuration}
+      requiredFields: [leftSceneRef, rightSceneRef, transitionType, duration]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-025, MEDIA-REC-P0-AC-083]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: missing-neighbor-scene-or-negative-duration
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: caption
+      parameters: {captionVersionRef: CaptionVersionRef, segmentIds: CaptionSegmentRefs, locale: LocaleRef}
+      requiredFields: [captionVersionRef, segmentIds, locale]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-027, MEDIA-REC-P0-AC-073]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: generated-caption-accepted-without-source-version
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: subtitle-timing
+      parameters: {captionVersionRef: CaptionVersionRef, segmentId: CaptionSegmentRef, sourceTimeRange: HalfOpenMediaRange}
+      requiredFields: [captionVersionRef, segmentId, sourceTimeRange]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-027, MEDIA-REC-P0-AC-073]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: overlapping-timing-or-unmeasured-audio-alignment
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: dub
+      parameters: {sourceSpeechRef: SourceAssetVersionRef, approvedTranslationRef: ApprovedTextRef, voiceRightsRef: RightsRef, locale: LocaleRef}
+      requiredFields: [sourceSpeechRef, approvedTranslationRef, voiceRightsRef, locale]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-027, MEDIA-REC-P0-AC-073]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: unapproved-meaning-or-voice-rights
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: narration
+      parameters: {approvedScriptRef: ApprovedTextRef, voiceOrFileRef: AuthorizedNarrationSourceRef, sceneRef: SceneRef, timeRange: HalfOpenMediaRange}
+      requiredFields: [approvedScriptRef, voiceOrFileRef, sceneRef, timeRange]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-027, MEDIA-REC-P0-AC-073]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: missing-voice-consent-or-unqualified-provider
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: audio-gain
+      parameters: {trackRef: TrackRef, gainDb: FiniteDecibels, timeRange: HalfOpenMediaRange}
+      requiredFields: [trackRef, gainDb, timeRange]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-026, MEDIA-REC-P0-AC-084]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: out-of-range-gain-or-unsafe-true-peak
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: audio-duck
+      parameters: {sourceTrackRef: TrackRef, sidechainTrackRef: TrackRef, attackReleaseRef: BoundedEnvelope, gainDb: FiniteDecibels}
+      requiredFields: [sourceTrackRef, sidechainTrackRef, attackReleaseRef, gainDb]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-026, MEDIA-REC-P0-AC-084]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: unbound-sidechain-or-clipped-dialogue
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: audio-mix
+      parameters: {trackRefs: TrackRefs, channelMapRef: QualifiedChannelMap, mixProfileRef: MixProfileRef}
+      requiredFields: [trackRefs, channelMapRef, mixProfileRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-026, MEDIA-REC-P0-AC-084]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: incompatible-sample-rate-or-unlicensed-stems
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: audio-fade
+      parameters: {trackRef: TrackRef, timeRange: HalfOpenMediaRange, envelopeRef: BoundedEnvelope}
+      requiredFields: [trackRef, timeRange, envelopeRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-026, MEDIA-REC-P0-AC-084]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: fade-duration-exceeds-clip-or-unqualified-audio-output
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: camera-switch
+      parameters: {sourceCameraRefs: CameraSourceRefs, cutTime: MediaTime, selectedCameraRef: CameraSourceRef}
+      requiredFields: [sourceCameraRefs, cutTime, selectedCameraRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-028]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: missing-captured-camera-or-cross-clock-uncertainty
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: picture-in-picture
+      parameters: {baseClipRef: ClipRef, overlayClipRef: ClipRef, geometryRef: BoundedGeometryRef, timeMapRef: ClockTransformRef}
+      requiredFields: [baseClipRef, overlayClipRef, geometryRef, timeMapRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-028]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: unqualified-camera-source-or-protected-content-occlusion
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: hotspot
+      parameters: {sceneRef: SceneRef, timeRange: HalfOpenMediaRange, geometryRef: BoundedGeometryRef, labelRef: ApprovedTextRef, branchTargetRef: BranchRef}
+      requiredFields: [sceneRef, timeRange, geometryRef, labelRef, branchTargetRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-050, MEDIA-REC-P0-AC-052]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: privileged-action-or-nonfocusable-target
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: branch
+      parameters: {interactionGraphRef: InteractionGraphRef, sourceNodeRef: SceneRef, destinationNodeRef: SceneRef, conditionRef: SandboxedConditionRef}
+      requiredFields: [interactionGraphRef, sourceNodeRef, destinationNodeRef, conditionRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-050, MEDIA-REC-P0-AC-052]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: arbitrary-js-or-branch-cycle-without-safe-exit
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: undo
+      parameters: {targetEditOperationRef: EditOperationRef, expectedRevisionId: ProjectRevisionRef}
+      requiredFields: [targetEditOperationRef, expectedRevisionId]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-019, MEDIA-REC-P0-AC-029]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: external-side-effect-treated-as-local-undo
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: redo
+      parameters: {targetEditOperationRef: EditOperationRef, expectedRevisionId: ProjectRevisionRef}
+      requiredFields: [targetEditOperationRef, expectedRevisionId]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-019, MEDIA-REC-P0-AC-029]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: non-replayable-effect-or-lost-manual-lock
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: scene-group
+      parameters: {sceneRefs: SceneRefs, groupId: SceneGroupRef, parentSequenceRef: SequenceRef}
+      requiredFields: [sceneRefs, groupId, parentSequenceRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: recursive-group-or-unrelated-project-scene
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: crop
+      parameters: {clipId: ClipRef, normalizedBounds: BoundedGeometryRef, targetAspect: PositiveRational, protectedRegionRefs: RegionRefs}
+      requiredFields: [clipId, normalizedBounds, targetAspect, protectedRegionRefs]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-082]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: hidden-essential-ui-or-brand-text
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: cursor-click
+      parameters: {sourceEventRef: SourceEventRef, timeRange: HalfOpenMediaRange, emphasisStyleRef: ApprovedStyleRef}
+      requiredFields: [sourceEventRef, timeRange, emphasisStyleRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-024, MEDIA-REC-P0-AC-058]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: fabricated-click-or-unobserved-business-effect
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: background
+      parameters: {sourceAssetRef: SourceAssetVersionRef, layerRef: LayerRef, timeRange: HalfOpenMediaRange}
+      requiredFields: [sourceAssetRef, layerRef, timeRange]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-025, MEDIA-REC-P0-AC-083]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: unlicensed-image-or-denied-model-output
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: frame
+      parameters: {frameAssetRef: SourceAssetVersionRef, layerRef: LayerRef, geometryRef: BoundedGeometryRef}
+      requiredFields: [frameAssetRef, layerRef, geometryRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-025, MEDIA-REC-P0-AC-083]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: unsafe-content-occlusion-or-unknown-frame-rights
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: annotation
+      parameters: {approvedTextRef: ApprovedTextRef, anchorRef: StableAnchorRef, timeRange: HalfOpenMediaRange}
+      requiredFields: [approvedTextRef, anchorRef, timeRange]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-025, MEDIA-REC-P0-AC-083]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: unauthorized-meaning-or-unlabelled-overlay
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: track-mute
+      parameters: {trackRef: TrackRef, muted: Boolean}
+      requiredFields: [trackRef, muted]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-079, MEDIA-REC-P0-AC-080]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: muting-hidden-business-outcome-or-loss-of-source-track
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: track-solo
+      parameters: {trackRefs: TrackRefs, soloEnabled: Boolean}
+      requiredFields: [trackRefs, soloEnabled]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-079, MEDIA-REC-P0-AC-080]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: solo-hidden-required-audio-or-disabled-essential-caption
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: speed-ramp
+      parameters: {clipId: ClipRef, rateCurveRef: PositiveRationalCurve, pitchPolicyRef: AudioPitchPolicyRef, sourceTimeMapRef: ClockTransformRef}
+      requiredFields: [clipId, rateCurveRef, pitchPolicyRef, sourceTimeMapRef]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-022, MEDIA-REC-P0-AC-023]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: zero-rate-unbounded-interpolation-or-audio-drift
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
+    - kind: audio-denoise
+      parameters: {sourceStemRef: SourceAssetVersionRef, processingProfileRef: QualifiedEffectProfileRef, parametersRef: BoundedParameterSetRef, comparisonWindow: HalfOpenMediaRange}
+      requiredFields: [sourceStemRef, processingProfileRef, parametersRef, comparisonWindow]
+      acceptanceCaseRefs: [MEDIA-REC-P0-AC-084]
+      commitOwner: media.recorder.operation.edit.commit.v1
+      fieldValidation: typed-and-unit-bounded-current-source-revision
+      positiveEffect: scoped-versioned-project-edit-with-explicit-rebase-and-undo
+      negative: false-speech-recovery-or-unsafe-clipping
+      unavailableBehavior: preserve-source-and-uncommitted-draft-with-typed-denial
