@@ -87,3 +87,45 @@ These group rows are **projections** of the 84 canonical acceptance clauses. Cas
 **Disposition:** no additional uncovered *feature class* was identified within the enumerated W01–W24 Recorder/Studio PDP-0–2 scope after this repair. Completeness is still conditional on native YAML/semantic, actor/capability/requirement/physical-topology, generated-source and exact affected-leaf phase readmission. The 15 PDP-1 Recorder operations remain explicitly `NOT_ADMITTED`; this is proper definition versus executable operation admission, not evidence of working endpoints. PDP-3 and Discovery source-currentness still require their separately authorized work. Existing Shared design CSS/token reconciliation and external licenses remain external acceptance/Build/Delivery issues, not silently satisfied here.
 
 **Next proof:** execute `pnpm check:recorder-studio-definition`, `pnpm test:recorder-studio-definition`, `pnpm check:physical-topology`, `pnpm test:physical-topology`, `pnpm check:product-experience-local`, and `node scripts/generate-media-phase-projections.mjs --check --strict` against one frozen current checkout. Reconcile actual native failures at the earliest owning PDP and issue source-bound successor status only when applicable phase-local definition tasks are zero. Never repin older `DEV_COMPLETE` records to hide changed meaning.
+
+
+## Second post-merge source review — exact PDP-2 page compositions
+
+**Observed source baseline:** `main@0dc202860401cdf060118330a5d514298e15f972`. **Disposition:** source-definition gap repaired in a separate, reviewable successor PR; native execution and phase-currentness remain independent.
+
+The original PDP-2 Recorder/Studio extension already defined 4 logical consumer
+surfaces, 16 feature groups, 84 product acceptance cases, 52 exact typed manual
+edit kinds and a composition made from existing Media components. However, it
+listed 13 Studio page names without recording a page-local **canonical**
+template, recipe, layout, source case, accessible interaction, and failure-state
+contract. PDP-3's thirteen workspace *proposals* were a downstream projection,
+not PDP-2 reusable design meaning. Treating the surface-wide component union
+as sufficient would leave this omission untested.
+
+The source-owned `recorder-studio-interface.yaml#productionStudioPageCompositionContracts`
+now binds **all 13** existing Studio workspaces to Media's existing 13 template
+identities, 13 recipe identities, 11 layout identities, 31 generic component
+contracts and applicable original case IDs; no new token, component, canonical
+screen, route or Media physical package is minted. Its Studio component
+projection now includes the necessary existing reused page components. Every
+page records wide/narrow intent, keyboard/text parity, headless source-bound
+projection, required denied/unknown/revision states and safe recovery. The
+source checker reads exact template/layout/recipe catalogs and rejects
+unrecognized or incompatible chains, phantom component and case IDs, missing
+workspace pages, or missing headless/accessibility/denial/admission meaning.
+Five negative/regression tests were added in the existing test file.
+
+**Limited read-only validation:** thirteen unique keys, exact Media catalog IDs
+for all referenced templates/layouts/recipes/components, 84 existing stable case
+IDs and newly authored negative-test predicates were checked on the exact PR
+branch file contents. **Native YAML parsing, actual source-check execution,
+browser/a11y inspection, PDP-3 canonical screen binding, independent approval,
+and exact successor PDP-0–3 DEV_COMPLETE remain NOT_RUN or NOT_ADMITTED.**
+Neither the Media Build gate nor Gharbatai film acceptance is affected.
+
+The source-owner review found no other newly uncovered *enumerated feature class*
+in the original W01–W24 product-definition mapping, but this is not a claim of
+absolute semantic exhaustiveness or a green native phase gate. Finish native
+source/actor/capability/operation/currentness verification before promoting any
+PDP-0–3 successor cells; retain the historical 50×4 and proposed 54×4
+denominators without fabricated receipts.
