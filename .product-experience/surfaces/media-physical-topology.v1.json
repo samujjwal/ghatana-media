@@ -3593,7 +3593,8 @@
       "sourceContracts": [
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml",
         ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml",
-        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml"
+        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml",
+        ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml"
       ]
     },
     {
@@ -3609,7 +3610,8 @@
       "sourceContracts": [
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml",
         ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml",
-        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml"
+        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml",
+        ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml"
       ]
     },
     {
@@ -3625,7 +3627,8 @@
       "sourceContracts": [
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml",
         ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml",
-        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml"
+        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml",
+        ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml"
       ]
     },
     {
@@ -3641,7 +3644,8 @@
       "sourceContracts": [
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml",
         ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml",
-        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml"
+        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml",
+        ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml"
       ]
     }
   ],
