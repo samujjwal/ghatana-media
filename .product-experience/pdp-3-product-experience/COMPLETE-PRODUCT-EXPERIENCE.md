@@ -191,3 +191,9 @@ Current local proof inputs include
 These checks validate source structure and available public schemas; they do
 not establish semantic acceptance, execution behavior, independent review,
 or Lifecycle currentness/receipts.
+
+## Recorder/Studio PDP-3 successor (October 17, 2026)
+
+The historical 47-screen / 30-journey / 130-step `DEV_COMPLETE` record belongs to its earlier source cut and **does not certify** the four Recorder/Studio logical consumer additions merged in PR #10. The new [`recorder-studio-experience.yaml`](recorder-studio-experience.yaml) is a source-owned *proposed successor* contract: four consumer interfaces, sixteen profile-specific flows and 84 case-bound step intents, fifty-two manual editing parity paths, and thirteen planned Studio workspace intents. It reuses existing Media/PDP-1 operation and historical journey authorities without minting a physical package, route, project store or canonical processing writer.
+
+All 84 steps refer to canonical PDP-0 positive/rejection oracles rather than replacing them. PDP-1 candidate operation groups and PDP-2 interface grammar are cross-validated by `pnpm check:recorder-studio-experience` and `pnpm test:recorder-studio-experience`; source definitions are not executable. The thirteen candidate workspace pages are **not** extra canonical screens until actual screen contracts, template/layout binding, source-manifest and Explorer admissions are produced; existing 47-screen denominator must not be silently repinned. This new successor is **not PDP-3 DEV_COMPLETE** and cannot change independent acceptance or currentness. See [the successor execution plan](../../docs/implementation/MEDIA-RECORDER-STUDIO-PDP3-SUCCESSOR-EXECUTION-2026-10-17.md).

@@ -1,0 +1,1985 @@
+# Recorder/Studio PDP-3 successor, contract-only, source-bound
+# This is NOT a PDP-3 DEV_COMPLETE or runtime/Explorer admission record.
+schemaVersion: "media.recorder-studio-pdp3-successor.v1"
+productId: "media"
+sourcePhase: "PDP-3"
+status: "SOURCE_AUTHORED_SUCCESSOR_PENDING_NATIVE_VALIDATION_AND_CURRENTNESS"
+sourceBaseline: "107b3324beca07644433ae0ca6fbbbc9cf82115c"
+meaning: "PDP-3 consumer behavior derived from current PDP-0/1/2 Recorder/Studio definitions. No second requirement, operation, MediaProject, physical package or runtime-writer authority."
+authorities:
+  acceptance: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile"
+  product: ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml"
+  domain: ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml"
+  design: ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml"
+  existingPdp3Journeys: ".product-experience/pdp-3-product-experience/journey-registry.yaml"
+  existingPdp3Screens: ".product-experience/pdp-3-product-experience/screen-registry.yaml"
+population:
+  logicalSurfaces: 4
+  featureProfiles: 16
+  acceptanceCaseSteps: 84
+  manualEditPaths: 52
+  studioWorkspaceProposals: 13
+  existingTopLevelJourneysPreserved: 30
+  existingCanonicalScreensPreserved: 47
+  physicalPackagesAdded: 0
+surfaceExperiences:
+  -
+    surfaceId: "media.surface.recorder-orchestrator"
+    parentSurfaceId: "media.surface.cli"
+    channel: "media.channel.cli"
+    pdp2Kind: "HEADLESS"
+    sourceAuthority: ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml"
+    interfaceAuthority: ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml"
+    hostAdapterStatus: "CONTRACT_ONLY_NOT_ADMITTED"
+    machineReadableObservations: ["sourceRevision", "tenantScope", "typedResult", "finality", "authorizationOrDenial", "redactedTraceRef", "safeNextAction"]
+    invariants: ["no-second-MediaProject-store", "no-new-ProcessingJob-or-JobAttempt-writer", "no-product-business-authority-in-Media-capture", "no-implicit-runtime-or-public-route"]
+  -
+    surfaceId: "media.surface.capture-adapters"
+    parentSurfaceId: "media.surface.integrations"
+    channel: "media.channel.product-integration"
+    pdp2Kind: "HEADLESS"
+    sourceAuthority: ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml"
+    interfaceAuthority: ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml"
+    hostAdapterStatus: "CONTRACT_ONLY_NOT_ADMITTED"
+    machineReadableObservations: ["sourceRevision", "tenantScope", "typedResult", "finality", "authorizationOrDenial", "redactedTraceRef", "safeNextAction"]
+    invariants: ["no-second-MediaProject-store", "no-new-ProcessingJob-or-JobAttempt-writer", "no-product-business-authority-in-Media-capture", "no-implicit-runtime-or-public-route"]
+  -
+    surfaceId: "media.surface.production-studio"
+    parentSurfaceId: "media.surface.web"
+    channel: "media.channel.web"
+    pdp2Kind: "GUI"
+    sourceAuthority: ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml"
+    interfaceAuthority: ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml"
+    hostAdapterStatus: "CONTRACT_ONLY_NOT_ADMITTED"
+    machineReadableObservations: ["sourceRevision", "tenantScope", "typedResult", "finality", "authorizationOrDenial", "redactedTraceRef", "safeNextAction"]
+    invariants: ["no-second-MediaProject-store", "no-new-ProcessingJob-or-JobAttempt-writer", "no-product-business-authority-in-Media-capture", "no-implicit-runtime-or-public-route"]
+  -
+    surfaceId: "media.surface.interactive-demo-player"
+    parentSurfaceId: "media.surface.embedded"
+    channel: "media.channel.product-integration"
+    pdp2Kind: "EMBEDDED_GUI"
+    sourceAuthority: ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml"
+    interfaceAuthority: ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml"
+    hostAdapterStatus: "CONTRACT_ONLY_NOT_ADMITTED"
+    machineReadableObservations: ["sourceRevision", "tenantScope", "typedResult", "finality", "authorizationOrDenial", "redactedTraceRef", "safeNextAction"]
+    invariants: ["no-second-MediaProject-store", "no-new-ProcessingJob-or-JobAttempt-writer", "no-product-business-authority-in-Media-capture", "no-implicit-runtime-or-public-route"]
+flowContracts:
+  -
+    id: "media.recorder.p3.flow.intent.v1"
+    sourceProfileRef: "media.recorder.profile.intent.v1"
+    sourceFeatureGroup: "INTENT"
+    surfaceId: "media.surface.recorder-orchestrator"
+    reuseExistingJourneyRefs: ["J-09", "J-24", "J-25"]
+    pdp2InterfaceGroupRef: "media.recorder.p2.group.intent.v1"
+    entryContract: "Import a versioned product-experience intent and user-supplied capture configuration"
+    exitContract: "Plan is revision-bound and eligible, or returns a typed denied/unavailable state"
+    denialRecoveryContract: "Correct purpose/source/locale or choose deterministic fallback without assuming a product outcome"
+    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    stepContracts:
+      -
+        id: "media.recorder.p3.step.001.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-001"
+        order: 1
+        sourceWhen: "the user sets audience, purpose, duration, locale and product/surface scope"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-001/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-001/rejection"
+        operationCandidateRefs: ["media.recorder.operation.project.plan.evaluate.v1", "media.recorder.operation.run.submit.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.intent.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.002.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-002"
+        order: 2
+        sourceWhen: "the user imports a Tools ExperienceDefinition by an admitted public contract"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-002/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-002/rejection"
+        operationCandidateRefs: ["media.recorder.operation.project.plan.evaluate.v1", "media.recorder.operation.run.submit.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.intent.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.003.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-003"
+        order: 3
+        sourceWhen: "the director chooses scenes for an authored product demonstration"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-003/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-003/rejection"
+        operationCandidateRefs: ["media.recorder.operation.project.plan.evaluate.v1", "media.recorder.operation.run.submit.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.intent.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.004.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-004"
+        order: 4
+        sourceWhen: "a policy requests unattended creative decisions with optional manual override"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-004/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-004/rejection"
+        operationCandidateRefs: ["media.recorder.operation.project.plan.evaluate.v1", "media.recorder.operation.run.submit.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.intent.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.005.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-005"
+        order: 5
+        sourceWhen: "AI service is absent or abstains"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-005/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-005/rejection"
+        operationCandidateRefs: ["media.recorder.operation.project.plan.evaluate.v1", "media.recorder.operation.run.submit.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.intent.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+  -
+    id: "media.recorder.p3.flow.sources.v1"
+    sourceProfileRef: "media.recorder.profile.sources.v1"
+    sourceFeatureGroup: "SOURCES"
+    surfaceId: "media.surface.capture-adapters"
+    reuseExistingJourneyRefs: ["J-24", "J-25", "J-29", "J-30"]
+    pdp2InterfaceGroupRef: "media.recorder.p2.group.sources.v1"
+    entryContract: "Probe the actual authorized source and signal/timebase capabilities"
+    exitContract: "Declared supported signals and policy-qualified adapter, or explicit unavailable dimensions"
+    denialRecoveryContract: "Stop affected scene, preserve source provenance and require qualified replacement"
+    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    stepContracts:
+      -
+        id: "media.recorder.p3.step.006.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-006"
+        order: 1
+        sourceWhen: "a browser Playwright provider is requested"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-006/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-006/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.capture.start.v1", "media.recorder.operation.capture.stop.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.sources.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.007.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-007"
+        order: 2
+        sourceWhen: "desktop or mobile app capture is requested"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-007/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-007/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.capture.start.v1", "media.recorder.operation.capture.stop.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.sources.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.008.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-008"
+        order: 3
+        sourceWhen: "CLI, HTTP, gRPC or event-only product demonstration is requested"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-008/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-008/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.capture.start.v1", "media.recorder.operation.capture.stop.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.sources.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.009.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-009"
+        order: 4
+        sourceWhen: "microphone, camera or prerecorded file source is requested"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-009/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-009/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.capture.start.v1", "media.recorder.operation.capture.stop.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.sources.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.010.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-010"
+        order: 5
+        sourceWhen: "a storyboard includes browser, camera and terminal streams"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-010/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-010/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.capture.start.v1", "media.recorder.operation.capture.stop.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.sources.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.011.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-011"
+        order: 6
+        sourceWhen: "the source disappears, fails admission or loses permission"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-011/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-011/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.capture.start.v1", "media.recorder.operation.capture.stop.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.sources.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+  -
+    id: "media.recorder.p3.flow.exec.v1"
+    sourceProfileRef: "media.recorder.profile.exec.v1"
+    sourceFeatureGroup: "EXEC"
+    surfaceId: "media.surface.recorder-orchestrator"
+    reuseExistingJourneyRefs: ["J-09", "J-20", "J-24", "J-27"]
+    pdp2InterfaceGroupRef: "media.recorder.p2.group.exec.v1"
+    entryContract: "Acquire fenced product fixture/session and submit the exact configuration"
+    exitContract: "Observe owned action readback and authoritative job/attempt state"
+    denialRecoveryContract: "Reconcile exact request and lease before retry, clean up only owned fixtures"
+    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    stepContracts:
+      -
+        id: "media.recorder.p3.step.012.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-012"
+        order: 1
+        sourceWhen: "the run requests a product environment, scenario fixture and identities"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-012/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-012/rejection"
+        operationCandidateRefs: ["media.recorder.operation.run.submit.v1", "media.recorder.operation.run.observe.v1", "media.recorder.operation.run.reconcile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.exec.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.013.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-013"
+        order: 2
+        sourceWhen: "the scenario executes product-owned journey actions"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-013/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-013/rejection"
+        operationCandidateRefs: ["media.recorder.operation.run.submit.v1", "media.recorder.operation.run.observe.v1", "media.recorder.operation.run.reconcile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.exec.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.014.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-014"
+        order: 3
+        sourceWhen: "capture admission and environment readiness are evaluated"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-014/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-014/rejection"
+        operationCandidateRefs: ["media.recorder.operation.run.submit.v1", "media.recorder.operation.run.observe.v1", "media.recorder.operation.run.reconcile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.exec.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.015.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-015"
+        order: 4
+        sourceWhen: "seed, browser or renderer fails at any stage"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-015/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-015/rejection"
+        operationCandidateRefs: ["media.recorder.operation.run.submit.v1", "media.recorder.operation.run.observe.v1", "media.recorder.operation.run.reconcile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.exec.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.016.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-016"
+        order: 5
+        sourceWhen: "parallel jobs request the same exclusive browser/database/media resource"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-016/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-016/rejection"
+        operationCandidateRefs: ["media.recorder.operation.run.submit.v1", "media.recorder.operation.run.observe.v1", "media.recorder.operation.run.reconcile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.exec.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+  -
+    id: "media.recorder.p3.flow.project.v1"
+    sourceProfileRef: "media.recorder.profile.project.v1"
+    sourceFeatureGroup: "PROJECT"
+    surfaceId: "media.surface.production-studio"
+    reuseExistingJourneyRefs: ["J-01", "J-18", "J-21"]
+    pdp2InterfaceGroupRef: "media.recorder.p2.group.project.v1"
+    entryContract: "Open existing MediaProject revision in Studio or through headless client"
+    exitContract: "Create one successor immutable revision or show unchanged current revision"
+    denialRecoveryContract: "Preserve draft and locks, show CAS conflict or UNKNOWN commit without overwrite"
+    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    stepContracts:
+      -
+        id: "media.recorder.p3.step.017.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-017"
+        order: 1
+        sourceWhen: "automatic and manual producers open a production project"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-017/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-017/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.project.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.018.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-018"
+        order: 2
+        sourceWhen: "video/audio/animation sources have differing native clocks"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-018/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-018/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.project.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.019.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-019"
+        order: 3
+        sourceWhen: "an editor saves a project change"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-019/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-019/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.project.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.020.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-020"
+        order: 4
+        sourceWhen: "a derived clip, thumbnail, waveform, narration or proxy is created"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-020/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-020/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.project.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.021.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-021"
+        order: 5
+        sourceWhen: "project is serialized, reopened, exported/imported or restored"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-021/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-021/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.project.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+  -
+    id: "media.recorder.p3.flow.studio.v1"
+    sourceProfileRef: "media.recorder.profile.studio.v1"
+    sourceFeatureGroup: "STUDIO"
+    surfaceId: "media.surface.production-studio"
+    reuseExistingJourneyRefs: ["J-11", "J-18", "J-21"]
+    pdp2InterfaceGroupRef: "media.recorder.p2.group.studio.v1"
+    entryContract: "Select an anchored scene, clip, track, layer and immutable source revision"
+    exitContract: "Preview/commit semantically equivalent GUI and headless project edit"
+    denialRecoveryContract: "Reject stale, unqualified or locked edits; keep originals and pre-edit version"
+    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    stepContracts:
+      -
+        id: "media.recorder.p3.step.022.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-022"
+        order: 1
+        sourceWhen: "multi-track composition is edited"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-022/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-022/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.studio.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.023.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-023"
+        order: 2
+        sourceWhen: "the user trims, splits, rolls, ripples, slips or slides clips"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-023/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-023/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.studio.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.024.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-024"
+        order: 3
+        sourceWhen: "user changes zoom, pan, crop, reframe, masks, tracked region, mouse/click highlight, transitions or keyframes"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-024/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-024/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.studio.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.025.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-025"
+        order: 4
+        sourceWhen: "user adds annotations, lower thirds, logo, typography, backgrounds and custom visual assets"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-025/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-025/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.studio.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.026.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-026"
+        order: 5
+        sourceWhen: "user edits narration, stems, ducking, fades, gain, Foley or music"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-026/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-026/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.studio.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.027.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-027"
+        order: 6
+        sourceWhen: "user corrects transcript, subtitles, translation, localization, timing or speaker labels"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-027/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-027/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.studio.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.028.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-028"
+        order: 7
+        sourceWhen: "external and screen sources are available"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-028/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-028/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.studio.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.029.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-029"
+        order: 8
+        sourceWhen: "an AUTO, MANUAL_PREFERRED, LOCKED, REGENERATE_ON_SOURCE_CHANGE or REVIEW_CONFLICT choice exists"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-029/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-029/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.studio.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.079.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-079"
+        order: 9
+        sourceWhen: "a reviewer mutes/unmutes a video, audio or caption track"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-079/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-079/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.studio.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.080.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-080"
+        order: 10
+        sourceWhen: "an editor solos a subset of source tracks"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-080/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-080/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.studio.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.081.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-081"
+        order: 11
+        sourceWhen: "a user changes clip rate, slow motion or time warp"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-081/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-081/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.studio.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.082.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-082"
+        order: 12
+        sourceWhen: "a user manually crops, frames or adjusts protected composition bounds"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-082/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-082/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.studio.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.083.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-083"
+        order: 13
+        sourceWhen: "an editor groups scenes or adds a background, visual frame, annotation or click emphasis"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-083/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-083/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.studio.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.084.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-084"
+        order: 14
+        sourceWhen: "a user adjusts dialogue restoration and denoising manually"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-084/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-084/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.studio.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+  -
+    id: "media.recorder.p3.flow.ai.v1"
+    sourceProfileRef: "media.recorder.profile.ai.v1"
+    sourceFeatureGroup: "AI"
+    surfaceId: "media.surface.production-studio"
+    reuseExistingJourneyRefs: ["J-09", "J-19", "J-21", "J-30"]
+    pdp2InterfaceGroupRef: "media.recorder.p2.group.ai.v1"
+    entryContract: "Review bounded policy-eligible AI recommendation with evidence and uncertainty"
+    exitContract: "Persist an explicitly accepted edit or abstention, never infer a domain effect"
+    denialRecoveryContract: "Offer deterministic or manual path without unapproved data/model egress"
+    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    stepContracts:
+      -
+        id: "media.recorder.p3.step.030.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-030"
+        order: 1
+        sourceWhen: "automatic pacing/highlights/scene ordering/zoom/narration is proposed"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-030/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-030/rejection"
+        operationCandidateRefs: ["media.recorder.operation.quality.assess.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.ai.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.031.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-031"
+        order: 2
+        sourceWhen: "remote or local model fails, abstains or times out"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-031/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-031/rejection"
+        operationCandidateRefs: ["media.recorder.operation.quality.assess.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.ai.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.032.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-032"
+        order: 3
+        sourceWhen: "a model requests data egress, training or voice clone"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-032/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-032/rejection"
+        operationCandidateRefs: ["media.recorder.operation.quality.assess.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.ai.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.033.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-033"
+        order: 4
+        sourceWhen: "non-deterministic recommendation is accepted"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-033/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-033/rejection"
+        operationCandidateRefs: ["media.recorder.operation.quality.assess.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.ai.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.034.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-034"
+        order: 5
+        sourceWhen: "a model edit is evaluated against truth, quality and human changes"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-034/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-034/rejection"
+        operationCandidateRefs: ["media.recorder.operation.quality.assess.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.ai.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+  -
+    id: "media.recorder.p3.flow.pipe.v1"
+    sourceProfileRef: "media.recorder.profile.pipe.v1"
+    sourceFeatureGroup: "PIPE"
+    surfaceId: "media.surface.recorder-orchestrator"
+    reuseExistingJourneyRefs: ["J-09", "J-18", "J-19"]
+    pdp2InterfaceGroupRef: "media.recorder.p2.group.pipe.v1"
+    entryContract: "Compile storyboard, timing, narration and exact output-profile intents"
+    exitContract: "Measure and compare preview/final semantic content for exact revision"
+    denialRecoveryContract: "Reject unsupported voice, codec, aspect crop or unmeasured QA; keep source"
+    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    stepContracts:
+      -
+        id: "media.recorder.p3.step.035.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-035"
+        order: 1
+        sourceWhen: "run planning uses configured beats and product postconditions"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-035/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-035/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.start.v1", "media.recorder.operation.scene.compile.v1", "media.recorder.operation.render.request.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.pipe.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.036.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-036"
+        order: 2
+        sourceWhen: "a locale and approved voice/file/none provider is selected"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-036/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-036/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.start.v1", "media.recorder.operation.scene.compile.v1", "media.recorder.operation.render.request.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.pipe.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.037.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-037"
+        order: 3
+        sourceWhen: "one accepted plan is rendered in 16:9 and 9:16 or another admitted variant"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-037/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-037/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.start.v1", "media.recorder.operation.scene.compile.v1", "media.recorder.operation.render.request.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.pipe.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.038.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-038"
+        order: 4
+        sourceWhen: "capture/encode/mux/render finishes"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-038/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-038/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.start.v1", "media.recorder.operation.scene.compile.v1", "media.recorder.operation.render.request.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.pipe.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.039.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-039"
+        order: 5
+        sourceWhen: "Studio and unattended render preview the same source revision"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-039/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-039/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.start.v1", "media.recorder.operation.scene.compile.v1", "media.recorder.operation.render.request.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.pipe.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+  -
+    id: "media.recorder.p3.flow.regen.v1"
+    sourceProfileRef: "media.recorder.profile.regen.v1"
+    sourceFeatureGroup: "REGEN"
+    surfaceId: "media.surface.recorder-orchestrator"
+    reuseExistingJourneyRefs: ["J-09", "J-20", "J-21", "J-27"]
+    pdp2InterfaceGroupRef: "media.recorder.p2.group.regen.v1"
+    entryContract: "Inspect a material source change and scene dependency invalidation"
+    exitContract: "Recapture only affected scenes with compatible human edits retained"
+    denialRecoveryContract: "Offer semantic rebase, reconcile UNKNOWN, preserve unaffected scene assets"
+    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    stepContracts:
+      -
+        id: "media.recorder.p3.step.040.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-040"
+        order: 1
+        sourceWhen: "only one scene's material inputs change"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-040/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-040/rejection"
+        operationCandidateRefs: ["media.recorder.operation.scene.recapture.v1", "media.recorder.operation.run.reconcile.v1", "media.recorder.operation.edit.commit.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.regen.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.041.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-041"
+        order: 2
+        sourceWhen: "changed scene recapture is authorized"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-041/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-041/rejection"
+        operationCandidateRefs: ["media.recorder.operation.scene.recapture.v1", "media.recorder.operation.run.reconcile.v1", "media.recorder.operation.edit.commit.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.regen.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.042.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-042"
+        order: 3
+        sourceWhen: "manual edit anchor conflicts with new source timings/results"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-042/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-042/rejection"
+        operationCandidateRefs: ["media.recorder.operation.scene.recapture.v1", "media.recorder.operation.run.reconcile.v1", "media.recorder.operation.edit.commit.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.regen.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.043.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-043"
+        order: 4
+        sourceWhen: "timeout or resource crash interrupts a product action or external publication"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-043/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-043/rejection"
+        operationCandidateRefs: ["media.recorder.operation.scene.recapture.v1", "media.recorder.operation.run.reconcile.v1", "media.recorder.operation.edit.commit.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.regen.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.044.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-044"
+        order: 5
+        sourceWhen: "render proxies and temporary artifacts are reused"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-044/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-044/rejection"
+        operationCandidateRefs: ["media.recorder.operation.scene.recapture.v1", "media.recorder.operation.run.reconcile.v1", "media.recorder.operation.edit.commit.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.regen.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+  -
+    id: "media.recorder.p3.flow.quality.v1"
+    sourceProfileRef: "media.recorder.profile.quality.v1"
+    sourceFeatureGroup: "QUALITY"
+    surfaceId: "media.surface.production-studio"
+    reuseExistingJourneyRefs: ["J-19", "J-20", "J-21"]
+    pdp2InterfaceGroupRef: "media.recorder.p2.group.quality.v1"
+    entryContract: "Review owner-observed business outcome and source-measured audio/video QA"
+    exitContract: "Show pass/fail/abstain per measurement without inferring human approval"
+    denialRecoveryContract: "Isolate failing scenes and required human/rights/legal review"
+    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    stepContracts:
+      -
+        id: "media.recorder.p3.step.045.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-045"
+        order: 1
+        sourceWhen: "a film claims product state change or operation success"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-045/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-045/rejection"
+        operationCandidateRefs: ["media.recorder.operation.quality.assess.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.quality.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.046.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-046"
+        order: 2
+        sourceWhen: "media QA inspects audio/video/caption timing"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-046/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-046/rejection"
+        operationCandidateRefs: ["media.recorder.operation.quality.assess.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.quality.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.047.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-047"
+        order: 3
+        sourceWhen: "technical quality passes"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-047/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-047/rejection"
+        operationCandidateRefs: ["media.recorder.operation.quality.assess.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.quality.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.048.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-048"
+        order: 4
+        sourceWhen: "reference workload or profile is evaluated"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-048/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-048/rejection"
+        operationCandidateRefs: ["media.recorder.operation.quality.assess.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.quality.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.049.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-049"
+        order: 5
+        sourceWhen: "an approved Studio project is edited/re-rendered"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-049/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-049/rejection"
+        operationCandidateRefs: ["media.recorder.operation.quality.assess.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.quality.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+  -
+    id: "media.recorder.p3.flow.interactive.v1"
+    sourceProfileRef: "media.recorder.profile.interactive.v1"
+    sourceFeatureGroup: "INTERACTIVE"
+    surfaceId: "media.surface.interactive-demo-player"
+    reuseExistingJourneyRefs: ["J-22", "J-28"]
+    pdp2InterfaceGroupRef: "media.recorder.p2.group.interactive.v1"
+    entryContract: "Open a sandboxed immutable interactive bundle at a declared viewer version"
+    exitContract: "Navigate known accessible branches and local fallback only"
+    denialRecoveryContract: "Deny forged branch or script and explain unavailable offline assets"
+    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    stepContracts:
+      -
+        id: "media.recorder.p3.step.050.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-050"
+        order: 1
+        sourceWhen: "viewer selects a hotspot, chapter choice or branch"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-050/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-050/rejection"
+        operationCandidateRefs: ["media.recorder.operation.interactive.package.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.interactive.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.051.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-051"
+        order: 2
+        sourceWhen: "interactive package is opened without network"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-051/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-051/rejection"
+        operationCandidateRefs: ["media.recorder.operation.interactive.package.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.interactive.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.052.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-052"
+        order: 3
+        sourceWhen: "bundle includes HTML/CSS/DOM/screenshot or third-party assets"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-052/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-052/rejection"
+        operationCandidateRefs: ["media.recorder.operation.interactive.package.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.interactive.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.053.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-053"
+        order: 4
+        sourceWhen: "interaction telemetry is requested"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-053/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-053/rejection"
+        operationCandidateRefs: ["media.recorder.operation.interactive.package.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.interactive.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+  -
+    id: "media.recorder.p3.flow.delivery.v1"
+    sourceProfileRef: "media.recorder.profile.delivery.v1"
+    sourceFeatureGroup: "DELIVERY"
+    surfaceId: "media.surface.recorder-orchestrator"
+    reuseExistingJourneyRefs: ["J-21", "J-22", "J-26"]
+    pdp2InterfaceGroupRef: "media.recorder.p2.group.delivery.v1"
+    entryContract: "Choose exact render revision, declared audience, profile and destination"
+    exitContract: "Show signed provenance and separately confirmed remote finality"
+    denialRecoveryContract: "Reconcile original publish request; withhold unsupported/unapproved outputs"
+    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    stepContracts:
+      -
+        id: "media.recorder.p3.step.054.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-054"
+        order: 1
+        sourceWhen: "user requests MP4/WebM, subtitles, thumbnails, 16:9/9:16, archival or interactive package"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-054/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-054/rejection"
+        operationCandidateRefs: ["media.recorder.operation.publish.request.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.delivery.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.055.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-055"
+        order: 2
+        sourceWhen: "audience and destination are specified"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-055/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-055/rejection"
+        operationCandidateRefs: ["media.recorder.operation.publish.request.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.delivery.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.056.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-056"
+        order: 3
+        sourceWhen: "destination accepts upload, rejects, times out or disappears"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-056/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-056/rejection"
+        operationCandidateRefs: ["media.recorder.operation.publish.request.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.delivery.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.057.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-057"
+        order: 4
+        sourceWhen: "render/package/publish completes"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-057/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-057/rejection"
+        operationCandidateRefs: ["media.recorder.operation.publish.request.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.delivery.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+  -
+    id: "media.recorder.p3.flow.security.v1"
+    sourceProfileRef: "media.recorder.profile.security.v1"
+    sourceFeatureGroup: "SECURITY"
+    surfaceId: "media.surface.capture-adapters"
+    reuseExistingJourneyRefs: ["J-25", "J-26", "J-27", "J-30"]
+    pdp2InterfaceGroupRef: "media.recorder.p2.group.security.v1"
+    entryContract: "Evaluate purpose-specific access, consent, rights and untrusted input before effects"
+    exitContract: "Show current permitted-use decision or safe denied/held/unknown state"
+    denialRecoveryContract: "Stop affected effect, preserve audit, distinguish revocation from erasure"
+    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    stepContracts:
+      -
+        id: "media.recorder.p3.step.058.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-058"
+        order: 1
+        sourceWhen: "browser/DOM/screenshot/terminal/voice access begins"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-058/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-058/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.asset.erase.request.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.security.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.059.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-059"
+        order: 2
+        sourceWhen: "an ML, OCR, caption, codec, proxy or collaborator step is about to run"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-059/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-059/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.asset.erase.request.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.security.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.060.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-060"
+        order: 3
+        sourceWhen: "user revokes consent, requests deletion or applies legal hold"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-060/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-060/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.asset.erase.request.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.security.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.061.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-061"
+        order: 4
+        sourceWhen: "untrusted URL, archive, HTML, codec, image or model content is ingested"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-061/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-061/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.asset.erase.request.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.security.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.062.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-062"
+        order: 5
+        sourceWhen: "an authorized edit, external effect or rights decision occurs"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-062/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-062/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.asset.erase.request.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.security.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+  -
+    id: "media.recorder.p3.flow.o11y.v1"
+    sourceProfileRef: "media.recorder.profile.o11y.v1"
+    sourceFeatureGroup: "O11Y"
+    surfaceId: "media.surface.recorder-orchestrator"
+    reuseExistingJourneyRefs: ["J-20", "J-24", "J-27"]
+    pdp2InterfaceGroupRef: "media.recorder.p2.group.o11y.v1"
+    entryContract: "Inspect bounded, redacted trace and measured run-stage observations"
+    exitContract: "Correlate authoritative run/attempt/scene results without revealing payloads"
+    denialRecoveryContract: "Report degraded telemetry and use independent audit for critical effects"
+    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    stepContracts:
+      -
+        id: "media.recorder.p3.step.063.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-063"
+        order: 1
+        sourceWhen: "processing traverses configuration, lease, seed, capture, media, QA and publishing"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-063/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-063/rejection"
+        operationCandidateRefs: ["media.recorder.operation.run.observe.v1", "media.recorder.operation.quality.assess.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.o11y.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.064.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-064"
+        order: 2
+        sourceWhen: "run resource or media quality data is observed"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-064/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-064/rejection"
+        operationCandidateRefs: ["media.recorder.operation.run.observe.v1", "media.recorder.operation.quality.assess.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.o11y.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.065.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-065"
+        order: 3
+        sourceWhen: "an error, model prompt or protected user event is captured"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-065/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-065/rejection"
+        operationCandidateRefs: ["media.recorder.operation.run.observe.v1", "media.recorder.operation.quality.assess.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.o11y.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.066.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-066"
+        order: 4
+        sourceWhen: "trace/exporter is unavailable during an operation"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-066/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-066/rejection"
+        operationCandidateRefs: ["media.recorder.operation.run.observe.v1", "media.recorder.operation.quality.assess.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.o11y.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+  -
+    id: "media.recorder.p3.flow.crossplatform.v1"
+    sourceProfileRef: "media.recorder.profile.crossplatform.v1"
+    sourceFeatureGroup: "CROSSPLATFORM"
+    surfaceId: "media.surface.capture-adapters"
+    reuseExistingJourneyRefs: ["J-24", "J-25", "J-27", "J-30"]
+    pdp2InterfaceGroupRef: "media.recorder.p2.group.crossplatform.v1"
+    entryContract: "Select OS/provider/codec/source package profile with exact qualification scope"
+    exitContract: "Disclose supported combinations and writer/cutover state"
+    denialRecoveryContract: "Return unsupported profile or fenced recovery; never simulate cross-platform support"
+    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    stepContracts:
+      -
+        id: "media.recorder.p3.step.067.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-067"
+        order: 1
+        sourceWhen: "OS, provider, browser version and codec profile are probed"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-067/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-067/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.render.request.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.crossplatform.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.068.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-068"
+        order: 2
+        sourceWhen: "Media SDK and product adapters are moved across repositories"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-068/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-068/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.render.request.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.crossplatform.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.069.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-069"
+        order: 3
+        sourceWhen: "source packages and canonical Media writer move in distinct phases"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-069/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-069/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.render.request.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.crossplatform.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.070.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-070"
+        order: 4
+        sourceWhen: "crash, disk pressure, memory pressure or partial source occurs"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-070/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-070/rejection"
+        operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.render.request.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.crossplatform.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+  -
+    id: "media.recorder.p3.flow.accessibility.v1"
+    sourceProfileRef: "media.recorder.profile.accessibility.v1"
+    sourceFeatureGroup: "ACCESSIBILITY"
+    surfaceId: "media.surface.production-studio"
+    reuseExistingJourneyRefs: ["J-18", "J-24", "J-28"]
+    pdp2InterfaceGroupRef: "media.recorder.p2.group.accessibility.v1"
+    entryContract: "Navigate timeline/player/machine events through accessible non-pointer controls"
+    exitContract: "Preserve exact localized source semantics, focus and denied states"
+    denialRecoveryContract: "Use text/headless alternative; never fabricate a GUI or translate protected text"
+    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    stepContracts:
+      -
+        id: "media.recorder.p3.step.071.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-071"
+        order: 1
+        sourceWhen: "a Studio action is offered by drag/keyboard/mouse"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-071/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-071/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.interactive.package.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.accessibility.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.072.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-072"
+        order: 2
+        sourceWhen: "timeline, track, hotspot, error and review state are visible"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-072/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-072/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.interactive.package.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.accessibility.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.073.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-073"
+        order: 3
+        sourceWhen: "captions/narration/copy require different locale, script or RTL"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-073/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-073/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.interactive.package.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.accessibility.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.074.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-074"
+        order: 4
+        sourceWhen: "product offers only CLI/API/service with no graphical app"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-074/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-074/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.interactive.package.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.accessibility.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+  -
+    id: "media.recorder.p3.flow.manualparity.v1"
+    sourceProfileRef: "media.recorder.profile.manualparity.v1"
+    sourceFeatureGroup: "MANUALPARITY"
+    surfaceId: "media.surface.production-studio"
+    reuseExistingJourneyRefs: ["J-09", "J-18", "J-24"]
+    pdp2InterfaceGroupRef: "media.recorder.p2.group.manualparity.v1"
+    entryContract: "Switch between fully automatic and manual project revision authoring"
+    exitContract: "Perform identical typed project edits through GUI/CLI/SDK/API when admitted"
+    denialRecoveryContract: "Reject lossy round-trip, stale revision or unknown mutation; preserve manual locks"
+    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    stepContracts:
+      -
+        id: "media.recorder.p3.step.075.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-075"
+        order: 1
+        sourceWhen: "one product selects all metadata/config/customization without manual intervention"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-075/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-075/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.manualparity.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.076.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-076"
+        order: 2
+        sourceWhen: "expert adjusts any supported automated plan/scene/track/asset/profile"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-076/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-076/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.manualparity.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.077.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-077"
+        order: 3
+        sourceWhen: "export/edit/import round-trip uses project JSON or optional OTIO"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-077/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-077/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.manualparity.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+      -
+        id: "media.recorder.p3.step.078.v1"
+        acceptanceCaseRef: "MEDIA-REC-P0-AC-078"
+        order: 4
+        sourceWhen: "an operation is blocked, conflicts or enters unknown finality"
+        positiveOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-078/then"
+        negativeOracle: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/MEDIA-REC-P0-AC-078/rejection"
+        operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
+        interfaceGroupRef: "media.recorder.p2.group.manualparity.v1"
+        projection: "OBSERVATION_AND_INTENT_CONTRACT_ONLY"
+        dispatchStatus: "NOT_ADMITTED_REQUIRES_EXACT_STEP_OPERATION_AND_HOST_BINDING"
+        safetyState: "DENIED_UNAVAILABLE_UNKNOWN_ARE_VISIBLE_AND_NEVER_SUCCESS"
+productionStudioWorkspace:
+  surfaceId: "media.surface.production-studio"
+  semantics: "New candidate Studio workspace page intents reuse existing Media design-system primitives and do not change the prior 47-screen canonical inventory without explicit screen registry and template/layout/Explorer admission."
+  pages:
+    -
+      id: "media.recorder.p3.workspace.project-library.v1"
+      pdp2WorkspaceKey: "project-library"
+      order: 1
+      semanticIntent: "Review and open authorized MediaProject revisions and immutable source versions"
+      stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      canonicalScreenBinding: "UNBOUND_PROPOSAL"
+      reusableTemplateLayoutBinding: "PENDING_EXACT_DESIGN_SYSTEM_REFERENCE"
+      implementationStatus: "SOURCE_ONLY"
+    -
+      id: "media.recorder.p3.workspace.production-planner.v1"
+      pdp2WorkspaceKey: "production-planner"
+      order: 2
+      semanticIntent: "Enter source-bound purpose, audience, scene plan, profile, AI mode and constraints"
+      stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      canonicalScreenBinding: "UNBOUND_PROPOSAL"
+      reusableTemplateLayoutBinding: "PENDING_EXACT_DESIGN_SYSTEM_REFERENCE"
+      implementationStatus: "SOURCE_ONLY"
+    -
+      id: "media.recorder.p3.workspace.scene-storyboard.v1"
+      pdp2WorkspaceKey: "scene-storyboard"
+      order: 3
+      semanticIntent: "Inspect scene sequence, product postconditions, denial beats and source anchors"
+      stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      canonicalScreenBinding: "UNBOUND_PROPOSAL"
+      reusableTemplateLayoutBinding: "PENDING_EXACT_DESIGN_SYSTEM_REFERENCE"
+      implementationStatus: "SOURCE_ONLY"
+    -
+      id: "media.recorder.p3.workspace.source-review.v1"
+      pdp2WorkspaceKey: "source-review"
+      order: 4
+      semanticIntent: "Inspect real source adapters, source rights, versions, clocks and capability admission"
+      stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      canonicalScreenBinding: "UNBOUND_PROPOSAL"
+      reusableTemplateLayoutBinding: "PENDING_EXACT_DESIGN_SYSTEM_REFERENCE"
+      implementationStatus: "SOURCE_ONLY"
+    -
+      id: "media.recorder.p3.workspace.multitrack-timeline.v1"
+      pdp2WorkspaceKey: "multitrack-timeline"
+      order: 5
+      semanticIntent: "Edit synchronized video/audio/caption/overlay tracks and source-time intervals"
+      stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      canonicalScreenBinding: "UNBOUND_PROPOSAL"
+      reusableTemplateLayoutBinding: "PENDING_EXACT_DESIGN_SYSTEM_REFERENCE"
+      implementationStatus: "SOURCE_ONLY"
+    -
+      id: "media.recorder.p3.workspace.captions-transcript.v1"
+      pdp2WorkspaceKey: "captions-transcript"
+      order: 6
+      semanticIntent: "Correct source-linked transcript, caption timing, translation and speaker labels"
+      stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      canonicalScreenBinding: "UNBOUND_PROPOSAL"
+      reusableTemplateLayoutBinding: "PENDING_EXACT_DESIGN_SYSTEM_REFERENCE"
+      implementationStatus: "SOURCE_ONLY"
+    -
+      id: "media.recorder.p3.workspace.narration-mixer.v1"
+      pdp2WorkspaceKey: "narration-mixer"
+      order: 7
+      semanticIntent: "Review per-track gain, mute/solo, dialogue denoise, voice rights and audio QA"
+      stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      canonicalScreenBinding: "UNBOUND_PROPOSAL"
+      reusableTemplateLayoutBinding: "PENDING_EXACT_DESIGN_SYSTEM_REFERENCE"
+      implementationStatus: "SOURCE_ONLY"
+    -
+      id: "media.recorder.p3.workspace.camera-multiview.v1"
+      pdp2WorkspaceKey: "camera-multiview"
+      order: 8
+      semanticIntent: "Review declared camera/screen angles and source-sync uncertainty without synthetic proof"
+      stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      canonicalScreenBinding: "UNBOUND_PROPOSAL"
+      reusableTemplateLayoutBinding: "PENDING_EXACT_DESIGN_SYSTEM_REFERENCE"
+      implementationStatus: "SOURCE_ONLY"
+    -
+      id: "media.recorder.p3.workspace.effects-inspector.v1"
+      pdp2WorkspaceKey: "effects-inspector"
+      order: 9
+      semanticIntent: "Edit semantic transforms, protected crop, keyframes, annotations and branding"
+      stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      canonicalScreenBinding: "UNBOUND_PROPOSAL"
+      reusableTemplateLayoutBinding: "PENDING_EXACT_DESIGN_SYSTEM_REFERENCE"
+      implementationStatus: "SOURCE_ONLY"
+    -
+      id: "media.recorder.p3.workspace.interactive-authoring.v1"
+      pdp2WorkspaceKey: "interactive-authoring"
+      order: 10
+      semanticIntent: "Inspect signed branch graph, keyboard hotspots, offline fallbacks and sandbox rules"
+      stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      canonicalScreenBinding: "UNBOUND_PROPOSAL"
+      reusableTemplateLayoutBinding: "PENDING_EXACT_DESIGN_SYSTEM_REFERENCE"
+      implementationStatus: "SOURCE_ONLY"
+    -
+      id: "media.recorder.p3.workspace.quality-review.v1"
+      pdp2WorkspaceKey: "quality-review"
+      order: 11
+      semanticIntent: "Inspect separately scored product correctness, media QA and human/legal gates"
+      stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      canonicalScreenBinding: "UNBOUND_PROPOSAL"
+      reusableTemplateLayoutBinding: "PENDING_EXACT_DESIGN_SYSTEM_REFERENCE"
+      implementationStatus: "SOURCE_ONLY"
+    -
+      id: "media.recorder.p3.workspace.render-preview.v1"
+      pdp2WorkspaceKey: "render-preview"
+      order: 12
+      semanticIntent: "Compare exact source revision against proxy/final render with declared tolerances"
+      stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      canonicalScreenBinding: "UNBOUND_PROPOSAL"
+      reusableTemplateLayoutBinding: "PENDING_EXACT_DESIGN_SYSTEM_REFERENCE"
+      implementationStatus: "SOURCE_ONLY"
+    -
+      id: "media.recorder.p3.workspace.delivery.v1"
+      pdp2WorkspaceKey: "delivery"
+      order: 13
+      semanticIntent: "Check output rights, profile, approvals, publication receipts and remote finality"
+      stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      canonicalScreenBinding: "UNBOUND_PROPOSAL"
+      reusableTemplateLayoutBinding: "PENDING_EXACT_DESIGN_SYSTEM_REFERENCE"
+      implementationStatus: "SOURCE_ONLY"
+  requiredPresentationStates: ["EMPTY", "LOADING", "READY", "DIRTY_DRAFT", "STALE_REVISION", "MERGE_CONFLICT", "UNAUTHORIZED", "QUALITY_BLOCKED", "SAVE_UNKNOWN"]
+  sharedDesignSystem: "PDP-2 and Shared semantic tokens, contracts, templates, layouts and recipes remain sole owners"
+manualEditExperience:
+  authority: "PDP-1 operationKinds + PDP-2 manualOperationParity.operations"
+  projectRevision: "Single MediaProject immutable revision; no Studio-local semantic source of truth"
+  editPaths:
+    -
+      kind: "trim"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.trim"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.trim"
+      pdp2EditorArea: "timeline"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "roll"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.roll"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.roll"
+      pdp2EditorArea: "timeline"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "ripple"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.ripple"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.ripple"
+      pdp2EditorArea: "timeline"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "slip"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.slip"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.slip"
+      pdp2EditorArea: "timeline"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "slide"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.slide"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.slide"
+      pdp2EditorArea: "timeline"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "split"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.split"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.split"
+      pdp2EditorArea: "timeline"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "insert"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.insert"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.insert"
+      pdp2EditorArea: "timeline"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "move"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.move"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.move"
+      pdp2EditorArea: "timeline"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "reorder"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.reorder"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.reorder"
+      pdp2EditorArea: "timeline"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "snap"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.snap"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.snap"
+      pdp2EditorArea: "timeline"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "marker"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.marker"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.marker"
+      pdp2EditorArea: "timeline"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "nested-sequence"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.nested-sequence"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.nested-sequence"
+      pdp2EditorArea: "timeline"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "keyframe"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.keyframe"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.keyframe"
+      pdp2EditorArea: "property-inspector"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "easing"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.easing"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.easing"
+      pdp2EditorArea: "property-inspector"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "mask"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.mask"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.mask"
+      pdp2EditorArea: "mask-and-source-observation-editor"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "redact"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.redact"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.redact"
+      pdp2EditorArea: "mask-and-source-observation-editor"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "cursor-highlight"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.cursor-highlight"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.cursor-highlight"
+      pdp2EditorArea: "mask-and-source-observation-editor"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "transform"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.transform"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.transform"
+      pdp2EditorArea: "property-inspector"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "zoom"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.zoom"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.zoom"
+      pdp2EditorArea: "property-inspector"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "pan"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.pan"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.pan"
+      pdp2EditorArea: "property-inspector"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "reframe"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.reframe"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.reframe"
+      pdp2EditorArea: "property-inspector"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "color-correction"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.color-correction"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.color-correction"
+      pdp2EditorArea: "property-inspector"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "shot-color-match"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.shot-color-match"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.shot-color-match"
+      pdp2EditorArea: "property-inspector"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "overlay"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.overlay"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.overlay"
+      pdp2EditorArea: "layer-composition-editor"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "title"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.title"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.title"
+      pdp2EditorArea: "layer-composition-editor"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "credits"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.credits"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.credits"
+      pdp2EditorArea: "layer-composition-editor"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "brand-logo"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.brand-logo"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.brand-logo"
+      pdp2EditorArea: "layer-composition-editor"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "transition"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.transition"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.transition"
+      pdp2EditorArea: "layer-composition-editor"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "caption"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.caption"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.caption"
+      pdp2EditorArea: "caption-and-narration-editor"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "subtitle-timing"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.subtitle-timing"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.subtitle-timing"
+      pdp2EditorArea: "caption-and-narration-editor"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "dub"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.dub"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.dub"
+      pdp2EditorArea: "caption-and-narration-editor"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "narration"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.narration"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.narration"
+      pdp2EditorArea: "caption-and-narration-editor"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "audio-gain"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.audio-gain"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.audio-gain"
+      pdp2EditorArea: "audio-track-mixer"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "audio-duck"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.audio-duck"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.audio-duck"
+      pdp2EditorArea: "audio-track-mixer"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "audio-mix"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.audio-mix"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.audio-mix"
+      pdp2EditorArea: "audio-track-mixer"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "audio-fade"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.audio-fade"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.audio-fade"
+      pdp2EditorArea: "audio-track-mixer"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "camera-switch"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.camera-switch"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.camera-switch"
+      pdp2EditorArea: "multi-source-video-compositor"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "picture-in-picture"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.picture-in-picture"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.picture-in-picture"
+      pdp2EditorArea: "multi-source-video-compositor"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "hotspot"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.hotspot"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.hotspot"
+      pdp2EditorArea: "interactive-branch-composer"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "branch"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.branch"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.branch"
+      pdp2EditorArea: "interactive-branch-composer"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "undo"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.undo"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.undo"
+      pdp2EditorArea: "revision-history"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "redo"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.redo"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.redo"
+      pdp2EditorArea: "revision-history"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "scene-group"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.scene-group"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.scene-group"
+      pdp2EditorArea: "timeline"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "crop"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.crop"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.crop"
+      pdp2EditorArea: "property-inspector"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "cursor-click"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.cursor-click"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.cursor-click"
+      pdp2EditorArea: "mask-and-source-observation-editor"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "background"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.background"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.background"
+      pdp2EditorArea: "layer-composition-editor"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "frame"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.frame"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.frame"
+      pdp2EditorArea: "layer-composition-editor"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "annotation"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.annotation"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.annotation"
+      pdp2EditorArea: "layer-composition-editor"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "track-mute"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.track-mute"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.track-mute"
+      pdp2EditorArea: "narration-mixer"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "track-solo"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.track-solo"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.track-solo"
+      pdp2EditorArea: "narration-mixer"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "speed-ramp"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.speed-ramp"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.speed-ramp"
+      pdp2EditorArea: "timeline"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+    -
+      kind: "audio-denoise"
+      sourcePdp1Discriminant: "media.recorder.edit-operation.audio-denoise"
+      pdp2CanonicalIntentRef: "media.recorder.edit-operation.audio-denoise"
+      pdp2EditorArea: "narration-mixer"
+      owningProjectMutation: "media.recorder.operation.edit.commit.v1"
+      expectedRevisionRequired: true
+      headlessParity: "SAME_TYPED_EFFECT_AND_DENIAL_WHEN_ADMITTED"
+      guiParity: "KEYBOARD_AND_TEXT_OR_NUMERIC_NON_POINTER_EQUIVALENT"
+      manualLockRule: "PRESERVE_OR_REVIEW_CONFLICT_NEVER_SILENT_OVERWRITE"
+      runtimeStatus: "NOT_ADMITTED"
+interactiveDemoPlayerExperience:
+  surfaceId: "media.surface.interactive-demo-player"
+  sourcePdp2Ref: ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml#surfaceInterfaces/media.surface.interactive-demo-player"
+  semantics: ["signed-source-version-bundle", "CSP-and-HTML-sanitization", "keyboard-accessible-hotspots", "text-alternative-and-transcript", "offline-asset-and-branch-fallback", "no-privileged-business-effect-from-click", "consent-and-minimal-analytics", "safe-exit"]
+  projectedStates: ["LOADING", "READY", "OFFLINE", "UNSUPPORTED_FEATURE", "POLICY_DENIED", "UNAVAILABLE", "FINISHED"]
+  hostActionStatus: "NO_DELEGATED_PRODUCT_MUTATION_OR_UNAPPROVED_NETWORK_EGRESS"
+machineOnlyExperience:
+  surfaceIds: ["media.surface.recorder-orchestrator", "media.surface.capture-adapters"]
+  views: ["configuration-schema-and-effective-policy", "source-qualification-and-timebase", "plan-and-product-postcondition", "bounded-run-and-lease-state", "typed-owner-observation-and-finality", "scene-and-media-quality-result", "redacted-trace-and-safe-recovery"]
+  formats: ["YAML", "JSON", "CLI-human", "CLI-json", "CLI-jsonl", "SDK/API-typed-request-response", "event-observation"]
+  denialStates: ["DENIED", "UNAVAILABLE", "CONFLICT", "OUTCOME_UNKNOWN", "PARTIAL", "ABSTAINED"]
+  rule: "Presentation is of actual machine observations, not an invented product screen or live effect."
+explorerProjection:
+  status: "SPECIFICATION_ONLY_NOT_VERIFIED"
+  lenses: ["Studio-GUI", "Recorder-CLI-API", "Capture-Source-Adapter", "Embedded-Interactive-Player"]
+  dataInputs: ["exact-PDP0-acceptance", "PDP1-canonical-read-model", "PDP2-design-grammar", "PDP3-source-scene-steps", "synthetic-policy-tagged-fixtures"]
+  requiredInteractions: ["step-through-positive-and-denial-beats", "inspect-source-time-and-revision", "simulate-UNKNOWN-without-claiming-remote-finality", "inspect-keyboard-and-text-edit-parity", "compare-authored-versus-observed-result", "inspect-redacted-trace", "view-current-owner-qualification"]
+  nonClaims: ["no-live-capture", "no-native-Studio-implementation", "no-real-product-readback", "no-independent-review", "no-admitted-screen-registry", "no-PDP3-DEV_COMPLETE"]
+independentAcceptanceConditions: ["One current source-bound PDP-3 journey/screen/CLI/API/embedded contract per affected logical consumer with step-level exact operation and denial/recovery owner bindings.", "Bind all 13 scoped Studio workspace intents to real P3 screen contracts and admitted P2 templates, recipes, shared semantic components; update 47-screen denominator only when exact new canonical screens exist.", "Prove all 52 manual operations through canonical revision, keyboard/text/headless and denial-reconciliation contract projections.", "Feed exact P0 source identity and P1/P2/P3 semantic digests into source manifest, generator and Explorer with negative regression and currentness.", "Execute real native YAML, structural, semantic, projection and phase acceptance checks on checkout; record run identity and reviewer dispositions before successor DEV_COMPLETE."]
+nonClaims: ["not-production-ready", "not-PDP3-dev-complete", "not-source-current-Discovery-pass", "not-New-runtime-or-MediaProject-store", "not-human-film-approval", "not-licensed-provider-or-codec-admission", "not-independent-screen-admission"]

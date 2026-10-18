@@ -47,7 +47,9 @@
     "audit:repository-hygiene": "node scripts/audit-media-repository.mjs",
     "test:repository-hygiene": "node --test tests/media-repository-hygiene.test.mjs tests/media-retired-ai-voice-service.test.mjs tests/media-container-candidate-hygiene.test.mjs tests/media-deployment-candidate-hygiene.test.mjs scripts/conformance/__tests__/check-audio-video-provider-readiness.test.mjs tests/media-build-task-hygiene.test.mjs tests/media-ocr-ownership-hygiene.test.mjs",
     "check:recorder-studio-definition": "node scripts/check-media-recorder-studio-definitions.mjs",
-    "test:recorder-studio-definition": "node --test tests/media-recorder-studio-definitions.test.mjs"
+    "test:recorder-studio-definition": "node --test tests/media-recorder-studio-definitions.test.mjs",
+    "check:recorder-studio-experience": "node scripts/check-media-recorder-studio-experience.mjs",
+    "test:recorder-studio-experience": "node --test tests/media-recorder-studio-experience.test.mjs"
   },
   "devDependencies": {
     "@ghatana/evidence-contracts": "0.1.0-rc.1",
