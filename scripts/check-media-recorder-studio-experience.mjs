@@ -218,6 +218,48 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
   }
   if(reusePageCount!==12 || newPageCount!==1 || !uniqueSet(proposedNewIds))
     fail('Recorder Studio 12 reuse vs 1 unadmitted new-screen candidate scope drifted');
+  const candidateDefs=p3.pdp3ScreenCandidates;
+  const candidateRecords=candidateDefs?.records??[];
+  const authoringWorkspace=pages.find(p=>p.pdp2WorkspaceKey==='interactive-authoring');
+  const p2AuthoringPage=p2PageContracts.find(p=>p.workspaceKey==='interactive-authoring');
+  if(candidateDefs?.status!=='PROPOSED_UNREGISTERED_NO_CANONICAL_SCREEN_CLAIM' ||
+     candidateDefs?.proposedCount!==1 || candidateRecords.length!==1)
+    fail('unadmitted interactive screen candidate definition census and status missing');
+  const candidate=candidateRecords[0];
+  if(!candidate || candidate.id!==authoringWorkspace?.proposedNewScreenIntentId ||
+     candidate.ownerSurfaceId!=='media.surface.production-studio' ||
+     candidate.workspaceRef!==authoringWorkspace?.id ||
+     candidate.canonicalScreenRegistryStatus!=='NOT_REGISTERED' ||
+     candidate.implementationAdmission!=='NOT_ADMITTED' ||
+     candidate.routeStatus!=='NO_PUBLIC_ROUTE_OR_DEPLOYED_VIEW' ||
+     existingScreenIds.includes(candidate.id))
+    fail('unadmitted interactive screen candidate cannot claim public route or canonical screen');
+  const caseRefs=['MEDIA-REC-P0-AC-050','MEDIA-REC-P0-AC-051','MEDIA-REC-P0-AC-052','MEDIA-REC-P0-AC-053'];
+  const candidateOps=['media.recorder.operation.edit.commit.v1','media.recorder.operation.interactive.package.v1'];
+  const candidateValues=['media.recorder.value.interactive-graph.v1','media.recorder.value.interactive-hotspot.v1'];
+  const p1Values=new Set((p1.derivedValueObjects??[]).map(x=>x.id));
+  if(!sameIds(candidate?.sourceAcceptanceCaseRefs??[],caseRefs) ||
+     !sameIds(candidate?.sourceAcceptanceCaseRefs??[],p2AuthoringPage?.acceptanceCaseRefs??[]) ||
+     !sameIds(candidate?.proposedPdp1OperationRefs??[],candidateOps) ||
+     !candidateOps.every(x=>operations.has(x)) ||
+     !sameIds(candidate?.projectedPdp1ValueRefs??[],candidateValues) ||
+     !candidateValues.every(x=>p1Values.has(x)))
+    fail('unadmitted interactive screen candidate must have exact case/operation bindings');
+  const caseInteractions=candidate?.interactionContracts??[];
+  if(!sameIds(caseInteractions.map(x=>x.caseRef),caseRefs) ||
+     caseInteractions.some(x=>!['authoringIntent','observation','denial','recovery']
+        .every(name=>typeof x[name]==='string' && x[name].trim())))
+    fail('interactive screen candidate lacks exact positive, denial or recovery interaction contract');
+  if(!sameIds(candidate?.designStates??[],p2StudioSurface?.states??[]) ||
+     !Array.isArray(candidate?.plannedRegions) || candidate.plannedRegions.length<7 ||
+     !uniqueSet(candidate.plannedRegions) ||
+     !Array.isArray(candidate?.accessibility) || candidate.accessibility.length<5 ||
+     !Array.isArray(candidate?.headlessEquivalent) || candidate.headlessEquivalent.length<5 ||
+     !Array.isArray(candidate?.requiredScenarioFixtures) || candidate.requiredScenarioFixtures.length<6 ||
+     !uniqueSet(candidate.requiredScenarioFixtures) ||
+     candidate?.finality!=='LOCAL_PREVIEW_NOT_PUBLISHED_AND_NEVER_PRODUCT_EFFECT' ||
+     candidate?.acceptanceStatus!=='SOURCE_DEFINITION_ONLY_TESTS_AND_INDEPENDENT_REVIEW_NOT_RUN')
+    fail('interactive candidate screen lacks accessible headless fixture and nonfinal preview limits');
   if(p3.status!=='SOURCE_AUTHORED_SUCCESSOR_PENDING_NATIVE_VALIDATION_AND_CURRENTNESS' ||
      p3.explorerProjection?.status!=='SPECIFICATION_ONLY_NOT_VERIFIED' ||
      (p3.nonClaims??[]).indexOf('not-PDP3-dev-complete')<0)
