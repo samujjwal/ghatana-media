@@ -20,6 +20,7 @@ const paths = {
   domainVersioning: '.product-experience/pdp-1-domain-data/versioning.yaml',
   interfaceGrammar: '.product-experience/pdp-2-design-interface-system/interface-grammar.yaml',
   editingGrammar: '.product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml',
+  componentContracts: '.product-experience/pdp-2-design-interface-system/component-contracts.yaml',
 };
 const newSurfaceIds = [
   'media.surface.recorder-orchestrator',
@@ -321,6 +322,39 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
         || op.expectedRevisionRequired !== true || !op.gui || !op.keyboardAndTextEquivalent
         || !op.denial || !op.manualLockAndUndoPolicy)
       fail('PDP2 manual operation missing exact GUI/keyboard/CLI/API/version/denial parity: '+op.kind);
+  }
+  // Parameter schemas are PDP-1-owned and bind 1:1 to the 52 manual kinds.
+  // PDP-2 may project them only through existing canonical Media components.
+  const kindContracts=p1Doc.editKindParameterContracts;
+  const typedKinds=kindContracts?.kinds ?? [];
+  if (typedKinds.length!==52 || !sameSet(manualKinds,typedKinds.map(x=>x.kind)))
+    fail('PDP1 every manual edit kind requires one typed parameter contract');
+  const declaredParamTypes=new Set(Object.keys(kindContracts?.paramTypeRules??{}));
+  for (const item of typedKinds) for (const name of Object.values(item.parameters??{}))
+    if (!declaredParamTypes.has(name))
+      fail('PDP1 manual edit parameter uses unresolved typed value: '+item.kind+'/'+name);
+  const canonicalComponents=new Set(extract(original.componentContracts,/^- id: (media\.component\.\S+)/gm));
+  const viewCompositions=p2Doc.recorderStudioComponentCompositions?.surfaceContracts ?? [];
+  if (!sameSet(viewCompositions.map(x=>x.surfaceId),newSurfaceIds))
+    fail('PDP2 must compose existing components for all four new logical surfaces');
+  for (const view of viewCompositions) {
+    if (!Array.isArray(view.components)||!view.components.length||!view.narrow||!view.headlessEquivalent||!view.negative)
+      fail('PDP2 surface component composition lacks responsive/accessibility/denial: '+view.surfaceId);
+    for (const c of view.components??[]) if (!canonicalComponents.has(c))
+      fail('PDP2 composed component not in canonical component catalog: '+c);
+  }
+  for (const item of typedKinds) {
+    const parity=manualParity.find(p=>p.kind===item.kind);
+    if (!item.parameters||typeof item.parameters!=='object'||Object.keys(item.parameters).length<2
+        ||!sameSet(Object.keys(item.parameters),item.requiredFields??[])
+        ||!item.positiveEffect||!item.negative||!item.unavailableBehavior
+        ||!Array.isArray(item.acceptanceCaseRefs)||!item.acceptanceCaseRefs.length
+        ||item.acceptanceCaseRefs.some(x=>!caseIds.includes(x)))
+      fail('PDP1 manual edit kind has incomplete typed parameters/rights/negative/case trace: '+item.kind);
+    if (!parity || parity.parameterContractRef!==paths.p1+'#editKindParameterContracts/kinds/@kind='+item.kind
+        ||!canonicalComponents.has(parity.componentRef)
+        ||!viewCompositions.some(v=>v.components?.includes(parity.componentRef)))
+      fail('PDP2 manual edit kind missing PDP1 schema and existing component binding: '+item.kind);
   }
   const valueDefs = parsedDocs.p1.toJS()?.derivedValueObjects ?? [];
   const designBindings = parsedDocs.p2.toJS()?.sourceBoundEditorValueContracts?.definitions ?? [];
