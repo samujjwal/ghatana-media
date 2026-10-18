@@ -22,10 +22,28 @@ test('rejects a profile moved to another logical consumer with intact population
   expectReject(probe(x=>x.flowContracts[0].surfaceId='media.surface.production-studio'),'feature/owner/PDP1/PDP2 group mismatch');
 });
 test('rejects credible-looking but wrong step operation candidates',()=>{
-  expectReject(probe(x=>x.flowContracts[0].stepContracts[0].operationCandidateRefs=['media.recorder.operation.edit.commit.v1']),'proposed operation candidates drifted');
+  expectReject(probe(x=>x.flowContracts[0].operationCandidateRefs=['media.recorder.operation.edit.commit.v1']),'proposed operation candidates drifted');
 });
-test('rejects PDP0 source meaning drift behind a stale PDP3 view',()=>{
-  expectReject(probe(x=>x.flowContracts[0].stepContracts[0].sourceWhen='invented source behavior'),'source presentation text drifted');
+test('rejects shadow copies of PDP0 acceptance meaning in PDP3',()=>{
+  expectReject(probe(x=>x.flowContracts[0].stepContracts[0].sourceWhen='invented source behavior'),'must not be shadowed per step');
+});
+test('rejects incomplete source-owned acceptance oracles',()=>{
+  const req=fs.readFileSync(path.join(root,'.product-experience/pdp-0-product-truth/requirements.yaml'),'utf8');
+  const at=req.indexOf('    - id: MEDIA-REC-P0-AC-001');
+  assert.ok(at>=0);
+  const then=req.indexOf('      then: "',at);
+  assert.ok(then>=at);
+  const ending=req.indexOf('"',then+'      then: "'.length);
+  assert.ok(ending>then);
+  const invalid=req.slice(0,then)+'      then: ""'+req.slice(ending+1);
+  expectReject(verifyRecorderStudioExperience({overrides:{req:invalid}}),'canonical PDP0 positive and negative oracles are incomplete');
+});
+test('rejects invented step ID without changing its valid acceptance reference',()=>{
+  expectReject(probe(x=>x.flowContracts[0].stepContracts[0].id='media.recorder.p3.step.999.v1'),'step identity must derive');
+});
+test('rejects duplicated per-kind policy that can drift from canonical parity',()=>{
+  expectReject(probe(x=>x.manualEditExperience.editPaths[0].runtimeStatus='ADMITTED'),'duplicated manual semantic authority');
+  expectReject(probe(x=>x.manualEditExperience.runtimeAdmission='ADMITTED'),'must not claim runtime admission');
 });
 test('rejects a missing manual edit kind or implicit revision bypass',()=>{
   expectReject(probe(x=>x.manualEditExperience.editPaths.pop()),'PDP3 edit path');
@@ -34,6 +52,11 @@ test('rejects a missing manual edit kind or implicit revision bypass',()=>{
 test('rejects a source-valid but wrong page ID or label',()=>{
   expectReject(probe(x=>x.productionStudioWorkspace.pages[0].id='media.recorder.p3.workspace.fake-id.v1'),'named, unique semantic intent');
   expectReject(probe(x=>x.productionStudioWorkspace.pages[0].semanticIntent=''),'named, unique semantic intent');
+});
+test('rejects missing or mutually incompatible PDP2 design chain',()=>{
+  expectReject(probe(x=>x.productionStudioWorkspace.pages[0].templateId='media.gui.template.workbench'),'Studio design chain lacks exact compatible template/layout/recipe authority');
+  expectReject(probe(x=>x.productionStudioWorkspace.pages[0].layoutId='media.gui.layout.render'),'Studio design chain lacks exact compatible template/layout/recipe authority');
+  expectReject(probe(x=>x.productionStudioWorkspace.pages[0].designChainBindingStatus='ADMITTED'),'proposed workspace page');
 });
 test('rejects a fabricated production-ready page or Explorer claim',()=>{
   expectReject(probe(x=>x.productionStudioWorkspace.pages[0].implementationStatus='IMPLEMENTED'),'proposed workspace page');
