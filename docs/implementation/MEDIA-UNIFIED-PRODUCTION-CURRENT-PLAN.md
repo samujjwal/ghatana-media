@@ -6,7 +6,7 @@
 
 - [Complete Media unified production blueprint v3](references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md) preserves the user's full 22-domain/428-feature review, original M-00–M-15 and INV-01–INV-12 work, C-01–C-28 competitive tests, 73 focused audit additions, DAS-01–DAS-12 packages, DAS-A01–A18 experiments, OSS candidates, examples, and TutorPutor source boundaries. Original dated license/source observations are **review references, not current pinned approvals**.
 - [501-item source-derived feature audit](observations/media-unified-production-501-feature-reconciliation-2026-10-18.json) accounts for every original `AUD-*` feature and all 73 focused extension items. The original 428 candidates have now received **individual catalog-based identity triage**: 330 earlier weak lexical suggestions were corrected, with 223 explicit semantic-gap notes. All 428 remain **PDP-0 OWNER SEMANTIC FIT REVIEW REQUIRED**; an existing named leaf is not proof that the requested behavior is in its closed contract. Each row still requires an exact semantic/operation/UI/experience review before any reference-baseline feature coverage claim. The 12 Recorder focused items reuse existing acceptance cases; the 61 Animation/Simulation/TutorPutor/Unified cases are owned by `requirements.yaml#declarativeProductionProfile`.
-- [Exact uploaded combined source audit](references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json) preserves the input's original 428 plus its own **73 original third-pass stable identifiers** (`AUD-REC3`, `AUD-ANIM3`, `AUD-SIM3`, `AUD-EDU3`, `AUD-CROSS3`). The [73-item original-ID/normalized-focus crosswalk](observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json) explicitly keeps original IDs distinct from derived `AUD-FOCUS-*` IDs. Its **71 proposed P0 case candidate links / 2 without a scoped case candidate** do not mean 71 accepted features: every atomic semantic fit remains pending source-owner evaluation. The two directly unbound specialized simulation families are `AUD-SIM3-009` (soft-body/cloth/rope/particle/fluid) and `AUD-SIM3-010` (agent-based/economic/epidemiological); neither can be declared delivered by a generic rigid-body/visual animation case.
+- [Exact original plan-task/experiment source crosswalk](observations/media-unified-source-task-and-experiment-crosswalk-2026-10-18.json) preserves **all 40 planned work items** (M-00…15, INV-01…12, DAS-01…12) plus **46 independently falsifiable experiment/acceptance references** (C-01…28, DAS-A01…A18), each with the verbatim source row, suggested existing PBI-00…15 implementation owner, stage and unproven execution status. Source IDs remain unique; no new task scheduler, invented test pass, or broad "handled" substitution.\n- [Exact uploaded combined source audit](references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json) preserves the input's original 428 plus its own **73 original third-pass stable identifiers** (`AUD-REC3`, `AUD-ANIM3`, `AUD-SIM3`, `AUD-EDU3`, `AUD-CROSS3`). The [73-item original-ID/normalized-focus crosswalk](observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json) explicitly keeps original IDs distinct from derived `AUD-FOCUS-*` IDs. Its **71 proposed P0 case candidate links / 2 without a scoped case candidate** do not mean 71 accepted features: every atomic semantic fit remains pending source-owner evaluation. The two directly unbound specialized simulation families are `AUD-SIM3-009` (soft-body/cloth/rope/particle/fluid) and `AUD-SIM3-010` (agent-based/economic/epidemiological); neither can be declared delivered by a generic rigid-body/visual animation case.
 - [GharBatai professional demo master plan v2](https://github.com/samujjwal/gharbatai/blob/codex/gharbatai-professional-demo-live-handoff-20261018/docs/demo-recording/reviews/GHARBATAI-PROFESSIONAL-DEMO-MASTER-PLAN-V2-2026-10-17.md) preserves all G01–G24 gaps, DX-01–DX-32 work and nine F01–F09 film narratives. [Product-owned current handoff](https://github.com/samujjwal/gharbatai/blob/codex/gharbatai-professional-demo-live-handoff-20261018/docs/demo-recording/CURRENT-PROFESSIONAL-DEMO-MEDIA-HANDOFF.md) and [source-backed DX mapping](https://github.com/samujjwal/gharbatai/blob/codex/gharbatai-professional-demo-live-handoff-20261018/docs/demo-recording/reviews/GHARBATAI-MEDIA-EDITORIAL-DX32-INTEGRATION-CROSSWALK-2026-10-18.json) are **consumers**, not new Media requirements.
 - [Recorder PDP-0–2 source coverage](MEDIA-RECORDER-STUDIO-PDP0-2-SOURCE-COVERAGE-REVIEW-2026-10-17.md), [Recorder PDP-3 execution](MEDIA-RECORDER-STUDIO-PDP3-SUCCESSOR-EXECUTION-2026-10-17.md), and [declarative successor source review](MEDIA-DECLARATIVE-PDP0-3-SUCCESSOR-CURRENTNESS-REVIEW-2026-10-18.md) remain the detailed phase reviews.
 - [Existing Build package plan](MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md) owns PBI-00 through PBI-15, rather than M-/INV-/DAS-/DX- being competing schedulers. [Current Build coverage JSON](media-build-coverage-plan-2026-10-15.json) remains dated planning input and **must be regenerated/reviewed at the accepted successor source cut**.
@@ -142,3 +142,43 @@ GharBatai's rebased read-only handoff now follows the live `EXECUTION-CHECKLIST.
 **Specific P0 review queue.** Start with `AUD-SIM3-009` and `AUD-SIM3-010`: either locate exact, extant capability and positive/negative/unsupported/fidelity contracts that truly cover the requested solver families, or author narrowly scoped PDP-0 requirements and propagate *only materially affected* PDP-1/2/3 source. Do **not** qualify numerical solvers in Discovery. Then adjudicate flagged partial matches including `AUD-ANIM3-010` (gesture triggers), `AUD-ANIM3-016` (editable interchange with loss), `AUD-EDU3-012` (legacy TutorPutor conversion), `AUD-CROSS3-010` (source/Explorer currentness), and professional Recorder production matrices. Use the crosswalk's per-row `additionalSemanticRisk` and the original attachment's precise `acceptance` for acceptance-family reasoning; a matching word in a leaf label is never sufficient.
 
 **Native verification remains not executed.** The source-preservation checker now reads the exact uploaded audit and rejects lost source IDs, changed feature/acceptance text, alias drift, unsupported P0 case references, missing explicit scope gaps and premature acceptance. These new checks still require a real checkout and native execution. No historical PDP receipt is reissued, no merged source cut asserted, and the Build/closure/Delivery gates remain separate.
+
+## Full attached original task and acceptance preservation — PDP to existing Build
+
+The [86-row source-preserving task and experiment trace](observations/media-unified-source-task-and-experiment-crosswalk-2026-10-18.json) is the exact crosswalk for tasks otherwise scattered across §§8, 15, 16, 24 and 25 of the user blueprint. Source rows are immutable citations/proposed tasks, **not** a second PBI execution register or proof of native execution.
+
+| Original source family | In-scope item count | Existing stage/authority | Exit evidence (not yet admitted) |
+| --- | ---: | --- | --- |
+| `M-00…15` | 16 | PDP-0..3 for M-00..03; Build / later gates for remaining items | Source owner/native phase proof; then real CLI/runtime, source/voice/editor/render, QA, migration and release receipts |
+| `INV-01…12` | 12 | Source reconciliation for INV-01..05; then existing PBI-00..15 | Atomic owner capability fit, typed operation/interface/experience parity, independently tested consumer verticals |
+| `DAS-01…12` | 12 | Source-to-Build interface; candidate PBI owners in existing plan | Safe compiler, real recorder, 2D/3D animation, approved scientific solver, interactive player, localization, governance and dogfooding |
+| `C-01…28` | 28 | Build/quality acceptance experiment candidates | Executed original competitive/failure cases, not prose coverage |
+| `DAS-A01…A18` | 18 | Build/science/product acceptance experiment candidates | Qualified real analytic, stochastic/clock/rights/unit/film/interactive/accessibility/codec evidence |
+
+The IDs `M-*`, `INV-*`, `DAS-*`, `C-*` and `DAS-A*` are retained exactly; 16/12/12/28/18 totals are checked against the unchanged uploaded blueprint in the source-preservation checker. Candidate PBI links span **all PBI-00…15** and must be ratified only at Build Plan Implementation entry after native Discovery exit. Avoid promoting experiments or planning into normative Media operations.
+
+### Source/dependency diagram for original planned work
+
+```mermaid
+flowchart TD
+  UP["User blueprint v3 (exact preserved source)"]
+  FEAT["501 source feature audit: 428 original + 73 third-pass"]
+  TASK["40 exact source work items: M16, INV12, DAS12"]
+  EXP["46 original acceptance experiments: C28 + DAS-A18"]
+  P0["PDP-0 canonical source + earliest meaning disposition"]
+  P1["PDP-1 typed operation, rights, state, clock contracts"]
+  P2["PDP-2 GUI, CLI/API/SDK, accessible design contracts"]
+  P3["PDP-3 experience, journeys, actions, Explorer projection"]
+  GATE{"All in-scope PDP cells source-current DEV_COMPLETE?"}
+  BUILD["Existing PBI-00..15 Build plan (one queue, not duplicate)"]
+  ACCEPT["Real runtime/solver/film/media-quality independent receipts"]
+  STOP["Discovery blocked: do not enter Build or claim acceptance"]
+  UP --> FEAT --> P0
+  UP --> TASK --> P0
+  UP --> EXP --> BUILD
+  P0 --> P1 --> P2 --> P3 --> GATE
+  GATE -->|"native verified PASS"| BUILD --> ACCEPT
+  GATE -->|"NOT_RUN/FAIL/STALE"| STOP
+```
+
+**No experiment is considered executed by its presence in this diagram.** Source-current statuses and independent scientific, GharBatai product-effect, TutorPutor pedagogy, content/model/license and human publication approvals remain distinct. An accepted semantic source reuses source IDs and only affected downstream cells; neither an unimplemented feature nor a case-candidate match is quietly excluded from full-product intent.
