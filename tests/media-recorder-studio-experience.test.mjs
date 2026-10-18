@@ -13,7 +13,7 @@ const expectReject=(report,part)=>assert.ok(report.errors.some(x=>x.includes(par
 test('source-derived Recorder Studio PDP3 exact coverage is 4/16/84/52/13 without runtime claims',()=>{
   const result=verifyRecorderStudioExperience();
   assert.deepEqual(result.errors,[]);
-  assert.deepEqual(result.stats,{sourceDocumentsValid:true,logicalSurfaces:4,flowContracts:16,acceptanceCaseSteps:84,exactProposedPrimaryOperationSteps:63,explicitNonInvocationSteps:21,manualEditPaths:52,workspaceIntents:13,reusedCanonicalScreenViews:12,unregisteredScreenCandidates:1,interactiveScreenCaseContracts:4});
+  assert.deepEqual(result.stats,{sourceDocumentsValid:true,logicalSurfaces:4,flowContracts:16,acceptanceCaseSteps:84,exactProposedPrimaryOperationSteps:63,explicitNonInvocationSteps:21,manualEditPaths:52,workspaceIntents:13,reusedCanonicalScreenViews:12,unregisteredScreenCandidates:1,interactiveScreenCaseContracts:4,interactiveFixtureDefinitions:6});
 });
 test('rejects missing PDP3 owner reference in the logical surface registry',()=>{
   const filename='.product-experience/surface-registry.yaml';
@@ -218,4 +218,21 @@ test('rejects ungrounded branch behavior or missing denial/recovery accessibilit
     'interactive candidate screen lacks accessible headless fixture and nonfinal preview limits');
   expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].requiredScenarioFixtures=[]),
     'interactive candidate screen lacks accessible headless fixture and nonfinal preview limits');
+});
+
+test('rejects fabricated execution and proof claims in interactive fixture definitions',()=>{
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].authoredFixtureDefinitions[0].status='RUNTIME_QUALIFIED_PASS'),
+    'interactive fixture keyboard-branch-positive has invented actor/case, missing oracle, or false execution status');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].authoredFixtureDefinitions[0].classification='REAL_FILM_APPROVED'),
+    'interactive fixture keyboard-branch-positive has invented actor/case, missing oracle, or false execution status');
+});
+test('rejects missing negative fixture, invented actor, or noncanonical case identity',()=>{
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].authoredFixtureDefinitions.pop()),
+    'source-authored interactive fixtures must exactly match six named scenarios');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].authoredFixtureDefinitions[0].fixtureActorRef='unknown.admin'),
+    'interactive fixture keyboard-branch-positive has invented actor/case, missing oracle, or false execution status');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].authoredFixtureDefinitions[0].acceptanceCaseRefs=['MEDIA-REC-P0-AC-999']),
+    'interactive fixture keyboard-branch-positive has invented actor/case, missing oracle, or false execution status');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].authoredFixtureDefinitions[0].rejection=''),
+    'interactive fixture keyboard-branch-positive has invented actor/case, missing oracle, or false execution status');
 });
