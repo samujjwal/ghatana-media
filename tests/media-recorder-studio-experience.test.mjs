@@ -72,6 +72,19 @@ test('rejects dropped canonical journey or screen registry identities',()=>{
   const journeySource=fs.readFileSync(path.join(root,'.product-experience/pdp-3-product-experience/journey-registry.yaml'),'utf8');
   expectReject(verifyRecorderStudioExperience({overrides:{journeys:journeySource.replace(/^  - id: J-01$/m,'  - id: J-02')}}),'historical PDP3 journey/screen inventory');
 });
+test('rejects missing and incorrectly classified canonical Recorder Studio artifact identities',()=>{
+  const registry=fs.readFileSync(path.join(root,'.product-experience/artifact-identities.yaml'),'utf8');
+  const correct='    authorityClass: "PRODUCT_EXPERIENCE_AUTHORITY"';
+  const suffix='  - path: ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml"';
+  const pos=registry.indexOf(suffix);
+  assert.ok(pos>=0,'PDP3 source must have stable identity');
+  const bad=registry.slice(0,pos)+registry.slice(pos).replace(correct,'    authorityClass: "OBSERVATION_ONLY_SOURCE"');
+  assert.notEqual(bad,registry);
+  expectReject(verifyRecorderStudioExperience({overrides:{identities:bad}}),'missing or misclassified Recorder Studio manifest identity');
+  const missing=registry.slice(0,pos)+registry.slice(pos).replace(/  - path: ".product-experience\/pdp-3-product-experience\/recorder-studio-experience.yaml"\n    artifactId: "ART-P3-RECORDER-STUDIO-EXPERIENCE"\n    authorityClass: "PRODUCT_EXPERIENCE_AUTHORITY"\n?/,'');
+  assert.notEqual(missing,registry);
+  expectReject(verifyRecorderStudioExperience({overrides:{identities:missing}}),'missing or misclassified Recorder Studio manifest identity');
+});
 test('rejects duplicate YAML keys and malformed YAML',()=>{
   expectReject(verifyRecorderStudioExperience({overrides:{p3:source+'\nsourcePhase: PDP-3\n'}}),'invalid or duplicate YAML');
   expectReject(verifyRecorderStudioExperience({overrides:{p3:source+'\ninvalid: [unterminated\n'}}),'invalid or duplicate YAML');
