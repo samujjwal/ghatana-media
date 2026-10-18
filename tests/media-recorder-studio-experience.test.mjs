@@ -13,7 +13,7 @@ const expectReject=(report,part)=>assert.ok(report.errors.some(x=>x.includes(par
 test('source-derived Recorder Studio PDP3 exact coverage is 4/16/84/52/13 without runtime claims',()=>{
   const result=verifyRecorderStudioExperience();
   assert.deepEqual(result.errors,[]);
-  assert.deepEqual(result.stats,{sourceDocumentsValid:true,logicalSurfaces:4,flowContracts:16,acceptanceCaseSteps:84,manualEditPaths:52,workspaceIntents:13});
+  assert.deepEqual(result.stats,{sourceDocumentsValid:true,logicalSurfaces:4,flowContracts:16,acceptanceCaseSteps:84,manualEditPaths:52,workspaceIntents:13,reusedCanonicalScreenViews:12,unregisteredScreenCandidates:1,interactiveScreenCaseContracts:4});
 });
 test('rejects a missing PDP0 step from an otherwise well-shaped flow',()=>{
   expectReject(probe(x=>x.flowContracts[0].stepContracts.pop()),'case-step coverage mismatch');
@@ -88,4 +88,79 @@ test('rejects missing and incorrectly classified canonical Recorder Studio artif
 test('rejects duplicate YAML keys and malformed YAML',()=>{
   expectReject(verifyRecorderStudioExperience({overrides:{p3:source+'\nsourcePhase: PDP-3\n'}}),'invalid or duplicate YAML');
   expectReject(verifyRecorderStudioExperience({overrides:{p3:source+'\ninvalid: [unterminated\n'}}),'invalid or duplicate YAML');
+});
+
+test('rejects a valid but PDP2-inconsistent Studio template and recipe chain',()=>{
+  expectReject(probe(x=>{
+    const page=x.productionStudioWorkspace.pages.find(p=>p.pdp2WorkspaceKey==='scene-storyboard');
+    page.templateId='media.gui.template.workbench';
+    page.recipeId='media.gui.recipe.workbench';
+  }),'PDP2 page composition differs from PDP3 proposed design chain');
+  expectReject(probe(x=>{
+    const page=x.productionStudioWorkspace.pages.find(p=>p.pdp2WorkspaceKey==='delivery');
+    page.templateId='media.gui.template.render-preparation-and-review';
+    page.layoutId='media.gui.layout.render';
+    page.recipeId='media.gui.recipe.render-preparation-and-review';
+  }),'PDP2 page composition differs from PDP3 proposed design chain');
+});
+test('rejects a missing or fabricated PDP2 page composition',()=>{
+  const p2source=fs.readFileSync(path.join(root,'.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml'),'utf8');
+  const mutate=fn=>{const p2=parse(p2source);fn(p2);return verifyRecorderStudioExperience({overrides:{p2:stringify(p2)}});};
+  expectReject(mutate(x=>x.productionStudioPageCompositionContracts.pages.pop()),
+    'PDP2 page composition inventory');
+  expectReject(mutate(x=>x.productionStudioPageCompositionContracts.pages[0].componentRefs[0]='media.component.nonexistent'),
+    'PDP2 page components missing');
+  expectReject(mutate(x=>x.productionStudioPageCompositionContracts.pages[0].acceptanceCaseRefs=['MEDIA-REC-P0-AC-999']),
+    'PDP2 workspace must bind to real');
+  expectReject(mutate(x=>x.productionStudioPageCompositionContracts.pages[0].requiredStates=['READY']),
+    'PDP2 page states differ');
+});
+test('rejects missing or malformed screen reuse arrays without throwing',()=>{
+  expectReject(probe(x=>delete x.productionStudioWorkspace.pages[0].candidateCanonicalScreenRefs),
+    'invalid or ungrounded existing-screen reuse proposal');
+});
+test('rejects absent, invented or accidentally admitted canonical screen reuse',()=>{
+  expectReject(probe(x=>x.productionStudioWorkspace.pages[0].candidateCanonicalScreenRefs=['media.view.nonexistent']),
+    'invalid or ungrounded existing-screen reuse proposal');
+  expectReject(probe(x=>x.productionStudioWorkspace.pages[0].candidateCanonicalScreenRefs=[]),
+    'existing screen reuse cannot mint unregistered screen IDs');
+  expectReject(probe(x=>{
+    const page=x.productionStudioWorkspace.pages.find(p=>p.pdp2WorkspaceKey==='interactive-authoring');
+    page.proposedNewScreenIntentId='media.view.compose-scene';
+  }),'unadmitted interactive-authoring screen candidate');
+  expectReject(probe(x=>{
+    const page=x.productionStudioWorkspace.pages.find(p=>p.pdp2WorkspaceKey==='interactive-authoring');
+    page.screenReuseDisposition='ADMITTED';
+  }),'invalid screen reuse disposition');
+});
+
+test('rejects an interactive authoring screen claiming deployment or unverified effects',()=>{
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].implementationAdmission='ADMITTED'),
+    'unadmitted interactive screen candidate cannot claim public route');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].routeStatus='PUBLIC_RUNTIME_ROUTE'),
+    'unadmitted interactive screen candidate cannot claim public route');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].finality='PRODUCT_EFFECT_CONFIRMED'),
+    'interactive candidate screen lacks accessible headless fixture and nonfinal preview limits');
+});
+test('rejects missing exact interactive case, operation or P1 source value',()=>{
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].sourceAcceptanceCaseRefs.pop()),
+    'unadmitted interactive screen candidate must have exact case/operation bindings');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].proposedPdp1OperationRefs=['media.recorder.operation.run.submit.v1']),
+    'unadmitted interactive screen candidate must have exact case/operation bindings');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].projectedPdp1ValueRefs=['media.recorder.value.not-real.v1']),
+    'unadmitted interactive screen candidate must have exact case/operation bindings');
+});
+test('rejects ungrounded branch behavior or missing denial/recovery accessibility',()=>{
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].interactionContracts[0].denial=''),
+    'interactive screen candidate lacks exact positive, denial or recovery interaction contract');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].interactionContracts.pop()),
+    'interactive screen candidate lacks exact positive, denial or recovery interaction contract');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].preconditions=[]),
+    'interactive candidate screen lacks accessible headless fixture and nonfinal preview limits');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].nonhappyConsequences=[]),
+    'interactive candidate screen lacks accessible headless fixture and nonfinal preview limits');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].accessibility=[]),
+    'interactive candidate screen lacks accessible headless fixture and nonfinal preview limits');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].requiredScenarioFixtures=[]),
+    'interactive candidate screen lacks accessible headless fixture and nonfinal preview limits');
 });
