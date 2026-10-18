@@ -109,3 +109,8 @@ these local checks.
 ## Recorder/Studio PDP successor extension (new affected surfaces)
 
 The source-authored `recorder-studio-interface.yaml` records the new Recorder/Studio surface-specific semantics at this later proposed source cut. Historical `DEV_COMPLETE` remains attributable to its original source cut; this extension has **not** passed currentness/admission or PDP-3 readmission. The extension reuses existing Media identities and may not create independent project, job, rights or publishing authorities. Its exact affected obligations require native phase validation and successor acceptance before any completion claim.
+
+
+## Declarative animation, simulation and TutorPutor experience successor
+
+`.product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface` now binds 61 canonical PDP-0 specializations to the 61 exact PDP-1 case-operation projections and existing GUI, CLI/headless, and embedded surfaces. It reuses the 52 existing Recorder Studio manual-operation kinds, existing design tokens/components and existing animation/simulation screens; no parallel design system or fictitious API-only GUI is introduced. Numerical instruments, typed simulation clocks, scientific-fidelity labels, accessibility and no-privileged-interactive-player semantics are required. The historical PDP-2 development-complete snapshot is source-cut scoped; only native parse, exact cross-phase reference/negative tests, impacted source-current phase verification and qualified review can establish this **successor** as `DEV_COMPLETE`.
