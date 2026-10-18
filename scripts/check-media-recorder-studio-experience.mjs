@@ -303,6 +303,21 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
      caseInteractions.some(x=>!['authoringIntent','observation','denial','recovery']
         .every(name=>typeof x[name]==='string' && x[name].trim())))
     fail('interactive screen candidate lacks exact positive, denial or recovery interaction contract');
+  const authoredFixtures=candidate?.authoredFixtureDefinitions??[];
+  const fixtureNames=candidate?.requiredScenarioFixtures??[];
+  if(!sameIds(authoredFixtures.map(f=>f.id),fixtureNames) || authoredFixtures.length!==6)
+    fail('source-authored interactive fixtures must exactly match six named scenarios');
+  for(const fixture of authoredFixtures){
+    if(fixture.classification!=='SYNTHETIC_PDP3_DEFINITION_ONLY' ||
+       fixture.syntheticProjectAuthority!=='MEDIA_PROJECT_FIXTURE_ONLY_NO_CANONICAL_RUNTIME_WRITER' ||
+       fixture.status!=='AUTHORED_NOT_EXECUTED_OR_QUALIFIED' ||
+       !(p0.actors??[]).includes(fixture.fixtureActorRef) ||
+       !Array.isArray(fixture.acceptanceCaseRefs) || fixture.acceptanceCaseRefs.length===0 ||
+       !uniqueSet(fixture.acceptanceCaseRefs) ||
+       !fixture.acceptanceCaseRefs.every(x=>canonical.has(x)) ||
+       !['setup','action','expected','rejection','expectedFinality'].every(x=>typeof fixture[x]==='string' && fixture[x].trim().length>10))
+      fail('interactive fixture '+String(fixture.id)+' has invented actor/case, missing oracle, or false execution status');
+  }
   if(!sameIds(candidate?.designStates??[],p2StudioSurface?.states??[]) ||
      !Array.isArray(candidate?.preconditions) || candidate.preconditions.length<4 ||
      !uniqueSet(candidate.preconditions) ||
@@ -329,7 +344,7 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
   const population=p3.population??{};
   for(const [name,value] of Object.entries({logicalSurfaces:4,featureProfiles:16,acceptanceCaseSteps:84,exactProposedPrimaryOperationSteps:63,explicitNonInvocationSteps:21,manualEditPaths:52,studioWorkspaceProposals:13,existingTopLevelJourneysPreserved:30,existingCanonicalScreensPreserved:47,physicalPackagesAdded:0}))
     if(population[name]!==value)fail('declared PDP3 population mismatch: '+name);
-  return {errors,stats:{sourceDocumentsValid:true,logicalSurfaces:surfaceDefs.length,flowContracts:flows.length,acceptanceCaseSteps:allSteps.length,exactProposedPrimaryOperationSteps:exactOperationSteps,explicitNonInvocationSteps:explicitNonInvocationSteps,manualEditPaths:editPaths.length,workspaceIntents:pages.length,reusedCanonicalScreenViews:reusePageCount,unregisteredScreenCandidates:newPageCount,interactiveScreenCaseContracts:caseInteractions.length}};
+  return {errors,stats:{sourceDocumentsValid:true,logicalSurfaces:surfaceDefs.length,flowContracts:flows.length,acceptanceCaseSteps:allSteps.length,exactProposedPrimaryOperationSteps:exactOperationSteps,explicitNonInvocationSteps:explicitNonInvocationSteps,manualEditPaths:editPaths.length,workspaceIntents:pages.length,reusedCanonicalScreenViews:reusePageCount,unregisteredScreenCandidates:newPageCount,interactiveScreenCaseContracts:caseInteractions.length,interactiveFixtureDefinitions:authoredFixtures.length}};
 }
 if(process.argv[1] && path.resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
   const report=verifyRecorderStudioExperience();
