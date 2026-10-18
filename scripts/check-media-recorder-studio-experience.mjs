@@ -197,8 +197,9 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
       if(typeof composition?.[name]!=='string' || !composition[name].trim())
         fail(page.id+': PDP2 page missing semantic, accessibility or denial behavior '+name);
     }
-    const reuse=page.candidateCanonicalScreenRefs;
-    if(!Array.isArray(reuse) || !uniqueSet(reuse) ||
+    const declaredReuse=page.candidateCanonicalScreenRefs;
+    const reuse=Array.isArray(declaredReuse)?declaredReuse:[];
+    if(!Array.isArray(declaredReuse) || !uniqueSet(reuse) ||
        !reuse.every(ref=>existingScreenIds.includes(ref)) || !page.unresolvedScreenBehavior?.trim())
       fail(page.id+': invalid or ungrounded existing-screen reuse proposal');
     if(page.screenReuseDisposition==='EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED') {
@@ -251,6 +252,15 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
         .every(name=>typeof x[name]==='string' && x[name].trim())))
     fail('interactive screen candidate lacks exact positive, denial or recovery interaction contract');
   if(!sameIds(candidate?.designStates??[],p2StudioSurface?.states??[]) ||
+     !Array.isArray(candidate?.preconditions) || candidate.preconditions.length<4 ||
+     !uniqueSet(candidate.preconditions) ||
+     !Array.isArray(candidate?.nonhappyConsequences) || candidate.nonhappyConsequences.length<7 ||
+     !uniqueSet(candidate.nonhappyConsequences) ||
+     typeof candidate?.viewAndOperationDistinction!=='string' ||
+     !candidate.viewAndOperationDistinction.includes('never prove a product business mutation') ||
+     typeof candidate?.manualRevisionRule!=='string' ||
+     !candidate.manualRevisionRule.includes('LOCKED') ||
+     typeof candidate?.releaseGate!=='string' || !candidate.releaseGate.includes('rights') ||
      !Array.isArray(candidate?.plannedRegions) || candidate.plannedRegions.length<7 ||
      !uniqueSet(candidate.plannedRegions) ||
      !Array.isArray(candidate?.accessibility) || candidate.accessibility.length<5 ||
@@ -267,7 +277,7 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
   const population=p3.population??{};
   for(const [name,value] of Object.entries({logicalSurfaces:4,featureProfiles:16,acceptanceCaseSteps:84,manualEditPaths:52,studioWorkspaceProposals:13,existingTopLevelJourneysPreserved:30,existingCanonicalScreensPreserved:47,physicalPackagesAdded:0}))
     if(population[name]!==value)fail('declared PDP3 population mismatch: '+name);
-  return {errors,stats:{sourceDocumentsValid:true,logicalSurfaces:surfaceDefs.length,flowContracts:flows.length,acceptanceCaseSteps:allSteps.length,manualEditPaths:editPaths.length,workspaceIntents:pages.length}};
+  return {errors,stats:{sourceDocumentsValid:true,logicalSurfaces:surfaceDefs.length,flowContracts:flows.length,acceptanceCaseSteps:allSteps.length,manualEditPaths:editPaths.length,workspaceIntents:pages.length,reusedCanonicalScreenViews:reusePageCount,unregisteredScreenCandidates:newPageCount,interactiveScreenCaseContracts:caseInteractions.length}};
 }
 if(process.argv[1] && path.resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
   const report=verifyRecorderStudioExperience();
