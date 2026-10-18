@@ -1,0 +1,793 @@
+schemaVersion: media.declarative-production.pdp1.v1
+productId: media
+sourcePhase: PDP-1
+status: SOURCE_AUTHORED_PENDING_NATIVE_VALIDATION_AND_CURRENTNESS
+canonicalProductAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile
+canonicalOperationAuthority: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts
+canonicalDomainAuthority: .product-experience/pdp-1-domain-data/domain-objects.yaml#objects
+canonicalClockAuthority: .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions
+recorderReuse: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
+reason: Specialized closed typed producer specifications; not a duplicate operation registry, source of model science, or new persistence writer
+denominator: {newRequirements: 61, distinctExistingCapabilityLeaves: 39, operationBindings: 61, newCanonicalOperations: 0, newCanonicalDomainObjects: 0}
+existingCanonicalDomainRefs:
+  - media.domain.project-revision
+  - media.domain.media-run
+  - media.domain.processing-job
+  - media.domain.job-attempt
+  - media.domain.checkpoint
+  - media.domain.scene-graph
+  - media.domain.animation-graph
+  - media.domain.simulation-world
+  - media.domain.timeline
+  - media.domain.artifact-version
+  - media.domain.quality-assessment
+  - media.domain.provenance-manifest
+originClasses: [REAL_CAPTURE, DECLARATIVE_ANIMATION, MODEL_SIMULATION, GENERATIVE_MEDIA, PDP_SYNTHETIC_FIXTURE]
+sourceClassRule: Producer reports exact origin, input lineage, qualified model/solver and tool version. Scientific measurements never originate from pixels or synthetic PDP fixtures.
+requestResultSemantics:
+  requiredTrustedContext: [tenantId, actorOrPrincipalRef, projectRevisionRef, exactCapabilityLeafRef, exactOperationRef, explicitVersion, policyAndPurposeRef, rightsConsentRef, deadlineOrBudgetRef]
+  immutableInputs: [sourceDigests, modelAndSolverRevisionsWhenUsed, tSimOrTStoryClockRefAsApplicable, typedUnitRegistry, sceneAndOutputProfileRefs]
+  effectIdentity: [requestIdWhenMutation, expectedRevisionIdWhenProjectEdit, priorOwnerResultRefWhenReconciliation]
+  stateVocabulary: [REQUEST_ACCEPTED, EFFECT_CONFIRMED, DENIED, CONFLICT, UNAVAILABLE, OUTCOME_UNKNOWN, PARTIAL, ABSTAINED]
+  finality: REQUEST_ACCEPTED does not prove durable queue, solver execution, scene render, remote product effect, or publication; owner observation is required.
+  unknownOutcome: Reconcile exact request/job/attempt before any non-idempotent replay; preserve manual edits and source receipts.
+  failClosed: Missing rights, tenant context, unit, clock transform, model version, qualified adapter or owner result denies only the dependent action.
+  boundedExecution: Recursion/step/time/memory/workload capped, no arbitrary code or shaders, provider sandbox and explicit tool/codec rights.
+  ai: Agent proposes typed operations against existing revision, with evidence, confidence, manual locks, review/abstention; no privileged evaluation.
+  o11y: Redacted trace/span and run/model/source identity, semantic error states, measured latency/cost/jitter, critical audit separate from telemetry.
+typedProductionValueDescriptors:
+  - id: media.declarative.value.production-spec.v1
+    ownerDomainRef: media.domain.project-revision
+    structuralType: closed-versioned-object
+    requiredFields: [tenantId, projectId, revisionId, schemaVersion, originClass, purposeRef, sceneRefs, timelineRef, rightsRef, outputProfileRefs]
+    invariant: "one canonical MediaProject revision, immutably linked assets and checked CAS edits"
+    missingRequiredField: DENIED_WITH_SOURCE_RETAINED
+    acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
+  - id: media.declarative.value.scene-binding.v1
+    ownerDomainRef: media.domain.scene-graph
+    structuralType: closed-versioned-object
+    requiredFields: [sceneId, sceneGraphRef, animationGraphRef, modelStateRefOrNull, sourceRefs, temporalMappingRef, semanticAnchorRefs, accessibilityRef]
+    invariant: "typed source, scene, animation and model relationship without owner transfer"
+    missingRequiredField: DENIED_WITH_SOURCE_RETAINED
+    acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
+  - id: media.declarative.value.animation-spec.v1
+    ownerDomainRef: media.domain.animation-graph
+    structuralType: closed-versioned-object
+    requiredFields: [schemaVersion, sceneGraphRef, animationGraphRef, operatorTreeRef, assetsRef, propertyCurveRefs, tStoryRef, renderingRef]
+    invariant: "versioned 2D and 3D semantic graph, admitted operators only and bounded derivations"
+    missingRequiredField: DENIED_WITH_SOURCE_RETAINED
+    acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
+  - id: media.declarative.value.model-execution-spec.v1
+    ownerDomainRef: media.domain.simulation-world
+    structuralType: closed-versioned-object
+    requiredFields: [modelVersionRef, modelDigest, solverId, solverVersion, solverBuildDigest, numericPrecision, initialConditionsRef, boundaryConditionsRef, unitsRegistryRef, parameterRevisionRef, tSimClockRef, stepPolicy, toleranceContractRef, fidelityProfileRef, resourceBounds, seedPolicy]
+    invariant: "pinned domain-owned equations and constraints, qualified execution only and no implicit model rewrite"
+    missingRequiredField: DENIED_WITH_SOURCE_RETAINED
+    acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
+  - id: media.declarative.value.simulation-state.v1
+    ownerDomainRef: media.domain.checkpoint
+    structuralType: closed-versioned-object
+    requiredFields: [runId, attemptId, modelVersionRef, solverVersionRef, tSimTicks, stepIndex, stateVersion, stateDigest, parameterDigest, rngStateOrNull, checkpointParentRefOrNull]
+    invariant: "simulation advances solely on explicit model commands and records resumable immutable state"
+    missingRequiredField: DENIED_WITH_SOURCE_RETAINED
+    acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
+  - id: media.declarative.value.measurement.v1
+    ownerDomainRef: media.domain.simulation-world
+    structuralType: closed-versioned-object
+    requiredFields: [observableId, modelRunRef, stateVersion, tSimSamplePoint, numericValue, unitId, coordinateFrameRefOrNull, instrumentRef, calibrationRef, uncertaintyRef, validityDomainRef, provenanceRef]
+    invariant: "measured outputs originate in solver or qualified sensor, never from illustrative renderer"
+    missingRequiredField: DENIED_WITH_SOURCE_RETAINED
+    acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
+  - id: media.declarative.value.validation-report.v1
+    ownerDomainRef: media.domain.quality-assessment
+    structuralType: closed-versioned-object
+    requiredFields: [modelVersionRef, solverBuildDigest, oracleRef, expectedSamples, actualSamples, toleranceSpecRef, residualStatisticsRef, verdict, applicability, limitations, environmentRef]
+    invariant: "scientific validity evidence separated from media quality and fidelity of rendered appearance"
+    missingRequiredField: DENIED_WITH_SOURCE_RETAINED
+    acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
+  - id: media.declarative.value.clock-alignment.v1
+    ownerDomainRef: media.domain.timeline
+    structuralType: closed-versioned-object
+    requiredFields: [sourceClockId, destClockId, sourceOriginRef, destOriginRef, mappingVersionRef, rationalScale, rationalOffset, lossAndRoundingRef, uncertaintyRef]
+    invariant: "cross-clock conversions require explicit declared mapping and no VFR approximation"
+    missingRequiredField: DENIED_WITH_SOURCE_RETAINED
+    acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
+  - id: media.declarative.value.public-aef-bridge.v1
+    ownerDomainRef: media.domain.scene-graph
+    structuralType: closed-versioned-object
+    requiredFields: [contractVersion, tutorPutorModelIrRef, tutorPutorSceneIrRef, tutorPutorExperienceIrRef, supportedCapabilityRefs, adapterVersion, mediaProjectRevisionRef]
+    invariant: "versioned public contract with TutorPutor science, pedagogy and learner authority retained"
+    missingRequiredField: DENIED_WITH_SOURCE_RETAINED
+    acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
+  - id: media.declarative.value.source-classification.v1
+    ownerDomainRef: media.domain.provenance-manifest
+    structuralType: closed-versioned-object
+    requiredFields: [originClass, sourceVersionRef, producingToolVersionRef, consentRightsRef, sourceClockRef, runOrCaptureReceiptRef, digest, traceRefOrNull]
+    invariant: "REAL_CAPTURE DECLARATIVE_ANIMATION MODEL_SIMULATION GENERATIVE_MEDIA PDP_SYNTHETIC_FIXTURE distinct and truthful"
+    missingRequiredField: DENIED_WITH_SOURCE_RETAINED
+    acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
+scientificReferenceOracles:
+  - id: media.declarative.oracle.force-motion.v1
+    assumptions: constant-net-force constant-mass 1D zero-initial-position zero-initial-velocity no-friction
+    testInputs: {massKg: 2, forceN: 6, durationS: 2, initialVelocityMPerS: 0}
+    expected: {accelerationMPerS2: 3, finalVelocityMPerS: 6, displacementM: 6}
+    check: typed-units analytical-math independent-solver-output tolerance-verified residual-recorded
+    sourceClass: MODEL_SIMULATION
+    state: ANALYTICAL_ORACLE_DECLARED_ONLY_NO_SOLVER_QUALIFICATION
+publicIntegrationAdapters:
+  gharbatai: {input: authorized-product-journey-and-seed-lease, output: REAL_CAPTURE-and-product-owned-postcondition-receipt, productBusinessAuthority: Gharbatai, mediaAuthority: capture-render-qa}
+  tutorputor: {input: versioned-public-ExperienceIR-ModelIR-SceneIR, output: MODEL_SIMULATION-and-DECLARATIVE_ANIMATION-presentations, modelPedagogyMasteryAndReleaseAuthority: TutorPutor, mediaAuthority: adapter-render-export}
+  sourceIsolation: no-product-private-imports-no-learner-records-in-media-bundles-no-fake-api-gui
+caseOperationBindings:
+  - caseId: MEDIA-DECL-P0-AC-001
+    group: ANIMATION
+    capabilityRef: media.animation.vector
+    parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-animation-vector
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-001"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-vector"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-002
+    group: ANIMATION
+    capabilityRef: media.animation.2d
+    parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-animation-2d
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-002"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-2d"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-003
+    group: ANIMATION
+    capabilityRef: media.animation.3d
+    parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-animation-3d
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-003"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-3d"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-004
+    group: ANIMATION
+    capabilityRef: media.compose.exact-typography-logo-brand
+    parentRequirementId: MEDIA-REQ-CAP-COMPOSE
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-compose-exact-typography-logo-brand
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-004"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-compose-exact-typography-logo-brand"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-005
+    group: ANIMATION
+    capabilityRef: media.animation.keyframe
+    parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-animation-keyframe
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-005"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-keyframe"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-006
+    group: ANIMATION
+    capabilityRef: media.animation.interpolation-easing
+    parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-animation-interpolation-easing
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-006"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-interpolation-easing"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-007
+    group: ANIMATION
+    capabilityRef: media.animation.procedural
+    parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-animation-procedural
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-007"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-procedural"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-008
+    group: ANIMATION
+    capabilityRef: media.animation.camera
+    parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-animation-camera
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-008"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-camera"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-009
+    group: ANIMATION
+    capabilityRef: media.animation.skeletal
+    parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-animation-skeletal
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-009"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-skeletal"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-010
+    group: ANIMATION
+    capabilityRef: media.animation.constraint
+    parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-animation-constraint
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-010"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-constraint"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-011
+    group: ANIMATION
+    capabilityRef: media.animation.drive.audio
+    parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-animation-drive-audio
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-011"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-drive-audio"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-012
+    group: ANIMATION
+    capabilityRef: media.animation.drive.speech
+    parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-animation-drive-speech
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-012"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-drive-speech"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-013
+    group: ANIMATION
+    capabilityRef: media.recipe.template.physics-math-explainer
+    parentRequirementId: MEDIA-REQ-CAP-RECIPE-TEMPLATE
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-recipe-template-physics-math-explainer
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-013"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-recipe-template-physics-math-explainer"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-014
+    group: ANIMATION
+    capabilityRef: media.animation.output.accessibility.semantic-timeline
+    parentRequirementId: MEDIA-REQ-CAP-ANIMATION-OUTPUT
+    surfaceId: media.surface.interactive-demo-player
+    canonicalOperationRef: media.operation.capability.media-animation-output-accessibility-semantic-timeline
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-014"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-output-accessibility-semantic-timeline"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-015
+    group: ANIMATION
+    capabilityRef: media.animation.output.output.composited-video
+    parentRequirementId: MEDIA-REQ-CAP-ANIMATION-OUTPUT
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-animation-output-output-composited-video
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-015"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-output-output-composited-video"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-016
+    group: ANIMATION
+    capabilityRef: media.animation.editing.curve.edit
+    parentRequirementId: MEDIA-REQ-CAP-ANIMATION-EDITING
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-animation-editing-curve-edit
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-016"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-editing-curve-edit"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-017
+    group: ANIMATION
+    capabilityRef: media.animation.editing.undo-redo.versioned
+    parentRequirementId: MEDIA-REQ-CAP-ANIMATION-EDITING
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-animation-editing-undo-redo-versioned
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-017"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-editing-undo-redo-versioned"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-018
+    group: SIMULATION
+    capabilityRef: media.simulation.scientific-demo
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-simulation-scientific-demo
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-018"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-scientific-demo"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-019
+    group: SIMULATION
+    capabilityRef: media.simulation.educational-demo
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-simulation-educational-demo
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-019"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-educational-demo"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-020
+    group: SIMULATION
+    capabilityRef: media.simulation.rigid-body
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-simulation-rigid-body
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-020"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-rigid-body"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-021
+    group: SIMULATION
+    capabilityRef: media.simulation.scientific-demo
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-simulation-scientific-demo
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-021"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-scientific-demo"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-022
+    group: SIMULATION
+    capabilityRef: media.simulation.output.timestamped-state
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+    surfaceId: media.surface.interactive-demo-player
+    canonicalOperationRef: media.operation.capability.media-simulation-output-timestamped-state
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-022"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-timestamped-state"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-023
+    group: SIMULATION
+    capabilityRef: media.simulation.output.timestamped-state
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-simulation-output-timestamped-state
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-023"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-timestamped-state"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-024
+    group: SIMULATION
+    capabilityRef: media.simulation.output.timestamped-state
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-simulation-output-timestamped-state
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-024"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-timestamped-state"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-025
+    group: SIMULATION
+    capabilityRef: media.provenance.execution-lineage.inspect
+    parentRequirementId: MEDIA-REQ-CAP-PROVENANCE
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-provenance-execution-lineage-inspect
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-025"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-provenance-execution-lineage-inspect"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-026
+    group: SIMULATION
+    capabilityRef: media.simulation.output.measurements
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-simulation-output-measurements
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-026"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-measurements"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-027
+    group: SIMULATION
+    capabilityRef: media.simulation.scientific-demo
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-simulation-scientific-demo
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-027"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-scientific-demo"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-028
+    group: SIMULATION
+    capabilityRef: media.simulation.educational-demo
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-simulation-educational-demo
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-028"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-educational-demo"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-029
+    group: SIMULATION
+    capabilityRef: media.simulation.educational-demo
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+    surfaceId: media.surface.interactive-demo-player
+    canonicalOperationRef: media.operation.capability.media-simulation-educational-demo
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-029"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-educational-demo"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-030
+    group: SIMULATION
+    capabilityRef: media.simulation.output.timestamped-state
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+    surfaceId: media.surface.interactive-demo-player
+    canonicalOperationRef: media.operation.capability.media-simulation-output-timestamped-state
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-030"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-timestamped-state"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-031
+    group: SIMULATION
+    capabilityRef: media.simulation.output.measurements
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-simulation-output-measurements
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-031"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-measurements"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-032
+    group: SIMULATION
+    capabilityRef: media.simulation.output.measurements
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-simulation-output-measurements
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-032"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-measurements"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-033
+    group: SIMULATION
+    capabilityRef: media.simulation.output.contacts
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-simulation-output-contacts
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-033"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-contacts"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-034
+    group: SIMULATION
+    capabilityRef: media.simulation.agent
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-simulation-agent
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-034"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-agent"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-035
+    group: SIMULATION
+    capabilityRef: media.simulation.agent
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-simulation-agent
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-035"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-agent"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-036
+    group: SIMULATION
+    capabilityRef: media.simulation.rigid-body
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-simulation-rigid-body
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-036"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-rigid-body"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-037
+    group: SIMULATION
+    capabilityRef: media.simulation.scientific-demo
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-simulation-scientific-demo
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-037"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-scientific-demo"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-038
+    group: SIMULATION
+    capabilityRef: media.simulation.output.measurements
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+    surfaceId: media.surface.interactive-demo-player
+    canonicalOperationRef: media.operation.capability.media-simulation-output-measurements
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-038"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-measurements"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-039
+    group: SIMULATION
+    capabilityRef: media.quality.inspect
+    parentRequirementId: MEDIA-REQ-CAP-QUALITY
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-quality-inspect
+    operationKind: QUERY
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-039"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-quality-inspect"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-040
+    group: TUTORPUTOR
+    capabilityRef: media.recipe.template.interactive-lesson
+    parentRequirementId: MEDIA-REQ-CAP-RECIPE-TEMPLATE
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-recipe-template-interactive-lesson
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-040"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-recipe-template-interactive-lesson"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-041
+    group: TUTORPUTOR
+    capabilityRef: media.recipe.template.interactive-lesson
+    parentRequirementId: MEDIA-REQ-CAP-RECIPE-TEMPLATE
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-recipe-template-interactive-lesson
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-041"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-recipe-template-interactive-lesson"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-042
+    group: TUTORPUTOR
+    capabilityRef: media.simulation.educational-demo
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-simulation-educational-demo
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-042"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-educational-demo"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-043
+    group: TUTORPUTOR
+    capabilityRef: media.animation.2d
+    parentRequirementId: MEDIA-REQ-CAP-ANIMATION
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-animation-2d
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-043"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-2d"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-044
+    group: TUTORPUTOR
+    capabilityRef: media.simulation.output.measurements
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+    surfaceId: media.surface.interactive-demo-player
+    canonicalOperationRef: media.operation.capability.media-simulation-output-measurements
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-044"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-measurements"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-045
+    group: TUTORPUTOR
+    capabilityRef: media.simulation.educational-demo
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION
+    surfaceId: media.surface.interactive-demo-player
+    canonicalOperationRef: media.operation.capability.media-simulation-educational-demo
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-045"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-educational-demo"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-046
+    group: TUTORPUTOR
+    capabilityRef: media.simulation.output.measurements
+    parentRequirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+    surfaceId: media.surface.interactive-demo-player
+    canonicalOperationRef: media.operation.capability.media-simulation-output-measurements
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-046"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-measurements"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-047
+    group: TUTORPUTOR
+    capabilityRef: media.animation.output.accessibility.semantic-timeline
+    parentRequirementId: MEDIA-REQ-CAP-ANIMATION-OUTPUT
+    surfaceId: media.surface.interactive-demo-player
+    canonicalOperationRef: media.operation.capability.media-animation-output-accessibility-semantic-timeline
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-047"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-output-accessibility-semantic-timeline"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-048
+    group: TUTORPUTOR
+    capabilityRef: media.animation.output.output.interactive-scene
+    parentRequirementId: MEDIA-REQ-CAP-ANIMATION-OUTPUT
+    surfaceId: media.surface.interactive-demo-player
+    canonicalOperationRef: media.operation.capability.media-animation-output-output-interactive-scene
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-048"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-output-output-interactive-scene"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-049
+    group: TUTORPUTOR
+    capabilityRef: media.provenance.source-lineage.inspect
+    parentRequirementId: MEDIA-REQ-CAP-PROVENANCE
+    surfaceId: media.surface.interactive-demo-player
+    canonicalOperationRef: media.operation-slice.inspect-provenance
+    operationKind: QUERY
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-049"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/@id=media.operation-slice.inspect-provenance"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-050
+    group: TUTORPUTOR
+    capabilityRef: media.deliver.interactive-scene-bundle
+    parentRequirementId: MEDIA-REQ-CAP-DELIVER
+    surfaceId: media.surface.interactive-demo-player
+    canonicalOperationRef: media.operation.capability.media-deliver-interactive-scene-bundle
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-050"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-deliver-interactive-scene-bundle"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-051
+    group: TUTORPUTOR
+    capabilityRef: media.deliver.publish-governed
+    parentRequirementId: MEDIA-REQ-CAP-DELIVER
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-deliver-publish-governed
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-051"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-deliver-publish-governed"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-052
+    group: UNIFIED
+    capabilityRef: media.compose.multitrack-timeline
+    parentRequirementId: MEDIA-REQ-CAP-COMPOSE
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-compose-multitrack-timeline
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-052"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-compose-multitrack-timeline"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-053
+    group: UNIFIED
+    capabilityRef: media.provenance.origin.disclose
+    parentRequirementId: MEDIA-REQ-CAP-PROVENANCE
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-provenance-origin-disclose
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-053"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-provenance-origin-disclose"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-054
+    group: UNIFIED
+    capabilityRef: media.project.version
+    parentRequirementId: MEDIA-REQ-CAP-PROJECT
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-project-version
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-054"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-project-version"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-055
+    group: UNIFIED
+    capabilityRef: media.project.composition.update
+    parentRequirementId: MEDIA-REQ-CAP-PROJECT
+    surfaceId: media.surface.production-studio
+    canonicalOperationRef: media.operation.capability.media-project-composition-update
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-055"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-project-composition-update"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-056
+    group: UNIFIED
+    capabilityRef: media.rights.permitted-use.evaluate
+    parentRequirementId: MEDIA-REQ-CAP-RIGHTS
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-rights-permitted-use-evaluate
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-056"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-rights-permitted-use-evaluate"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-057
+    group: UNIFIED
+    capabilityRef: media.job.watch
+    parentRequirementId: MEDIA-REQ-CAP-JOB
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-job-watch
+    operationKind: QUERY
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-057"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-job-watch"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-058
+    group: UNIFIED
+    capabilityRef: media.job.submit
+    parentRequirementId: MEDIA-REQ-CAP-JOB
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation-slice.submit-job
+    operationKind: CANONICAL_SOURCE_OWNED
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-058"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/@id=media.operation-slice.submit-job"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-059
+    group: UNIFIED
+    capabilityRef: media.rights.permitted-use.evaluate
+    parentRequirementId: MEDIA-REQ-CAP-RIGHTS
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-rights-permitted-use-evaluate
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-059"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-rights-permitted-use-evaluate"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-060
+    group: UNIFIED
+    capabilityRef: media.deliver.package
+    parentRequirementId: MEDIA-REQ-CAP-DELIVER
+    surfaceId: media.surface.recorder-orchestrator
+    canonicalOperationRef: media.operation.capability.media-deliver-package
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-060"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-deliver-package"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+  - caseId: MEDIA-DECL-P0-AC-061
+    group: UNIFIED
+    capabilityRef: media.deliver.interactive-scene-bundle
+    parentRequirementId: MEDIA-REQ-CAP-DELIVER
+    surfaceId: media.surface.interactive-demo-player
+    canonicalOperationRef: media.operation.capability.media-deliver-interactive-scene-bundle
+    operationKind: COMMAND
+    p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-061"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-deliver-interactive-scene-bundle"
+    resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
+    runtimeAdmission: NOT_ADMITTED
+nonClaims: [no-new-operation-or-route, no-new-MediaProject-writer, no-scientific-solver-qualification, no-full-Discovery-exit, no-native-test-evidence]
