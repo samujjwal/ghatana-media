@@ -31,3 +31,45 @@
 Use the existing MediaProject immutable revision and original source/clock authority for both automated and manual modes. Product-owned fixtures, accounts, business effects, and tenant-specific policies remain with each product (Gharbatai first). No product action is demonstrated as successful without owner-readback after-action; camera/browser/etc only when qualified. Manual lock must survive regeneration; stale CAS/remote UNKNOWN cannot be force-resolved by GUI optimism. AI is native but policy-bounded, with provenance/uncertainty/abstention and no unapproved provider egress. Trace/metric/log records are redacted; rights, consent, legal holds, erasure, media quality and independently required film approval are distinct. Container, codec, voices, and model licenses remain provider-specific admission gates. A viewer hotspot is never a delegated privileged product mutation.
 
 **This review records technical source dispositions only.** It does not forge a specialist certification, an accepted Discovery phase, or a production/provider proof.
+
+## Source-only hygiene and negative-proof increment after PR #11
+
+The 84 scoped PDP-3 steps no longer copy canonical `given/when/then/rejection` text or the same group operation candidates. The canonical clause reference is the single source of truth. Shared finality and non-admission rules are flow-level; 52 manual editing paths retain exact kind/typed intent/editor mapping while shared compare-and-swap, keyboard/text/CLI/SDK/API and undo/lock rules are declared once. The authored source shrank by 75,525 bytes (**56.8%**) with an unchanged 4/16/84/52/13 denominator.
+
+All 13 planned Studio workspace pages now nominate `media.gui.template.*`, `media.gui.layout.*` and `media.gui.recipe.*` identities already defined in PDP-2. Bidirectional source comparisons found 13/13 mutually compatible design chains. These are **not** approved screen instances; there is still no admission of 13 new canonical PDP-3 screens and no Explorer runtime verification.
+
+Checks authored: schema-strict YAML/duplicate rejection; P0/P1/P2 profile, typed group operation and 84 case identity comparison; 52 exact manual paths; 13 bidirectionally compatible GUI design chains; negative mutation of source semantics, false runtime admission, swapped parent/owner and incorrect template/layout. A restricted read-only parser and direct source readback returned zero mismatches, but that is **not** a repository-native test receipt. Required exact commands on full checkout, in order:
+
+```bash
+corepack pnpm install --frozen-lockfile
+pnpm check:recorder-studio-definition
+pnpm test:recorder-studio-definition
+pnpm check:physical-topology
+pnpm test:physical-topology
+pnpm check:recorder-studio-experience
+pnpm test:recorder-studio-experience
+pnpm check:design-conformance
+pnpm check:presentation-architecture
+pnpm check:product-experience-local
+```
+
+Do not repin historical PDP status, present the source-only 84-step projection as dispatched product actions, or merge this change as Discovery phase exit. The next concrete P3 implementation-authoring work is exact screen/action/step-state/scenario/fixture and Explorer binding, then native verified readmission for affected cells.
+
+## Required follow-up: canonical artifact registration and generated projections
+
+**Verified source defect:** the four new Recorder/Studio P0–P3 authorities merged through PRs #10/#11 were not present in `.product-experience/artifact-identities.yaml`. Before this follow-up, the pinned identity registry listed **356** records while the repository contained four additional canonical Recorder/Studio phase sources. The manifest generator requires an exact one-to-one authored registry inventory and cannot safely derive these IDs from paths.
+
+**Source correction:** four stable phase-appropriate identities are now pinned in the authoritative registry:
+
+| Source | Stable artifact identity | Authority class |
+|---|---|---|
+| `pdp-0-product-truth/recorder-studio-extension.yaml` | `ART-P0-RECORDER-STUDIO-EXTENSION` | `PRODUCT_TRUTH_AUTHORITY` |
+| `pdp-1-domain-data/recorder-studio-contracts.yaml` | `ART-P1-RECORDER-STUDIO-CONTRACTS` | `DOMAIN_DATA_AUTHORITY` |
+| `pdp-2-design-interface-system/recorder-studio-interface.yaml` | `ART-P2-RECORDER-STUDIO-INTERFACE` | `DESIGN_INTERFACE_AUTHORITY` |
+| `pdp-3-product-experience/recorder-studio-experience.yaml` | `ART-P3-RECORDER-STUDIO-EXPERIENCE` | `PRODUCT_EXPERIENCE_AUTHORITY` |
+
+The registry now contains 360 unique paths and identities. The existing generated manifest has 356 artifact records and the Explorer index contains 357 including its manifest entry. Their missing four records and all source-content digest/dependency changes **must be generated**, not hand-edited. The source-based PDP-3 checker now rejects missing or misclassified Recorder/Studio identity records.
+
+**Next native checkout actions:** run the focused Recorder/Studio and topology tests first; then run `pnpm generate:product-definition-manifest` (which owns both the source manifest and Explorer source index), inspect the generated diff for accidental unrelated changes and correct every dependency/identity finding, then rerun `pnpm check:product-definition-authority`, `pnpm check:product-experience-local`, focused PDP-3 tests and strict source-currentness. Do not mistake a generated manifest or hash receipt for semantic currentness, Lifecycle authorization, or PDP acceptance.
+
+Native generation, real YAML/parser tests and end-to-end Explorer conformance remain **NOT_RUN** in this remotely authored increment.
