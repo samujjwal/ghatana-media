@@ -102,3 +102,8 @@ Minimum experiments: actual film/source action readback; API-only no-fake-GUI; 2
 This document is one **non-normative implementation-planning bridge**. The sole source of Media product-definition meaning is .product-experience/PDP-0…3. TutorPutor keeps its separate PDP/AEF contracts, domain science, pedagogy and data. Gharbatai keeps product business effects. A proposal, a merged planning PR, a generated manifest or synthetic Explorer simulation is not Discovery PASS, real Build DEV_COMPLETE, signed scientific validation, film certification or permission to publish.
 
 **Outcome sought:** complete data-driven, manually editable, AI-aware Recorder + animation + simulation as interoperable Media capabilities with two independently verified dogfooding consumers; no duplication of physical packages, project/job/data stores, domain/trust authorities or source of scientific truth.
+
+
+## Current source reconciliation — October 18, 2026
+
+The source-owned successor in progress is tracked in [the unified PDP-0–3 reconciliation](MEDIA-UNIFIED-PDP0-3-CURRENT-SOURCE-RECONCILIATION-2026-10-18.md). It integrates both October 17 user-supplied blueprints, the 428+73 feature audit taxonomy, 32 GharBatai DX tasks, and the canonical 61 declarative acceptance specializations in PDP-0, with typed PDP-1, interface PDP-2 and experience PDP-3 projections. The planning handoff remains informative: old phase DEV_COMPLETE assertions apply only to their recorded historical source cuts; native source-current successor acceptance is unproven.
