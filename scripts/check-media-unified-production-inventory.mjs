@@ -9,6 +9,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const inputs = Object.freeze({
   blueprint: 'docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md',
   audit: 'docs/implementation/observations/media-unified-production-501-feature-reconciliation-2026-10-18.json',
+  attachedAudit: 'docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json',
+  uploadedIdCrosswalk: 'docs/implementation/observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json',
   crosswalk: '.product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml',
   requirements: '.product-experience/pdp-0-product-truth/requirements.yaml',
   p1: '.product-experience/pdp-1-domain-data/declarative-production-contracts.yaml',
@@ -40,6 +42,11 @@ export function verifyUnifiedProductionInventory({repoRoot = root, overrides = {
   let audit;
   try { audit = JSON.parse(raw.audit); }
   catch (e) { return {errors: ['audit: invalid JSON: ' + e.message], stats: {}}; }
+  let attached, stableIds;
+  try {
+    attached = JSON.parse(raw.attachedAudit);
+    stableIds = JSON.parse(raw.uploadedIdCrosswalk);
+  } catch (e) { return {errors: ['attached source/crosswalk invalid JSON: ' + e.message], stats: {}}; }
   const product = yamlDocument(raw.requirements, 'requirements', fail);
   const p1 = yamlDocument(raw.p1, 'p1', fail);
   yamlDocument(raw.p2, 'p2', fail);
@@ -125,6 +132,70 @@ export function verifyUnifiedProductionInventory({repoRoot = root, overrides = {
   if (audit.originalAuditDefaults?.semanticMappingDisposition !== 'EXACT_LEAF_FIT_REVIEW_REQUIRED' ||
       audit.recordKind !== 'SOURCE_REVIEW_PROJECTION_NOT_CANONICAL_REQUIREMENTS_OR_ACCEPTANCE')
     fail('inventory: do not promote heuristic matches to accepted Product Truth or runtime proof');
+
+  // The original user-supplied audit is an immutable source snapshot. AUD-FOCUS-*
+  // IDs are derived, many-to-many planning keys: never substitute them for the
+  // original AUD-REC3/ANIM3/SIM3/EDU3/CROSS3 IDs or claim coverage via an alias.
+  const originalSourceRows = attached.originalAudit?.inventory || [];
+  const uploadedFocusRows = attached.thirdPassAdditions || [];
+  const sourceToPrior = {
+    EXPLICIT_OR_CLUSTER_LEVEL_IN_PRIOR_BLUEPRINT: 'B',
+    NEEDS_ATOMIC_CONTRACT_OR_ACCEPTANCE_EXPANSION: 'E',
+    NEW_EXPLICIT_SECOND_PASS_SCOPE: 'N'
+  };
+  if (attached.originalAuditCount !== 428 || attached.newScopedAuditCount !== 73 ||
+      attached.combinedCount !== 501 || originalSourceRows.length !== 428 ||
+      uploadedFocusRows.length !== 73)
+    fail('attached source: 428+73=501 immutable population was lost');
+  if (duplicates(originalSourceRows.map(r => r.audit_id)) ||
+      duplicates(uploadedFocusRows.map(r => r.audit_id)))
+    fail('attached source: repeated stable original audit ID');
+  const observedById = new Map(observed.map(r => [r.auditId, r]));
+  for (const row of originalSourceRows) {
+    const projected = observedById.get(row.audit_id);
+    if (!projected || projected.sourceFeature !== row.capability ||
+        projected.priorReviewCode !== sourceToPrior[row.prior_blueprint_disposition])
+      fail('attached source: original 428 feature or review status changed at ' + row.audit_id);
+  }
+  const stableRows = stableIds.thirdPassTraceability || [];
+  if (stableIds.status !== 'REVIEW_PROPOSAL_PENDING_EXACT_PDP0_SEMANTIC_ACCEPTANCE' ||
+      stableIds.authority !== 'NON_NORMATIVE_SOURCE_PRESERVATION_AND_EARLIEST_AFFECTED_PDP0_REVIEW_ONLY' ||
+      stableIds.preservedUploadedAudit !== inputs.attachedAudit ||
+      stableRows.length !== 73 || duplicates(stableRows.map(r=>r.sourceAuditId)))
+    fail('attached source crosswalk: incomplete, duplicate or falsely promoted 73 stable IDs');
+  const stableMap = new Map(stableRows.map(r => [r.sourceAuditId,r]));
+  const validCaseIds = new Set([
+    ...(product.recorderStudioProfile?.acceptanceClauses || []).map(r=>r.id),
+    ...(product.declarativeProductionProfile?.acceptanceClauses || []).map(r=>r.id)
+  ]);
+  const normalizedFocusById = new Map(focused.map(r => [r.auditId,r]));
+  for (const row of uploadedFocusRows) {
+    const alias = stableMap.get(row.audit_id);
+    if (!alias || alias.sourceFeature !== row.capability ||
+        alias.sourceOwnerSurfaceProposal !== row.owner_surface_proposal ||
+        alias.originalAcceptance !== row.acceptance ||
+        alias.originalRuntimeVerification !== row.runtime_verification ||
+        alias.originalCanonicalId !== row.canonical_media_pdp_id ||
+        alias.p0Disposition !== 'P0_OWNER_SOURCE_SEMANTIC_REVIEW_REQUIRED' ||
+        alias.nativeValidation !== 'NOT_RUN' ||
+        alias.candidateFit !== 'REVIEW_ONLY_PARTIAL_OR_BROAD_SCOPE_NOT_EQUIVALENT_TO_FULL_FEATURE')
+      fail('attached stable ID not preserved or prematurely accepted: ' + row.audit_id);
+    for (const id of alias?.candidateP0AcceptanceCases || []) {
+      if (!validCaseIds.has(id)) fail('attached stable ID references missing canonical case: ' + row.audit_id + ' => ' + id);
+    }
+    for (const id of alias?.normalizedFocusedAuditCandidates || []) {
+      const focus = normalizedFocusById.get(id);
+      if (!focus || !(alias.candidateP0AcceptanceCases || []).includes(focus.canonicalAcceptanceCaseRef))
+        fail('attached stable ID normalized alias drift: ' + row.audit_id + ' => ' + id);
+    }
+    if (!(alias?.candidateP0AcceptanceCases || []).length &&
+        !alias?.additionalSemanticRisk)
+      fail('attached stable ID missing case and explicit semantic gap: ' + row.audit_id);
+  }
+  const unresolvedSource = stableRows.filter(r => !(r.candidateP0AcceptanceCases || []).length).map(r => r.sourceAuditId);
+  if (unresolvedSource.length !== stableIds.totals?.sourceRowsExplicitlyMissingAtomicCandidates ||
+      unresolvedSource.some(id => !(stableIds.totals?.zeroCandidateSourceIds || []).includes(id)))
+    fail('attached crosswalk: omitted unmapped source-level semantic gap');
   const sourceRec = product.recorderStudioProfile?.acceptanceClauses || [];
   const srcDec = product.declarativeProductionProfile?.acceptanceClauses || [];
   if (sourceRec.length !== 84 || srcDec.length !== 61) fail('source PDP-0: Recorder 84 and declarative 61 must remain exact');
