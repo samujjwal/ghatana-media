@@ -7,10 +7,10 @@
     "sourceBaselineCommit": "1c65a033d37fd8c2f9b3951c42c92b88fb725c13",
     "status": "DEV_COMPLETE"
   },
-  "generatedAt": "2026-10-18T21:00:43Z",
+  "generatedAt": "2026-10-18T21:05:59Z",
   "statusRecordRef": "docs/implementation/pdp-0-phase-dev-status.json",
-  "statusRecordSha256": "6c8ea15bb45285c368ef365bc2467d9958daf172cbd7efcd93c8218d67564714",
-  "sourceFingerprintSetSha256": "1a9f56f63b007b253d6bb03189b91005387aa09da39d47962ceeafa507e75fac",
+  "statusRecordSha256": "0eb0fd315a8c45f51f8b221409d4e4f5e00e2f712e72b5a5c72fe4b737531d1c",
+  "sourceFingerprintSetSha256": "e3b21f0086c83cb57eae6544ce211ffc56b867002b0666931f837c58d0909c3a",
   "sourceFingerprints": {
     ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
     ".product-experience/surfaces/media-physical-topology.v1.json": "53f3e1073c11876d3675543bfe170e32b31bae7725a3ed3bd2712f13954e2017",
@@ -19,7 +19,7 @@
     ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
     ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
     ".product-experience/pdp-0-product-truth/requirements.yaml": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
-    "docs/implementation/pdp-0-phase-dev-status.json": "6c8ea15bb45285c368ef365bc2467d9958daf172cbd7efcd93c8218d67564714"
+    "docs/implementation/pdp-0-phase-dev-status.json": "0eb0fd315a8c45f51f8b221409d4e4f5e00e2f712e72b5a5c72fe4b737531d1c"
   },
   "denominatorValidation": {
     "status": "PASS",
