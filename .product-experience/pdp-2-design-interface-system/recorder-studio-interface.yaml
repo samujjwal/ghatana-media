@@ -872,6 +872,8 @@ productionStudioPageCompositionContracts:
   caseAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses
   sourceOfWorkspaceIds: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml#productionStudioNavigation/workspace
   sameRevision: single-canonical-MediaProject-expected-revision-CAS
+  presentationStateAuthority: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml#surfaceInterfaces/@surfaceId=media.surface.production-studio/states
+  nonhappyPresentationAuthority: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml#viewStateContracts
   nonClaims: [no-new-screen, no-runtime-UI, no-Shared-package-admission, no-PDP3-phase-exit]
   pages:
     - workspaceKey: "project-library"
@@ -886,7 +888,7 @@ productionStudioPageCompositionContracts:
       keyboardAndTextEquivalent: "Expose named project-library controls, exact source time and result/denial with keyboard and screen reader"
       headlessEquivalent: "Project project-library selections and state as typed source-bound JSON/CLI without invented GUI effects"
       denialAndUnknownRecovery: "Retain project-library source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
-      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      requiredStates: ["EMPTY","LOADING","READY","DIRTY_DRAFT","STALE_REVISION","MERGE_CONFLICT","UNAUTHORIZED","QUALITY_BLOCKED","SAVE_UNKNOWN"]
       admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
     - workspaceKey: "production-planner"
       proposedPdp3WorkspaceId: "media.recorder.p3.workspace.production-planner.v1"
@@ -900,7 +902,7 @@ productionStudioPageCompositionContracts:
       keyboardAndTextEquivalent: "Expose named production-planner controls, exact source time and result/denial with keyboard and screen reader"
       headlessEquivalent: "Project production-planner selections and state as typed source-bound JSON/CLI without invented GUI effects"
       denialAndUnknownRecovery: "Retain production-planner source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
-      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      requiredStates: ["EMPTY","LOADING","READY","DIRTY_DRAFT","STALE_REVISION","MERGE_CONFLICT","UNAUTHORIZED","QUALITY_BLOCKED","SAVE_UNKNOWN"]
       admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
     - workspaceKey: "scene-storyboard"
       proposedPdp3WorkspaceId: "media.recorder.p3.workspace.scene-storyboard.v1"
@@ -914,7 +916,7 @@ productionStudioPageCompositionContracts:
       keyboardAndTextEquivalent: "Expose named scene-storyboard controls, exact source time and result/denial with keyboard and screen reader"
       headlessEquivalent: "Project scene-storyboard selections and state as typed source-bound JSON/CLI without invented GUI effects"
       denialAndUnknownRecovery: "Retain scene-storyboard source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
-      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      requiredStates: ["EMPTY","LOADING","READY","DIRTY_DRAFT","STALE_REVISION","MERGE_CONFLICT","UNAUTHORIZED","QUALITY_BLOCKED","SAVE_UNKNOWN"]
       admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
     - workspaceKey: "source-review"
       proposedPdp3WorkspaceId: "media.recorder.p3.workspace.source-review.v1"
@@ -928,7 +930,7 @@ productionStudioPageCompositionContracts:
       keyboardAndTextEquivalent: "Expose named source-review controls, exact source time and result/denial with keyboard and screen reader"
       headlessEquivalent: "Project source-review selections and state as typed source-bound JSON/CLI without invented GUI effects"
       denialAndUnknownRecovery: "Retain source-review source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
-      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      requiredStates: ["EMPTY","LOADING","READY","DIRTY_DRAFT","STALE_REVISION","MERGE_CONFLICT","UNAUTHORIZED","QUALITY_BLOCKED","SAVE_UNKNOWN"]
       admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
     - workspaceKey: "multitrack-timeline"
       proposedPdp3WorkspaceId: "media.recorder.p3.workspace.multitrack-timeline.v1"
@@ -942,7 +944,7 @@ productionStudioPageCompositionContracts:
       keyboardAndTextEquivalent: "Expose named multitrack-timeline controls, exact source time and result/denial with keyboard and screen reader"
       headlessEquivalent: "Project multitrack-timeline selections and state as typed source-bound JSON/CLI without invented GUI effects"
       denialAndUnknownRecovery: "Retain multitrack-timeline source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
-      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      requiredStates: ["EMPTY","LOADING","READY","DIRTY_DRAFT","STALE_REVISION","MERGE_CONFLICT","UNAUTHORIZED","QUALITY_BLOCKED","SAVE_UNKNOWN"]
       admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
     - workspaceKey: "captions-transcript"
       proposedPdp3WorkspaceId: "media.recorder.p3.workspace.captions-transcript.v1"
@@ -956,7 +958,7 @@ productionStudioPageCompositionContracts:
       keyboardAndTextEquivalent: "Expose named captions-transcript controls, exact source time and result/denial with keyboard and screen reader"
       headlessEquivalent: "Project captions-transcript selections and state as typed source-bound JSON/CLI without invented GUI effects"
       denialAndUnknownRecovery: "Retain captions-transcript source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
-      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      requiredStates: ["EMPTY","LOADING","READY","DIRTY_DRAFT","STALE_REVISION","MERGE_CONFLICT","UNAUTHORIZED","QUALITY_BLOCKED","SAVE_UNKNOWN"]
       admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
     - workspaceKey: "narration-mixer"
       proposedPdp3WorkspaceId: "media.recorder.p3.workspace.narration-mixer.v1"
@@ -970,7 +972,7 @@ productionStudioPageCompositionContracts:
       keyboardAndTextEquivalent: "Expose named narration-mixer controls, exact source time and result/denial with keyboard and screen reader"
       headlessEquivalent: "Project narration-mixer selections and state as typed source-bound JSON/CLI without invented GUI effects"
       denialAndUnknownRecovery: "Retain narration-mixer source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
-      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      requiredStates: ["EMPTY","LOADING","READY","DIRTY_DRAFT","STALE_REVISION","MERGE_CONFLICT","UNAUTHORIZED","QUALITY_BLOCKED","SAVE_UNKNOWN"]
       admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
     - workspaceKey: "camera-multiview"
       proposedPdp3WorkspaceId: "media.recorder.p3.workspace.camera-multiview.v1"
@@ -984,7 +986,7 @@ productionStudioPageCompositionContracts:
       keyboardAndTextEquivalent: "Expose named camera-multiview controls, exact source time and result/denial with keyboard and screen reader"
       headlessEquivalent: "Project camera-multiview selections and state as typed source-bound JSON/CLI without invented GUI effects"
       denialAndUnknownRecovery: "Retain camera-multiview source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
-      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      requiredStates: ["EMPTY","LOADING","READY","DIRTY_DRAFT","STALE_REVISION","MERGE_CONFLICT","UNAUTHORIZED","QUALITY_BLOCKED","SAVE_UNKNOWN"]
       admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
     - workspaceKey: "effects-inspector"
       proposedPdp3WorkspaceId: "media.recorder.p3.workspace.effects-inspector.v1"
@@ -998,7 +1000,7 @@ productionStudioPageCompositionContracts:
       keyboardAndTextEquivalent: "Expose named effects-inspector controls, exact source time and result/denial with keyboard and screen reader"
       headlessEquivalent: "Project effects-inspector selections and state as typed source-bound JSON/CLI without invented GUI effects"
       denialAndUnknownRecovery: "Retain effects-inspector source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
-      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      requiredStates: ["EMPTY","LOADING","READY","DIRTY_DRAFT","STALE_REVISION","MERGE_CONFLICT","UNAUTHORIZED","QUALITY_BLOCKED","SAVE_UNKNOWN"]
       admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
     - workspaceKey: "interactive-authoring"
       proposedPdp3WorkspaceId: "media.recorder.p3.workspace.interactive-authoring.v1"
@@ -1012,7 +1014,7 @@ productionStudioPageCompositionContracts:
       keyboardAndTextEquivalent: "Expose named interactive-authoring controls, exact source time and result/denial with keyboard and screen reader"
       headlessEquivalent: "Project interactive-authoring selections and state as typed source-bound JSON/CLI without invented GUI effects"
       denialAndUnknownRecovery: "Retain interactive-authoring source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
-      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      requiredStates: ["EMPTY","LOADING","READY","DIRTY_DRAFT","STALE_REVISION","MERGE_CONFLICT","UNAUTHORIZED","QUALITY_BLOCKED","SAVE_UNKNOWN"]
       admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
     - workspaceKey: "quality-review"
       proposedPdp3WorkspaceId: "media.recorder.p3.workspace.quality-review.v1"
@@ -1026,7 +1028,7 @@ productionStudioPageCompositionContracts:
       keyboardAndTextEquivalent: "Expose named quality-review controls, exact source time and result/denial with keyboard and screen reader"
       headlessEquivalent: "Project quality-review selections and state as typed source-bound JSON/CLI without invented GUI effects"
       denialAndUnknownRecovery: "Retain quality-review source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
-      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      requiredStates: ["EMPTY","LOADING","READY","DIRTY_DRAFT","STALE_REVISION","MERGE_CONFLICT","UNAUTHORIZED","QUALITY_BLOCKED","SAVE_UNKNOWN"]
       admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
     - workspaceKey: "render-preview"
       proposedPdp3WorkspaceId: "media.recorder.p3.workspace.render-preview.v1"
@@ -1040,7 +1042,7 @@ productionStudioPageCompositionContracts:
       keyboardAndTextEquivalent: "Expose named render-preview controls, exact source time and result/denial with keyboard and screen reader"
       headlessEquivalent: "Project render-preview selections and state as typed source-bound JSON/CLI without invented GUI effects"
       denialAndUnknownRecovery: "Retain render-preview source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
-      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      requiredStates: ["EMPTY","LOADING","READY","DIRTY_DRAFT","STALE_REVISION","MERGE_CONFLICT","UNAUTHORIZED","QUALITY_BLOCKED","SAVE_UNKNOWN"]
       admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"
     - workspaceKey: "delivery"
       proposedPdp3WorkspaceId: "media.recorder.p3.workspace.delivery.v1"
@@ -1054,5 +1056,5 @@ productionStudioPageCompositionContracts:
       keyboardAndTextEquivalent: "Expose named delivery controls, exact source time and result/denial with keyboard and screen reader"
       headlessEquivalent: "Project delivery selections and state as typed source-bound JSON/CLI without invented GUI effects"
       denialAndUnknownRecovery: "Retain delivery source and draft when denied, conflicted, unavailable or finality is unknown; reconcile original request"
-      requiredStates: ["EMPTY","LOADING","READY","DENIED","UNAVAILABLE","STALE_REVISION","CONFLICT","OUTCOME_UNKNOWN"]
+      requiredStates: ["EMPTY","LOADING","READY","DIRTY_DRAFT","STALE_REVISION","MERGE_CONFLICT","UNAUTHORIZED","QUALITY_BLOCKED","SAVE_UNKNOWN"]
       admission: "DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN"

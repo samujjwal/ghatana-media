@@ -359,7 +359,14 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
   const recipes = parsedDocs.recipes.toJS()?.recipes ?? [];
   const layouts = parsedDocs.layouts.toJS()?.layouts ?? [];
   const studioComponents = viewCompositions.find(x=>x.surfaceId==='media.surface.production-studio')?.components ?? [];
-  const requiredPageStates = ['EMPTY','LOADING','READY','DENIED','UNAVAILABLE','STALE_REVISION','CONFLICT','OUTCOME_UNKNOWN'];
+  const requiredPageStates = p2Doc.surfaceInterfaces?.find(
+    item => item.surfaceId === 'media.surface.production-studio'
+  )?.states ?? [];
+  if (requiredPageStates.length !== 9 ||
+      designPageSource?.presentationStateAuthority !==
+        paths.p2+'#surfaceInterfaces/@surfaceId=media.surface.production-studio/states' ||
+      designPageSource?.nonhappyPresentationAuthority !== paths.p2+'#viewStateContracts')
+    fail('PDP2 Studio page states must inherit one canonical surface and nonhappy presentation authority');
   for (const page of designedPages) {
     const key=page.workspaceKey;
     const template=templates.find(x=>x.id===page.templateRef);

@@ -129,3 +129,15 @@ absolute semantic exhaustiveness or a green native phase gate. Finish native
 source/actor/capability/operation/currentness verification before promoting any
 PDP-0–3 successor cells; retain the historical 50×4 and proposed 54×4
 denominators without fabricated receipts.
+
+### Canonical page-state vocabulary reconciliation
+
+The thirteen PDP-2 page designs now inherit the exact nine states from the
+existing `surfaceInterfaces/@surfaceId=media.surface.production-studio/states`
+rather than introduce separate `DENIED/CONFLICT/OUTCOME_UNKNOWN` names
+that were not canonical Studio surface states. The canonical
+`viewStateContracts` still governs denied, unavailable, stale, unknown,
+partial and erasure presentation; page text/accessibility remains explicit.
+This successor patch changes no media operation, acceptance denominator, or
+PDP-3 authored journey. A source mutation regression rejects private page
+state vocabulary. Native phase checks remain required before `DEV_COMPLETE`.

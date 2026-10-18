@@ -350,3 +350,14 @@ test('PDP2 rejects a layout catalog missing its reciprocal template compatibilit
   const result=verifyRecorderStudioDefinitions({overrides:{layouts:changed}});
   assert.ok(result.errors.some(x=>x.includes('ungrounded template/layout/recipe chain')),result.errors.join('\n'));
 });
+
+test('PDP2 rejects a page with a private conflict vocabulary instead of Studio surface states', () => {
+  const source=read('.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml');
+  const changed=source.replace(
+    'requiredStates: ["EMPTY","LOADING","READY","DIRTY_DRAFT","STALE_REVISION","MERGE_CONFLICT","UNAUTHORIZED","QUALITY_BLOCKED","SAVE_UNKNOWN"]',
+    'requiredStates: ["EMPTY","LOADING","READY","DIRTY_DRAFT","STALE_REVISION","CONFLICT","UNAUTHORIZED","QUALITY_BLOCKED","SAVE_UNKNOWN"]'
+  );
+  assert.notEqual(changed,source);
+  const result=verifyRecorderStudioDefinitions({overrides:{p2:changed}});
+  assert.ok(result.errors.some(x=>x.includes('responsive/accessibility/headless/denial/admission meaning')),result.errors.join('\n'));
+});
