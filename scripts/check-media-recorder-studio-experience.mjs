@@ -17,7 +17,9 @@ const paths = {
   "layouts": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
   "recipes": ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml",
   "identities": ".product-experience/artifact-identities.yaml",
-  "components": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml"
+  "components": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+  "registry": ".product-experience/surface-registry.yaml",
+  "topology": ".product-experience/surfaces/media-physical-topology.v1.json"
 };
 const uniqueSet = xs => new Set(xs).size === xs.length;
 const sameIds = (a,b) => Array.isArray(a) && Array.isArray(b) && a.length===b.length && uniqueSet(a) && uniqueSet(b) && a.every(x=>b.includes(x));
@@ -28,15 +30,19 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
   for (const [k,filename] of Object.entries(paths)) {
     try {
       const raw=Object.hasOwn(overrides,k) ? overrides[k] : fs.readFileSync(path.join(root,filename),'utf8');
-      const parsed=parseDocument(raw,{uniqueKeys:true,strict:true});
-      if(parsed.errors.length) {
-        for(const error of parsed.errors)fail(k+': invalid or duplicate YAML: '+error.message);
-      } else sources[k]=parsed.toJS();
+      if(k==='topology') {
+        sources[k]=JSON.parse(raw);
+      } else {
+        const parsed=parseDocument(raw,{uniqueKeys:true,strict:true});
+        if(parsed.errors.length) {
+          for(const error of parsed.errors)fail(k+': invalid or duplicate YAML: '+error.message);
+        } else sources[k]=parsed.toJS();
+      }
     } catch(error) {fail(k+': unreadable source: '+error.message);}
   }
   if(errors.length)return { errors, stats:{sourceDocumentsValid:false} };
-  const {p0,p1,p2,p3,req,journeys,screens,templates,layouts,recipes,identities,components}=sources;
-  if(!p0 || !p1 || !p2 || !p3 || !req || !journeys || !screens || !templates || !layouts || !recipes || !identities || !components) {
+  const {p0,p1,p2,p3,req,journeys,screens,templates,layouts,recipes,identities,components,registry,topology}=sources;
+  if(!p0 || !p1 || !p2 || !p3 || !req || !journeys || !screens || !templates || !layouts || !recipes || !identities || !components || !registry || !topology) {
     return {errors:['Missing source document contents'],stats:{sourceDocumentsValid:false}};
   }
   const requiredIdentities=[
@@ -63,6 +69,16 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
     if(!p || p.parentSurfaceId!==source.parent || p.channel!==source.channel ||
        p.pdp2Kind!==interfaceDef?.kind || p.hostAdapterStatus!=='CONTRACT_ONLY_NOT_ADMITTED')
       fail(source.id+': parent/channel/interface/runtime-admission mismatch');
+    const inRegistry=(registry.surfaces??[]).find(x=>x.surfaceId===source.id);
+    const inCrosswalk=(topology.consumerCrosswalk??[]).find(x=>x.surfaceId===source.id);
+    const requiredContracts=[paths.p0,paths.p1,paths.p2,paths.p3];
+    if(!inRegistry || inRegistry.parentSurfaceId!==source.parent ||
+       inRegistry.experienceAuthority!==paths.p3 ||
+       inRegistry.implementationStatus!=='SOURCE_ONLY' ||
+       !inCrosswalk || inCrosswalk.parentSurfaceId!==source.parent ||
+       !sameIds(inCrosswalk.sourceContracts??[],requiredContracts) ||
+       inCrosswalk.bindingState==='DEPLOYED' || inCrosswalk.bindingState==='QUALIFIED')
+      fail(source.id+': PDP3 surface authority/crosswalk/parent binding is missing or falsely admitted');
   }
   const cases=req.recorderStudioProfile?.acceptanceClauses??[];
   const canonical=new Map(cases.map(x=>[x.id,x]));
