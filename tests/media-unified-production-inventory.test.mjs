@@ -69,3 +69,46 @@ test('reject a missing scientific reference experiment identifier from the bluep
   const result = mutate('blueprint', txt => txt.replace(/\bDAS-A05\b/g,'DAS-A99'));
   assert.match(result.errors.join('\n'), /DAS-A01\.\.18 acceptance experiment/);
 });
+
+test('all 428 original features carry explicitly unaccepted, source-owned catalog candidates', () => {
+  const result = verifyUnifiedProductionInventory();
+  assert.deepEqual(result.errors, [], result.errors.join('\n'));
+  const ledger = JSON.parse(read('audit'));
+  assert.equal(ledger.originalAudit.filter(r => r.curatedCandidate?.status ===
+    'PDP0_OWNER_AND_NATIVE_CURRENTNESS_REVIEW_REQUIRED').length, 428);
+  assert.equal(ledger.curatedCrosswalkReview.stillAwaitingSemanticAcceptance, 428);
+});
+test('reject a source-reviewed audit leaf whose owner disappears without altering the source feature', () => {
+  const result = mutate('audit', doc => {
+    delete doc.originalAudit[0].curatedCandidate;
+    return doc;
+  });
+  assert.match(result.errors.join('\n'), /unreviewed or falsely promoted curated source leaf/);
+});
+test('reject a curated source candidate promoted to exact semantic acceptance without owner evidence', () => {
+  const result = mutate('audit', doc => {
+    doc.originalAudit[1].curatedCandidate.status='ACCEPTED_DEV_COMPLETE';
+    return doc;
+  });
+  assert.match(result.errors.join('\n'), /unreviewed or falsely promoted curated source leaf/);
+});
+test('reject cross-modal ASR source candidate silently replaced by TTS streaming', () => {
+  const result = mutate('audit', doc => {
+    const row = doc.originalAudit.find(r => r.auditId === 'AUD-ASR-002');
+    row.existingCapabilityLeafCandidate='media.speech.synthesis.streaming';
+    row.existingParentRequirementCandidate='MEDIA-REQ-CAP-SPEECH-SYNTHESIS';
+    row.curatedCandidate.sourceCapabilityRef='.product-experience/pdp-0-product-truth/capabilities.yaml#media.speech.synthesis.streaming';
+    return doc;
+  });
+  assert.match(result.errors.join('\n'), /cross-modal source-leaf mismatch at AUD-ASR-002/);
+});
+test('reject substituting generic image inpainting for all 52 timeline editing kinds', () => {
+  const result = mutate('audit', doc => {
+    const row = doc.originalAudit.find(r => r.auditId === 'AUD-EDIT-001');
+    row.existingCapabilityLeafCandidate='media.edit.inpaint';
+    row.existingParentRequirementCandidate='MEDIA-REQ-CAP-EDIT';
+    row.curatedCandidate.sourceCapabilityRef='.product-experience/pdp-0-product-truth/capabilities.yaml#media.edit.inpaint';
+    return doc;
+  });
+  assert.match(result.errors.join('\n'), /cross-modal source-leaf mismatch at AUD-EDIT-001/);
+});
