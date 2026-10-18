@@ -192,6 +192,11 @@ export function verifyUnifiedProductionInventory({repoRoot = root, overrides = {
         !alias?.additionalSemanticRisk)
       fail('attached stable ID missing case and explicit semantic gap: ' + row.audit_id);
   }
+  const linkedFocus = new Set(stableRows.flatMap(r => r.normalizedFocusedAuditCandidates || []));
+  if (focused.some(r => !linkedFocus.has(r.auditId)) || linkedFocus.size !== 73)
+    fail('attached stable IDs: untraced normalized focus plan row');
+  if (stableIds.totals?.normalizedFocusCandidatesLinked !== 73)
+    fail('attached source crosswalk: 73 normalized focus references must all link back to source IDs');
   const unresolvedSource = stableRows.filter(r => !(r.candidateP0AcceptanceCases || []).length).map(r => r.sourceAuditId);
   if (unresolvedSource.length !== stableIds.totals?.sourceRowsExplicitlyMissingAtomicCandidates ||
       unresolvedSource.some(id => !(stableIds.totals?.zeroCandidateSourceIds || []).includes(id)))
