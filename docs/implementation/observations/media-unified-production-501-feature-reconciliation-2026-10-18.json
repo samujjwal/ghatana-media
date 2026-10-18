@@ -10602,7 +10602,8 @@
   "focusedAuditDefaults": {
     "crossPhaseSourceBinding": "61 declarative records and 12 Recorder scenario reuse targets; link canonical source, do not mint new media.* identifiers",
     "currentness": "NATIVE_PDP_SOURCE_CURRENTNESS_NOT_RUN",
-    "humanAndProviderAcceptance": "NOT_CLAIMED"
+    "humanAndProviderAcceptance": "NOT_CLAIMED",
+    "originalThirdPassAuditIdentity": "See attachedThirdPassSourceIdentity.crosswalkPath; do not replace stable source IDs with normalized AUD-FOCUS IDs"
   },
   "curatedCrosswalkReview": {
     "reviewedDate": "2026-10-18",
@@ -10622,6 +10623,33 @@
       "not-runtime-or-public-API"
     ],
     "canonicalParentRequirementFixCount": 141,
-    "sourceAuthorityForParent": ".product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml#familyCrosswalk"
+    "sourceAuthorityForParent": ".product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml#familyCrosswalk",
+    "stableThirdPassProvenancePath": "docs/implementation/observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json",
+    "sourceAuditExactBlobSha": "49b7a83e286431f3b5df3eb4919721f9f7e783e7"
+  },
+  "attachedSourceAudit": {
+    "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
+    "gitBlobSha": "49b7a83e286431f3b5df3eb4919721f9f7e783e7",
+    "scope": "EXACT_UPLOADED_SOURCE_SNAPSHOT_NOT_CANONICAL_MEDIA_REQUIREMENTS",
+    "originalStableAuditCount": 428,
+    "thirdPassOriginalStableIdCount": 73
+  },
+  "attachedThirdPassSourceIdentity": {
+    "crosswalkPath": "docs/implementation/observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json",
+    "sourceIdClasses": [
+      "AUD-REC3-*",
+      "AUD-ANIM3-*",
+      "AUD-SIM3-*",
+      "AUD-EDU3-*",
+      "AUD-CROSS3-*"
+    ],
+    "normalizedFocusIds": "AUD-FOCUS-* planning projections are distinct from original source IDs",
+    "sourceIdPreservation": "73_OF_73_EXACT",
+    "candidateCaseLinks": 71,
+    "withoutScopedCanonicalP0CaseCandidates": [
+      "AUD-SIM3-009",
+      "AUD-SIM3-010"
+    ],
+    "exactOwnerSemanticAcceptance": "NOT_ESTABLISHED"
   }
 }
