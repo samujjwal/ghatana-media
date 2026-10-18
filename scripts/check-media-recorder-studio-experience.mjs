@@ -70,12 +70,20 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
   const flows=p3.flowContracts??[];
   const groupP1=p1.pdp0CaseOperationCrosswalk?.groups??[];
   const groupP2=p2.pdp0AcceptanceCaseProjection?.groups??[];
-  const operations=new Set((p1.canonicalOperationProposals?.records??[]).map(x=>x.id));
+  const operationRecords=p1.canonicalOperationProposals?.records??[];
+  const operations=new Set(operationRecords.map(x=>x.id));
+  const operationById=new Map(operationRecords.map(x=>[x.id,x]));
   if(!sameIds(flows.map(x=>x.sourceProfileRef),features.map(x=>x.id)))
     fail('PDP3 flows must exactly cover the sixteen canonical PDP0 feature profiles');
   if(flows.length!==16||cases.length!==84||features.length!==16)
     fail('Recorder Studio scoped source denominators drifted');
   const allSteps=[];
+  let exactOperationSteps=0, explicitNonInvocationSteps=0;
+  const bindingPolicy=p3.stepOperationBindingSemantics??{};
+  const allowedEvidence=bindingPolicy.allowedEvidenceClasses??[];
+  if(bindingPolicy.stepOperationStatus!=='PDP3_AUTHOR_SELECTION_ONLY_PENDING_OWNER_OPERATION_ADMISSION' ||
+     !Array.isArray(allowedEvidence) || allowedEvidence.length<15 || !uniqueSet(allowedEvidence))
+    fail('PDP3 step operation selection policy or evidence taxonomy missing');
   const allowedJourneyIds=new Set((journeys.journeys??[]).map(x=>x.id));
   const canonicalScreenIds=(screens.screens??[]).map(x=>x.id);
   if(allowedJourneyIds.size!==30 || (journeys.journeys??[]).length!==30 ||
@@ -96,7 +104,7 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
     if(!Array.isArray(flow.reuseExistingJourneyRefs) || flow.reuseExistingJourneyRefs.length===0 ||
        !flow.reuseExistingJourneyRefs.every(x=>allowedJourneyIds.has(x)))
       fail(flow.id+': missing or invented existing PDP3 journey reference');
-    if(flow.operationSelectionStatus!=='GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED' ||
+    if(flow.operationSelectionStatus!=='STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED' ||
        flow.stepDisposition!=='DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED' ||
        flow.consequencePolicy!=='DENIAL_UNAVAILABLE_ABSTAINED_AND_UNKNOWN_OUTCOME_NEVER_SUCCESS')
       fail(flow.id+': step operation admission or safety not proven');
@@ -116,13 +124,41 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
         fail(String(step.id)+': step identity must derive from canonical acceptance case ID');
       if(!source || !['given','when','then','rejection'].every(k=>typeof source[k]==='string' && source[k].trim()))
         fail(String(step.id)+': canonical PDP0 positive and negative oracles are incomplete');
-      if(!sameIds(Object.keys(step),['id','acceptanceCaseRef','order']))
-        fail(String(step.id)+': source acceptance and operation meaning must not be shadowed per step');
+      if(!allowedEvidence.includes(step.requiredSourceEvidenceClass))
+        fail(String(step.id)+': missing or unrecognized source evidence class');
+      if(step.bindingDisposition==='PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED') {
+        exactOperationSteps++;
+        const operation=operationById.get(step.primaryPdp1OperationRef);
+        if(!operation || !(flow.operationCandidateRefs??[]).includes(step.primaryPdp1OperationRef) ||
+           operation.runtimeStatus!=='NOT_ADMITTED' ||
+           operation.effectBoundary!==step.inheritedEffectBoundary ||
+           !['OBSERVATION_ONLY','LOCAL_CANDIDATE_OR_DRAFT','CANONICAL_PRODUCT_STATE_CHANGE','GOVERNED_EXTERNAL_REQUEST'].includes(step.inheritedEffectBoundary))
+          fail(String(step.id)+': exact operation choice is not a matching unadmitted PDP1 candidate');
+        if(!sameIds(Object.keys(step),[
+          'id','acceptanceCaseRef','order','bindingDisposition','primaryPdp1OperationRef',
+          'inheritedEffectBoundary','requiredSourceEvidenceClass']))
+          fail(String(step.id)+': source acceptance and operation meaning must not be shadowed per step');
+      } else if(step.bindingDisposition==='NO_DIRECT_RECORDER_OPERATION') {
+        explicitNonInvocationSteps++;
+        if(typeof step.noDirectInvocationReason!=='string' || step.noDirectInvocationReason.trim().length<25)
+          fail(String(step.id)+': explicit no-operation disposition needs a case-specific reason');
+        if(!sameIds(Object.keys(step),[
+          'id','acceptanceCaseRef','order','bindingDisposition','noDirectInvocationReason',
+          'requiredSourceEvidenceClass']))
+          fail(String(step.id)+': non-invocation cannot smuggle in a product operation or effect');
+      } else {
+        fail(String(step.id)+': missing explicit step operation or no-direct-invocation disposition');
+      }
     }
   }
   if(cases.length!==84 || !sameIds(allSteps.map(x=>x.acceptanceCaseRef),cases.map(x=>x.id)) ||
      !uniqueSet(allSteps.map(x=>x.id)))
     fail('PDP3 acceptance-case step coverage is not one-to-one 84 of 84');
+  if(exactOperationSteps!==63 || explicitNonInvocationSteps!==21 ||
+     exactOperationSteps+explicitNonInvocationSteps!==allSteps.length ||
+     p3.population?.exactProposedPrimaryOperationSteps!==exactOperationSteps ||
+     p3.population?.explicitNonInvocationSteps!==explicitNonInvocationSteps)
+    fail('Recorder Studio 63 proposed operations and 21 non-invocations have drifted');
   const manual=p2.manualOperationParity?.operations??[];
   const editPaths=p3.manualEditExperience?.editPaths??[];
   if(!sameIds(editPaths.map(x=>x.kind),manual.map(x=>x.kind)) || editPaths.length!==52)
@@ -275,9 +311,9 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
      (p3.nonClaims??[]).indexOf('not-PDP3-dev-complete')<0)
     fail('PDP3 successor cannot claim DEV_COMPLETE, Explorer verification or runtime admission');
   const population=p3.population??{};
-  for(const [name,value] of Object.entries({logicalSurfaces:4,featureProfiles:16,acceptanceCaseSteps:84,manualEditPaths:52,studioWorkspaceProposals:13,existingTopLevelJourneysPreserved:30,existingCanonicalScreensPreserved:47,physicalPackagesAdded:0}))
+  for(const [name,value] of Object.entries({logicalSurfaces:4,featureProfiles:16,acceptanceCaseSteps:84,exactProposedPrimaryOperationSteps:63,explicitNonInvocationSteps:21,manualEditPaths:52,studioWorkspaceProposals:13,existingTopLevelJourneysPreserved:30,existingCanonicalScreensPreserved:47,physicalPackagesAdded:0}))
     if(population[name]!==value)fail('declared PDP3 population mismatch: '+name);
-  return {errors,stats:{sourceDocumentsValid:true,logicalSurfaces:surfaceDefs.length,flowContracts:flows.length,acceptanceCaseSteps:allSteps.length,manualEditPaths:editPaths.length,workspaceIntents:pages.length,reusedCanonicalScreenViews:reusePageCount,unregisteredScreenCandidates:newPageCount,interactiveScreenCaseContracts:caseInteractions.length}};
+  return {errors,stats:{sourceDocumentsValid:true,logicalSurfaces:surfaceDefs.length,flowContracts:flows.length,acceptanceCaseSteps:allSteps.length,exactProposedPrimaryOperationSteps:exactOperationSteps,explicitNonInvocationSteps:explicitNonInvocationSteps,manualEditPaths:editPaths.length,workspaceIntents:pages.length,reusedCanonicalScreenViews:reusePageCount,unregisteredScreenCandidates:newPageCount,interactiveScreenCaseContracts:caseInteractions.length}};
 }
 if(process.argv[1] && path.resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
   const report=verifyRecorderStudioExperience();
