@@ -17,11 +17,24 @@ population:
   logicalSurfaces: 4
   featureProfiles: 16
   acceptanceCaseSteps: 84
+  exactProposedPrimaryOperationSteps: 63
+  explicitNonInvocationSteps: 21
   manualEditPaths: 52
   studioWorkspaceProposals: 13
+  scopedExperienceScenarios: 7
   existingTopLevelJourneysPreserved: 30
   existingCanonicalScreensPreserved: 47
   physicalPackagesAdded: 0
+stepOperationBindingSemantics:
+  canonicalCaseAuthority: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses"
+  canonicalOperationAuthority: ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#canonicalOperationProposals/records"
+  selectedOperationIs: "An authored intent-only candidate from the group's existing PDP1 proposals, not a transport, admission, callable method, approval, executed product action or receipt"
+  noDirectInvocationMeans: "The case is a source observation, legal/policy authority, accessible presentation, local viewer action or definition-only invariant; no unrelated Media effect may be fabricated to make counts pass"
+  requiredEvidenceMeaning: "Exact evidence class needed to satisfy PDP0 positive or denial oracle; document state alone does not prove execution"
+  policyAndFinality: "Every proposed effect reevaluates tenant/actor/purpose/source/rights and preserves authoritative owner outcome and original request identity before any retry"
+  stepOperationStatus: "PDP3_AUTHOR_SELECTION_ONLY_PENDING_OWNER_OPERATION_ADMISSION"
+  resultVariantAuthority: "PDP1 selected operation resultVariants; PDP0 then and rejection are sole user-facing oracles"
+  allowedEvidenceClasses: ["VERSIONED_PLAN_AND_OWNER_POLICY", "QUALIFIED_SOURCE_READBACK", "OWNER_BUSINESS_POSTCONDITION_AND_LEASE", "CANONICAL_PROJECT_REVISION", "IMMUTABLE_MANUAL_EDIT_REVISION", "MODEL_PROVENANCE_AND_POLICY_DECISION", "SOURCE_BOUND_RENDER_RECEIPT", "SEMANTIC_DEPENDENCY_AND_RECOVERY_RECEIPT", "OBSERVED_MEASUREMENT_AND_ABSTENTION", "SANDBOXED_VIEWER_OBSERVATION", "GOVERNED_DELIVERY_FINALITY", "CURRENT_RIGHTS_AND_AUDIT", "REDACTED_OPERATION_OBSERVATION", "QUALIFIED_PLATFORM_AND_CONTRACT", "ACCESSIBLE_SEMANTIC_INTERACTION", "SAME_VERSIONED_EDIT_ACROSS_CHANNELS", "SAME_REQUEST_AUTHORITATIVE_RECONCILIATION", "INDEPENDENT_APPROVAL_AND_RIGHTS", "QUALIFIED_OUTPUT_PROFILE_AND_POLICY"]
 surfaceExperiences:
   -
     surfaceId: "media.surface.recorder-orchestrator"
@@ -74,7 +87,7 @@ flowContracts:
     entryContract: "Import a versioned product-experience intent and user-supplied capture configuration"
     exitContract: "Plan is revision-bound and eligible, or returns a typed denied/unavailable state"
     denialRecoveryContract: "Correct purpose/source/locale or choose deterministic fallback without assuming a product outcome"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.project.plan.evaluate.v1", "media.recorder.operation.run.submit.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -84,22 +97,42 @@ flowContracts:
         id: "media.recorder.p3.step.001.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-001"
         order: 1
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.project.plan.evaluate.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "VERSIONED_PLAN_AND_OWNER_POLICY"
       -
         id: "media.recorder.p3.step.002.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-002"
         order: 2
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.project.plan.evaluate.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "VERSIONED_PLAN_AND_OWNER_POLICY"
       -
         id: "media.recorder.p3.step.003.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-003"
         order: 3
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.project.plan.evaluate.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "VERSIONED_PLAN_AND_OWNER_POLICY"
       -
         id: "media.recorder.p3.step.004.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-004"
         order: 4
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.project.plan.evaluate.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "VERSIONED_PLAN_AND_OWNER_POLICY"
       -
         id: "media.recorder.p3.step.005.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-005"
         order: 5
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.project.plan.evaluate.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "VERSIONED_PLAN_AND_OWNER_POLICY"
   -
     id: "media.recorder.p3.flow.sources.v1"
     sourceProfileRef: "media.recorder.profile.sources.v1"
@@ -110,7 +143,7 @@ flowContracts:
     entryContract: "Probe the actual authorized source and signal/timebase capabilities"
     exitContract: "Declared supported signals and policy-qualified adapter, or explicit unavailable dimensions"
     denialRecoveryContract: "Stop affected scene, preserve source provenance and require qualified replacement"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.capture.start.v1", "media.recorder.operation.capture.stop.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -120,26 +153,50 @@ flowContracts:
         id: "media.recorder.p3.step.006.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-006"
         order: 1
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.capture.probe.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "QUALIFIED_SOURCE_READBACK"
       -
         id: "media.recorder.p3.step.007.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-007"
         order: 2
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.capture.probe.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "QUALIFIED_SOURCE_READBACK"
       -
         id: "media.recorder.p3.step.008.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-008"
         order: 3
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.capture.probe.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "QUALIFIED_SOURCE_READBACK"
       -
         id: "media.recorder.p3.step.009.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-009"
         order: 4
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.capture.probe.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "QUALIFIED_SOURCE_READBACK"
       -
         id: "media.recorder.p3.step.010.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-010"
         order: 5
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.capture.probe.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "QUALIFIED_SOURCE_READBACK"
       -
         id: "media.recorder.p3.step.011.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-011"
         order: 6
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.capture.stop.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "QUALIFIED_SOURCE_READBACK"
   -
     id: "media.recorder.p3.flow.exec.v1"
     sourceProfileRef: "media.recorder.profile.exec.v1"
@@ -150,7 +207,7 @@ flowContracts:
     entryContract: "Acquire fenced product fixture/session and submit the exact configuration"
     exitContract: "Observe owned action readback and authoritative job/attempt state"
     denialRecoveryContract: "Reconcile exact request and lease before retry, clean up only owned fixtures"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.run.submit.v1", "media.recorder.operation.run.observe.v1", "media.recorder.operation.run.reconcile.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -160,22 +217,42 @@ flowContracts:
         id: "media.recorder.p3.step.012.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-012"
         order: 1
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.run.submit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "OWNER_BUSINESS_POSTCONDITION_AND_LEASE"
       -
         id: "media.recorder.p3.step.013.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-013"
         order: 2
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.run.observe.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "OWNER_BUSINESS_POSTCONDITION_AND_LEASE"
       -
         id: "media.recorder.p3.step.014.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-014"
         order: 3
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.run.submit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "OWNER_BUSINESS_POSTCONDITION_AND_LEASE"
       -
         id: "media.recorder.p3.step.015.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-015"
         order: 4
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.run.reconcile.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "OWNER_BUSINESS_POSTCONDITION_AND_LEASE"
       -
         id: "media.recorder.p3.step.016.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-016"
         order: 5
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.run.submit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "OWNER_BUSINESS_POSTCONDITION_AND_LEASE"
   -
     id: "media.recorder.p3.flow.project.v1"
     sourceProfileRef: "media.recorder.profile.project.v1"
@@ -186,7 +263,7 @@ flowContracts:
     entryContract: "Open existing MediaProject revision in Studio or through headless client"
     exitContract: "Create one successor immutable revision or show unchanged current revision"
     denialRecoveryContract: "Preserve draft and locks, show CAS conflict or UNKNOWN commit without overwrite"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -196,22 +273,40 @@ flowContracts:
         id: "media.recorder.p3.step.017.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-017"
         order: 1
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "CANONICAL_PROJECT_REVISION"
       -
         id: "media.recorder.p3.step.018.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-018"
         order: 2
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Declared rational timebase and clock mapping are value/model constraints, not a request to edit or render"
+        requiredSourceEvidenceClass: "CANONICAL_PROJECT_REVISION"
       -
         id: "media.recorder.p3.step.019.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-019"
         order: 3
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "CANONICAL_PROJECT_REVISION"
       -
         id: "media.recorder.p3.step.020.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-020"
         order: 4
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.scene.compile.v1"
+        inheritedEffectBoundary: "LOCAL_CANDIDATE_OR_DRAFT"
+        requiredSourceEvidenceClass: "CANONICAL_PROJECT_REVISION"
       -
         id: "media.recorder.p3.step.021.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-021"
         order: 5
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Round-trip serialization and lossless interchange are source semantics; no admitted Recorder import/export operation is defined"
+        requiredSourceEvidenceClass: "CANONICAL_PROJECT_REVISION"
   -
     id: "media.recorder.p3.flow.studio.v1"
     sourceProfileRef: "media.recorder.profile.studio.v1"
@@ -222,7 +317,7 @@ flowContracts:
     entryContract: "Select an anchored scene, clip, track, layer and immutable source revision"
     exitContract: "Preview/commit semantically equivalent GUI and headless project edit"
     denialRecoveryContract: "Reject stale, unqualified or locked edits; keep originals and pre-edit version"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -232,58 +327,114 @@ flowContracts:
         id: "media.recorder.p3.step.022.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-022"
         order: 1
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "IMMUTABLE_MANUAL_EDIT_REVISION"
       -
         id: "media.recorder.p3.step.023.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-023"
         order: 2
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "IMMUTABLE_MANUAL_EDIT_REVISION"
       -
         id: "media.recorder.p3.step.024.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-024"
         order: 3
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "IMMUTABLE_MANUAL_EDIT_REVISION"
       -
         id: "media.recorder.p3.step.025.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-025"
         order: 4
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "IMMUTABLE_MANUAL_EDIT_REVISION"
       -
         id: "media.recorder.p3.step.026.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-026"
         order: 5
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "IMMUTABLE_MANUAL_EDIT_REVISION"
       -
         id: "media.recorder.p3.step.027.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-027"
         order: 6
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "IMMUTABLE_MANUAL_EDIT_REVISION"
       -
         id: "media.recorder.p3.step.028.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-028"
         order: 7
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "IMMUTABLE_MANUAL_EDIT_REVISION"
       -
         id: "media.recorder.p3.step.029.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-029"
         order: 8
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "IMMUTABLE_MANUAL_EDIT_REVISION"
       -
         id: "media.recorder.p3.step.079.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-079"
         order: 9
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "IMMUTABLE_MANUAL_EDIT_REVISION"
       -
         id: "media.recorder.p3.step.080.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-080"
         order: 10
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "IMMUTABLE_MANUAL_EDIT_REVISION"
       -
         id: "media.recorder.p3.step.081.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-081"
         order: 11
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "IMMUTABLE_MANUAL_EDIT_REVISION"
       -
         id: "media.recorder.p3.step.082.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-082"
         order: 12
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "IMMUTABLE_MANUAL_EDIT_REVISION"
       -
         id: "media.recorder.p3.step.083.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-083"
         order: 13
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "IMMUTABLE_MANUAL_EDIT_REVISION"
       -
         id: "media.recorder.p3.step.084.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-084"
         order: 14
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "IMMUTABLE_MANUAL_EDIT_REVISION"
   -
     id: "media.recorder.p3.flow.ai.v1"
     sourceProfileRef: "media.recorder.profile.ai.v1"
@@ -294,7 +445,7 @@ flowContracts:
     entryContract: "Review bounded policy-eligible AI recommendation with evidence and uncertainty"
     exitContract: "Persist an explicitly accepted edit or abstention, never infer a domain effect"
     denialRecoveryContract: "Offer deterministic or manual path without unapproved data/model egress"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.quality.assess.v1", "media.recorder.operation.scene.compile.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -304,22 +455,41 @@ flowContracts:
         id: "media.recorder.p3.step.030.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-030"
         order: 1
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.scene.compile.v1"
+        inheritedEffectBoundary: "LOCAL_CANDIDATE_OR_DRAFT"
+        requiredSourceEvidenceClass: "MODEL_PROVENANCE_AND_POLICY_DECISION"
       -
         id: "media.recorder.p3.step.031.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-031"
         order: 2
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.scene.compile.v1"
+        inheritedEffectBoundary: "LOCAL_CANDIDATE_OR_DRAFT"
+        requiredSourceEvidenceClass: "MODEL_PROVENANCE_AND_POLICY_DECISION"
       -
         id: "media.recorder.p3.step.032.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-032"
         order: 3
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Rights, model egress and voice-likeness approval are external policy guards; suggestion generation cannot grant consent"
+        requiredSourceEvidenceClass: "MODEL_PROVENANCE_AND_POLICY_DECISION"
       -
         id: "media.recorder.p3.step.033.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-033"
         order: 4
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.scene.compile.v1"
+        inheritedEffectBoundary: "LOCAL_CANDIDATE_OR_DRAFT"
+        requiredSourceEvidenceClass: "MODEL_PROVENANCE_AND_POLICY_DECISION"
       -
         id: "media.recorder.p3.step.034.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-034"
         order: 5
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.quality.assess.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "MODEL_PROVENANCE_AND_POLICY_DECISION"
   -
     id: "media.recorder.p3.flow.pipe.v1"
     sourceProfileRef: "media.recorder.profile.pipe.v1"
@@ -330,7 +500,7 @@ flowContracts:
     entryContract: "Compile storyboard, timing, narration and exact output-profile intents"
     exitContract: "Measure and compare preview/final semantic content for exact revision"
     denialRecoveryContract: "Reject unsupported voice, codec, aspect crop or unmeasured QA; keep source"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.capture.start.v1", "media.recorder.operation.scene.compile.v1", "media.recorder.operation.render.request.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -340,22 +510,41 @@ flowContracts:
         id: "media.recorder.p3.step.035.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-035"
         order: 1
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.scene.compile.v1"
+        inheritedEffectBoundary: "LOCAL_CANDIDATE_OR_DRAFT"
+        requiredSourceEvidenceClass: "SOURCE_BOUND_RENDER_RECEIPT"
       -
         id: "media.recorder.p3.step.036.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-036"
         order: 2
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.scene.compile.v1"
+        inheritedEffectBoundary: "LOCAL_CANDIDATE_OR_DRAFT"
+        requiredSourceEvidenceClass: "SOURCE_BOUND_RENDER_RECEIPT"
       -
         id: "media.recorder.p3.step.037.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-037"
         order: 3
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.render.request.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "SOURCE_BOUND_RENDER_RECEIPT"
       -
         id: "media.recorder.p3.step.038.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-038"
         order: 4
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Actual encode/mux/frame integrity is a measured postcondition, not a second render submission"
+        requiredSourceEvidenceClass: "OBSERVED_MEASUREMENT_AND_ABSTENTION"
       -
         id: "media.recorder.p3.step.039.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-039"
         order: 5
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.render.request.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "SOURCE_BOUND_RENDER_RECEIPT"
   -
     id: "media.recorder.p3.flow.regen.v1"
     sourceProfileRef: "media.recorder.profile.regen.v1"
@@ -366,7 +555,7 @@ flowContracts:
     entryContract: "Inspect a material source change and scene dependency invalidation"
     exitContract: "Recapture only affected scenes with compatible human edits retained"
     denialRecoveryContract: "Offer semantic rebase, reconcile UNKNOWN, preserve unaffected scene assets"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.scene.recapture.v1", "media.recorder.operation.run.reconcile.v1", "media.recorder.operation.edit.commit.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -376,22 +565,40 @@ flowContracts:
         id: "media.recorder.p3.step.040.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-040"
         order: 1
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Dependency graph invalidation is a pure source-fingerprint comparison before any authorized scene recapture"
+        requiredSourceEvidenceClass: "SEMANTIC_DEPENDENCY_AND_RECOVERY_RECEIPT"
       -
         id: "media.recorder.p3.step.041.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-041"
         order: 2
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.scene.recapture.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "SEMANTIC_DEPENDENCY_AND_RECOVERY_RECEIPT"
       -
         id: "media.recorder.p3.step.042.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-042"
         order: 3
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "SEMANTIC_DEPENDENCY_AND_RECOVERY_RECEIPT"
       -
         id: "media.recorder.p3.step.043.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-043"
         order: 4
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.run.reconcile.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "SAME_REQUEST_AUTHORITATIVE_RECONCILIATION"
       -
         id: "media.recorder.p3.step.044.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-044"
         order: 5
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Cache reuse eligibility is a tenant/rights/source-policy guard, not a newly dispatched recapture"
+        requiredSourceEvidenceClass: "SEMANTIC_DEPENDENCY_AND_RECOVERY_RECEIPT"
   -
     id: "media.recorder.p3.flow.quality.v1"
     sourceProfileRef: "media.recorder.profile.quality.v1"
@@ -402,7 +609,7 @@ flowContracts:
     entryContract: "Review owner-observed business outcome and source-measured audio/video QA"
     exitContract: "Show pass/fail/abstain per measurement without inferring human approval"
     denialRecoveryContract: "Isolate failing scenes and required human/rights/legal review"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.quality.assess.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -412,22 +619,41 @@ flowContracts:
         id: "media.recorder.p3.step.045.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-045"
         order: 1
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.quality.assess.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "OWNER_BUSINESS_POSTCONDITION_AND_LEASE"
       -
         id: "media.recorder.p3.step.046.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-046"
         order: 2
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.quality.assess.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "OBSERVED_MEASUREMENT_AND_ABSTENTION"
       -
         id: "media.recorder.p3.step.047.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-047"
         order: 3
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Independent human, legal, brand and rights review remains with respective approvers and cannot be issued by technical Media QA"
+        requiredSourceEvidenceClass: "INDEPENDENT_APPROVAL_AND_RIGHTS"
       -
         id: "media.recorder.p3.step.048.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-048"
         order: 4
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.quality.assess.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "OBSERVED_MEASUREMENT_AND_ABSTENTION"
       -
         id: "media.recorder.p3.step.049.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-049"
         order: 5
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.quality.assess.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "OBSERVED_MEASUREMENT_AND_ABSTENTION"
   -
     id: "media.recorder.p3.flow.interactive.v1"
     sourceProfileRef: "media.recorder.profile.interactive.v1"
@@ -438,7 +664,7 @@ flowContracts:
     entryContract: "Open a sandboxed immutable interactive bundle at a declared viewer version"
     exitContract: "Navigate known accessible branches and local fallback only"
     denialRecoveryContract: "Deny forged branch or script and explain unavailable offline assets"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.interactive.package.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -448,18 +674,31 @@ flowContracts:
         id: "media.recorder.p3.step.050.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-050"
         order: 1
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Player hotspot and branch navigation are local viewer states, never privileged Media or product mutation"
+        requiredSourceEvidenceClass: "SANDBOXED_VIEWER_OBSERVATION"
       -
         id: "media.recorder.p3.step.051.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-051"
         order: 2
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Offline viewer navigation is a local self-contained playback consequence, not a package or remote-effect request"
+        requiredSourceEvidenceClass: "SANDBOXED_VIEWER_OBSERVATION"
       -
         id: "media.recorder.p3.step.052.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-052"
         order: 3
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.interactive.package.v1"
+        inheritedEffectBoundary: "LOCAL_CANDIDATE_OR_DRAFT"
+        requiredSourceEvidenceClass: "SANDBOXED_VIEWER_OBSERVATION"
       -
         id: "media.recorder.p3.step.053.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-053"
         order: 4
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Consent-gated viewer analytics is not the interactive-packaging operation and cannot imply a product domain result"
+        requiredSourceEvidenceClass: "CURRENT_RIGHTS_AND_AUDIT"
   -
     id: "media.recorder.p3.flow.delivery.v1"
     sourceProfileRef: "media.recorder.profile.delivery.v1"
@@ -470,7 +709,7 @@ flowContracts:
     entryContract: "Choose exact render revision, declared audience, profile and destination"
     exitContract: "Show signed provenance and separately confirmed remote finality"
     denialRecoveryContract: "Reconcile original publish request; withhold unsupported/unapproved outputs"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.publish.request.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -480,18 +719,33 @@ flowContracts:
         id: "media.recorder.p3.step.054.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-054"
         order: 1
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Output profile and codec selection is a draft/admission step; it must not inadvertently request external publication"
+        requiredSourceEvidenceClass: "QUALIFIED_OUTPUT_PROFILE_AND_POLICY"
       -
         id: "media.recorder.p3.step.055.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-055"
         order: 2
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.publish.request.v1"
+        inheritedEffectBoundary: "GOVERNED_EXTERNAL_REQUEST"
+        requiredSourceEvidenceClass: "CURRENT_RIGHTS_AND_AUDIT"
       -
         id: "media.recorder.p3.step.056.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-056"
         order: 3
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.publish.request.v1"
+        inheritedEffectBoundary: "GOVERNED_EXTERNAL_REQUEST"
+        requiredSourceEvidenceClass: "GOVERNED_DELIVERY_FINALITY"
       -
         id: "media.recorder.p3.step.057.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-057"
         order: 4
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.publish.request.v1"
+        inheritedEffectBoundary: "GOVERNED_EXTERNAL_REQUEST"
+        requiredSourceEvidenceClass: "GOVERNED_DELIVERY_FINALITY"
   -
     id: "media.recorder.p3.flow.security.v1"
     sourceProfileRef: "media.recorder.profile.security.v1"
@@ -502,7 +756,7 @@ flowContracts:
     entryContract: "Evaluate purpose-specific access, consent, rights and untrusted input before effects"
     exitContract: "Show current permitted-use decision or safe denied/held/unknown state"
     denialRecoveryContract: "Stop affected effect, preserve audit, distinguish revocation from erasure"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.asset.erase.request.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -512,22 +766,39 @@ flowContracts:
         id: "media.recorder.p3.step.058.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-058"
         order: 1
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.capture.probe.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "CURRENT_RIGHTS_AND_AUDIT"
       -
         id: "media.recorder.p3.step.059.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-059"
         order: 2
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Purpose, license, residency, egress and retention checks are current external policy decisions rather than a second capture/probe effect"
+        requiredSourceEvidenceClass: "CURRENT_RIGHTS_AND_AUDIT"
       -
         id: "media.recorder.p3.step.060.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-060"
         order: 3
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.asset.erase.request.v1"
+        inheritedEffectBoundary: "GOVERNED_EXTERNAL_REQUEST"
+        requiredSourceEvidenceClass: "CURRENT_RIGHTS_AND_AUDIT"
       -
         id: "media.recorder.p3.step.061.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-061"
         order: 4
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Untrusted URL, HTML, archive and codec sanitization are ingestion guards, not a public Media product action"
+        requiredSourceEvidenceClass: "CURRENT_RIGHTS_AND_AUDIT"
       -
         id: "media.recorder.p3.step.062.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-062"
         order: 5
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Attributable immutable audit and sanitized telemetry follow owner effects automatically; they are not a second user-invoked erase or capture"
+        requiredSourceEvidenceClass: "CURRENT_RIGHTS_AND_AUDIT"
   -
     id: "media.recorder.p3.flow.o11y.v1"
     sourceProfileRef: "media.recorder.profile.o11y.v1"
@@ -538,7 +809,7 @@ flowContracts:
     entryContract: "Inspect bounded, redacted trace and measured run-stage observations"
     exitContract: "Correlate authoritative run/attempt/scene results without revealing payloads"
     denialRecoveryContract: "Report degraded telemetry and use independent audit for critical effects"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.run.observe.v1", "media.recorder.operation.quality.assess.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -548,18 +819,34 @@ flowContracts:
         id: "media.recorder.p3.step.063.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-063"
         order: 1
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.run.observe.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "REDACTED_OPERATION_OBSERVATION"
       -
         id: "media.recorder.p3.step.064.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-064"
         order: 2
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.quality.assess.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "REDACTED_OPERATION_OBSERVATION"
       -
         id: "media.recorder.p3.step.065.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-065"
         order: 3
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.run.observe.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "REDACTED_OPERATION_OBSERVATION"
       -
         id: "media.recorder.p3.step.066.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-066"
         order: 4
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.run.observe.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "REDACTED_OPERATION_OBSERVATION"
   -
     id: "media.recorder.p3.flow.crossplatform.v1"
     sourceProfileRef: "media.recorder.profile.crossplatform.v1"
@@ -570,7 +857,7 @@ flowContracts:
     entryContract: "Select OS/provider/codec/source package profile with exact qualification scope"
     exitContract: "Disclose supported combinations and writer/cutover state"
     denialRecoveryContract: "Return unsupported profile or fenced recovery; never simulate cross-platform support"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.render.request.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -580,18 +867,31 @@ flowContracts:
         id: "media.recorder.p3.step.067.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-067"
         order: 1
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.capture.probe.v1"
+        inheritedEffectBoundary: "OBSERVATION_ONLY"
+        requiredSourceEvidenceClass: "QUALIFIED_PLATFORM_AND_CONTRACT"
       -
         id: "media.recorder.p3.step.068.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-068"
         order: 2
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Published SDK/adapter contract compatibility is a cross-repository owner admission decision, not a capture operation"
+        requiredSourceEvidenceClass: "QUALIFIED_PLATFORM_AND_CONTRACT"
       -
         id: "media.recorder.p3.step.069.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-069"
         order: 3
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Single-writer handover and cutover are migration governance decisions, not a Recorder public API"
+        requiredSourceEvidenceClass: "QUALIFIED_PLATFORM_AND_CONTRACT"
       -
         id: "media.recorder.p3.step.070.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-070"
         order: 4
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Crash, lease fencing and resource cleanup are runtime recovery/finality obligations, not a new render request"
+        requiredSourceEvidenceClass: "SEMANTIC_DEPENDENCY_AND_RECOVERY_RECEIPT"
   -
     id: "media.recorder.p3.flow.accessibility.v1"
     sourceProfileRef: "media.recorder.profile.accessibility.v1"
@@ -602,7 +902,7 @@ flowContracts:
     entryContract: "Navigate timeline/player/machine events through accessible non-pointer controls"
     exitContract: "Preserve exact localized source semantics, focus and denied states"
     denialRecoveryContract: "Use text/headless alternative; never fabricate a GUI or translate protected text"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.interactive.package.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -612,18 +912,32 @@ flowContracts:
         id: "media.recorder.p3.step.071.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-071"
         order: 1
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "ACCESSIBLE_SEMANTIC_INTERACTION"
       -
         id: "media.recorder.p3.step.072.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-072"
         order: 2
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Accessible timeline/player status announcements are presentation of current state, never a state-changing edit"
+        requiredSourceEvidenceClass: "ACCESSIBLE_SEMANTIC_INTERACTION"
       -
         id: "media.recorder.p3.step.073.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-073"
         order: 3
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "ACCESSIBLE_SEMANTIC_INTERACTION"
       -
         id: "media.recorder.p3.step.074.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-074"
         order: 4
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "A CLI/API-only product is rendered through truthful typed machine observations, with no invented GUI or package operation"
+        requiredSourceEvidenceClass: "ACCESSIBLE_SEMANTIC_INTERACTION"
   -
     id: "media.recorder.p3.flow.manualparity.v1"
     sourceProfileRef: "media.recorder.profile.manualparity.v1"
@@ -634,7 +948,7 @@ flowContracts:
     entryContract: "Switch between fully automatic and manual project revision authoring"
     exitContract: "Perform identical typed project edits through GUI/CLI/SDK/API when admitted"
     denialRecoveryContract: "Reject lossy round-trip, stale revision or unknown mutation; preserve manual locks"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -644,18 +958,32 @@ flowContracts:
         id: "media.recorder.p3.step.075.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-075"
         order: 1
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.scene.compile.v1"
+        inheritedEffectBoundary: "LOCAL_CANDIDATE_OR_DRAFT"
+        requiredSourceEvidenceClass: "SAME_VERSIONED_EDIT_ACROSS_CHANNELS"
       -
         id: "media.recorder.p3.step.076.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-076"
         order: 2
+        bindingDisposition: "PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED"
+        primaryPdp1OperationRef: "media.recorder.operation.edit.commit.v1"
+        inheritedEffectBoundary: "CANONICAL_PRODUCT_STATE_CHANGE"
+        requiredSourceEvidenceClass: "SAME_VERSIONED_EDIT_ACROSS_CHANNELS"
       -
         id: "media.recorder.p3.step.077.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-077"
         order: 3
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Lossless JSON/OTIO interchange is a versioned serialization contract; no admitted import/export operation is present in the 15 proposed Recorder ops"
+        requiredSourceEvidenceClass: "SAME_VERSIONED_EDIT_ACROSS_CHANNELS"
       -
         id: "media.recorder.p3.step.078.v1"
         acceptanceCaseRef: "MEDIA-REC-P0-AC-078"
         order: 4
+        bindingDisposition: "NO_DIRECT_RECORDER_OPERATION"
+        noDirectInvocationReason: "Conflict, denial and UNKNOWN rendering is read-only P3 interaction grammar; no implicit retry, reconciliation or edit commit occurs"
+        requiredSourceEvidenceClass: "SAME_REQUEST_AUTHORITATIVE_RECONCILIATION"
 productionStudioWorkspace:
   surfaceId: "media.surface.production-studio"
   semantics: "New candidate Studio workspace page intents reuse existing Media design-system primitives and do not change the prior 47-screen canonical inventory without explicit screen registry and template/layout/Explorer admission."
@@ -666,6 +994,9 @@ productionStudioWorkspace:
       order: 1
       semanticIntent: "Review and open authorized MediaProject revisions and immutable source versions"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.find-projects", "media.view.work-in-project"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind authorized MediaProject revisions, source versions and tenant-scoped search without new project authority"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.collection"
       layoutId: "media.gui.layout.collection"
@@ -678,6 +1009,9 @@ productionStudioWorkspace:
       order: 2
       semanticIntent: "Enter source-bound purpose, audience, scene plan, profile, AI mode and constraints"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.review-creation-plan"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind exact plan/scenes/quality/profile to authenticated input and owner-observed result conditions"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.task-setup"
       layoutId: "media.gui.layout.task-setup"
@@ -690,10 +1024,13 @@ productionStudioWorkspace:
       order: 3
       semanticIntent: "Inspect scene sequence, product postconditions, denial beats and source anchors"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.arrange-scenes"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind source-time semantic anchors, product denial beats and recapture receipts"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
-      templateId: "media.gui.template.workbench"
+      templateId: "media.gui.template.media-composition"
       layoutId: "media.gui.layout.media-workbench"
-      recipeId: "media.gui.recipe.workbench"
+      recipeId: "media.gui.recipe.media-composition"
       designChainBindingStatus: "SOURCE_VERIFIED_REUSE_PROPOSAL_SCREEN_INSTANCE_NOT_ADMITTED"
       implementationStatus: "SOURCE_ONLY"
     -
@@ -702,6 +1039,9 @@ productionStudioWorkspace:
       order: 4
       semanticIntent: "Inspect real source adapters, source rights, versions, clocks and capability admission"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.inspect-media", "media.view.review-rights-and-consent"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind source-specific qualification, provider identity, timebase, rights and consent observations"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.record-detail"
       layoutId: "media.gui.layout.record-detail"
@@ -714,6 +1054,9 @@ productionStudioWorkspace:
       order: 5
       semanticIntent: "Edit synchronized video/audio/caption/overlay tracks and source-time intervals"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.compose-media"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind all 52 manual operations with source-interval CAS and keyboard/headless equivalence"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.media-composition"
       layoutId: "media.gui.layout.media-workbench"
@@ -726,6 +1069,9 @@ productionStudioWorkspace:
       order: 6
       semanticIntent: "Correct source-linked transcript, caption timing, translation and speaker labels"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.edit-captions"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind immutable caption versions and source-time corrections without claiming lane-only runtime support"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.workbench"
       layoutId: "media.gui.layout.media-workbench"
@@ -738,6 +1084,9 @@ productionStudioWorkspace:
       order: 7
       semanticIntent: "Review per-track gain, mute/solo, dialogue denoise, voice rights and audio QA"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.create-audio", "media.view.compose-media"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind audio mute/solo, denoise, voice rights, mix comparisons and exact revision outcomes"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.media-composition"
       layoutId: "media.gui.layout.media-workbench"
@@ -750,6 +1099,9 @@ productionStudioWorkspace:
       order: 8
       semanticIntent: "Review declared camera/screen angles and source-sync uncertainty without synthetic proof"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.compose-media"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind only qualified camera/screen angles and clock-uncertainty disclosures, never synthetic product proof"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.media-composition"
       layoutId: "media.gui.layout.media-workbench"
@@ -762,6 +1114,9 @@ productionStudioWorkspace:
       order: 9
       semanticIntent: "Edit semantic transforms, protected crop, keyframes, annotations and branding"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.edit-media", "media.view.edit-media-region"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind safe crop, time-ramp, keyframes, annotations, protected exact asset overlays and typed denial"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.media-composition"
       layoutId: "media.gui.layout.media-workbench"
@@ -774,6 +1129,10 @@ productionStudioWorkspace:
       order: 10
       semanticIntent: "Inspect signed branch graph, keyboard hotspots, offline fallbacks and sandbox rules"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: []
+      screenReuseDisposition: "NEW_SCREEN_CANDIDATE_REQUIRED_NOT_REGISTERED"
+      proposedNewScreenIntentId: "media.recorder.p3.screen.interactive-authoring.candidate.v1"
+      unresolvedScreenBehavior: "No existing canonical page has exact hotspot/branch/offline authoring; add new screen contract candidate after author review"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.workbench"
       layoutId: "media.gui.layout.media-workbench"
@@ -786,6 +1145,9 @@ productionStudioWorkspace:
       order: 11
       semanticIntent: "Inspect separately scored product correctness, media QA and human/legal gates"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.review-quality", "media.view.compare-results"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind owner-readback business oracles separately from technical measurements and human approval"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.review-and-compare"
       layoutId: "media.gui.layout.review"
@@ -798,6 +1160,9 @@ productionStudioWorkspace:
       order: 12
       semanticIntent: "Compare exact source revision against proxy/final render with declared tolerances"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.prepare-render", "media.view.review-outputs"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind preview/final same-revision semantics and measured tolerance for supported profiles"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.render-preparation-and-review"
       layoutId: "media.gui.layout.render"
@@ -810,14 +1175,138 @@ productionStudioWorkspace:
       order: 13
       semanticIntent: "Check output rights, profile, approvals, publication receipts and remote finality"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.deliver-output"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind qualified package, separate rights/approvals and reconciled destination publication finality"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
-      templateId: "media.gui.template.render-preparation-and-review"
-      layoutId: "media.gui.layout.render"
-      recipeId: "media.gui.recipe.render-preparation-and-review"
+      templateId: "media.gui.template.task-setup"
+      layoutId: "media.gui.layout.task-setup"
+      recipeId: "media.gui.recipe.task-setup"
       designChainBindingStatus: "SOURCE_VERIFIED_REUSE_PROPOSAL_SCREEN_INSTANCE_NOT_ADMITTED"
       implementationStatus: "SOURCE_ONLY"
   requiredPresentationStates: ["EMPTY", "LOADING", "READY", "DIRTY_DRAFT", "STALE_REVISION", "MERGE_CONFLICT", "UNAUTHORIZED", "QUALITY_BLOCKED", "SAVE_UNKNOWN"]
   sharedDesignSystem: "PDP-2 and Shared semantic tokens, contracts, templates, layouts and recipes remain sole owners"
+pdp3ScreenCandidates:
+  status: "PROPOSED_UNREGISTERED_NO_CANONICAL_SCREEN_CLAIM"
+  proposedCount: 1
+  authoritativeExistingScreens: ".product-experience/pdp-3-product-experience/screen-registry.yaml"
+  sourceCaseAuthority: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses"
+  operationAuthority: ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#canonicalOperationProposals"
+  designAuthority: ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml#productionStudioPageCompositionContracts"
+  records:
+    - id: "media.recorder.p3.screen.interactive-authoring.candidate.v1"
+      ownerSurfaceId: "media.surface.production-studio"
+      workspaceRef: "media.recorder.p3.workspace.interactive-authoring.v1"
+      canonicalScreenRegistryStatus: "NOT_REGISTERED"
+      implementationAdmission: "NOT_ADMITTED"
+      routeStatus: "NO_PUBLIC_ROUTE_OR_DEPLOYED_VIEW"
+      screenPurpose: "Author safe source-bound hotspot/branch choices and preview the nonprivileged embedded player without inventing source or domain effects"
+      inheritedEditorAuthority: "MediaProject immutable revision and canonical PDP1 edit.commit only"
+      sourceAcceptanceCaseRefs: ["MEDIA-REC-P0-AC-050", "MEDIA-REC-P0-AC-051", "MEDIA-REC-P0-AC-052", "MEDIA-REC-P0-AC-053"]
+      proposedPdp1OperationRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.interactive.package.v1"]
+      projectedPdp1ValueRefs: ["media.recorder.value.interactive-graph.v1", "media.recorder.value.interactive-hotspot.v1"]
+      plannedRegions: ["exact-project-and-source-version", "scene-and-source-time-anchors", "hotspot-semantic-list-and-editor", "branch-graph-and-local-fallback", "policy-and-license-inspector", "sandboxed-viewer-preview", "transcript-caption-and-keyboard-alternatives", "revision-and-undo-panel", "validation-and-safe-next-action"]
+      preconditions: ["valid-tenant-actor-purpose-and-project-revision", "authorized-immutable-media-source-and-timebase", "qualified-content-sanitization-and-CSP-policy", "rights-consent-and-offline-asset-scope-evaluated-before-effect"]
+      entryState: "DRAFT_SOURCE_BOUND"
+      designStates: ["EMPTY", "LOADING", "READY", "DIRTY_DRAFT", "STALE_REVISION", "MERGE_CONFLICT", "UNAUTHORIZED", "QUALITY_BLOCKED", "SAVE_UNKNOWN"]
+      viewAndOperationDistinction: "Studio edits an immutable project revision; embedded viewer only traverses local sanitized graph; click and preview never prove a product business mutation"
+      interactionContracts:
+        - caseRef: "MEDIA-REC-P0-AC-050"
+          authoringIntent: "Configure accessible hotspot or branch with exact source anchors, known targets and optional no-action fallback"
+          observation: "Source-version-linked graph, keyboard-focus order and local-safe deterministic branch preview"
+          denial: "Reject unknown target, unreachable keyboard branch or any script implying product effect"
+          recovery: "Preserve authoring draft and offer valid targets with original revision unchanged"
+        - caseRef: "MEDIA-REC-P0-AC-051"
+          authoringIntent: "Inspect and validate offline package branch traversal for self-contained assets"
+          observation: "Offline-only branch coverage, unavailable assets and truthful local fallback"
+          denial: "Reject hidden network-dependent branch or privileged endpoint use while offline"
+          recovery: "Remove unsupported dependency or explicitly disclose unsupported branch without fabrication"
+        - caseRef: "MEDIA-REC-P0-AC-052"
+          authoringIntent: "Validate untrusted authored DOM HTML CSS media links and third-party visual assets before interactive packaging"
+          observation: "Versioned CSP sanitizer content-integrity origin egress and rights decision"
+          denial: "Reject script injection, unbounded URL/SSRF, executable media payload, mixed tenant asset or embedded credential"
+          recovery: "Keep rejected input quarantined and edit a newly authorized source version only"
+        - caseRef: "MEDIA-REC-P0-AC-053"
+          authoringIntent: "Configure consent-scoped minimal interaction telemetry independent of product outcome"
+          observation: "Opted-in event category and retention policy with no personal or domain effect inference"
+          denial: "Reject nonconsented identifiers, inferred business success or undeclared tracking"
+          recovery: "Disable tracking and preserve media navigation with explicit offline/consent status"
+      manualRevisionRule: "Every accepted edit uses expectedRevision CAS, a versioned undo/redo revision and preservation of human LOCKED changes"
+      accessibility: ["semantic-focusable-hotspot-list", "keyboard-only-source-time-navigation", "screen-reader-branch-and-error-announcements", "transcript-and-caption-alternative", "reduced-motion-preview", "responsive-linear-reading-order", "no-pointer-only-graph-authoring"]
+      headlessEquivalent: ["typed-versioned-edit-intent", "source-anchor-and-timebase", "branch-graph-read-projection", "rights-and-sanitization-denial", "safe-offline-fallback", "redacted-trace-and-audit-ref", "unknown-finality-reconcile-original-request"]
+      nonhappyConsequences: ["unsupported-render-profile", "invalid-accessible-focus-target", "revoked-consent-or-rights", "missing-offline-asset", "unsafe-html-or-script", "stale-project-revision", "unknown-publish-finality", "abstained-policy-or-provider"]
+      finality: "LOCAL_PREVIEW_NOT_PUBLISHED_AND_NEVER_PRODUCT_EFFECT"
+      releaseGate: "Media quality, legal brand rights, privacy, business approval and destination finality remain distinct"
+      requiredScenarioFixtures: ["keyboard-branch-positive", "unknown-hotspot-denied", "offline-branch-fallback", "untrusted-html-rejected", "analytics-consent-denied", "revision-conflict-preserves-human-lock"]
+      authoredFixtureDefinitions:
+        - id: "keyboard-branch-positive"
+          classification: "SYNTHETIC_PDP3_DEFINITION_ONLY"
+          acceptanceCaseRefs: ["MEDIA-REC-P0-AC-050", "MEDIA-REC-P0-AC-071", "MEDIA-REC-P0-AC-072"]
+          fixtureActorRef: "media.editor"
+          syntheticProjectAuthority: "MEDIA_PROJECT_FIXTURE_ONLY_NO_CANONICAL_RUNTIME_WRITER"
+          setup: "Synthetic fixture project revision R1 with a permitted local media source, a branch named Chapter B, focusable text-equivalent hotspot and declared keyboard order"
+          action: "Navigate with keyboard only to the hotspot, activate Chapter B, inspect transcript and return by the safe-exit control"
+          expected: "Exact locally versioned branch is selected; focus and transcript remain meaningful without pointer, network or product credentials"
+          rejection: "A missing focus target or unknown branch must not generate success, shift source time invisibly or dispatch any product action"
+          expectedFinality: "LOCAL_VIEWER_ONLY_NOT_PRODUCT_BUSINESS_PROOF"
+          status: "AUTHORED_NOT_EXECUTED_OR_QUALIFIED"
+        - id: "unknown-hotspot-denied"
+          classification: "SYNTHETIC_PDP3_DEFINITION_ONLY"
+          acceptanceCaseRefs: ["MEDIA-REC-P0-AC-050", "MEDIA-REC-P0-AC-052"]
+          fixtureActorRef: "media.editor"
+          syntheticProjectAuthority: "MEDIA_PROJECT_FIXTURE_ONLY_NO_CANONICAL_RUNTIME_WRITER"
+          setup: "Synthetic fixture bundle with one valid hotspot and an injected choice referring to nonexistent branch target"
+          action: "Submit an unknown hotspot target and attempt branch activation by click and keyboard"
+          expected: "Typed DENIED or UNSUPPORTED result with source version and safe known-branch choices, preserving active playback and focus"
+          rejection: "No arbitrary script, network request, dynamic product command or analytics success event may be produced"
+          expectedFinality: "DENIAL_NO_EFFECT"
+          status: "AUTHORED_NOT_EXECUTED_OR_QUALIFIED"
+        - id: "offline-branch-fallback"
+          classification: "SYNTHETIC_PDP3_DEFINITION_ONLY"
+          acceptanceCaseRefs: ["MEDIA-REC-P0-AC-051", "MEDIA-REC-P0-AC-050"]
+          fixtureActorRef: "media.editor"
+          syntheticProjectAuthority: "MEDIA_PROJECT_FIXTURE_ONLY_NO_CANONICAL_RUNTIME_WRITER"
+          setup: "Synthetic fixture interactive bundle with approved embedded primary scene, declared offline branch and one intentionally absent optional asset"
+          action: "Disconnect all network in the host simulation, select available and missing branches, inspect the declared local fallback"
+          expected: "Local assets and accessible branch paths remain usable; missing assets are explicitly UNSUPPORTED and only admitted linear fallback plays"
+          rejection: "No hidden network call, privileged endpoint replay, synthetic frames or silently substituted media source"
+          expectedFinality: "LOCAL_OFFLINE_VIEWER_ONLY"
+          status: "AUTHORED_NOT_EXECUTED_OR_QUALIFIED"
+        - id: "untrusted-html-rejected"
+          classification: "SYNTHETIC_PDP3_DEFINITION_ONLY"
+          acceptanceCaseRefs: ["MEDIA-REC-P0-AC-052", "MEDIA-REC-P0-AC-061"]
+          fixtureActorRef: "media.editor"
+          syntheticProjectAuthority: "MEDIA_PROJECT_FIXTURE_ONLY_NO_CANONICAL_RUNTIME_WRITER"
+          setup: "Synthetic malicious bundle containing a script element, javascript URL, cross-origin resource and mixed-tenant asset identifier"
+          action: "Attempt to package or preview the hostile DOM/resource payload through the declared sanitizer/CSP policy"
+          expected: "Typed DENIED with sanitizer reason, safe source revision, no inline executable content, allowedlist-only origins and quarantined rejected input"
+          rejection: "No script execution, SSRF, credential exposure, cross-tenant lookup, unapproved egress or generated untrusted HTML injection"
+          expectedFinality: "QUARANTINED_NO_PACKAGE_OR_PUBLICATION"
+          status: "AUTHORED_NOT_EXECUTED_OR_QUALIFIED"
+        - id: "analytics-consent-denied"
+          classification: "SYNTHETIC_PDP3_DEFINITION_ONLY"
+          acceptanceCaseRefs: ["MEDIA-REC-P0-AC-053", "MEDIA-REC-P0-AC-059"]
+          fixtureActorRef: "media.privacy-rights-reviewer"
+          syntheticProjectAuthority: "MEDIA_PROJECT_FIXTURE_ONLY_NO_CANONICAL_RUNTIME_WRITER"
+          setup: "Synthetic viewer telemetry policy with audience analytics consent absent and preexisting permitted local branch graph"
+          action: "Play and navigate the branch with telemetry requested but without current audience consent"
+          expected: "Playback and local accessible navigation proceed without any identity-bearing event export, with a visible policy denial of analytics"
+          rejection: "No personal identifier or product outcome inference; analytics event count remains zero and no rights bypass is recorded"
+          expectedFinality: "LOCAL_VIEWER_ALLOWED_ANALYTICS_DENIED"
+          status: "AUTHORED_NOT_EXECUTED_OR_QUALIFIED"
+        - id: "revision-conflict-preserves-human-lock"
+          classification: "SYNTHETIC_PDP3_DEFINITION_ONLY"
+          acceptanceCaseRefs: ["MEDIA-REC-P0-AC-050", "MEDIA-REC-P0-AC-042", "MEDIA-REC-P0-AC-029"]
+          fixtureActorRef: "media.editor"
+          syntheticProjectAuthority: "MEDIA_PROJECT_FIXTURE_ONLY_NO_CANONICAL_RUNTIME_WRITER"
+          setup: "Synthetic immutable MediaProject R2 with a LOCKED human hotspot anchor and concurrently updated authoritative project revision R3"
+          action: "Submit an edit against stale expected revision R2 while an automation proposal targets the locked hotspot"
+          expected: "Typed CONFLICT with both source revision identities, an editable non-authoritative draft and explicit semantic rebase/review action"
+          rejection: "No overwrite of R3, no silent lock loss, no fabricated branch finality and no retry of the same unknown state with a new request identity"
+          expectedFinality: "CONFLICT_UNCOMMITTED_NO_VIEWER_PUBLICATION"
+          status: "AUTHORED_NOT_EXECUTED_OR_QUALIFIED"
+      acceptanceStatus: "SOURCE_DEFINITION_ONLY_TESTS_AND_INDEPENDENT_REVIEW_NOT_RUN"
+
 manualEditExperience:
   authority: "PDP-1 operationKinds + PDP-2 manualOperationParity.operations"
   projectRevision: "Single MediaProject immutable revision; no Studio-local semantic source of truth"
@@ -1142,6 +1631,89 @@ interactiveDemoPlayerExperience:
   semantics: ["signed-source-version-bundle", "CSP-and-HTML-sanitization", "keyboard-accessible-hotspots", "text-alternative-and-transcript", "offline-asset-and-branch-fallback", "no-privileged-business-effect-from-click", "consent-and-minimal-analytics", "safe-exit"]
   projectedStates: ["LOADING", "READY", "OFFLINE", "UNSUPPORTED_FEATURE", "POLICY_DENIED", "UNAVAILABLE", "FINISHED"]
   hostActionStatus: "NO_DELEGATED_PRODUCT_MUTATION_OR_UNAPPROVED_NETWORK_EGRESS"
+surfaceCaseScenarioContracts:
+  status: "PDP3_SOURCE_SCENARIO_DESCRIPTIONS_NOT_EXECUTED_OR_HOST_ADMITTED"
+  canonicalAcceptanceAuthority: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses"
+  existingJourneyAuthority: ".product-experience/pdp-3-product-experience/journey-registry.yaml"
+  sideEffectPolicy: "ONLY_PDP1_SELECTED_OPERATION_WHEN_ACTUALLY_ADMITTED; NO_SOURCE_FIXTURE_IMPLIES_EXECUTION"
+  records:
+    - id: "media.recorder.p3.scenario.headless-plan-review.v1"
+      ownerSurfaceId: "media.surface.recorder-orchestrator"
+      existingJourneyRefs: ["J-09", "J-24", "J-25"]
+      sourceAcceptanceCaseRefs: ["MEDIA-REC-P0-AC-001", "MEDIA-REC-P0-AC-002", "MEDIA-REC-P0-AC-003", "MEDIA-REC-P0-AC-004", "MEDIA-REC-P0-AC-005"]
+      symbolicInputContract: "Versioned YAML/JSON config, tenant-scoped actor context, product-experience definition reference, audience, purpose, locale, source bounds and policy profile"
+      proposedUserExperience: "Resolve and validate exact effective input; show deterministic storyboard fallback or evidence-backed AI advice; request review without executing product effects"
+      visibleObservationContract: "Stable plan identity, source revision, eligibility/abstention, protected product postconditions, bounded resource estimate and safe next action"
+      mandatoryDenialAndRecovery: "Reject stale schema, unsupported locale, missing purpose, forged Tools contract, model abstention without valid fallback and unadmitted provider"
+      finalityBoundary: "READ_ONLY_PLAN_PROJECTION"
+      admission: "SOURCE_DEFINITION_ONLY_NO_ROUTE_OR_RUNTIME_PROOF"
+      verification: "NOT_RUN"
+    - id: "media.recorder.p3.scenario.owned-product-readback.v1"
+      ownerSurfaceId: "media.surface.recorder-orchestrator"
+      existingJourneyRefs: ["J-09", "J-20", "J-24", "J-27"]
+      sourceAcceptanceCaseRefs: ["MEDIA-REC-P0-AC-012", "MEDIA-REC-P0-AC-013", "MEDIA-REC-P0-AC-014", "MEDIA-REC-P0-AC-015", "MEDIA-REC-P0-AC-016"]
+      symbolicInputContract: "Admitted product adapter proposal, authorized tenant/actor/scenario, versioned request and bounded fenced fixture/seed lease"
+      proposedUserExperience: "Prepare and qualify environment; submit same-key run; observe owner-verified product action/readback and exact attempt/lease identity; reconcile failed cleanup"
+      visibleObservationContract: "Separate request acknowledgment, current run/attempt state, authoritative business postconditions, scene proof status, owned cleanup and trace"
+      mandatoryDenialAndRecovery: "Never infer success from click, screenshot, HTTP status, job spawn or seed alone; reject stale lease, leaked token, foreign tenant and unsafe replay"
+      finalityBoundary: "OWNER_READBACK_REQUIRED_FOR_BUSINESS_OUTCOME"
+      admission: "SOURCE_DEFINITION_ONLY_NO_ROUTE_OR_RUNTIME_PROOF"
+      verification: "NOT_RUN"
+    - id: "media.recorder.p3.scenario.physical-source-qualification.v1"
+      ownerSurfaceId: "media.surface.capture-adapters"
+      existingJourneyRefs: ["J-24", "J-25", "J-29", "J-30"]
+      sourceAcceptanceCaseRefs: ["MEDIA-REC-P0-AC-006", "MEDIA-REC-P0-AC-007", "MEDIA-REC-P0-AC-009", "MEDIA-REC-P0-AC-010", "MEDIA-REC-P0-AC-011"]
+      symbolicInputContract: "Requested actual browser/device/desktop/camera/file source, OS/codec/source version, source clocks, signals, purpose/rights scope"
+      proposedUserExperience: "Probe qualified capture signals and declared constraints; measure source clock relations; stop missing or revoked source with a bounded fenced result"
+      visibleObservationContract: "Exact provider/profile, supported dimensions, measured clock transforms, provenance, approved source version and typed unavailable reasons"
+      mandatoryDenialAndRecovery: "Never turn package presence, mocked driver, generic screenshot, wall-clock estimate or other camera into a qualified source"
+      finalityBoundary: "QUALIFIED_SOURCE_CAPABILITY_NOT_TRANSPORT_SUCCESS"
+      admission: "SOURCE_DEFINITION_ONLY_NO_ROUTE_OR_RUNTIME_PROOF"
+      verification: "NOT_RUN"
+    - id: "media.recorder.p3.scenario.machine-only-product-capture.v1"
+      ownerSurfaceId: "media.surface.capture-adapters"
+      existingJourneyRefs: ["J-24", "J-25", "J-27"]
+      sourceAcceptanceCaseRefs: ["MEDIA-REC-P0-AC-008", "MEDIA-REC-P0-AC-058", "MEDIA-REC-P0-AC-059", "MEDIA-REC-P0-AC-061"]
+      symbolicInputContract: "Versioned CLI/HTTP/gRPC/event request schema and trusted product-owned actor/context, redaction scope, allowed transport and sandbox policy"
+      proposedUserExperience: "Capture typed commands, request-response/finality and authoritative owner postcondition through admitted adapter contract; project a truthful explanatory visualization"
+      visibleObservationContract: "Original command/operation identity, redacted typed inputs/outputs, result finality, provenance, unsupported capability, safe retry/reconciliation"
+      mandatoryDenialAndRecovery: "Do not invent a browser UI, replay privileged product commands from a viewer, log secrets or substitute HTTP success for business readback"
+      finalityBoundary: "HEADLESS_TYPED_OBSERVATION_NO_FAKE_GUI"
+      admission: "SOURCE_DEFINITION_ONLY_NO_ROUTE_OR_RUNTIME_PROOF"
+      verification: "NOT_RUN"
+    - id: "media.recorder.p3.scenario.studio-versioned-manual-edit.v1"
+      ownerSurfaceId: "media.surface.production-studio"
+      existingJourneyRefs: ["J-11", "J-18", "J-21"]
+      sourceAcceptanceCaseRefs: ["MEDIA-REC-P0-AC-017", "MEDIA-REC-P0-AC-019", "MEDIA-REC-P0-AC-023", "MEDIA-REC-P0-AC-024", "MEDIA-REC-P0-AC-029", "MEDIA-REC-P0-AC-079", "MEDIA-REC-P0-AC-080", "MEDIA-REC-P0-AC-081", "MEDIA-REC-P0-AC-082", "MEDIA-REC-P0-AC-083", "MEDIA-REC-P0-AC-084"]
+      symbolicInputContract: "Existing MediaProject version, immutable source/timebase and track/clip/region IDs, exact editor actor, expected revision, lock policy, undo intent"
+      proposedUserExperience: "Inspect a typed numerical/keyboard editor; create proposed trim/reframe/ramp/solo/mute/annotation/denoise or scene edit; commit only through canonical CAS"
+      visibleObservationContract: "New immutable revision or unchanged current revision with precise conflict, source-time and human-lock disclosure, matching CLI/SDK/API intent"
+      mandatoryDenialAndRecovery: "No pointer-only editor, floating time drift, invisible lock loss, invented source frames, versionless write, rights bypass or duplicate local project store"
+      finalityBoundary: "IMMUTABLE_PROJECT_EDIT_ONLY_WHEN_ADMITTED"
+      admission: "SOURCE_DEFINITION_ONLY_NO_ROUTE_OR_RUNTIME_PROOF"
+      verification: "NOT_RUN"
+    - id: "media.recorder.p3.scenario.sandboxed-interactive-player.v1"
+      ownerSurfaceId: "media.surface.interactive-demo-player"
+      existingJourneyRefs: ["J-22", "J-28"]
+      sourceAcceptanceCaseRefs: ["MEDIA-REC-P0-AC-050", "MEDIA-REC-P0-AC-051", "MEDIA-REC-P0-AC-052", "MEDIA-REC-P0-AC-053"]
+      symbolicInputContract: "Versioned integrity-checked offline-capable scene bundle, sanitized hotspot graph, source-version rights, audience consent and accessible keyboard semantics"
+      proposedUserExperience: "Render approved media/transcript, traverse known local branch, handle offline fallback, enforce CSP/sandbox and optional consented low-data analytics"
+      visibleObservationContract: "Local viewer branch state, exact scene/time anchor, signed source version, focus/traversal and truthful offline/denial status"
+      mandatoryDenialAndRecovery: "No scriptable privileged product action, unauthorized egress, fabricated product outcome, hidden dependency, mixed-tenant asset or nonconsented tracking"
+      finalityBoundary: "LOCAL_VIEWER_ONLY_NEVER_PRODUCT_DOMAIN_EFFECT"
+      admission: "SOURCE_DEFINITION_ONLY_NO_ROUTE_OR_RUNTIME_PROOF"
+      verification: "NOT_RUN"
+    - id: "media.recorder.p3.scenario.governed-publish-finality.v1"
+      ownerSurfaceId: "media.surface.recorder-orchestrator"
+      existingJourneyRefs: ["J-21", "J-22", "J-26"]
+      sourceAcceptanceCaseRefs: ["MEDIA-REC-P0-AC-054", "MEDIA-REC-P0-AC-055", "MEDIA-REC-P0-AC-056", "MEDIA-REC-P0-AC-057"]
+      symbolicInputContract: "Accepted exact artifact/revision, qualified container/codec/output profile, current audience/purpose/rights, separate human/legal approvals and destination identity"
+      proposedUserExperience: "Validate rights and technical output; propose governed publish request; observe actual request receipt and reconcile destination state under same idempotency identity"
+      visibleObservationContract: "Signed source/edit/render/approval manifest, current rights, requested/acknowledged vs destination confirmed state and safe UNKNOWN next step"
+      mandatoryDenialAndRecovery: "Do not treat MP4 presence, signed URL, HTTP 200, successful upload or technical QA as independent approval or remote publication finality"
+      finalityBoundary: "EXTERNAL_REQUEST_ACK_NOT_DESTINATION_FINALITY"
+      admission: "SOURCE_DEFINITION_ONLY_NO_ROUTE_OR_RUNTIME_PROOF"
+      verification: "NOT_RUN"
 machineOnlyExperience:
   surfaceIds: ["media.surface.recorder-orchestrator", "media.surface.capture-adapters"]
   views: ["configuration-schema-and-effective-policy", "source-qualification-and-timebase", "plan-and-product-postcondition", "bounded-run-and-lease-state", "typed-owner-observation-and-finality", "scene-and-media-quality-result", "redacted-trace-and-safe-recovery"]

@@ -425,6 +425,7 @@ channelSurfaceProposals:
     canonicalDomainConcepts: [media.domain.project, media.domain.processing-job, media.domain.timeline]
     interactionModel: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml
     contractAuthority: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
+    experienceAuthority: .product-experience/pdp-3-product-experience/recorder-studio-experience.yaml
     securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
     availabilityExpectations: explicit unavailable, denied, unknown-outcome, degraded and retry-reconciliation states
     versioningExpectations: expected project revision, stable source/time identity, and compatible public interface version
@@ -450,6 +451,7 @@ channelSurfaceProposals:
     canonicalDomainConcepts: [media.domain.artifact, media.domain.processing-job]
     interactionModel: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml
     contractAuthority: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
+    experienceAuthority: .product-experience/pdp-3-product-experience/recorder-studio-experience.yaml
     securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
     availabilityExpectations: explicit unavailable, denied, unknown-outcome, degraded and retry-reconciliation states
     versioningExpectations: expected project revision, stable source/time identity, and compatible public interface version
@@ -475,6 +477,7 @@ channelSurfaceProposals:
     canonicalDomainConcepts: [media.domain.project, media.domain.timeline, media.domain.composition-config]
     interactionModel: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml
     contractAuthority: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
+    experienceAuthority: .product-experience/pdp-3-product-experience/recorder-studio-experience.yaml
     securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
     availabilityExpectations: explicit unavailable, denied, unknown-outcome, degraded and retry-reconciliation states
     versioningExpectations: expected project revision, stable source/time identity, and compatible public interface version
@@ -500,6 +503,7 @@ channelSurfaceProposals:
     canonicalDomainConcepts: [media.domain.artifact, media.domain.render-outcome]
     interactionModel: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml
     contractAuthority: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
+    experienceAuthority: .product-experience/pdp-3-product-experience/recorder-studio-experience.yaml
     securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
     availabilityExpectations: explicit unavailable, denied, unknown-outcome, degraded and retry-reconciliation states
     versioningExpectations: expected project revision, stable source/time identity, and compatible public interface version

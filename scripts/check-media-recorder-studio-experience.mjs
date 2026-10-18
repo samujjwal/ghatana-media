@@ -16,7 +16,10 @@ const paths = {
   "templates": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
   "layouts": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
   "recipes": ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml",
-  "identities": ".product-experience/artifact-identities.yaml"
+  "identities": ".product-experience/artifact-identities.yaml",
+  "components": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+  "registry": ".product-experience/surface-registry.yaml",
+  "topology": ".product-experience/surfaces/media-physical-topology.v1.json"
 };
 const uniqueSet = xs => new Set(xs).size === xs.length;
 const sameIds = (a,b) => Array.isArray(a) && Array.isArray(b) && a.length===b.length && uniqueSet(a) && uniqueSet(b) && a.every(x=>b.includes(x));
@@ -27,15 +30,19 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
   for (const [k,filename] of Object.entries(paths)) {
     try {
       const raw=Object.hasOwn(overrides,k) ? overrides[k] : fs.readFileSync(path.join(root,filename),'utf8');
-      const parsed=parseDocument(raw,{uniqueKeys:true,strict:true});
-      if(parsed.errors.length) {
-        for(const error of parsed.errors)fail(k+': invalid or duplicate YAML: '+error.message);
-      } else sources[k]=parsed.toJS();
+      if(k==='topology') {
+        sources[k]=JSON.parse(raw);
+      } else {
+        const parsed=parseDocument(raw,{uniqueKeys:true,strict:true});
+        if(parsed.errors.length) {
+          for(const error of parsed.errors)fail(k+': invalid or duplicate YAML: '+error.message);
+        } else sources[k]=parsed.toJS();
+      }
     } catch(error) {fail(k+': unreadable source: '+error.message);}
   }
   if(errors.length)return { errors, stats:{sourceDocumentsValid:false} };
-  const {p0,p1,p2,p3,req,journeys,screens,templates,layouts,recipes,identities}=sources;
-  if(!p0 || !p1 || !p2 || !p3 || !req || !journeys || !screens || !templates || !layouts || !recipes || !identities) {
+  const {p0,p1,p2,p3,req,journeys,screens,templates,layouts,recipes,identities,components,registry,topology}=sources;
+  if(!p0 || !p1 || !p2 || !p3 || !req || !journeys || !screens || !templates || !layouts || !recipes || !identities || !components || !registry || !topology) {
     return {errors:['Missing source document contents'],stats:{sourceDocumentsValid:false}};
   }
   const requiredIdentities=[
@@ -62,6 +69,16 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
     if(!p || p.parentSurfaceId!==source.parent || p.channel!==source.channel ||
        p.pdp2Kind!==interfaceDef?.kind || p.hostAdapterStatus!=='CONTRACT_ONLY_NOT_ADMITTED')
       fail(source.id+': parent/channel/interface/runtime-admission mismatch');
+    const inRegistry=(registry.surfaces??[]).find(x=>x.surfaceId===source.id);
+    const inCrosswalk=(topology.consumerCrosswalk??[]).find(x=>x.surfaceId===source.id);
+    const requiredContracts=[paths.p0,paths.p1,paths.p2,paths.p3];
+    if(!inRegistry || inRegistry.parentSurfaceId!==source.parent ||
+       inRegistry.experienceAuthority!==paths.p3 ||
+       inRegistry.implementationStatus!=='SOURCE_ONLY' ||
+       !inCrosswalk || inCrosswalk.parentSurfaceId!==source.parent ||
+       !sameIds(inCrosswalk.sourceContracts??[],requiredContracts) ||
+       inCrosswalk.bindingState==='DEPLOYED' || inCrosswalk.bindingState==='QUALIFIED')
+      fail(source.id+': PDP3 surface authority/crosswalk/parent binding is missing or falsely admitted');
   }
   const cases=req.recorderStudioProfile?.acceptanceClauses??[];
   const canonical=new Map(cases.map(x=>[x.id,x]));
@@ -69,12 +86,20 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
   const flows=p3.flowContracts??[];
   const groupP1=p1.pdp0CaseOperationCrosswalk?.groups??[];
   const groupP2=p2.pdp0AcceptanceCaseProjection?.groups??[];
-  const operations=new Set((p1.canonicalOperationProposals?.records??[]).map(x=>x.id));
+  const operationRecords=p1.canonicalOperationProposals?.records??[];
+  const operations=new Set(operationRecords.map(x=>x.id));
+  const operationById=new Map(operationRecords.map(x=>[x.id,x]));
   if(!sameIds(flows.map(x=>x.sourceProfileRef),features.map(x=>x.id)))
     fail('PDP3 flows must exactly cover the sixteen canonical PDP0 feature profiles');
   if(flows.length!==16||cases.length!==84||features.length!==16)
     fail('Recorder Studio scoped source denominators drifted');
   const allSteps=[];
+  let exactOperationSteps=0, explicitNonInvocationSteps=0;
+  const bindingPolicy=p3.stepOperationBindingSemantics??{};
+  const allowedEvidence=bindingPolicy.allowedEvidenceClasses??[];
+  if(bindingPolicy.stepOperationStatus!=='PDP3_AUTHOR_SELECTION_ONLY_PENDING_OWNER_OPERATION_ADMISSION' ||
+     !Array.isArray(allowedEvidence) || allowedEvidence.length<15 || !uniqueSet(allowedEvidence))
+    fail('PDP3 step operation selection policy or evidence taxonomy missing');
   const allowedJourneyIds=new Set((journeys.journeys??[]).map(x=>x.id));
   const canonicalScreenIds=(screens.screens??[]).map(x=>x.id);
   if(allowedJourneyIds.size!==30 || (journeys.journeys??[]).length!==30 ||
@@ -95,7 +120,7 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
     if(!Array.isArray(flow.reuseExistingJourneyRefs) || flow.reuseExistingJourneyRefs.length===0 ||
        !flow.reuseExistingJourneyRefs.every(x=>allowedJourneyIds.has(x)))
       fail(flow.id+': missing or invented existing PDP3 journey reference');
-    if(flow.operationSelectionStatus!=='GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED' ||
+    if(flow.operationSelectionStatus!=='STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED' ||
        flow.stepDisposition!=='DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED' ||
        flow.consequencePolicy!=='DENIAL_UNAVAILABLE_ABSTAINED_AND_UNKNOWN_OUTCOME_NEVER_SUCCESS')
       fail(flow.id+': step operation admission or safety not proven');
@@ -115,13 +140,41 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
         fail(String(step.id)+': step identity must derive from canonical acceptance case ID');
       if(!source || !['given','when','then','rejection'].every(k=>typeof source[k]==='string' && source[k].trim()))
         fail(String(step.id)+': canonical PDP0 positive and negative oracles are incomplete');
-      if(!sameIds(Object.keys(step),['id','acceptanceCaseRef','order']))
-        fail(String(step.id)+': source acceptance and operation meaning must not be shadowed per step');
+      if(!allowedEvidence.includes(step.requiredSourceEvidenceClass))
+        fail(String(step.id)+': missing or unrecognized source evidence class');
+      if(step.bindingDisposition==='PROPOSED_PRIMARY_OPERATION_NOT_RUNTIME_ADMITTED') {
+        exactOperationSteps++;
+        const operation=operationById.get(step.primaryPdp1OperationRef);
+        if(!operation || !(flow.operationCandidateRefs??[]).includes(step.primaryPdp1OperationRef) ||
+           operation.runtimeStatus!=='NOT_ADMITTED' ||
+           operation.effectBoundary!==step.inheritedEffectBoundary ||
+           !['OBSERVATION_ONLY','LOCAL_CANDIDATE_OR_DRAFT','CANONICAL_PRODUCT_STATE_CHANGE','GOVERNED_EXTERNAL_REQUEST'].includes(step.inheritedEffectBoundary))
+          fail(String(step.id)+': exact operation choice is not a matching unadmitted PDP1 candidate');
+        if(!sameIds(Object.keys(step),[
+          'id','acceptanceCaseRef','order','bindingDisposition','primaryPdp1OperationRef',
+          'inheritedEffectBoundary','requiredSourceEvidenceClass']))
+          fail(String(step.id)+': source acceptance and operation meaning must not be shadowed per step');
+      } else if(step.bindingDisposition==='NO_DIRECT_RECORDER_OPERATION') {
+        explicitNonInvocationSteps++;
+        if(typeof step.noDirectInvocationReason!=='string' || step.noDirectInvocationReason.trim().length<25)
+          fail(String(step.id)+': explicit no-operation disposition needs a case-specific reason');
+        if(!sameIds(Object.keys(step),[
+          'id','acceptanceCaseRef','order','bindingDisposition','noDirectInvocationReason',
+          'requiredSourceEvidenceClass']))
+          fail(String(step.id)+': non-invocation cannot smuggle in a product operation or effect');
+      } else {
+        fail(String(step.id)+': missing explicit step operation or no-direct-invocation disposition');
+      }
     }
   }
   if(cases.length!==84 || !sameIds(allSteps.map(x=>x.acceptanceCaseRef),cases.map(x=>x.id)) ||
      !uniqueSet(allSteps.map(x=>x.id)))
     fail('PDP3 acceptance-case step coverage is not one-to-one 84 of 84');
+  if(exactOperationSteps!==63 || explicitNonInvocationSteps!==21 ||
+     exactOperationSteps+explicitNonInvocationSteps!==allSteps.length ||
+     p3.population?.exactProposedPrimaryOperationSteps!==exactOperationSteps ||
+     p3.population?.explicitNonInvocationSteps!==explicitNonInvocationSteps)
+    fail('Recorder Studio 63 proposed operations and 21 non-invocations have drifted');
   const manual=p2.manualOperationParity?.operations??[];
   const editPaths=p3.manualEditExperience?.editPaths??[];
   if(!sameIds(editPaths.map(x=>x.kind),manual.map(x=>x.kind)) || editPaths.length!==52)
@@ -148,6 +201,18 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
      !uniqueSet(pages.map(x=>x.id)) ||
      pages.length!==13)
     fail('PDP2 Studio page inventory and PDP3 scoped workspace differ');
+  const p2PageContracts=p2.productionStudioPageCompositionContracts?.pages??[];
+  const p2StudioSurface=(p2.surfaceInterfaces??[]).find(x=>x.surfaceId==='media.surface.production-studio');
+  const p2StudioComponents=(p2.recorderStudioComponentCompositions?.surfaceContracts??[])
+    .find(x=>x.surfaceId==='media.surface.production-studio')?.components??[];
+  const componentIds=(components.components??[]).map(x=>x.id);
+  const existingScreenIds=(screens.screens??[]).map(x=>x.id);
+  if(p2PageContracts.length!==13 || !sameIds(p2PageContracts.map(x=>x.workspaceKey),workspace))
+    fail('PDP2 page composition inventory must match all 13 Studio workspace keys');
+  if(!uniqueSet(existingScreenIds) || existingScreenIds.length!==47)
+    fail('canonical screen baseline must remain unchanged until new candidate admission');
+  let reusePageCount=0, newPageCount=0;
+  const proposedNewIds=[];
   for(const page of pages) {
     if(!page.semanticIntent || !page.id?.endsWith('.'+page.pdp2WorkspaceKey+'.v1'))
       fail(String(page.id)+': workspace page must retain a named, unique semantic intent');
@@ -163,15 +228,149 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
        !layout.compatibleTemplateRefs?.includes(page.templateId) ||
        recipe.templateRef!==page.templateId)
       fail(page.id+': Studio design chain lacks exact compatible template/layout/recipe authority');
+    const composition=p2PageContracts.find(x=>x.workspaceKey===page.pdp2WorkspaceKey);
+    if(!composition || composition.proposedPdp3WorkspaceId!==page.id ||
+       composition.templateRef!==page.templateId ||
+       composition.layoutRef!==page.layoutId ||
+       composition.recipeRef!==page.recipeId ||
+       composition.admission!=='DESIGN_SOURCE_ONLY_NOT_CANONICAL_SCREEN')
+      fail(page.id+': PDP2 page composition differs from PDP3 proposed design chain');
+    if(!composition || !sameIds(composition.requiredStates??[],p2StudioSurface?.states??[]))
+      fail(page.id+': PDP2 page states differ from canonical Studio interface states');
+    const ownedComponents=composition?.componentRefs??[];
+    if(ownedComponents.length===0 || !uniqueSet(ownedComponents) ||
+       !ownedComponents.every(x=>componentIds.includes(x)&&p2StudioComponents.includes(x)))
+      fail(page.id+': PDP2 page components missing from existing Studio and Media component authority');
+    if(!Array.isArray(composition?.acceptanceCaseRefs) ||
+       !composition.acceptanceCaseRefs.length || !uniqueSet(composition.acceptanceCaseRefs) ||
+       !composition.acceptanceCaseRefs.every(id=>canonical.has(id)))
+      fail(page.id+': PDP2 workspace must bind to real, distinct Recorder acceptance cases');
+    for(const name of ['wideIntent','narrowIntent','keyboardAndTextEquivalent','headlessEquivalent','denialAndUnknownRecovery']){
+      if(typeof composition?.[name]!=='string' || !composition[name].trim())
+        fail(page.id+': PDP2 page missing semantic, accessibility or denial behavior '+name);
+    }
+    const declaredReuse=page.candidateCanonicalScreenRefs;
+    const reuse=Array.isArray(declaredReuse)?declaredReuse:[];
+    if(!Array.isArray(declaredReuse) || !uniqueSet(reuse) ||
+       !reuse.every(ref=>existingScreenIds.includes(ref)) || !page.unresolvedScreenBehavior?.trim())
+      fail(page.id+': invalid or ungrounded existing-screen reuse proposal');
+    if(page.screenReuseDisposition==='EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED') {
+      reusePageCount++;
+      if(reuse.length===0 || page.proposedNewScreenIntentId)
+        fail(page.id+': existing screen reuse cannot mint unregistered screen IDs');
+    } else if(page.screenReuseDisposition==='NEW_SCREEN_CANDIDATE_REQUIRED_NOT_REGISTERED') {
+      newPageCount++;
+      if(reuse.length!==0 || page.proposedNewScreenIntentId!=='media.recorder.p3.screen.interactive-authoring.candidate.v1' ||
+         page.pdp2WorkspaceKey!=='interactive-authoring' ||
+         existingScreenIds.includes(page.proposedNewScreenIntentId))
+        fail(page.id+': unadmitted interactive-authoring screen candidate is not isolated');
+      if(page.proposedNewScreenIntentId)proposedNewIds.push(page.proposedNewScreenIntentId);
+    } else {
+      fail(page.id+': invalid screen reuse disposition');
+    }
+  }
+  if(reusePageCount!==12 || newPageCount!==1 || !uniqueSet(proposedNewIds))
+    fail('Recorder Studio 12 reuse vs 1 unadmitted new-screen candidate scope drifted');
+  const candidateDefs=p3.pdp3ScreenCandidates;
+  const candidateRecords=candidateDefs?.records??[];
+  const authoringWorkspace=pages.find(p=>p.pdp2WorkspaceKey==='interactive-authoring');
+  const p2AuthoringPage=p2PageContracts.find(p=>p.workspaceKey==='interactive-authoring');
+  if(candidateDefs?.status!=='PROPOSED_UNREGISTERED_NO_CANONICAL_SCREEN_CLAIM' ||
+     candidateDefs?.proposedCount!==1 || candidateRecords.length!==1)
+    fail('unadmitted interactive screen candidate definition census and status missing');
+  const candidate=candidateRecords[0];
+  if(!candidate || candidate.id!==authoringWorkspace?.proposedNewScreenIntentId ||
+     candidate.ownerSurfaceId!=='media.surface.production-studio' ||
+     candidate.workspaceRef!==authoringWorkspace?.id ||
+     candidate.canonicalScreenRegistryStatus!=='NOT_REGISTERED' ||
+     candidate.implementationAdmission!=='NOT_ADMITTED' ||
+     candidate.routeStatus!=='NO_PUBLIC_ROUTE_OR_DEPLOYED_VIEW' ||
+     existingScreenIds.includes(candidate.id))
+    fail('unadmitted interactive screen candidate cannot claim public route or canonical screen');
+  const caseRefs=['MEDIA-REC-P0-AC-050','MEDIA-REC-P0-AC-051','MEDIA-REC-P0-AC-052','MEDIA-REC-P0-AC-053'];
+  const candidateOps=['media.recorder.operation.edit.commit.v1','media.recorder.operation.interactive.package.v1'];
+  const candidateValues=['media.recorder.value.interactive-graph.v1','media.recorder.value.interactive-hotspot.v1'];
+  const p1Values=new Set((p1.derivedValueObjects??[]).map(x=>x.id));
+  if(!sameIds(candidate?.sourceAcceptanceCaseRefs??[],caseRefs) ||
+     !sameIds(candidate?.sourceAcceptanceCaseRefs??[],p2AuthoringPage?.acceptanceCaseRefs??[]) ||
+     !sameIds(candidate?.proposedPdp1OperationRefs??[],candidateOps) ||
+     !candidateOps.every(x=>operations.has(x)) ||
+     !sameIds(candidate?.projectedPdp1ValueRefs??[],candidateValues) ||
+     !candidateValues.every(x=>p1Values.has(x)))
+    fail('unadmitted interactive screen candidate must have exact case/operation bindings');
+  const caseInteractions=candidate?.interactionContracts??[];
+  if(!sameIds(caseInteractions.map(x=>x.caseRef),caseRefs) ||
+     caseInteractions.some(x=>!['authoringIntent','observation','denial','recovery']
+        .every(name=>typeof x[name]==='string' && x[name].trim())))
+    fail('interactive screen candidate lacks exact positive, denial or recovery interaction contract');
+  const authoredFixtures=candidate?.authoredFixtureDefinitions??[];
+  const fixtureNames=candidate?.requiredScenarioFixtures??[];
+  if(!sameIds(authoredFixtures.map(f=>f.id),fixtureNames) || authoredFixtures.length!==6)
+    fail('source-authored interactive fixtures must exactly match six named scenarios');
+  for(const fixture of authoredFixtures){
+    if(fixture.classification!=='SYNTHETIC_PDP3_DEFINITION_ONLY' ||
+       fixture.syntheticProjectAuthority!=='MEDIA_PROJECT_FIXTURE_ONLY_NO_CANONICAL_RUNTIME_WRITER' ||
+       fixture.status!=='AUTHORED_NOT_EXECUTED_OR_QUALIFIED' ||
+       !(p0.actors??[]).includes(fixture.fixtureActorRef) ||
+       !Array.isArray(fixture.acceptanceCaseRefs) || fixture.acceptanceCaseRefs.length===0 ||
+       !uniqueSet(fixture.acceptanceCaseRefs) ||
+       !fixture.acceptanceCaseRefs.every(x=>canonical.has(x)) ||
+       !['setup','action','expected','rejection','expectedFinality'].every(x=>typeof fixture[x]==='string' && fixture[x].trim().length>10))
+      fail('interactive fixture '+String(fixture.id)+' has invented actor/case, missing oracle, or false execution status');
+  }
+  if(!sameIds(candidate?.designStates??[],p2StudioSurface?.states??[]) ||
+     !Array.isArray(candidate?.preconditions) || candidate.preconditions.length<4 ||
+     !uniqueSet(candidate.preconditions) ||
+     !Array.isArray(candidate?.nonhappyConsequences) || candidate.nonhappyConsequences.length<7 ||
+     !uniqueSet(candidate.nonhappyConsequences) ||
+     typeof candidate?.viewAndOperationDistinction!=='string' ||
+     !candidate.viewAndOperationDistinction.includes('never prove a product business mutation') ||
+     typeof candidate?.manualRevisionRule!=='string' ||
+     !candidate.manualRevisionRule.includes('LOCKED') ||
+     typeof candidate?.releaseGate!=='string' || !candidate.releaseGate.includes('rights') ||
+     !Array.isArray(candidate?.plannedRegions) || candidate.plannedRegions.length<7 ||
+     !uniqueSet(candidate.plannedRegions) ||
+     !Array.isArray(candidate?.accessibility) || candidate.accessibility.length<5 ||
+     !Array.isArray(candidate?.headlessEquivalent) || candidate.headlessEquivalent.length<5 ||
+     !Array.isArray(candidate?.requiredScenarioFixtures) || candidate.requiredScenarioFixtures.length<6 ||
+     !uniqueSet(candidate.requiredScenarioFixtures) ||
+     candidate?.finality!=='LOCAL_PREVIEW_NOT_PUBLISHED_AND_NEVER_PRODUCT_EFFECT' ||
+     candidate?.acceptanceStatus!=='SOURCE_DEFINITION_ONLY_TESTS_AND_INDEPENDENT_REVIEW_NOT_RUN')
+    fail('interactive candidate screen lacks accessible headless fixture and nonfinal preview limits');
+  const scenarioAuthority=p3.surfaceCaseScenarioContracts??{};
+  const scenarioContracts=scenarioAuthority.records??[];
+  const scenarioIds=scenarioContracts.map(x=>x.id);
+  const scenarioOwners=new Set(scenarioContracts.map(x=>x.ownerSurfaceId));
+  if(scenarioAuthority.status!=='PDP3_SOURCE_SCENARIO_DESCRIPTIONS_NOT_EXECUTED_OR_HOST_ADMITTED' ||
+     scenarioContracts.length!==7 || !uniqueSet(scenarioIds) || scenarioOwners.size!==4 ||
+     p3.population?.scopedExperienceScenarios!==scenarioContracts.length)
+    fail('seven Recorder Studio source-only scenario definitions must cover all four logical surfaces');
+  for(const scenario of scenarioContracts) {
+    if(!expectedSurfaces.some(x=>x.id===scenario.ownerSurfaceId) ||
+       !Array.isArray(scenario.sourceAcceptanceCaseRefs) ||
+       !scenario.sourceAcceptanceCaseRefs.length || !uniqueSet(scenario.sourceAcceptanceCaseRefs) ||
+       !scenario.sourceAcceptanceCaseRefs.every(id=>canonical.get(id)?.surfaceId===scenario.ownerSurfaceId))
+      fail(String(scenario.id)+': source-authored scenario contracts lack exact surface ownership');
+    if(!Array.isArray(scenario.existingJourneyRefs) ||
+       !scenario.existingJourneyRefs.length || !uniqueSet(scenario.existingJourneyRefs) ||
+       !scenario.existingJourneyRefs.every(x=>allowedJourneyIds.has(x)))
+      fail(String(scenario.id)+': source scenario references nonexistent or duplicated canonical journeys');
+    if(!['symbolicInputContract','proposedUserExperience','visibleObservationContract',
+         'mandatoryDenialAndRecovery','finalityBoundary'].every(k=>
+             typeof scenario[k]==='string' && scenario[k].trim().length>20))
+      fail(String(scenario.id)+': missing source-grounded input, positive/negative or finality semantics');
+    if(scenario.admission!=='SOURCE_DEFINITION_ONLY_NO_ROUTE_OR_RUNTIME_PROOF' ||
+       scenario.verification!=='NOT_RUN')
+      fail(String(scenario.id)+': scenario source must not claim a deployed route, accepted film or verified product effect');
   }
   if(p3.status!=='SOURCE_AUTHORED_SUCCESSOR_PENDING_NATIVE_VALIDATION_AND_CURRENTNESS' ||
      p3.explorerProjection?.status!=='SPECIFICATION_ONLY_NOT_VERIFIED' ||
      (p3.nonClaims??[]).indexOf('not-PDP3-dev-complete')<0)
     fail('PDP3 successor cannot claim DEV_COMPLETE, Explorer verification or runtime admission');
   const population=p3.population??{};
-  for(const [name,value] of Object.entries({logicalSurfaces:4,featureProfiles:16,acceptanceCaseSteps:84,manualEditPaths:52,studioWorkspaceProposals:13,existingTopLevelJourneysPreserved:30,existingCanonicalScreensPreserved:47,physicalPackagesAdded:0}))
+  for(const [name,value] of Object.entries({logicalSurfaces:4,featureProfiles:16,acceptanceCaseSteps:84,exactProposedPrimaryOperationSteps:63,explicitNonInvocationSteps:21,manualEditPaths:52,studioWorkspaceProposals:13,scopedExperienceScenarios:7,existingTopLevelJourneysPreserved:30,existingCanonicalScreensPreserved:47,physicalPackagesAdded:0}))
     if(population[name]!==value)fail('declared PDP3 population mismatch: '+name);
-  return {errors,stats:{sourceDocumentsValid:true,logicalSurfaces:surfaceDefs.length,flowContracts:flows.length,acceptanceCaseSteps:allSteps.length,manualEditPaths:editPaths.length,workspaceIntents:pages.length}};
+  return {errors,stats:{sourceDocumentsValid:true,logicalSurfaces:surfaceDefs.length,flowContracts:flows.length,acceptanceCaseSteps:allSteps.length,exactProposedPrimaryOperationSteps:exactOperationSteps,explicitNonInvocationSteps:explicitNonInvocationSteps,manualEditPaths:editPaths.length,workspaceIntents:pages.length,reusedCanonicalScreenViews:reusePageCount,unregisteredScreenCandidates:newPageCount,interactiveScreenCaseContracts:caseInteractions.length,interactiveFixtureDefinitions:authoredFixtures.length,scopedExperienceScenarios:scenarioContracts.length}};
 }
 if(process.argv[1] && path.resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
   const report=verifyRecorderStudioExperience();
