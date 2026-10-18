@@ -209,3 +209,14 @@ The current ordered residual work and commands are maintained in the single [Rec
 ## Declarative production PDP-3 successor (not accepted)
 
 The additional `.product-experience/pdp-3-product-experience/declarative-production-experience.yaml` consumes the **61** canonical scoped PDP-0 requirements, **61** exact PDP-1 existing-operation bindings and **61** PDP-2 surface/interface bindings, and projects them to existing J-12/J-13/J-14/J-15/J-18 journeys and existing animation/simulation/composition screens. Eight positive/negative reference scenarios include analytical Newton F2, story-time independence, accessibility, synthetic fixture provenance, model divergence, safe manual-regeneration conflicts, truthful API-only demonstrations and TutorPutor predict/manipulate/measure/explain. The Recorder successor's **84** cases, **52** edit kinds, and **13** Studio workspaces remain separate source-authoring scopes without duplicate canonical operations or screens. These references **do not constitute implemented Explorer routes**, live simulation qualification, independent product acceptance or successor PDP-3 `DEV_COMPLETE`; exact per-step action/transport admission, native validation and source-current phase review remain necessary.
+
+---
+
+## Current unified-production successor source / 2026-10-18
+
+The [current Media execution/experience handoff](../../docs/implementation/MEDIA-UNIFIED-PRODUCTION-CURRENT-PLAN.md), `recorder-studio-experience.yaml` and `declarative-production-experience.yaml` enumerate **84 Recorder source-bound cases** plus **61 Animation/Simulation/TutorPutor/Unified case experiences** on the existing 30 historical journeys/47 screens and the four Recorder logical consumers. Reuse existing J-12/J-13 (animation), J-14/J-15 (simulation), J-09/J-18 (production/render/review), action/source-fixture/channel registrations and Experience Explorer; no new canonical route/screen/operation identity follows from a proposed Studio panel. Truthful API-only CLI journeys, source-grounded GharBatai presentation claims and TutorPutor model-vs-story time are required.
+
+GharBatai's [current product editorial handoff](https://github.com/samujjwal/gharbatai/blob/codex/gharbatai-media-editorial-pdp-handoff-20261018/docs/demo-recording/CURRENT-PROFESSIONAL-DEMO-MEDIA-HANDOFF.md) owns DX-01..32, source sufficiency, genuine product actor and seven business readbacks, exact voice/script/edit variant and independent human approval; Media's PDP-3 fixtures **may only preview** those contracts. Neither fixture replay nor planning source claims live film generation, scientific calibration, learner mastery, codec qualification or phase acceptance.
+
+**Successor phase status:** source authored; native P3 journey/step/action/positive+negative+unknown/Explorer verification and final Discovery currentness **NOT_RUN** here. Historical complete status applies only to recorded old source cuts.
+
