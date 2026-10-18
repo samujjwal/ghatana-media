@@ -19,7 +19,7 @@ surfaceInterfaces:
     negative: [unsupported-signal, expired-consent, unauthorized-runtime-effect, unqualified-codec, missing-visual-source]
   - surfaceId: media.surface.production-studio
     kind: GUI
-    pages: [project-library, production-planner, source-review, multitrack-timeline, captions-transcript, narration-mixer, camera-multiview, effects-inspector, quality-review, render-preview, delivery]
+    pages: [project-library, production-planner, scene-storyboard, source-review, multitrack-timeline, captions-transcript, narration-mixer, camera-multiview, effects-inspector, interactive-authoring, quality-review, render-preview, delivery]
     composition: [timeline, inspector, preview-monitor, tracks, event-markers, revision-history, sources, property-editors]
     keyboardParities: [timeline-scrub, trim, split, slip, slide, ripple, keyframe, mask, captions, mix, undo-redo, scene-reorder]
     accessibility: [structured-timeline-tree, focus-order, high-contrast, screen-reader-announcements, reduced-motion, caption-preview, text-numeric-equivalents]
