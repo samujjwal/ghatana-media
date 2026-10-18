@@ -114,3 +114,12 @@ The source-authored `recorder-studio-interface.yaml` records the new Recorder/St
 ## Declarative animation, simulation and TutorPutor experience successor
 
 `.product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#declarativeProductionInterface` now binds 61 canonical PDP-0 specializations to the 61 exact PDP-1 case-operation projections and existing GUI, CLI/headless, and embedded surfaces. It reuses the 52 existing Recorder Studio manual-operation kinds, existing design tokens/components and existing animation/simulation screens; no parallel design system or fictitious API-only GUI is introduced. Numerical instruments, typed simulation clocks, scientific-fidelity labels, accessibility and no-privileged-interactive-player semantics are required. The historical PDP-2 development-complete snapshot is source-cut scoped; only native parse, exact cross-phase reference/negative tests, impacted source-current phase verification and qualified review can establish this **successor** as `DEV_COMPLETE`.
+
+---
+
+## Current unified-production successor source / 2026-10-18
+
+Read the [current source-gated plan](../../docs/implementation/MEDIA-UNIFIED-PRODUCTION-CURRENT-PLAN.md), `animation-simulation-grammar.yaml#declarativeProductionInterface`, and `recorder-studio-interface.yaml`. The successor provides 61 exact P0/P1/P2 declarative projections on the **existing** 13 planned Studio workspace keys, 52 typed manual edits, shared tokens/components/layouts and truthful CLI/API-only/embedded modes. Mandatory presentation now explicitly spans voice/ASR/TTS/dubbing/audio mix/caption vs actor label, source-sufficiency/verified-result warnings, keyframes/2D/3D/math/data-bound animation, model/solver/units/tSim probes, uncertainty and separate scientific/visual quality. The GharBatai audience/script/comprehension/approval requirements are authored by its product, displayed/reviewed through admitted generic Media interface semantics only.
+
+**Successor phase status:** design-interface source authored; **native/current-source PDP-2 DEV_COMPLETE not yet established**. Do not create new physical surfaces, claim 13 new routed screens, silently turn narration into product proof, invent a graphical application for a CLI-only system, or allow story scrub to mutate model execution. Run native design conformance, keyboard/numeric text/headless parity, a11y/reduced-motion/locale/mobile/denial tests, then reissue source-current handoff and owner review.
+
