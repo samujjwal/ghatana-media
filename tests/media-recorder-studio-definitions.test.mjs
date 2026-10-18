@@ -277,22 +277,30 @@ test('returns diagnostics rather than throwing on invalid topology JSON', () => 
 // required source definitions, not implementation or independent acceptance.
 test('rejects deletion of a typed Studio operation parameter contract', () => {
   const source=read('.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml');
-  const changed=source.replace('    - kind: audio-denoise\\n      parameters:', '    - kind: deleted-audio-denoise\\n      parameters:');
+  const changed=source.replace('    - kind: audio-denoise\n      parameters:', '    - kind: deleted-audio-denoise\n      parameters:');
   assert.notEqual(changed,source);
   const result=verifyRecorderStudioDefinitions({overrides:{p1:changed}});
-  assert.ok(result.errors.some(e=>e.includes('every manual edit kind requires one typed parameter contract')),result.errors.join('\\n'));
+  assert.ok(result.errors.some(e=>e.includes('every manual edit kind requires one typed parameter contract')),result.errors.join('\n'));
 });
 test('rejects Studio parameter binding to a fictional Media component', () => {
   const source=read('.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml');
   const changed=source.replace('    componentRef: media.component.audio-mixer','    componentRef: media.component.not-registered');
   assert.notEqual(changed,source);
   const result=verifyRecorderStudioDefinitions({overrides:{p2:changed}});
-  assert.ok(result.errors.some(e=>e.includes('existing component binding')),result.errors.join('\\n'));
+  assert.ok(result.errors.some(e=>e.includes('existing component binding')),result.errors.join('\n'));
 });
 test('rejects an edit parameter contract with missing required field', () => {
   const source=read('.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml');
   const changed=source.replace('      requiredFields: [clipId, edge, newBoundary]','      requiredFields: [clipId, edge]');
   assert.notEqual(changed,source);
   const result=verifyRecorderStudioDefinitions({overrides:{p1:changed}});
-  assert.ok(result.errors.some(e=>e.includes('incomplete typed parameters')),result.errors.join('\\n'));
+  assert.ok(result.errors.some(e=>e.includes('incomplete typed parameters')),result.errors.join('\n'));
+});
+
+test('rejects a typed Studio parameter using an unresolved value type', () => {
+  const source=read('.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml');
+  const changed=source.replace('parameters: {clipId: ClipRef, edge: StartOrEnd', 'parameters: {clipId: MissingUnregisteredType, edge: StartOrEnd');
+  assert.notEqual(changed,source);
+  const result=verifyRecorderStudioDefinitions({overrides:{p1:changed}});
+  assert.ok(result.errors.some(e=>e.includes('unresolved typed value')),result.errors.join('\n'));
 });

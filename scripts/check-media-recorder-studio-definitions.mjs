@@ -329,7 +329,11 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
   const typedKinds=kindContracts?.kinds ?? [];
   if (typedKinds.length!==52 || !sameSet(manualKinds,typedKinds.map(x=>x.kind)))
     fail('PDP1 every manual edit kind requires one typed parameter contract');
-  const canonicalComponents=new Set(extract(original.componentContracts,/^- id: (media\\.component\\.\\S+)/gm));
+  const declaredParamTypes=new Set(Object.keys(kindContracts?.paramTypeRules??{}));
+  for (const item of typedKinds) for (const name of Object.values(item.parameters??{}))
+    if (!declaredParamTypes.has(name))
+      fail('PDP1 manual edit parameter uses unresolved typed value: '+item.kind+'/'+name);
+  const canonicalComponents=new Set(extract(original.componentContracts,/^- id: (media\.component\.\S+)/gm));
   const viewCompositions=p2Doc.recorderStudioComponentCompositions?.surfaceContracts ?? [];
   if (!sameSet(viewCompositions.map(x=>x.surfaceId),newSurfaceIds))
     fail('PDP2 must compose existing components for all four new logical surfaces');

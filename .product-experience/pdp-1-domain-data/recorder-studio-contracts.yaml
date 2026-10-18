@@ -462,6 +462,55 @@ editKindParameterContracts:
     ClipRef: source-version-bound-clip-and-canonical-project-revision
     TrackRef: canonical-track-reference-with-rights-and-signal-kind
     SourceAssetVersionRef: immutable-rights-checked-source-reference
+    ApprovedStyleRef: immutable-accessible-style-ref-with-authorized-asset-and-purpose
+    ApprovedTextRef: exact-approved-text-source-version-locale-and-use-scope
+    AudioPitchPolicyRef: qualified-resampling-pitch-and-sample-time-preservation-policy
+    AuthorizedNarrationSourceRef: file-or-TTS-provider-qualified-with-voice-and-likeness-rights
+    Boolean: explicit-boolean-without-hidden-tristate-default
+    BoundedCurve: finite-keyframe-curve-with-endpoint-clamp-unit-and-easing-domain
+    BoundedEnvelope: finite-audio-amplitude-time-envelope-with-attack-release-bounds
+    BoundedParameterSetRef: versioned-qualified-effect-parameter-schema-reference
+    BranchRef: exact-versioned-unprivileged-interaction-graph-branch-identity
+    CameraSourceRef: qualified-camera-source-and-device-and-timebase-identity
+    CameraSourceRefs: nonempty-unique-camera-source-refs-with-synchronized-clock-evidence
+    CaptionSegmentRef: exact-caption-version-and-segment-identity
+    CaptionSegmentRefs: nonempty-unique-caption-segments-in-same-canonical-track
+    CaptionVersionRef: immutable-source-linked-versioned-caption-document
+    ClockTransformRef: measured-clock-domain-transform-with-finite-error-bound
+    ColorSpaceRef: declared-qualified-transfer-gamut-primaries-and-range
+    EditOperationRef: same-project-attributable-committed-edit-identity
+    FiniteDecibels: finite-audio-gain-in-decibels-with-qualified-true-peak-ceilings
+    InteractionGraphRef: exact-versioned-nonprivileged-sandboxed-interaction-graph
+    KeyframeRangeRef: ordered-half-open-keyframe-interval-in-canonical-media-time
+    LayerRef: same-revision-ordered-source-bound-editorial-layer
+    LocaleRef: valid-BCP47-locale-compatible-with-exact-source-and-voice
+    MarkerRef: stable-project-owned-versioned-media-time-marker-identity
+    MixProfileRef: qualified-audio-channel-loudness-and-peak-output-policy
+    NormalizedPoint: finite-x-y-in-unit-square-with-declared-clamp-policy
+    NormalizedVector: finite-offset-vector-with-declared-frame-reference
+    PolicyRef: tenant-purpose-scoped-authorized-policy-revision
+    PositiveRationalCurve: piecewise-rational-positive-rate-over-bounded-media-time
+    ProjectRevisionRef: immutable-canonical-MediaProject-expected-revision-reference
+    PropertyRef: whitelisted-typed-visual-or-audio-property-in-target-version
+    QualifiedChannelMap: admitted-audio-layout-and-sample-rate-channel-projection
+    QualifiedEffectProfileRef: profile-version-license-and-provider-admission-reference
+    QualifiedInterpolation: declared-interpolation-type-and-computable-time-unit-bounds
+    QualifiedTransition: admitted-video-audio-transition-kind-profile-and-license
+    RationalTransformRef: versioned-rational-transform-matrix-in-declared-source-frame
+    RegionRef: source-version-bound-timestamped-approved-region-identity
+    RegionRefs: unique-ordered-protected-source-bound-region-references
+    RightsRef: source-version-tenant-purpose-consent-license-and-approval-snapshot
+    SandboxedConditionRef: declarative-allowlisted-branch-predicate-no-script-or-domain-effect
+    SceneGroupRef: stable-noncyclic-group-of-scenes-with-one-project-owner
+    SceneOrTrackRef: scene-or-track-within-one-canonical-project-revision
+    SceneRef: stable-semantic-scene-id-and-canonical-project-revision
+    SceneRefs: nonempty-unique-scenes-bound-to-one-canonical-project-revision
+    SequenceRef: canonical-composition-noncyclic-child-sequence-reference
+    SourceEventRef: exact-observed-product-or-capture-event-and-typed-authoritative-finality
+    StableAnchorRef: versioned-scene-source-event-time-anchor-with-rebase-rule
+    StartOrEnd: explicit-start-or-end-boundary-enumeration
+    TrackRefs: nonempty-unique-track-references-with-compatible-output-signal-kinds
+    TypedPropertyValue: schema-discriminated-finite-value-with-owner-declared-unit-and-range
   globalInvariants:
     - input-values-validated-before-the-canonical-MediaProject-CAS
     - no-float-or-wall-clock-substitution-for-source-media-time
