@@ -15,6 +15,28 @@ test('source-derived Recorder Studio PDP3 exact coverage is 4/16/84/52/13 withou
   assert.deepEqual(result.errors,[]);
   assert.deepEqual(result.stats,{sourceDocumentsValid:true,logicalSurfaces:4,flowContracts:16,acceptanceCaseSteps:84,exactProposedPrimaryOperationSteps:63,explicitNonInvocationSteps:21,manualEditPaths:52,workspaceIntents:13,reusedCanonicalScreenViews:12,unregisteredScreenCandidates:1,interactiveScreenCaseContracts:4});
 });
+test('rejects missing PDP3 owner reference in the logical surface registry',()=>{
+  const filename='.product-experience/surface-registry.yaml';
+  const doc=parse(fs.readFileSync(path.join(root,filename),'utf8'));
+  const surface=doc.surfaces.find(x=>x.surfaceId==='media.surface.production-studio');
+  assert.ok(surface,'Studio logical surface exists');
+  surface.experienceAuthority='.product-experience/pdp-3-product-experience/nonexistent.yaml';
+  expectReject(verifyRecorderStudioExperience({overrides:{registry:stringify(doc)}}),
+    'PDP3 surface authority/crosswalk/parent binding');
+});
+test('rejects topology crosswalk missing PDP3 source and premature physical-runtime promotion',()=>{
+  const filename='.product-experience/surfaces/media-physical-topology.v1.json';
+  const topology=JSON.parse(fs.readFileSync(path.join(root,filename),'utf8'));
+  const consumer=topology.consumerCrosswalk.find(x=>x.surfaceId==='media.surface.recorder-orchestrator');
+  assert.ok(consumer);
+  consumer.sourceContracts=consumer.sourceContracts.filter(x=>!x.endsWith('/recorder-studio-experience.yaml'));
+  expectReject(verifyRecorderStudioExperience({overrides:{topology:JSON.stringify(topology)}}),
+    'PDP3 surface authority/crosswalk/parent binding');
+  consumer.sourceContracts.push('.product-experience/pdp-3-product-experience/recorder-studio-experience.yaml');
+  consumer.bindingState='DEPLOYED';
+  expectReject(verifyRecorderStudioExperience({overrides:{topology:JSON.stringify(topology)}}),
+    'PDP3 surface authority/crosswalk/parent binding');
+});
 test('rejects a missing PDP0 step from an otherwise well-shaped flow',()=>{
   expectReject(probe(x=>x.flowContracts[0].stepContracts.pop()),'case-step coverage mismatch');
 });
