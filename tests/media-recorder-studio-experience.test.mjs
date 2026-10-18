@@ -129,3 +129,30 @@ test('rejects absent, invented or accidentally admitted canonical screen reuse',
     page.screenReuseDisposition='ADMITTED';
   }),'invalid screen reuse disposition');
 });
+
+test('rejects an interactive authoring screen claiming deployment or unverified effects',()=>{
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].implementationAdmission='ADMITTED'),
+    'unadmitted interactive screen candidate cannot claim public route');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].routeStatus='PUBLIC_RUNTIME_ROUTE'),
+    'unadmitted interactive screen candidate cannot claim public route');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].finality='PRODUCT_EFFECT_CONFIRMED'),
+    'interactive candidate screen lacks accessible headless fixture and nonfinal preview limits');
+});
+test('rejects missing exact interactive case, operation or P1 source value',()=>{
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].sourceAcceptanceCaseRefs.pop()),
+    'unadmitted interactive screen candidate must have exact case/operation bindings');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].proposedPdp1OperationRefs=['media.recorder.operation.run.submit.v1']),
+    'unadmitted interactive screen candidate must have exact case/operation bindings');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].projectedPdp1ValueRefs=['media.recorder.value.not-real.v1']),
+    'unadmitted interactive screen candidate must have exact case/operation bindings');
+});
+test('rejects ungrounded branch behavior or missing denial/recovery accessibility',()=>{
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].interactionContracts[0].denial=''),
+    'interactive screen candidate lacks exact positive, denial or recovery interaction contract');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].interactionContracts.pop()),
+    'interactive screen candidate lacks exact positive, denial or recovery interaction contract');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].accessibility=[]),
+    'interactive candidate screen lacks accessible headless fixture and nonfinal preview limits');
+  expectReject(probe(x=>x.pdp3ScreenCandidates.records[0].requiredScenarioFixtures=[]),
+    'interactive candidate screen lacks accessible headless fixture and nonfinal preview limits');
+});
