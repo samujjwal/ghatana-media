@@ -60,11 +60,11 @@ pnpm check:recorder-studio-experience
 pnpm test:recorder-studio-experience
 pnpm check:design-conformance
 pnpm check:presentation-architecture
-pnpm check:product-definition-authority
-pnpm check:product-experience-local
 pnpm generate:product-definition-manifest
 # Review the generator-owned manifest/index diff; commit only exact derived output.
-# Run strict phase projections, source-currentness, remaining native/Brower tests.
+pnpm check:product-definition-authority
+pnpm check:product-experience-local
+# Run strict phase projections, source-currentness, remaining native/browser tests.
 ```
 
 Do not represent earlier read-only source audits as native checks. This environment has no working public GitHub DNS/checkout and therefore has **NOT_RUN** status for native pnpm/YAML, CI, browser, provider, codec, film and release proof. A remote tree/readback audit verified the registry's 360 file paths at that source cut, and a restricted YAML scalar parser verified 4/16/84/63/21/52/13 and the six authored interactive fixtures; those limited observations neither prove the full native schema parser nor future repository currentness.
