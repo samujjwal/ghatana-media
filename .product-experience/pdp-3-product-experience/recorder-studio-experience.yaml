@@ -1630,6 +1630,89 @@ interactiveDemoPlayerExperience:
   semantics: ["signed-source-version-bundle", "CSP-and-HTML-sanitization", "keyboard-accessible-hotspots", "text-alternative-and-transcript", "offline-asset-and-branch-fallback", "no-privileged-business-effect-from-click", "consent-and-minimal-analytics", "safe-exit"]
   projectedStates: ["LOADING", "READY", "OFFLINE", "UNSUPPORTED_FEATURE", "POLICY_DENIED", "UNAVAILABLE", "FINISHED"]
   hostActionStatus: "NO_DELEGATED_PRODUCT_MUTATION_OR_UNAPPROVED_NETWORK_EGRESS"
+surfaceCaseScenarioContracts:
+  status: "PDP3_SOURCE_SCENARIO_DESCRIPTIONS_NOT_EXECUTED_OR_HOST_ADMITTED"
+  canonicalAcceptanceAuthority: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses"
+  existingJourneyAuthority: ".product-experience/pdp-3-product-experience/journey-registry.yaml"
+  sideEffectPolicy: "ONLY_PDP1_SELECTED_OPERATION_WHEN_ACTUALLY_ADMITTED; NO_SOURCE_FIXTURE_IMPLIES_EXECUTION"
+  records:
+    - id: "media.recorder.p3.scenario.headless-plan-review.v1"
+      ownerSurfaceId: "media.surface.recorder-orchestrator"
+      existingJourneyRefs: ["J-09", "J-24", "J-25"]
+      sourceAcceptanceCaseRefs: ["MEDIA-REC-P0-AC-001", "MEDIA-REC-P0-AC-002", "MEDIA-REC-P0-AC-003", "MEDIA-REC-P0-AC-004", "MEDIA-REC-P0-AC-005"]
+      symbolicInputContract: "Versioned YAML/JSON config, tenant-scoped actor context, product-experience definition reference, audience, purpose, locale, source bounds and policy profile"
+      proposedUserExperience: "Resolve and validate exact effective input; show deterministic storyboard fallback or evidence-backed AI advice; request review without executing product effects"
+      visibleObservationContract: "Stable plan identity, source revision, eligibility/abstention, protected product postconditions, bounded resource estimate and safe next action"
+      mandatoryDenialAndRecovery: "Reject stale schema, unsupported locale, missing purpose, forged Tools contract, model abstention without valid fallback and unadmitted provider"
+      finalityBoundary: "READ_ONLY_PLAN_PROJECTION"
+      admission: "SOURCE_DEFINITION_ONLY_NO_ROUTE_OR_RUNTIME_PROOF"
+      verification: "NOT_RUN"
+    - id: "media.recorder.p3.scenario.owned-product-readback.v1"
+      ownerSurfaceId: "media.surface.recorder-orchestrator"
+      existingJourneyRefs: ["J-09", "J-20", "J-24", "J-27"]
+      sourceAcceptanceCaseRefs: ["MEDIA-REC-P0-AC-012", "MEDIA-REC-P0-AC-013", "MEDIA-REC-P0-AC-014", "MEDIA-REC-P0-AC-015", "MEDIA-REC-P0-AC-016"]
+      symbolicInputContract: "Admitted product adapter proposal, authorized tenant/actor/scenario, versioned request and bounded fenced fixture/seed lease"
+      proposedUserExperience: "Prepare and qualify environment; submit same-key run; observe owner-verified product action/readback and exact attempt/lease identity; reconcile failed cleanup"
+      visibleObservationContract: "Separate request acknowledgment, current run/attempt state, authoritative business postconditions, scene proof status, owned cleanup and trace"
+      mandatoryDenialAndRecovery: "Never infer success from click, screenshot, HTTP status, job spawn or seed alone; reject stale lease, leaked token, foreign tenant and unsafe replay"
+      finalityBoundary: "OWNER_READBACK_REQUIRED_FOR_BUSINESS_OUTCOME"
+      admission: "SOURCE_DEFINITION_ONLY_NO_ROUTE_OR_RUNTIME_PROOF"
+      verification: "NOT_RUN"
+    - id: "media.recorder.p3.scenario.physical-source-qualification.v1"
+      ownerSurfaceId: "media.surface.capture-adapters"
+      existingJourneyRefs: ["J-24", "J-25", "J-29", "J-30"]
+      sourceAcceptanceCaseRefs: ["MEDIA-REC-P0-AC-006", "MEDIA-REC-P0-AC-007", "MEDIA-REC-P0-AC-009", "MEDIA-REC-P0-AC-010", "MEDIA-REC-P0-AC-011"]
+      symbolicInputContract: "Requested actual browser/device/desktop/camera/file source, OS/codec/source version, source clocks, signals, purpose/rights scope"
+      proposedUserExperience: "Probe qualified capture signals and declared constraints; measure source clock relations; stop missing or revoked source with a bounded fenced result"
+      visibleObservationContract: "Exact provider/profile, supported dimensions, measured clock transforms, provenance, approved source version and typed unavailable reasons"
+      mandatoryDenialAndRecovery: "Never turn package presence, mocked driver, generic screenshot, wall-clock estimate or other camera into a qualified source"
+      finalityBoundary: "QUALIFIED_SOURCE_CAPABILITY_NOT_TRANSPORT_SUCCESS"
+      admission: "SOURCE_DEFINITION_ONLY_NO_ROUTE_OR_RUNTIME_PROOF"
+      verification: "NOT_RUN"
+    - id: "media.recorder.p3.scenario.machine-only-product-capture.v1"
+      ownerSurfaceId: "media.surface.capture-adapters"
+      existingJourneyRefs: ["J-24", "J-25", "J-27"]
+      sourceAcceptanceCaseRefs: ["MEDIA-REC-P0-AC-008", "MEDIA-REC-P0-AC-058", "MEDIA-REC-P0-AC-059", "MEDIA-REC-P0-AC-061"]
+      symbolicInputContract: "Versioned CLI/HTTP/gRPC/event request schema and trusted product-owned actor/context, redaction scope, allowed transport and sandbox policy"
+      proposedUserExperience: "Capture typed commands, request-response/finality and authoritative owner postcondition through admitted adapter contract; project a truthful explanatory visualization"
+      visibleObservationContract: "Original command/operation identity, redacted typed inputs/outputs, result finality, provenance, unsupported capability, safe retry/reconciliation"
+      mandatoryDenialAndRecovery: "Do not invent a browser UI, replay privileged product commands from a viewer, log secrets or substitute HTTP success for business readback"
+      finalityBoundary: "HEADLESS_TYPED_OBSERVATION_NO_FAKE_GUI"
+      admission: "SOURCE_DEFINITION_ONLY_NO_ROUTE_OR_RUNTIME_PROOF"
+      verification: "NOT_RUN"
+    - id: "media.recorder.p3.scenario.studio-versioned-manual-edit.v1"
+      ownerSurfaceId: "media.surface.production-studio"
+      existingJourneyRefs: ["J-11", "J-18", "J-21"]
+      sourceAcceptanceCaseRefs: ["MEDIA-REC-P0-AC-017", "MEDIA-REC-P0-AC-019", "MEDIA-REC-P0-AC-023", "MEDIA-REC-P0-AC-024", "MEDIA-REC-P0-AC-029", "MEDIA-REC-P0-AC-079", "MEDIA-REC-P0-AC-080", "MEDIA-REC-P0-AC-081", "MEDIA-REC-P0-AC-082", "MEDIA-REC-P0-AC-083", "MEDIA-REC-P0-AC-084"]
+      symbolicInputContract: "Existing MediaProject version, immutable source/timebase and track/clip/region IDs, exact editor actor, expected revision, lock policy, undo intent"
+      proposedUserExperience: "Inspect a typed numerical/keyboard editor; create proposed trim/reframe/ramp/solo/mute/annotation/denoise or scene edit; commit only through canonical CAS"
+      visibleObservationContract: "New immutable revision or unchanged current revision with precise conflict, source-time and human-lock disclosure, matching CLI/SDK/API intent"
+      mandatoryDenialAndRecovery: "No pointer-only editor, floating time drift, invisible lock loss, invented source frames, versionless write, rights bypass or duplicate local project store"
+      finalityBoundary: "IMMUTABLE_PROJECT_EDIT_ONLY_WHEN_ADMITTED"
+      admission: "SOURCE_DEFINITION_ONLY_NO_ROUTE_OR_RUNTIME_PROOF"
+      verification: "NOT_RUN"
+    - id: "media.recorder.p3.scenario.sandboxed-interactive-player.v1"
+      ownerSurfaceId: "media.surface.interactive-demo-player"
+      existingJourneyRefs: ["J-22", "J-28"]
+      sourceAcceptanceCaseRefs: ["MEDIA-REC-P0-AC-050", "MEDIA-REC-P0-AC-051", "MEDIA-REC-P0-AC-052", "MEDIA-REC-P0-AC-053"]
+      symbolicInputContract: "Versioned integrity-checked offline-capable scene bundle, sanitized hotspot graph, source-version rights, audience consent and accessible keyboard semantics"
+      proposedUserExperience: "Render approved media/transcript, traverse known local branch, handle offline fallback, enforce CSP/sandbox and optional consented low-data analytics"
+      visibleObservationContract: "Local viewer branch state, exact scene/time anchor, signed source version, focus/traversal and truthful offline/denial status"
+      mandatoryDenialAndRecovery: "No scriptable privileged product action, unauthorized egress, fabricated product outcome, hidden dependency, mixed-tenant asset or nonconsented tracking"
+      finalityBoundary: "LOCAL_VIEWER_ONLY_NEVER_PRODUCT_DOMAIN_EFFECT"
+      admission: "SOURCE_DEFINITION_ONLY_NO_ROUTE_OR_RUNTIME_PROOF"
+      verification: "NOT_RUN"
+    - id: "media.recorder.p3.scenario.governed-publish-finality.v1"
+      ownerSurfaceId: "media.surface.recorder-orchestrator"
+      existingJourneyRefs: ["J-21", "J-22", "J-26"]
+      sourceAcceptanceCaseRefs: ["MEDIA-REC-P0-AC-054", "MEDIA-REC-P0-AC-055", "MEDIA-REC-P0-AC-056", "MEDIA-REC-P0-AC-057"]
+      symbolicInputContract: "Accepted exact artifact/revision, qualified container/codec/output profile, current audience/purpose/rights, separate human/legal approvals and destination identity"
+      proposedUserExperience: "Validate rights and technical output; propose governed publish request; observe actual request receipt and reconcile destination state under same idempotency identity"
+      visibleObservationContract: "Signed source/edit/render/approval manifest, current rights, requested/acknowledged vs destination confirmed state and safe UNKNOWN next step"
+      mandatoryDenialAndRecovery: "Do not treat MP4 presence, signed URL, HTTP 200, successful upload or technical QA as independent approval or remote publication finality"
+      finalityBoundary: "EXTERNAL_REQUEST_ACK_NOT_DESTINATION_FINALITY"
+      admission: "SOURCE_DEFINITION_ONLY_NO_ROUTE_OR_RUNTIME_PROOF"
+      verification: "NOT_RUN"
 machineOnlyExperience:
   surfaceIds: ["media.surface.recorder-orchestrator", "media.surface.capture-adapters"]
   views: ["configuration-schema-and-effective-policy", "source-qualification-and-timebase", "plan-and-product-postcondition", "bounded-run-and-lease-state", "typed-owner-observation-and-finality", "scene-and-media-quality-result", "redacted-trace-and-safe-recovery"]
