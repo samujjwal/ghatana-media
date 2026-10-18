@@ -11,6 +11,7 @@ export const inputs = Object.freeze({
   audit: 'docs/implementation/observations/media-unified-production-501-feature-reconciliation-2026-10-18.json',
   attachedAudit: 'docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json',
   uploadedIdCrosswalk: 'docs/implementation/observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json',
+  taskLedger: 'docs/implementation/observations/media-unified-source-task-and-experiment-crosswalk-2026-10-18.json',
   crosswalk: '.product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml',
   requirements: '.product-experience/pdp-0-product-truth/requirements.yaml',
   p1: '.product-experience/pdp-1-domain-data/declarative-production-contracts.yaml',
@@ -47,6 +48,38 @@ export function verifyUnifiedProductionInventory({repoRoot = root, overrides = {
     attached = JSON.parse(raw.attachedAudit);
     stableIds = JSON.parse(raw.uploadedIdCrosswalk);
   } catch (e) { return {errors: ['attached source/crosswalk invalid JSON: ' + e.message], stats: {}}; }
+
+  let taskLedger;
+  try { taskLedger = JSON.parse(raw.taskLedger); }
+  catch (e) { return {errors: ['source task ledger: invalid JSON: ' + e.message], stats: {}}; }
+  const sourceTaskRowDefinitions = [
+    ['M', /^\\|\\s*(M-\\d{2})\\s*\\|[^\\n]*$/gm, 16],
+    ['INV', /^\\|\\s*(INV-\\d{2})\\s*\\|[^\\n]*$/gm, 12],
+    ['DAS', /^\\|\\s*\\*\\*(DAS-\\d{2})[^|\\n]*\\|[^\\n]*$/gm, 12],
+    ['C', /^\\|\\s*\\*\\*(C-\\d{2})[^|\\n]*\\|[^\\n]*$/gm, 28],
+    ['DAS-A', /^\\|\\s*`(DAS-A\\d{2})`\\s*\\|[^\\n]*$/gm, 18]
+  ];
+  const exactSourceTasks = sourceTaskRowDefinitions.flatMap(([prefix, regex, total]) => {
+    const rows = [...raw.blueprint.matchAll(regex)].map(m => ({id:m[1],markdown:m[0]}));
+    if (rows.length !== total) fail('blueprint: original source task family missing or changed ' + prefix);
+    return rows;
+  });
+  const projectedTasks = taskLedger.items || [];
+  if (taskLedger.status !== 'LOSSLESS_SOURCE_TASKS_RECORDED_NO_BUILD_ADMISSION_OR_EXPERIMENT_EXECUTION' ||
+      projectedTasks.length !== 86 || duplicates(projectedTasks.map(t=>t.sourceTaskId)) ||
+      exactSourceTasks.length !== 86)
+    fail('original source tasks: expected unique 16 M, 12 INV, 12 DAS, 28 C, 18 DAS-A (86)');
+  const tasksById = new Map(projectedTasks.map(t=>[t.sourceTaskId,t]));
+  for (const row of exactSourceTasks) {
+    const task = tasksById.get(row.id);
+    if (!task || task.exactSourceMarkdownRow !== row.markdown ||
+        task.originalSourcePath !== inputs.blueprint ||
+        task.completionStatus !== 'NOT_ASSERTED_BY_THIS_RECONCILIATION' ||
+        !Array.isArray(task.candidateExistingPbiPackages) ||
+        task.candidateExistingPbiPackages.length === 0 ||
+        task.candidateExistingPbiPackages.some(p=>!validPbis.has(p)))
+      fail('original source task dropped, corrupted or prematurely marked complete: ' + row.id);
+  }
   const product = yamlDocument(raw.requirements, 'requirements', fail);
   const p1 = yamlDocument(raw.p1, 'p1', fail);
   yamlDocument(raw.p2, 'p2', fail);
