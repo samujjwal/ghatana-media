@@ -415,3 +415,8 @@ canonical projection, accept meanings, or establish phase completion.
 ## Recorder/Studio PDP successor extension (new affected surfaces)
 
 The source-authored `recorder-studio-contracts.yaml` records the new Recorder/Studio surface-specific semantics at this later proposed source cut. Historical `DEV_COMPLETE` remains attributable to its original source cut; this extension has **not** passed currentness/admission or PDP-3 readmission. The extension reuses existing Media identities and may not create independent project, job, rights or publishing authorities. Its exact affected obligations require native phase validation and successor acceptance before any completion claim.
+
+
+## Declarative production successor domain/operation bindings
+
+`.product-experience/pdp-1-domain-data/declarative-production-contracts.yaml` is the source-owned PDP-1 specialization for **61** declarative cases: it binds **39 distinct existing operation contracts** and existing project, scene, animation graph, simulation world, checkpoint, job/attempt, timeline and provenance owners. It declares typed specifications for source classification, scene/animation/model execution, simulation states, measurements, analytical validation, time alignment and the TutorPutor public AEF bridge. The existing canonical `operations.yaml` and `value-objects.yaml` remain authoritative; no second job store, model-science owner, arbitrary-script executor, route, or new operation identity is admitted. The previous source-cut `DEV_COMPLETE` statement is **not an acceptance of this successor**; source-current native parser/contract verification and independent PDP-1 re-review remain required.
