@@ -17,11 +17,23 @@ population:
   logicalSurfaces: 4
   featureProfiles: 16
   acceptanceCaseSteps: 84
+  exactProposedPrimaryOperationSteps: 63
+  explicitNonInvocationSteps: 21
   manualEditPaths: 52
   studioWorkspaceProposals: 13
   existingTopLevelJourneysPreserved: 30
   existingCanonicalScreensPreserved: 47
   physicalPackagesAdded: 0
+stepOperationBindingSemantics:
+  canonicalCaseAuthority: ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses"
+  canonicalOperationAuthority: ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#canonicalOperationProposals/records"
+  selectedOperationIs: "An authored intent-only candidate from the group's existing PDP1 proposals, not a transport, admission, callable method, approval, executed product action or receipt"
+  noDirectInvocationMeans: "The case is a source observation, legal/policy authority, accessible presentation, local viewer action or definition-only invariant; no unrelated Media effect may be fabricated to make counts pass"
+  requiredEvidenceMeaning: "Exact evidence class needed to satisfy PDP0 positive or denial oracle; document state alone does not prove execution"
+  policyAndFinality: "Every proposed effect reevaluates tenant/actor/purpose/source/rights and preserves authoritative owner outcome and original request identity before any retry"
+  stepOperationStatus: "PDP3_AUTHOR_SELECTION_ONLY_PENDING_OWNER_OPERATION_ADMISSION"
+  resultVariantAuthority: "PDP1 selected operation resultVariants; PDP0 then and rejection are sole user-facing oracles"
+  allowedEvidenceClasses: ["VERSIONED_PLAN_AND_OWNER_POLICY", "QUALIFIED_SOURCE_READBACK", "OWNER_BUSINESS_POSTCONDITION_AND_LEASE", "CANONICAL_PROJECT_REVISION", "IMMUTABLE_MANUAL_EDIT_REVISION", "MODEL_PROVENANCE_AND_POLICY_DECISION", "SOURCE_BOUND_RENDER_RECEIPT", "SEMANTIC_DEPENDENCY_AND_RECOVERY_RECEIPT", "OBSERVED_MEASUREMENT_AND_ABSTENTION", "SANDBOXED_VIEWER_OBSERVATION", "GOVERNED_DELIVERY_FINALITY", "CURRENT_RIGHTS_AND_AUDIT", "REDACTED_OPERATION_OBSERVATION", "QUALIFIED_PLATFORM_AND_CONTRACT", "ACCESSIBLE_SEMANTIC_INTERACTION", "SAME_VERSIONED_EDIT_ACROSS_CHANNELS", "SAME_REQUEST_AUTHORITATIVE_RECONCILIATION", "INDEPENDENT_APPROVAL_AND_RIGHTS", "QUALIFIED_OUTPUT_PROFILE_AND_POLICY"]
 surfaceExperiences:
   -
     surfaceId: "media.surface.recorder-orchestrator"
@@ -74,7 +86,7 @@ flowContracts:
     entryContract: "Import a versioned product-experience intent and user-supplied capture configuration"
     exitContract: "Plan is revision-bound and eligible, or returns a typed denied/unavailable state"
     denialRecoveryContract: "Correct purpose/source/locale or choose deterministic fallback without assuming a product outcome"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.project.plan.evaluate.v1", "media.recorder.operation.run.submit.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -130,7 +142,7 @@ flowContracts:
     entryContract: "Probe the actual authorized source and signal/timebase capabilities"
     exitContract: "Declared supported signals and policy-qualified adapter, or explicit unavailable dimensions"
     denialRecoveryContract: "Stop affected scene, preserve source provenance and require qualified replacement"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.capture.start.v1", "media.recorder.operation.capture.stop.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -194,7 +206,7 @@ flowContracts:
     entryContract: "Acquire fenced product fixture/session and submit the exact configuration"
     exitContract: "Observe owned action readback and authoritative job/attempt state"
     denialRecoveryContract: "Reconcile exact request and lease before retry, clean up only owned fixtures"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.run.submit.v1", "media.recorder.operation.run.observe.v1", "media.recorder.operation.run.reconcile.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -250,7 +262,7 @@ flowContracts:
     entryContract: "Open existing MediaProject revision in Studio or through headless client"
     exitContract: "Create one successor immutable revision or show unchanged current revision"
     denialRecoveryContract: "Preserve draft and locks, show CAS conflict or UNKNOWN commit without overwrite"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -304,7 +316,7 @@ flowContracts:
     entryContract: "Select an anchored scene, clip, track, layer and immutable source revision"
     exitContract: "Preview/commit semantically equivalent GUI and headless project edit"
     denialRecoveryContract: "Reject stale, unqualified or locked edits; keep originals and pre-edit version"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -432,7 +444,7 @@ flowContracts:
     entryContract: "Review bounded policy-eligible AI recommendation with evidence and uncertainty"
     exitContract: "Persist an explicitly accepted edit or abstention, never infer a domain effect"
     denialRecoveryContract: "Offer deterministic or manual path without unapproved data/model egress"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.quality.assess.v1", "media.recorder.operation.scene.compile.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -487,7 +499,7 @@ flowContracts:
     entryContract: "Compile storyboard, timing, narration and exact output-profile intents"
     exitContract: "Measure and compare preview/final semantic content for exact revision"
     denialRecoveryContract: "Reject unsupported voice, codec, aspect crop or unmeasured QA; keep source"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.capture.start.v1", "media.recorder.operation.scene.compile.v1", "media.recorder.operation.render.request.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -542,7 +554,7 @@ flowContracts:
     entryContract: "Inspect a material source change and scene dependency invalidation"
     exitContract: "Recapture only affected scenes with compatible human edits retained"
     denialRecoveryContract: "Offer semantic rebase, reconcile UNKNOWN, preserve unaffected scene assets"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.scene.recapture.v1", "media.recorder.operation.run.reconcile.v1", "media.recorder.operation.edit.commit.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -596,7 +608,7 @@ flowContracts:
     entryContract: "Review owner-observed business outcome and source-measured audio/video QA"
     exitContract: "Show pass/fail/abstain per measurement without inferring human approval"
     denialRecoveryContract: "Isolate failing scenes and required human/rights/legal review"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.quality.assess.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -651,7 +663,7 @@ flowContracts:
     entryContract: "Open a sandboxed immutable interactive bundle at a declared viewer version"
     exitContract: "Navigate known accessible branches and local fallback only"
     denialRecoveryContract: "Deny forged branch or script and explain unavailable offline assets"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.interactive.package.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -696,7 +708,7 @@ flowContracts:
     entryContract: "Choose exact render revision, declared audience, profile and destination"
     exitContract: "Show signed provenance and separately confirmed remote finality"
     denialRecoveryContract: "Reconcile original publish request; withhold unsupported/unapproved outputs"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.publish.request.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -743,7 +755,7 @@ flowContracts:
     entryContract: "Evaluate purpose-specific access, consent, rights and untrusted input before effects"
     exitContract: "Show current permitted-use decision or safe denied/held/unknown state"
     denialRecoveryContract: "Stop affected effect, preserve audit, distinguish revocation from erasure"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.asset.erase.request.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -796,7 +808,7 @@ flowContracts:
     entryContract: "Inspect bounded, redacted trace and measured run-stage observations"
     exitContract: "Correlate authoritative run/attempt/scene results without revealing payloads"
     denialRecoveryContract: "Report degraded telemetry and use independent audit for critical effects"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.run.observe.v1", "media.recorder.operation.quality.assess.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -844,7 +856,7 @@ flowContracts:
     entryContract: "Select OS/provider/codec/source package profile with exact qualification scope"
     exitContract: "Disclose supported combinations and writer/cutover state"
     denialRecoveryContract: "Return unsupported profile or fenced recovery; never simulate cross-platform support"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.capture.probe.v1", "media.recorder.operation.render.request.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -889,7 +901,7 @@ flowContracts:
     entryContract: "Navigate timeline/player/machine events through accessible non-pointer controls"
     exitContract: "Preserve exact localized source semantics, focus and denied states"
     denialRecoveryContract: "Use text/headless alternative; never fabricate a GUI or translate protected text"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.interactive.package.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
@@ -935,7 +947,7 @@ flowContracts:
     entryContract: "Switch between fully automatic and manual project revision authoring"
     exitContract: "Perform identical typed project edits through GUI/CLI/SDK/API when admitted"
     denialRecoveryContract: "Reject lossy round-trip, stale revision or unknown mutation; preserve manual locks"
-    operationSelectionStatus: "GROUP_CANDIDATES_ONLY_NOT_STEP_DISPATCH_ADMITTED"
+    operationSelectionStatus: "STEP_PRIMARY_PROPOSAL_NOT_OWNER_OR_RUNTIME_ADMITTED"
     operationCandidateRefs: ["media.recorder.operation.edit.commit.v1", "media.recorder.operation.scene.compile.v1"]
     caseOracleMode: "LIVE_CANONICAL_PDP0_GIVEN_WHEN_THEN_REJECTION_BY_ACCEPTANCE_CASE_REF"
     stepDisposition: "DEFINITION_ONLY_STEP_DISPATCH_UNBOUND_NOT_ADMITTED"
