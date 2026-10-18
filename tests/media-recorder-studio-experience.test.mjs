@@ -89,3 +89,43 @@ test('rejects duplicate YAML keys and malformed YAML',()=>{
   expectReject(verifyRecorderStudioExperience({overrides:{p3:source+'\nsourcePhase: PDP-3\n'}}),'invalid or duplicate YAML');
   expectReject(verifyRecorderStudioExperience({overrides:{p3:source+'\ninvalid: [unterminated\n'}}),'invalid or duplicate YAML');
 });
+
+test('rejects a valid but PDP2-inconsistent Studio template and recipe chain',()=>{
+  expectReject(probe(x=>{
+    const page=x.productionStudioWorkspace.pages.find(p=>p.pdp2WorkspaceKey==='scene-storyboard');
+    page.templateId='media.gui.template.workbench';
+    page.recipeId='media.gui.recipe.workbench';
+  }),'PDP2 page composition differs from PDP3 proposed design chain');
+  expectReject(probe(x=>{
+    const page=x.productionStudioWorkspace.pages.find(p=>p.pdp2WorkspaceKey==='delivery');
+    page.templateId='media.gui.template.render-preparation-and-review';
+    page.layoutId='media.gui.layout.render';
+    page.recipeId='media.gui.recipe.render-preparation-and-review';
+  }),'PDP2 page composition differs from PDP3 proposed design chain');
+});
+test('rejects a missing or fabricated PDP2 page composition',()=>{
+  const p2source=fs.readFileSync(path.join(root,'.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml'),'utf8');
+  const mutate=fn=>{const p2=parse(p2source);fn(p2);return verifyRecorderStudioExperience({overrides:{p2:stringify(p2)}});};
+  expectReject(mutate(x=>x.productionStudioPageCompositionContracts.pages.pop()),
+    'PDP2 page composition inventory');
+  expectReject(mutate(x=>x.productionStudioPageCompositionContracts.pages[0].componentRefs[0]='media.component.nonexistent'),
+    'PDP2 page components missing');
+  expectReject(mutate(x=>x.productionStudioPageCompositionContracts.pages[0].acceptanceCaseRefs=['MEDIA-REC-P0-AC-999']),
+    'PDP2 workspace must bind to real');
+  expectReject(mutate(x=>x.productionStudioPageCompositionContracts.pages[0].requiredStates=['READY']),
+    'PDP2 page states differ');
+});
+test('rejects absent, invented or accidentally admitted canonical screen reuse',()=>{
+  expectReject(probe(x=>x.productionStudioWorkspace.pages[0].candidateCanonicalScreenRefs=['media.view.nonexistent']),
+    'invalid or ungrounded existing-screen reuse proposal');
+  expectReject(probe(x=>x.productionStudioWorkspace.pages[0].candidateCanonicalScreenRefs=[]),
+    'existing screen reuse cannot mint unregistered screen IDs');
+  expectReject(probe(x=>{
+    const page=x.productionStudioWorkspace.pages.find(p=>p.pdp2WorkspaceKey==='interactive-authoring');
+    page.proposedNewScreenIntentId='media.view.compose-scene';
+  }),'unadmitted interactive-authoring screen candidate');
+  expectReject(probe(x=>{
+    const page=x.productionStudioWorkspace.pages.find(p=>p.pdp2WorkspaceKey==='interactive-authoring');
+    page.screenReuseDisposition='ADMITTED';
+  }),'invalid screen reuse disposition');
+});
