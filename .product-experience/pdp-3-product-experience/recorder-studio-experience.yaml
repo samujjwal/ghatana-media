@@ -666,6 +666,9 @@ productionStudioWorkspace:
       order: 1
       semanticIntent: "Review and open authorized MediaProject revisions and immutable source versions"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.find-projects", "media.view.work-in-project"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind authorized MediaProject revisions, source versions and tenant-scoped search without new project authority"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.collection"
       layoutId: "media.gui.layout.collection"
@@ -678,6 +681,9 @@ productionStudioWorkspace:
       order: 2
       semanticIntent: "Enter source-bound purpose, audience, scene plan, profile, AI mode and constraints"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.review-creation-plan"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind exact plan/scenes/quality/profile to authenticated input and owner-observed result conditions"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.task-setup"
       layoutId: "media.gui.layout.task-setup"
@@ -690,10 +696,13 @@ productionStudioWorkspace:
       order: 3
       semanticIntent: "Inspect scene sequence, product postconditions, denial beats and source anchors"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.arrange-scenes"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind source-time semantic anchors, product denial beats and recapture receipts"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
-      templateId: "media.gui.template.workbench"
+      templateId: "media.gui.template.media-composition"
       layoutId: "media.gui.layout.media-workbench"
-      recipeId: "media.gui.recipe.workbench"
+      recipeId: "media.gui.recipe.media-composition"
       designChainBindingStatus: "SOURCE_VERIFIED_REUSE_PROPOSAL_SCREEN_INSTANCE_NOT_ADMITTED"
       implementationStatus: "SOURCE_ONLY"
     -
@@ -702,6 +711,9 @@ productionStudioWorkspace:
       order: 4
       semanticIntent: "Inspect real source adapters, source rights, versions, clocks and capability admission"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.inspect-media", "media.view.review-rights-and-consent"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind source-specific qualification, provider identity, timebase, rights and consent observations"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.record-detail"
       layoutId: "media.gui.layout.record-detail"
@@ -714,6 +726,9 @@ productionStudioWorkspace:
       order: 5
       semanticIntent: "Edit synchronized video/audio/caption/overlay tracks and source-time intervals"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.compose-media"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind all 52 manual operations with source-interval CAS and keyboard/headless equivalence"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.media-composition"
       layoutId: "media.gui.layout.media-workbench"
@@ -726,6 +741,9 @@ productionStudioWorkspace:
       order: 6
       semanticIntent: "Correct source-linked transcript, caption timing, translation and speaker labels"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.edit-captions"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind immutable caption versions and source-time corrections without claiming lane-only runtime support"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.workbench"
       layoutId: "media.gui.layout.media-workbench"
@@ -738,6 +756,9 @@ productionStudioWorkspace:
       order: 7
       semanticIntent: "Review per-track gain, mute/solo, dialogue denoise, voice rights and audio QA"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.create-audio", "media.view.compose-media"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind audio mute/solo, denoise, voice rights, mix comparisons and exact revision outcomes"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.media-composition"
       layoutId: "media.gui.layout.media-workbench"
@@ -750,6 +771,9 @@ productionStudioWorkspace:
       order: 8
       semanticIntent: "Review declared camera/screen angles and source-sync uncertainty without synthetic proof"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.compose-media"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind only qualified camera/screen angles and clock-uncertainty disclosures, never synthetic product proof"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.media-composition"
       layoutId: "media.gui.layout.media-workbench"
@@ -762,6 +786,9 @@ productionStudioWorkspace:
       order: 9
       semanticIntent: "Edit semantic transforms, protected crop, keyframes, annotations and branding"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.edit-media", "media.view.edit-media-region"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind safe crop, time-ramp, keyframes, annotations, protected exact asset overlays and typed denial"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.media-composition"
       layoutId: "media.gui.layout.media-workbench"
@@ -774,6 +801,10 @@ productionStudioWorkspace:
       order: 10
       semanticIntent: "Inspect signed branch graph, keyboard hotspots, offline fallbacks and sandbox rules"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: []
+      screenReuseDisposition: "NEW_SCREEN_CANDIDATE_REQUIRED_NOT_REGISTERED"
+      proposedNewScreenIntentId: "media.recorder.p3.screen.interactive-authoring.candidate.v1"
+      unresolvedScreenBehavior: "No existing canonical page has exact hotspot/branch/offline authoring; add new screen contract candidate after author review"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.workbench"
       layoutId: "media.gui.layout.media-workbench"
@@ -786,6 +817,9 @@ productionStudioWorkspace:
       order: 11
       semanticIntent: "Inspect separately scored product correctness, media QA and human/legal gates"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.review-quality", "media.view.compare-results"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind owner-readback business oracles separately from technical measurements and human approval"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.review-and-compare"
       layoutId: "media.gui.layout.review"
@@ -798,6 +832,9 @@ productionStudioWorkspace:
       order: 12
       semanticIntent: "Compare exact source revision against proxy/final render with declared tolerances"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.prepare-render", "media.view.review-outputs"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind preview/final same-revision semantics and measured tolerance for supported profiles"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
       templateId: "media.gui.template.render-preparation-and-review"
       layoutId: "media.gui.layout.render"
@@ -810,10 +847,13 @@ productionStudioWorkspace:
       order: 13
       semanticIntent: "Check output rights, profile, approvals, publication receipts and remote finality"
       stateSource: "PDP-2 recorder-studio-interface.yaml#viewStateContracts"
+      candidateCanonicalScreenRefs: ["media.view.deliver-output"]
+      screenReuseDisposition: "EXISTING_VIEW_SPECIALIZATION_REQUIRED_NOT_ADMITTED"
+      unresolvedScreenBehavior: "Bind qualified package, separate rights/approvals and reconciled destination publication finality"
       canonicalScreenBinding: "UNBOUND_PROPOSAL"
-      templateId: "media.gui.template.render-preparation-and-review"
-      layoutId: "media.gui.layout.render"
-      recipeId: "media.gui.recipe.render-preparation-and-review"
+      templateId: "media.gui.template.task-setup"
+      layoutId: "media.gui.layout.task-setup"
+      recipeId: "media.gui.recipe.task-setup"
       designChainBindingStatus: "SOURCE_VERIFIED_REUSE_PROPOSAL_SCREEN_INSTANCE_NOT_ADMITTED"
       implementationStatus: "SOURCE_ONLY"
   requiredPresentationStates: ["EMPTY", "LOADING", "READY", "DIRTY_DRAFT", "STALE_REVISION", "MERGE_CONFLICT", "UNAUTHORIZED", "QUALITY_BLOCKED", "SAVE_UNKNOWN"]
