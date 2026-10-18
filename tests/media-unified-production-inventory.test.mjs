@@ -112,3 +112,48 @@ test('reject substituting generic image inpainting for all 52 timeline editing k
   });
   assert.match(result.errors.join('\n'), /cross-modal source-leaf mismatch at AUD-EDIT-001/);
 });
+
+test('preserve the exact uploaded original 428 feature texts and 73 third-pass source IDs', () => {
+  const result = verifyUnifiedProductionInventory();
+  assert.deepEqual(result.errors, [], result.errors.join('\n'));
+  const original = JSON.parse(read('attachedAudit'));
+  const crosswalk = JSON.parse(read('uploadedIdCrosswalk'));
+  assert.equal(original.originalAudit.inventory.length, 428);
+  assert.equal(original.thirdPassAdditions.length, 73);
+  assert.deepEqual(
+    crosswalk.thirdPassTraceability.map(r => r.sourceAuditId),
+    original.thirdPassAdditions.map(r => r.audit_id)
+  );
+});
+test('reject loss of an original stable AUD-REC3 source identity', () => {
+  const r = mutate('attachedAudit', doc => { doc.thirdPassAdditions.shift(); return doc; });
+  assert.match(r.errors.join('\n'), /attached source: 428\+73=501|attached stable ID/);
+});
+test('reject mismatch between uploaded 73 feature intent and normalized PDP candidate', () => {
+  const r = mutate('uploadedIdCrosswalk', doc => {
+    doc.thirdPassTraceability[0].sourceFeature = 'invented capability';
+    return doc;
+  });
+  assert.match(r.errors.join('\n'), /attached stable ID not preserved/);
+});
+test('reject laundering a third-pass alias into accepted canonical semantics', () => {
+  const r = mutate('uploadedIdCrosswalk', doc => {
+    doc.thirdPassTraceability[0].p0Disposition = 'BOUND_EXISTING';
+    return doc;
+  });
+  assert.match(r.errors.join('\n'), /attached stable ID not preserved/);
+});
+test('reject an unsupported canonical PDP-0 alias for original third-pass requirement', () => {
+  const r = mutate('uploadedIdCrosswalk', doc => {
+    doc.thirdPassTraceability[0].candidateP0AcceptanceCases = ['MEDIA-DECL-P0-AC-999'];
+    return doc;
+  });
+  assert.match(r.errors.join('\n'), /missing canonical case|normalized alias drift/);
+});
+test('reject deleting the two explicitly unbound specialist solver families', () => {
+  const r = mutate('uploadedIdCrosswalk', doc => {
+    doc.thirdPassTraceability.find(x=>x.sourceAuditId==='AUD-SIM3-009').additionalSemanticRisk='';
+    return doc;
+  });
+  assert.match(r.errors.join('\n'), /missing case and explicit semantic gap/);
+});
