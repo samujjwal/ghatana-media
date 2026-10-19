@@ -32,11 +32,19 @@ test('current PDP-1 semantic review pins the exact full denominator and delegate
   assert.ok(review.decisionReconciliations.some(item => item.id === 'PXD-155'));
   assert.equal(review.currentCutReview?.sourceIdentityCount, census.identityIds.length);
   assert.equal(review.currentCutReview?.currentOperationsSourceReinspection?.status, 'REINSPECTED_CURRENT_SOURCE_CUT');
-  const pxd164Impact = JSON.parse(fs.readFileSync('docs/implementation/observations/media-discovery-pdp1-pxd164-semantic-repair-impact-2026-10-14-r1.json', 'utf8'));
   assert.equal(review.currentCutReview?.currentOperationsSourceReinspection?.currentSourceSha256,
+    crypto.createHash('sha256').update(fs.readFileSync('.product-experience/pdp-1-domain-data/operations.yaml')).digest('hex'),
+    'the current reinspection binds the exact current operations source');
+  assert.equal(review.currentCutReview?.currentOperationsSourceReinspection?.currentSourceReviewArtifactSha256,
+    crypto.createHash('sha256').update(fs.readFileSync('.product-experience/pdp-1-domain-data/operations-current-source-review.json')).digest('hex'),
+    'the current reinspection binds its exact source-review artifact');
+  const pxd164Impact = JSON.parse(fs.readFileSync('docs/implementation/observations/media-discovery-pdp1-pxd164-semantic-repair-impact-2026-10-14-r1.json', 'utf8'));
+  const historicalReview = review.sourceCutHistory?.find(item => item.id === 'PDP1_SOURCE_REVIEW_CUT_PRE_2026_10_18');
+  assert.ok(historicalReview, 'the predecessor source review remains preserved as history');
+  assert.equal(historicalReview.currentCutReview?.currentOperationsSourceReinspection?.currentSourceSha256,
     pxd164Impact.sourcePredecessor.sourceDigests['.product-experience/pdp-1-domain-data/operations.yaml'].replace(/^sha256:/u, ''),
     'the earlier reinspection remains bound to the exact pre-PXD164 operations source');
-  assert.equal(review.currentCutReview?.currentOperationsSourceReinspection?.previousSourceBytesAvailableInGit, false);
+  assert.equal(historicalReview.currentCutReview?.currentOperationsSourceReinspection?.previousSourceBytesAvailableInGit, false);
   assert.deepEqual(review.currentCutReview?.outstandingMeaningIds, []);
 });
 
@@ -44,7 +52,8 @@ const green = () => Object.fromEntries(p1Criteria.map(id => {
   const check = {status:'PASS',command:`node --test ${id}`,testCount:2,passedTestCount:2,skippedTestCount:0,
     outputSha256:'output-hash',testSourceFingerprints:{'tests/example.test.mjs':'test-hash'}};
   if (id === 'P1-03') check.suites = {
-    'bounded-owner-contracts': {status:'PASS',testCount:2,passedTestCount:2,skippedTestCount:0,outputSha256:'a'.repeat(64),testSourceFingerprints:{'tests/pdp-truth-domain.test.mjs':'a'.repeat(64),'tests/pdp-job-submit-parameter-contract.test.mjs':'b'.repeat(64)}},
+    'bounded-owner-contracts': {status:'PASS',testCount:2,passedTestCount:2,skippedTestCount:0,outputSha256:'a'.repeat(64),testSourceFingerprints:Object.fromEntries(
+      p103VerificationSuites['bounded-owner-contracts'].files.map((file, index) => [file, String(index).padStart(1, '0').repeat(64)]))},
     'capability-intent-mapping': {status:'PASS',testCount:12,passedTestCount:12,skippedTestCount:0,outputSha256:'b'.repeat(64),testSourceFingerprints:Object.fromEntries(
       p103VerificationSuites['capability-intent-mapping'].files.map(file => [file, 'b'.repeat(64)]))},
     'owner-action-wire-contracts': {status:'PASS',testCount:4,passedTestCount:4,skippedTestCount:0,outputSha256:'c'.repeat(64),testSourceFingerprints:{'tests/pdp1-owner-action-wire-contracts.test.mjs':'c'.repeat(64)}},
@@ -158,6 +167,11 @@ test('P1-03 preserves all test cases in all three groups', () => {
   for (const args of [boundedArgs, mappingArgs, wireArgs]) assert.ok(args.includes('--test-reporter=tap'));
   assert.ok(boundedArgs.includes(path.resolve('tests/pdp-truth-domain.test.mjs')));
   assert.ok(boundedArgs.includes(path.resolve('tests/pdp-job-submit-parameter-contract.test.mjs')));
+  for (const file of [
+    'tests/pdp1-opaque-id-operation-field-bounds.test.mjs',
+    'tests/media-declarative-production-p1-definitions.test.mjs',
+    'tests/media-recorder-studio-p1-definitions.test.mjs',
+  ]) assert.ok(boundedArgs.includes(path.resolve(file)), `${file} is enforced by the P1-03 gate`);
   assert.ok(mappingArgs.includes(path.resolve('tests/pdp1-capability-intent-operation-mapping.test.mjs')));
   for (const file of [
     'tests/pdp1-artifact-upload-result-schema.test.mjs',

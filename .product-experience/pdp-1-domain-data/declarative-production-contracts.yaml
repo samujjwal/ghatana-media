@@ -1,11 +1,12 @@
 schemaVersion: media.declarative-production.pdp1.v1
 productId: media
 sourcePhase: PDP-1
-status: SOURCE_AUTHORED_PENDING_NATIVE_VALIDATION_AND_CURRENTNESS
+status: SOURCE_AUTHORED_DEFINITION_ONLY
 canonicalProductAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile
 canonicalOperationAuthority: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts
 canonicalDomainAuthority: .product-experience/pdp-1-domain-data/domain-objects.yaml#objects
 canonicalClockAuthority: .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions
+canonicalReplaySemanticsAuthority: .product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions/records/@id=media.value.replay-provenance-definition/schema/properties/randomnessSemantics
 recorderReuse: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
 reason: Specialized closed typed producer specifications; not a duplicate operation registry, source of model science, or new persistence writer
 denominator: {newRequirements: 61, distinctExistingCapabilityLeaves: 39, operationBindings: 61, newCanonicalOperations: 0, newCanonicalDomainObjects: 0}
@@ -35,77 +36,709 @@ requestResultSemantics:
   boundedExecution: Recursion/step/time/memory/workload capped, no arbitrary code or shaders, provider sandbox and explicit tool/codec rights.
   ai: Agent proposes typed operations against existing revision, with evidence, confidence, manual locks, review/abstention; no privileged evaluation.
   o11y: Redacted trace/span and run/model/source identity, semantic error states, measured latency/cost/jitter, critical audit separate from telemetry.
+typedProductionValueSchemaContext:
+  schemaVersion: media.declarative-production.typed-value-schema-context.v1
+  dialect: https://json-schema.org/draft/2020-12/schema
+  sharedDefinitionsSource: .product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#/$defs
+  requiredCustomFormats:
+    signed-int64-decimal: canonical base-10 integer string in [-9223372036854775808, 9223372036854775807], validated losslessly with arbitrary-precision integer arithmetic
+    positive-int64-decimal: canonical base-10 integer string in [1, 9223372036854775807], validated losslessly with arbitrary-precision integer arithmetic
+  resolutionRule: >-
+    Each typedProductionValueDescriptors[].schema is evaluated as the schema root with the exact shared $defs
+    selected above merged at that root. Local #/$defs/... references therefore resolve to this contract's
+    definitions; consumers must not substitute a similarly named schema or infer another reference base.
+    Implementations must enforce requiredCustomFormats exactly; number-valued approximations are not conformant.
 typedProductionValueDescriptors:
   - id: media.declarative.value.production-spec.v1
     ownerDomainRef: media.domain.project-revision
     structuralType: closed-versioned-object
+    runtimeAdmission: NOT_ADMITTED
     requiredFields: [tenantId, projectId, revisionId, schemaVersion, originClass, purposeRef, sceneRefs, timelineRef, rightsRef, outputProfileRefs]
+    schemaAuthorities:
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.project-revision
+      - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-version/requestSchema
+    schema:
+      type: object
+      additionalProperties: false
+      required: [tenantId, projectId, revisionId, schemaVersion, originClass, purposeRef, sceneRefs, timelineRef, rightsRef, outputProfileRefs]
+      properties:
+        tenantId: {type: string, format: opaque-id, minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]*$'}
+        projectId: {type: string, format: opaque-id, minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]*$'}
+        revisionId: {type: string, format: opaque-id, minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]*$'}
+        schemaVersion: {const: media.declarative.value.production-spec.v1}
+        originClass: {enum: [REAL_CAPTURE, DECLARATIVE_ANIMATION, MODEL_SIMULATION, GENERATIVE_MEDIA, PDP_SYNTHETIC_FIXTURE]}
+        purposeRef: {$ref: '#/$defs/versionRef'}
+        sceneRefs: {$ref: '#/$defs/nonEmptyVersionRefList'}
+        timelineRef: {$ref: '#/$defs/versionRef'}
+        rightsRef: {$ref: '#/$defs/versionRef'}
+        outputProfileRefs: {$ref: '#/$defs/nonEmptyVersionRefList'}
+    operationSchemaRelations:
+      - caseId: MEDIA-DECL-P0-AC-054
+        relation: CONSUMED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-version/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-version/resultSchema
+        basis: Case 054 defines selective regeneration and manual edit-lock behavior for a versioned project; this relation does not assert field equivalence.
+      - caseId: MEDIA-DECL-P0-AC-055
+        relation: CONSUMED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-composition-update/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-composition-update/resultSchema
+        basis: Case 055 defines a canonical revision update; no field-level equivalence is asserted.
+    negativeCases: [unknown-property, wrong-identifier-format, unsupported-origin-class, empty-reference-list, inconsistent-origin-and-scene-source]
     invariant: "one canonical MediaProject revision, immutably linked assets and checked CAS edits"
     missingRequiredField: DENIED_WITH_SOURCE_RETAINED
     acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
   - id: media.declarative.value.scene-binding.v1
     ownerDomainRef: media.domain.scene-graph
     structuralType: closed-versioned-object
+    runtimeAdmission: NOT_ADMITTED
     requiredFields: [sceneId, sceneGraphRef, animationGraphRef, modelStateRefOrNull, sourceRefs, temporalMappingRef, semanticAnchorRefs, accessibilityRef]
+    schemaAuthorities:
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.scene-graph
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.animation-graph
+      - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-2d/requestSchema
+    schema:
+      type: object
+      additionalProperties: false
+      required: [sceneId, sceneGraphRef, animationGraphRef, modelStateRefOrNull, sourceRefs, temporalMappingRef, semanticAnchorRefs, accessibilityRef]
+      properties:
+        sceneId: {type: string, format: opaque-id, minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]*$'}
+        sceneGraphRef: {$ref: '#/$defs/versionRef'}
+        animationGraphRef: {$ref: '#/$defs/versionRef'}
+        modelStateRefOrNull: {$ref: '#/$defs/nullableVersionRef'}
+        sourceRefs: {$ref: '#/$defs/nonEmptyVersionRefList'}
+        temporalMappingRef: {$ref: '#/$defs/versionRef'}
+        semanticAnchorRefs: {$ref: '#/$defs/opaqueIdList'}
+        accessibilityRef: {$ref: '#/$defs/versionRef'}
+    operationSchemaRelations:
+      - caseId: MEDIA-DECL-P0-AC-043
+        relation: CONSUMED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-2d/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-2d/resultSchema
+        basis: Scene IR semantic-binding case; exact descriptor-field identity is not asserted.
+      - caseId: MEDIA-DECL-P0-AC-048
+        relation: PRODUCED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-output-interactive-scene/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-output-interactive-scene/resultSchema
+        basis: Case 048 defines synchronized representations derived from model state; this is semantic association only.
+    negativeCases: [unknown-property, wrong-reference-shape, empty-source-list, duplicate-semantic-anchor, null-model-state-with-model-derived-claim]
     invariant: "typed source, scene, animation and model relationship without owner transfer"
     missingRequiredField: DENIED_WITH_SOURCE_RETAINED
     acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
   - id: media.declarative.value.animation-spec.v1
     ownerDomainRef: media.domain.animation-graph
     structuralType: closed-versioned-object
+    runtimeAdmission: NOT_ADMITTED
     requiredFields: [schemaVersion, sceneGraphRef, animationGraphRef, operatorTreeRef, assetsRef, propertyCurveRefs, tStoryRef, renderingRef]
+    schemaAuthorities:
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.animation-graph
+      - .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions/records/@id=media.value.rational-media-time
+      - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-vector/requestSchema
+    schema:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, sceneGraphRef, animationGraphRef, operatorTreeRef, assetsRef, propertyCurveRefs, tStoryRef, renderingRef]
+      properties:
+        schemaVersion: {const: media.declarative.value.animation-spec.v1}
+        sceneGraphRef: {$ref: '#/$defs/versionRef'}
+        animationGraphRef: {$ref: '#/$defs/versionRef'}
+        operatorTreeRef: {$ref: '#/$defs/versionRef'}
+        assetsRef: {$ref: '#/$defs/versionRef'}
+        propertyCurveRefs: {$ref: '#/$defs/possiblyEmptyVersionRefList'}
+        tStoryRef: {$ref: '#/$defs/storyTime'}
+        renderingRef: {$ref: '#/$defs/versionRef'}
+    operationSchemaRelations:
+      - caseId: MEDIA-DECL-P0-AC-001
+        relation: CONSUMED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-vector/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-vector/resultSchema
+        basis: Case 001 defines authored vector nodes as source for declarative animation; no field correspondence is asserted.
+      - caseId: MEDIA-DECL-P0-AC-015
+        relation: PRODUCED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-output-composited-video/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-output-composited-video/resultSchema
+        basis: Case 015 binds canonical animation semantics to preview and delivery output receipts; no schema-field equality is claimed.
+    negativeCases: [unknown-property, wrong-reference-shape, unsupported-story-clock, nonpositive-timebase, unadmitted-operator-reference]
     invariant: "versioned 2D and 3D semantic graph, admitted operators only and bounded derivations"
     missingRequiredField: DENIED_WITH_SOURCE_RETAINED
     acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
   - id: media.declarative.value.model-execution-spec.v1
     ownerDomainRef: media.domain.simulation-world
     structuralType: closed-versioned-object
-    requiredFields: [modelVersionRef, modelDigest, solverId, solverVersion, solverBuildDigest, numericPrecision, initialConditionsRef, boundaryConditionsRef, unitsRegistryRef, parameterRevisionRef, tSimClockRef, stepPolicy, toleranceContractRef, fidelityProfileRef, resourceBounds, seedPolicy]
+    runtimeAdmission: NOT_ADMITTED
+    requiredFields: [modelFamilyRef, modelVersionRef, familyApplicability, familyQualificationRef, familyQualificationState, replayability, modelDigest, declaredAssumptionsRef, solverId, solverVersion, solverBuildDigest, numericPrecision, initialConditionsRef, boundaryConditionsRef, unitsRegistryRef, parameterRevisionRef, tSimClockRef, stepPolicy, toleranceContractRef, fidelityProfileRef, resourceBounds, seedPolicy, randomnessSemantics, distributionRef, samplingConditionsRef, samplingPlanRef]
+    schemaAuthorities:
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.simulation-world
+      - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION/acceptanceCases/@id=MEDIA-REQ-CAP-SIMULATION-AC-01
+      - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION/acceptanceCases/@id=MEDIA-REQ-CAP-SIMULATION-AC-03
+      - .product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions/records/@id=media.value.replay-provenance-definition/schema/properties/randomnessSemantics
+      - .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions/records/@id=media.value.rational-media-time
+      - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/requestSchema
+    schema:
+      type: object
+      additionalProperties: false
+      required: [modelFamilyRef, modelVersionRef, familyApplicability, familyQualificationRef, familyQualificationState, replayability, modelDigest, declaredAssumptionsRef, solverId, solverVersion, solverBuildDigest, numericPrecision, initialConditionsRef, boundaryConditionsRef, unitsRegistryRef, parameterRevisionRef, tSimClockRef, stepPolicy, toleranceContractRef, fidelityProfileRef, resourceBounds, seedPolicy, randomnessSemantics, distributionRef, samplingConditionsRef, samplingPlanRef]
+      properties:
+        modelFamilyRef: {$ref: '#/$defs/existingSimulationCapabilityLeafId'}
+        modelVersionRef: {$ref: '#/$defs/versionRef'}
+        familyApplicability: {$ref: '#/$defs/familyApplicability'}
+        familyQualificationRef: {$ref: '#/$defs/versionRef'}
+        familyQualificationState: {enum: [QUALIFIED, UNQUALIFIED, UNKNOWN]}
+        replayability: {enum: [REPLAYABLE, NON_REPLAYABLE, UNKNOWN]}
+        modelDigest: {$ref: '#/$defs/digest'}
+        declaredAssumptionsRef: {$ref: '#/$defs/versionRef'}
+        solverId: {$ref: '#/$defs/opaqueId'}
+        solverVersion: {$ref: '#/$defs/versionRef'}
+        solverBuildDigest: {$ref: '#/$defs/digest'}
+        numericPrecision: {type: string, minLength: 1, maxLength: 128, pattern: '\S'}
+        initialConditionsRef: {$ref: '#/$defs/versionRef'}
+        boundaryConditionsRef: {$ref: '#/$defs/versionRef'}
+        unitsRegistryRef: {$ref: '#/$defs/versionRef'}
+        parameterRevisionRef: {$ref: '#/$defs/versionRef'}
+        tSimClockRef: {$ref: '#/$defs/simulationClock'}
+        stepPolicy: {$ref: '#/$defs/versionRef'}
+        toleranceContractRef: {$ref: '#/$defs/versionRef'}
+        fidelityProfileRef: {$ref: '#/$defs/versionRef'}
+        resourceBounds: {$ref: '#/$defs/resourceBounds'}
+        seedPolicy: {$ref: '#/$defs/versionRef'}
+        randomnessSemantics: {$ref: '#/$defs/randomnessSemantics'}
+        distributionRef: {$ref: '#/$defs/versionRef'}
+        samplingConditionsRef: {$ref: '#/$defs/versionRef'}
+        samplingPlanRef: {$ref: '#/$defs/versionRef'}
+      allOf:
+        - if: {properties: {randomnessSemantics: {properties: {disposition: {const: UNKNOWN}}, required: [disposition]}}, required: [randomnessSemantics]}
+          then: {properties: {replayability: {enum: [NON_REPLAYABLE, UNKNOWN]}}}
+    familyBindingInvariant: modelFamilyRef is the exact existing simulation capability leaf identity (for example media.simulation.agent), never the shared media.simulation category. familyApplicability is nested under that exact modelFamilyRef and modelVersionRef, so no independently supplied family/version pair can mismatch; familyQualificationRef and familyQualificationState apply only to the same enclosing pair. UNKNOWN or NOT_ADMITTED applicability rejects execution. Qualification and replay claims require matching source-bound evidence and execution profile; execution alone does not qualify a model.
+    applicabilityAdmissionRule: ADMITTED requires at least one versioned source evidence reference. UNKNOWN, NOT_ADMITTED, unsupported, or unresolved family applicability is not executable and must be rejected. This is a domain applicability disposition, not owner authorization or scientific qualification.
+    familyApplicabilityValidationContract:
+      contractVersion: media.declarative.family-applicability-validation.v1
+      validationMode: SOURCE_BOUND_REFERENTIAL_VALIDATION
+      familyIdentity:
+        identityAuthoritySource: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities
+        supportedFamilyIds: [media.simulation.rigid-body, media.simulation.soft-body, media.simulation.cloth, media.simulation.rope, media.simulation.particle, media.simulation.fluid, media.simulation.smoke, media.simulation.fire, media.simulation.collision, media.simulation.constraint, media.simulation.vehicle, media.simulation.crowd, media.simulation.agent, media.simulation.human-motion, media.simulation.procedural-world, media.simulation.camera-experiment, media.simulation.lighting-experiment, media.simulation.educational-demo, media.simulation.scientific-demo, media.simulation.robotics, media.simulation.kinematics, media.simulation.synthetic-data]
+        supportedIdsMustResolveAsExactCapabilityLeaves: true
+        forbiddenFamilyIds: [media.simulation, media.simulation.output]
+        rejectAnyUnlistedOrUnsupportedFamilyId: true
+      applicabilityEvidence:
+        resolveEveryEvidenceRef: true
+        minimumResolvedEvidenceRecords: 1
+        resolvedRecordMustMatch:
+          modelFamilyRef: EXACT_EQUAL_TO_ENCLOSING_MODEL_FAMILY_REF
+          modelVersionRef: EXACT_EQUAL_TO_ENCLOSING_MODEL_VERSION_REF
+          applicabilityDisposition: ADMITTED
+        requiredAuthorizedAuthoritySource:
+          authorityRefMustResolve: true
+          authorityRecordMustDeclare:
+            authorityRole: QUALIFIED_DOMAIN_OWNER
+            authorizationDisposition: AUTHORIZED_FOR_EXACT_FAMILY_AND_MODEL_VERSION
+            modelFamilyRef: EXACT_EQUAL_TO_ENCLOSING_MODEL_FAMILY_REF
+            modelVersionRef: EXACT_EQUAL_TO_ENCLOSING_MODEL_VERSION_REF
+        applicabilityCanBeAdmittedOnlyWhenAllEvidenceAndAuthorityChecksPass: true
+        noAdmissionRecordOrOwnerAuthorizationIsAssertedByThisContract: true
+    operationSchemaRelations:
+      - caseId: MEDIA-REQ-CAP-SIMULATION-AC-01
+        relation: CONSUMED_BY
+        fieldMapping: NOT_ASSERTED
+        p0CaseSource: .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION/acceptanceCases/@id=MEDIA-REQ-CAP-SIMULATION-AC-01
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-agent/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-agent/resultSchema
+        basis: Core simulation acceptance mapping for the exact existing media.simulation.agent leaf; unsupported or unrepresented family leaves remain rejected by the family applicability validator.
+      - caseId: MEDIA-REQ-CAP-SIMULATION-AC-03
+        relation: CONSUMED_BY
+        fieldMapping: NOT_ASSERTED
+        p0CaseSource: .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION/acceptanceCases/@id=MEDIA-REQ-CAP-SIMULATION-AC-03
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-agent/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-agent/resultSchema
+        basis: Core agent-based simulation acceptance mapping; the exact leaf and model version remain required and no economic or epidemiological leaf applicability is inferred.
+      - caseId: MEDIA-DECL-P0-AC-018
+        relation: CONSUMED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/resultSchema
+        basis: Case 018 pins model identity before admission; relation is semantic and makes no field-equivalence claim.
+      - caseId: MEDIA-DECL-P0-AC-021
+        relation: CONSUMED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/resultSchema
+        basis: Case 021 requires explicit solver/fidelity selection; this relation does not assert field identity.
+    negativeCases: [unknown-property, wrong-numeric-precision-type, empty-digest, unknown-randomness-with-replay-claim, missing-solver-or-model-version, unsupported-family-capability-id, unknown-model-family, admitted-applicability-with-empty-evidence, evidence-bound-to-another-family-or-model-version, unresolved-applicability-evidence-ref, missing-or-unauthorized-authority-source, unknown-family-applicability-execution, qualification-transfer-between-families, replay-claim-without-versioned-prng-implementation]
     invariant: "pinned domain-owned equations and constraints, qualified execution only and no implicit model rewrite"
+    randomnessSemanticsRef: .product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions/records/@id=media.value.replay-provenance-definition/schema/properties/randomnessSemantics
+    randomnessRule: SPECIFIED carries exact versioned PRNG, stream, seed-policy/material and checkpoint-state references; NOT_APPLICABLE requires a versioned non-stochastic declaration; UNKNOWN cannot support a replay claim
+    missingRequiredField: DENIED_WITH_SOURCE_RETAINED
+    acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
+  - id: media.declarative.value.active-speaker-cut-proposal.v1
+    ownerDomainRef: media.domain.timeline
+    structuralType: closed-versioned-object
+    runtimeAdmission: NOT_ADMITTED
+    requiredFields: [schemaVersion, proposalRef, timelineRef, sourceRevisionRef, proposedCuts, uncertaintyRef, proposalDisposition]
+    schemaAuthorities:
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.timeline
+      - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-compose-multitrack-timeline/resultSchema
+      - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-03
+    schema:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, proposalRef, timelineRef, sourceRevisionRef, proposedCuts, uncertaintyRef, proposalDisposition]
+      properties:
+        schemaVersion: {const: media.declarative.value.active-speaker-cut-proposal.v1}
+        proposalRef: {$ref: '#/$defs/versionRef'}
+        timelineRef: {$ref: '#/$defs/versionRef'}
+        sourceRevisionRef: {$ref: '#/$defs/versionRef'}
+        proposedCuts:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            additionalProperties: false
+            required: [cutRef, storyTime, speakerTurnEvidence, cameraSourceEvidence, uncertaintyRef]
+            properties:
+              cutRef: {$ref: '#/$defs/versionRef'}
+              storyTime: {$ref: '#/$defs/storyTime'}
+              speakerTurnEvidence:
+                type: object
+                additionalProperties: false
+                required: [evidenceClass, evidenceRef]
+                properties:
+                  evidenceClass: {const: SPEAKER_TURN_OBSERVATION}
+                  evidenceRef: {$ref: '#/$defs/versionRef'}
+              cameraSourceEvidence:
+                type: object
+                additionalProperties: false
+                required: [evidenceClass, evidenceRef]
+                properties:
+                  evidenceClass: {const: CAMERA_SOURCE_OBSERVATION}
+                  evidenceRef: {$ref: '#/$defs/versionRef'}
+              uncertaintyRef: {$ref: '#/$defs/versionRef'}
+        uncertaintyRef: {$ref: '#/$defs/versionRef'}
+        proposalDisposition: {const: REVIEWABLE_LOCAL_CANDIDATE_NO_PROJECT_COMMIT}
+    operationSchemaRelations:
+      - caseId: MEDIA-REQ-CAP-COMPOSE-AC-03
+        relation: PRODUCED_BY
+        fieldMapping: NOT_ASSERTED
+        p0CaseSource: .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-03
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-compose-multitrack-timeline/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-compose-multitrack-timeline/resultSchema
+        basis: Proposal links each cut to exact turn and camera evidence and explicit uncertainty; versioned timeline concepts remain normative and the proposal cannot commit a project revision.
+    negativeCases: [unknown-property, missing-speaker-turn-evidence, missing-camera-source-evidence, wrong-speaker-turn-evidence-class, wrong-camera-source-evidence-class, missing-cut-uncertainty, unresolved-evidence-reference, inferred-missing-evidence, implicit-project-commit]
+    evidenceLinkRule: Each proposed cut owns exactly one speakerTurnEvidence and one cameraSourceEvidence link; the const evidenceClass distinguishes the relationship. Resolve each evidenceRef against the referenced versioned source and reject unresolved references or a referenced record whose evidence class does not match its declared role. No separate proposal-level membership list is authoritative.
+    invariant: reviewable active-speaker cut proposal links each cut to exact source evidence and explicit uncertainty and has no implicit project commit
     missingRequiredField: DENIED_WITH_SOURCE_RETAINED
     acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
   - id: media.declarative.value.simulation-state.v1
     ownerDomainRef: media.domain.checkpoint
     structuralType: closed-versioned-object
-    requiredFields: [runId, attemptId, modelVersionRef, solverVersionRef, tSimTicks, stepIndex, stateVersion, stateDigest, parameterDigest, rngStateOrNull, checkpointParentRefOrNull]
+    runtimeAdmission: NOT_ADMITTED
+    requiredFields: [runId, attemptId, modelFamilyRef, modelVersionRef, familyApplicability, familyQualificationRef, replayability, solverVersionRef, tSimTicks, stepIndex, stateVersion, stateDigest, parameterDigest, rngStateOrNull, randomnessSemantics, checkpointParentRefOrNull]
+    schemaAuthorities:
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.checkpoint
+      - .product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions/records/@id=media.value.replay-provenance-definition/schema/properties/randomnessSemantics
+      - .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions/records/@id=media.value.rational-media-time
+      - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/requestSchema
+    schema:
+      type: object
+      additionalProperties: false
+      required: [runId, attemptId, modelFamilyRef, modelVersionRef, familyApplicability, familyQualificationRef, replayability, solverVersionRef, tSimTicks, stepIndex, stateVersion, stateDigest, parameterDigest, rngStateOrNull, randomnessSemantics, checkpointParentRefOrNull]
+      properties:
+        runId: {$ref: '#/$defs/opaqueId'}
+        attemptId: {$ref: '#/$defs/opaqueId'}
+        modelFamilyRef: {$ref: '#/$defs/existingSimulationCapabilityLeafId'}
+        modelVersionRef: {$ref: '#/$defs/versionRef'}
+        familyApplicability: {$ref: '#/$defs/familyApplicability'}
+        familyQualificationRef: {$ref: '#/$defs/versionRef'}
+        replayability: {enum: [REPLAYABLE, NON_REPLAYABLE, UNKNOWN]}
+        solverVersionRef: {$ref: '#/$defs/versionRef'}
+        tSimTicks: {$ref: '#/$defs/signedInt64Decimal'}
+        stepIndex: {type: integer, minimum: 0}
+        stateVersion: {$ref: '#/$defs/versionRef'}
+        stateDigest: {$ref: '#/$defs/digest'}
+        parameterDigest: {$ref: '#/$defs/digest'}
+        rngStateOrNull: {$ref: '#/$defs/nullableVersionRef'}
+        randomnessSemantics: {$ref: '#/$defs/randomnessSemantics'}
+        checkpointParentRefOrNull: {$ref: '#/$defs/nullableVersionRef'}
+      allOf:
+        - if: {properties: {randomnessSemantics: {properties: {disposition: {const: SPECIFIED}}, required: [disposition]}}, required: [randomnessSemantics]}
+          then: {properties: {rngStateOrNull: {type: string}}}
+        - if: {properties: {randomnessSemantics: {properties: {disposition: {const: NOT_APPLICABLE}}, required: [disposition]}}, required: [randomnessSemantics]}
+          then: {properties: {rngStateOrNull: {type: 'null'}}}
+    operationSchemaRelations:
+      - caseId: MEDIA-DECL-P0-AC-024
+        relation: CONSUMED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/resultSchema
+        basis: Case 024 covers checkpoint restoration at a model-state boundary; relation does not assert field equality.
+      - caseId: MEDIA-DECL-P0-AC-025
+        relation: PRODUCED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-provenance-execution-lineage-inspect/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-provenance-execution-lineage-inspect/resultSchema
+        basis: Case 025 covers replay provenance/state digests; this relation does not assert a wire field mapping.
+    negativeCases: [unknown-property, negative-tick-or-step, empty-digest, randomness-rng-state-contradiction, invalid-parent-checkpoint-reference]
     invariant: "simulation advances solely on explicit model commands and records resumable immutable state"
+    randomnessSemanticsRef: .product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions/records/@id=media.value.replay-provenance-definition/schema/properties/randomnessSemantics
+    randomnessRule: SPECIFIED checkpoint state carries the exact PRNG, stream and state-format/version refs; NOT_APPLICABLE requires a versioned non-stochastic declaration; UNKNOWN remains REPLAY_UNAVAILABLE
     missingRequiredField: DENIED_WITH_SOURCE_RETAINED
     acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
   - id: media.declarative.value.measurement.v1
     ownerDomainRef: media.domain.simulation-world
     structuralType: closed-versioned-object
-    requiredFields: [observableId, modelRunRef, stateVersion, tSimSamplePoint, numericValue, unitId, coordinateFrameRefOrNull, instrumentRef, calibrationRef, uncertaintyRef, validityDomainRef, provenanceRef]
+    runtimeAdmission: NOT_ADMITTED
+    requiredFields: [observableId, modelFamilyRef, modelVersionRef, familyApplicability, familyQualificationRef, familyQualificationState, modelRunRef, stateVersion, tSimSamplePoint, numericValue, unitId, coordinateFrameRefOrNull, instrumentRef, calibrationRef, uncertaintyRef, confidenceBoundsRefOrNull, validityDomainRef, provenanceRef]
+    schemaAuthorities:
+      - .product-experience/pdp-1-domain-data/value-objects.yaml#values/@id=media.value.physical-quantity
+      - .product-experience/pdp-1-domain-data/value-objects.yaml#values/@id=media.value.uncertainty
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.simulation-world
+      - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/resultSchema
+    schema:
+      type: object
+      additionalProperties: false
+      required: [observableId, modelFamilyRef, modelVersionRef, familyApplicability, familyQualificationRef, familyQualificationState, modelRunRef, stateVersion, tSimSamplePoint, numericValue, unitId, coordinateFrameRefOrNull, instrumentRef, calibrationRef, uncertaintyRef, confidenceBoundsRefOrNull, validityDomainRef, provenanceRef]
+      properties:
+        observableId: {$ref: '#/$defs/opaqueId'}
+        modelFamilyRef: {$ref: '#/$defs/existingSimulationCapabilityLeafId'}
+        modelVersionRef: {$ref: '#/$defs/versionRef'}
+        familyApplicability: {$ref: '#/$defs/familyApplicability'}
+        familyQualificationRef: {$ref: '#/$defs/versionRef'}
+        familyQualificationState: {enum: [QUALIFIED, UNQUALIFIED, UNKNOWN]}
+        modelRunRef: {$ref: '#/$defs/versionRef'}
+        stateVersion: {$ref: '#/$defs/versionRef'}
+        tSimSamplePoint: {$ref: '#/$defs/simulationTime'}
+        numericValue: {type: number}
+        unitId: {$ref: '#/$defs/opaqueId'}
+        coordinateFrameRefOrNull: {$ref: '#/$defs/nullableVersionRef'}
+        instrumentRef: {$ref: '#/$defs/versionRef'}
+        calibrationRef: {$ref: '#/$defs/versionRef'}
+        uncertaintyRef: {$ref: '#/$defs/versionRef'}
+        confidenceBoundsRefOrNull: {$ref: '#/$defs/nullableVersionRef'}
+        validityDomainRef: {$ref: '#/$defs/versionRef'}
+        provenanceRef: {$ref: '#/$defs/versionRef'}
+    operationSchemaRelations:
+      - caseId: MEDIA-DECL-P0-AC-026
+        relation: PRODUCED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/resultSchema
+        basis: Case 026 defines an analytical reference measurement; relation is semantic only.
+      - caseId: MEDIA-DECL-P0-AC-046
+        relation: PRODUCED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/resultSchema
+        basis: Case 046 defines typed probe observations; no field equality is asserted.
+    negativeCases: [unknown-property, nonnumeric-value, missing-unit-reference, incompatible-unit-and-dimension, unqualified-renderer-as-measurement]
     invariant: "measured outputs originate in solver or qualified sensor, never from illustrative renderer"
     missingRequiredField: DENIED_WITH_SOURCE_RETAINED
     acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
   - id: media.declarative.value.validation-report.v1
     ownerDomainRef: media.domain.quality-assessment
     structuralType: closed-versioned-object
-    requiredFields: [modelVersionRef, solverBuildDigest, oracleRef, expectedSamples, actualSamples, toleranceSpecRef, residualStatisticsRef, verdict, applicability, limitations, environmentRef]
+    runtimeAdmission: NOT_ADMITTED
+    requiredFields: [modelFamilyRef, modelVersionRef, familyApplicability, familyQualificationRef, familyQualificationState, solverBuildDigest, oracleRef, expectedSamples, actualSamples, toleranceSpecRef, residualStatisticsRef, verdict, applicability, limitations, environmentRef]
+    schemaAuthorities:
+      - .product-experience/pdp-1-domain-data/evidence.yaml#evidenceClasses/@id=media.evidence.source-observation
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.quality-assessment
+      - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/resultSchema
+    schema:
+      type: object
+      additionalProperties: false
+      required: [modelFamilyRef, modelVersionRef, familyApplicability, familyQualificationRef, familyQualificationState, solverBuildDigest, oracleRef, expectedSamples, actualSamples, toleranceSpecRef, residualStatisticsRef, verdict, applicability, limitations, environmentRef]
+      properties:
+        modelFamilyRef: {$ref: '#/$defs/existingSimulationCapabilityLeafId'}
+        modelVersionRef: {$ref: '#/$defs/versionRef'}
+        familyApplicability: {$ref: '#/$defs/familyApplicability'}
+        familyQualificationRef: {$ref: '#/$defs/versionRef'}
+        familyQualificationState: {enum: [QUALIFIED, UNQUALIFIED, UNKNOWN]}
+        solverBuildDigest: {$ref: '#/$defs/digest'}
+        oracleRef: {$ref: '#/$defs/versionRef'}
+        expectedSamples: {$ref: '#/$defs/nonEmptyVersionRefList'}
+        actualSamples: {$ref: '#/$defs/nonEmptyVersionRefList'}
+        toleranceSpecRef: {$ref: '#/$defs/versionRef'}
+        residualStatisticsRef: {$ref: '#/$defs/versionRef'}
+        verdict: {enum: [PASS, FAIL, INCONCLUSIVE, UNQUALIFIED, NOT_EVALUATED]}
+        applicability: {enum: [APPLICABLE, NOT_APPLICABLE, ABSTAINED, NOT_EVALUATED, BLOCKED]}
+        limitations: {type: array, minItems: 1, items: {type: string, minLength: 1, maxLength: 512, pattern: '\S'}}
+        environmentRef: {$ref: '#/$defs/versionRef'}
+      allOf:
+        - if: {properties: {verdict: {const: PASS}}, required: [verdict]}
+          then: {properties: {applicability: {const: APPLICABLE}}}
+        - if: {properties: {applicability: {enum: [NOT_EVALUATED, BLOCKED, ABSTAINED]}}, required: [applicability]}
+          then: {properties: {verdict: {not: {const: PASS}}}}
+    operationSchemaRelations:
+      - caseId: MEDIA-DECL-P0-AC-027
+        relation: PRODUCED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/resultSchema
+        basis: Case 027 records solver divergence and convergence diagnostics; no result-field identity is asserted.
+      - caseId: MEDIA-DECL-P0-AC-037
+        relation: PRODUCED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/resultSchema
+        basis: Case 037 separates model validation and rendered fidelity; semantic association only.
+    negativeCases: [unknown-property, wrong-verdict-type, pass-with-blocked-applicability, pass-with-not-applicable-scope, empty-limitations, wrong-sample-reference-type]
     invariant: "scientific validity evidence separated from media quality and fidelity of rendered appearance"
     missingRequiredField: DENIED_WITH_SOURCE_RETAINED
     acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
   - id: media.declarative.value.clock-alignment.v1
     ownerDomainRef: media.domain.timeline
     structuralType: closed-versioned-object
+    runtimeAdmission: NOT_ADMITTED
     requiredFields: [sourceClockId, destClockId, sourceOriginRef, destOriginRef, mappingVersionRef, rationalScale, rationalOffset, lossAndRoundingRef, uncertaintyRef]
+    schemaAuthorities:
+      - .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions/records/@id=media.value.rational-media-time
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.timeline
+      - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-keyframe/requestSchema
+    schema:
+      type: object
+      additionalProperties: false
+      required: [sourceClockId, destClockId, sourceOriginRef, destOriginRef, mappingVersionRef, rationalScale, rationalOffset, lossAndRoundingRef, uncertaintyRef]
+      properties:
+        sourceClockId: {$ref: '#/$defs/opaqueId'}
+        destClockId: {$ref: '#/$defs/opaqueId'}
+        sourceOriginRef: {$ref: '#/$defs/versionRef'}
+        destOriginRef: {$ref: '#/$defs/versionRef'}
+        mappingVersionRef: {$ref: '#/$defs/versionRef'}
+        rationalScale: {$ref: '#/$defs/positiveRational'}
+        rationalOffset: {$ref: '#/$defs/rational'}
+        lossAndRoundingRef: {$ref: '#/$defs/versionRef'}
+        uncertaintyRef: {$ref: '#/$defs/versionRef'}
+    operationSchemaRelations:
+      - caseId: MEDIA-DECL-P0-AC-005
+        relation: CONSUMED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-keyframe/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-keyframe/resultSchema
+        basis: Case 005 requires a rational story-time coordinate and rejects inferred clock conversion; no wire-field equality is asserted.
+      - caseId: MEDIA-DECL-P0-AC-011
+        relation: CONSUMED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-audio/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-audio/resultSchema
+        basis: Case 011 requires explicit source/sample-clock alignment; this is a semantic link only.
+    negativeCases: [unknown-property, zero-scale-denominator, negative-scale-denominator, implicit-cross-clock-map, mismatched-origin-without-explicit-mapping]
     invariant: "cross-clock conversions require explicit declared mapping and no VFR approximation"
     missingRequiredField: DENIED_WITH_SOURCE_RETAINED
     acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
   - id: media.declarative.value.public-aef-bridge.v1
     ownerDomainRef: media.domain.scene-graph
     structuralType: closed-versioned-object
+    runtimeAdmission: NOT_ADMITTED
     requiredFields: [contractVersion, tutorPutorModelIrRef, tutorPutorSceneIrRef, tutorPutorExperienceIrRef, supportedCapabilityRefs, adapterVersion, mediaProjectRevisionRef]
+    schemaAuthorities:
+      - .product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-040
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.scene-graph
+      - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-interactive-lesson/requestSchema
+    schema:
+      type: object
+      additionalProperties: false
+      required: [contractVersion, tutorPutorModelIrRef, tutorPutorSceneIrRef, tutorPutorExperienceIrRef, supportedCapabilityRefs, adapterVersion, mediaProjectRevisionRef]
+      properties:
+        contractVersion: {$ref: '#/$defs/versionRef'}
+        tutorPutorModelIrRef: {$ref: '#/$defs/versionRef'}
+        tutorPutorSceneIrRef: {$ref: '#/$defs/versionRef'}
+        tutorPutorExperienceIrRef: {$ref: '#/$defs/versionRef'}
+        supportedCapabilityRefs: {$ref: '#/$defs/nonEmptyOpaqueIdList'}
+        adapterVersion: {$ref: '#/$defs/versionRef'}
+        mediaProjectRevisionRef: {$ref: '#/$defs/versionRef'}
+    operationSchemaRelations:
+      - caseId: MEDIA-DECL-P0-AC-040
+        relation: CONSUMED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-interactive-lesson/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-interactive-lesson/resultSchema
+        basis: Case 040 defines a public versioned TutorPutor compatibility contract; no field equality is claimed.
+      - caseId: MEDIA-DECL-P0-AC-041
+        relation: CONSUMED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-interactive-lesson/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-interactive-lesson/resultSchema
+        basis: Case 041 preserves TutorPutor pedagogy and learner-evidence authority; semantic association only.
+    negativeCases: [unknown-property, missing-public-IR-version, duplicate-capability-ref, unsupported-capability-version, Media-claims-pedagogy-or-mastery-authority]
     invariant: "versioned public contract with TutorPutor science, pedagogy and learner authority retained"
     missingRequiredField: DENIED_WITH_SOURCE_RETAINED
     acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
   - id: media.declarative.value.source-classification.v1
     ownerDomainRef: media.domain.provenance-manifest
     structuralType: closed-versioned-object
+    runtimeAdmission: NOT_ADMITTED
     requiredFields: [originClass, sourceVersionRef, producingToolVersionRef, consentRightsRef, sourceClockRef, runOrCaptureReceiptRef, digest, traceRefOrNull]
+    schemaAuthorities:
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.provenance-manifest
+      - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-provenance-origin-disclose/requestSchema
+      - .product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/producerModes
+    schema:
+      type: object
+      additionalProperties: false
+      required: [originClass, sourceVersionRef, producingToolVersionRef, consentRightsRef, sourceClockRef, runOrCaptureReceiptRef, digest, traceRefOrNull]
+      properties:
+        originClass: {enum: [REAL_CAPTURE, DECLARATIVE_ANIMATION, MODEL_SIMULATION, GENERATIVE_MEDIA, PDP_SYNTHETIC_FIXTURE]}
+        sourceVersionRef: {$ref: '#/$defs/versionRef'}
+        producingToolVersionRef: {$ref: '#/$defs/versionRef'}
+        consentRightsRef: {$ref: '#/$defs/versionRef'}
+        sourceClockRef: {$ref: '#/$defs/versionRef'}
+        runOrCaptureReceiptRef: {$ref: '#/$defs/versionRef'}
+        digest: {$ref: '#/$defs/digest'}
+        traceRefOrNull: {$ref: '#/$defs/nullableVersionRef'}
+    operationSchemaRelations:
+      - caseId: MEDIA-DECL-P0-AC-053
+        relation: PRODUCED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-provenance-origin-disclose/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-provenance-origin-disclose/resultSchema
+        basis: Case 053 defines truthful disclosure of the five source classes; no field mapping is asserted.
+      - caseId: MEDIA-DECL-P0-AC-038
+        relation: PRODUCED_BY
+        fieldMapping: NOT_ASSERTED
+        requestSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/requestSchema
+        resultSchemaSource: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/resultSchema
+        basis: Case 038 separates model provenance from generated depiction; semantic association only.
+    negativeCases: [unknown-property, unsupported-origin-class, missing-source-lineage, synthetic-fixture-as-solver-evidence, generated-depiction-as-measurement]
     invariant: "REAL_CAPTURE DECLARATIVE_ANIMATION MODEL_SIMULATION GENERATIVE_MEDIA PDP_SYNTHETIC_FIXTURE distinct and truthful"
     missingRequiredField: DENIED_WITH_SOURCE_RETAINED
     acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
+$defs:
+  opaqueId: {type: string, format: opaque-id, minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]*$'}
+  existingSimulationCapabilityLeafId:
+    type: string
+    enum: [media.simulation.rigid-body, media.simulation.soft-body, media.simulation.cloth, media.simulation.rope, media.simulation.particle, media.simulation.fluid, media.simulation.smoke, media.simulation.fire, media.simulation.collision, media.simulation.constraint, media.simulation.vehicle, media.simulation.crowd, media.simulation.agent, media.simulation.human-motion, media.simulation.procedural-world, media.simulation.camera-experiment, media.simulation.lighting-experiment, media.simulation.educational-demo, media.simulation.scientific-demo, media.simulation.robotics, media.simulation.kinematics, media.simulation.synthetic-data]
+  versionRef: {type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384, pattern: '\S'}
+  nullableVersionRef: {oneOf: [{$ref: '#/$defs/versionRef'}, {type: 'null'}]}
+  signedInt64Decimal:
+    type: string
+    format: signed-int64-decimal
+    pattern: '^(0|-[1-9][0-9]*|[1-9][0-9]*)$'
+    description: Canonical decimal text preserves the exact signed-64-bit value without JSON/YAML binary floating-point rounding.
+  positiveInt64Decimal:
+    type: string
+    format: positive-int64-decimal
+    pattern: '^[1-9][0-9]*$'
+    description: Canonical positive decimal text preserves the exact signed-64-bit value without JSON/YAML binary floating-point rounding.
+  digest:
+    type: object
+    additionalProperties: false
+    required: [algorithmRef, value, subjectVersionRef]
+    properties:
+      algorithmRef: {$ref: '#/$defs/versionRef'}
+      value: {type: string, minLength: 1, maxLength: 384, pattern: '\S'}
+      subjectVersionRef: {$ref: '#/$defs/versionRef'}
+  resourceBounds:
+    type: object
+    additionalProperties: false
+    required: [stepLimit, wallClockBudgetMs, memoryBudgetBytes, workloadLimit, recursionLimit]
+    properties:
+      stepLimit: {type: integer, minimum: 1}
+      wallClockBudgetMs: {type: integer, minimum: 1}
+      memoryBudgetBytes: {type: integer, minimum: 1}
+      workloadLimit: {type: integer, minimum: 1}
+      recursionLimit: {type: integer, minimum: 1}
+  opaqueIdList: {type: array, uniqueItems: true, items: {$ref: '#/$defs/opaqueId'}}
+  nonEmptyOpaqueIdList: {type: array, minItems: 1, uniqueItems: true, items: {$ref: '#/$defs/opaqueId'}}
+  versionRefList: {type: array, uniqueItems: true, items: {$ref: '#/$defs/versionRef'}}
+  nonEmptyVersionRefList: {type: array, minItems: 1, uniqueItems: true, items: {$ref: '#/$defs/versionRef'}}
+  possiblyEmptyVersionRefList: {type: array, uniqueItems: true, items: {$ref: '#/$defs/versionRef'}}
+  rational:
+    type: object
+    additionalProperties: false
+    required: [numerator, denominator]
+    properties:
+      numerator: {$ref: '#/$defs/signedInt64Decimal'}
+      denominator: {$ref: '#/$defs/positiveInt64Decimal'}
+  simulationClock:
+    type: object
+    additionalProperties: false
+    required: [clockKind, clockId, streamId, originRef, ticks, timeBase]
+    properties:
+      clockKind: {const: simulation}
+      clockId: {$ref: '#/$defs/opaqueId'}
+      streamId: {$ref: '#/$defs/opaqueId'}
+      originRef: {$ref: '#/$defs/versionRef'}
+      ticks: {$ref: '#/$defs/signedInt64Decimal'}
+      timeBase: {$ref: '#/$defs/positiveRational'}
+  positiveRational:
+    type: object
+    additionalProperties: false
+    required: [numerator, denominator]
+    properties:
+      numerator: {$ref: '#/$defs/positiveInt64Decimal'}
+      denominator: {$ref: '#/$defs/positiveInt64Decimal'}
+  storyTime:
+    type: object
+    additionalProperties: false
+    required: [clockKind, clockId, streamId, originRef, ticks, timeBase]
+    properties:
+      clockKind: {const: story}
+      clockId: {$ref: '#/$defs/opaqueId'}
+      streamId: {$ref: '#/$defs/opaqueId'}
+      originRef: {$ref: '#/$defs/versionRef'}
+      ticks: {$ref: '#/$defs/signedInt64Decimal'}
+      timeBase: {$ref: '#/$defs/positiveRational'}
+  simulationTime:
+    type: object
+    additionalProperties: false
+    required: [clockKind, clockId, streamId, originRef, ticks, timeBase]
+    properties:
+      clockKind: {const: simulation}
+      clockId: {$ref: '#/$defs/opaqueId'}
+      streamId: {$ref: '#/$defs/opaqueId'}
+      originRef: {$ref: '#/$defs/versionRef'}
+      ticks: {$ref: '#/$defs/signedInt64Decimal'}
+      timeBase: {$ref: '#/$defs/positiveRational'}
+  familyApplicability:
+    oneOf:
+      - type: object
+        additionalProperties: false
+        required: [applicability, evidenceRefs]
+        properties:
+          applicability: {const: ADMITTED}
+          evidenceRefs: {$ref: '#/$defs/nonEmptyVersionRefList'}
+      - type: object
+        additionalProperties: false
+        required: [applicability, evidenceRefs]
+        properties:
+          applicability: {const: NOT_ADMITTED}
+          evidenceRefs: {$ref: '#/$defs/versionRefList'}
+      - type: object
+        additionalProperties: false
+        required: [applicability, evidenceRefs]
+        properties:
+          applicability: {const: UNKNOWN}
+          evidenceRefs: {$ref: '#/$defs/versionRefList'}
+    description: This nested disposition applies only to its enclosing exact modelFamilyRef and modelVersionRef. ADMITTED requires non-empty versioned source evidence and passes familyApplicabilityValidationContract. NOT_ADMITTED and UNKNOWN remain non-executable; unknown or unsupported family scope rejects. This does not assert owner authorization or scientific qualification.
+  randomnessSemantics:
+    oneOf:
+      - type: object
+        additionalProperties: false
+        required: [disposition, prngAlgorithmVersionRef, prngImplementationVersionRef, randomStreamVersionRef, seedPolicyVersionRef, seedMaterialVersionRef, checkpointStateFormatVersionRef, checkpointStateVersionRefs]
+        properties:
+          disposition: {const: SPECIFIED}
+          prngAlgorithmVersionRef: {$ref: '#/$defs/versionRef'}
+          prngImplementationVersionRef: {$ref: '#/$defs/versionRef'}
+          randomStreamVersionRef: {$ref: '#/$defs/versionRef'}
+          seedPolicyVersionRef: {$ref: '#/$defs/versionRef'}
+          seedMaterialVersionRef: {$ref: '#/$defs/versionRef'}
+          checkpointStateFormatVersionRef: {$ref: '#/$defs/versionRef'}
+          checkpointStateVersionRefs: {$ref: '#/$defs/versionRefList'}
+      - type: object
+        additionalProperties: false
+        required: [disposition, nonStochasticDeclarationVersionRef, reason]
+        properties:
+          disposition: {const: NOT_APPLICABLE}
+          nonStochasticDeclarationVersionRef: {$ref: '#/$defs/versionRef'}
+          reason: {type: string, minLength: 1, maxLength: 512, pattern: '\S'}
+      - type: object
+        additionalProperties: false
+        required: [disposition, reason]
+        properties:
+          disposition: {const: UNKNOWN}
+          reason: {type: string, minLength: 1, maxLength: 512, pattern: '\S'}
 scientificReferenceOracles:
   - id: media.declarative.oracle.force-motion.v1
     assumptions: constant-net-force constant-mass 1D zero-initial-position zero-initial-velocity no-friction
@@ -127,9 +760,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-animation-vector
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-001"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-vector"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-vector"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-vector/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-vector/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-vector/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-vector/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-vector/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-vector/finality"
   - caseId: MEDIA-DECL-P0-AC-002
     group: ANIMATION
     capabilityRef: media.animation.2d
@@ -138,9 +777,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-animation-2d
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-002"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-2d"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-2d"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-2d/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-2d/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-2d/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-2d/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-2d/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-2d/finality"
   - caseId: MEDIA-DECL-P0-AC-003
     group: ANIMATION
     capabilityRef: media.animation.3d
@@ -149,9 +794,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-animation-3d
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-003"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-3d"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-3d"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-3d/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-3d/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-3d/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-3d/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-3d/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-3d/finality"
   - caseId: MEDIA-DECL-P0-AC-004
     group: ANIMATION
     capabilityRef: media.compose.exact-typography-logo-brand
@@ -160,9 +811,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-compose-exact-typography-logo-brand
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-004"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-compose-exact-typography-logo-brand"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-compose-exact-typography-logo-brand"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-compose-exact-typography-logo-brand/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-compose-exact-typography-logo-brand/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-compose-exact-typography-logo-brand/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-compose-exact-typography-logo-brand/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-compose-exact-typography-logo-brand/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-compose-exact-typography-logo-brand/finality"
   - caseId: MEDIA-DECL-P0-AC-005
     group: ANIMATION
     capabilityRef: media.animation.keyframe
@@ -171,9 +828,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-animation-keyframe
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-005"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-keyframe"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-keyframe"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-keyframe/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-keyframe/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-keyframe/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-keyframe/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-keyframe/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-keyframe/finality"
   - caseId: MEDIA-DECL-P0-AC-006
     group: ANIMATION
     capabilityRef: media.animation.interpolation-easing
@@ -182,9 +845,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-animation-interpolation-easing
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-006"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-interpolation-easing"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-interpolation-easing"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-interpolation-easing/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-interpolation-easing/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-interpolation-easing/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-interpolation-easing/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-interpolation-easing/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-interpolation-easing/finality"
   - caseId: MEDIA-DECL-P0-AC-007
     group: ANIMATION
     capabilityRef: media.animation.procedural
@@ -193,9 +862,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-animation-procedural
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-007"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-procedural"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-procedural"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-procedural/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-procedural/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-procedural/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-procedural/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-procedural/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-procedural/finality"
   - caseId: MEDIA-DECL-P0-AC-008
     group: ANIMATION
     capabilityRef: media.animation.camera
@@ -204,9 +879,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-animation-camera
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-008"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-camera"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-camera"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-camera/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-camera/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-camera/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-camera/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-camera/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-camera/finality"
   - caseId: MEDIA-DECL-P0-AC-009
     group: ANIMATION
     capabilityRef: media.animation.skeletal
@@ -215,9 +896,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-animation-skeletal
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-009"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-skeletal"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-skeletal"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-skeletal/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-skeletal/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-skeletal/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-skeletal/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-skeletal/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-skeletal/finality"
   - caseId: MEDIA-DECL-P0-AC-010
     group: ANIMATION
     capabilityRef: media.animation.constraint
@@ -226,9 +913,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-animation-constraint
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-010"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-constraint"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-constraint"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-constraint/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-constraint/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-constraint/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-constraint/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-constraint/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-constraint/finality"
   - caseId: MEDIA-DECL-P0-AC-011
     group: ANIMATION
     capabilityRef: media.animation.drive.audio
@@ -237,9 +930,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-animation-drive-audio
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-011"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-drive-audio"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-audio"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-audio/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-audio/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-audio/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-audio/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-audio/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-audio/finality"
   - caseId: MEDIA-DECL-P0-AC-012
     group: ANIMATION
     capabilityRef: media.animation.drive.speech
@@ -248,9 +947,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-animation-drive-speech
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-012"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-drive-speech"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-speech"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-speech/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-speech/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-speech/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-speech/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-speech/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-speech/finality"
   - caseId: MEDIA-DECL-P0-AC-013
     group: ANIMATION
     capabilityRef: media.recipe.template.physics-math-explainer
@@ -259,9 +964,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-recipe-template-physics-math-explainer
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-013"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-recipe-template-physics-math-explainer"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-physics-math-explainer"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-physics-math-explainer/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-physics-math-explainer/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-physics-math-explainer/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-physics-math-explainer/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-physics-math-explainer/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-physics-math-explainer/finality"
   - caseId: MEDIA-DECL-P0-AC-014
     group: ANIMATION
     capabilityRef: media.animation.output.accessibility.semantic-timeline
@@ -270,9 +981,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-animation-output-accessibility-semantic-timeline
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-014"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-output-accessibility-semantic-timeline"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-accessibility-semantic-timeline"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-accessibility-semantic-timeline/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-accessibility-semantic-timeline/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-accessibility-semantic-timeline/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-accessibility-semantic-timeline/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-accessibility-semantic-timeline/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-accessibility-semantic-timeline/finality"
   - caseId: MEDIA-DECL-P0-AC-015
     group: ANIMATION
     capabilityRef: media.animation.output.output.composited-video
@@ -281,9 +998,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-animation-output-output-composited-video
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-015"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-output-output-composited-video"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-output-composited-video"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-output-composited-video/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-output-composited-video/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-output-composited-video/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-output-composited-video/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-output-composited-video/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-output-composited-video/finality"
   - caseId: MEDIA-DECL-P0-AC-016
     group: ANIMATION
     capabilityRef: media.animation.editing.curve.edit
@@ -292,9 +1015,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-animation-editing-curve-edit
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-016"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-editing-curve-edit"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-editing-curve-edit"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-editing-curve-edit/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-editing-curve-edit/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-editing-curve-edit/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-editing-curve-edit/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-editing-curve-edit/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-editing-curve-edit/finality"
   - caseId: MEDIA-DECL-P0-AC-017
     group: ANIMATION
     capabilityRef: media.animation.editing.undo-redo.versioned
@@ -303,9 +1032,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-animation-editing-undo-redo-versioned
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-017"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-editing-undo-redo-versioned"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-editing-undo-redo-versioned"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-editing-undo-redo-versioned/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-editing-undo-redo-versioned/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-editing-undo-redo-versioned/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-editing-undo-redo-versioned/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-editing-undo-redo-versioned/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-editing-undo-redo-versioned/finality"
   - caseId: MEDIA-DECL-P0-AC-018
     group: SIMULATION
     capabilityRef: media.simulation.scientific-demo
@@ -314,9 +1049,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-scientific-demo
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-018"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-scientific-demo"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/finality"
   - caseId: MEDIA-DECL-P0-AC-019
     group: SIMULATION
     capabilityRef: media.simulation.educational-demo
@@ -325,9 +1066,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-educational-demo
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-019"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-educational-demo"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/finality"
   - caseId: MEDIA-DECL-P0-AC-020
     group: SIMULATION
     capabilityRef: media.simulation.rigid-body
@@ -336,9 +1083,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-rigid-body
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-020"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-rigid-body"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-rigid-body"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-rigid-body/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-rigid-body/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-rigid-body/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-rigid-body/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-rigid-body/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-rigid-body/finality"
   - caseId: MEDIA-DECL-P0-AC-021
     group: SIMULATION
     capabilityRef: media.simulation.scientific-demo
@@ -347,9 +1100,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-scientific-demo
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-021"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-scientific-demo"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/finality"
   - caseId: MEDIA-DECL-P0-AC-022
     group: SIMULATION
     capabilityRef: media.simulation.output.timestamped-state
@@ -358,9 +1117,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-output-timestamped-state
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-022"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-timestamped-state"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/finality"
   - caseId: MEDIA-DECL-P0-AC-023
     group: SIMULATION
     capabilityRef: media.simulation.output.timestamped-state
@@ -369,9 +1134,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-output-timestamped-state
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-023"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-timestamped-state"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/finality"
   - caseId: MEDIA-DECL-P0-AC-024
     group: SIMULATION
     capabilityRef: media.simulation.output.timestamped-state
@@ -380,9 +1151,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-output-timestamped-state
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-024"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-timestamped-state"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/finality"
   - caseId: MEDIA-DECL-P0-AC-025
     group: SIMULATION
     capabilityRef: media.provenance.execution-lineage.inspect
@@ -391,9 +1168,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-provenance-execution-lineage-inspect
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-025"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-provenance-execution-lineage-inspect"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-provenance-execution-lineage-inspect"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-provenance-execution-lineage-inspect/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-provenance-execution-lineage-inspect/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-provenance-execution-lineage-inspect/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-provenance-execution-lineage-inspect/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-provenance-execution-lineage-inspect/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-provenance-execution-lineage-inspect/finality"
   - caseId: MEDIA-DECL-P0-AC-026
     group: SIMULATION
     capabilityRef: media.simulation.output.measurements
@@ -402,9 +1185,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-output-measurements
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-026"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-measurements"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/finality"
   - caseId: MEDIA-DECL-P0-AC-027
     group: SIMULATION
     capabilityRef: media.simulation.scientific-demo
@@ -413,9 +1202,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-scientific-demo
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-027"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-scientific-demo"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/finality"
   - caseId: MEDIA-DECL-P0-AC-028
     group: SIMULATION
     capabilityRef: media.simulation.educational-demo
@@ -424,9 +1219,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-educational-demo
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-028"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-educational-demo"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/finality"
   - caseId: MEDIA-DECL-P0-AC-029
     group: SIMULATION
     capabilityRef: media.simulation.educational-demo
@@ -435,9 +1236,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-educational-demo
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-029"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-educational-demo"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/finality"
   - caseId: MEDIA-DECL-P0-AC-030
     group: SIMULATION
     capabilityRef: media.simulation.output.timestamped-state
@@ -446,9 +1253,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-output-timestamped-state
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-030"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-timestamped-state"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-timestamped-state/finality"
   - caseId: MEDIA-DECL-P0-AC-031
     group: SIMULATION
     capabilityRef: media.simulation.output.measurements
@@ -457,9 +1270,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-output-measurements
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-031"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-measurements"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/finality"
   - caseId: MEDIA-DECL-P0-AC-032
     group: SIMULATION
     capabilityRef: media.simulation.output.measurements
@@ -468,9 +1287,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-output-measurements
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-032"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-measurements"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/finality"
   - caseId: MEDIA-DECL-P0-AC-033
     group: SIMULATION
     capabilityRef: media.simulation.output.contacts
@@ -479,9 +1304,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-output-contacts
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-033"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-contacts"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-contacts"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-contacts/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-contacts/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-contacts/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-contacts/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-contacts/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-contacts/finality"
   - caseId: MEDIA-DECL-P0-AC-034
     group: SIMULATION
     capabilityRef: media.simulation.agent
@@ -490,9 +1321,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-agent
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-034"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-agent"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-agent"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-agent/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-agent/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-agent/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-agent/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-agent/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-agent/finality"
   - caseId: MEDIA-DECL-P0-AC-035
     group: SIMULATION
     capabilityRef: media.simulation.agent
@@ -501,9 +1338,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-agent
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-035"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-agent"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-agent"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-agent/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-agent/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-agent/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-agent/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-agent/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-agent/finality"
   - caseId: MEDIA-DECL-P0-AC-036
     group: SIMULATION
     capabilityRef: media.simulation.rigid-body
@@ -512,9 +1355,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-rigid-body
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-036"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-rigid-body"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-rigid-body"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-rigid-body/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-rigid-body/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-rigid-body/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-rigid-body/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-rigid-body/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-rigid-body/finality"
   - caseId: MEDIA-DECL-P0-AC-037
     group: SIMULATION
     capabilityRef: media.simulation.scientific-demo
@@ -523,9 +1372,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-scientific-demo
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-037"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-scientific-demo"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-scientific-demo/finality"
   - caseId: MEDIA-DECL-P0-AC-038
     group: SIMULATION
     capabilityRef: media.simulation.output.measurements
@@ -534,9 +1389,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-output-measurements
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-038"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-measurements"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/finality"
   - caseId: MEDIA-DECL-P0-AC-039
     group: SIMULATION
     capabilityRef: media.quality.inspect
@@ -545,9 +1406,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-quality-inspect
     operationKind: QUERY
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-039"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-quality-inspect"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-quality-inspect"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-quality-inspect/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-quality-inspect/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-quality-inspect/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-quality-inspect/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-quality-inspect/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-quality-inspect/finality"
   - caseId: MEDIA-DECL-P0-AC-040
     group: TUTORPUTOR
     capabilityRef: media.recipe.template.interactive-lesson
@@ -556,9 +1423,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-recipe-template-interactive-lesson
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-040"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-recipe-template-interactive-lesson"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-interactive-lesson"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-interactive-lesson/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-interactive-lesson/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-interactive-lesson/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-interactive-lesson/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-interactive-lesson/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-interactive-lesson/finality"
   - caseId: MEDIA-DECL-P0-AC-041
     group: TUTORPUTOR
     capabilityRef: media.recipe.template.interactive-lesson
@@ -567,9 +1440,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-recipe-template-interactive-lesson
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-041"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-recipe-template-interactive-lesson"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-interactive-lesson"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-interactive-lesson/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-interactive-lesson/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-interactive-lesson/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-interactive-lesson/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-interactive-lesson/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-recipe-template-interactive-lesson/finality"
   - caseId: MEDIA-DECL-P0-AC-042
     group: TUTORPUTOR
     capabilityRef: media.simulation.educational-demo
@@ -578,9 +1457,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-educational-demo
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-042"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-educational-demo"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/finality"
   - caseId: MEDIA-DECL-P0-AC-043
     group: TUTORPUTOR
     capabilityRef: media.animation.2d
@@ -589,9 +1474,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-animation-2d
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-043"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-2d"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-2d"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-2d/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-2d/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-2d/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-2d/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-2d/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-2d/finality"
   - caseId: MEDIA-DECL-P0-AC-044
     group: TUTORPUTOR
     capabilityRef: media.simulation.output.measurements
@@ -600,9 +1491,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-output-measurements
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-044"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-measurements"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/finality"
   - caseId: MEDIA-DECL-P0-AC-045
     group: TUTORPUTOR
     capabilityRef: media.simulation.educational-demo
@@ -611,9 +1508,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-educational-demo
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-045"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-educational-demo"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-educational-demo/finality"
   - caseId: MEDIA-DECL-P0-AC-046
     group: TUTORPUTOR
     capabilityRef: media.simulation.output.measurements
@@ -622,9 +1525,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-simulation-output-measurements
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-046"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-simulation-output-measurements"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/finality"
   - caseId: MEDIA-DECL-P0-AC-047
     group: TUTORPUTOR
     capabilityRef: media.animation.output.accessibility.semantic-timeline
@@ -633,9 +1542,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-animation-output-accessibility-semantic-timeline
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-047"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-output-accessibility-semantic-timeline"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-accessibility-semantic-timeline"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-accessibility-semantic-timeline/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-accessibility-semantic-timeline/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-accessibility-semantic-timeline/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-accessibility-semantic-timeline/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-accessibility-semantic-timeline/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-accessibility-semantic-timeline/finality"
   - caseId: MEDIA-DECL-P0-AC-048
     group: TUTORPUTOR
     capabilityRef: media.animation.output.output.interactive-scene
@@ -644,9 +1559,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-animation-output-output-interactive-scene
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-048"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-animation-output-output-interactive-scene"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-output-interactive-scene"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-output-interactive-scene/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-output-interactive-scene/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-output-interactive-scene/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-output-interactive-scene/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-output-interactive-scene/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-output-output-interactive-scene/finality"
   - caseId: MEDIA-DECL-P0-AC-049
     group: TUTORPUTOR
     capabilityRef: media.provenance.source-lineage.inspect
@@ -655,9 +1576,16 @@ caseOperationBindings:
     canonicalOperationRef: media.operation-slice.inspect-provenance
     operationKind: QUERY
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-049"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/@id=media.operation-slice.inspect-provenance"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-provenance"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-provenance/ownerWireSchema/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-provenance/ownerWireSchema/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-provenance/contractVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-provenance/ownerWireSchema/resultSchema/properties/outcome"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-provenance/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-provenance/finality"
+    p1ErrorSemanticsSource: ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-provenance/errorSemantics"
   - caseId: MEDIA-DECL-P0-AC-050
     group: TUTORPUTOR
     capabilityRef: media.deliver.interactive-scene-bundle
@@ -666,9 +1594,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-deliver-interactive-scene-bundle
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-050"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-deliver-interactive-scene-bundle"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/finality"
   - caseId: MEDIA-DECL-P0-AC-051
     group: TUTORPUTOR
     capabilityRef: media.deliver.publish-governed
@@ -677,9 +1611,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-deliver-publish-governed
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-051"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-deliver-publish-governed"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-publish-governed"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-publish-governed/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-publish-governed/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-publish-governed/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-publish-governed/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-publish-governed/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-publish-governed/finality"
   - caseId: MEDIA-DECL-P0-AC-052
     group: UNIFIED
     capabilityRef: media.compose.multitrack-timeline
@@ -688,9 +1628,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-compose-multitrack-timeline
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-052"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-compose-multitrack-timeline"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-compose-multitrack-timeline"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-compose-multitrack-timeline/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-compose-multitrack-timeline/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-compose-multitrack-timeline/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-compose-multitrack-timeline/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-compose-multitrack-timeline/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-compose-multitrack-timeline/finality"
   - caseId: MEDIA-DECL-P0-AC-053
     group: UNIFIED
     capabilityRef: media.provenance.origin.disclose
@@ -699,9 +1645,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-provenance-origin-disclose
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-053"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-provenance-origin-disclose"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-provenance-origin-disclose"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-provenance-origin-disclose/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-provenance-origin-disclose/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-provenance-origin-disclose/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-provenance-origin-disclose/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-provenance-origin-disclose/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-provenance-origin-disclose/finality"
   - caseId: MEDIA-DECL-P0-AC-054
     group: UNIFIED
     capabilityRef: media.project.version
@@ -710,9 +1662,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-project-version
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-054"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-project-version"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-version"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-version/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-version/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-version/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-version/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-version/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-version/finality"
   - caseId: MEDIA-DECL-P0-AC-055
     group: UNIFIED
     capabilityRef: media.project.composition.update
@@ -721,9 +1679,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-project-composition-update
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-055"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-project-composition-update"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-composition-update"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-composition-update/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-composition-update/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-composition-update/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-composition-update/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-composition-update/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-composition-update/finality"
   - caseId: MEDIA-DECL-P0-AC-056
     group: UNIFIED
     capabilityRef: media.rights.permitted-use.evaluate
@@ -732,9 +1696,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-rights-permitted-use-evaluate
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-056"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-rights-permitted-use-evaluate"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-rights-permitted-use-evaluate"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-rights-permitted-use-evaluate/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-rights-permitted-use-evaluate/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-rights-permitted-use-evaluate/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-rights-permitted-use-evaluate/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-rights-permitted-use-evaluate/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-rights-permitted-use-evaluate/finality"
   - caseId: MEDIA-DECL-P0-AC-057
     group: UNIFIED
     capabilityRef: media.job.watch
@@ -743,20 +1713,33 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-job-watch
     operationKind: QUERY
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-057"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-job-watch"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-watch"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-watch/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-watch/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-watch/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-watch/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-watch/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-watch/finality"
   - caseId: MEDIA-DECL-P0-AC-058
     group: UNIFIED
     capabilityRef: media.job.submit
     parentRequirementId: MEDIA-REQ-CAP-JOB
     surfaceId: media.surface.recorder-orchestrator
-    canonicalOperationRef: media.operation-slice.submit-job
-    operationKind: CANONICAL_SOURCE_OWNED
+    canonicalOperationRef: media.operation.job.submit.v1
+    operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-058"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/@id=media.operation-slice.submit-job"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema/oneOf"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/finality"
+    p1ResultObservationSemanticsSource: ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/resultObservationSemantics"
   - caseId: MEDIA-DECL-P0-AC-059
     group: UNIFIED
     capabilityRef: media.rights.permitted-use.evaluate
@@ -765,9 +1748,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-rights-permitted-use-evaluate
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-059"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-rights-permitted-use-evaluate"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-rights-permitted-use-evaluate"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-rights-permitted-use-evaluate/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-rights-permitted-use-evaluate/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-rights-permitted-use-evaluate/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-rights-permitted-use-evaluate/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-rights-permitted-use-evaluate/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-rights-permitted-use-evaluate/finality"
   - caseId: MEDIA-DECL-P0-AC-060
     group: UNIFIED
     capabilityRef: media.deliver.package
@@ -776,9 +1765,15 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-deliver-package
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-060"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-deliver-package"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-package"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-package/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-package/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-package/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-package/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-package/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-package/finality"
   - caseId: MEDIA-DECL-P0-AC-061
     group: UNIFIED
     capabilityRef: media.deliver.interactive-scene-bundle
@@ -787,7 +1782,13 @@ caseOperationBindings:
     canonicalOperationRef: media.operation.capability.media-deliver-interactive-scene-bundle
     operationKind: COMMAND
     p0CaseSource: ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-061"
-    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/@id=media.operation.capability.media-deliver-interactive-scene-bundle"
+    p1OperationSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle"
     resultEvidenceRequired: [exact-model-or-media-result, source-version, effect-finality, denial, safe-recovery]
     runtimeAdmission: NOT_ADMITTED
+    p1RequestSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/requestSchema"
+    p1ResultSchemaSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/resultSchema"
+    p1OperationVersionSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/operationVersion"
+    p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/resultSchema/outcomeRules"
+    p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/errors"
+    p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/finality"
 nonClaims: [no-new-operation-or-route, no-new-MediaProject-writer, no-scientific-solver-qualification, no-full-Discovery-exit, no-native-test-evidence]

@@ -7,11 +7,11 @@
     "relationships": ".product-experience/decision-log.md#PXD-140 reconciles the 13-record current relationship population and has acceptanceEffect:none"
   },
   "sourceFingerprints": {
-    ".product-experience/pdp-1-domain-data/domain-objects.yaml": "ed045314dbdb6ece934348a9eba6d7c2ae791438476ef11d343cb57a04a05e04",
+    ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
     ".product-experience/pdp-1-domain-data/relationships.yaml": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
     ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
-    ".product-experience/pdp-1-domain-data/value-objects.yaml": "d497f5bc0ab88ccd51754e9ea66925449aa793433170601fa4fe88fe40153125",
-    ".product-experience/pdp-1-domain-data/versioning.yaml": "e37745de73204fe6a68f61bd5998478e097429e9a63bea62022484e3f6a58111",
+    ".product-experience/pdp-1-domain-data/value-objects.yaml": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916",
+    ".product-experience/pdp-1-domain-data/versioning.yaml": "59554ec8e83719fc66ac118fc26fd024ac1aa855f8b71d01f02fd6c14c1c5f3c",
     ".product-experience/pdp-1-domain-data/interoperability.yaml": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
     ".product-experience/pdp-0-product-truth/domain-model.yaml": "18ddbf9b87f8c36a8903e11dfbf0da04e269c0a53ebb5d42439c3eae74631c2d",
     ".product-experience/pdp-0-product-truth/state-models.yaml": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
@@ -886,5 +886,39 @@
       "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
       "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
     }
-  ]
+  ],
+  "sourceCutRefresh": {
+    "reviewedOn": "2026-10-18",
+    "status": "INTERNAL_CURRENT_SOURCE_REINSPECTION; PHASE_ACCEPTANCE_NOT_CLAIMED",
+    "authority": "Internal PDP-1 source-definition review under user-delegated Media definition authority; no owner receipt, independent certification, runtime admission, or phase closure is claimed.",
+    "priorSourceFingerprintsPreserved": {
+      ".product-experience/pdp-1-domain-data/domain-objects.yaml": "ed045314dbdb6ece934348a9eba6d7c2ae791438476ef11d343cb57a04a05e04",
+      ".product-experience/pdp-1-domain-data/relationships.yaml": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
+      ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
+      ".product-experience/pdp-1-domain-data/value-objects.yaml": "d497f5bc0ab88ccd51754e9ea66925449aa793433170601fa4fe88fe40153125",
+      ".product-experience/pdp-1-domain-data/versioning.yaml": "e37745de73204fe6a68f61bd5998478e097429e9a63bea62022484e3f6a58111",
+      ".product-experience/pdp-1-domain-data/interoperability.yaml": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
+      ".product-experience/pdp-0-product-truth/domain-model.yaml": "18ddbf9b87f8c36a8903e11dfbf0da04e269c0a53ebb5d42439c3eae74631c2d",
+      ".product-experience/pdp-0-product-truth/state-models.yaml": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+      ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "65923f1d333c0b7cf259eb1bc0ddfaab30f115dda8993b5685b253526d397904",
+      ".product-experience/pdp-0-product-truth/schema-bindings.yaml": "32da5a7166a15d48a4653f4a0d49fbbc8d41c6ee2c27d72b0fabd8b53184564e"
+    },
+    "changedSourcePins": {
+      ".product-experience/pdp-1-domain-data/domain-objects.yaml": {
+        "prior": "ed045314dbdb6ece934348a9eba6d7c2ae791438476ef11d343cb57a04a05e04",
+        "current": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629"
+      },
+      ".product-experience/pdp-1-domain-data/value-objects.yaml": {
+        "prior": "d497f5bc0ab88ccd51754e9ea66925449aa793433170601fa4fe88fe40153125",
+        "current": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916"
+      },
+      ".product-experience/pdp-1-domain-data/versioning.yaml": {
+        "prior": "e37745de73204fe6a68f61bd5998478e097429e9a63bea62022484e3f6a58111",
+        "current": "59554ec8e83719fc66ac118fc26fd024ac1aa855f8b71d01f02fd6c14c1c5f3c"
+      }
+    },
+    "scope": "Rebind the existing Lane A identity, relationship, value, versioning, and interoperability findings to the exact current source bytes; no historical decision or acceptance effect is rewritten.",
+    "outstandingMeaningIds": [],
+    "runtimeAdmission": "NOT_ADMITTED"
+  }
 }

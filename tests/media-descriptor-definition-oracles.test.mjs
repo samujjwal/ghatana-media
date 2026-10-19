@@ -106,10 +106,31 @@ test('simulation and replay contracts cannot equate scene appearance with physic
   assert.match(simulation.rules.join(' '), /scene\/render mesh and collision mesh/i);
   const replay = byId.get('media.value.replay-provenance-definition');
   assert.match(replay.rules.join(' '), /metric versions, units, tolerances, scope and measurement methods/);
-  assert.match(replay.rules.join(' '), /qualified evidence is missing or unknown/);
+  assert.match(replay.rules.join(' '), /qualified evidence or required stochastic replay semantics are missing or unknown/);
   const validateReplay = new Ajv({ strict: true }).compile(replay.schema);
   const replayCandidate = sample(replay.schema);
+  assert.equal(validateReplay(replayCandidate), true);
   for (const replayClass of ['EXACT_ENVIRONMENT', 'TOLERANCE_BOUND', 'STATISTICAL']) assert.equal(validateReplay({ ...replayCandidate, replayClass, qualifiedEvidenceRef: unknown() }), false);
-  assert.equal(validateReplay({ ...replayCandidate, replayClass: 'REPLAY_UNAVAILABLE', qualifiedEvidenceRef: unknown() }), true);
+  const knownQualification = { status: 'KNOWN', value: 'qualification-evidence-v1' };
+  for (const replayClass of ['EXACT_ENVIRONMENT', 'TOLERANCE_BOUND', 'STATISTICAL']) {
+    assert.equal(validateReplay({ ...replayCandidate, replayClass, qualifiedEvidenceRef: knownQualification }), true, `${replayClass} accepts fully versioned stochastic semantics`);
+  }
+  const unknownRandomness = { disposition: 'UNKNOWN', reason: 'PRNG identity/version not supplied' };
+  for (const replayClass of ['EXACT_ENVIRONMENT', 'TOLERANCE_BOUND', 'STATISTICAL']) {
+    assert.equal(validateReplay({ ...replayCandidate, replayClass, qualifiedEvidenceRef: knownQualification, randomnessSemantics: unknownRandomness }), false, `${replayClass} cannot claim replay with unknown PRNG semantics`);
+  }
+  assert.equal(validateReplay({ ...replayCandidate, replayClass: 'REPLAY_UNAVAILABLE', qualifiedEvidenceRef: unknown(), randomnessSemantics: unknownRandomness }), true);
+  const nonStochastic = {
+    disposition: 'NOT_APPLICABLE',
+    nonStochasticDeclarationVersionRef: 'simulation-model:deterministic-v3',
+    reason: 'declared deterministic algorithm has no random inputs',
+  };
+  assert.equal(validateReplay({ ...replayCandidate, randomnessSemantics: nonStochastic }), true);
+  const unboundNonStochastic = { ...nonStochastic };
+  delete unboundNonStochastic.nonStochasticDeclarationVersionRef;
+  assert.equal(validateReplay({ ...replayCandidate, randomnessSemantics: unboundNonStochastic }), false, 'non-stochastic disposition requires a source version');
+  const incompleteRandomness = { ...replayCandidate.randomnessSemantics };
+  delete incompleteRandomness.prngAlgorithmVersionRef;
+  assert.equal(validateReplay({ ...replayCandidate, randomnessSemantics: incompleteRandomness }), false, 'stochastic replay requires a versioned PRNG algorithm');
   assert.match(definitions.schemaAdmission, /not metadata truth/);
 });

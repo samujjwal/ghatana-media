@@ -1,7 +1,7 @@
 schemaVersion: media.recorder-studio-domain-contract.v1
 productId: media
 sourcePhase: PDP-1
-status: SOURCE_AUTHORED_SUCCESSOR_PENDING_REVALIDATION
+status: SOURCE_AUTHORED_DEFINITION_ONLY
 predecessor: .product-experience/pdp-0-product-truth/recorder-studio-extension.yaml
 authority: .product-experience/pdp-1-domain-data/domain-objects.yaml
 objects:
@@ -33,27 +33,6 @@ objects:
     relationships: [canonical-ProcessingJob-tenant-jobId, exact-JobAttempt-tenant-jobId-attemptId]
     fields: [sourceProjectRevision, planFingerprint, sceneResultRefs, runtimeQualificationRef, policyDecisionRefs, traceContext, effectReceipts]
     negative: [new-job-on-same-idempotent-retry, outcome-unknown-blind-replay, duplicate-runtime-writer]
-operations:
-  - id: media.recorder.project-edit.proposed.v1
-    effect: CANONICAL_PRODUCT_STATE_CHANGE
-    request: [tenantId, projectId, expectedRevisionId, requestId, actorRef, operation, targetAnchor]
-    result: [APPLIED, CONFLICT, DENIED, UNKNOWN]
-    invariant: CAS-plus-idempotency; APPLIED-makes-one-successor-project-revision
-  - id: media.recorder.run-plan.proposed.v1
-    effect: CANONICAL_PRODUCT_STATE_CHANGE
-    request: [tenantId, projectRevisionId, intentRef, actorRef, profileRef, idempotencyKey]
-    result: [ACCEPTED, DENIED, UNAVAILABLE, OUTCOME_UNKNOWN]
-    invariant: authority-and-provider-admission-precede-any-effect
-  - id: media.recorder.scene-recapture.proposed.v1
-    effect: CANONICAL_PRODUCT_STATE_CHANGE
-    request: [tenantId, projectRevisionId, sceneIds, materialInputFingerprints, expectedRevisionId, idempotencyKey]
-    result: [ACCEPTED, CONFLICT, DENIED, OUTCOME_UNKNOWN]
-    invariant: unchanged-scene-artifacts-and-locked-manual-edits-are-immutable
-  - id: media.recorder.interactive-package.proposed.v1
-    effect: LOCAL_CANDIDATE_OR_DRAFT
-    request: [acceptedSourceVersion, branchGraph, hotspotPermissions, audienceRef, policyRef]
-    result: [CANDIDATE, DENIED, UNSUPPORTED]
-    invariant: player-executes-no-domain-command; publishing-needs-existing-governed-delivery-operation
 derivation:
   cacheKey: [sourceDigest, sceneSemanticDigest, projectRevisionId, providerQualificationFingerprint, rightsPolicyFingerprint, renderProfile]
   invalidation: only-affected-descendants-preserving-manual-operations
@@ -193,9 +172,11 @@ derivedValueObjects:
     classification: SCOPED_PROJECTION_OF_EXISTING_MEDIA_DOMAIN_NOT_NEW_INDEPENDENT_STORE
 canonicalOperationProposals:
   status: PDP1_DEFINITION_ONLY_NO_NEW_PUBLIC_ROUTE_OR_RUNTIME_ADMISSION
+  identityListAuthority: SOLE_AUTHORITATIVE_PROPOSAL_IDENTITY_LIST
   typedBoundary: Media versioned operation definitions inherit owner authority, rights, consent, idempotency, finality and result parity rules.
   records:
     - id: media.recorder.operation.project.plan.evaluate.v1
+      semanticCommandId: media.recorder.operation.project.plan.evaluate.v1
       effectBoundary: OBSERVATION_ONLY
       requestFields: [projectRef, sourceVersionRefs, audienceRef, purposeRef, durationBounds, qualityProfile, currentPolicyVersion]
       resultVariants: [ELIGIBLE, NEEDS_REVIEW, DENIED, UNSUPPORTED]
@@ -204,6 +185,7 @@ canonicalOperationProposals:
       runtimeStatus: NOT_ADMITTED
       authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
     - id: media.recorder.operation.run.submit.v1
+      semanticCommandId: media.recorder.operation.run.submit.v1
       effectBoundary: CANONICAL_PRODUCT_STATE_CHANGE
       requestFields: [tenantId, projectRevisionId, scenarioRef, productAdapterRef, actorRef, idempotencyKey, policyRef]
       resultVariants: [ACCEPTED, REJECTED, UNAVAILABLE, OUTCOME_UNKNOWN]
@@ -212,6 +194,7 @@ canonicalOperationProposals:
       runtimeStatus: NOT_ADMITTED
       authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
     - id: media.recorder.operation.run.observe.v1
+      semanticCommandId: media.recorder.operation.run.observe.v1
       effectBoundary: OBSERVATION_ONLY
       requestFields: [tenantId, runId, expectedJobVersion]
       resultVariants: [OBSERVED, RUNNING, FINAL, UNAVAILABLE]
@@ -220,6 +203,7 @@ canonicalOperationProposals:
       runtimeStatus: NOT_ADMITTED
       authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
     - id: media.recorder.operation.run.reconcile.v1
+      semanticCommandId: media.recorder.operation.run.reconcile.v1
       effectBoundary: OBSERVATION_ONLY
       requestFields: [tenantId, runId, originalRequestId, originalJobId, attemptId]
       resultVariants: [RECONCILED, STILL_UNKNOWN, DENIED]
@@ -228,6 +212,7 @@ canonicalOperationProposals:
       runtimeStatus: NOT_ADMITTED
       authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
     - id: media.recorder.operation.capture.probe.v1
+      semanticCommandId: media.recorder.operation.capture.probe.v1
       effectBoundary: OBSERVATION_ONLY
       requestFields: [tenantId, sourceId, providerProfileId, requestedSignals, policyRef]
       resultVariants: [QUALIFIED, NOT_QUALIFIED, UNAVAILABLE, DENIED]
@@ -236,6 +221,7 @@ canonicalOperationProposals:
       runtimeStatus: NOT_ADMITTED
       authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
     - id: media.recorder.operation.capture.start.v1
+      semanticCommandId: media.recorder.operation.capture.start.v1
       effectBoundary: CANONICAL_PRODUCT_STATE_CHANGE
       requestFields: [tenantId, runId, sourceVersion, admissionRef, leaseFence, clockProfile, idempotencyKey]
       resultVariants: [STARTED, DENIED, UNAVAILABLE, OUTCOME_UNKNOWN]
@@ -244,6 +230,7 @@ canonicalOperationProposals:
       runtimeStatus: NOT_ADMITTED
       authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
     - id: media.recorder.operation.capture.stop.v1
+      semanticCommandId: media.recorder.operation.capture.stop.v1
       effectBoundary: CANONICAL_PRODUCT_STATE_CHANGE
       requestFields: [tenantId, runId, sourceId, captureAttemptId, stopRequestId]
       resultVariants: [STOP_REQUESTED, STOP_ACKNOWLEDGED, STOP_CONFIRMED, OUTCOME_UNKNOWN]
@@ -252,6 +239,7 @@ canonicalOperationProposals:
       runtimeStatus: NOT_ADMITTED
       authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
     - id: media.recorder.operation.scene.compile.v1
+      semanticCommandId: media.recorder.operation.scene.compile.v1
       effectBoundary: LOCAL_CANDIDATE_OR_DRAFT
       requestFields: [tenantId, projectRevision, sceneSpecificationRef, authoritativeSourceEventRefs, profileRef]
       resultVariants: [CANDIDATE, DENIED, NEEDS_REVIEW]
@@ -260,6 +248,7 @@ canonicalOperationProposals:
       runtimeStatus: NOT_ADMITTED
       authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
     - id: media.recorder.operation.edit.commit.v1
+      semanticCommandId: media.recorder.operation.edit.commit.v1
       effectBoundary: CANONICAL_PRODUCT_STATE_CHANGE
       requestFields: [tenantId, projectId, expectedRevisionId, editOperationIds, editorActorRef, idempotencyKey]
       resultVariants: [APPLIED, CONFLICT, DENIED, OUTCOME_UNKNOWN]
@@ -268,6 +257,7 @@ canonicalOperationProposals:
       runtimeStatus: NOT_ADMITTED
       authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
     - id: media.recorder.operation.scene.recapture.v1
+      semanticCommandId: media.recorder.operation.scene.recapture.v1
       effectBoundary: CANONICAL_PRODUCT_STATE_CHANGE
       requestFields: [tenantId, projectRevisionId, changedSceneIds, dependencyFingerprint, expectedRevision, actorRef, idempotencyKey]
       resultVariants: [ACCEPTED, CONFLICT, DENIED, OUTCOME_UNKNOWN]
@@ -276,6 +266,7 @@ canonicalOperationProposals:
       runtimeStatus: NOT_ADMITTED
       authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
     - id: media.recorder.operation.render.request.v1
+      semanticCommandId: media.recorder.operation.render.request.v1
       effectBoundary: CANONICAL_PRODUCT_STATE_CHANGE
       requestFields: [tenantId, projectRevisionId, sceneGraphDigest, renderProfileRef, codecQualificationRef, actorRef, idempotencyKey]
       resultVariants: [ACCEPTED, DENIED, UNAVAILABLE, OUTCOME_UNKNOWN]
@@ -284,6 +275,7 @@ canonicalOperationProposals:
       runtimeStatus: NOT_ADMITTED
       authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
     - id: media.recorder.operation.quality.assess.v1
+      semanticCommandId: media.recorder.operation.quality.assess.v1
       effectBoundary: OBSERVATION_ONLY
       requestFields: [tenantId, artifactVersion, sourcePostconditionRefs, measurementProfileRef]
       resultVariants: [PASS, FAIL, ABSTAIN, UNOBSERVED]
@@ -292,6 +284,7 @@ canonicalOperationProposals:
       runtimeStatus: NOT_ADMITTED
       authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
     - id: media.recorder.operation.interactive.package.v1
+      semanticCommandId: media.recorder.operation.interactive.package.v1
       effectBoundary: LOCAL_CANDIDATE_OR_DRAFT
       requestFields: [tenantId, acceptedArtifactVersion, interactionGraphId, sourceRightsRef, viewerPolicyRef]
       resultVariants: [CANDIDATE, DENIED, UNSUPPORTED]
@@ -300,6 +293,7 @@ canonicalOperationProposals:
       runtimeStatus: NOT_ADMITTED
       authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
     - id: media.recorder.operation.publish.request.v1
+      semanticCommandId: media.recorder.operation.publish.request.v1
       effectBoundary: GOVERNED_EXTERNAL_REQUEST
       requestFields: [tenantId, artifactVersion, audienceRef, destinationRef, rightsAndApprovals, idempotencyKey]
       resultVariants: [REQUEST_ACCEPTED, DENIED, OUTCOME_UNKNOWN, DELIVERY_CONFIRMED]
@@ -308,6 +302,7 @@ canonicalOperationProposals:
       runtimeStatus: NOT_ADMITTED
       authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
     - id: media.recorder.operation.asset.erase.request.v1
+      semanticCommandId: media.recorder.operation.asset.erase.request.v1
       effectBoundary: GOVERNED_EXTERNAL_REQUEST
       requestFields: [tenantId, assetVersionRef, purpose, legalHoldRef, requestId]
       resultVariants: [REQUESTED, ACCESS_REVOKED, PENDING_ERASURE, HELD, ERASURE_CONFIRMED, EXTERNAL_UNKNOWN]
@@ -449,10 +444,174 @@ pdp0CaseOperationCrosswalk:
 # operation registry, endpoint, provider, persistence owner or Build admission.
 editKindParameterContracts:
   schemaVersion: media.recorder.edit-kind-parameters.v1
-  status: SOURCE_AUTHORED_SUCCESSOR_PENDING_REVALIDATION
+  status: SOURCE_AUTHORED_DEFINITION_ONLY
   canonicalEditCommitOperation: media.recorder.operation.edit.commit.v1
   originalEditKindAuthority: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#objects/@id=media.recorder.edit-operation/operationKinds
   globalEnvelopeRequired: [tenantId, projectId, expectedRevisionId, editOperationId, actorRef, sourceVersionRefs, stableTargetAnchor, purposePolicyRef, idempotencyKey]
+  globalEnvelopeSchema:
+    $schema: https://json-schema.org/draft/2020-12/schema
+    type: object
+    additionalProperties: false
+    required: [tenantId, projectId, expectedRevisionId, editOperationId, actorRef, sourceVersionRefs, stableTargetAnchor, purposePolicyRef, idempotencyKey]
+    properties:
+      tenantId:
+        type: string
+        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+        minLength: 1
+        maxLength: 128
+        x-ghatana-typeRuleRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+        x-ghatana-ownerIdentityRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.project/identityComponents/@field=tenantId
+        x-ghatana-origin: TRUSTED_HOST_CONTEXT
+        x-ghatana-semanticInvariant: derive-from-authenticated-host-context-and-reject-caller-body-tenant-substitution
+      projectId:
+        type: string
+        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+        minLength: 1
+        maxLength: 128
+        x-ghatana-typeRuleRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+        x-ghatana-ownerIdentityRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.project/identityComponents/@field=projectId
+        x-ghatana-origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+        x-ghatana-semanticInvariant: resolve-only-within-the-trusted-tenant-and-canonical-project-owner
+      expectedRevisionId:
+        type: string
+        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+        minLength: 1
+        maxLength: 128
+        x-ghatana-typeRuleRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+        x-ghatana-ownerIdentityRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.project-revision/identityComponents/@field=revisionId
+        x-ghatana-semanticInvariant: same-tenant-and-project-current-revision-required-for-CAS-no-latest-alias
+      editOperationId:
+        type: string
+        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+        minLength: 1
+        maxLength: 128
+        x-ghatana-typeRuleRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+        x-ghatana-semanticInvariant: unique-within-project-and-revision-and-bound-to-request-fingerprint
+      actorRef:
+        type: string
+        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+        minLength: 1
+        maxLength: 128
+        x-ghatana-typeRuleRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+        x-ghatana-semanticInvariant: resolved-from-trusted-principal-or-explicitly-delegated-actor-no-role-label-grants-authority
+      sourceVersionRefs:
+        type: array
+        minItems: 1
+        maxItems: 1024
+        uniqueItems: true
+        x-ghatana-typeRuleRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/paramTypeRules/SourceAssetVersionRef
+        items:
+          type: object
+          additionalProperties: false
+          required: [tenantId, assetId, immutableAssetVersionId, digest, rightsScopeId, provenanceRef]
+          properties:
+            tenantId:
+              type: string
+              pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+              minLength: 1
+              maxLength: 128
+              x-ghatana-typeRuleRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+            assetId:
+              type: string
+              pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+              minLength: 1
+              maxLength: 128
+              x-ghatana-typeRuleRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+            immutableAssetVersionId:
+              type: string
+              pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
+              minLength: 1
+              maxLength: 128
+              x-ghatana-typeRuleRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-version-id
+            digest:
+              type: string
+              pattern: ^sha256:[a-f0-9]{64}$
+              x-ghatana-typeRuleRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/immutableFingerprintDefinition
+            rightsScopeId:
+              type: string
+              pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+              minLength: 1
+              maxLength: 128
+              x-ghatana-typeRuleRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+            provenanceRef:
+              type: string
+              minLength: 1
+              maxLength: 384
+              x-ghatana-typeRuleRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-reference
+          x-ghatana-typeRuleRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/paramTypeRules/SourceAssetVersionRef
+          x-ghatana-semanticInvariant: immutable-source-version-with-exact-digest-rights-scope-and-provenance
+        x-ghatana-semanticInvariant: every-reference-resolves-to-an-immutable-source-version-in-the-same-tenant-and-project-scope-with-current-purpose-rights
+      stableTargetAnchor:
+        type: string
+        minLength: 1
+        maxLength: 384
+        x-ghatana-typeRuleRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/paramTypeRules/StableAnchorRef
+        x-ghatana-format: opaque-reference
+        x-ghatana-semanticInvariant: anchor-resolves-to-the-specified-project-revision-and-source-version-and-has-a-declared-rebase-rule
+      purposePolicyRef:
+        type: string
+        minLength: 1
+        maxLength: 384
+        x-ghatana-typeRuleRef: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/paramTypeRules/PolicyRef
+        x-ghatana-format: opaque-reference
+        x-ghatana-semanticInvariant: policy-is-current-tenant-and-purpose-scoped-and-authorizes-each-source-and-derived-edit
+      idempotencyKey:
+        type: string
+        pattern: ^[A-Za-z0-9][A-Za-z0-9._~:-]*$
+        minLength: 1
+        maxLength: 128
+        x-ghatana-typeRuleRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+        x-ghatana-format: opaque-idempotency-key
+        x-ghatana-semanticInvariant: same-key-and-identical-validated-request-only-no-key-reuse-with-different-input
+    crossFieldInvariants:
+      - trusted-tenant-matches-project-revision-all-source-versions-policy-and-actor-scope
+      - projectId-and-expectedRevisionId-resolve-to-one-canonical-MediaProject-revision-before-CAS
+      - stableTargetAnchor-and-every-sourceVersionRef-belong-to-that-project-revision-and-declared-source-clock
+      - purposePolicyRef-authorizes-the-requested-edit-and-source-use-before-any-effect
+      - idempotency-fingerprint-covers-the-complete-closed-envelope-and-discriminated-edit-payload
+    structuralOracleChecks:
+      status: DEFINITION_TEST_ORACLE_ONLY_NO_RUNTIME_PROOF
+      checks:
+        - envelope-tenant-equals-each-inline-sourceVersionRefs-tenantId
+    negativeCases:
+      - caller-supplied-tenant-disagrees-with-trusted-tenant-deny-before-reference-resolution
+      - expectedRevisionId-from-another-project-or-tenant-deny-without-CAS-or-write
+      - sourceVersionRefs-empty-duplicate-stale-or-cross-tenant-deny-before-CAS
+      - stableTargetAnchor-from-another-revision-or-source-clock-deny-without-rebase-guess
+      - purposePolicyRef-revoked-wrong-tenant-or-wrong-purpose-deny-before-any-derived-effect
+      - extra-envelope-property-or-missing-required-field-reject-before-reference-resolution
+      - same-idempotency-key-with-different-envelope-or-edit-payload-deny-and-preserve-original-outcome
+    resolverOracleContract:
+      status: DEFINITION_TEST_ORACLE_ONLY_NO_RUNTIME_PROOF
+      decision: DENY
+      before: [reference-resolution, project-revision-CAS, derived-or-external-effect]
+      sideEffects: NONE
+      cases:
+        - id: MEDIA-REC-P1-EDIT-ENV-ORACLE-001
+          inputFault: trusted-tenant-mismatch
+          requiredDecision: DENY
+          requiredBefore: [reference-resolution, CAS, effect]
+          requiredSideEffects: NONE
+        - id: MEDIA-REC-P1-EDIT-ENV-ORACLE-002
+          inputFault: project-or-revision-reference-cross-tenant-or-cross-project
+          requiredDecision: DENY
+          requiredBefore: [CAS, effect]
+          requiredSideEffects: NONE
+        - id: MEDIA-REC-P1-EDIT-ENV-ORACLE-003
+          inputFault: stale-or-unowned-source-version-or-digest-mismatch
+          requiredDecision: DENY
+          requiredBefore: [CAS, effect]
+          requiredSideEffects: NONE
+        - id: MEDIA-REC-P1-EDIT-ENV-ORACLE-004
+          inputFault: revoked-or-wrong-purpose-policy
+          requiredDecision: DENY
+          requiredBefore: [derived-effect]
+          requiredSideEffects: NONE
+        - id: MEDIA-REC-P1-EDIT-ENV-ORACLE-005
+          inputFault: anchor-does-not-resolve-to-selected-revision-source-or-clock
+          requiredDecision: DENY
+          requiredBefore: [CAS, effect]
+          requiredSideEffects: NONE
   paramTypeRules:
     MediaTime: exact-rational-numerator-denominator-and-declared-timebase
     MediaDuration: nonnegative-exact-rational-with-clock-domain

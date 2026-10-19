@@ -440,7 +440,7 @@ test("typed UI action dispositions reconcile current and historical action ident
   assert.equal(sourceIds.length, 148, "the current action registry and owner-defined actions establish the live denominator");
   const ui = parity.split("\ntypedUiActionDispositions:\n")[1];
   assert.ok(ui, "typed UI action disposition section is present");
-  assert.match(ui, /^  denominator: 147$/mu);
+  assert.match(ui, /^  denominator: 148$/mu);
   assert.match(ui, /^    denominator: 146$/mu);
   const entriesText = ui.split("\n  entries:\n")[1].split(/\n(?=[a-zA-Z][\w-]*:)/u)[0];
   const entries = entriesText.trimEnd().split(/(?=^  - identity: )/mu).map((text) => {
@@ -448,9 +448,9 @@ test("typed UI action dispositions reconcile current and historical action ident
     return [text, identity, body];
   });
   const typedIds = entries.map((entry) => entry[1]);
-  assert.equal(typedIds.length, 147);
-  assert.equal(new Set(typedIds).size, 147, "current typed identities are unique");
-  assert.deepEqual([...typedIds].sort(), sourceIds.filter((id) => id !== "media.action.confirm-selected-fallback").sort());
+  assert.equal(typedIds.length, 148);
+  assert.equal(new Set(typedIds).size, 148, "current typed identities are unique");
+  assert.deepEqual([...typedIds].sort(), [...sourceIds].sort());
 
   const allowed = new Set([
     "DOMAIN_COMMAND", "DOMAIN_QUERY", "CLIENT_ONLY", "NAVIGATION_OR_PRESENTATION",
@@ -463,7 +463,14 @@ test("typed UI action dispositions reconcile current and historical action ident
     counts[type] = (counts[type] ?? 0) + 1;
     const operationRef = body.match(/^    operationRef: (media\.operation\.[^\n]+)$/mu)?.[1];
     const ownerOperationIntentRef = body.match(/^    ownerOperationIntentRef: (media\.operation\.[^\n]+)$/mu)?.[1];
-    if (type === "DOMAIN_COMMAND") assert.ok(operationRef || ownerOperationIntentRef, `${identity} command has an exact PDP-1 operation intent`);
+    if (type === "DOMAIN_COMMAND") {
+      const ownerDefinedExactOperationRef = body.match(/^    ownerDefinedExactOperationRef: (media\.operation\.[^\n]+)$/mu)?.[1];
+      assert.ok(operationRef || ownerOperationIntentRef || ownerDefinedExactOperationRef, `${identity} command has an exact PDP-1 operation intent`);
+      if (ownerDefinedExactOperationRef) {
+        assert.equal(identity, "media.action.confirm-selected-fallback");
+        assert.equal(ownerDefinedExactOperationRef, "media.operation.fallback-selection.confirm.v1");
+      }
+    }
     if (operationRef) {
       const operationBlock = operations.match(new RegExp(`- id: ${operationRef}\\n([\\s\\S]*?)(?=\\n  - id: media\\.operation\\.|\\nchannelFamilies:)`))?.[1];
       assert.ok(operationBlock, `${identity} references an existing PDP-1 operation`);
@@ -473,7 +480,7 @@ test("typed UI action dispositions reconcile current and historical action ident
     for (const field of ["label", "preconditions", "effect", "reversible", "finality"]) assert.match(body, new RegExp(`    - ${field}\\n`, "u"));
   }
   assert.deepEqual(counts, {
-    CLIENT_ONLY: 48, DOMAIN_COMMAND: 10, DOMAIN_QUERY: 49,
+    CLIENT_ONLY: 48, DOMAIN_COMMAND: 11, DOMAIN_QUERY: 49,
     NOT_ADMITTED: 29, NAVIGATION_OR_PRESENTATION: 11,
   });
   for (const [actionId, operationId] of [
@@ -505,6 +512,7 @@ test("the two UI action binding views reconcile exact PDP-1 refs and preserve ev
   assert.ok(sourceSection, "source-denominator UI action section is present");
   const sourceDenominatorSection = operations.match(/uiProductActions:\n([\s\S]*?)\n  httpOperations:/u)?.[1];
   assert.ok(sourceDenominatorSection, "PDP-1 source denominator and exact refs are present");
+  assert.match(sourceDenominatorSection, /^    count: 147$/mu, "PDP-1 denominator covers the current root action registry");
   const typedSection = parity.match(/\ntypedUiActionDispositions:\n([\s\S]*?)(?=\n[a-zA-Z][\w-]*:)/u)?.[1];
   assert.ok(typedSection, "typed UI action section ends at the next top-level artifact section");
   assert.ok(typedSection, "typed UI action section is present");
@@ -519,10 +527,10 @@ test("the two UI action binding views reconcile exact PDP-1 refs and preserve ev
   };
   const sourceCounts = parseCounts(sourceSection);
   const typedCounts = parseCounts(typedSection);
-  assert.deepEqual(sourceCounts, { mappedProposal: 14, ownerDefinedIntentOnly: 1, ambiguous: 0, unresolved: 132 });
+  assert.deepEqual(sourceCounts, { mappedProposal: 14, ownerDefinedIntentOnly: 1, ambiguous: 0, unresolved: 133 });
   assert.deepEqual(typedCounts, sourceCounts, "both views of the UI action denominator agree");
-  assert.match(sourceSection, /^\s+denominator: 147$/mu, "the interface parity snapshot retains its existing 147-entry scope");
-  assert.match(typedSection, /^  denominator: 147$/mu, "the typed parity snapshot retains its existing 147-entry scope");
+  assert.match(sourceSection, /^\s+denominator: 148$/mu, "the interface parity snapshot covers current actions and owner-defined action intent");
+  assert.match(typedSection, /^  denominator: 148$/mu, "the typed parity snapshot covers current actions and owner-defined action intent");
   assert.match(sourceSection, /historicalSnapshot:\n\s+denominator: 146/u);
   assert.match(typedSection, /historicalSnapshot:\n\s+denominator: 146/u);
 
@@ -567,10 +575,9 @@ test("the two UI action binding views reconcile exact PDP-1 refs and preserve ev
   const unresolvedText = sourceDenominatorSection.split("    unresolvedActionIds:\n")[1] ?? "";
   const unresolvedIds = [...unresolvedText.matchAll(/^      - (media\.action\.[^\n]+)$/gmu)].map(([, id]) => id);
   const expectedUnresolved = sourceIds.filter((identity) => !explicitOperationIds.has(identity)
-    && identity !== "media.action.confirm-selected-fallback"
     && identity !== "media.action.request-live-session-reconnect");
-  assert.equal(unresolvedIds.length, 132);
-  assert.equal(new Set(unresolvedIds).size, 132);
+  assert.equal(unresolvedIds.length, 133);
+  assert.equal(new Set(unresolvedIds).size, 133);
   assert.deepEqual([...unresolvedIds].sort(), [...expectedUnresolved].sort(), "all identities without exact refs remain unresolved");
   assert.deepEqual(typedEntries.filter((entry) => !entry.operationRef && !entry.body.includes("ownerOperationIntentRef:")).map((entry) => entry.identity).sort(), [...expectedUnresolved].sort());
   const reconnect = typedEntries.find((entry) => entry.identity === "media.action.request-live-session-reconnect");
@@ -584,6 +591,9 @@ test("the two UI action binding views reconcile exact PDP-1 refs and preserve ev
   assert.match(fallbackAction, /sourceRef: \.product-experience\/pdp-1-domain-data\/operations\.yaml#ownerDefinedOperationContracts\/records\/@id=media\.operation\.fallback-selection\.confirm\.v1/u);
   const fallbackOperation = operations.match(/^    - id: media\.operation\.fallback-selection\.confirm\.v1\n([\s\S]*?)(?=^    - id: media\.operation\.|^  [a-zA-Z])/mu)?.[1] ?? "";
   assert.ok(fallbackOperation, "the exact fallback confirmation operation is present in current PDP-1 sources");
+  assert.match(fallbackOperation, /operationKind: COMMAND/u);
+  assert.match(fallbackOperation, /scopeStatus: OWNER_DEFINED_SELECTION_DEFINITION_ONLY/u);
+  assert.match(fallbackOperation, /no fallback execution/u);
 
   for (const [identity, operationRef] of typedRefs) {
     const operationBlock = operations.match(new RegExp(`^  - id: ${operationRef}\\n([\\s\\S]*?)(?=^  - id: media\\.operation\\.|^channelFamilies:)`, "mu"))?.[1];

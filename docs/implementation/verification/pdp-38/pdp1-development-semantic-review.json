@@ -4,45 +4,57 @@
   "phase": "PDP-1",
   "sourceCutStable": true,
   "sourceFingerprints": {
-    ".product-experience/decision-log.md": "97ad3104abec9ba6670804394c68a11c663f37171e90ea2a1f2e629aa5619bbc",
-    ".product-experience/interface-parity/current-source-review.json": "64796cfb0db909a36e030041b2d51d02fd19fc115d703cc16bca37116f92ed06",
-    ".product-experience/interface-parity/operation-parity.yaml": "24e4699d42dd1a2a0363628387fdf2a12c539f8ac697a0b8771277bbd4aa8555",
+    ".product-experience/artifact-identities.yaml": "69cdb16be2ea0dc5c45110a37efe56b1f723a1cd25bc535a883c89ec2535060a",
+    ".product-experience/authority-map.yaml": "03d010ab4985ff76b8dafea6a32d86196fe7bf2a034f8b43216b6378c35ead3e",
+    ".product-experience/decision-log.md": "a1da4038be71d33a127c3344dc62fe7dd783e53d7185fe604526993fe4dc5fe5",
     ".product-experience/interface-parity/README.md": "367de42d6811606adc3a23d367a153fb5c35a0644477f15011b1f23c874cb5e8",
+    ".product-experience/interface-parity/current-source-review.json": "016e3ea3f141a142eef0b8c56144f42ae67f09bd0548aa65a04f2271da6f3c32",
+    ".product-experience/interface-parity/operation-parity.yaml": "bcc2f132b39dfe09085eef07436fdceed5561b0f06abc9ae4ca22d1a5c4e615a",
     ".product-experience/interface-parity/typed-contract-bindings.json": "402c7fd54a2f7dd1d262996a6e058144fc45a114392ea4bcc7dfd23f813f0143",
-    ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+    ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "af774f4db0a306ac3514475d65170560c345e7a6ecdf17305edb2ac3b9af41fe",
     ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "65923f1d333c0b7cf259eb1bc0ddfaab30f115dda8993b5685b253526d397904",
+    ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md": "213e68abd2137da7636815459ff9cca9ae68378b88a2235f70fe510597c1dcd6",
     ".product-experience/pdp-1-domain-data/action-contracts.yaml": "9159fdcc1a943a4da9a1ac87d112a5be0d59becee3a9adae8187023fa596d067",
     ".product-experience/pdp-1-domain-data/authority.yaml": "0f3b6cd8ffdc48f2fbb8adbeaaf8e61d7de93752f45972bcba90e700201cb6c0",
     ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
     ".product-experience/pdp-1-domain-data/decisions.yaml": "21ae2214b7e1db961e826b95022fa5a69a41fef83afd923701d79f9c8aef18b8",
-    ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md": "21c4712b5613e0640756ebf537c10d1c8d0d1f91df638c862d9719f01982d1e0",
-    ".product-experience/pdp-1-domain-data/domain-objects.yaml": "ed045314dbdb6ece934348a9eba6d7c2ae791438476ef11d343cb57a04a05e04",
+    ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml": "6dbf0bde8965f8745b1e1ea76644ea05b41b63f65a4acb4b8538aa167c668cc7",
+    ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
     ".product-experience/pdp-1-domain-data/events.yaml": "7a3c91161e1d7597f4e378163b0f9a652c3f316d9b11346ea074f64f0954bf3d",
     ".product-experience/pdp-1-domain-data/evidence.yaml": "aa1319db9ec6c5f3f9a68d12911aca3f978a8f9278fbb79559916472e44b2f3b",
-    ".product-experience/pdp-1-domain-data/handoff-contracts.yaml": "0055cb68ee08825d8936763353e011ffa5e3979562c42685566d525a6a074024",
+    ".product-experience/pdp-1-domain-data/handoff-contracts.yaml": "d73d3a5df000186c236c929fef04068cdd28c47227cd550b8e566131efcb4036",
     ".product-experience/pdp-1-domain-data/interoperability.yaml": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
     ".product-experience/pdp-1-domain-data/offline-sync.yaml": "0d4d5acb1bdff5972a5014f6c053cf9f0f9d21adec0b7753acd08bfa9f913d2a",
-    ".product-experience/pdp-1-domain-data/operations-current-source-review.json": "e5a86cd601694697ad735ab10803f215ef8078b8704dc7dc2645435a490e74bc",
-    ".product-experience/pdp-1-domain-data/operations.yaml": "63e36ea20e5b5f7e6fa84d3a7f2bdd2f611835b415aa25205bcf0b290fb7f952",
-    ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml": "c5f6a711b9b8d90e139aeeda5bc22eebd90648f544a9dca17bb72b7cafb55bda",
+    ".product-experience/pdp-1-domain-data/operations-current-source-review.json": "e01f916178563e9405c67ef72a577d480a47676716898918f40bcaa195d09fb5",
+    ".product-experience/pdp-1-domain-data/operations.yaml": "a038e57033cb67a072f7574185e2cfbe407511f1b58d6e2ea288ee8e98d3cf88",
+    ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml": "fe399c563d6681d251bdecc5e03f1cd8849d77e707df4d768305ce5f7abda26f",
     ".product-experience/pdp-1-domain-data/presentation-projections.yaml": "3658dfcd38b957da70f262fd3d649e9cd663f300702dd4975e72bbf06ad94b5c",
     ".product-experience/pdp-1-domain-data/privacy.yaml": "c5b4fb181a6353baf0517975235f0f28767b425efc06959f54cbe4f74866aa92",
     ".product-experience/pdp-1-domain-data/provenance.yaml": "806d80f964540c3dddc476e5331d6b4b768ffe46cabf0bf8b25c3f00f419a863",
+    ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": "0435edb755889261776f1e37bc17a3253256e56730a40e6731d4bf37253ed2fa",
     ".product-experience/pdp-1-domain-data/relationships.yaml": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
     ".product-experience/pdp-1-domain-data/state-adjudication.yaml": "044a70198d2bc40e7709628c7b7a938e2f946a409dc7f9b9d9f18745e214641a",
     ".product-experience/pdp-1-domain-data/states.yaml": "46875b1c2dbc7eb68d89eb76be5c20c999d4665c83f41f7c219a17e5c36f9ebc",
     ".product-experience/pdp-1-domain-data/transition-guard-contracts.yaml": "7e578b5c80430d203b08be5d17821551ae1cebfdd4e475e6e61d7329fd474b53",
     ".product-experience/pdp-1-domain-data/transitions.yaml": "176c10ad3e87ef33b64d61b540e044000b38298613c42a9d04e053ab83a8142a",
-    ".product-experience/pdp-1-domain-data/value-objects.yaml": "d497f5bc0ab88ccd51754e9ea66925449aa793433170601fa4fe88fe40153125",
-    ".product-experience/pdp-1-domain-data/versioning.yaml": "e37745de73204fe6a68f61bd5998478e097429e9a63bea62022484e3f6a58111",
+    ".product-experience/pdp-1-domain-data/value-objects.yaml": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916",
+    ".product-experience/pdp-1-domain-data/versioning.yaml": "59554ec8e83719fc66ac118fc26fd024ac1aa855f8b71d01f02fd6c14c1c5f3c",
     ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml": "8d86816919f8bf5aa4412b554faf31c084dd3e8739190d84ec9be3c322376f7d",
-    ".product-experience/pdp-3-product-experience/action-registry.yaml": "832beaf50f03f9e3c4d8bf0f7e5f47ffe38b570c3e4864bef04c7362352180fe",
+    ".product-experience/pdp-3-product-experience/action-registry.yaml": "53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426",
     ".product-experience/pdp-3-product-experience/cli/command-registry.yaml": "6feed0105beddb02232045fff28cdd5d64d6e8314cb647c96dcdda3b945f82a4",
     ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml": "e95e812bb436c1c6f7630dd885bd2eb9fee9d645bf611ab99d20fe6421ce3a8c",
     ".product-experience/pdp-3-product-experience/cli/source-crosswalk.yaml": "b85d1034c61e22a76a2e8f7baf5ad4fab3f01ec7f18412cc3a1cb3a5984f3873",
     ".product-experience/pdp-3-product-experience/sdk/client-architecture.yaml": "7edcc105f89d82ef6ca3f0154bbb1fabac9eb60f36ef203584318064db7ec92d",
     ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml": "25ec48a642e012265f7b77dec4ae68c94025335caa4ccb6aaa01acfecb3973c4",
+    ".product-experience/source-manifest.yaml": "a567d1fafc9978ed8ef6c97c07e75aa59371aaaf4a7ee9737b7aa69300579a67",
+    ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+    ".product-experience/surfaces/media-physical-topology.v1.json": "53f3e1073c11876d3675543bfe170e32b31bae7725a3ed3bd2712f13954e2017",
+    ".product-experience/traceability.yaml": "4f66d55fa3d32713b9f01927cd2042a9553cb0c606c7f36dc5954e6dcdd8ecfd",
     "contracts/openapi/media.yaml": "fedd60d8a04ce320f28c143406110b6ccf14ab94afd00f8d2445bfeb1637b1ef",
+    "docs/implementation/pdp-0-phase-dev-status.json": "e987d7d48e21997ff34cb8facabdcb6f6f80b8b2951ce1850e86feef897b0d9a",
+    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "1e66ae861772ff2a6432283a0d1907fe0d1b73c1f708676db3251c9c1d04374a",
     "launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java": "501e6b57b21ad9e558bcd3a54c594eb0b2709633a2ff2eaa92e15e427e05edad",
     "libs/audio-video-client/src/__tests__/AudioVideoClient.integration.test.ts": "32ff96088e5b8f0054166c15a86364ccfaaea145f3278ffefede7305dc17576b",
     "libs/audio-video-client/src/__tests__/AudioVideoClient.test.ts": "f56a78d60d402866345d108200b9788f8ba2848590d49a9e8481616df0530803",
@@ -70,18 +82,20 @@
     "modules/speech/tts-service/src/main/proto/tts_service.proto": "79cb7f271b9720aecc63a3e46adef8137330b9fe53875c883c83fc7751b501b6",
     "modules/vision/vision-service/src/main/proto/vision_service.proto": "7452112bd784c3881388d263e736bc9ca697fb6c418544eb93903678a30b4df0",
     "scripts/check-media-contract-parity.mjs": "c443ba57cc5273864cc90ebdd111114eef764629080ff4979cfb734da8d25485",
-    "scripts/report-media-pdp-readiness.mjs": "4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f",
+    "scripts/report-media-pdp-readiness.mjs": "322a89439ac03200aefd39202b5f7a2af9c5f698d921622cc82a77e873265c82",
     "tests/media-agent-tool-contracts.test.mjs": "6b538362a0ac2143a36bc38976293e35580f3a6945b70543141e80963c6d4fd4",
     "tests/media-agent-tool-definition-contracts.test.mjs": "436a97babff05d4f605f0fa592f7783c758328ef14a0edf2e31fdab1be971686",
     "tests/media-contract-parity-definition-only-cli.test.mjs": "fb5844bcafe7e5d6dfbc6ce19dfbbd68c84476855089ce17b0a353d31ae663e4",
-    "tests/media-contract-parity.test.mjs": "3141669eedcf4e26aca5e63e057cd4b9b5f11d75761149e81ed69cd6566da67b",
-    "tests/media-descriptor-definition-oracles.test.mjs": "3e787bf561c18b0d7e0a4123cfc9a234183887cdc38bbd6e06c29d9959839b4f",
+    "tests/media-contract-parity.test.mjs": "51ee7194a1ce2c917f9bedd0e766278f7f745b5a270d019ef4d4b436fb01773d",
+    "tests/media-declarative-production-p1-definitions.test.mjs": "2ed38bf756e71e895b8ec32db751dd57994515c08ca334fac08060d5b3714421",
+    "tests/media-descriptor-definition-oracles.test.mjs": "3bc62a2a6f0eb0ed4ad8c151d1f3c413e89a35d1766e156398c69a153d44d7b0",
     "tests/media-domain-identity-reconciliation.test.mjs": "3b8451e8bd9a646298f1097df6539fa3d87a1ed1cb45fc958aef046fcc748e97",
     "tests/media-event-interface-owner-bindings.test.mjs": "d25165409fb1c9d68ec3e23926be52e0ccad9747fbd148046603a8785d14e6b7",
     "tests/media-event-source-parity.test.mjs": "b1c7cbc0b3250fc624c57b964634cd7fffea11a0fcd25f41e46f7ce9df25a74a",
     "tests/media-operation-parity-source-denominators.test.mjs": "36e2d1e3da3f47814d71986c91c0b6bbce34cb24e0c363c1c255ea639d7efe84",
-    "tests/media-pdp-p1-dev-status.test.mjs": "8362bf108a1f05577e6cdc858cd1565c6afc4193eea102a475e0b1d145abc9ad",
+    "tests/media-pdp-p1-dev-status.test.mjs": "02d4dc8cad69ba8bef76a17efb293ae129d3b3b1aba804b4bb379141797ebd78",
     "tests/media-privacy-consistency-source.test.mjs": "2ed3254c310782ff04aa1b142b79e2f6ab0de24b7cd847df3ddce05300ef414a",
+    "tests/media-recorder-studio-p1-definitions.test.mjs": "b0876d4e3e65b307138a66c7bdc6c6e6706f2a96650c87ae4367539d094ac8c2",
     "tests/media-sdk-legacy-interface-dispositions.test.mjs": "3c69397a52248369ade860e5c4a4bdcf4270e15806b1cc04a30e9c0679384dea",
     "tests/media-state-machine-extraction.test.mjs": "1cb4ff8a5be9d6f8353e3c8b290c7e2bd5675e999a888451742d5797de966641",
     "tests/media-temporal-spatial-definition-model.test.mjs": "c0fd02787d43e857c893dab58c724400017a46791d33ff2d6b8746a804bbafe7",
@@ -98,16 +112,26 @@
     "tests/pdp-truth-domain.test.mjs": "8ef1a6d5e11dc2e10ca32c3e6813fc8671c22a6c7f7038d48300d52f8feae578",
     "tests/pdp-tts-request-origin-binding.test.mjs": "c32f907b6605bb793c303b9ad38c72611f1140bf3fddce40109a52f1aea7b320",
     "tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs": "7ffbd97f98e75cb1a284e19931451cf3d08c7258e5ba2ddbe144713ff55bdfdb",
+    "tests/pdp1-artifact-upload-result-schema.test.mjs": "c35c423a43ae6665697f8b5cff11f41112c847bdb1f204a761aadad5cebf28d8",
+    "tests/pdp1-artifact-wire-byte-ceilings.test.mjs": "7e23b690bdfcc5343ee0e556f6351fa1d9831d833f282b775d20584ca9fe2a33",
+    "tests/pdp1-capability-intent-operation-mapping.test.mjs": "317c73c495f6deda771d19bfddd682d3d683be27a1e373deffb2f6fe5412f073",
     "tests/pdp1-domain-identity-reference-contracts.test.mjs": "ea7c43847e55ef2e385a04f9475e19aaa9b4be77544907f1544bfa202c0113e0",
-    "tests/pdp1-interface-current-source-review.test.mjs": "00f3b6352180c83c70ebd4fab8d44582fc3cb56904d3e232da4c12931d940b67",
+    "tests/pdp1-interface-current-source-review.test.mjs": "ac92b49cb314fa6b51f2078b150529b085b96e530f12c2dc215b11591b35f2c5",
+    "tests/pdp1-j29-execution-recovery-read-contract.test.mjs": "6f805f44df273606184a535f1022aec4d1e88dd9b7069f2a38d6f4d05de38f2f",
     "tests/pdp1-job-submit-typed-input-mapping.test.mjs": "f2c96c6ed097a659d2c9860ca8afe4a02e68644e513f68dc2c3fb931bd89f596",
-    "tests/pdp1-operation-current-source-review.test.mjs": "fae9e284461a294d15de7acfc05fa739f26ccf20b351107916fe32206497e331",
+    "tests/pdp1-lane-a-current-source-review.test.mjs": "fa895c4f63d47a9fb74009e8a3d2e2311725c1385fe778ae1c8440eeda3fb0ca",
+    "tests/pdp1-opaque-id-operation-field-bounds.test.mjs": "affa1a080b47b8e1da8bc8b0b57490b67891ceffba8b411eab52cbc453c20461",
+    "tests/pdp1-operation-current-source-review.test.mjs": "6d5fb809829787c67ea5f237fe8d1933383bb65ee2daa1e7f3e2ac9d7ee1d270",
+    "tests/pdp1-output-producer-contract-mappings.test.mjs": "2a1e4580c44e2a8556b2576e7b8db8a94d3cc68630b71a2e42a303cffd3d3ddc",
     "tests/pdp1-owner-action-wire-contracts.test.mjs": "e1f628e3b24e8054d0a5f9a7d5925306c1be9db05919c685628e3b71a56ad58e",
     "tests/pdp1-phase-handoff-contract.test.mjs": "59a13d90ea867fed449bf543f41a9a2e9d784b1e15e422537a3ac75fccf1d6d6",
     "tests/pdp1-provenance-execution-reference.test.mjs": "d47c30d7feee8aaf89ccd7a2937c2cb6f015c44a29f69d55a9c2218e70adc205",
+    "tests/pdp1-provenance-reference-key-bounds.test.mjs": "a23a5215613fca275c67472506b1968f4f1e7cab584246984b76221172ed3169",
     "tests/pdp1-provenance-typed-input-mapping.test.mjs": "cf78fc8f20a52489b49df604a1795fb56820021a632034b2f3c52fc694a7d850",
-    "tests/pdp1-transition-guard-definition-evaluator.test.mjs": "4c69c137650c7f5ff47499b573549caa57505ea9e2948c73c85653b2ec6b9cde",
-    "tests/pdp1-j29-execution-recovery-read-contract.test.mjs": "6f805f44df273606184a535f1022aec4d1e88dd9b7069f2a38d6f4d05de38f2f"
+    "tests/pdp1-requiredness-regression.test.mjs": "0d34178804339321276e61a3aec0399e204aff42a310a4854e0490eeddbde805",
+    "tests/pdp1-transcription-exact-contract.test.mjs": "d3f6db111bf1850e26b9e70de38a95f582d3b8de5f1ab834c7836c6ebed5f7a0",
+    "tests/pdp1-transcription-optional-profile-mapping.test.mjs": "d3fe261c2fe44edb59003bb9d3398c29de86de302aa08163f2afed91d205de46",
+    "tests/pdp1-transition-guard-definition-evaluator.test.mjs": "4c69c137650c7f5ff47499b573549caa57505ea9e2948c73c85653b2ec6b9cde"
   },
   "sourceRecordCount": {
     "objectDefinitions": 39,
@@ -4283,11 +4307,11 @@
     "values:media.value.wall-clock-instant"
   ],
   "reviewMethod": {
-    "statement": "The full current PDP-1 development census is individually addressed by exact source selector and exact identity set. All 2,023 identities are semantically reviewed by row-level source review or shared normative cohort rules exercised over the entire set by focused definition tests. Generated counts alone are not completeness evidence. The 2026-10-11 current-cut review reconciles PXD-160 J-29 recovery semantics and the complete 79-record action wire result population, including the current/stale job-status distinction, against exact source selectors and pins the user-authorized PXD decision log.",
+    "statement": "The full current PDP-1 development census is individually addressed by exact source selector and exact identity set. All 2,026 identities are semantically reviewed by row-level source review or shared normative cohort rules exercised over the full set by focused definition tests. The 2026-10-18 cut refresh rechecks the 53 applicable/reference-bound surface rows and one explicit archive, exact source dependencies, operation joins, schemas, replay semantics, edit-envelope constraints, and the 2,026-identity handoff. Generated counts alone are not completeness evidence.",
     "reviewAuthority": "Internal PDP-1 semantic development review under user-delegated Media source-definition authority; no external owner acceptance, independent certification, runtime admission, or phase-status assertion is created by this artifact.",
-    "sourceFileCount": 99,
+    "sourceFileCount": 129,
     "censusIntegrityIssues": [],
-    "fingerprintedSourceFileCount": 104
+    "fingerprintedSourceFileCount": 128
   },
   "populationCoverage": [
     {
@@ -4868,6 +4892,39 @@
       "lifecycleClosure": "NOT_ENTERED",
       "delivery": "NOT_CLAIMED",
       "release": "NOT_CLAIMED"
+    },
+    {
+      "id": "P1-04-current-ui-action-denominator-2026-10-18",
+      "status": "SOURCE_RECONCILED_FOR_DEVELOPMENT",
+      "currentPopulation": {
+        "rootActions": 147,
+        "separatelyOwnerDefinedActions": 1,
+        "total": 148
+      },
+      "operationDisposition": {
+        "exactProposedRefs": 14,
+        "ownerDefinedIntentOnly": 1,
+        "unresolvedCrossInterfaceBindings": 133,
+        "acceptedCrossInterfaceBindings": 0
+      },
+      "historicalSnapshot": {
+        "actions": 146,
+        "unresolved": 132,
+        "disposition": "PRESERVED_AS_HISTORICAL"
+      },
+      "fallbackAction": {
+        "actionId": "media.action.confirm-selected-fallback",
+        "operationRef": "media.operation.fallback-selection.confirm.v1",
+        "crossInterfaceDisposition": "UNRESOLVED_NOT_ACCEPTED"
+      },
+      "evidence": [
+        ".product-experience/interface-parity/operation-parity.yaml#typedUiActionDispositions",
+        ".product-experience/pdp-1-domain-data/operations.yaml#sourceDenominators/uiProductActions",
+        ".product-experience/pdp-1-domain-data/operations-current-source-review.json#uiActionDenominatorReconciliation",
+        "tests/media-contract-parity.test.mjs",
+        "tests/media-operation-parity-source-denominators.test.mjs"
+      ],
+      "boundary": "Definition and source-population reconciliation only; no accepted cross-interface binding, runtime, transport, owner acceptance, independent review, closure, or release claim."
     }
   ],
   "nonAdmissionAndAcceptanceBoundaries": [
@@ -4923,6 +4980,20 @@
         ".product-experience/pdp-3-product-experience/action-registry.yaml"
       ],
       "observation": "The action now binds media.provenance.source-lineage.inspect to its exact PDP-1 QUERY operation. PXD-152 accepts only the logical caller-scoped execution-reference contract, keeps unknown non-disclosing, excludes MediaRun, and leaves transport/runtime NOT_ADMITTED. PDP-3 screen/journey integration and its phase gate remain pending."
+    },
+    {
+      "id": "P3-DECLARATIVE-EXPERIENCE-YAML-INVALID-SCALAR-2026-10-18",
+      "ownerPhase": "PDP-3",
+      "physicalOrCompositeOwner": "media.composition.creation-composition-and-delivery",
+      "affectedLogicalSurfaces": [
+        "media.surface.production-studio",
+        "media.surface.interactive-demo-player"
+      ],
+      "disposition": "SEPARATE_PDP3_DEFINITION_HANDOFF_NOT_A_PDP1_TASK",
+      "exactWhere": ".product-experience/pdp-3-product-experience/declarative-production-experience.yaml:25",
+      "finding": "The failure entry appends unquoted prose after an inline YAML array, so the PDP-3 declarative experience document does not parse; the whole declarative successor checker consequently cannot resolve its 61 PDP-3 case bindings.",
+      "acceptanceCriterion": "The PDP-3 source parses without duplicate-key errors; all 61 case identities resolve to exact current journey/screen source bindings; native PDP-3 phase tests pass.",
+      "predecessor": "Resolve after PDP-2 source-current DEV_COMPLETE; do not expand the current PDP-1 task set."
     }
   ],
   "outstandingMeaningIds": [],
@@ -5012,14 +5083,20 @@
   ],
   "boundary": "Development definition and test review only. No runtime/provider admission, Lifecycle receipts, qualification, release, or deployment claims.",
   "currentCutReview": {
-    "reviewedOn": "2026-10-14",
-    "authority": "Internal PDP-1 semantic development review under the user's delegated Media source-definition authority; not external acceptance or independent certification.",
-    "method": "Reviewed the parsed current source trees by exact identity; re-reviewed the complete current PDP-1 operations tree and its declared populations because the preceding pinned bytes are unavailable in Git; preserved 2,023 prior identities and reviewed the exact added fallback-confirmation operation, C16 input-schema, and explicit fallback-confirmation UI action identities; reconciled the eight operation semantic groups and current action/interface crosswalks; corrected the declared input- and output-schema counts; and ran focused schema, upload/project, simulation leaf-wire, operation, and source-exact action-parity checks. No exact prior-to-current byte diff is claimed for the unavailable prior operations cut.",
+    "reviewedOn": "2026-10-18",
+    "authority": "Internal PDP-1 semantic development review under the user's delegated Media source-definition authority; not external acceptance, owner receipt, independent certification, or closure.",
+    "method": "Re-read the live PDP-1 definition and interface source set, all 2,026 census identities across 24 declared populations, the 54-surface applicability denominator, and current PDP-0 predecessor inputs. Rechecked the declarative-production and Recorder Studio dependencies, typed schemas, 61 declarative case bindings, 20 exact request/result relations, 52 manual edit kinds, canonical edit operation, replay/randomness semantics, opaque-ID constraints, and frozen P1-to-P2 handoff. Reconciled the current UI action identity crosswalk as 147 root actions plus one separately owner-defined action; the fallback has an exact owner-defined operation reference but remains an unresolved, unaccepted cross-interface binding. The current operations source includes the bounded child-cancellation ordering and evidence rule; the current operations review records the schema-consistency correction and its focused test evidence. No tests were run by this recapture; native PDP-1 status and acceptance remain separate. Historical 146/132 counts are preserved. The current transcription exact-contract test now asserts the v3 fingerprint and preserves the optional customGlossaryRef and fillerRetakeCandidates input mappings; its owning reviewer reported the focused suite passing 8/8. This pin refresh ran no transcription tests.",
     "sourceIdentityCount": 2026,
     "reviewedPopulationCount": 24,
-    "sourcePinCount": 104,
-    "stalePriorSourcePinCount": 7,
-    "newlyPinnedAuthoritySource": ".product-experience/decision-log.md",
+    "sourcePinCount": 128,
+    "stalePriorSourcePinCount": 16,
+    "priorPdp1StatusStalePinCount": 17,
+    "newlyPinnedAuthoritySources": [
+      ".product-experience/surface-registry.yaml",
+      ".product-experience/surfaces/media-physical-topology.v1.json",
+      "docs/implementation/pdp-0-phase-dev-status.json",
+      "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json"
+    ],
     "changedMeaningFindings": [
       {
         "id": "cross-interface-and-downstream-action-classification",
@@ -5204,208 +5281,131 @@
           "tests/pdp1-owner-action-wire-contracts.test.mjs",
           "tests/media-discovery-pdp1-supplemental-owner-status-join.test.mjs"
         ]
+      },
+      {
+        "id": "P1-DECLARATIVE-TYPED-VALUE-SCHEMAS-2026-10-18",
+        "disposition": "CURRENT_SOURCE_DEFINITION_REVIEWED",
+        "meaning": "All ten declarative producer values have closed Draft 2020-12 schemas, exact existing domain authorities, exact request/result schema relation selectors for all 20 relations, and no asserted field mapping. Runtime admission remains NOT_ADMITTED.",
+        "evidence": [
+          ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml",
+          "tests/media-declarative-production-p1-definitions.test.mjs"
+        ],
+        "runtimeAdmission": "NOT_ADMITTED"
+      },
+      {
+        "id": "P1-CHECKPOINT-EXACT-SIGNED-64-TICKS-2026-10-18",
+        "disposition": "CURRENT_SOURCE_BOUNDARY_REPAIRED",
+        "meaning": "Checkpoint simulation ticks use canonical decimal text with the exact signed-64 BigInt format; the actual simulation-state schema accepts both representable boundaries and rejects overflow, -0, leading zeros, plus sign, and numeric values.",
+        "evidence": [
+          ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#typedProductionValueDescriptors/@id=media.declarative.value.simulation-state.v1/schema/properties/tSimTicks",
+          "tests/media-declarative-production-p1-definitions.test.mjs"
+        ]
+      },
+      {
+        "id": "P1-REPLAY-RANDOMNESS-PROVENANCE-2026-10-18",
+        "disposition": "CURRENT_SOURCE_DEFINITION_REVIEWED",
+        "meaning": "Replay provenance distinguishes versioned SPECIFIED randomness, versioned NOT_APPLICABLE non-stochastic semantics, and UNKNOWN; exact replay claims reject UNKNOWN, and model/checkpoint descriptors reference this canonical value-object authority.",
+        "evidence": [
+          ".product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions/records/@id=media.value.replay-provenance-definition/schema/properties/randomnessSemantics",
+          ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml",
+          "tests/media-descriptor-definition-oracles.test.mjs",
+          "tests/media-declarative-production-p1-definitions.test.mjs"
+        ]
+      },
+      {
+        "id": "P1-RECORDER-CLOSED-EDIT-ENVELOPE-2026-10-18",
+        "disposition": "CURRENT_SOURCE_DEFINITION_REVIEWED",
+        "meaning": "The 52 existing edit kinds share one closed typed edit envelope and one canonical edit-commit operation; structural source-version elements are enforced, resolver-dependent tenant/project/revision/rights checks are exact deny-before-resolution/CAS/effect oracle contracts, and no runtime proof or admission is claimed.",
+        "evidence": [
+          ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/globalEnvelopeSchema",
+          "tests/media-recorder-studio-p1-definitions.test.mjs"
+        ],
+        "runtimeAdmission": "NOT_ADMITTED"
+      },
+      {
+        "id": "P1-OPAQUE-ID-BOUNDS-AC058-OPERATION-JOIN-2026-10-18",
+        "disposition": "CURRENT_SOURCE_DEFINITION_REVIEWED",
+        "meaning": "All ten converted opaque identifier fields retain the canonical bounded wire grammar; declarative AC058 resolves to the existing media.operation.job.submit.v1 operation and exact request/result schemas, with finality and UNKNOWN preserved.",
+        "evidence": [
+          ".product-experience/pdp-1-domain-data/operations.yaml",
+          "tests/pdp1-opaque-id-operation-field-bounds.test.mjs",
+          "tests/media-declarative-production-p1-definitions.test.mjs"
+        ]
+      },
+      {
+        "id": "pdp1-current-ui-action-denominator-and-fallback-reference",
+        "disposition": "CURRENT_SOURCE_DENOMINATOR_RECONCILED; CROSS_INTERFACE_ACCEPTANCE_NOT_CLAIMED",
+        "meaning": "The current registry has 147 root action identities and one separately owner-defined reconnect action (148 total). Fourteen root actions have exact proposed operation references, the reconnect action remains owner-defined intent only, and 133 current cross-interface identities remain unresolved. The fallback-confirmation action has an exact owner-defined operation definition reference while cross-interface binding remains unresolved. Historical 146/132 counts are retained only as the prior snapshot.",
+        "sourceRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#sourceDenominators/uiProductActions",
+          ".product-experience/interface-parity/operation-parity.yaml#/surfaces/@surface=UI action registry",
+          ".product-experience/interface-parity/operation-parity.yaml#typedUiActionDispositions",
+          ".product-experience/pdp-1-domain-data/operations-current-source-review.json#uiActionDenominatorReconciliation",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#/actions",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#/ownerDefinedActions"
+        ],
+        "runtimeAdmission": "NOT_ADMITTED",
+        "transportAdmission": "NOT_ADMITTED"
       }
     ],
     "outstandingMeaningIds": [],
-    "verificationStatus": "PENDING_FINAL_PDP1_STATUS_AND_PHASE_CURRENTNESS_RECUT: all 104 semantic source fingerprints are current after the exact authorized pin refresh; rerun the complete PDP-1 criterion set and capture a new source-current phase exit before claiming currentness.",
-    "refreshedSourcePinCount": 11,
-    "evaluatorRefreshReview": {
-      "reviewedOn": "2026-10-11",
-      "source": "scripts/report-media-pdp-readiness.mjs",
-      "priorFingerprint": "5969c3be249653145ecb97785fc7e25c6958aadd7f98f3f563e01929a4759293",
-      "currentFingerprint": "6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c",
-      "disposition": "CURRENT_PDP1_SEMANTIC_REVIEW_RETAINED_AFTER_EVALUATOR_REVIEW",
-      "review": "The 2026-10-11 evaluator reconciliation is historical. The current 2026-10-14 source delta is separately re-reviewed in supplementalDefinitionDeltaReview: eight owner typed observation contracts and two operation records. It preserves the prior 2,023 identity IDs and adds capabilityInputPayloadSchemas:media.typed-input.source-media-with-speech-dub and operations:media.operation.fallback-selection.confirm.v1, resulting in 2,025. The owner-defined operations denominator is now 107; capability operations remain 462. Currentness capture remains pending.",
-      "verification": "Historical verification remains as recorded for its 2026-10-11 source cut; it does not validate the current 2026-10-14 semantic delta.",
-      "authorityBoundary": "Internal review under the user's delegated Media definition authority; this evaluator reconciliation does not claim external acceptance, independent certification, runtime admission, Lifecycle closure, or release readiness."
-    },
-    "definitionContractRefresh": {
-      "reviewedOn": "2026-10-11",
-      "authority": "Internal PDP-1 definition review under the user's delegated Media source-definition authority.",
-      "sourcePinsUpdated": {
-        ".product-experience/pdp-1-domain-data/transitions.yaml": "176c10ad3e87ef33b64d61b540e044000b38298613c42a9d04e053ab83a8142a",
-        "tests/pdp1-transition-guard-definition-evaluator.test.mjs": "4c69c137650c7f5ff47499b573549caa57505ea9e2948c73c85653b2ec6b9cde",
-        "tests/pdp-truth-domain-schema-validation.test.mjs": "5dc8863f6d35a4b07863291198439f3721f1872bcd4ebe90aa8d5b9a0c25ff8a",
-        "scripts/generate-media-transition-trigger-semantics.mjs": "e48523e8ede50d8959cf653ca621d73ec7fd6b2c617021cde55b50565dbcad3f"
-      },
-      "findings": [
-        {
-          "id": "PXD-155-retry-guard-positive-schema-consistency",
-          "disposition": "CORRECTED_TO_ACCEPTED_LOGICAL_DEFINITION",
-          "meaning": "The bounded retry check now uses schema-valid PASS as its positive disposition, and its positive rule requires the exact current typed retry-policy read to report RETRYABLE, a DEFINITIVE_NO_EFFECT or DEFINITIVE_RETRYABLE_FAILURE outcome, and retriesRemaining greater than zero. Generated trigger semantics apply retry eligibility only to RETRY_PENDING-to-RUNNING; cancellation, failure, and unknown-outcome transitions retain their exact target-state observations. Synthetic evaluator input remains definition-only; runtime admission remains NOT_ADMITTED.",
-          "evidence": [
-            ".product-experience/decision-log.md#PXD-155",
-            ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.retry-policy-current-read.v1",
-            ".product-experience/pdp-1-domain-data/transitions.yaml#ownerDefinedTransitionTriggerSemantics/guardFactContracts/@id=media.transition-guard-fact.retrybudgetavailable.v1",
-            "scripts/generate-media-transition-trigger-semantics.mjs",
-            "tests/pdp1-transition-guard-definition-evaluator.test.mjs"
-          ]
-        },
-        {
-          "id": "PXD-117-phase-noise-output-negative-schema-cases",
-          "disposition": "FOCUSED_NEGATIVE_REGRESSION_ADDED",
-          "meaning": "The existing phase-noise schema remains unchanged and now has source-bound result tests rejecting a wrong metric, absent measurement window, and nonpositive sample count.",
-          "evidence": [
-            ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.phase-noise-floor-measurement.v1",
-            "tests/pdp-truth-domain-schema-validation.test.mjs"
-          ]
-        }
-      ],
-      "targetedVerification": {
-        "transitionGuardEvaluator": "18/18 passed",
-        "typedSchemaValidation": "5/5 passed",
-        "fullPhaseGate": "DEV_COMPLETE; all 11 criteria passed (342/342, zero skipped); recorded in docs/implementation/pdp-1-phase-dev-status.json"
-      },
-      "authorityBoundary": "This review corrects source-contract consistency and development regressions only. It adds no provider, runtime, endpoint, persisted transition, production, or release admission.",
-      "verificationEvidence": {
-        "typedSchemaValidation": {
-          "command": "node --test tests/pdp-truth-domain-schema-validation.test.mjs",
-          "testStatus": "PASS",
-          "testCount": 5,
-          "passedTestCount": 5,
-          "sourceSha256": "5dc8863f6d35a4b07863291198439f3721f1872bcd4ebe90aa8d5b9a0c25ff8a",
-          "outputSha256": "a07c045debb2d25bd4ac2b43b42249b1c19c6b8c828aecf916be5a2793751a3d"
-        },
-        "fullPhaseGate": {
-          "path": "docs/implementation/pdp-1-phase-dev-status.json",
-          "status": "DEV_COMPLETE",
-          "directCriteriaPassed": 11,
-          "testCount": 342,
-          "passedTestCount": 342,
-          "skippedTestCount": 0
-        }
-      }
-    },
     "currentOperationsSourceReinspection": {
       "status": "REINSPECTED_CURRENT_SOURCE_CUT",
-      "currentSourceSha256": "62d0a4050a43da1c58a63d12adaa7c27055c63afc51580bd1e2478d1da3dace8",
-      "previousReviewedSourceSha256": "f2d32a678d1cbe197d92ac74c4a6ec2efbda7dedd506e38a07462bd739ba5087",
-      "previousSourceBytesAvailableInGit": false,
-      "reviewBasis": "Re-reviewed the complete final operations source tree against exact action identities and dispositions, canonical-operation and capability-mapping denominators, schema populations, typed-observation identities and validation-rule joins, semantic selectors, and bounded decision/admission claims. The immediately preceding reviewed cut is retained above but its bytes are unavailable in Git, so this record does not claim a byte-exact incremental diff from that cut.",
-      "currentPopulations": {
-        "canonicalOperations": 448,
-        "capabilityBindingRecords": 14,
-        "capabilityOperationRecords": 462,
-        "inputPayloadSchemas": 129,
-        "outputPayloadSchemas": 98,
-        "ownerActionWireRecords": 79,
-        "ownerLeafWireSchemas": 11,
-        "ownerTypedObservationContracts": 15,
-        "ownerTypedObservationValidationRules": 15,
-        "fixtureCliCommands": 11,
-        "sdkRegistryRecords": 33,
-        "sdkPublicMethodIdentities": 30,
-        "actionRegistryRecords": 147,
-        "actionDispositionRecords": 147,
-        "individualOperationRecords": 13,
-        "ownerDefinedOperationRecords": 107
+      "currentSourceSha256": "a038e57033cb67a072f7574185e2cfbe407511f1b58d6e2ea288ee8e98d3cf88",
+      "currentSourceReviewArtifactSha256": "e01f916178563e9405c67ef72a577d480a47676716898918f40bcaa195d09fb5",
+      "previousPxd164SourceReviewPreservedInHistory": true,
+      "reviewBasis": "Re-read the exact current operation definitions and their current-source review, including bounded identifier fields, AC058 exact request/result operation linkage, the cancel-job child-cancellation ordering/evidence rule, and the schema-consistency correction documented by the current operations review. The review artifact records its focused source checks; this recapture ran no tests. Owner/independent acceptance remains unclaimed and runtime/transport admission remains NOT_ADMITTED."
+    },
+    "currentDeclarativeAndRecorderReview": {
+      "status": "REINSPECTED_CURRENT_SOURCE_CUT",
+      "sourceFingerprints": {
+        ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml": "6dbf0bde8965f8745b1e1ea76644ea05b41b63f65a4acb4b8538aa167c668cc7",
+        ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": "0435edb755889261776f1e37bc17a3253256e56730a40e6731d4bf37253ed2fa",
+        ".product-experience/pdp-1-domain-data/value-objects.yaml": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916",
+        ".product-experience/pdp-0-product-truth/requirements.yaml": "af774f4db0a306ac3514475d65170560c345e7a6ecdf17305edb2ac3b9af41fe",
+        ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be"
       },
-      "outstandingMeaningIds": [],
-      "runtimeAdmission": "NOT_ADMITTED",
-      "transportAdmission": "NOT_ADMITTED",
-      "immediatePredecessorSourceSha256": "317878be9ebe9c978f356a4e81060620fcb69af02ea25c2ff1d47bd20180c069",
-      "immediatePredecessorSourceBytesAvailableInGit": true,
-      "supplementalDefinitionDeltaReviewRef": ".product-experience/pdp-1-domain-data/operations-current-source-review.json#currentSourceCutDeltaReview/supplementalPdp1DefinitionDelta",
-      "reviewedOwnerTypedObservationIds": [
-        "media.observation-contract.rights-decision.v1",
-        "media.observation-contract.destination-delivery-acknowledgment.v1",
-        "media.observation-contract.delegated-integration-result-context.v1",
-        "media.observation-contract.processing-parameter-read.v1",
-        "media.observation-contract.effective-processing-constraints.v1",
-        "media.observation-contract.transcript-submission-lineage.v1",
-        "media.observation-contract.job-status-seven-dimension.v1",
-        "media.observation-contract.output-preview-version-lineage.v1"
-      ],
-      "ownerTypedObservationContractCount": 15,
-      "ownerTypedObservationValidationRuleCount": 15,
-      "sourceIdentityCountPreserved": 2023,
-      "reviewedOperationIds": [
-        "media.operation.capability.media-speech-synthesis-dub",
-        "media.operation.fallback-selection.confirm.v1"
-      ]
+      "focusedTests": {
+        "declarativeProduction": "PASS:3/3",
+        "recorderStudio": "PASS:1/1",
+        "opaqueIdBounds": "PASS:1/1",
+        "descriptorOracles": "PASS:5/5"
+      },
+      "runtimeAdmission": "NOT_ADMITTED"
     },
-    "supplementalDefinitionDeltaReview": {
-      "reviewRef": ".product-experience/pdp-1-domain-data/operations-current-source-review.json#currentSourceCutDeltaReview/supplementalPdp1DefinitionDelta",
-      "sourceSha256": "62d0a4050a43da1c58a63d12adaa7c27055c63afc51580bd1e2478d1da3dace8",
-      "sourceReviewArtifactSha256": "sha256:d5f83fad612d6598165072137390c70c8d4dfdc549a236a29c7bda34b50b6d0c",
-      "reviewedRecordIds": [
-        "media.observation-contract.rights-decision.v1",
-        "media.observation-contract.destination-delivery-acknowledgment.v1",
-        "media.observation-contract.delegated-integration-result-context.v1",
-        "media.observation-contract.processing-parameter-read.v1",
-        "media.observation-contract.effective-processing-constraints.v1",
-        "media.observation-contract.transcript-submission-lineage.v1",
-        "media.observation-contract.job-status-seven-dimension.v1",
-        "media.observation-contract.output-preview-version-lineage.v1"
+    "currentSurfaceApplicability": {
+      "denominator": 54,
+      "physical": 26,
+      "compositions": 7,
+      "logicalConsumers": 21,
+      "pdp1ApplicableOrReferenceBound": 53,
+      "explicitArchivedNotApplicable": 1,
+      "sourceRefs": [
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json"
       ],
-      "existingIdentityCountPreserved": 2023,
-      "identitySetChanged": true,
-      "outstandingMeaningIds": [],
-      "status": "REVIEW_COMPLETE_PENDING_SOURCE_BOUND_REQUIRED_TESTS_AND_PHASE_CAPTURE",
-      "authority": "Internal Media PDP-1 definition review under explicit user delegation; not owner acceptance or independent certification.",
-      "independentApproval": "NOT_CLAIMED_AND_NOT_WAIVED",
-      "externalContractOwnerAcceptance": "NOT_CLAIMED",
-      "runtimeAdmission": "NOT_ADMITTED",
-      "transportAdmission": "NOT_ADMITTED",
-      "newIdentityIds": [
-        "capabilityInputPayloadSchemas:media.typed-input.source-media-with-speech-dub",
-        "operations:media.operation.fallback-selection.confirm.v1",
-        "uiActions:media.action.confirm-selected-fallback"
-      ],
-      "resultingIdentityCount": 2026,
-      "reviewedOperationRecords": [
-        "media.operation.capability.media-speech-synthesis-dub",
-        "media.operation.fallback-selection.confirm.v1"
-      ],
-      "reviewedPopulationIdCountResult": 2026,
-      "reviewedRecordCount": 10,
-      "meaning": "Reviewed the exact current source-cut delta: eight owner typed observation contracts, the C16 dubbing operation, the fallback-selection confirmation operation, the dedicated source-media-with-speech input schema, and the newly registered explicit fallback-confirmation UI action. Preserved the preexisting 2,023 identity IDs and added the three exact identities capabilityInputPayloadSchemas:media.typed-input.source-media-with-speech-dub, operations:media.operation.fallback-selection.confirm.v1, and uiActions:media.action.confirm-selected-fallback, for 2,026 identities. Current verification remains pending."
+      "phaseMatrix": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json"
     },
-    "parityTestPinDispositionReview": {
-      "recordRef": "docs/implementation/observations/media-discovery-pdp1-parity-test-pin-impact-2026-10-14-r1.json",
-      "recordId": "MEDIA-DISCOVERY-PDP1-PARITY-TEST-PIN-IMPACT-2026-10-14-R1",
-      "changes": [
-        {
-          "path": "tests/media-contract-parity.test.mjs",
-          "predecessorSha256": "sha256:582b43c7ef832f14a3c8db30b004ecb4e50c13640d12b7df51245240453dc03e",
-          "observedSha256": "sha256:3b2ebd2a9dcbe68f1afb86438fa55953851596a5d5c359a888bc94bb95eb4cc4",
-          "historicalPdp1MaterialSourceSha256": "sha256:3b2ebd2a9dcbe68f1afb86438fa55953851596a5d5c359a888bc94bb95eb4cc4",
-          "historicalPinSets": [
-            "PDP1_DEVELOPMENT_STATUS_SOURCE_SHA_SET",
-            "PDP1_SEMANTIC_REVIEW_SOURCE_FINGERPRINTS"
-          ],
-          "historicalPdp1MaterialSourceContainsPath": true,
-          "classification": "REGRESSION_COVERAGE",
-          "meaningChange": "NONE",
-          "meaningIdsChanged": [],
-          "expectedAssertions": [
-            "Definition-only parity passes only when the exact proposal inventory is deferred; strict parity retains the owner-admission finding.",
-            "Stale operation and wire source pins still reject definition-only parity."
-          ],
-          "requiresFreshCurrentness": true
-        },
-        {
-          "path": "tests/media-contract-parity-definition-only-cli.test.mjs",
-          "predecessorSha256": "sha256:61e516a75c72196c697f7480af8a9ab0805796af1ec4fd3b7f6606c51fb7c3c1",
-          "observedSha256": "sha256:fb5844bcafe7e5d6dfbc6ce19dfbbd68c84476855089ce17b0a353d31ae663e4",
-          "historicalPdp1MaterialSourceSha256": "sha256:fb5844bcafe7e5d6dfbc6ce19dfbbd68c84476855089ce17b0a353d31ae663e4",
-          "historicalPinSets": [
-            "PDP1_DEVELOPMENT_STATUS_SOURCE_SHA_SET",
-            "PDP1_SEMANTIC_REVIEW_SOURCE_FINGERPRINTS"
-          ],
-          "historicalPdp1MaterialSourceContainsPath": true,
-          "classification": "REGRESSION_COVERAGE",
-          "meaningChange": "NONE",
-          "meaningIdsChanged": [],
-          "expectedAssertions": [
-            "CLI definition-only mode passes while default strict parity remains non-green for the expected owner-admission finding."
-          ],
-          "requiresFreshCurrentness": true
-        }
+    "outstandingSourceCutRisks": [],
+    "verificationStatus": "SOURCE_REVIEW_COMPLETE; NATIVE_PDP1_TESTS_AND_PHASE_STATUS_ARE_RECORDED_SEPARATELY",
+    "pxd177ChildCancellationReview": {
+      "id": "PXD-177-PDP1-CHILD-CANCELLATION-ORDER-REVIEW-2026-10-18",
+      "disposition": "CURRENT_PDP1_OPERATION_MAPPING_REVIEWED_NO_MEANING_CHANGE",
+      "meaning": "PDP-1 already binds parent cancellation to durable admission closure before active-child cancellation requests; exact parent and child identities/versions; each child current attempt/fence and authority; pending or UNKNOWN parent finality until every child effect is resolved; and same-identity reconciliation before retry. No P1 meaning change was needed.",
+      "sourceRefs": [
+        ".product-experience/decision-log.md#PXD-177",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-JOB/acceptanceCases/@id=MEDIA-REQ-CAP-JOB-AC-03",
+        ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition/childCancellationRule",
+        ".product-experience/pdp-1-domain-data/operations.yaml#ownerNormativeRuleRecords/@id=media.job.child-cancellation-order.v1",
+        "tests/pdp1-operation-current-source-review.test.mjs"
       ],
-      "verificationStatus": "CURRENT_SOURCE_BOUND_REQUIRED_PDP1_SUITE_PENDING",
-      "disposition": "REGRESSION_COVERAGE_ONLY_IF_EXACT_REQUIRED_SUITE_PASSES_WITH_ZERO_SKIPS",
-      "independentApproval": "NOT_CLAIMED_AND_NOT_WAIVED"
+      "verification": {
+        "command": "node --test tests/pdp1-operation-current-source-review.test.mjs",
+        "status": "PASS",
+        "passed": 9,
+        "total": 9,
+        "boundary": "Source-definition negative cases only; no runtime, provider-stop, implementation, owner acceptance, independent acceptance, closure, or delivery claim."
+      }
     }
   },
   "definitionContractRefresh": {
@@ -5422,5 +5422,1018 @@
         ]
       }
     }
-  }
+  },
+  "sourceCutHistory": [
+    {
+      "id": "PDP1_SOURCE_REVIEW_CUT_PRE_2026_10_18",
+      "supersededOn": "2026-10-18",
+      "disposition": "HISTORICAL_REVIEW_PRESERVED_NOT_CURRENTNESS_EVIDENCE",
+      "sourceFingerprints": {
+        ".product-experience/decision-log.md": "97ad3104abec9ba6670804394c68a11c663f37171e90ea2a1f2e629aa5619bbc",
+        ".product-experience/interface-parity/current-source-review.json": "64796cfb0db909a36e030041b2d51d02fd19fc115d703cc16bca37116f92ed06",
+        ".product-experience/interface-parity/operation-parity.yaml": "24e4699d42dd1a2a0363628387fdf2a12c539f8ac697a0b8771277bbd4aa8555",
+        ".product-experience/interface-parity/README.md": "367de42d6811606adc3a23d367a153fb5c35a0644477f15011b1f23c874cb5e8",
+        ".product-experience/interface-parity/typed-contract-bindings.json": "402c7fd54a2f7dd1d262996a6e058144fc45a114392ea4bcc7dfd23f813f0143",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+        ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "65923f1d333c0b7cf259eb1bc0ddfaab30f115dda8993b5685b253526d397904",
+        ".product-experience/pdp-1-domain-data/action-contracts.yaml": "9159fdcc1a943a4da9a1ac87d112a5be0d59becee3a9adae8187023fa596d067",
+        ".product-experience/pdp-1-domain-data/authority.yaml": "0f3b6cd8ffdc48f2fbb8adbeaaf8e61d7de93752f45972bcba90e700201cb6c0",
+        ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
+        ".product-experience/pdp-1-domain-data/decisions.yaml": "21ae2214b7e1db961e826b95022fa5a69a41fef83afd923701d79f9c8aef18b8",
+        ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md": "21c4712b5613e0640756ebf537c10d1c8d0d1f91df638c862d9719f01982d1e0",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "ed045314dbdb6ece934348a9eba6d7c2ae791438476ef11d343cb57a04a05e04",
+        ".product-experience/pdp-1-domain-data/events.yaml": "7a3c91161e1d7597f4e378163b0f9a652c3f316d9b11346ea074f64f0954bf3d",
+        ".product-experience/pdp-1-domain-data/evidence.yaml": "aa1319db9ec6c5f3f9a68d12911aca3f978a8f9278fbb79559916472e44b2f3b",
+        ".product-experience/pdp-1-domain-data/handoff-contracts.yaml": "0055cb68ee08825d8936763353e011ffa5e3979562c42685566d525a6a074024",
+        ".product-experience/pdp-1-domain-data/interoperability.yaml": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
+        ".product-experience/pdp-1-domain-data/offline-sync.yaml": "0d4d5acb1bdff5972a5014f6c053cf9f0f9d21adec0b7753acd08bfa9f913d2a",
+        ".product-experience/pdp-1-domain-data/operations-current-source-review.json": "e5a86cd601694697ad735ab10803f215ef8078b8704dc7dc2645435a490e74bc",
+        ".product-experience/pdp-1-domain-data/operations.yaml": "63e36ea20e5b5f7e6fa84d3a7f2bdd2f611835b415aa25205bcf0b290fb7f952",
+        ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml": "c5f6a711b9b8d90e139aeeda5bc22eebd90648f544a9dca17bb72b7cafb55bda",
+        ".product-experience/pdp-1-domain-data/presentation-projections.yaml": "3658dfcd38b957da70f262fd3d649e9cd663f300702dd4975e72bbf06ad94b5c",
+        ".product-experience/pdp-1-domain-data/privacy.yaml": "c5b4fb181a6353baf0517975235f0f28767b425efc06959f54cbe4f74866aa92",
+        ".product-experience/pdp-1-domain-data/provenance.yaml": "806d80f964540c3dddc476e5331d6b4b768ffe46cabf0bf8b25c3f00f419a863",
+        ".product-experience/pdp-1-domain-data/relationships.yaml": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
+        ".product-experience/pdp-1-domain-data/state-adjudication.yaml": "044a70198d2bc40e7709628c7b7a938e2f946a409dc7f9b9d9f18745e214641a",
+        ".product-experience/pdp-1-domain-data/states.yaml": "46875b1c2dbc7eb68d89eb76be5c20c999d4665c83f41f7c219a17e5c36f9ebc",
+        ".product-experience/pdp-1-domain-data/transition-guard-contracts.yaml": "7e578b5c80430d203b08be5d17821551ae1cebfdd4e475e6e61d7329fd474b53",
+        ".product-experience/pdp-1-domain-data/transitions.yaml": "176c10ad3e87ef33b64d61b540e044000b38298613c42a9d04e053ab83a8142a",
+        ".product-experience/pdp-1-domain-data/value-objects.yaml": "d497f5bc0ab88ccd51754e9ea66925449aa793433170601fa4fe88fe40153125",
+        ".product-experience/pdp-1-domain-data/versioning.yaml": "e37745de73204fe6a68f61bd5998478e097429e9a63bea62022484e3f6a58111",
+        ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml": "8d86816919f8bf5aa4412b554faf31c084dd3e8739190d84ec9be3c322376f7d",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml": "832beaf50f03f9e3c4d8bf0f7e5f47ffe38b570c3e4864bef04c7362352180fe",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml": "6feed0105beddb02232045fff28cdd5d64d6e8314cb647c96dcdda3b945f82a4",
+        ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml": "e95e812bb436c1c6f7630dd885bd2eb9fee9d645bf611ab99d20fe6421ce3a8c",
+        ".product-experience/pdp-3-product-experience/cli/source-crosswalk.yaml": "b85d1034c61e22a76a2e8f7baf5ad4fab3f01ec7f18412cc3a1cb3a5984f3873",
+        ".product-experience/pdp-3-product-experience/sdk/client-architecture.yaml": "7edcc105f89d82ef6ca3f0154bbb1fabac9eb60f36ef203584318064db7ec92d",
+        ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml": "25ec48a642e012265f7b77dec4ae68c94025335caa4ccb6aaa01acfecb3973c4",
+        "contracts/openapi/media.yaml": "fedd60d8a04ce320f28c143406110b6ccf14ab94afd00f8d2445bfeb1637b1ef",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java": "501e6b57b21ad9e558bcd3a54c594eb0b2709633a2ff2eaa92e15e427e05edad",
+        "libs/audio-video-client/src/__tests__/AudioVideoClient.integration.test.ts": "32ff96088e5b8f0054166c15a86364ccfaaea145f3278ffefede7305dc17576b",
+        "libs/audio-video-client/src/__tests__/AudioVideoClient.test.ts": "f56a78d60d402866345d108200b9788f8ba2848590d49a9e8481616df0530803",
+        "libs/audio-video-client/src/canonical-routes.ts": "dd15c9ec5cf5454b0e1b25728c709b21825004875674e28b5b584b9684d773b9",
+        "libs/audio-video-client/src/cli.test.ts": "fac5cb92ba4451336ad2a4190253e51668ed04c9e8197d9abf0e08a3d9fe44ff",
+        "libs/audio-video-client/src/cli.ts": "7ea04574e426b5e37cb0a7ed73f10ff53e6ac87a31ec646c668e8ab8304d8aca",
+        "libs/audio-video-client/src/index.ts": "08458d366a6a8de4efc7cf9253541c0f85174c6915f5e4982d2c3bbd1bbe9701",
+        "libs/audio-video-client/src/operations.test.ts": "da635a54787832df158d0c78a7df90f4a260b6b75843aa6ca9cea2fdaf8d6985",
+        "libs/audio-video-client/src/operations.ts": "2acebaf784aca759c58815ba71b670abf10e5cc87dd139b8203bf8369eb946e5",
+        "libs/audio-video-client/src/scene-text-adapter.test.ts": "7259c578466c154f0b27e9095f31d3c5901d1ea9562ee3a3254f9e27bb1175da",
+        "libs/audio-video-client/src/scene-text-adapter.ts": "76ce901b03e18dc159a9e9e06133d6037b8a9dd34681b486a340805c63bb5bf3",
+        "libs/audio-video-types/src/__tests__/types.contract.test.ts": "42ce443411a8b72e091a2d95dc2df84c1bac8b4c967ced52fa3be983689c809e",
+        "libs/audio-video-types/src/contracts.test.ts": "6c9e625526bec6e38ac06e8708d01a41b734b6d4d96e32df4422a67a21f14b43",
+        "libs/audio-video-types/src/contracts.ts": "dcde1914f3219c64b3401510a34c2f372ca5bff568cb581fd8d0f25b43aacb5b",
+        "libs/audio-video-types/src/index.d.ts": "8c379cc6905e1269586ecda3c1652d7441f094c10eed8851b1d61c95e89e6f02",
+        "libs/audio-video-types/src/index.js": "e0a56041746faeaaa3173b823b28c57fcba69dddf38e08638309b35fc5fafb5b",
+        "libs/audio-video-types/src/index.ts": "f7504a370c24e9ba9673fb2f4fd10cd1ea1c6ea44f710db885410389eb89ea5a",
+        "libs/common/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java": "017ed353bcafa8f7c6ac81952e0d6147228b9cb2fb92459b6538460c2e2de4f6",
+        "libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java": "4101a6f0c1e605ed689e19f72146f4f2d47233b2cdecb6b49daccb9d0e07af3a",
+        "libs/common/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java": "4059c8a7016f9cadb6fcb5805d1b6efa8b85422b99d8f1a74f0a8859187b6a54",
+        "libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java": "aa337579330d5b4e74157c9d446c6b48a9fc0baf9aa1ad238357c7253e732bf5",
+        "libs/media-experience-simulation/src/cli.ts": "e44fb50cb9a8e86b246858e9503217fe143dd1363bf977515932a8b16911eb8a",
+        "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto": "6936aa8e02c91a33457ac1f6d334345c6803661ea287ba184ac9362afca04b98",
+        "modules/speech/stt-service/src/main/proto/stt_service.proto": "250f6c301bb406a93dbb5f6de727b52cf346dbc5685cb9446451ecf5ef2360c6",
+        "modules/speech/tts-service/src/main/proto/tts_service.proto": "79cb7f271b9720aecc63a3e46adef8137330b9fe53875c883c83fc7751b501b6",
+        "modules/vision/vision-service/src/main/proto/vision_service.proto": "7452112bd784c3881388d263e736bc9ca697fb6c418544eb93903678a30b4df0",
+        "scripts/check-media-contract-parity.mjs": "c443ba57cc5273864cc90ebdd111114eef764629080ff4979cfb734da8d25485",
+        "scripts/report-media-pdp-readiness.mjs": "4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f",
+        "tests/media-agent-tool-contracts.test.mjs": "6b538362a0ac2143a36bc38976293e35580f3a6945b70543141e80963c6d4fd4",
+        "tests/media-agent-tool-definition-contracts.test.mjs": "436a97babff05d4f605f0fa592f7783c758328ef14a0edf2e31fdab1be971686",
+        "tests/media-contract-parity-definition-only-cli.test.mjs": "fb5844bcafe7e5d6dfbc6ce19dfbbd68c84476855089ce17b0a353d31ae663e4",
+        "tests/media-contract-parity.test.mjs": "3141669eedcf4e26aca5e63e057cd4b9b5f11d75761149e81ed69cd6566da67b",
+        "tests/media-descriptor-definition-oracles.test.mjs": "3e787bf561c18b0d7e0a4123cfc9a234183887cdc38bbd6e06c29d9959839b4f",
+        "tests/media-domain-identity-reconciliation.test.mjs": "3b8451e8bd9a646298f1097df6539fa3d87a1ed1cb45fc958aef046fcc748e97",
+        "tests/media-event-interface-owner-bindings.test.mjs": "d25165409fb1c9d68ec3e23926be52e0ccad9747fbd148046603a8785d14e6b7",
+        "tests/media-event-source-parity.test.mjs": "b1c7cbc0b3250fc624c57b964634cd7fffea11a0fcd25f41e46f7ce9df25a74a",
+        "tests/media-operation-parity-source-denominators.test.mjs": "36e2d1e3da3f47814d71986c91c0b6bbce34cb24e0c363c1c255ea639d7efe84",
+        "tests/media-pdp-p1-dev-status.test.mjs": "8362bf108a1f05577e6cdc858cd1565c6afc4193eea102a475e0b1d145abc9ad",
+        "tests/media-privacy-consistency-source.test.mjs": "2ed3254c310782ff04aa1b142b79e2f6ab0de24b7cd847df3ddce05300ef414a",
+        "tests/media-sdk-legacy-interface-dispositions.test.mjs": "3c69397a52248369ade860e5c4a4bdcf4270e15806b1cc04a30e9c0679384dea",
+        "tests/media-state-machine-extraction.test.mjs": "1cb4ff8a5be9d6f8353e3c8b290c7e2bd5675e999a888451742d5797de966641",
+        "tests/media-temporal-spatial-definition-model.test.mjs": "c0fd02787d43e857c893dab58c724400017a46791d33ff2d6b8746a804bbafe7",
+        "tests/media-typed-contract-bindings.test.mjs": "0a1842deb60aad44b6bd351bf7c32f2b3c0d04a70dcbb38ec6a5003188a9fe3d",
+        "tests/pdp-events-owner-definition.test.mjs": "92932c9d9b5eb40a28d936ec6a5058e355f58cb05ade123cce7986593384a88c",
+        "tests/pdp-experience-capability-invocation-adapters.test.mjs": "a062b06080d9aeb0b3bd0695aaa2affca0aca8583fe020bdcadcaa2a5b98e5ed",
+        "tests/pdp-job-submit-parameter-contract.test.mjs": "07da01bd6339741694ec207f715704c7f67aed9dbe7ae015b2b99d5e3fd544a3",
+        "tests/pdp-truth-domain-erasure-contract.test.mjs": "27984c0f8e2b38f6a2e2a410fc49e5faeeed4868da860bdda7afb0eb1b748554",
+        "tests/pdp-truth-domain-event-delivery.test.mjs": "29fa77ca218a2a6e03367a07cdcb53394f4679b253683359348da6cacf16b22d",
+        "tests/pdp-truth-domain-owner-identity-contracts.test.mjs": "a3926c840770db5cf25e8b0b5852771f06f6bd39c64c574cdc1894bed6bceddc",
+        "tests/pdp-truth-domain-policy-fallback-offline.test.mjs": "7c100c89368ac96c7e752db97b20efbb4dbdcd2d3e2c419cb95e303f9507bb9e",
+        "tests/pdp-truth-domain-race-semantics.test.mjs": "eea58ef2ddb773ec134d0bed91e0a457b7d2ec83d1be1ff27df65e6b85409e12",
+        "tests/pdp-truth-domain-transition-coverage.test.mjs": "edfd0a7b7e88650bf8d4123731c53459494f33b7a9079de0d350eb1084b149dd",
+        "tests/pdp-truth-domain.test.mjs": "8ef1a6d5e11dc2e10ca32c3e6813fc8671c22a6c7f7038d48300d52f8feae578",
+        "tests/pdp-tts-request-origin-binding.test.mjs": "c32f907b6605bb793c303b9ad38c72611f1140bf3fddce40109a52f1aea7b320",
+        "tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs": "7ffbd97f98e75cb1a284e19931451cf3d08c7258e5ba2ddbe144713ff55bdfdb",
+        "tests/pdp1-domain-identity-reference-contracts.test.mjs": "ea7c43847e55ef2e385a04f9475e19aaa9b4be77544907f1544bfa202c0113e0",
+        "tests/pdp1-interface-current-source-review.test.mjs": "00f3b6352180c83c70ebd4fab8d44582fc3cb56904d3e232da4c12931d940b67",
+        "tests/pdp1-job-submit-typed-input-mapping.test.mjs": "f2c96c6ed097a659d2c9860ca8afe4a02e68644e513f68dc2c3fb931bd89f596",
+        "tests/pdp1-operation-current-source-review.test.mjs": "fae9e284461a294d15de7acfc05fa739f26ccf20b351107916fe32206497e331",
+        "tests/pdp1-owner-action-wire-contracts.test.mjs": "e1f628e3b24e8054d0a5f9a7d5925306c1be9db05919c685628e3b71a56ad58e",
+        "tests/pdp1-phase-handoff-contract.test.mjs": "59a13d90ea867fed449bf543f41a9a2e9d784b1e15e422537a3ac75fccf1d6d6",
+        "tests/pdp1-provenance-execution-reference.test.mjs": "d47c30d7feee8aaf89ccd7a2937c2cb6f015c44a29f69d55a9c2218e70adc205",
+        "tests/pdp1-provenance-typed-input-mapping.test.mjs": "cf78fc8f20a52489b49df604a1795fb56820021a632034b2f3c52fc694a7d850",
+        "tests/pdp1-transition-guard-definition-evaluator.test.mjs": "4c69c137650c7f5ff47499b573549caa57505ea9e2948c73c85653b2ec6b9cde",
+        "tests/pdp1-j29-execution-recovery-read-contract.test.mjs": "6f805f44df273606184a535f1022aec4d1e88dd9b7069f2a38d6f4d05de38f2f"
+      },
+      "currentCutReview": {
+        "reviewedOn": "2026-10-14",
+        "authority": "Internal PDP-1 semantic development review under the user's delegated Media source-definition authority; not external acceptance or independent certification.",
+        "method": "Reviewed the parsed current source trees by exact identity; re-reviewed the complete current PDP-1 operations tree and its declared populations because the preceding pinned bytes are unavailable in Git; preserved 2,023 prior identities and reviewed the exact added fallback-confirmation operation, C16 input-schema, and explicit fallback-confirmation UI action identities; reconciled the eight operation semantic groups and current action/interface crosswalks; corrected the declared input- and output-schema counts; and ran focused schema, upload/project, simulation leaf-wire, operation, and source-exact action-parity checks. No exact prior-to-current byte diff is claimed for the unavailable prior operations cut.",
+        "sourceIdentityCount": 2026,
+        "reviewedPopulationCount": 24,
+        "sourcePinCount": 104,
+        "stalePriorSourcePinCount": 7,
+        "newlyPinnedAuthoritySource": ".product-experience/decision-log.md",
+        "changedMeaningFindings": [
+          {
+            "id": "cross-interface-and-downstream-action-classification",
+            "disposition": "CURRENT_SOURCE_CROSSWALK_REVIEWED",
+            "meaning": "Current action and interface identities retain exact logical operation mappings and explicit proposal/transport/runtime dispositions; no runtime or provider admission is implied.",
+            "evidence": [
+              ".product-experience/interface-parity/current-source-review.json",
+              ".product-experience/pdp-3-product-experience/action-registry.yaml",
+              "tests/pdp1-interface-current-source-review.test.mjs",
+              "tests/media-operation-parity-source-denominators.test.mjs"
+            ]
+          },
+          {
+            "id": "PXD-152",
+            "disposition": "ACCEPTED_LOGICAL_DEFINITION_ONLY",
+            "meaning": "The route owner delegated definition and acceptance of an exact opaque lookup scoped to the authenticated tenant and current principal; it resolves only to ProcessingJob or JobAttempt; MediaRun is excluded; unresolved cases return non-disclosing semantic UNKNOWN; runtime and transport remain NOT_ADMITTED.",
+            "evidence": [
+              ".product-experience/decision-log.md#PXD-152",
+              ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-provenance",
+              "tests/pdp1-provenance-execution-reference.test.mjs",
+              "tests/pdp1-provenance-typed-input-mapping.test.mjs"
+            ]
+          },
+          {
+            "id": "PXD-154/PXD-157/request-requiredness",
+            "disposition": "CURRENT_OPERATION_AND_WIRE_RECONCILIATIONS_REVIEWED",
+            "meaning": "Opaque wire item syntax remains minimal; the canonical submit wrapper preserves the exact closed typed input; request requiredness matches declared input slots. No runtime/admission meaning is inferred.",
+            "evidence": [
+              ".product-experience/decision-log.md#PXD-154",
+              ".product-experience/decision-log.md#PXD-157",
+              ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
+              "tests/pdp1-owner-action-wire-contracts.test.mjs",
+              "tests/pdp1-operation-current-source-review.test.mjs"
+            ]
+          },
+          {
+            "id": "PXD-155",
+            "disposition": "RECONCILED_EDGE_SPECIFIC_GUARD",
+            "meaning": "Only RETRY_PENDING-to-RUNNING requires retry eligibility from the typed current retry-policy observation; CANCELLED, FAILED and OUTCOME_UNKNOWN require exact target-state observations. Synthetic evaluator values grant no runtime authority and UNKNOWN never authorizes replay.",
+            "evidence": [
+              ".product-experience/decision-log.md#PXD-155",
+              ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.retry-policy-current-read.v1",
+              ".product-experience/pdp-1-domain-data/transitions.yaml#media-job/T03",
+              "tests/pdp1-transition-guard-definition-evaluator.test.mjs"
+            ]
+          },
+          {
+            "id": "PXD-160",
+            "disposition": "ACCEPTED_LOGICAL_DEFINITION_ONLY",
+            "meaning": "The user delegated definition and acceptance of a separate exact-session recovery QUERY. Host-attested tenant/principal and one coherent snapshot bind current DEGRADED state, consent/purpose revisions, lease/fence, sequence and the complete source-selected prior-effect interval. CURRENT is revision-only; reconnect permission remains separate; mismatched or incomplete evidence is UNKNOWN. No execution identity, dispatch, replay, endpoint, or runtime admission is added.",
+            "evidence": [
+              ".product-experience/decision-log.md#PXD-160",
+              ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1",
+              "tests/pdp1-j29-execution-recovery-read-contract.test.mjs"
+            ]
+          },
+          {
+            "id": "PXD-161",
+            "disposition": "RECONCILED_STALE_LABELLED_RECOVERY",
+            "meaning": "The view-job-status OBSERVED wire result distinguishes CURRENT from STALE and requires last-known evidence to remain labelled stale; unavailable evidence remains UNKNOWN. All 79 result envelopes use valid oneOf branch closure with every branch closed. No route freshness evidence or runtime admission is inferred.",
+            "evidence": [
+              ".product-experience/decision-log.md#PXD-161",
+              ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.view-job-status.v1",
+              "tests/pdp1-owner-action-wire-contracts.test.mjs",
+              "tests/pdp1-operation-current-source-review.test.mjs"
+            ]
+          },
+          {
+            "id": "PXD-162",
+            "disposition": "PDP3_ONLY_CROSS_REFERENCE_RECONCILIATION",
+            "meaning": "PXD-162 keeps the P2/J03-2 lineage references on PXD-072 and the PDP-3 projection references on PXD-159. It explicitly leaves the frozen PDP-1 operation binding, receipt-only acknowledgment, and no-transition disposition unchanged; it introduces no PDP-1 source, operation, or runtime meaning.",
+            "evidence": [
+              ".product-experience/decision-log.md#PXD-162",
+              ".product-experience/pdp-1-domain-data/handoff-contracts.yaml",
+              ".product-experience/pdp-1-domain-data/operations.yaml"
+            ]
+          },
+          {
+            "id": "P1-interface-review-parity-pin-refresh",
+            "disposition": "CURRENT_SOURCE_REVIEW_RECONCILED",
+            "meaning": "The interface source review now pins the exact current operations, action registry, and parity projection. All 146 typed UI action semantic records compare source-exact; the 29 classification-basis edits are explicitly reconciled as source and projection edits. The source review records exact artifact-version guards and the J-06 action crosslink. No route, runtime, or admission claim is added.",
+            "evidence": [
+              ".product-experience/interface-parity/current-source-review.json",
+              ".product-experience/interface-parity/operation-parity.yaml",
+              ".product-experience/pdp-3-product-experience/action-registry.yaml",
+              "tests/pdp1-interface-current-source-review.test.mjs",
+              "tests/pdp-design-interface-parity.test.mjs"
+            ]
+          },
+          {
+            "id": "P1-operation-review-parity-pin-refresh",
+            "disposition": "CURRENT_SOURCE_REVIEW_RECONCILED",
+            "meaning": "The operations current-source review pins the corrected exact PDP-1 operations source and current 79-wire source while preserving the historical cuts. Its current-cut addendum inventories all changed operation, schema, wire, bound, and 462 mapping populations and their focused evidence.",
+            "evidence": [
+              ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
+              ".product-experience/pdp-1-domain-data/operations.yaml",
+              "tests/pdp1-operation-current-source-review.test.mjs",
+              "tests/pdp1-capability-intent-operation-mapping.test.mjs",
+              "tests/pdp-truth-domain-schema-validation.test.mjs"
+            ]
+          },
+          {
+            "id": "P1-current-operations-source-cut-delta",
+            "disposition": "CURRENT_SOURCE_DELTA_REVIEWED",
+            "meaning": "Reconciled the current PDP-1 source delta across eight populations: CLI/SDK denominators; transcription submission semantics; five existing operation contracts; thirteen changed and one new owner-defined operation; J02-5; retry observation; eleven simulation leaf wires; and capability schemas, bounds, scalar types, and 462 mappings. The current output schema count is 98/98. Exact operation mappings, typed schemas, stale/unknown outcomes, and NOT_ADMITTED boundaries remain explicit.",
+            "evidence": [
+              ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
+              ".product-experience/pdp-1-domain-data/operations.yaml",
+              ".product-experience/decision-log.md#PXD-152",
+              ".product-experience/decision-log.md#PXD-155",
+              ".product-experience/decision-log.md#PXD-157",
+              ".product-experience/decision-log.md#PXD-160",
+              "tests/pdp1-capability-intent-operation-mapping.test.mjs",
+              "tests/pdp1-transcription-exact-contract.test.mjs",
+              "tests/pdp1-job-submit-typed-input-mapping.test.mjs",
+              "tests/pdp1-j29-execution-recovery-read-contract.test.mjs",
+              "tests/pdp-truth-domain-schema-validation.test.mjs",
+              "tests/pdp-truth-domain-owner-leaf-wire-contracts.test.mjs",
+              "tests/media-upload-operation-contracts.test.mjs",
+              "tests/media-j01-project-operation-definitions.test.mjs"
+            ]
+          },
+          {
+            "id": "P1-current-action-source-cut-delta",
+            "disposition": "CURRENT_SOURCE_DELTA_REVIEWED",
+            "meaning": "Reviewed the 29 current source action classification edits, exact immutable artifact-version guard on inspect-source, PXD-152 provenance capability addition, and J-06 crosslink from guidance search to submit-validated-request. Logical QUERY identity remains distinct from external/transport identity; runtime admission stays NOT_ADMITTED.",
+            "evidence": [
+              ".product-experience/interface-parity/current-source-review.json",
+              ".product-experience/interface-parity/operation-parity.yaml",
+              ".product-experience/pdp-3-product-experience/action-registry.yaml",
+              ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#steps/0",
+              "tests/pdp1-interface-current-source-review.test.mjs",
+              "tests/pdp-design-interface-parity.test.mjs",
+              "tests/pdp-experience-capability-invocation-adapters.test.mjs"
+            ]
+          },
+          {
+            "id": "P1-inspect-source-precondition-parity-addendum",
+            "reviewedOn": "2026-10-11",
+            "disposition": "BOUNDED_SOURCE_PARITY_CORRECTION_AND_REGRESSION",
+            "meaning": "The PDP-1 action disposition inventory now carries the exact inspect-source preconditions from the authoritative PDP-3 action registry, including exact artifact and immutable version identity followed by current read authority. The focused source parity assertion passes. This corrects definition evidence only; runtime admission remains NOT_ADMITTED.",
+            "sourcePins": {
+              ".product-experience/pdp-1-domain-data/operations.yaml": "11d51ef9cdc69e2dde09b3a72241a19a321be40372b19850e4d29c3ec2fb3e04",
+              ".product-experience/pdp-3-product-experience/action-registry.yaml": "832beaf50f03f9e3c4d8bf0f7e5f47ffe38b570c3e4864bef04c7362352180fe",
+              "tests/pdp-truth-domain.test.mjs": "0d94c83f6c081f2e67a4ba20752c0cdfff03f26ae1d9d87860d9ba97047964e0"
+            },
+            "evidence": [
+              ".product-experience/pdp-1-domain-data/operations.yaml#actionOperationDispositionInventory/records/@actionId=media.action.inspect-source/sourceEvidence/preconditions",
+              ".product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source/preconditions",
+              "tests/pdp-truth-domain.test.mjs"
+            ],
+            "verification": {
+              "command": "node --test tests/pdp-truth-domain.test.mjs",
+              "status": "PASS",
+              "passed": 14,
+              "total": 14
+            }
+          },
+          {
+            "id": "P1-current-operations-source-reinspection-11d51ef",
+            "disposition": "FULL_CURRENT_SOURCE_CUT_REVIEWED",
+            "meaning": "The exact current operations source cut was re-reviewed across the full current operation/schema/mapping populations and cross-interface definitions. The prior pinned bytes are unavailable in Git, so this finding records a full review of current semantics rather than claiming a reconstructed incremental diff. All definition-only and NOT_ADMITTED boundaries remain unchanged.",
+            "evidence": [
+              ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
+              ".product-experience/interface-parity/current-source-review.json",
+              "tests/pdp1-operation-current-source-review.test.mjs",
+              "tests/pdp1-interface-current-source-review.test.mjs",
+              "tests/pdp1-capability-intent-operation-mapping.test.mjs",
+              "tests/pdp-truth-domain-schema-validation.test.mjs"
+            ],
+            "sourcePins": {
+              ".product-experience/pdp-1-domain-data/operations.yaml": "11d51ef9cdc69e2dde09b3a72241a19a321be40372b19850e4d29c3ec2fb3e04"
+            }
+          },
+          {
+            "id": "P1-owner-action-wire-projection-inventory-refresh",
+            "disposition": "USER_AUTHORIZED_NO_ADDITIONAL_PDP1_MEANING",
+            "meaning": "The exact owner-action wire delta adds seven source-field inventory entries and explicit NOT_EXPOSED_IN_NORMALIZED_BRANCH mappings for existing delivery and consent/use results. The closed wire schemas, result branches, and operation effects are unchanged; the scoped internal no-additional-meaning decision is bound in the user-authorized R5 impact record.",
+            "evidence": [
+              "docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r5.json",
+              ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml",
+              "tests/pdp1-owner-action-wire-contracts.test.mjs",
+              "tests/media-discovery-pdp1-supplemental-owner-status-join.test.mjs"
+            ]
+          }
+        ],
+        "outstandingMeaningIds": [],
+        "verificationStatus": "PENDING_FINAL_PDP1_STATUS_AND_PHASE_CURRENTNESS_RECUT: all 104 semantic source fingerprints are current after the exact authorized pin refresh; rerun the complete PDP-1 criterion set and capture a new source-current phase exit before claiming currentness.",
+        "refreshedSourcePinCount": 11,
+        "evaluatorRefreshReview": {
+          "reviewedOn": "2026-10-11",
+          "source": "scripts/report-media-pdp-readiness.mjs",
+          "priorFingerprint": "5969c3be249653145ecb97785fc7e25c6958aadd7f98f3f563e01929a4759293",
+          "currentFingerprint": "6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c",
+          "disposition": "CURRENT_PDP1_SEMANTIC_REVIEW_RETAINED_AFTER_EVALUATOR_REVIEW",
+          "review": "The 2026-10-11 evaluator reconciliation is historical. The current 2026-10-14 source delta is separately re-reviewed in supplementalDefinitionDeltaReview: eight owner typed observation contracts and two operation records. It preserves the prior 2,023 identity IDs and adds capabilityInputPayloadSchemas:media.typed-input.source-media-with-speech-dub and operations:media.operation.fallback-selection.confirm.v1, resulting in 2,025. The owner-defined operations denominator is now 107; capability operations remain 462. Currentness capture remains pending.",
+          "verification": "Historical verification remains as recorded for its 2026-10-11 source cut; it does not validate the current 2026-10-14 semantic delta.",
+          "authorityBoundary": "Internal review under the user's delegated Media definition authority; this evaluator reconciliation does not claim external acceptance, independent certification, runtime admission, Lifecycle closure, or release readiness."
+        },
+        "definitionContractRefresh": {
+          "reviewedOn": "2026-10-11",
+          "authority": "Internal PDP-1 definition review under the user's delegated Media source-definition authority.",
+          "sourcePinsUpdated": {
+            ".product-experience/pdp-1-domain-data/transitions.yaml": "176c10ad3e87ef33b64d61b540e044000b38298613c42a9d04e053ab83a8142a",
+            "tests/pdp1-transition-guard-definition-evaluator.test.mjs": "4c69c137650c7f5ff47499b573549caa57505ea9e2948c73c85653b2ec6b9cde",
+            "tests/pdp-truth-domain-schema-validation.test.mjs": "5dc8863f6d35a4b07863291198439f3721f1872bcd4ebe90aa8d5b9a0c25ff8a",
+            "scripts/generate-media-transition-trigger-semantics.mjs": "e48523e8ede50d8959cf653ca621d73ec7fd6b2c617021cde55b50565dbcad3f"
+          },
+          "findings": [
+            {
+              "id": "PXD-155-retry-guard-positive-schema-consistency",
+              "disposition": "CORRECTED_TO_ACCEPTED_LOGICAL_DEFINITION",
+              "meaning": "The bounded retry check now uses schema-valid PASS as its positive disposition, and its positive rule requires the exact current typed retry-policy read to report RETRYABLE, a DEFINITIVE_NO_EFFECT or DEFINITIVE_RETRYABLE_FAILURE outcome, and retriesRemaining greater than zero. Generated trigger semantics apply retry eligibility only to RETRY_PENDING-to-RUNNING; cancellation, failure, and unknown-outcome transitions retain their exact target-state observations. Synthetic evaluator input remains definition-only; runtime admission remains NOT_ADMITTED.",
+              "evidence": [
+                ".product-experience/decision-log.md#PXD-155",
+                ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.retry-policy-current-read.v1",
+                ".product-experience/pdp-1-domain-data/transitions.yaml#ownerDefinedTransitionTriggerSemantics/guardFactContracts/@id=media.transition-guard-fact.retrybudgetavailable.v1",
+                "scripts/generate-media-transition-trigger-semantics.mjs",
+                "tests/pdp1-transition-guard-definition-evaluator.test.mjs"
+              ]
+            },
+            {
+              "id": "PXD-117-phase-noise-output-negative-schema-cases",
+              "disposition": "FOCUSED_NEGATIVE_REGRESSION_ADDED",
+              "meaning": "The existing phase-noise schema remains unchanged and now has source-bound result tests rejecting a wrong metric, absent measurement window, and nonpositive sample count.",
+              "evidence": [
+                ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.phase-noise-floor-measurement.v1",
+                "tests/pdp-truth-domain-schema-validation.test.mjs"
+              ]
+            }
+          ],
+          "targetedVerification": {
+            "transitionGuardEvaluator": "18/18 passed",
+            "typedSchemaValidation": "5/5 passed",
+            "fullPhaseGate": "DEV_COMPLETE; all 11 criteria passed (342/342, zero skipped); recorded in docs/implementation/pdp-1-phase-dev-status.json"
+          },
+          "authorityBoundary": "This review corrects source-contract consistency and development regressions only. It adds no provider, runtime, endpoint, persisted transition, production, or release admission.",
+          "verificationEvidence": {
+            "typedSchemaValidation": {
+              "command": "node --test tests/pdp-truth-domain-schema-validation.test.mjs",
+              "testStatus": "PASS",
+              "testCount": 5,
+              "passedTestCount": 5,
+              "sourceSha256": "5dc8863f6d35a4b07863291198439f3721f1872bcd4ebe90aa8d5b9a0c25ff8a",
+              "outputSha256": "a07c045debb2d25bd4ac2b43b42249b1c19c6b8c828aecf916be5a2793751a3d"
+            },
+            "fullPhaseGate": {
+              "path": "docs/implementation/pdp-1-phase-dev-status.json",
+              "status": "DEV_COMPLETE",
+              "directCriteriaPassed": 11,
+              "testCount": 342,
+              "passedTestCount": 342,
+              "skippedTestCount": 0
+            }
+          }
+        },
+        "currentOperationsSourceReinspection": {
+          "status": "REINSPECTED_CURRENT_SOURCE_CUT",
+          "currentSourceSha256": "62d0a4050a43da1c58a63d12adaa7c27055c63afc51580bd1e2478d1da3dace8",
+          "previousReviewedSourceSha256": "f2d32a678d1cbe197d92ac74c4a6ec2efbda7dedd506e38a07462bd739ba5087",
+          "previousSourceBytesAvailableInGit": false,
+          "reviewBasis": "Re-reviewed the complete final operations source tree against exact action identities and dispositions, canonical-operation and capability-mapping denominators, schema populations, typed-observation identities and validation-rule joins, semantic selectors, and bounded decision/admission claims. The immediately preceding reviewed cut is retained above but its bytes are unavailable in Git, so this record does not claim a byte-exact incremental diff from that cut.",
+          "currentPopulations": {
+            "canonicalOperations": 448,
+            "capabilityBindingRecords": 14,
+            "capabilityOperationRecords": 462,
+            "inputPayloadSchemas": 129,
+            "outputPayloadSchemas": 98,
+            "ownerActionWireRecords": 79,
+            "ownerLeafWireSchemas": 11,
+            "ownerTypedObservationContracts": 15,
+            "ownerTypedObservationValidationRules": 15,
+            "fixtureCliCommands": 11,
+            "sdkRegistryRecords": 33,
+            "sdkPublicMethodIdentities": 30,
+            "actionRegistryRecords": 147,
+            "actionDispositionRecords": 147,
+            "individualOperationRecords": 13,
+            "ownerDefinedOperationRecords": 107
+          },
+          "outstandingMeaningIds": [],
+          "runtimeAdmission": "NOT_ADMITTED",
+          "transportAdmission": "NOT_ADMITTED",
+          "immediatePredecessorSourceSha256": "317878be9ebe9c978f356a4e81060620fcb69af02ea25c2ff1d47bd20180c069",
+          "immediatePredecessorSourceBytesAvailableInGit": true,
+          "supplementalDefinitionDeltaReviewRef": ".product-experience/pdp-1-domain-data/operations-current-source-review.json#currentSourceCutDeltaReview/supplementalPdp1DefinitionDelta",
+          "reviewedOwnerTypedObservationIds": [
+            "media.observation-contract.rights-decision.v1",
+            "media.observation-contract.destination-delivery-acknowledgment.v1",
+            "media.observation-contract.delegated-integration-result-context.v1",
+            "media.observation-contract.processing-parameter-read.v1",
+            "media.observation-contract.effective-processing-constraints.v1",
+            "media.observation-contract.transcript-submission-lineage.v1",
+            "media.observation-contract.job-status-seven-dimension.v1",
+            "media.observation-contract.output-preview-version-lineage.v1"
+          ],
+          "ownerTypedObservationContractCount": 15,
+          "ownerTypedObservationValidationRuleCount": 15,
+          "sourceIdentityCountPreserved": 2023,
+          "reviewedOperationIds": [
+            "media.operation.capability.media-speech-synthesis-dub",
+            "media.operation.fallback-selection.confirm.v1"
+          ]
+        },
+        "supplementalDefinitionDeltaReview": {
+          "reviewRef": ".product-experience/pdp-1-domain-data/operations-current-source-review.json#currentSourceCutDeltaReview/supplementalPdp1DefinitionDelta",
+          "sourceSha256": "62d0a4050a43da1c58a63d12adaa7c27055c63afc51580bd1e2478d1da3dace8",
+          "sourceReviewArtifactSha256": "sha256:d5f83fad612d6598165072137390c70c8d4dfdc549a236a29c7bda34b50b6d0c",
+          "reviewedRecordIds": [
+            "media.observation-contract.rights-decision.v1",
+            "media.observation-contract.destination-delivery-acknowledgment.v1",
+            "media.observation-contract.delegated-integration-result-context.v1",
+            "media.observation-contract.processing-parameter-read.v1",
+            "media.observation-contract.effective-processing-constraints.v1",
+            "media.observation-contract.transcript-submission-lineage.v1",
+            "media.observation-contract.job-status-seven-dimension.v1",
+            "media.observation-contract.output-preview-version-lineage.v1"
+          ],
+          "existingIdentityCountPreserved": 2023,
+          "identitySetChanged": true,
+          "outstandingMeaningIds": [],
+          "status": "REVIEW_COMPLETE_PENDING_SOURCE_BOUND_REQUIRED_TESTS_AND_PHASE_CAPTURE",
+          "authority": "Internal Media PDP-1 definition review under explicit user delegation; not owner acceptance or independent certification.",
+          "independentApproval": "NOT_CLAIMED_AND_NOT_WAIVED",
+          "externalContractOwnerAcceptance": "NOT_CLAIMED",
+          "runtimeAdmission": "NOT_ADMITTED",
+          "transportAdmission": "NOT_ADMITTED",
+          "newIdentityIds": [
+            "capabilityInputPayloadSchemas:media.typed-input.source-media-with-speech-dub",
+            "operations:media.operation.fallback-selection.confirm.v1",
+            "uiActions:media.action.confirm-selected-fallback"
+          ],
+          "resultingIdentityCount": 2026,
+          "reviewedOperationRecords": [
+            "media.operation.capability.media-speech-synthesis-dub",
+            "media.operation.fallback-selection.confirm.v1"
+          ],
+          "reviewedPopulationIdCountResult": 2026,
+          "reviewedRecordCount": 10,
+          "meaning": "Reviewed the exact current source-cut delta: eight owner typed observation contracts, the C16 dubbing operation, the fallback-selection confirmation operation, the dedicated source-media-with-speech input schema, and the newly registered explicit fallback-confirmation UI action. Preserved the preexisting 2,023 identity IDs and added the three exact identities capabilityInputPayloadSchemas:media.typed-input.source-media-with-speech-dub, operations:media.operation.fallback-selection.confirm.v1, and uiActions:media.action.confirm-selected-fallback, for 2,026 identities. Current verification remains pending."
+        },
+        "parityTestPinDispositionReview": {
+          "recordRef": "docs/implementation/observations/media-discovery-pdp1-parity-test-pin-impact-2026-10-14-r1.json",
+          "recordId": "MEDIA-DISCOVERY-PDP1-PARITY-TEST-PIN-IMPACT-2026-10-14-R1",
+          "changes": [
+            {
+              "path": "tests/media-contract-parity.test.mjs",
+              "predecessorSha256": "sha256:582b43c7ef832f14a3c8db30b004ecb4e50c13640d12b7df51245240453dc03e",
+              "observedSha256": "sha256:3b2ebd2a9dcbe68f1afb86438fa55953851596a5d5c359a888bc94bb95eb4cc4",
+              "historicalPdp1MaterialSourceSha256": "sha256:3b2ebd2a9dcbe68f1afb86438fa55953851596a5d5c359a888bc94bb95eb4cc4",
+              "historicalPinSets": [
+                "PDP1_DEVELOPMENT_STATUS_SOURCE_SHA_SET",
+                "PDP1_SEMANTIC_REVIEW_SOURCE_FINGERPRINTS"
+              ],
+              "historicalPdp1MaterialSourceContainsPath": true,
+              "classification": "REGRESSION_COVERAGE",
+              "meaningChange": "NONE",
+              "meaningIdsChanged": [],
+              "expectedAssertions": [
+                "Definition-only parity passes only when the exact proposal inventory is deferred; strict parity retains the owner-admission finding.",
+                "Stale operation and wire source pins still reject definition-only parity."
+              ],
+              "requiresFreshCurrentness": true
+            },
+            {
+              "path": "tests/media-contract-parity-definition-only-cli.test.mjs",
+              "predecessorSha256": "sha256:61e516a75c72196c697f7480af8a9ab0805796af1ec4fd3b7f6606c51fb7c3c1",
+              "observedSha256": "sha256:fb5844bcafe7e5d6dfbc6ce19dfbbd68c84476855089ce17b0a353d31ae663e4",
+              "historicalPdp1MaterialSourceSha256": "sha256:fb5844bcafe7e5d6dfbc6ce19dfbbd68c84476855089ce17b0a353d31ae663e4",
+              "historicalPinSets": [
+                "PDP1_DEVELOPMENT_STATUS_SOURCE_SHA_SET",
+                "PDP1_SEMANTIC_REVIEW_SOURCE_FINGERPRINTS"
+              ],
+              "historicalPdp1MaterialSourceContainsPath": true,
+              "classification": "REGRESSION_COVERAGE",
+              "meaningChange": "NONE",
+              "meaningIdsChanged": [],
+              "expectedAssertions": [
+                "CLI definition-only mode passes while default strict parity remains non-green for the expected owner-admission finding."
+              ],
+              "requiresFreshCurrentness": true
+            }
+          ],
+          "verificationStatus": "CURRENT_SOURCE_BOUND_REQUIRED_PDP1_SUITE_PENDING",
+          "disposition": "REGRESSION_COVERAGE_ONLY_IF_EXACT_REQUIRED_SUITE_PASSES_WITH_ZERO_SKIPS",
+          "independentApproval": "NOT_CLAIMED_AND_NOT_WAIVED"
+        }
+      }
+    },
+    {
+      "id": "PDP1_SOURCE_REVIEW_CUT_PRE_UI_ACTION_DENOMINATOR_RECONCILIATION_2026_10_18",
+      "supersededOn": "2026-10-18",
+      "disposition": "HISTORICAL_REVIEW_PRESERVED_NOT_CURRENTNESS_EVIDENCE",
+      "sourceRecordCount": {
+        "objectDefinitions": 39,
+        "registeredObjectIdentities": 38,
+        "canonicalProductObjectIdentities": 37,
+        "capabilityOperationRecordCount": 462,
+        "canonicalOperationSchemaCount": 448,
+        "existingOperationBindingCount": 14,
+        "sdkRegistryRows": 33,
+        "sdkLogicalPublicMethods": 30,
+        "sdkParserTokens": 3,
+        "grpcDispositionCounts": {
+          "mappedProposal": 17,
+          "transportOnly": 8,
+          "providerAdmin": 10,
+          "legacyProviderProfileAdmin": 3,
+          "unimplementedEndpoint": 1,
+          "ownerAdapterRequired": 4,
+          "unresolved": 0
+        },
+        "values": 13,
+        "relationships": 13,
+        "stateMachines": 11,
+        "transitions": 55,
+        "guardContracts": 55,
+        "guardFacts": 166,
+        "commonGuardFacts": 1,
+        "guardFactGroups": 43,
+        "actionWireContracts": 79,
+        "uiActions": 148,
+        "operations": 107,
+        "capabilityOperations": 462,
+        "capabilityBounds": 462,
+        "capabilityInputPayloadSchemas": 129,
+        "capabilityOutputPayloadSchemas": 98,
+        "httpOperations": 27,
+        "grpcOperations": 43,
+        "sdkMethodRecords": 33,
+        "cliCommands": 11,
+        "agentToolHandlers": 4,
+        "agentToolContracts": 4,
+        "events": 9,
+        "notifications": 15
+      },
+      "sourceFingerprints": {
+        ".product-experience/artifact-identities.yaml": "69cdb16be2ea0dc5c45110a37efe56b1f723a1cd25bc535a883c89ec2535060a",
+        ".product-experience/authority-map.yaml": "03d010ab4985ff76b8dafea6a32d86196fe7bf2a034f8b43216b6378c35ead3e",
+        ".product-experience/decision-log.md": "17277282fac71c6f21e110a6820ae2ac6b797ece0a9d5276a849e1f37cdae16f",
+        ".product-experience/interface-parity/README.md": "367de42d6811606adc3a23d367a153fb5c35a0644477f15011b1f23c874cb5e8",
+        ".product-experience/interface-parity/current-source-review.json": "b07b5fb823b55f38e310fee5a465d7760646ca14ec89e85ecb23c3d43c3a7546",
+        ".product-experience/interface-parity/operation-parity.yaml": "41e64cc7dbb063fbd581463e65e029b4cce9bdbf01130a6aac298ba0187a22d5",
+        ".product-experience/interface-parity/typed-contract-bindings.json": "402c7fd54a2f7dd1d262996a6e058144fc45a114392ea4bcc7dfd23f813f0143",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+        ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
+        ".product-experience/pdp-0-product-truth/requirements.yaml": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
+        ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "65923f1d333c0b7cf259eb1bc0ddfaab30f115dda8993b5685b253526d397904",
+        ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md": "213e68abd2137da7636815459ff9cca9ae68378b88a2235f70fe510597c1dcd6",
+        ".product-experience/pdp-1-domain-data/action-contracts.yaml": "9159fdcc1a943a4da9a1ac87d112a5be0d59becee3a9adae8187023fa596d067",
+        ".product-experience/pdp-1-domain-data/authority.yaml": "0f3b6cd8ffdc48f2fbb8adbeaaf8e61d7de93752f45972bcba90e700201cb6c0",
+        ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
+        ".product-experience/pdp-1-domain-data/decisions.yaml": "21ae2214b7e1db961e826b95022fa5a69a41fef83afd923701d79f9c8aef18b8",
+        ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml": "85f8ff8845684aff6579a51c821ca2339beb34386215eef2e666583685c18654",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/events.yaml": "7a3c91161e1d7597f4e378163b0f9a652c3f316d9b11346ea074f64f0954bf3d",
+        ".product-experience/pdp-1-domain-data/evidence.yaml": "aa1319db9ec6c5f3f9a68d12911aca3f978a8f9278fbb79559916472e44b2f3b",
+        ".product-experience/pdp-1-domain-data/handoff-contracts.yaml": "d73d3a5df000186c236c929fef04068cdd28c47227cd550b8e566131efcb4036",
+        ".product-experience/pdp-1-domain-data/interoperability.yaml": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
+        ".product-experience/pdp-1-domain-data/offline-sync.yaml": "0d4d5acb1bdff5972a5014f6c053cf9f0f9d21adec0b7753acd08bfa9f913d2a",
+        ".product-experience/pdp-1-domain-data/operations-current-source-review.json": "10b015bb61f38dbadc68ba1b25afbbb06e764dd28f02fd6316c9556321abb2f1",
+        ".product-experience/pdp-1-domain-data/operations.yaml": "2d0cae3cd12a218f7ed12db4c6b56dbcf03de06839f0db72a6e7db61ce542fd4",
+        ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml": "fe399c563d6681d251bdecc5e03f1cd8849d77e707df4d768305ce5f7abda26f",
+        ".product-experience/pdp-1-domain-data/presentation-projections.yaml": "3658dfcd38b957da70f262fd3d649e9cd663f300702dd4975e72bbf06ad94b5c",
+        ".product-experience/pdp-1-domain-data/privacy.yaml": "c5b4fb181a6353baf0517975235f0f28767b425efc06959f54cbe4f74866aa92",
+        ".product-experience/pdp-1-domain-data/provenance.yaml": "806d80f964540c3dddc476e5331d6b4b768ffe46cabf0bf8b25c3f00f419a863",
+        ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": "0435edb755889261776f1e37bc17a3253256e56730a40e6731d4bf37253ed2fa",
+        ".product-experience/pdp-1-domain-data/relationships.yaml": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
+        ".product-experience/pdp-1-domain-data/state-adjudication.yaml": "044a70198d2bc40e7709628c7b7a938e2f946a409dc7f9b9d9f18745e214641a",
+        ".product-experience/pdp-1-domain-data/states.yaml": "46875b1c2dbc7eb68d89eb76be5c20c999d4665c83f41f7c219a17e5c36f9ebc",
+        ".product-experience/pdp-1-domain-data/transition-guard-contracts.yaml": "7e578b5c80430d203b08be5d17821551ae1cebfdd4e475e6e61d7329fd474b53",
+        ".product-experience/pdp-1-domain-data/transitions.yaml": "176c10ad3e87ef33b64d61b540e044000b38298613c42a9d04e053ab83a8142a",
+        ".product-experience/pdp-1-domain-data/value-objects.yaml": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916",
+        ".product-experience/pdp-1-domain-data/versioning.yaml": "59554ec8e83719fc66ac118fc26fd024ac1aa855f8b71d01f02fd6c14c1c5f3c",
+        ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml": "8d86816919f8bf5aa4412b554faf31c084dd3e8739190d84ec9be3c322376f7d",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml": "53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426",
+        ".product-experience/pdp-3-product-experience/cli/command-registry.yaml": "6feed0105beddb02232045fff28cdd5d64d6e8314cb647c96dcdda3b945f82a4",
+        ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml": "e95e812bb436c1c6f7630dd885bd2eb9fee9d645bf611ab99d20fe6421ce3a8c",
+        ".product-experience/pdp-3-product-experience/cli/source-crosswalk.yaml": "b85d1034c61e22a76a2e8f7baf5ad4fab3f01ec7f18412cc3a1cb3a5984f3873",
+        ".product-experience/pdp-3-product-experience/sdk/client-architecture.yaml": "7edcc105f89d82ef6ca3f0154bbb1fabac9eb60f36ef203584318064db7ec92d",
+        ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml": "25ec48a642e012265f7b77dec4ae68c94025335caa4ccb6aaa01acfecb3973c4",
+        ".product-experience/source-manifest.yaml": "a567d1fafc9978ed8ef6c97c07e75aa59371aaaf4a7ee9737b7aa69300579a67",
+        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+        ".product-experience/surfaces/media-physical-topology.v1.json": "53f3e1073c11876d3675543bfe170e32b31bae7725a3ed3bd2712f13954e2017",
+        ".product-experience/traceability.yaml": "4f66d55fa3d32713b9f01927cd2042a9553cb0c606c7f36dc5954e6dcdd8ecfd",
+        "contracts/openapi/media.yaml": "fedd60d8a04ce320f28c143406110b6ccf14ab94afd00f8d2445bfeb1637b1ef",
+        "docs/implementation/pdp-0-phase-dev-status.json": "07b0137f16a4510dc86797167bcaff4035d87aa338793ea6d3dec9d96e2e0dd5",
+        "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "bf8e4313a7736c77e71f7ce414c34a3bb169f5faeb2a47b3def79a62960c6bd4",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java": "501e6b57b21ad9e558bcd3a54c594eb0b2709633a2ff2eaa92e15e427e05edad",
+        "libs/audio-video-client/src/__tests__/AudioVideoClient.integration.test.ts": "32ff96088e5b8f0054166c15a86364ccfaaea145f3278ffefede7305dc17576b",
+        "libs/audio-video-client/src/__tests__/AudioVideoClient.test.ts": "f56a78d60d402866345d108200b9788f8ba2848590d49a9e8481616df0530803",
+        "libs/audio-video-client/src/canonical-routes.ts": "dd15c9ec5cf5454b0e1b25728c709b21825004875674e28b5b584b9684d773b9",
+        "libs/audio-video-client/src/cli.test.ts": "fac5cb92ba4451336ad2a4190253e51668ed04c9e8197d9abf0e08a3d9fe44ff",
+        "libs/audio-video-client/src/cli.ts": "7ea04574e426b5e37cb0a7ed73f10ff53e6ac87a31ec646c668e8ab8304d8aca",
+        "libs/audio-video-client/src/index.ts": "08458d366a6a8de4efc7cf9253541c0f85174c6915f5e4982d2c3bbd1bbe9701",
+        "libs/audio-video-client/src/operations.test.ts": "da635a54787832df158d0c78a7df90f4a260b6b75843aa6ca9cea2fdaf8d6985",
+        "libs/audio-video-client/src/operations.ts": "2acebaf784aca759c58815ba71b670abf10e5cc87dd139b8203bf8369eb946e5",
+        "libs/audio-video-client/src/scene-text-adapter.test.ts": "7259c578466c154f0b27e9095f31d3c5901d1ea9562ee3a3254f9e27bb1175da",
+        "libs/audio-video-client/src/scene-text-adapter.ts": "76ce901b03e18dc159a9e9e06133d6037b8a9dd34681b486a340805c63bb5bf3",
+        "libs/audio-video-types/src/__tests__/types.contract.test.ts": "42ce443411a8b72e091a2d95dc2df84c1bac8b4c967ced52fa3be983689c809e",
+        "libs/audio-video-types/src/contracts.test.ts": "6c9e625526bec6e38ac06e8708d01a41b734b6d4d96e32df4422a67a21f14b43",
+        "libs/audio-video-types/src/contracts.ts": "dcde1914f3219c64b3401510a34c2f372ca5bff568cb581fd8d0f25b43aacb5b",
+        "libs/audio-video-types/src/index.d.ts": "8c379cc6905e1269586ecda3c1652d7441f094c10eed8851b1d61c95e89e6f02",
+        "libs/audio-video-types/src/index.js": "e0a56041746faeaaa3173b823b28c57fcba69dddf38e08638309b35fc5fafb5b",
+        "libs/audio-video-types/src/index.ts": "f7504a370c24e9ba9673fb2f4fd10cd1ea1c6ea44f710db885410389eb89ea5a",
+        "libs/common/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java": "017ed353bcafa8f7c6ac81952e0d6147228b9cb2fb92459b6538460c2e2de4f6",
+        "libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java": "4101a6f0c1e605ed689e19f72146f4f2d47233b2cdecb6b49daccb9d0e07af3a",
+        "libs/common/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java": "4059c8a7016f9cadb6fcb5805d1b6efa8b85422b99d8f1a74f0a8859187b6a54",
+        "libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java": "aa337579330d5b4e74157c9d446c6b48a9fc0baf9aa1ad238357c7253e732bf5",
+        "libs/media-experience-simulation/src/cli.ts": "e44fb50cb9a8e86b246858e9503217fe143dd1363bf977515932a8b16911eb8a",
+        "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto": "6936aa8e02c91a33457ac1f6d334345c6803661ea287ba184ac9362afca04b98",
+        "modules/speech/stt-service/src/main/proto/stt_service.proto": "250f6c301bb406a93dbb5f6de727b52cf346dbc5685cb9446451ecf5ef2360c6",
+        "modules/speech/tts-service/src/main/proto/tts_service.proto": "79cb7f271b9720aecc63a3e46adef8137330b9fe53875c883c83fc7751b501b6",
+        "modules/vision/vision-service/src/main/proto/vision_service.proto": "7452112bd784c3881388d263e736bc9ca697fb6c418544eb93903678a30b4df0",
+        "scripts/check-media-contract-parity.mjs": "c443ba57cc5273864cc90ebdd111114eef764629080ff4979cfb734da8d25485",
+        "scripts/report-media-pdp-readiness.mjs": "36bee197a6be758a7ace3b52f6f41984af2d00d048b6657f14a1ce6ab45eb004",
+        "tests/media-agent-tool-contracts.test.mjs": "6b538362a0ac2143a36bc38976293e35580f3a6945b70543141e80963c6d4fd4",
+        "tests/media-agent-tool-definition-contracts.test.mjs": "436a97babff05d4f605f0fa592f7783c758328ef14a0edf2e31fdab1be971686",
+        "tests/media-contract-parity-definition-only-cli.test.mjs": "fb5844bcafe7e5d6dfbc6ce19dfbbd68c84476855089ce17b0a353d31ae663e4",
+        "tests/media-contract-parity.test.mjs": "3141669eedcf4e26aca5e63e057cd4b9b5f11d75761149e81ed69cd6566da67b",
+        "tests/media-declarative-production-p1-definitions.test.mjs": "65cbf186558ef30ecf43a2d252f0201f01e469c36445fd53edf008282e868074",
+        "tests/media-descriptor-definition-oracles.test.mjs": "3bc62a2a6f0eb0ed4ad8c151d1f3c413e89a35d1766e156398c69a153d44d7b0",
+        "tests/media-domain-identity-reconciliation.test.mjs": "3b8451e8bd9a646298f1097df6539fa3d87a1ed1cb45fc958aef046fcc748e97",
+        "tests/media-event-interface-owner-bindings.test.mjs": "d25165409fb1c9d68ec3e23926be52e0ccad9747fbd148046603a8785d14e6b7",
+        "tests/media-event-source-parity.test.mjs": "b1c7cbc0b3250fc624c57b964634cd7fffea11a0fcd25f41e46f7ce9df25a74a",
+        "tests/media-operation-parity-source-denominators.test.mjs": "36e2d1e3da3f47814d71986c91c0b6bbce34cb24e0c363c1c255ea639d7efe84",
+        "tests/media-pdp-p1-dev-status.test.mjs": "02d4dc8cad69ba8bef76a17efb293ae129d3b3b1aba804b4bb379141797ebd78",
+        "tests/media-privacy-consistency-source.test.mjs": "2ed3254c310782ff04aa1b142b79e2f6ab0de24b7cd847df3ddce05300ef414a",
+        "tests/media-recorder-studio-p1-definitions.test.mjs": "b0876d4e3e65b307138a66c7bdc6c6e6706f2a96650c87ae4367539d094ac8c2",
+        "tests/media-sdk-legacy-interface-dispositions.test.mjs": "3c69397a52248369ade860e5c4a4bdcf4270e15806b1cc04a30e9c0679384dea",
+        "tests/media-state-machine-extraction.test.mjs": "1cb4ff8a5be9d6f8353e3c8b290c7e2bd5675e999a888451742d5797de966641",
+        "tests/media-temporal-spatial-definition-model.test.mjs": "c0fd02787d43e857c893dab58c724400017a46791d33ff2d6b8746a804bbafe7",
+        "tests/media-typed-contract-bindings.test.mjs": "0a1842deb60aad44b6bd351bf7c32f2b3c0d04a70dcbb38ec6a5003188a9fe3d",
+        "tests/pdp-events-owner-definition.test.mjs": "92932c9d9b5eb40a28d936ec6a5058e355f58cb05ade123cce7986593384a88c",
+        "tests/pdp-experience-capability-invocation-adapters.test.mjs": "a062b06080d9aeb0b3bd0695aaa2affca0aca8583fe020bdcadcaa2a5b98e5ed",
+        "tests/pdp-job-submit-parameter-contract.test.mjs": "07da01bd6339741694ec207f715704c7f67aed9dbe7ae015b2b99d5e3fd544a3",
+        "tests/pdp-truth-domain-erasure-contract.test.mjs": "27984c0f8e2b38f6a2e2a410fc49e5faeeed4868da860bdda7afb0eb1b748554",
+        "tests/pdp-truth-domain-event-delivery.test.mjs": "29fa77ca218a2a6e03367a07cdcb53394f4679b253683359348da6cacf16b22d",
+        "tests/pdp-truth-domain-owner-identity-contracts.test.mjs": "a3926c840770db5cf25e8b0b5852771f06f6bd39c64c574cdc1894bed6bceddc",
+        "tests/pdp-truth-domain-policy-fallback-offline.test.mjs": "7c100c89368ac96c7e752db97b20efbb4dbdcd2d3e2c419cb95e303f9507bb9e",
+        "tests/pdp-truth-domain-race-semantics.test.mjs": "eea58ef2ddb773ec134d0bed91e0a457b7d2ec83d1be1ff27df65e6b85409e12",
+        "tests/pdp-truth-domain-transition-coverage.test.mjs": "edfd0a7b7e88650bf8d4123731c53459494f33b7a9079de0d350eb1084b149dd",
+        "tests/pdp-truth-domain.test.mjs": "8ef1a6d5e11dc2e10ca32c3e6813fc8671c22a6c7f7038d48300d52f8feae578",
+        "tests/pdp-tts-request-origin-binding.test.mjs": "c32f907b6605bb793c303b9ad38c72611f1140bf3fddce40109a52f1aea7b320",
+        "tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs": "7ffbd97f98e75cb1a284e19931451cf3d08c7258e5ba2ddbe144713ff55bdfdb",
+        "tests/pdp1-artifact-upload-result-schema.test.mjs": "c35c423a43ae6665697f8b5cff11f41112c847bdb1f204a761aadad5cebf28d8",
+        "tests/pdp1-artifact-wire-byte-ceilings.test.mjs": "7e23b690bdfcc5343ee0e556f6351fa1d9831d833f282b775d20584ca9fe2a33",
+        "tests/pdp1-capability-intent-operation-mapping.test.mjs": "aff07a39210005fb1e901dfc25325bc14069f61b7e34a750cf8ba9dc2faaa08f",
+        "tests/pdp1-domain-identity-reference-contracts.test.mjs": "ea7c43847e55ef2e385a04f9475e19aaa9b4be77544907f1544bfa202c0113e0",
+        "tests/pdp1-interface-current-source-review.test.mjs": "ac92b49cb314fa6b51f2078b150529b085b96e530f12c2dc215b11591b35f2c5",
+        "tests/pdp1-j29-execution-recovery-read-contract.test.mjs": "6f805f44df273606184a535f1022aec4d1e88dd9b7069f2a38d6f4d05de38f2f",
+        "tests/pdp1-job-submit-typed-input-mapping.test.mjs": "f2c96c6ed097a659d2c9860ca8afe4a02e68644e513f68dc2c3fb931bd89f596",
+        "tests/pdp1-lane-a-current-source-review.test.mjs": "fa895c4f63d47a9fb74009e8a3d2e2311725c1385fe778ae1c8440eeda3fb0ca",
+        "tests/pdp1-opaque-id-operation-field-bounds.test.mjs": "affa1a080b47b8e1da8bc8b0b57490b67891ceffba8b411eab52cbc453c20461",
+        "tests/pdp1-operation-current-source-review.test.mjs": "fae9e284461a294d15de7acfc05fa739f26ccf20b351107916fe32206497e331",
+        "tests/pdp1-output-producer-contract-mappings.test.mjs": "2a1e4580c44e2a8556b2576e7b8db8a94d3cc68630b71a2e42a303cffd3d3ddc",
+        "tests/pdp1-owner-action-wire-contracts.test.mjs": "e1f628e3b24e8054d0a5f9a7d5925306c1be9db05919c685628e3b71a56ad58e",
+        "tests/pdp1-phase-handoff-contract.test.mjs": "59a13d90ea867fed449bf543f41a9a2e9d784b1e15e422537a3ac75fccf1d6d6",
+        "tests/pdp1-provenance-execution-reference.test.mjs": "d47c30d7feee8aaf89ccd7a2937c2cb6f015c44a29f69d55a9c2218e70adc205",
+        "tests/pdp1-provenance-reference-key-bounds.test.mjs": "a23a5215613fca275c67472506b1968f4f1e7cab584246984b76221172ed3169",
+        "tests/pdp1-provenance-typed-input-mapping.test.mjs": "cf78fc8f20a52489b49df604a1795fb56820021a632034b2f3c52fc694a7d850",
+        "tests/pdp1-requiredness-regression.test.mjs": "0d34178804339321276e61a3aec0399e204aff42a310a4854e0490eeddbde805",
+        "tests/pdp1-transcription-exact-contract.test.mjs": "d86d388df61693375c97c32e7b8d4b06f2f93df3d39549b7d8fddd385d728bef",
+        "tests/pdp1-transcription-optional-profile-mapping.test.mjs": "d3fe261c2fe44edb59003bb9d3398c29de86de302aa08163f2afed91d205de46",
+        "tests/pdp1-transition-guard-definition-evaluator.test.mjs": "4c69c137650c7f5ff47499b573549caa57505ea9e2948c73c85653b2ec6b9cde"
+      },
+      "currentCutReview": {
+        "reviewedOn": "2026-10-18",
+        "authority": "Internal PDP-1 semantic development review under the user's delegated Media source-definition authority; not external acceptance, owner receipt, independent certification, or closure.",
+        "method": "Re-read the current exact PDP-1 definition and interface source set, all 2,026 census identities and 24 declared populations, the full 54-surface denominator/applicability inputs, P0 predecessor status/matrix, and source dependencies of the declarative-production and Recorder Studio contracts. Reconciled typed schemas, all 61 declarative case bindings, 20 exact request/result relations, 52 manual edit kinds, the sole canonical edit operation, replay/randomness semantics, opaque-ID constraints, and the frozen P1-to-P2 handoff. Executed focused source tests; the complete native PDP-1 gate remains the authoritative currentness result.",
+        "sourceIdentityCount": 2026,
+        "reviewedPopulationCount": 24,
+        "sourcePinCount": 128,
+        "stalePriorSourcePinCount": 16,
+        "priorPdp1StatusStalePinCount": 17,
+        "newlyPinnedAuthoritySources": [
+          ".product-experience/surface-registry.yaml",
+          ".product-experience/surfaces/media-physical-topology.v1.json",
+          "docs/implementation/pdp-0-phase-dev-status.json",
+          "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json"
+        ],
+        "changedMeaningFindings": [
+          {
+            "id": "cross-interface-and-downstream-action-classification",
+            "disposition": "CURRENT_SOURCE_CROSSWALK_REVIEWED",
+            "meaning": "Current action and interface identities retain exact logical operation mappings and explicit proposal/transport/runtime dispositions; no runtime or provider admission is implied.",
+            "evidence": [
+              ".product-experience/interface-parity/current-source-review.json",
+              ".product-experience/pdp-3-product-experience/action-registry.yaml",
+              "tests/pdp1-interface-current-source-review.test.mjs",
+              "tests/media-operation-parity-source-denominators.test.mjs"
+            ]
+          },
+          {
+            "id": "PXD-152",
+            "disposition": "ACCEPTED_LOGICAL_DEFINITION_ONLY",
+            "meaning": "The route owner delegated definition and acceptance of an exact opaque lookup scoped to the authenticated tenant and current principal; it resolves only to ProcessingJob or JobAttempt; MediaRun is excluded; unresolved cases return non-disclosing semantic UNKNOWN; runtime and transport remain NOT_ADMITTED.",
+            "evidence": [
+              ".product-experience/decision-log.md#PXD-152",
+              ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-provenance",
+              "tests/pdp1-provenance-execution-reference.test.mjs",
+              "tests/pdp1-provenance-typed-input-mapping.test.mjs"
+            ]
+          },
+          {
+            "id": "PXD-154/PXD-157/request-requiredness",
+            "disposition": "CURRENT_OPERATION_AND_WIRE_RECONCILIATIONS_REVIEWED",
+            "meaning": "Opaque wire item syntax remains minimal; the canonical submit wrapper preserves the exact closed typed input; request requiredness matches declared input slots. No runtime/admission meaning is inferred.",
+            "evidence": [
+              ".product-experience/decision-log.md#PXD-154",
+              ".product-experience/decision-log.md#PXD-157",
+              ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
+              "tests/pdp1-owner-action-wire-contracts.test.mjs",
+              "tests/pdp1-operation-current-source-review.test.mjs"
+            ]
+          },
+          {
+            "id": "PXD-155",
+            "disposition": "RECONCILED_EDGE_SPECIFIC_GUARD",
+            "meaning": "Only RETRY_PENDING-to-RUNNING requires retry eligibility from the typed current retry-policy observation; CANCELLED, FAILED and OUTCOME_UNKNOWN require exact target-state observations. Synthetic evaluator values grant no runtime authority and UNKNOWN never authorizes replay.",
+            "evidence": [
+              ".product-experience/decision-log.md#PXD-155",
+              ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.retry-policy-current-read.v1",
+              ".product-experience/pdp-1-domain-data/transitions.yaml#media-job/T03",
+              "tests/pdp1-transition-guard-definition-evaluator.test.mjs"
+            ]
+          },
+          {
+            "id": "PXD-160",
+            "disposition": "ACCEPTED_LOGICAL_DEFINITION_ONLY",
+            "meaning": "The user delegated definition and acceptance of a separate exact-session recovery QUERY. Host-attested tenant/principal and one coherent snapshot bind current DEGRADED state, consent/purpose revisions, lease/fence, sequence and the complete source-selected prior-effect interval. CURRENT is revision-only; reconnect permission remains separate; mismatched or incomplete evidence is UNKNOWN. No execution identity, dispatch, replay, endpoint, or runtime admission is added.",
+            "evidence": [
+              ".product-experience/decision-log.md#PXD-160",
+              ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1",
+              "tests/pdp1-j29-execution-recovery-read-contract.test.mjs"
+            ]
+          },
+          {
+            "id": "PXD-161",
+            "disposition": "RECONCILED_STALE_LABELLED_RECOVERY",
+            "meaning": "The view-job-status OBSERVED wire result distinguishes CURRENT from STALE and requires last-known evidence to remain labelled stale; unavailable evidence remains UNKNOWN. All 79 result envelopes use valid oneOf branch closure with every branch closed. No route freshness evidence or runtime admission is inferred.",
+            "evidence": [
+              ".product-experience/decision-log.md#PXD-161",
+              ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.view-job-status.v1",
+              "tests/pdp1-owner-action-wire-contracts.test.mjs",
+              "tests/pdp1-operation-current-source-review.test.mjs"
+            ]
+          },
+          {
+            "id": "PXD-162",
+            "disposition": "PDP3_ONLY_CROSS_REFERENCE_RECONCILIATION",
+            "meaning": "PXD-162 keeps the P2/J03-2 lineage references on PXD-072 and the PDP-3 projection references on PXD-159. It explicitly leaves the frozen PDP-1 operation binding, receipt-only acknowledgment, and no-transition disposition unchanged; it introduces no PDP-1 source, operation, or runtime meaning.",
+            "evidence": [
+              ".product-experience/decision-log.md#PXD-162",
+              ".product-experience/pdp-1-domain-data/handoff-contracts.yaml",
+              ".product-experience/pdp-1-domain-data/operations.yaml"
+            ]
+          },
+          {
+            "id": "P1-interface-review-parity-pin-refresh",
+            "disposition": "CURRENT_SOURCE_REVIEW_RECONCILED",
+            "meaning": "The interface source review now pins the exact current operations, action registry, and parity projection. All 146 typed UI action semantic records compare source-exact; the 29 classification-basis edits are explicitly reconciled as source and projection edits. The source review records exact artifact-version guards and the J-06 action crosslink. No route, runtime, or admission claim is added.",
+            "evidence": [
+              ".product-experience/interface-parity/current-source-review.json",
+              ".product-experience/interface-parity/operation-parity.yaml",
+              ".product-experience/pdp-3-product-experience/action-registry.yaml",
+              "tests/pdp1-interface-current-source-review.test.mjs",
+              "tests/pdp-design-interface-parity.test.mjs"
+            ]
+          },
+          {
+            "id": "P1-operation-review-parity-pin-refresh",
+            "disposition": "CURRENT_SOURCE_REVIEW_RECONCILED",
+            "meaning": "The operations current-source review pins the corrected exact PDP-1 operations source and current 79-wire source while preserving the historical cuts. Its current-cut addendum inventories all changed operation, schema, wire, bound, and 462 mapping populations and their focused evidence.",
+            "evidence": [
+              ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
+              ".product-experience/pdp-1-domain-data/operations.yaml",
+              "tests/pdp1-operation-current-source-review.test.mjs",
+              "tests/pdp1-capability-intent-operation-mapping.test.mjs",
+              "tests/pdp-truth-domain-schema-validation.test.mjs"
+            ]
+          },
+          {
+            "id": "P1-current-operations-source-cut-delta",
+            "disposition": "CURRENT_SOURCE_DELTA_REVIEWED",
+            "meaning": "Reconciled the current PDP-1 source delta across eight populations: CLI/SDK denominators; transcription submission semantics; five existing operation contracts; thirteen changed and one new owner-defined operation; J02-5; retry observation; eleven simulation leaf wires; and capability schemas, bounds, scalar types, and 462 mappings. The current output schema count is 98/98. Exact operation mappings, typed schemas, stale/unknown outcomes, and NOT_ADMITTED boundaries remain explicit.",
+            "evidence": [
+              ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
+              ".product-experience/pdp-1-domain-data/operations.yaml",
+              ".product-experience/decision-log.md#PXD-152",
+              ".product-experience/decision-log.md#PXD-155",
+              ".product-experience/decision-log.md#PXD-157",
+              ".product-experience/decision-log.md#PXD-160",
+              "tests/pdp1-capability-intent-operation-mapping.test.mjs",
+              "tests/pdp1-transcription-exact-contract.test.mjs",
+              "tests/pdp1-job-submit-typed-input-mapping.test.mjs",
+              "tests/pdp1-j29-execution-recovery-read-contract.test.mjs",
+              "tests/pdp-truth-domain-schema-validation.test.mjs",
+              "tests/pdp-truth-domain-owner-leaf-wire-contracts.test.mjs",
+              "tests/media-upload-operation-contracts.test.mjs",
+              "tests/media-j01-project-operation-definitions.test.mjs"
+            ]
+          },
+          {
+            "id": "P1-current-action-source-cut-delta",
+            "disposition": "CURRENT_SOURCE_DELTA_REVIEWED",
+            "meaning": "Reviewed the 29 current source action classification edits, exact immutable artifact-version guard on inspect-source, PXD-152 provenance capability addition, and J-06 crosslink from guidance search to submit-validated-request. Logical QUERY identity remains distinct from external/transport identity; runtime admission stays NOT_ADMITTED.",
+            "evidence": [
+              ".product-experience/interface-parity/current-source-review.json",
+              ".product-experience/interface-parity/operation-parity.yaml",
+              ".product-experience/pdp-3-product-experience/action-registry.yaml",
+              ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#steps/0",
+              "tests/pdp1-interface-current-source-review.test.mjs",
+              "tests/pdp-design-interface-parity.test.mjs",
+              "tests/pdp-experience-capability-invocation-adapters.test.mjs"
+            ]
+          },
+          {
+            "id": "P1-inspect-source-precondition-parity-addendum",
+            "reviewedOn": "2026-10-11",
+            "disposition": "BOUNDED_SOURCE_PARITY_CORRECTION_AND_REGRESSION",
+            "meaning": "The PDP-1 action disposition inventory now carries the exact inspect-source preconditions from the authoritative PDP-3 action registry, including exact artifact and immutable version identity followed by current read authority. The focused source parity assertion passes. This corrects definition evidence only; runtime admission remains NOT_ADMITTED.",
+            "sourcePins": {
+              ".product-experience/pdp-1-domain-data/operations.yaml": "11d51ef9cdc69e2dde09b3a72241a19a321be40372b19850e4d29c3ec2fb3e04",
+              ".product-experience/pdp-3-product-experience/action-registry.yaml": "832beaf50f03f9e3c4d8bf0f7e5f47ffe38b570c3e4864bef04c7362352180fe",
+              "tests/pdp-truth-domain.test.mjs": "0d94c83f6c081f2e67a4ba20752c0cdfff03f26ae1d9d87860d9ba97047964e0"
+            },
+            "evidence": [
+              ".product-experience/pdp-1-domain-data/operations.yaml#actionOperationDispositionInventory/records/@actionId=media.action.inspect-source/sourceEvidence/preconditions",
+              ".product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source/preconditions",
+              "tests/pdp-truth-domain.test.mjs"
+            ],
+            "verification": {
+              "command": "node --test tests/pdp-truth-domain.test.mjs",
+              "status": "PASS",
+              "passed": 14,
+              "total": 14
+            }
+          },
+          {
+            "id": "P1-current-operations-source-reinspection-11d51ef",
+            "disposition": "FULL_CURRENT_SOURCE_CUT_REVIEWED",
+            "meaning": "The exact current operations source cut was re-reviewed across the full current operation/schema/mapping populations and cross-interface definitions. The prior pinned bytes are unavailable in Git, so this finding records a full review of current semantics rather than claiming a reconstructed incremental diff. All definition-only and NOT_ADMITTED boundaries remain unchanged.",
+            "evidence": [
+              ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
+              ".product-experience/interface-parity/current-source-review.json",
+              "tests/pdp1-operation-current-source-review.test.mjs",
+              "tests/pdp1-interface-current-source-review.test.mjs",
+              "tests/pdp1-capability-intent-operation-mapping.test.mjs",
+              "tests/pdp-truth-domain-schema-validation.test.mjs"
+            ],
+            "sourcePins": {
+              ".product-experience/pdp-1-domain-data/operations.yaml": "11d51ef9cdc69e2dde09b3a72241a19a321be40372b19850e4d29c3ec2fb3e04"
+            }
+          },
+          {
+            "id": "P1-owner-action-wire-projection-inventory-refresh",
+            "disposition": "USER_AUTHORIZED_NO_ADDITIONAL_PDP1_MEANING",
+            "meaning": "The exact owner-action wire delta adds seven source-field inventory entries and explicit NOT_EXPOSED_IN_NORMALIZED_BRANCH mappings for existing delivery and consent/use results. The closed wire schemas, result branches, and operation effects are unchanged; the scoped internal no-additional-meaning decision is bound in the user-authorized R5 impact record.",
+            "evidence": [
+              "docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r5.json",
+              ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml",
+              "tests/pdp1-owner-action-wire-contracts.test.mjs",
+              "tests/media-discovery-pdp1-supplemental-owner-status-join.test.mjs"
+            ]
+          },
+          {
+            "id": "P1-DECLARATIVE-TYPED-VALUE-SCHEMAS-2026-10-18",
+            "disposition": "CURRENT_SOURCE_DEFINITION_REVIEWED",
+            "meaning": "All ten declarative producer values have closed Draft 2020-12 schemas, exact existing domain authorities, exact request/result schema relation selectors for all 20 relations, and no asserted field mapping. Runtime admission remains NOT_ADMITTED.",
+            "evidence": [
+              ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml",
+              "tests/media-declarative-production-p1-definitions.test.mjs"
+            ],
+            "runtimeAdmission": "NOT_ADMITTED"
+          },
+          {
+            "id": "P1-CHECKPOINT-EXACT-SIGNED-64-TICKS-2026-10-18",
+            "disposition": "CURRENT_SOURCE_BOUNDARY_REPAIRED",
+            "meaning": "Checkpoint simulation ticks use canonical decimal text with the exact signed-64 BigInt format; the actual simulation-state schema accepts both representable boundaries and rejects overflow, -0, leading zeros, plus sign, and numeric values.",
+            "evidence": [
+              ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#typedProductionValueDescriptors/@id=media.declarative.value.simulation-state.v1/schema/properties/tSimTicks",
+              "tests/media-declarative-production-p1-definitions.test.mjs"
+            ]
+          },
+          {
+            "id": "P1-REPLAY-RANDOMNESS-PROVENANCE-2026-10-18",
+            "disposition": "CURRENT_SOURCE_DEFINITION_REVIEWED",
+            "meaning": "Replay provenance distinguishes versioned SPECIFIED randomness, versioned NOT_APPLICABLE non-stochastic semantics, and UNKNOWN; exact replay claims reject UNKNOWN, and model/checkpoint descriptors reference this canonical value-object authority.",
+            "evidence": [
+              ".product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions/records/@id=media.value.replay-provenance-definition/schema/properties/randomnessSemantics",
+              ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml",
+              "tests/media-descriptor-definition-oracles.test.mjs",
+              "tests/media-declarative-production-p1-definitions.test.mjs"
+            ]
+          },
+          {
+            "id": "P1-RECORDER-CLOSED-EDIT-ENVELOPE-2026-10-18",
+            "disposition": "CURRENT_SOURCE_DEFINITION_REVIEWED",
+            "meaning": "The 52 existing edit kinds share one closed typed edit envelope and one canonical edit-commit operation; structural source-version elements are enforced, resolver-dependent tenant/project/revision/rights checks are exact deny-before-resolution/CAS/effect oracle contracts, and no runtime proof or admission is claimed.",
+            "evidence": [
+              ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#editKindParameterContracts/globalEnvelopeSchema",
+              "tests/media-recorder-studio-p1-definitions.test.mjs"
+            ],
+            "runtimeAdmission": "NOT_ADMITTED"
+          },
+          {
+            "id": "P1-OPAQUE-ID-BOUNDS-AC058-OPERATION-JOIN-2026-10-18",
+            "disposition": "CURRENT_SOURCE_DEFINITION_REVIEWED",
+            "meaning": "All ten converted opaque identifier fields retain the canonical bounded wire grammar; declarative AC058 resolves to the existing media.operation.job.submit.v1 operation and exact request/result schemas, with finality and UNKNOWN preserved.",
+            "evidence": [
+              ".product-experience/pdp-1-domain-data/operations.yaml",
+              "tests/pdp1-opaque-id-operation-field-bounds.test.mjs",
+              "tests/media-declarative-production-p1-definitions.test.mjs"
+            ]
+          }
+        ],
+        "outstandingMeaningIds": [],
+        "currentOperationsSourceReinspection": {
+          "status": "REINSPECTED_CURRENT_SOURCE_CUT",
+          "currentSourceSha256": "2d0cae3cd12a218f7ed12db4c6b56dbcf03de06839f0db72a6e7db61ce542fd4",
+          "currentSourceReviewArtifactSha256": "10b015bb61f38dbadc68ba1b25afbbb06e764dd28f02fd6316c9556321abb2f1",
+          "previousPxd164SourceReviewPreservedInHistory": true,
+          "reviewBasis": "Re-reviewed exact current operation definitions and their current-source review, including all ten bounded identifier fields and AC058 exact request/result operation linkage; runtime/transport admission remains NOT_ADMITTED."
+        },
+        "currentDeclarativeAndRecorderReview": {
+          "status": "REINSPECTED_CURRENT_SOURCE_CUT",
+          "sourceFingerprints": {
+            ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml": "85f8ff8845684aff6579a51c821ca2339beb34386215eef2e666583685c18654",
+            ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": "0435edb755889261776f1e37bc17a3253256e56730a40e6731d4bf37253ed2fa",
+            ".product-experience/pdp-1-domain-data/value-objects.yaml": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916",
+            ".product-experience/pdp-0-product-truth/requirements.yaml": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
+            ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be"
+          },
+          "focusedTests": {
+            "declarativeProduction": "PASS:3/3",
+            "recorderStudio": "PASS:1/1",
+            "opaqueIdBounds": "PASS:1/1",
+            "descriptorOracles": "PASS:5/5"
+          },
+          "runtimeAdmission": "NOT_ADMITTED"
+        },
+        "currentSurfaceApplicability": {
+          "denominator": 54,
+          "physical": 26,
+          "compositions": 7,
+          "logicalConsumers": 21,
+          "pdp1ApplicableOrReferenceBound": 53,
+          "explicitArchivedNotApplicable": 1,
+          "sourceRefs": [
+            ".product-experience/surface-registry.yaml",
+            ".product-experience/surfaces/media-physical-topology.v1.json"
+          ],
+          "phaseMatrix": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json"
+        },
+        "outstandingSourceCutRisks": [],
+        "verificationStatus": "SOURCE_REVIEW_COMPLETE; NATIVE_PDP1_TESTS_AND_PHASE_STATUS_ARE_RECORDED_SEPARATELY"
+      },
+      "definitionContractRefreshFullPhaseGate": {
+        "status": "DEV_COMPLETE",
+        "directCriteriaPassed": 11,
+        "testCount": 342,
+        "passedTestCount": 342,
+        "skippedTestCount": 0,
+        "statusArtifactPath": "docs/implementation/pdp-1-phase-dev-status.json",
+        "canonicalHandoffIds": [
+          "media.pdp1-pdp2.canonical-domain-handoff.v1"
+        ]
+      },
+      "sourcePinChanges": {
+        ".product-experience/interface-parity/current-source-review.json": {
+          "prior": "b07b5fb823b55f38e310fee5a465d7760646ca14ec89e85ecb23c3d43c3a7546",
+          "current": "6b7d8aaa97a4897e7e33d9a7656c8861bf884e1a57abcf8b073c4b3c8699be8d"
+        },
+        ".product-experience/interface-parity/operation-parity.yaml": {
+          "prior": "41e64cc7dbb063fbd581463e65e029b4cce9bdbf01130a6aac298ba0187a22d5",
+          "current": "bcc2f132b39dfe09085eef07436fdceed5561b0f06abc9ae4ca22d1a5c4e615a"
+        },
+        ".product-experience/pdp-1-domain-data/operations-current-source-review.json": {
+          "prior": "10b015bb61f38dbadc68ba1b25afbbb06e764dd28f02fd6316c9556321abb2f1",
+          "current": "749311bf1b07497d55d28a20e6c53c03bafa624823e0660888188d75de05c105"
+        },
+        ".product-experience/pdp-1-domain-data/operations.yaml": {
+          "prior": "2d0cae3cd12a218f7ed12db4c6b56dbcf03de06839f0db72a6e7db61ce542fd4",
+          "current": "501009ad1e5313e9b936b3c3059e469c4f0ec31d2eae763bfc8d2caf511ec6fd"
+        },
+        "tests/media-contract-parity.test.mjs": {
+          "prior": "3141669eedcf4e26aca5e63e057cd4b9b5f11d75761149e81ed69cd6566da67b",
+          "current": "51ee7194a1ce2c917f9bedd0e766278f7f745b5a270d019ef4d4b436fb01773d"
+        }
+      }
+    }
+  ]
 }

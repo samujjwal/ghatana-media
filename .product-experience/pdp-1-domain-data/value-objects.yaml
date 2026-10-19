@@ -2109,6 +2109,7 @@ ownerDescriptorDefinitions:
           - outputVersionRefs
           - executionProvenanceVersionRef
           - replayClass
+          - randomnessSemantics
           - methodAndScopeVersionRef
           - qualifiedEvidenceRef
         properties:
@@ -2130,6 +2131,66 @@ ownerDescriptorDefinitions:
               - TOLERANCE_BOUND
               - STATISTICAL
               - REPLAY_UNAVAILABLE
+          randomnessSemantics:
+            description: >-
+              Exact versioned random-generator and stream semantics for a
+              stochastic execution, explicit non-applicability for a declared
+              non-stochastic execution, or UNKNOWN when the source cannot
+              establish them. This is definition evidence, not qualification.
+            oneOf:
+              - type: object
+                additionalProperties: false
+                required:
+                  - disposition
+                  - prngAlgorithmVersionRef
+                  - prngImplementationVersionRef
+                  - randomStreamVersionRef
+                  - seedPolicyVersionRef
+                  - seedMaterialVersionRef
+                  - checkpointStateFormatVersionRef
+                  - checkpointStateVersionRefs
+                properties:
+                  disposition:
+                    const: SPECIFIED
+                  prngAlgorithmVersionRef: *a3
+                  prngImplementationVersionRef: *a3
+                  randomStreamVersionRef: *a3
+                  seedPolicyVersionRef: *a3
+                  seedMaterialVersionRef: *a3
+                  checkpointStateFormatVersionRef: *a3
+                  checkpointStateVersionRefs:
+                    type: array
+                    maxItems: 1024
+                    uniqueItems: true
+                    items: *a3
+              - type: object
+                additionalProperties: false
+                required:
+                  - disposition
+                  - nonStochasticDeclarationVersionRef
+                  - reason
+                properties:
+                  disposition:
+                    const: NOT_APPLICABLE
+                  nonStochasticDeclarationVersionRef: *a3
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+              - type: object
+                additionalProperties: false
+                required:
+                  - disposition
+                  - reason
+                properties:
+                  disposition:
+                    const: UNKNOWN
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
           methodAndScopeVersionRef: *a3
           qualifiedEvidenceRef:
             oneOf:
@@ -2194,10 +2255,41 @@ ownerDescriptorDefinitions:
                       minLength: 1
                       maxLength: 384
                       pattern: \S
+          - if:
+              properties:
+                replayClass:
+                  enum:
+                    - EXACT_ENVIRONMENT
+                    - TOLERANCE_BOUND
+                    - STATISTICAL
+              required:
+                - replayClass
+            then:
+              properties:
+                randomnessSemantics:
+                  oneOf:
+                    - type: object
+                      properties:
+                        disposition:
+                          const: SPECIFIED
+                      required: [disposition]
+                    - type: object
+                      properties:
+                        disposition:
+                          const: NOT_APPLICABLE
+                      required: [disposition]
       rules:
         - Capture source/output versions and exact execution environment,
           engine/model/runtime/hardware/library versions, configuration, assets,
-          seed and output representation. A seed alone is not replay evidence.
+          seed identity and policy, and output representation. For stochastic executions,
+          bind the PRNG algorithm and implementation versions, random-stream
+          identity, exact seed-material reference, seed policy,
+          checkpoint-state format, and exact checkpoint state versions. A seed
+          alone is not replay evidence. A missing or
+          unversioned random-stream component remains UNKNOWN; claimed replay
+          classes require SPECIFIED randomness semantics or an explicit
+          NOT_APPLICABLE disposition for a declared non-stochastic execution.
+          UNKNOWN randomness semantics permit only REPLAY_UNAVAILABLE.
         - TOLERANCE_BOUND names numeric/geometric/perceptual/timing metrics,
           metric versions, units, tolerances, scope and measurement methods. A
           deviation is acceptable only within that exact named bound.
@@ -2205,7 +2297,8 @@ ownerDescriptorDefinitions:
           identity are distinct claims with separately qualified scope.
           Statistical replay requires its repeated-sample protocol and acceptance
           bounds.
-        - If qualified evidence is missing or unknown, report REPLAY_UNAVAILABLE
-          or unresolved fidelity; retain provenance without advertising
-          deterministic replay.
+        - If qualified evidence or required stochastic replay semantics are
+          missing or unknown, report REPLAY_UNAVAILABLE or unresolved fidelity;
+          retain provenance without advertising deterministic replay. These
+          references do not themselves qualify replay or a solver.
   verification: tests/media-descriptor-definition-oracles.test.mjs

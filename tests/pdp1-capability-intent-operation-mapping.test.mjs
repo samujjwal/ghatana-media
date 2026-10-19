@@ -35,10 +35,24 @@ function stable(value) {
 function normalizedSchema(schema, scalarTypes) {
   if (Array.isArray(schema)) return schema.map((part) => normalizedSchema(part, scalarTypes));
   if (!schema || typeof schema !== "object") return schema;
-  // PDP-0 uses `type: enum, values` as shorthand for a string enum. Compare its
-  // semantics with the JSON Schema form used by owner wire contracts.
-  if (schema.type === "enum" && Array.isArray(schema.values)) {
+  // PDP-0 uses `type: enum|optional-enum, values` as shorthand for a string
+  // enum. Parent required arrays independently preserve optionality.
+  if ((schema.type === "enum" || schema.type === "optional-enum") && Array.isArray(schema.values)) {
     return stable({ type: "string", enum: [...schema.values] });
+  }
+  // P0 marks optionality with a shorthand type; parent required arrays remain
+  // the authority for requiredness, so normalize only the value validator.
+  if (schema.type === "optional-boolean") return { type: "boolean" };
+  if (schema.type === "optional-versioned-custom-glossary-reference") {
+    return stable({
+      type: "string",
+      format: "opaque-versioned-reference",
+      minLength: 1,
+      maxLength: 384,
+    });
+  }
+  if (schema.type === "optional-actor-supplied-semantic-transcript-query") {
+    return stable({ type: "string", minLength: 1, maxLength: 4096 });
   }
   if (typeof schema.type === "string" && !primitiveTypes.has(schema.type)) {
     const scalar = scalarTypes[schema.type];
@@ -2807,6 +2821,484 @@ test("all 462 PDP-1 mappings preserve P0 capability input, parameter, and succes
     console.error(`PDP-1 capability mapping mismatches: ${issues.length}; first: ${issues[0]}; most common: ${JSON.stringify(counts)}; missing typed-input mapping capability IDs: ${missingMappingIds.join(",")}`);
   }
   assert.equal(issues.length, 0, `${issues.length} semantic mapping failures; first: ${issues[0] ?? "none"}${issues.length ? `\n${[...issues].sort().join("\n")}` : ""}`);
+});
+
+test("PDP-1 successor operations remain pinned to exact P0 capability identities", () => {
+  const capabilities = read(CAP_PATH);
+  const operations = read(OPS_PATH);
+  const p0ById = new Map(capabilities.capabilities.map((row) => [row.id, row]));
+  const p1ByCapability = new Map(operations.capabilityOperationContracts.records.map((row) => [row.capabilityRef, row]));
+  const expected = [
+    "media.artifact.search",
+    "media.speech.transcription.file",
+    "media.stream.recording.integrate",
+    "media.speech.synthesis.streaming",
+    "media.compose.multitrack-timeline",
+    "media.simulation.scientific-demo",
+  ];
+  for (const capabilityId of expected) {
+    const p0 = p0ById.get(capabilityId);
+    const p1 = p1ByCapability.get(capabilityId);
+    assert.ok(p0?.ownerDefinition, `${capabilityId}: exact P0 owner definition`);
+    assert.ok(p1, `${capabilityId}: P1 operation binding`);
+    assert.equal(p1.sourceCapabilityRef,
+      `${CAP_PATH}#${capabilityId}`, `${capabilityId}: exact P0 source identity`);
+    assert.equal(p1.boundsRef, p0.ownerDefinition.boundsRef, `${capabilityId}: exact P0 bounds identity`);
+    assert.equal(p1.familyProfileRef, p0.ownerDefinition.familyProfileRef, `${capabilityId}: exact P0 profile identity`);
+    if (p1.recordKind === "CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION") {
+      assert.deepEqual(p1.inputSlots.map(({ sourceType, cardinality, required, alternatives }) =>
+        ({ sourceType, cardinality, required, ...(alternatives ? { alternatives } : {}) })),
+      p0.ownerDefinition.typedInputSlots.map(({ sourceType, cardinality, required, alternatives }) =>
+        ({ sourceType, cardinality, required, ...(alternatives ? { alternatives } : {}) })),
+      `${capabilityId}: exact P0 typed input meanings`);
+    } else {
+      assert.ok(p1.canonicalSourceContractRefs?.length, `${capabilityId}: P1 binding resolves an owner operation contract`);
+      assert.ok(p1.typedInputMappings?.entries?.length, `${capabilityId}: P0 input slots are source-mapped`);
+    }
+  }
+  const fullDuplex = p1ByCapability.get("media.speech.synthesis.streaming").sourceSemanticContract;
+  assert.ok(fullDuplex.sourceRequirementRefs?.some((ref) => ref.endsWith("MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05")),
+    "full-duplex P0 meaning is pinned to its exact acceptance case");
+  const multicamera = capabilities.capabilities.find(({ id }) => id === "media.compose.multitrack-timeline")
+    .ownerDefinition.semanticOutcomeContract;
+  assert.ok(multicamera.sourceRefs?.some((ref) => ref.includes("MEDIA-REQ-CAP-COMPOSE-AC-03")),
+    "multicamera P0 meaning is pinned to its exact acceptance case");
+});
+
+test("PDP-1 successors preserve exact P0 AC mapping and bounded observation semantics", () => {
+  const capabilities = read(CAP_PATH);
+  const operations = read(OPS_PATH);
+  const rows = new Map(operations.capabilityOperationContracts.records.map((row) => [row.capabilityRef, row]));
+  const expectedAc = new Map([
+    ["media.artifact.search", ["MEDIA-REQ-CAP-ARTIFACT-AC-03", "MEDIA-REQ-CAP-ARTIFACT-AC-04"]],
+    ["media.speech.transcription.file", ["MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-04", "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-05"]],
+    ["media.stream.recording.integrate", ["MEDIA-REQ-CAP-STREAM-AC-03"]],
+    ["media.speech.synthesis.streaming", ["MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05"]],
+    ["media.compose.multitrack-timeline", ["MEDIA-REQ-CAP-COMPOSE-AC-03"]],
+    ["media.simulation.scientific-demo", ["MEDIA-REQ-CAP-SIMULATION-AC-01", "MEDIA-REQ-CAP-SIMULATION-AC-03"]],
+  ]);
+  const compact = (value) => JSON.stringify(value);
+  for (const [capabilityId, ids] of expectedAc) {
+    const contract = rows.get(capabilityId)?.sourceSemanticContract;
+    assert.ok(contract, `${capabilityId}: source semantic contract`);
+    for (const id of ids) {
+      assert.ok(contract.sourceRequirementRefs?.some((ref) => ref.endsWith(`/@id=${id}`)),
+        `${capabilityId}: exact P0 acceptance mapping ${id}`);
+    }
+  }
+
+  const search = rows.get("media.artifact.search").sourceSemanticContract;
+  assert.ok(search.requestFields.parameters?.searchIntent || search.requestFields["parameters.searchIntent"]);
+  assert.ok(search.requestFields.parameters?.transcriptQuery || search.requestFields["parameters.transcriptQuery"]);
+  const transcriptQueryContract = search.requestFields.parameters?.transcriptQuery
+    ?? search.requestFields["parameters.transcriptQuery"];
+  assert.equal(transcriptQueryContract.maxLength, 4096,
+    "source-bound semantic transcript query limit is exactly 4096 code points");
+  assert.equal(transcriptQueryContract.origin, "ACTOR_SUPPLIED",
+    "transcriptQuery must come directly from the actor");
+  assert.equal(transcriptQueryContract.absentBehavior, "NOT_GENERATED_OR_INFERRED",
+    "the system never generates or infers a transcript query");
+  assert.ok(search.requestFields.conditionalRules?.some((rule) => /SEMANTIC_TRANSCRIPT_CANDIDATES/u.test(compact(rule))
+    && /transcriptQuery/u.test(compact(rule))));
+  for (const field of ["transcriptSearchCandidates", "duplicateCandidateGroups"]) {
+    const candidate = search.resultFields[field];
+    assert.ok(candidate?.each?.some((item) => /exactSourceVersionRef|exactArtifactVersionRefs/u.test(item)), `${field}: exact source version`);
+    if (field === "transcriptSearchCandidates") {
+      assert.ok(candidate.each.some((item) => /transcriptTimeRange|timeRange/u.test(item)), `${field}: exact time anchor`);
+    }
+    assert.ok(candidate.each.includes("matchUncertainty"), `${field}: uncertainty is represented`);
+  }
+  assert.match(compact(search.resultFields.semantics), /no-merge-replace-delete-or-project-mutation-authority/u);
+  assert.match(search.resultFields.duplicateCandidateGroups.absence, /UNAVAILABLE/u);
+
+  const transcription = rows.get("media.speech.transcription.file").sourceSemanticContract;
+  const transcriptionP0 = read(CAP_PATH).capabilities.find(({ id }) => id === "media.speech.transcription.file")
+    .ownerDefinition.parameterSchema;
+  assert.equal(transcriptionP0.required.includes("customGlossaryRef"), false,
+    "P0 customGlossaryRef remains optional");
+  assert.equal(transcriptionP0.required.includes("fillerRetakeCandidates"), false,
+    "P0 fillerRetakeCandidates remains optional");
+  assert.equal(transcription.requestFields.customGlossaryRef.type, "opaque-versioned-reference");
+  assert.match(transcription.requestFields.customGlossaryRef.meaning, /immutable-glossary-version/u);
+  assert.match(transcription.requestFields.customGlossaryRef.unavailable, /UNAVAILABLE.*never-silently-ignore/u);
+  assert.match(transcription.fingerprint.version, /v\d+$/u);
+  assert.ok(transcription.fingerprint.include.includes("customGlossaryRef"));
+  assert.ok(transcription.fingerprint.include.includes("fillerRetakeCandidates"));
+  assert.match(transcription.fingerprint.replay, /exact-original-source-version/u);
+  assert.ok(transcription.resultFields.fillerRetakeCandidateObservations.each.includes("sourceArtifactVersionRef"));
+  assert.ok(transcription.resultFields.fillerRetakeCandidateObservations.each.includes("exactTimeRange"));
+  assert.ok(transcription.resultFields.fillerRetakeCandidateObservations.each.includes("uncertainty"));
+  assert.match(transcription.resultFields.fillerRetakeCandidateObservations.noEffect, /no-source-deletion/u);
+  assert.match(transcription.resultFields.unknownOutcome, /same-requestId-and-fingerprint/u);
+
+  const presenter = rows.get("media.stream.recording.integrate").sourceSemanticContract;
+  const binding = presenter.optionalRequestComponent.presenterCueBinding;
+  assert.ok(binding.fields.includes("scriptRef") && binding.fields.includes("cueMapRef")
+    && binding.fields.includes("clockDomainRef") && binding.fields.includes("activeCueId"));
+  assert.match(binding.scriptRef, /exact-immutable-version/u);
+  assert.match(binding.cueMapRef, /versioned/u);
+  assert.match(binding.alignment, /never-infer/u);
+  assert.match(binding.authorized, /versioned-script-and-cue-map/u);
+  const observation = presenter.optionalResultObservation.presenterPromptObservation;
+  assert.deepEqual([...observation.disposition].sort(), ["PRESENTED", "UNBOUND", "UNAVAILABLE", "UNKNOWN"].sort());
+  assert.match(observation.PRESENTED, /matching-explicit-map-and-observed-cue/u);
+  assert.equal(presenter.effects.recordingCommit, "FORBIDDEN");
+  assert.equal(presenter.effects.projectEdit, "FORBIDDEN");
+  assert.equal(presenter.effects.backgroundEffect, false);
+
+  const duplex = rows.get("media.speech.synthesis.streaming").sourceSemanticContract.fullDuplexTurn;
+  assert.match(duplex.composition, /user-initiated-turn/u);
+  assert.equal(duplex.newServiceRuntimeOrTransportEndpoint, "FORBIDDEN");
+  assert.equal(duplex.requestFields.userInitiated.const, true);
+  assert.match(duplex.requestFields.liveInputAuthorizationRef, /required/u);
+  assert.ok(duplex.requestFields.responseDisposition.includes("UNKNOWN"));
+  assert.ok(duplex.responseFields.observedInput.includes("exactSourceVersionRef"));
+  assert.ok(duplex.responseFields.observedInput.includes("timeRange"));
+  assert.ok(duplex.responseFields.observedInput.includes("uncertainty"));
+  assert.ok(duplex.rules.includes("no-hidden-or-background-capture; no-capture-after-turn-end"));
+  assert.ok(duplex.rules.includes("partial-or-uncertain-input-is-not-confirmed"));
+  assert.ok(duplex.rules.includes("no-publication-or-project-mutation"));
+
+  const multicamera = rows.get("media.compose.multitrack-timeline").sourceSemanticContract.proposalOnly.activeSpeakerCutProposal;
+  assert.equal(multicamera.status, "PROPOSAL_ONLY");
+  assert.equal(multicamera.noImplicitCommit, true);
+  for (const field of ["exactSpeakerTurnRef", "exactSpeakerTurnVersionRef", "exactCameraSourceArtifactVersionRef", "sourceTimeRange", "uncertainty", "missingEvidence"]) {
+    assert.ok(multicamera.fields.includes(field), `multicamera proposal: ${field}`);
+  }
+  assert.match(multicamera.evidenceRequirement, /every-cut.*exact-speaker-turn-and-camera-source-version/u);
+  assert.match(multicamera.missingEvidence, /unknown-or-unavailable.*never-infer/u);
+  assert.match(multicamera.commit, /separate-explicit-authorized-operation/u);
+
+  const simulation = rows.get("media.simulation.scientific-demo").sourceSemanticContract;
+  assert.equal(simulation.requestFields.modelFamilyRef.type, "exact-capability-family-reference");
+  assert.equal(simulation.requestFields.modelFamilyRef.immutable, true);
+  assert.notEqual(simulation.requestFields.modelFamilyRef.value, "media.simulation",
+    "generic simulation category cannot be used as an exact family identity");
+  assert.deepEqual(simulation.requestFields.familyApplicability.values, ["APPLICABLE", "INAPPLICABLE", "UNKNOWN"]);
+  assert.match(simulation.requestFields.familyApplicability.absentOrUnknown, /reject-before-execution/u);
+  assert.match(simulation.requestFields.familyQualificationRef.requiredWhenPresent, /exact-modelFamilyRef/u);
+  assert.match(simulation.requestFields.familyQualificationRef.mismatch, /cannot-transfer-between-families/u);
+  assert.match(simulation.resultAndProvenance.qualification, /family-scoped-only/u);
+  assert.equal(simulation.declarativeOperationMapping.executionAdmission, "NOT_ADMITTED");
+
+  // Check the machine-readable request/result schemas wherever the capability
+  // contract has them. Semantic metadata alone is not a substitute for the
+  // closed wire schema.
+  const searchWire = rows.get("media.artifact.search");
+  const searchParameters = searchWire.requestSchema.properties.parameters;
+  const searchP0 = capabilities.capabilities.find(({ id }) => id === "media.artifact.search").ownerDefinition.parameterSchema;
+  assert.equal(searchP0.required.includes("searchIntent"), false,
+    "P0 searchIntent remains optional at the parameter envelope");
+  assert.equal(searchParameters.additionalProperties, false);
+  assert.deepEqual(searchParameters.properties.searchIntent.enum,
+    ["SEMANTIC_TRANSCRIPT_CANDIDATES", "DUPLICATE_OR_NEAR_DUPLICATE_CANDIDATES"]);
+  assert.equal(searchParameters.properties.transcriptQuery.type, "string");
+  assert.equal(searchParameters.properties.transcriptQuery.pattern, ".*\\S.*",
+    "transcriptQuery preserves P0 NOT_EMPTY semantics by rejecting whitespace-only values");
+  const transcriptSearchBranch = searchParameters.allOf.find(rule =>
+    rule.if?.properties?.searchIntent?.const === "SEMANTIC_TRANSCRIPT_CANDIDATES");
+  const duplicateSearchBranch = searchParameters.allOf.find(rule =>
+    rule.if?.properties?.searchIntent?.const === "DUPLICATE_OR_NEAR_DUPLICATE_CANDIDATES");
+  assert.deepEqual(searchParameters.allOf.map(rule => rule.if?.properties?.searchIntent?.const).sort(),
+    ["DUPLICATE_OR_NEAR_DUPLICATE_CANDIDATES", "SEMANTIC_TRANSCRIPT_CANDIDATES"],
+    "wire schema has exactly the transcript and duplicate intent branches");
+  assert.ok(transcriptSearchBranch?.then?.required?.includes("transcriptQuery"),
+    "transcriptQuery is required on the exact semantic transcript intent branch");
+  assert.ok(duplicateSearchBranch, "duplicate search has its own exact intent branch");
+  assert.equal(duplicateSearchBranch.then?.required?.includes("transcriptQuery") ?? false, false,
+    "duplicate search does not require a transcript query");
+
+  const simulationWire = rows.get("media.simulation.scientific-demo");
+  const findPropertySchema = (schema, propertyName) => {
+    if (!schema || typeof schema !== "object") return undefined;
+    if (schema.properties?.[propertyName]) return schema.properties[propertyName];
+    for (const value of Object.values(schema)) {
+      if (Array.isArray(value)) {
+        for (const child of value) {
+          const found = findPropertySchema(child, propertyName);
+          if (found) return found;
+        }
+      } else if (value && typeof value === "object") {
+        const found = findPropertySchema(value, propertyName);
+        if (found) return found;
+      }
+    }
+    return undefined;
+  };
+  const transcriptionBinding = rows.get("media.speech.transcription.file");
+  const transcriptionWire = resolveSelector(operations, transcriptionBinding.canonicalSourceContractRefs[0])?.ownerWireSchema;
+  assert.ok(transcriptionWire, "transcription binding resolves to its source-owned request/result wire schemas");
+  const glossaryRequest = findPropertySchema(transcriptionWire.requestSchema, "customGlossaryRef");
+  const fillerRequest = findPropertySchema(transcriptionWire.requestSchema, "fillerRetakeCandidates");
+  assert.equal(glossaryRequest?.type, "string");
+  assert.equal(glossaryRequest?.format, "opaque-versioned-reference");
+  assert.equal(glossaryRequest?.pattern, ".*\\S.*",
+    "customGlossaryRef preserves P0 NOT_EMPTY semantics by rejecting whitespace-only values");
+  assert.equal(fillerRequest?.type, "boolean");
+  const glossaryResult = findPropertySchema(transcriptionWire.resultSchema, "glossaryApplication");
+  const fillerResult = findPropertySchema(transcriptionWire.resultSchema, "fillerRetakeCandidateObservations");
+  assert.ok(glossaryResult && fillerResult, "transcription wire result carries typed glossary and candidate observations");
+  for (const name of ["sourceArtifactVersionRef", "timeRange", "candidateKind", "uncertainty"]) {
+    assert.ok(findPropertySchema(transcriptionWire.resultSchema, name), `transcription result schema carries ${name}`);
+  }
+
+  const presenterWire = rows.get("media.stream.recording.integrate");
+  for (const [schema, field] of [
+    [presenterWire.requestSchema, "presenterCueBinding"],
+    [presenterWire.resultSchema, "presenterPromptObservation"],
+  ]) assert.ok(findPropertySchema(schema, field), `recording integration wire schema has ${field}`);
+  const cueBinding = findPropertySchema(presenterWire.requestSchema, "presenterCueBinding");
+  const cueObservation = findPropertySchema(presenterWire.resultSchema, "presenterPromptObservation");
+  const presenterRequestPayload = presenterWire.requestSchema.properties.input1.properties.payload;
+  assert.equal(presenterRequestPayload.properties.presenterCueBinding, cueBinding,
+    "presenterCueBinding is the exact optional stream-session request payload field");
+  assert.equal(presenterRequestPayload.required.includes("presenterCueBinding"), false,
+    "presenter cue binding remains opt-in");
+  assert.equal(cueBinding.type, "object");
+  assert.equal(cueBinding.additionalProperties, false);
+  assert.deepEqual(cueBinding.required, ["scriptRef", "cueMapRef", "clockDomainRef", "activeCueId"]);
+  for (const field of ["scriptRef", "cueMapRef", "clockDomainRef", "activeCueId"]) {
+    assert.ok(findPropertySchema(cueBinding, field), `presenter cue binding schema has ${field}`);
+  }
+  assert.equal(cueBinding.properties.scriptRef.format, "opaque-versioned-reference");
+  assert.equal(cueBinding.properties.cueMapRef.format, "opaque-versioned-reference");
+  for (const field of ["scriptRef", "cueMapRef", "activeCueId", "disposition", "uncertainty"]) {
+    assert.ok(findPropertySchema(cueObservation, field), `presenter prompt observation schema has ${field}`);
+  }
+  assert.equal(cueObservation.type, "object");
+  assert.equal(cueObservation.additionalProperties, false);
+  assert.deepEqual(cueObservation.required, ["scriptRef", "cueMapRef", "activeCueId", "disposition", "uncertainty"]);
+  assert.deepEqual(cueObservation.properties.disposition.enum, ["PRESENTED", "UNBOUND", "UNAVAILABLE", "UNKNOWN"]);
+  assert.equal(presenterWire.sourceSemanticContract.effects.recordingCommit, "FORBIDDEN");
+  assert.equal(presenterWire.sourceSemanticContract.effects.projectEdit, "FORBIDDEN");
+
+  const duplexWire = rows.get("media.speech.synthesis.streaming");
+  const duplexRequest = findPropertySchema(duplexWire.requestSchema, "fullDuplexTurn");
+  const duplexObservation = findPropertySchema(duplexWire.resultSchema, "fullDuplexTurnObservation");
+  assert.ok(duplexRequest && duplexObservation, "existing speech wire has paired bounded full-duplex turn schemas");
+  assert.equal(duplexRequest.type, "object");
+  assert.equal(duplexRequest.additionalProperties, false);
+  assert.deepEqual(duplexRequest.required, ["turnRef", "userInitiated", "liveInputAuthorizationRef", "transcriptionOperationRef", "synthesisOperationRef"]);
+  assert.equal(duplexRequest.properties.userInitiated.const, true);
+  assert.equal(duplexRequest.properties.liveInputAuthorizationRef.format, "opaque-versioned-reference");
+  assert.equal(duplexRequest.properties.transcriptionOperationRef.const, "media.operation.capability.media-speech-transcription-streaming");
+  assert.equal(duplexRequest.properties.synthesisOperationRef.const, "media.operation.capability.media-speech-synthesis-streaming");
+  assert.equal(duplexObservation.additionalProperties, false);
+  assert.deepEqual(duplexObservation.required, ["observedInput", "generatedResponse", "responseDisposition", "controlDisposition"]);
+  assert.ok(duplexObservation.properties.responseDisposition.enum.includes("UNKNOWN"));
+  assert.ok(duplexObservation.properties.observedInput.required.includes("exactSourceVersionRef"));
+  assert.ok(duplexObservation.properties.observedInput.required.includes("timeRange"));
+  assert.ok(duplexObservation.properties.observedInput.required.includes("uncertainty"));
+  assert.equal(duplexWire.sourceSemanticContract.fullDuplexTurn.newServiceRuntimeOrTransportEndpoint, "FORBIDDEN");
+  assert.ok(duplexWire.sourceSemanticContract.fullDuplexTurn.rules.includes("no-hidden-or-background-capture; no-capture-after-turn-end"));
+  assert.ok(duplexWire.sourceSemanticContract.fullDuplexTurn.rules.includes("no-publication-or-project-mutation"));
+
+  for (const propertyName of ["modelFamilyRef", "familyApplicability", "familyQualificationRef"]) {
+    assert.ok(findPropertySchema(simulationWire.requestSchema, propertyName),
+      `simulation request schema has typed ${propertyName}`);
+    assert.ok(findPropertySchema(simulationWire.resultSchema, propertyName),
+      `simulation result schema preserves ${propertyName}`);
+  }
+});
+
+test("PDP-1 successor wire schemas enforce conditional observations, proposal evidence, and family-scoped simulation", () => {
+  const capabilities = read(CAP_PATH);
+  const operations = read(OPS_PATH);
+  const rows = new Map(operations.capabilityOperationContracts.records.map((row) => [row.capabilityRef, row]));
+  const findPropertySchema = (schema, propertyName) => {
+    if (!schema || typeof schema !== "object") return undefined;
+    if (schema.properties?.[propertyName]) return schema.properties[propertyName];
+    for (const value of Object.values(schema)) {
+      if (Array.isArray(value)) {
+        for (const child of value) {
+          const found = findPropertySchema(child, propertyName);
+          if (found) return found;
+        }
+      } else if (value && typeof value === "object") {
+        const found = findPropertySchema(value, propertyName);
+        if (found) return found;
+      }
+    }
+    return undefined;
+  };
+  const search = rows.get("media.artifact.search");
+  const searchResult = search.resultSchema.properties.semanticObservations;
+  assert.ok(searchResult, "artifact search has a typed semantic-observation result");
+  assert.deepEqual(searchResult.required, ["searchIntent", "disposition"]);
+  assert.deepEqual(searchResult.properties.disposition.enum, ["COMPLETE", "UNAVAILABLE", "UNKNOWN"]);
+  for (const field of ["transcriptSearchCandidates", "duplicateCandidateGroups"]) {
+    const group = searchResult.properties[field];
+    assert.equal(group.type, "array", `${field} is a typed array`);
+    assert.ok(group.items.additionalProperties === false, `${field} entries are closed typed objects`);
+  }
+  assert.deepEqual(searchResult.properties.transcriptSearchCandidates.items.required,
+    ["exactSourceVersionRef", "transcriptTimeRange", "matchUncertainty"]);
+  assert.deepEqual(searchResult.properties.transcriptSearchCandidates.items.properties.transcriptTimeRange.required,
+    ["startMs", "endMs"]);
+  assert.deepEqual(searchResult.properties.duplicateCandidateGroups.items.required,
+    ["candidateGroupId", "exactArtifactVersionRefs", "matchUncertainty"]);
+  assert.equal(searchResult.properties.duplicateCandidateGroups.items.properties.exactArtifactVersionRefs.type, "array");
+  assert.ok(searchResult.allOf.some(rule => rule.then?.oneOf?.length === 2),
+    "COMPLETE observations require exactly the requested intent's candidate branch");
+  assert.ok(searchResult.allOf.some(rule => rule.then?.not?.anyOf?.some(branch =>
+    branch.required?.includes("transcriptSearchCandidates"))
+    && rule.then.not.anyOf.some(branch => branch.required?.includes("duplicateCandidateGroups"))),
+  "UNAVAILABLE and UNKNOWN dispositions prohibit candidate claims");
+  assert.equal(search.resultSchema.allOf.find(rule => rule.if?.properties?.outcome?.const === "UNKNOWN_OUTCOME")
+    ?.then?.not?.required?.includes("semanticObservations"), true,
+  "UNKNOWN_OUTCOME omits semantic observations and therefore makes no candidate claims");
+  const searchRules = search.sourceSemanticContract.validatorContract.requestResultInvariants;
+  for (const pattern of [
+    /result\.semanticObservations\.searchIntent.*request\.parameters\.searchIntent.*exactly/iu,
+    /only-the-candidate-array-selected-by-searchIntent-is-permitted/iu,
+    /COMPLETE.*selected[-\s]candidate[-\s]array.*empty[-\s]array.*complete[-\s]no-match/iu,
+    /UNAVAILABLE.*UNKNOWN.*no[-\s]candidate[-\s]array.*not[-\s]complete-empty/iu,
+    /outer[-\s]UNKNOWN_OUTCOME.*forbids[-\s]output.*semanticObservation[-\s]claims/iu,
+  ]) assert.ok(searchRules.some(rule => pattern.test(rule)), `search request/result invariant: ${pattern}`);
+
+  const transcription = rows.get("media.speech.transcription.file");
+  const transcriptionOwner = resolveSelector(operations, transcription.canonicalSourceContractRefs[0])?.ownerWireSchema;
+  assert.equal(transcription.canonicalSourceContractRefs[0],
+    `${OPS_PATH}#operations/@id=media.operation.transcription-submission`,
+    "transcription request/result schemas resolve through their exact canonical owner operation");
+  assert.ok(transcriptionOwner.requestSchema.oneOf.some(branch => branch.properties?.customGlossaryRef?.format === "opaque-versioned-reference"),
+    "exact versioned glossary reference is on the selected owner request variant");
+  assert.ok(transcriptionOwner.requestSchema.oneOf.some(branch => branch.properties?.fillerRetakeCandidates?.type === "boolean"),
+    "filler/retake request flag is a JSON boolean on the selected request variant");
+  const transcriptionRules = transcription.sourceSemanticContract.validatorContract.requestResultInvariants;
+  for (const pattern of [
+    /customGlossaryRef.*APPLIED.*exactGlossaryRef.*exact-reference/iu,
+    /customGlossaryRef.*absent.*NOT_REQUESTED/iu,
+    /UNAVAILABLE.*UNKNOWN.*forbids.*transcriptResponse.*transcript-content/iu,
+    /transcriptResponse.*requestFingerprint.*sourceArtifactVersionRef.*exact-submitted-request/iu,
+    /fillerRetakeCandidateObservations.*only-if.*fillerRetakeCandidates.*true/iu,
+    /each.*filler-retake.*sourceArtifactVersionRef.*request\.sourceArtifactVersionRef.*timeRange.*within/iu,
+  ]) assert.ok(transcriptionRules.some(rule => pattern.test(rule)), `transcription cross-request invariant: ${pattern}`);
+  const transcriptResponse = findPropertySchema(transcriptionOwner.resultSchema, "transcriptResponse");
+  assert.deepEqual(transcriptResponse.required,
+    ["sourceArtifactVersionRef", "requestFingerprint", "transcriptVersionRef", "glossaryDisposition"]);
+  const glossaryApplication = findPropertySchema(transcriptionOwner.resultSchema, "glossaryApplication");
+  assert.ok(glossaryApplication.properties.exactGlossaryRef);
+  assert.ok(glossaryApplication.properties.disposition.enum.includes("NOT_REQUESTED"));
+  const fillerObservations = findPropertySchema(transcriptionOwner.resultSchema, "fillerRetakeCandidateObservations");
+  assert.ok(fillerObservations.items.required.includes("sourceArtifactVersionRef"));
+  assert.ok(fillerObservations.items.required.includes("timeRange"));
+  assert.ok(fillerObservations.items.required.includes("uncertainty"));
+  assert.ok(transcriptionOwner.resultSchema.allOf.some(rule =>
+    rule.if?.properties?.semanticObservations?.properties?.glossaryApplication?.properties?.disposition?.enum?.includes("UNKNOWN")
+    && rule.then?.properties?.semanticObservations?.not?.required?.includes("transcriptResponse")),
+  "unavailable/unknown glossary disposition forbids transcript content/result claims");
+
+  const compose = rows.get("media.compose.multitrack-timeline");
+  const requestProposal = compose.requestSchema.properties.input2.properties.payload.properties.activeSpeakerCutProposal;
+  assert.ok(requestProposal, "exact composition intent request path carries the optional proposal request");
+  assert.equal(compose.requestSchema.properties.input2.properties.payload.required.includes("activeSpeakerCutProposal"), false,
+    "active-speaker proposal request is explicitly optional");
+  assert.equal(requestProposal.additionalProperties, false);
+  assert.deepEqual(requestProposal.required, ["speakerTurnRef", "speakerTurnVersionRef", "cameraSourceArtifactVersionRef", "sourceTimeRange"]);
+  const proposalWire = findPropertySchema(compose.resultSchema, "proposalObservations");
+  assert.ok(proposalWire, "compose result carries typed proposal observations");
+  assert.equal(compose.sourceSemanticContract.proposalOnly.activeSpeakerCutProposal.status, "PROPOSAL_ONLY");
+  assert.equal(compose.sourceSemanticContract.proposalOnly.activeSpeakerCutProposal.noImplicitCommit, true);
+  assert.equal(compose.sourceSemanticContract.proposalOnly.effects.projectEdit, "FORBIDDEN");
+  assert.equal(compose.sourceSemanticContract.proposalOnly.effects.renderOrPublish, "FORBIDDEN");
+  const proposalCut = proposalWire.items;
+  assert.equal(proposalCut.additionalProperties, false);
+  for (const field of ["exactSpeakerTurnRef", "exactSpeakerTurnVersionRef", "exactCameraSourceArtifactVersionRef", "sourceTimeRange", "uncertainty"]) {
+    assert.ok(proposalCut.properties[field], `proposal observation defines ${field}`);
+  }
+  assert.deepEqual(proposalCut.properties.evidenceDisposition.enum, ["COMPLETE", "UNKNOWN", "UNAVAILABLE"]);
+  const completeEvidence = proposalCut.allOf.find(rule => rule.if?.properties?.evidenceDisposition?.const === "COMPLETE");
+  assert.ok(completeEvidence, "COMPLETE evidence has its own conditional branch");
+  for (const field of ["exactSpeakerTurnRef", "exactSpeakerTurnVersionRef", "exactCameraSourceArtifactVersionRef", "sourceTimeRange", "uncertainty"]) {
+    assert.ok(completeEvidence.then.required.includes(field), `COMPLETE requires exact ${field}`);
+  }
+  assert.equal(completeEvidence.then.properties.missingEvidence.maxItems, 0,
+    "COMPLETE carries no missing-evidence claim");
+  const incompleteEvidence = proposalCut.allOf.find(rule => rule.if?.properties?.evidenceDisposition?.enum?.includes("UNKNOWN"));
+  assert.ok(incompleteEvidence, "UNKNOWN/UNAVAILABLE evidence has its own conditional branch");
+  assert.ok(incompleteEvidence.if.properties.evidenceDisposition.enum.includes("UNAVAILABLE"));
+  assert.ok(incompleteEvidence.then.properties.missingEvidence.minItems >= 1,
+    "UNKNOWN/UNAVAILABLE carries explicit missing evidence");
+  for (const field of ["exactSpeakerTurnRef", "exactSpeakerTurnVersionRef", "exactCameraSourceArtifactVersionRef", "sourceTimeRange"]) {
+    assert.equal(proposalCut.required.includes(field), false,
+      `incomplete evidence may omit ${field} instead of fabricating a reference`);
+    assert.equal(incompleteEvidence.then.required.includes(field), false,
+      `incomplete evidence does not require ${field}`);
+  }
+  const composeRequestResultRules = compose.sourceSemanticContract.validatorContract.requestResultInvariants;
+  assert.ok(composeRequestResultRules.some(rule => /request-and-result-proposal-observations-are-bound-to-the-exact-requested-speaker-turn-camera-source-and-time-scope/iu.test(rule)),
+    "any returned proposal refs are bound to the exact requested turn, camera, and time scope");
+  assert.ok(composeRequestResultRules.some(rule => /when-request\.input2\.payload\.activeSpeakerCutProposal-is-present-and-outcome-is-SUCCEEDED-result\.proposalObservations-has-at-least-one-entry/iu.test(rule)));
+  assert.ok(composeRequestResultRules.some(rule => /UNKNOWN_OUTCOME.*forbids-proposalObservations-and-all-proposal-claims/iu.test(rule)),
+    "outer unknown outcome makes no proposal claims");
+  assert.ok(composeRequestResultRules.some(rule => /request-sourceTimeRange.*startMs.*less-than.*endMs/iu.test(rule)),
+    "requested time range requires strict start-before-end ordering");
+  assert.ok(composeRequestResultRules.some(rule => /request-sourceTimeRange.*endMs.*duration.*exact-referenced-camera-source-version/iu.test(rule)),
+    "requested time range is bounded by the exact referenced camera version duration");
+  const perCutRules = compose.sourceSemanticContract.validatorContract.perCutEvidenceInvariants;
+  assert.ok(perCutRules.some(rule => /startMs.*less-than.*endMs/iu.test(rule)),
+    "proposal time ranges require strictly ordered start and end anchors");
+  assert.ok(perCutRules.some(rule => /endMs.*within.*duration.*exact-camera-source-version/iu.test(rule)),
+    "proposal time ranges stay within the exact selected source version");
+  assert.ok(compose.resultSchema.allOf.some(rule => rule.if?.properties?.outcome?.const === "UNKNOWN_OUTCOME"
+    && rule.then?.not?.required?.includes("proposalObservations")),
+  "outer UNKNOWN_OUTCOME schema forbids proposal observations");
+  assert.equal(compose.sourceSemanticContract.proposalOnly.activeSpeakerCutProposal.noImplicitCommit, true,
+    "proposal result cannot implicitly commit");
+  assert.equal(compose.sourceSemanticContract.proposalOnly.effects.projectEdit, "FORBIDDEN",
+    "proposal result cannot edit the project");
+  assert.ok(compose.sourceSemanticContract.validatorContract.perCutEvidenceInvariants
+    .includes("proposalObservations-never-authorize-project-commit-render-or-publish"),
+  "proposal observations do not authorize commit, render, or publish");
+
+  const simulationLeafIds = capabilities.capabilities.map(item => item.id)
+    .filter(id => id.startsWith("media.simulation.")
+      && id !== "media.simulation.output"
+      && !id.startsWith("media.simulation.output."));
+  assert.equal(simulationLeafIds.length, 22, "P0 declares exactly 22 applicable simulation family leaves");
+  assert.equal(new Set(simulationLeafIds).size, 22);
+  for (const familyId of simulationLeafIds) {
+    const operation = rows.get(familyId);
+    assert.ok(operation, `${familyId}: P1 operation exists`);
+    assert.equal(operation.sourceSemanticContract.requestFields.modelFamilyRef.value, familyId);
+    assert.ok(operation.sourceSemanticContract.sourceRequirementRefs.some(ref => ref.endsWith("MEDIA-REQ-CAP-SIMULATION-AC-01")));
+    assert.ok(operation.sourceSemanticContract.sourceRequirementRefs.some(ref => ref.endsWith("MEDIA-REQ-CAP-SIMULATION-AC-03")));
+    const requestFamily = findPropertySchema(operation.requestSchema, "modelFamilyRef");
+    assert.equal(requestFamily.const, familyId, `${familyId}: request identity is the exact existing P0 leaf`);
+    const requestPayload = operation.requestSchema.properties.input1.properties.payload;
+    assert.equal(requestPayload.properties.modelFamilyRef.const, familyId,
+      `${familyId}: family scope has the exact nested request input path`);
+    for (const field of ["modelRef", "initialStateRef", "modelFamilyVersionRef", "familyApplicability", "declaredAssumptionsRef"]) {
+      assert.ok(findPropertySchema(operation.requestSchema, field), `${familyId}: request schema includes exact ${field}`);
+      assert.ok(findPropertySchema(operation.resultSchema, field), `${familyId}: result schema reproduces exact ${field}`);
+    }
+    const familyScope = operation.resultSchema.properties.familyScope;
+    assert.equal(familyScope.additionalProperties, false);
+    for (const field of ["modelFamilyRef", "modelFamilyVersionRef", "familyApplicability", "familyQualificationRef"]) {
+      assert.ok(familyScope.properties[field], `${familyId}: result family scope has ${field}`);
+    }
+    assert.ok(operation.resultSchema.properties.provenance.properties.familyScope,
+      `${familyId}: provenance repeats the exact family qualification scope`);
+    const simulationInputs = operation.resultSchema.properties.provenance.properties.simulationInputs;
+    assert.deepEqual(simulationInputs.required, ["modelRef", "initialStateRef", "declaredAssumptionsRef"]);
+    const invariants = operation.sourceSemanticContract.validatorContract.requestResultProvenanceInvariants;
+    assert.ok(invariants.some(rule => /provenance\.simulationInputs\.modelRef-initialStateRef-and-declaredAssumptionsRef-equal-the-exact-versioned-request-values/u.test(rule)),
+      `${familyId}: exact model, initial-state, and assumptions refs bind to each request`);
+    assert.ok(invariants.some(rule => /UNKNOWN-or-INAPPLICABLE-requires-REJECTED-with-zero-outputs/u.test(rule)),
+      `${familyId}: unknown/inapplicable family cannot succeed`);
+    assert.ok(invariants.some(rule => /result\.familyScope-and-provenance\.familyScope-equal-request\.modelFamilyRef-modelFamilyVersionRef-familyApplicability-and-familyQualificationRef/u.test(rule)),
+      `${familyId}: family/version/qualification scope is identical in request, result, and provenance`);
+    const rejectedUnknown = operation.resultSchema.allOf.some(rule =>
+      rule.if?.properties?.familyScope?.properties?.familyApplicability?.enum?.includes("UNKNOWN")
+      && rule.then?.properties?.outcome?.const === "REJECTED"
+      && rule.then?.properties?.outputs?.maxItems === 0);
+    const rejectedInapplicable = operation.resultSchema.allOf.some(rule =>
+      rule.if?.properties?.familyScope?.properties?.familyApplicability?.enum?.includes("INAPPLICABLE")
+      && rule.then?.properties?.outcome?.const === "REJECTED"
+      && rule.then?.properties?.outputs?.maxItems === 0);
+    assert.ok(rejectedUnknown && rejectedInapplicable, `${familyId}: schema blocks success and outputs for UNKNOWN/INAPPLICABLE`);
+  }
 });
 
 test("PXD-144 delete, keyframe, attestation, dub, and clone outputs preserve exact source identities", () => {

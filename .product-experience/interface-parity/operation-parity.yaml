@@ -94,7 +94,7 @@ surfaces:
         media.operation.caption-version-read: [media.action.compare-caption-versions]
     ambiguous: []
     canonicalRefs: .product-experience/pdp-1-domain-data/operations.yaml#/operations/*/actionRefs
-    bindingStatus: the current 147 identities have exact Media-owned operation-intent, local/session-only, or Shared identity-handoff dispositions in currentUiActionIdentityResolution; the 132 unresolved value remains the older cross-interface binding count, not a claim that current action definitions lack operation or non-operation semantics. Historical fourteen candidates, six PXD-029 intent associations, and PXD-077's separate intent disposition remain unchanged; zero cross-interface bindings are accepted and runtime reachability is not implied.
+    bindingStatus: all 148 current action identities, including the one separately owner-defined reconnect intent, have exact Media-owned operation-intent, local/session-only, or Shared identity-handoff dispositions in currentUiActionIdentityResolution. The 133 unresolved value is the current cross-interface binding count; the historical 132 count remains only in the immutable historical snapshot. Historical fourteen candidates, six PXD-029 intent associations, and PXD-077's separate intent disposition remain unchanged; zero cross-interface bindings are accepted and runtime reachability is not implied.
   - surface: HTTP
     denominator: 27
     source: contracts/openapi/media.yaml
@@ -1039,7 +1039,7 @@ typedUiActionDispositions:
   source:
   - .product-experience/pdp-3-product-experience/action-registry.yaml#/actions
   - .product-experience/pdp-3-product-experience/action-registry.yaml#/ownerDefinedActions
-  denominator: 147
+  denominator: 148
   historicalSnapshot:
     denominator: 146
     source: .product-experience/pdp-3-product-experience/action-registry.yaml#/actions
@@ -1466,6 +1466,8 @@ typedUiActionDispositions:
   - identity: media.action.confirm-selected-fallback
     type: DOMAIN_COMMAND
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.confirm-selected-fallback]
+    ownerDefinedExactOperationRef: media.operation.fallback-selection.confirm.v1
+    operationAssociationStatus: owner-defined exact definition reference only; cross-interface binding remains unaccepted
     evidenceFields:
     - label
     - preconditions

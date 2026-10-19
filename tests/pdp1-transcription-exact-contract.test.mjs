@@ -23,9 +23,58 @@ test("transcription submit preserves every required P0 parameter in typed wire f
     assert.ok(operation.inputSemantics.submitRequiredFields.includes(field), `${field} must be required by operation semantics`);
     assert.ok(operation.inputSemantics.requestFingerprint.fields.includes(field), `${field} must be fingerprint-bound`);
   }
-  assert.equal(operation.inputSemantics.requestFingerprint.version, "media.transcription-submission-fingerprint.v2");
+  assert.equal(operation.inputSemantics.requestFingerprint.version, "media.transcription-submission-fingerprint.v3");
   assert.match(operation.inputSemantics.requestFingerprint.scalarEncoding, /speakerDiarization-is-a-JSON-boolean-without-coercion/u);
   assert.match(operation.inputSemantics.requestFingerprint.scalarEncoding, /timestamps-is-one-of-none-segment-word-phoneme/u);
+});
+
+test("optional glossary and filler-retake parameters preserve their exact mappings and conditional behavior", () => {
+  const typed = binding.typedInputMappings;
+  const sourceContract = binding.sourceSemanticContract;
+  const mappings = new Map(typed.entries
+    .filter(({ source }) => source.kind === "P0_PARAMETER")
+    .map((entry) => [entry.source.parameterName, entry]));
+
+  const glossary = mappings.get("customGlossaryRef");
+  assert.ok(glossary, "the optional P0 glossary parameter must have a direct typed-input mapping");
+  assert.equal(glossary.mappingMode, "DIRECT");
+  assert.equal(glossary.mappingDisposition, "EXACT_OPTIONAL_VERSIONED_GLOSSARY_REFERENCE");
+  assert.equal(glossary.targets.length, 1);
+  assert.equal(glossary.targets[0].requestPointer, "/customGlossaryRef");
+  assert.equal(glossary.targets[0].required, false);
+  assert.ok(!submit.required.includes("customGlossaryRef"));
+  assert.deepEqual(submit.properties.customGlossaryRef, {
+    type: "string", format: "opaque-versioned-reference", pattern: ".*\\S.*", minLength: 1, maxLength: 384,
+  });
+  assert.equal(sourceContract.requestFields.customGlossaryRef.optional, true);
+  assert.equal(sourceContract.requestFields.customGlossaryRef.type, "opaque-versioned-reference");
+  assert.equal(sourceContract.requestFields.customGlossaryRef.unavailable,
+    "reject-or-report-UNAVAILABLE; never-silently-ignore");
+  assert.ok(sourceContract.validatorContract.requestResultInvariants.includes(
+    "if-request.customGlossaryRef-is-present-then-APPLIED-requires-glossaryApplication.exactGlossaryRef-equals-that-exact-reference"));
+  assert.ok(sourceContract.validatorContract.requestResultInvariants.includes(
+    "if-customGlossaryRef-is-absent-then-disposition-is-NOT_REQUESTED"));
+
+  const filler = mappings.get("fillerRetakeCandidates");
+  assert.ok(filler, "the optional P0 filler-retake parameter must have a direct typed-input mapping");
+  assert.equal(filler.mappingMode, "DIRECT");
+  assert.equal(filler.mappingDisposition, "EXACT_OPTIONAL_BOOLEAN");
+  assert.equal(filler.targets.length, 1);
+  assert.equal(filler.targets[0].requestPointer, "/fillerRetakeCandidates");
+  assert.equal(filler.targets[0].required, false);
+  assert.ok(!submit.required.includes("fillerRetakeCandidates"));
+  assert.deepEqual(submit.properties.fillerRetakeCandidates, { type: "boolean" });
+  assert.equal(sourceContract.requestFields.fillerRetakeCandidates.optional, true);
+  assert.equal(sourceContract.requestFields.fillerRetakeCandidates.type, "boolean");
+  assert.equal(sourceContract.requestFields.fillerRetakeCandidates.default, false);
+  assert.equal(sourceContract.requestFields.fillerRetakeCandidates.true,
+    "request-uncertain-filler-and-retake-candidate-observations");
+  assert.ok(sourceContract.validatorContract.requestResultInvariants.includes(
+    "fillerRetakeCandidateObservations-is-present-only-if-request.fillerRetakeCandidates-is-true"));
+  assert.ok(sourceContract.validatorContract.requestResultInvariants.includes(
+    "otherwise-no-filler-retake-classification-claim"));
+  assert.deepEqual(sourceContract.fingerprint.include, ["customGlossaryRef", "fillerRetakeCandidates"]);
+  assert.equal(sourceContract.fingerprint.preserveOptionalPresence, true);
 });
 
 test("transcription policy inputs preserve exact purpose and ordered rights references", () => {
@@ -133,6 +182,7 @@ test("typed input mapping covers all slots and parameters through resolvable req
   assert.equal(typed.coverage.generatedProtocol, 3);
   assert.deepEqual(typed.entries.map(({ source }) => source.kind === "P0_SLOT" ? source.slotId : source.parameterName), [
     "input1", "input2", "input3", "timestamps", "speakerDiarization", "languageHint",
+    "customGlossaryRef", "fillerRetakeCandidates",
   ]);
   assert.ok(typed.entries.every(({ targets }) => targets.every(({ requestPointer }) => !requestPointer.includes("/oneOf/"))));
   assert.ok(typed.entries.find(({ source }) => source.parameterName === "languageHint").targets.some(({ required }) => required === false));

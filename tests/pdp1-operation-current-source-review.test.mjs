@@ -11,6 +11,7 @@ const sourcePath = ".product-experience/pdp-1-domain-data/operations.yaml";
 const sourceBytes = readFileSync(resolve(root, sourcePath));
 const source = parse(sourceBytes.toString("utf8"));
 const p0Capabilities = parse(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/capabilities.yaml"), "utf8"));
+const p0Requirements = parse(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/requirements.yaml"), "utf8"));
 const wirePath = ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml";
 const wireBytes = readFileSync(resolve(root, wirePath));
 const wire = parse(wireBytes.toString("utf8"));
@@ -21,6 +22,50 @@ const ownerOperations = new Map(source.ownerDefinedOperationContracts.records.ma
 const sha256 = createHash("sha256").update(sourceBytes).digest("hex");
 const wireSha256 = createHash("sha256").update(wireBytes).digest("hex");
 const readSourceYaml = (path) => parse(readFileSync(resolve(root, path), "utf8"));
+
+test("P1 parent cancellation contract preserves the PXD-177 child ordering and uncertainty boundary", () => {
+  const jobRequirement = p0Requirements.requirements.find((row) => row.id === "MEDIA-REQ-CAP-JOB");
+  const sourceCase = jobRequirement.acceptanceCases.find((row) => row.id === "MEDIA-REQ-CAP-JOB-AC-03");
+  const cancelOperation = operations.get("media.operation-slice.cancel-job");
+  const rule = cancelOperation.ownerDefinition.childCancellationRule;
+
+  assert.match(decisionLog, /### PXD-177 — Define parent-child cancellation meaning in PDP-0/u);
+  assert.match(sourceCase.then, /stop admitting or dispatching new child work/u);
+  assert.match(sourceCase.then, /keep the parent pending or UNKNOWN/u);
+  assert.match(sourceCase.rejection, /continued child admission or dispatch after parent cancellation/u);
+  assert.equal(rule.id, "media.job.child-cancellation-order.v1");
+  assert.equal(source.ownerNormativeRuleRecords.find(({ id }) => id === rule.id)?.ruleRef,
+    `${sourcePath}#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition/childCancellationRule`);
+  assert.match(rule.admissionClosure, /Persist the parent cancellation request and stop admitting or dispatching new child work before/u);
+  assert.match(rule.childSnapshot, /exact parent job version/u);
+  assert.match(rule.childSnapshot, /child job identities\/versions/u);
+  assert.match(rule.activeChildRule, /current attempt\/fence and current authority/u);
+  assert.match(rule.activeChildRule, /request or detach is not proof of cancellation/u);
+  assert.match(rule.parentFinality, /pending or unknown while any child\s+effect may be active or unresolved/u);
+  assert.match(rule.unknownRule, /reconcile\s+the same child job and attempt identities before any retry/u);
+  assert.match(rule.scopeStatus, /DEFINITION_ONLY/u);
+  assert.match(rule.scopeStatus, /NOT_EVALUATED/u);
+
+  const preservesBoundary = (value) => value?.id === rule.id
+    && /stop admitting or dispatching new child work before/u.test(value.admissionClosure)
+    && /exact parent job version/u.test(value.childSnapshot)
+    && /current attempt\/fence and current authority/u.test(value.activeChildRule)
+    && /request or detach is not proof of cancellation/u.test(value.activeChildRule)
+    && /pending or unknown while any child\s+effect may be active or unresolved/u.test(value.parentFinality)
+    && /same child job and attempt identities before any retry/u.test(value.unknownRule);
+  for (const weaken of [
+    (value) => { value.admissionClosure = "Cancel active children after accepting later child work."; },
+    (value) => { value.childSnapshot = "Cancel whatever children appear in a later graph read."; },
+    (value) => { value.activeChildRule = "A cancellation request proves the child stopped."; },
+    (value) => { value.parentFinality = "Any child acknowledgement makes the parent terminal."; },
+    (value) => { value.unknownRule = "Retry missing child outcomes automatically."; },
+  ]) {
+    const changed = structuredClone(rule);
+    weaken(changed);
+    assert.equal(preservesBoundary(changed), false, "weakened child cancellation must fail the P1 contract check");
+  }
+  assert.equal(preservesBoundary(rule), true);
+});
 
 test("P1 operation current-source review pins this source and preserves historical cuts", () => {
   assert.equal(review.schemaVersion, "media.pdp1-operation-current-source-review.v1");
