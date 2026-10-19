@@ -56,6 +56,9 @@ test('AUD-SIM3-009 binds all five specialized models separately', () => {
   for (const model of ['cloth','soft-body','rope','particle','fluid']) {
     assert.ok(row?.pdp0EvidenceRefs?.includes(`.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.${model}`), `missing exact simulation model ${model}`);
   }
+  for (const suffix of ['01', '02']) {
+    assert.ok(row?.pdp0EvidenceRefs?.includes(`.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION/acceptanceCases/@id=MEDIA-REQ-CAP-SIMULATION-AC-${suffix}`), `missing family/fallback acceptance case ${suffix}`);
+  }
 });
 
 test('current crosswalk source pins and qualified scientific claim handoff validate without refreshing the ledger in memory', () => {
@@ -70,7 +73,66 @@ test('AUD-SIM3-010 fails if exact stochastic acceptance evidence is removed', ()
   const row = ledger.rows.find(item => item.auditId === 'AUD-SIM3-010');
   row.pdp0EvidenceRefs = row.pdp0EvidenceRefs.filter(ref => !ref.includes('MEDIA-DECL-P0-AC-034'));
   row.independentQcDispositionResolution.currentSourceEvidenceRefs = [...row.pdp0EvidenceRefs];
-  assert.ok(errorsFor(ledger).some(error => /AUD-SIM3-010 must cite exact current AC-03 and AC-034/.test(error)));
+  assert.ok(errorsFor(ledger).some(error => /AUD-SIM3-010 must cite exact current AC-03, AC-023, AC-024, AC-034/.test(error)));
+});
+
+test('AUD-CLONE-012 imported acceptance mismatch cannot broaden QUALITY-AC-06 evidence', () => {
+  const ledger = workingCopy();
+  const row = ledger.rows.find(item => item.auditId === 'AUD-CLONE-012');
+  row.pdp0EvidenceRefs.push('.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-03');
+  assert.ok(errorsFor(ledger, false).some(error => /AUD-CLONE-012 must remain scoped only to QUALITY-AC-06/.test(error)));
+
+  const provenance = workingCopy();
+  provenance.coordinatorReview.note = 'Imported text is product evidence.';
+  assert.ok(errorsFor(provenance, false).some(error => /AUD-CLONE-012 must remain scoped only to QUALITY-AC-06/.test(error)));
+
+  const mapping = workingCopy();
+  mapping.resolvedCandidateMappings['AUD-CLONE-012'].push('.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-03');
+  assert.ok(errorsFor(mapping, false).some(error => /AUD-CLONE-012 must remain scoped only to QUALITY-AC-06/.test(error)));
+});
+
+test('AUD-ANIM3-010 requires AC-061 gesture/trigger semantics and rejects AC-010 substitution', () => {
+  const ledger = workingCopy();
+  const row = ledger.rows.find(item => item.auditId === 'AUD-ANIM3-010');
+  row.pdp0EvidenceRefs = row.pdp0EvidenceRefs.filter(ref => !ref.includes('MEDIA-DECL-P0-AC-061'));
+  assert.ok(errorsFor(ledger, false).some(error => /AUD-ANIM3-010 must bind the exact gesture\/trigger map/.test(error)));
+
+  const constraintOnly = workingCopy();
+  const constraintRow = constraintOnly.rows.find(item => item.auditId === 'AUD-ANIM3-010');
+  constraintRow.pdp0EvidenceRefs = ['.product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-010'];
+  assert.ok(errorsFor(constraintOnly, false).some(error => /AUD-ANIM3-010 must bind the exact gesture\/trigger map/.test(error)));
+});
+
+test('AUD-SIM3-018 requires JOB-AC-03 partial-result and authoritative finality semantics', () => {
+  const ledger = workingCopy();
+  const row = ledger.rows.find(item => item.auditId === 'AUD-SIM3-018');
+  row.pdp0EvidenceRefs = row.pdp0EvidenceRefs.filter(ref => !ref.includes('MEDIA-REQ-CAP-JOB-AC-03'));
+  assert.ok(errorsFor(ledger, false).some(error => /AUD-SIM3-018 must bind partial-result and authoritative finality semantics/.test(error)));
+
+  const oldMeaning = workingCopy();
+  const oldMeaningRow = oldMeaning.rows.find(item => item.auditId === 'AUD-SIM3-018');
+  oldMeaningRow.pdp0EvidenceRefs.push('.product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-039');
+  assert.ok(errorsFor(oldMeaning, false).some(error => /AUD-SIM3-018 must bind partial-result and authoritative finality semantics/.test(error)));
+});
+
+test('AUD-EDU3-012 requires the fail-closed compatibility boundary in AC-040', () => {
+  const ledger = workingCopy();
+  const row = ledger.rows.find(item => item.auditId === 'AUD-EDU3-012');
+  row.pdp0EvidenceRefs = row.pdp0EvidenceRefs.filter(ref => !ref.includes('MEDIA-DECL-P0-AC-040'));
+  assert.ok(errorsFor(ledger, false).some(error => /AUD-EDU3-012 must bind AC-040 fail-closed compatibility boundaries/.test(error)));
+});
+
+test('the four reconciled audit rows cite their exact PXD-174 source review', () => {
+  const ledger = workingCopy();
+  const row = ledger.rows.find(item => item.auditId === 'AUD-ANIM3-010');
+  row.decisionRef.path = '.product-experience/decision-log.md#PXD-172';
+  assert.ok(errorsFor(ledger, false).some(error => /AUD-ANIM3-010 must cite the exact PXD-174 row-level source review reference/.test(error)));
+});
+
+test('later-phase handoff count projection must be derived from the 501 current row assignments', () => {
+  const ledger = workingCopy();
+  ledger.laterPhaseHandoffs.countsByPhase.UNSPECIFIED += 1;
+  assert.ok(errorsFor(ledger).some(error => /laterPhaseHandoffs.countsByPhase must equal/.test(error)));
 });
 
 test('missing and duplicate IDs fail the complete source denominator', () => {

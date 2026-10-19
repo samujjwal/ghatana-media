@@ -9,20 +9,22 @@
       "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.multimodal.describe/outcome",
       "historicalPxd130CurrentSourceFileSha256": "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf",
       "historicalPxd130CurrentTargetValueSha256": "d159f0be2106ca2ac8b901ce47b6da94f1b41caf0c3887bd3fb845d0bf4430a8",
-      "currentSourceFileSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+      "currentSourceFileSha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
       "currentTargetValueSha256": "d159f0be2106ca2ac8b901ce47b6da94f1b41caf0c3887bd3fb845d0bf4430a8",
       "semanticEquivalence": "NOT_ASSERTED",
-      "acceptanceEffect": "none"
+      "acceptanceEffect": "none",
+      "supersededCurrentSourceFileSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
     },
     {
       "claimId": "MPSEM-0315-C002",
       "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.speech.transcription.alternatives.provide/outcome",
       "historicalPxd130CurrentSourceFileSha256": "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf",
       "historicalPxd130CurrentTargetValueSha256": "d373646664417b90ef2588de847c6f43973e6c3ddbdc3eb21605bf9b1373cc27",
-      "currentSourceFileSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+      "currentSourceFileSha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
       "currentTargetValueSha256": "d373646664417b90ef2588de847c6f43973e6c3ddbdc3eb21605bf9b1373cc27",
       "semanticEquivalence": "NOT_ASSERTED",
-      "acceptanceEffect": "none"
+      "acceptanceEffect": "none",
+      "supersededCurrentSourceFileSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
     }
   ]
 }

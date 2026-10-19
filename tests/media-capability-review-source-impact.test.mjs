@@ -21,7 +21,7 @@ const currentP006Record = directCriteriaReview.records.find(({ taskId }) => task
 const currentP006Cut = currentP006Record?.currentCorrectiveReview;
 const historicalP142Cut = currentP006Record?.historicalCorrectiveReviews?.find(({ decisionRef }) => decisionRef === ".product-experience/decision-log.md#PXD-142");
 const historicalP141Cut = directCriteriaReview.records.find(({ taskId }) => taskId === "P0-06")?.historicalCorrectiveReviews?.find(({ decisionRef }) => decisionRef === ".product-experience/decision-log.md#PXD-141");
-assert.equal(currentP006Cut?.decisionRef, ".product-experience/decision-log.md#PXD-153");
+assert.equal(currentP006Cut?.decisionRef, ".product-experience/decision-log.md#PXD-170");
 assert.equal(currentP006Cut?.status, "APPROVED_CURRENT_SOURCE_REVIEW");
 assert.equal(historicalP142Cut?.decisionRef, ".product-experience/decision-log.md#PXD-142");
 assert.equal(historicalP141Cut?.decisionRef, ".product-experience/decision-log.md#PXD-141");

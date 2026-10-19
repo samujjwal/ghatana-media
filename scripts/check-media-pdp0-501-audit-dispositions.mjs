@@ -233,18 +233,26 @@ export function validatePdp0AuditDispositions({repositoryRoot = root, crosswalk 
       else {
         const resolution = row.independentQcDispositionResolution;
         const recommendation = found.value?.qcRecommendation;
-        const expectedResolution = recommendation === 'REFINE_EXISTING_P0'
+        const pxd172SourceMeaningRepairs = new Set(['AUD-CAP-020', 'AUD-TTS-017', 'AUD-TTS-018']);
+        const expectedResolution = pxd172SourceMeaningRepairs.has(id)
+          ? 'RESOLVED_IN_CURRENT_PDP0_SOURCE'
+          : recommendation === 'REFINE_EXISTING_P0'
           ? 'RESOLVED_IN_CURRENT_PDP0_SOURCE'
           : recommendation === 'BOUND_EXISTING'
             ? 'NO_ADDITIONAL_PDP0_MEANING'
             : id === 'AUD-SIM3-010'
-              ? 'CURRENT_SOURCE_MEANING_COVERED_QUALIFIED_CLAIM_VALIDATION_DOWNSTREAM'
+              ? 'CURRENT_SOURCE_MEANING_BOUNDED_BY_EXPLICIT_OWNER_ADMISSION_GATE'
               : 'CONDITIONAL_PDP0_MEANING_DOWNSTREAM_AUTHORITY_REQUIRED';
+        const expectedReviewRef = pxd172SourceMeaningRepairs.has(id)
+          ? '.product-experience/decision-log.md#PXD-172'
+          : id === 'AUD-SIM3-010'
+            ? '.product-experience/decision-log.md#PXD-169'
+            : '.product-experience/decision-log.md#PXD-167';
         if (!resolution || resolution.resolution !== expectedResolution
-            || resolution.currentSourceReviewRef !== '.product-experience/decision-log.md#PXD-167'
+            || resolution.currentSourceReviewRef !== expectedReviewRef
             || resolution.ownerApproval !== 'NOT_CLAIMED'
             || JSON.stringify([...(resolution.currentSourceEvidenceRefs ?? [])].sort()) !== JSON.stringify([...evidenceRefs].sort())) {
-          addError(errors, `${id}: independent QC disposition needs an exact current-source reconciliation, evidence set, PXD-167 review ref, and unclaimed owner approval`);
+          addError(errors, `${id}: independent QC disposition needs an exact current-source reconciliation, evidence set, its current decision ref, and unclaimed owner approval`);
         }
         if (recommendation === 'EXTERNAL_OWNER_BLOCKER'
             && (!(row.laterPhaseHandoffs ?? []).length || !(row.downstreamApprovalHandoffs ?? []).length)) {
@@ -275,22 +283,121 @@ export function validatePdp0AuditDispositions({repositoryRoot = root, crosswalk 
     '.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.particle',
     '.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.fluid',
   ];
-  if (!softBody || specializedSimulationRefs.some(ref => !(softBody.pdp0EvidenceRefs ?? []).includes(ref))) addError(errors, 'AUD-SIM3-009 must cite all five exact specialized PDP-0 simulation capability identities');
+  const specializedSimulationRequirementRefs = [
+    '.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION/acceptanceCases/@id=MEDIA-REQ-CAP-SIMULATION-AC-01',
+    '.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION/acceptanceCases/@id=MEDIA-REQ-CAP-SIMULATION-AC-02',
+  ];
+  if (!softBody || [...specializedSimulationRefs, ...specializedSimulationRequirementRefs].some(ref => !(softBody.pdp0EvidenceRefs ?? []).includes(ref))) addError(errors, 'AUD-SIM3-009 must cite all five exact specialized PDP-0 capability identities and family/fallback acceptance cases');
   const agentScope = rows?.find(row => row.auditId === 'AUD-SIM3-010');
   const agentQcRef = 'docs/implementation/observations/pdp0-semantic-audit-slices/meaning-gap-qc.json#records/@sourceAuditId=AUD-SIM3-010';
   const agentEvidenceRefs = [
     '.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION/acceptanceCases/@id=MEDIA-REQ-CAP-SIMULATION-AC-03',
+    '.product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-023',
+    '.product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-024',
     '.product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-034',
+    '.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.agent',
   ];
   if (!agentScope || agentScope.disposition !== 'BOUND_EXISTING'
       || agentScope.independentQcRef !== agentQcRef
       || agentEvidenceRefs.some(ref => !(agentScope.pdp0EvidenceRefs ?? []).includes(ref))
-      || agentScope.independentQcDispositionResolution?.resolution !== 'CURRENT_SOURCE_MEANING_COVERED_QUALIFIED_CLAIM_VALIDATION_DOWNSTREAM'
-      || agentScope.decisionRef?.id !== 'PXD-167'
+      || agentScope.independentQcDispositionResolution?.resolution !== 'CURRENT_SOURCE_MEANING_BOUNDED_BY_EXPLICIT_OWNER_ADMISSION_GATE'
+      || agentScope.decisionRef?.id !== 'PXD-169'
       || !/UNQUALIFIED/i.test(agentScope.conditionalProductScope ?? '')
+      || !/qualified domain-owner admission/i.test(agentScope.conditionalProductScope ?? '')
+      || !/applicability blocks execution/i.test(agentScope.conditionalProductScope ?? '')
       || !(agentScope.laterPhaseHandoffs ?? []).some(handoff => handoff.phase === 'PDP-1' && /PRNG/.test(handoff.scope ?? ''))
       || !(agentScope.downstreamApprovalHandoffs ?? []).some(handoff => /qualified scientific validation/i.test(handoff.requiredAction ?? ''))) {
-    addError(errors, 'AUD-SIM3-010 must cite exact current AC-03 and AC-034 meaning, keep unqualified scope explicit, and hand off typed PRNG and qualified-claim validation downstream');
+    addError(errors, 'AUD-SIM3-010 must cite exact current AC-03, AC-023, AC-024, AC-034 and agent capability meaning, bound family scope behind qualified domain-owner admission, preserve UNQUALIFIED/NON_REPLAYABLE meaning, and hand off typed PRNG and qualified-claim validation downstream');
+  }
+  const exactRequirementRef = (requirementId, caseId) => `.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=${requirementId}/acceptanceCases/@id=${caseId}`;
+  const exactClauseRef = clauseId => `.product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=${clauseId}`;
+  const hasEvidence = (row, ref) => (row?.pdp0EvidenceRefs ?? []).includes(ref);
+  const sourceMeaning = ref => {
+    const result = resolveRef(ref);
+    return result.ok && isRecord(result.value) ? result.value : null;
+  };
+
+  // Imported acceptance text is retained for provenance and exact source round-trip only.
+  // It cannot broaden the audited watermark meaning or substitute for its current P0 case.
+  const cloneWatermark = rows?.find(row => row.auditId === 'AUD-CLONE-012');
+  const qualityAc06 = exactRequirementRef('MEDIA-REQ-CAP-QUALITY', 'MEDIA-REQ-CAP-QUALITY-AC-06');
+  const cloneCandidateMappings = ledger.resolvedCandidateMappings?.['AUD-CLONE-012'] ?? [];
+  const cloneMappingResolvesToAc06 = cloneCandidateMappings.length === 1
+    && resolveRef(cloneCandidateMappings[0]).ok
+    && resolveRef(cloneCandidateMappings[0]).value === resolveRef(qualityAc06).value;
+  if (!cloneWatermark || cloneWatermark.disposition !== 'BOUND_EXISTING'
+      || JSON.stringify(cloneWatermark.pdp0EvidenceRefs ?? []) !== JSON.stringify([qualityAc06])
+      || !cloneMappingResolvesToAc06
+      || cloneWatermark.decisionRef?.id !== 'PXD-174'
+      || cloneWatermark.decisionRef?.path !== '.product-experience/decision-log.md#PXD-174'
+      || !/provenance-only/i.test(cloneWatermark.decisionRationaleStatus ?? '')
+      || !/provenance-only/i.test(ledger.coordinatorReview?.note ?? '')
+      || !/provenance-only/i.test(ledger.decision?.note ?? '')) {
+    addError(errors, 'AUD-CLONE-012 must remain scoped only to QUALITY-AC-06 under PXD-174; imported acceptance-text mismatch is provenance-only under PXD-172');
+  }
+
+  // Gesture/trigger semantics are owned by AC-061. Constraint ordering (AC-010)
+  // does not define the interaction mapping or the fail-closed behavior.
+  const animationGesture = rows?.find(row => row.auditId === 'AUD-ANIM3-010');
+  const gestureClauseRef = exactClauseRef('MEDIA-DECL-P0-AC-061');
+  const gestureClause = sourceMeaning(gestureClauseRef);
+  if (!animationGesture || !hasEvidence(animationGesture, gestureClauseRef)
+      || hasEvidence(animationGesture, exactClauseRef('MEDIA-DECL-P0-AC-010'))
+      || !/gesture or trigger/i.test(gestureClause?.when ?? '')
+      || !/explicitly mapped/i.test(gestureClause?.then ?? '')
+      || !/unknown, out-of-scope, and unmapped triggers have no effect/i.test(gestureClause?.then ?? '')
+      || !/arbitrary embedded scripts.*embedded product credentials.*privileged external effects/i.test(gestureClause?.rejection ?? '')) {
+    addError(errors, 'AUD-ANIM3-010 must bind the exact gesture/trigger map and fail-closed semantics in AC-061, not constraint ordering in AC-010');
+  }
+
+  // Job finality and partial-result meaning is defined by JOB-AC-03, not
+  // numerical simulation QA or synthetic-fixture classification.
+  const simulationFinality = rows?.find(row => row.auditId === 'AUD-SIM3-018');
+  const jobAc03 = exactRequirementRef('MEDIA-REQ-CAP-JOB', 'MEDIA-REQ-CAP-JOB-AC-03');
+  const jobClause = sourceMeaning(jobAc03);
+  const staleSimulationRefs = [
+    exactClauseRef('MEDIA-DECL-P0-AC-027'),
+    exactClauseRef('MEDIA-DECL-P0-AC-039'),
+  ];
+  if (!simulationFinality || !hasEvidence(simulationFinality, jobAc03)
+      || staleSimulationRefs.some(ref => hasEvidence(simulationFinality, ref))
+      || !/partial result is explicitly labeled/i.test(jobClause?.then ?? '')
+      || !/outcome UNKNOWN/i.test(jobClause?.then ?? '')
+      || !/authoritative confirmation/i.test(jobClause?.then ?? '')
+      || !/cancellation request or acknowledgement/i.test(jobClause?.rejection ?? '')) {
+    addError(errors, 'AUD-SIM3-018 must bind partial-result and authoritative finality semantics to JOB-AC-03, without numerical-QA or synthetic-fixture clauses');
+  }
+
+  // Compatibility is fail-closed for every unknown or unlisted version; legacy
+  // replacement requires exact owner-issued semantic-parity evidence.
+  const educationCompatibility = rows?.find(row => row.auditId === 'AUD-EDU3-012');
+  const compatibilityClauseRef = exactClauseRef('MEDIA-DECL-P0-AC-040');
+  const compatibilityClause = sourceMeaning(compatibilityClauseRef);
+  if (!educationCompatibility || !hasEvidence(educationCompatibility, compatibilityClauseRef)
+      || !/only for exact AEF\/USP versions published in the public TutorPutor adapter contract/i.test(compatibilityClause?.then ?? '')
+      || !/unknown or unlisted versions NOT_ADMITTED/i.test(compatibilityClause?.then ?? '')
+      || !/private module imports.*silent data-contract upgrades.*blanket legacy support/i.test(compatibilityClause?.rejection ?? '')
+      || !/exact owner-issued semantic-parity evidence/i.test(compatibilityClause?.rejection ?? '')) {
+    addError(errors, 'AUD-EDU3-012 must bind AC-040 fail-closed compatibility boundaries for unknown/unlisted versions and exact owner parity');
+  }
+  for (const id of ['AUD-CLONE-012', 'AUD-ANIM3-010', 'AUD-SIM3-018', 'AUD-EDU3-012']) {
+    const row = rows?.find(item => item.auditId === id);
+    if (row?.decisionRef?.id !== 'PXD-174'
+        || row?.decisionRef?.path !== '.product-experience/decision-log.md#PXD-174') {
+      addError(errors, `${id} must cite the exact PXD-174 row-level source review reference`);
+    }
+  }
+
+  const derivedHandoffCounts = {};
+  for (const row of rows ?? []) {
+    const raw = row.laterPhaseHandoffs;
+    const handoffs = Array.isArray(raw) ? raw : raw ? [raw] : [];
+    const labels = [...new Set(handoffs.map(handoff => handoff.ownerPhase ?? handoff.phase ?? handoff.stage).filter(Boolean))].sort();
+    const key = labels.join('/') || 'UNSPECIFIED';
+    derivedHandoffCounts[key] = (derivedHandoffCounts[key] ?? 0) + 1;
+  }
+  if (JSON.stringify(derivedHandoffCounts) !== JSON.stringify(ledger.laterPhaseHandoffs?.countsByPhase)) {
+    addError(errors, 'laterPhaseHandoffs.countsByPhase must equal the current per-row handoff-label aggregation');
   }
   const derivedCounts = Object.fromEntries([...dispositions].map(disposition => [disposition, rows?.filter(row => row.disposition === disposition).length ?? 0]));
   for (const [disposition, count] of Object.entries(derivedCounts)) {

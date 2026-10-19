@@ -31,6 +31,8 @@ const currentTargetObservations = JSON.parse(currentTargetObservationBytes);
 const migrationP0CurrentSourceObservations = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-p0-current-source-observations.json"), "utf8"));
 const migrationOverlayCurrentOwnerObservations = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-overlay-current-owner-observations.json"), "utf8"));
 const migrationPxd153CurrentSourceObservations = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-p0-pxd153-current-source-observations.json"), "utf8"));
+const migrationPxd173Successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd173.json"), "utf8"));
+const migration199OwnerCandidate = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json"), "utf8"));
 assert.equal(migrationP0CurrentSourceObservations.decisionRef, ".product-experience/decision-log.md#PXD-130");
 
 
@@ -256,7 +258,8 @@ function assertClaimDisposition(claim) {
       const pxd153Observation = migrationPxd153CurrentSourceObservations.records.find((record) => record.claimId === claim.claimId);
       if (pxd153Observation) {
         assert.equal(pxd153Observation.targetRef, claim.targetRef);
-        assert.equal(pxd153Observation.historicalPxd130CurrentSourceFileSha256, currentSourceObservation.currentSourceFileSha256);
+        assert.equal(pxd153Observation.historicalPxd130CurrentSourceFileSha256,
+          currentSourceObservation.supersededCurrentSourceFileSha256 ?? currentSourceObservation.currentSourceFileSha256);
         assert.equal(pxd153Observation.historicalPxd130CurrentTargetValueSha256, currentSourceObservation.currentTargetValueSha256);
         assert.equal(pxd153Observation.currentSourceFileSha256, sha(readFileSync(resolve(root, claim.targetRef.split("#")[0]))));
         assert.equal(pxd153Observation.currentTargetValueSha256, targetDigest);
@@ -289,7 +292,40 @@ function assertClaimDisposition(claim) {
           assert.equal(overlayObservation.historicalTargetValueSha256, claim.targetTextSha256, "verified route preserves the target digest from its reviewed source cut");
         } else assert.fail(`${claim.claimId} overlay observation has no recognized review status`);
       } else {
-        assert.equal(claim.targetTextSha256, targetDigest, `${claim.claimId} target content changed without semantic review`);
+        const pxd173Observations = migrationPxd173Successor.records.filter((record) => record.claimId === claim.claimId);
+        if (pxd173Observations.some(({ observationId }) => observationId === "P0-MIGRATION-CURRENT-029")) {
+          assert.equal(claim.semanticReviewStatus, "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY");
+          const ownerCandidateRecord = migration199OwnerCandidate.records.find((record) => record.claimId === claim.claimId);
+          assert.ok(ownerCandidateRecord, `${claim.claimId} current PDP-0 owner candidate remains present`);
+          assert.equal(ownerCandidateRecord.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+          assert.match(ownerCandidateRecord.materialGap, /bounded PDP-0 parent-cancellation definition is now authored/u);
+          assert.match(ownerCandidateRecord.materialGap, /Claim-specific semantic parity .* remains unverified/u);
+          assert.equal(ownerCandidateRecord.currentProposalObservation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+          assert.equal(ownerCandidateRecord.ownerSemanticReview.acceptanceEffect, "none");
+          assert.deepEqual(pxd173Observations.map(({ observationId }) => observationId), [
+            "P0-MIGRATION-CURRENT-029",
+            "P0-MIGRATION-CURRENT-030",
+          ]);
+          const currentSourceFileSha256 = sha(readFileSync(resolve(root, claim.targetRef.split("#")[0])));
+          const currentThen = resolveRef(claim.targetRef);
+          for (const observation of pxd173Observations) {
+            assert.equal(observation.targetRef, claim.targetRef);
+            assert.equal(observation.predecessorCurrentTargetValueSha256, claim.targetTextSha256,
+              "successor preserves the immutable historical target digest");
+            assert.equal(observation.currentTargetValueSha256, targetDigest, "successor records exact live target bytes");
+            assert.equal(observation.currentSourceFileSha256, currentSourceFileSha256, "successor records exact live source file");
+            assert.equal(observation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+            assert.equal(observation.semanticEquivalence, "NOT_ASSERTED");
+            assert.equal(observation.semanticPromotion, false);
+            assert.equal(observation.acceptanceEffect, "none");
+          }
+          const materialObservation = pxd173Observations.find(({ observationId }) => observationId === "P0-MIGRATION-CURRENT-030");
+          assert.equal(materialObservation.requiredSourcePhrase, currentThen,
+            "material observation phrase matches the exact current PDP-0 clause");
+          assert.equal(pxd173Observations.find(({ observationId }) => observationId === "P0-MIGRATION-CURRENT-029").requiredSourcePhrase, null);
+        } else {
+          assert.equal(claim.targetTextSha256, targetDigest, `${claim.claimId} target content changed without semantic review`);
+        }
       }
     }
   }
@@ -784,6 +820,25 @@ test("PXD-108 pins remain immutable while PXD-130 separately observes current so
     assert.equal(supplement.semanticEquivalence, "NOT_ASSERTED");
     assert.equal(supplement.acceptanceEffect, "none");
   }
+  for (const claimId of ["MPSEM-0172-C002", "MPSEM-0030-C001"]) {
+    const predecessor = claimId === "MPSEM-0172-C002"
+      ? migrationPxd153CurrentSourceObservations.records.find((record) => record.claimId === claimId)
+      : migrationP0CurrentSourceObservations.records.find((record) => record.claimId === claimId);
+    const successor = migrationPxd173Successor.records.find((record) => record.claimId === claimId
+      && record.sourceArtifactRef === (claimId === "MPSEM-0172-C002"
+        ? "docs/implementation/verification/pdp-38/migration-p0-pxd153-current-source-observations.json"
+        : "docs/implementation/verification/pdp-38/migration-p0-current-source-observations.json"));
+    assert.ok(successor, `${claimId} PXD-173 current-source successor`);
+    assert.equal(successor.predecessorCurrentSourceFileSha256,
+      predecessor.supersededCurrentSourceFileSha256 ?? predecessor.currentSourceFileSha256);
+    assert.equal(successor.currentSourceFileSha256, currentCapabilitiesSha);
+    const target = resolveRef(successor.targetRef);
+    assert.equal(sha(typeof target === "string" ? target : JSON.stringify(target)), successor.currentTargetValueSha256);
+    assert.equal(successor.currentTargetValueSha256, predecessor.currentTargetValueSha256);
+    assert.equal(successor.semanticEquivalence, "NOT_ASSERTED");
+    assert.equal(successor.acceptanceEffect, "none");
+  }
+  assert.equal(migrationPxd173Successor.decisionRef, ".product-experience/decision-log.md#PXD-173");
   const qualityObservation = pendingObservations.records.find(({ claimId }) => claimId === "MPSEM-0187-C002");
   assert.equal(qualityObservation.sourceFileSha256, "3e0f82742ca924248d3ea1ab83085d939ba67b445f9676935a82dd0a3871b3de");
   assert.equal(qualityObservation.semanticEquivalence, "NOT_ASSERTED");

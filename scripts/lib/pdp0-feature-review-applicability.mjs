@@ -70,7 +70,7 @@ function resolveSelector(ref, sourceDocuments) {
 }
 
 /** Resolve the full definition-only 15×38 dimension and 462-leaf applicability join. */
-export function resolvePdp0FeatureReviewApplicability({ applicability, requirements, capabilities, capabilityCrosswalk, channels, sourceDocuments, reviewedMaterialArtifact, reviewedMaterialArtifactText, reviewedReferenceCorrectionArtifact, reviewedReferenceCorrectionArtifactText, qualityMetricObservations, qualityPolicySourceText, qualityCurrentSourceReview, qualityCurrentSourceReviewText, animationRelationshipObservation, animationRelationshipObservationText, relationshipSourceText, textToImageObservation, textToImageObservationText, capabilitiesSourceText, capabilityIntentOwnerBindingObservation, capabilityIntentOwnerBindingObservationText, capabilitySemanticReview, capabilitySemanticReviewText, p0CurrentSourceCorrection, p0CurrentSourceCorrectionText, p0UploadByteLengthCorrection, p0UploadByteLengthCorrectionText, policyAuthorityObservation, policyAuthorityObservationText, policyAuthoritySourceText, cliChannelObservation, cliChannelObservationText, applicationsChannelsSourceText, qualificationPolicyObservation, qualificationPolicyObservationText, qualificationPolicySourceText }) {
+export function resolvePdp0FeatureReviewApplicability({ applicability, requirements, capabilities, capabilityCrosswalk, channels, sourceDocuments, reviewedMaterialArtifact, reviewedMaterialArtifactText, reviewedReferenceCorrectionArtifact, reviewedReferenceCorrectionArtifactText, qualityMetricObservations, qualityPolicySourceText, qualityCurrentSourceReview, qualityCurrentSourceReviewText, animationRelationshipObservation, animationRelationshipObservationText, relationshipSourceText, textToImageObservation, textToImageObservationText, capabilitiesSourceText, capabilityIntentOwnerBindingObservation, capabilityIntentOwnerBindingObservationText, capabilitySemanticReview, capabilitySemanticReviewText, p0CurrentSourceCorrection, p0CurrentSourceCorrectionText, p0UploadByteLengthCorrection, p0UploadByteLengthCorrectionText, p0CapabilityCorrectionsCurrentSourceReview, p0CapabilityCorrectionsCurrentSourceReviewText, policyAuthorityObservation, policyAuthorityObservationText, policyAuthoritySourceText, cliChannelObservation, cliChannelObservationText, applicationsChannelsSourceText, qualificationPolicyObservation, qualificationPolicyObservationText, qualificationPolicySourceText }) {
   const fail = (reason) => { throw new Error(`Invalid PDP-0 feature applicability: ${reason}`); };
   const dimensions = applicability?.dimensions;
   const requirementRows = requirements?.requirements;
@@ -175,16 +175,26 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     && qualityCleanupSupplement?.records?.length === qualityObservationExpectations.length;
   if (!qualityCleanupValid) fail("PXD-124 quality-policy current-source observation is absent or does not pin the exact cleanup supplement");
   const qualitySourceReview = qualityCurrentSourceReview;
+  const capabilityPath = ".product-experience/pdp-0-product-truth/capabilities.yaml";
+  const currentQualityCapabilityRefs = [
+    "media.artifact.search", "media.artifact.list", "media.stream.recording.integrate",
+    "media.speech.transcription.file", "media.audio.analysis.detect.silence",
+    "media.simulation.cloth", "media.simulation.soft-body", "media.simulation.rope",
+    "media.simulation.particle", "media.simulation.fluid", "media.simulation.agent",
+    "media.compose.multitrack-timeline",
+  ].map((id) => `${capabilityPath}#capabilities/@id=${id}`).sort();
+  const reviewedQualityCapabilityRefs = [...(qualitySourceReview?.currentSourceRefresh?.reviewedCapabilityRefs ?? [])].sort();
   const qualitySourceReviewValid = qualitySourceReview?.schemaVersion === "media.pdp0.quality-current-source-review.v1"
-    && qualitySourceReview?.artifactId === "P0-QUALITY-CURRENT-SOURCE-REVIEW-001"
+    && qualitySourceReview?.artifactId === "P0-QUALITY-CURRENT-SOURCE-REVIEW-002"
     && qualitySourceReview?.sources?.qualityPolicy?.path === qualityPolicyPath
     && qualitySourceReview?.sources?.qualityPolicy?.currentSha256 === qualitySourceSha256
-    && qualitySourceReview?.sources?.capabilities?.path === ".product-experience/pdp-0-product-truth/capabilities.yaml"
+    && qualitySourceReview?.sources?.capabilities?.path === capabilityPath
     && qualitySourceReview?.sources?.capabilities?.currentSha256 === createHash("sha256").update(capabilitiesSourceText ?? "").digest("hex")
-    && qualitySourceReview?.currentSourceRefresh?.decisionRef === ".product-experience/decision-log.md#PXD-153"
-    && qualitySourceReview?.currentSourceRefresh?.priorSourceSha256 === "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf"
+    && qualitySourceReview?.currentSourceRefresh?.decisionRef === ".product-experience/decision-log.md#PXD-170"
+    && qualitySourceReview?.currentSourceRefresh?.priorSourceSha256 === "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
     && qualitySourceReview?.currentSourceRefresh?.currentSourceSha256 === qualitySourceReview?.sources?.capabilities?.currentSha256
-    && qualitySourceReview?.currentSourceRefresh?.fieldRef === ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.upload/ownerDefinition/parameterSchema/properties/declaredByteLength/minimum"
+    && JSON.stringify(reviewedQualityCapabilityRefs) === JSON.stringify(currentQualityCapabilityRefs)
+    && qualitySourceReview?.predecessorReviewRef === "docs/implementation/verification/pdp-38/p0-quality-current-source-review.json"
     && qualitySourceReview?.currentSourceRefresh?.acceptanceEffect === "none"
     && qualitySourceReview?.reviewedPopulation?.capabilityRows === 462
     && qualitySourceReview?.reviewedPopulation?.uniqueCapabilityRefs === 462
@@ -199,7 +209,7 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     && JSON.stringify(JSON.parse(qualityCurrentSourceReviewText)) === JSON.stringify(qualitySourceReview);
   if (!qualitySourceReviewValid) fail("P0 quality current-source review is absent, stale, or has an invalid acceptance boundary");
   const approvedCurrentSourceObservation = new Map();
-  const qualificationObservationSha256 = "8b55a7f9c9f5664c3aaede25f453161f365c0788b09bc041ba1de7526cc71e9a";
+  const qualificationObservationSha256 = "ea9f6acde7310f6b306c39ad1bd32f1ad9031aaac7e43b0db586984c7231df6c";
   const qualificationSourceRef = ".product-experience/pdp-0-product-truth/qualification-policy.yaml#decisionRules";
   const qualificationSource = resolveSelector(qualificationSourceRef, sourceDocuments);
   const qualificationRecord = qualificationPolicyObservation?.record;
@@ -212,8 +222,9 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     && qualificationPolicyObservation?.baseReviewSha256 === expectedArtifactSha256
     && qualificationPolicyObservation?.sourcePath === ".product-experience/pdp-0-product-truth/qualification-policy.yaml"
     && qualificationPolicyObservation?.sourcePinSha256 === "93a69ee00fbf5020f78b96e9558af61f2344b873f975f5381adbf1bd42840b7a"
+    && qualificationPolicyObservation?.priorCurrentSourceSha256 === "ec39afca8df04e5087482a1f393a32af4775f990571a5568d3ab7caed3385e5e"
     && qualificationPolicyObservation?.currentSourceSha256 === createHash("sha256").update(qualificationPolicySourceText ?? "").digest("hex")
-    && qualificationPolicyObservation?.currentSourceSha256 === "ec39afca8df04e5087482a1f393a32af4775f990571a5568d3ab7caed3385e5e"
+    && qualificationPolicyObservation?.currentSourceSha256 === "66104b2c95e75190ea153f6c7bd883783d4eb6c7d24d8a23c43d18e8ea795b03"
     && qualificationRecord?.sourceRef === qualificationSourceRef
     && qualificationRecord?.identity === null
     && qualificationRecord?.historicalPxd098ContentSha256 === "c71df52fa9ef472a9ba1353fc97ae5b4762f3d772c3f140ebc7e3feef563b791"
@@ -421,7 +432,7 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     && p0UploadByteLengthCorrection?.schemaVersion === "media.pdp0.upload-byte-length-minimum-current-source-review.v1"
     && p0UploadByteLengthCorrection?.decisionRef === ".product-experience/decision-log.md#PXD-153"
     && p0UploadByteLengthCorrection?.source?.path === ".product-experience/pdp-0-product-truth/capabilities.yaml"
-    && p0UploadByteLengthCorrection?.source?.currentSha256 === textToImageSourceHash
+    && p0UploadByteLengthCorrection?.source?.currentSha256 === "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
     && p0UploadByteLengthCorrection?.source?.capabilityCount === 462
     && p0UploadByteLengthCorrection?.correction?.capabilityId === "media.artifact.upload"
     && p0UploadByteLengthCorrection?.correction?.p0FieldRef === ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.upload/ownerDefinition/parameterSchema/properties/declaredByteLength"
@@ -437,7 +448,64 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     && p0UploadByteLengthCorrection?.acceptanceEffect === "none; bounded current-source correction evidence only";
   if (!capabilitySemanticReviewValid) fail("PXD-122 historical capability review is absent, stale, or overbroad");
   if (!p0CurrentSourceCorrectionValid) fail("PXD-142 current capability correction review is absent, stale, or overbroad");
-  if (!p0UploadByteLengthCorrectionValid) fail("PXD-153 upload byte-length minimum correction review is absent, stale, or overbroad");
+  if (!p0UploadByteLengthCorrectionValid) fail("PXD-153 historical upload byte-length minimum correction review is absent, stale, or overbroad");
+  const currentCapabilityCorrectionReview = p0CapabilityCorrectionsCurrentSourceReview;
+  const expectedCurrentCorrectionFields = new Map();
+  for (const correction of p0CurrentSourceCorrection?.typedInputCorrections ?? []) {
+    expectedCurrentCorrectionFields.set(`${correction.capabilityId}|ownerDefinition.typedInputSlots`, {
+      value: correction.typedInputSlots,
+      predecessorDecisionRef: ".product-experience/decision-log.md#PXD-142",
+    });
+  }
+  for (const correction of p0CurrentSourceCorrection?.optionalSuccessOutputCorrections ?? []) {
+    expectedCurrentCorrectionFields.set(`${correction.capabilityId}|ownerDefinition.successOutputs`, {
+      outputProjection: correction.outputs,
+      predecessorDecisionRef: ".product-experience/decision-log.md#PXD-142",
+    });
+  }
+  expectedCurrentCorrectionFields.set("media.artifact.upload|ownerDefinition.parameterSchema.properties.declaredByteLength", {
+    value: p0UploadByteLengthCorrection?.correction?.newScalar,
+    predecessorDecisionRef: ".product-experience/decision-log.md#PXD-153",
+  });
+  const currentCorrectionRecords = currentCapabilityCorrectionReview?.records;
+  const currentCorrectionRecordsValid = Array.isArray(currentCorrectionRecords)
+    && currentCorrectionRecords.length === expectedCurrentCorrectionFields.size
+    && currentCapabilityCorrectionReview?.schemaVersion === "media.pdp0.capability-corrections-current-source-review.v1"
+    && currentCapabilityCorrectionReview?.artifactId === "P0-CAPABILITY-CORRECTIONS-CURRENT-SOURCE-REVIEW-002"
+    && currentCapabilityCorrectionReview?.decisionRef === ".product-experience/decision-log.md#PXD-171"
+    && JSON.stringify(currentCapabilityCorrectionReview?.predecessorReviewRefs) === JSON.stringify([
+      "docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json",
+      "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json",
+    ])
+    && currentCapabilityCorrectionReview?.source?.path === capabilityPath
+    && currentCapabilityCorrectionReview?.source?.currentSha256 === (typeof capabilitiesSourceText === "string"
+      ? createHash("sha256").update(capabilitiesSourceText).digest("hex") : null)
+    && currentCapabilityCorrectionReview?.source?.capabilityCount === 462
+    && currentCapabilityCorrectionReview?.semanticEquivalence === "NOT_ASSERTED"
+    && currentCapabilityCorrectionReview?.acceptanceEffect === "none; exact corrected subfields reviewed against current P0 source"
+    && typeof p0CapabilityCorrectionsCurrentSourceReviewText === "string"
+    && JSON.stringify(JSON.parse(p0CapabilityCorrectionsCurrentSourceReviewText)) === JSON.stringify(currentCapabilityCorrectionReview);
+  const currentCorrectionByKey = new Map((currentCorrectionRecords ?? []).map((record) => [`${record.capabilityId}|${record.fieldPath}`, record]));
+  const currentCorrectionFieldsMatch = currentCorrectionRecordsValid && [...expectedCurrentCorrectionFields].every(([key, expected]) => {
+    const record = currentCorrectionByKey.get(key);
+    const current = record && resolveSelector(record.sourceRef, sourceDocuments);
+    if (!record || current === undefined || record.predecessorDecisionRef !== expected.predecessorDecisionRef
+        || record.sourceRef !== `${capabilityPath}#capabilities/@id=${record.capabilityId}/${record.fieldPath.replaceAll(".", "/")}`
+        || record.fieldSha256 !== createHash("sha256").update(JSON.stringify(current)).digest("hex")) return false;
+    if (Object.hasOwn(expected, "value")) {
+      if (record.fieldPath.endsWith("declaredByteLength")) {
+        const uploadCapability = capabilityRows.find(({ id }) => id === record.capabilityId);
+        return current?.minimum === expected.value?.minimum
+          && current?.maximum === expected.value?.maximum
+          && uploadCapability?.ownerDefinition?.parameterSchema?.emptyDisposition === p0UploadByteLengthCorrection?.correction?.emptyDisposition;
+      }
+      return JSON.stringify(current) === JSON.stringify(expected.value);
+    }
+    const selectedOutputs = current.filter(({ artifactType }) => expected.outputProjection.some((row) => row.artifactType === artifactType))
+      .map(({ artifactType, requiredOnSuccess }) => ({ artifactType, requiredOnSuccess }));
+    return JSON.stringify(selectedOutputs) === JSON.stringify(expected.outputProjection);
+  });
+  if (!currentCorrectionFieldsMatch) fail("PXD-171 exact capability correction fields are absent, stale, or differ from their scoped predecessor corrections");
   const capabilityIntentOwnerBindingValid = typeof capabilityIntentOwnerBindingObservationText === "string"
     && createHash("sha256").update(capabilityIntentOwnerBindingObservationText).digest("hex") === capabilityIntentOwnerBindingExpectedSha256
     && capabilityIntentOwnerBindingObservation?.schemaVersion === "media.pdp0.capability-intent-current-source-observation.v1"
@@ -483,7 +551,7 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
   const textToImageHistoricalReferent = reviewedMaterialArtifact.records.some(({ referents = [] }) => referents.some(({ sourceRef, identity, contentSha256 }) =>
     sourceRef === textToImage.sourceRef && identity === textToImage.identity && contentSha256 === textToImage.historicalPxd098ContentSha256));
   if (!textToImageHistoricalReferent) fail("PXD-098 text-to-image observation lacks its exact historical referent");
-  if (p0UploadByteLengthCorrection?.source?.currentSha256 !== textToImageSourceHash) fail("PXD-153 capability correction review does not pin the current source cut");
+  if (currentCapabilityCorrectionReview?.source?.currentSha256 !== textToImageSourceHash) fail("PXD-171 capability correction review does not pin the current source cut");
   approvedCurrentSourceObservation.set(textToImage.sourceRef, {
     ...textToImage,
     currentContentSha256: textToImageHash,

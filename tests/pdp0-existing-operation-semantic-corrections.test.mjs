@@ -173,7 +173,8 @@ test("PXD-153 aligns upload byte-length minimum with the positive begin-upload s
   assert.equal(currentReview.decisionRef, ".product-experience/decision-log.md#PXD-153");
   assert.match(decisionText, /### PXD-153 — Reopen only the upload declared-byte-length minimum/u);
   assert.match(decisionText, /supersedes only PXD-142's historical interpretation/u);
-  assert.equal(currentReview.source.currentSha256, sha256(capabilityBytes));
+  assert.equal(currentReview.source.currentSha256, "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+    "PXD-153 remains pinned to its historical source cut");
   assert.equal(currentReview.correction.p0FieldRef,
     ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.upload/ownerDefinition/parameterSchema/properties/declaredByteLength");
   assert.equal(currentReview.correction.oldScalar.minimum, 0);
@@ -190,4 +191,47 @@ test("PXD-153 aligns upload byte-length minimum with the positive begin-upload s
   assert.equal(currentReview.regressionEvidence.passed, 1);
   assert.equal(currentReview.regressionEvidence.failed, 0);
   assert.equal(currentReview.acceptanceEffect, "none; bounded current-source correction evidence only");
+});
+
+test("PXD-171 rechecks exact PXD-142 and PXD-153 correction fields on the current capability source", () => {
+  const capabilityBytes = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/capabilities.yaml"));
+  const decisionText = readFileSync(resolve(root, ".product-experience/decision-log.md"), "utf8");
+  const currentReview = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/p0-capability-corrections-current-source-review-current.json"), "utf8"));
+  const predecessor142 = JSON.parse(readFileSync(resolve(root, correctionReviewPath), "utf8"));
+  const predecessor153 = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json"), "utf8"));
+  const byKey = new Map(currentReview.records.map((record) => [`${record.capabilityId}|${record.fieldPath}`, record]));
+  const expected = new Map();
+  for (const correction of predecessor142.typedInputCorrections) {
+    expected.set(`${correction.capabilityId}|ownerDefinition.typedInputSlots`, correction.typedInputSlots);
+  }
+  for (const correction of predecessor142.optionalSuccessOutputCorrections) {
+    expected.set(`${correction.capabilityId}|ownerDefinition.successOutputs`, correction.outputs);
+  }
+  expected.set("media.artifact.upload|ownerDefinition.parameterSchema.properties.declaredByteLength", predecessor153.correction.newScalar);
+
+  assert.equal(currentReview.decisionRef, ".product-experience/decision-log.md#PXD-171");
+  assert.match(decisionText, /### PXD-171 — Recheck retained capability corrections on the current P0 source/u);
+  assert.equal(currentReview.source.path, ".product-experience/pdp-0-product-truth/capabilities.yaml");
+  assert.equal(currentReview.source.currentSha256, sha256(capabilityBytes));
+  assert.equal(currentReview.source.capabilityCount, 462);
+  assert.equal(currentReview.records.length, 9);
+  assert.equal(currentReview.semanticEquivalence, "NOT_ASSERTED");
+  assert.equal(currentReview.acceptanceEffect, "none; exact corrected subfields reviewed against current P0 source");
+  assert.deepEqual([...byKey.keys()].sort(), [...expected.keys()].sort());
+
+  for (const [key, expectedValue] of expected) {
+    const record = byKey.get(key);
+    const current = record.fieldPath.split(".").reduce((value, field) => value?.[field], byId.get(record.capabilityId));
+    if (record.fieldPath.endsWith("declaredByteLength")) {
+      assert.deepEqual({ minimum: current.minimum, maximum: current.maximum }, expectedValue, key);
+      assert.equal(owner(record.capabilityId).parameterSchema.emptyDisposition, predecessor153.correction.emptyDisposition);
+    } else if (record.fieldPath.endsWith("successOutputs")) {
+      const projection = current.filter(({ artifactType }) => expectedValue.some((output) => output.artifactType === artifactType))
+        .map(({ artifactType, requiredOnSuccess }) => ({ artifactType, requiredOnSuccess }));
+      assert.deepEqual(projection, expectedValue, key);
+    } else assert.deepEqual(current, expectedValue, key);
+    assert.equal(record.fieldSha256, sha256(JSON.stringify(current)), key);
+    assert.equal(record.sourceRef,
+      `.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=${record.capabilityId}/${record.fieldPath.replaceAll(".", "/")}`);
+  }
 });

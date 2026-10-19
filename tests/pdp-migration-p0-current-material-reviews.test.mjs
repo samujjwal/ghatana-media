@@ -11,6 +11,7 @@ const { parse } = createRequire(resolve(root, "../ghatana-tools/package.json"))(
 const candidate = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json"), "utf8"));
 const currentReview = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-p0-current-material-review.json"), "utf8"));
 const currentSourceSupplement = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-p0-current-material-source-observations.json"), "utf8"));
+const pxd173Successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd173.json"), "utf8"));
 const pxd153SourceCorrection = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json"), "utf8"));
 const sha = (value) => createHash("sha256").update(value).digest("hex");
 const cache = new Map();
@@ -39,6 +40,19 @@ const row = (claimId) => {
   return record;
 };
 
+function assertPxd173Successor(record, targetRef, refreshed) {
+  const successor = pxd173Successor.records.find((item) => item.sourceArtifactRef === "docs/implementation/verification/pdp-38/migration-p0-current-material-source-observations.json"
+    && item.claimId === record.claimId && item.targetRef === targetRef);
+  assert.ok(successor, `${record.claimId} ${targetRef} has a PXD-173 source successor`);
+  assert.equal(successor.predecessorCurrentSourceFileSha256, refreshed.supersededCurrentSourceFileSha256);
+  assert.equal(successor.predecessorCurrentTargetValueSha256, refreshed.currentTargetValueSha256);
+  assert.equal(successor.currentSourceFileSha256, refreshed.currentSourceFileSha256);
+  assert.equal(successor.currentTargetValueSha256, refreshed.currentTargetValueSha256);
+  assert.equal(successor.semanticEquivalence, "NOT_ASSERTED");
+  assert.equal(successor.acceptanceEffect, "none");
+  assert.equal(pxd173Successor.decisionRef, ".product-experience/decision-log.md#PXD-173");
+}
+
 function assertCurrentMaterial(record) {
   const review = record.ownerSemanticReview;
   assert.equal(review.disposition, "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL");
@@ -65,12 +79,16 @@ function assertCurrentMaterial(record) {
       assert.equal(refreshed.sourceCorrectionDecisionRef, pxd153SourceCorrection.decisionRef);
       assert.equal(refreshed.sourceCorrectionEvidenceRef, "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json");
       assert.equal(pxd153SourceCorrection.supersedes.historicalCapabilitiesSha256, refreshed.historicalCurrentSourceFileSha256);
-      assert.equal(pxd153SourceCorrection.source.currentSha256, refreshed.currentSourceFileSha256);
+      assert.equal(pxd153SourceCorrection.source.currentSha256, refreshed.supersededCurrentSourceFileSha256,
+        "PXD-153 remains pinned to its historical source cut");
     }
     assert.equal(refreshed.currentSourceFileSha256, sha(source));
     assert.equal(refreshed.currentTargetValueSha256, sha(serialized));
     assert.equal(refreshed.semanticEquivalence, "NOT_ASSERTED");
     assert.equal(refreshed.acceptanceEffect, "none");
+    if (refreshed.supersededCurrentSourceFileSha256) {
+      assertPxd173Successor(record, binding.ref, refreshed);
+    }
   }
 }
 

@@ -2,134 +2,134 @@ TAP version 13
 # Subtest: capability families are exact leaf groupings without inherited operations or readiness
 ok 1 - capability families are exact leaf groupings without inherited operations or readiness
   ---
-  duration_ms: 2.81446
+  duration_ms: 1.812393
   type: 'test'
   ...
 # Subtest: all 462 leaves have exact profile-channel applicability or a source-backed exclusion
 ok 2 - all 462 leaves have exact profile-channel applicability or a source-backed exclusion
   ---
-  duration_ms: 31.198448
+  duration_ms: 51.162126
   type: 'test'
   ...
 # Subtest: 15 review dimensions resolve every requirement type and all 462 exact leaf joins
 ok 3 - 15 review dimensions resolve every requirement type and all 462 exact leaf joins
   ---
-  duration_ms: 11112.090216
+  duration_ms: 10066.617114
   type: 'test'
   ...
 # Subtest: P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
 ok 4 - P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
   ---
-  duration_ms: 11909.277433
+  duration_ms: 10901.668264
   type: 'test'
   ...
 # Subtest: source-free animation authoring does not claim a source-derived transformation
 ok 5 - source-free animation authoring does not claim a source-derived transformation
   ---
-  duration_ms: 11118.855957
+  duration_ms: 9723.140562
   type: 'test'
   ...
 # Subtest: P0 owner intent binding observation pins the exact 462-leaf source delta without acceptance effect
 ok 6 - P0 owner intent binding observation pins the exact 462-leaf source delta without acceptance effect
   ---
-  duration_ms: 6196.209222
+  duration_ms: 6082.276098
   type: 'test'
   ...
 1..0
 # Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-capability-leaf-review-authority-boundary.test.mjs
 ok 6 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-capability-leaf-review-authority-boundary.test.mjs
   ---
-  duration_ms: 6629.584714
+  duration_ms: 6215.026173
   type: 'test'
   ...
 # Subtest: P0 capability outcomes state exact result meaning without operation claims
 ok 8 - P0 capability outcomes state exact result meaning without operation claims
   ---
-  duration_ms: 18582.807569
+  duration_ms: 17268.48921
   type: 'test'
   ...
 # Subtest: P0 outcome validation rejects generic, incomplete, or operation-specific result claims
 ok 9 - P0 outcome validation rejects generic, incomplete, or operation-specific result claims
   ---
-  duration_ms: 5217.957693
+  duration_ms: 3058.606013
   type: 'test'
   ...
 # Subtest: project creation requires a title without claiming initial project contents
 ok 10 - project creation requires a title without claiming initial project contents
   ---
-  duration_ms: 1.92017
+  duration_ms: 2.815239
   type: 'test'
   ...
 # Subtest: scientific demo separates visual plausibility from domain-validated results
 ok 11 - scientific demo separates visual plausibility from domain-validated results
   ---
-  duration_ms: 0.513889
+  duration_ms: 0.760567
   type: 'test'
   ...
 # Subtest: export creates a delivery package or explicit outcome; publish and acknowledgment remain separate
 ok 12 - export creates a delivery package or explicit outcome; publish and acknowledgment remain separate
   ---
-  duration_ms: 0.961471
+  duration_ms: 1.291476
   type: 'test'
   ...
 # Subtest: PDP-0 hands off all 462 stable capability intents with complete product meaning independent of PDP-1 operations
 ok 13 - PDP-0 hands off all 462 stable capability intents with complete product meaning independent of PDP-1 operations
   ---
-  duration_ms: 11928.891331
+  duration_ms: 10748.177194
   type: 'test'
   ...
 # Subtest: PDP-0 handoff rejects missing, duplicate, or weakened capability meaning
 ok 14 - PDP-0 handoff rejects missing, duplicate, or weakened capability meaning
   ---
-  duration_ms: 3467.218843
+  duration_ms: 4019.680112
   type: 'test'
   ...
 # Subtest: source-asset attachment names the exact source and project versions
 ok 15 - source-asset attachment names the exact source and project versions
   ---
-  duration_ms: 2.243267
+  duration_ms: 2.859948
   type: 'test'
   ...
 # Subtest: artifact derivation types source version, profile version, output type, purpose, and rights
 ok 16 - artifact derivation types source version, profile version, output type, purpose, and rights
   ---
-  duration_ms: 0.384741
+  duration_ms: 0.511788
   type: 'test'
   ...
 # Subtest: output registration types candidate lineage, digest, media metadata, policy, and optional project revision
 ok 17 - output registration types candidate lineage, digest, media metadata, policy, and optional project revision
   ---
-  duration_ms: 0.533561
+  duration_ms: 0.671718
   type: 'test'
   ...
 # Subtest: conditional upload, import, inspection, and transcription outputs are not guaranteed on every success
 ok 18 - conditional upload, import, inspection, and transcription outputs are not guaranteed on every success
   ---
-  duration_ms: 44.346037
+  duration_ms: 62.751532
   type: 'test'
   ...
 # Subtest: PXD-117 phase/noise-floor capability keeps its exact P0 measurement identity
 ok 19 - PXD-117 phase/noise-floor capability keeps its exact P0 measurement identity
   ---
-  duration_ms: 6655.804502
+  duration_ms: 6025.86022
   type: 'test'
   ...
 # Subtest: current P0 owner review and trust records preserve measurement semantics and fail closed
 ok 20 - current P0 owner review and trust records preserve measurement semantics and fail closed
   ---
-  duration_ms: 4285.240497
+  duration_ms: 4384.886828
   type: 'test'
   ...
 # Subtest: current P0 quality joins use the measurement record as the phase metric subject
 ok 21 - current P0 quality joins use the measurement record as the phase metric subject
   ---
-  duration_ms: 12684.647788
+  duration_ms: 10012.658237
   type: 'test'
   ...
 # Subtest: PXD-128 result variants cover every audited leaf and bind to one exact trust outcome
 ok 22 - PXD-128 result variants cover every audited leaf and bind to one exact trust outcome
   ---
-  duration_ms: 4.268062
+  duration_ms: 6.260932
   type: 'test'
   ...
 1..22
@@ -140,4 +140,4 @@ ok 22 - PXD-128 result variants cover every audited leaf and bind to one exact t
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 24165.436651
+# duration_ms 21256.858427

@@ -36,7 +36,7 @@ test('current PDP-0 corrective source fingerprints exclude generated verificatio
   }
  }
 });
-test('PXD-165 is a current PDP-0 surface-scope review and prior reviews remain historical',()=>{
+test('PXD-173 keeps current PDP-0 criterion scopes explicit and prior reviews historical',()=>{
  const artifact=JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/direct-definition-criteria-review.json','utf8'));
  const sha=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
  const byId=new Map(artifact.records.map(record=>[record.taskId,record]));
@@ -48,9 +48,10 @@ test('PXD-165 is a current PDP-0 surface-scope review and prior reviews remain h
   assert.equal(historical.sourceFingerprints['tests/pdp0-existing-operation-semantic-corrections.test.mjs'],'bf28351e12327accacbda1b61cfd7a7aa2b587de9f485af11ae8af313fdd9df2');
   assert.match(historical.scope,/exact three capability typed-input corrections and five conditional-success output families/u);
   const current=record.currentCorrectiveReview;
-  const expectedDecision=id==='P0-07'?'.product-experience/decision-log.md#PXD-165':'.product-experience/decision-log.md#PXD-153';
+  const expectedDecision=id==='P0-07'?'.product-experience/decision-log.md#PXD-173':id==='P0-06'?'.product-experience/decision-log.md#PXD-170':'.product-experience/decision-log.md#PXD-171';
   assert.equal(current.decisionRef,expectedDecision);
-  assert.equal(current.status,id==='P0-06'||id==='P0-07'?'APPROVED_CURRENT_SOURCE_REVIEW':'APPROVED_CURRENT_CORRECTION');
+  assert.equal(current.status,'APPROVED_CURRENT_SOURCE_REVIEW');
+  assert.equal(current.phaseScope,'PDP-0',`${id} current source review names the owning phase`);
   if(id==='P0-07'){
    assert.match(current.scope,/20 active logical consumers/u);
    assert.match(current.scope,/generic Web partition remains 77 applicable and 385 non-applicable/u);
@@ -59,8 +60,16 @@ test('PXD-165 is a current PDP-0 surface-scope review and prior reviews remain h
    assert.equal(current.sourceFingerprints['.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml'],sha('.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml'));
    assert.equal(current.sourceFingerprints['.product-experience/surface-registry.yaml'],sha('.product-experience/surface-registry.yaml'));
    assert.equal(current.sourceFingerprints['.product-experience/surfaces/media-physical-topology.v1.json'],sha('.product-experience/surfaces/media-physical-topology.v1.json'));
-  } else assert.match(current.scope,/declaredByteLength\.minimum/u);
-  assert.doesNotMatch(current.scope,/three capability typed-input corrections|five conditional-success output families/u);
+  } else if(id==='P0-06'){
+   assert.match(current.scope,/quality applicability crosswalk/u);
+   assert.match(current.scope,/462/u);
+   assert.equal(current.reviewKind,'SCOPED_SOURCE_DEFINITION_REVIEW');
+  } else {
+   assert.match(current.scope,/declaredByteLength\.minimum/u);
+   assert.match(current.scope,/three typed-input corrections/u);
+   assert.match(current.scope,/five optional success-output corrections/u);
+   assert.equal(current.reviewKind,'EXACT_FIELD_CURRENT_SOURCE_RECHECK');
+  }
   assert.equal(current.sourceFingerprints['.product-experience/pdp-0-product-truth/capabilities.yaml'],sha('.product-experience/pdp-0-product-truth/capabilities.yaml'));
   assert.equal(resolveCriterionReviewSourceCut(record,sha).sourceCutCurrent,true,`${id} has a current scoped corrective review`);
  }
@@ -76,7 +85,9 @@ test('PXD-165 is a current PDP-0 surface-scope review and prior reviews remain h
   assert.equal(current.status,'APPROVED_CURRENT_SOURCE_REVIEW');
   assert.ok(byId.get(id).historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-142'));
  }
- assert.equal(byId.get('P0-05').currentCorrectiveReview.decisionRef,'.product-experience/decision-log.md#PXD-166');
+ assert.equal(byId.get('P0-05').currentCorrectiveReview.decisionRef,'.product-experience/decision-log.md#PXD-173');
+ assert.equal(byId.get('P0-05').currentCorrectiveReview.sourceFingerprints['.product-experience/pdp-0-product-truth/requirements.yaml'],createHash('sha256').update(fs.readFileSync('.product-experience/pdp-0-product-truth/requirements.yaml')).digest('hex'));
+ assert.ok(byId.get('P0-05').historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-166'));
  assert.ok(byId.get('P0-05').historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-138'));
  assert.equal(byId.get('P0-05').currentSourceReview,undefined);
 });

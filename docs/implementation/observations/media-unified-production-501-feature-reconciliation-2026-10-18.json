@@ -10527,7 +10527,7 @@
       "canonicalSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-058",
       "capabilityLeafId": "media.job.submit",
       "parentRequirementId": "MEDIA-REQ-CAP-JOB",
-      "canonicalP1OperationRef": "media.operation-slice.submit-job",
+      "canonicalP1OperationRef": "media.operation.job.submit.v1",
       "ownerSurface": "media.surface.recorder-orchestrator",
       "reviewDisposition": "P0_TO_P3_SOURCE_AUTHORED_NATIVE_CURRENTNESS_UNPROVEN",
       "buildPackages": [

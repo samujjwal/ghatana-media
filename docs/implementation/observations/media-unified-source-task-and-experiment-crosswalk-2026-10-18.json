@@ -43,14 +43,17 @@
       "originalSourceSection": "§8 Implementation plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| M-00 | Current PDP0+source impact; `.product-experience` | Freeze exact new Voice/Video functional inventory; map all A–Q clusters to 462 existing capabilities and 84 Recorder clauses; classify true new meaning vs already covered; demand source-owning changes only where missing | 100% feature-to-capability and scope mapping; zero double authorities; source/phase-impact record |",
-      "stageClassification": "DISCOVERY_DEFINITION_RECONCILIATION",
+      "stageClassification": [
+        "DEFINITION_WORK"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-00",
         "PBI-02"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Defines or reconciles PDP requirements, contracts, experience, or source-current Discovery inputs."
     },
     {
       "sourceTaskId": "M-01",
@@ -58,14 +61,17 @@
       "originalSourceSection": "§8 Implementation plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| M-01 | PDP1 and contract registry | Extend voice profile rights, timed dubbing, generated asset provenance, audio DSP, infer selection and handback, media project edit and renderer profiles; reuse existing MediaProject, typed operations and 52 edits | Every newly required action has exact request/result/guard/denied/UNKNOWN/compare-and-swap; no imaginary public route |",
-      "stageClassification": "DISCOVERY_DEFINITION_RECONCILIATION",
+      "stageClassification": [
+        "DEFINITION_WORK"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-02",
         "PBI-03"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Defines or reconciles PDP requirements, contracts, experience, or source-current Discovery inputs."
     },
     {
       "sourceTaskId": "M-02",
@@ -73,14 +79,17 @@
       "originalSourceSection": "§8 Implementation plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| M-02 | PDP2/PDP3 + Explorer | Bind voice/gen/directing interactions to 13 planned workspaces and existing design chain; materialize source-dependent screens/actions, CLI/API/SDK-only no-GUI examples and exact scenarios | Every UI and non-UI intended flow traceable to one canonical action; source sync and a11y tested |",
-      "stageClassification": "DISCOVERY_DEFINITION_RECONCILIATION",
+      "stageClassification": [
+        "DEFINITION_WORK"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-02",
         "PBI-10"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Defines or reconciles PDP requirements, contracts, experience, or source-current Discovery inputs."
     },
     {
       "sourceTaskId": "M-03",
@@ -88,13 +97,16 @@
       "originalSourceSection": "§8 Implementation plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| M-03 | Source-current Discovery validation | Native YAML/parser and negative tests, topology; regenerate manifests from stable registry; validate four new artifact identities, 216 proposed cells and proper affected-phase currentness; source-bound owner review | Actual tests green with exact cut; Discovery PASS independently proven before Build entry; no reclassification by assertion |",
-      "stageClassification": "DISCOVERY_DEFINITION_RECONCILIATION",
+      "stageClassification": [
+        "DEFINITION_WORK"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-00"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Defines or reconciles PDP requirements, contracts, experience, or source-current Discovery inputs."
     },
     {
       "sourceTaskId": "M-04",
@@ -102,7 +114,9 @@
       "originalSourceSection": "§8 Implementation plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| M-04 | Build host + typed APIs; `ghatana/services/media` while canonical | Implement minimal authenticated project/asset/job/operation vertical; parity between runtime and public clients | Real host readback, wrong-tenant denial, idempotency and unknown recovery demonstrated |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-01",
         "PBI-02",
@@ -110,7 +124,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Implements host, editor, directing, interactive, or publication capabilities; approval/publish controls are implementation, not actual approval or release."
     },
     {
       "sourceTaskId": "M-05",
@@ -118,7 +133,10 @@
       "originalSourceSection": "§8 Implementation plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| M-05 | Capture adapters and Gharbatai integration | Existing scenario-v2/storyboard-v1 → sole compiled recording plan; rewire both entrypoints; qualify browser/CDP/desktop/API modes; preserve leases and seed ownership | One reproducible fully recorded demo with actual product readback and decoded final-video QA |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-03",
         "PBI-04",
@@ -127,7 +145,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Implements the named vertical and requires real profile, provider, artifact, or output qualification."
     },
     {
       "sourceTaskId": "M-06",
@@ -135,14 +154,18 @@
       "originalSourceSection": "§8 Implementation plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| M-06 | Voice / STT/TTS and AI Voice UI | Connect Whisper.cpp or sherpa, Piper and admitted complementary models; speech profile/consent, voice selection, narration segments, real streaming/takes, correct transcript timestamps, QC | No synthetic/degraded voice accepted as production; effective/worker voice identity and audible quality verified |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-07",
         "PBI-08"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Implements the named vertical and requires real profile, provider, artifact, or output qualification."
     },
     {
       "sourceTaskId": "M-07",
@@ -150,14 +173,17 @@
       "originalSourceSection": "§8 Implementation plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| M-07 | Media editing / Studio | Adapt permissive editor UI pieces to existing 52 typed ops and one immutable MediaProject; add waveform, manual lock, undo/redo and scene recapture | AI proposed edit → manual edit → save → reopen → render preserves semantics and exact committed revision |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-10",
         "PBI-11"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Implements host, editor, directing, interactive, or publication capabilities; approval/publish controls are implementation, not actual approval or release."
     },
     {
       "sourceTaskId": "M-08",
@@ -165,7 +191,10 @@
       "originalSourceSection": "§8 Implementation plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| M-08 | Composition / renderer | Implement tested cross-platform render SPI; caption/audio, overlays, protected crop, audio DSP, color, effects, deterministic profile identity and container/codec qualification | Render accuracy and A/V sync; 16:9/9:16; truthful unsupported codec; no phantom FFmpeg admission |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-10",
         "PBI-11",
@@ -173,7 +202,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Implements the named vertical and requires real profile, provider, artifact, or output qualification."
     },
     {
       "sourceTaskId": "M-09",
@@ -181,14 +211,17 @@
       "originalSourceSection": "§8 Implementation plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| M-09 | Autonomous director | Script, rough cut, media classification/ranking, QA suggestions and reusable style Skills, typed agent tools, dry-run, diff, approvals | Agent uses same edit kernel and cannot bypass rights/version/manual lock or silently overwrite humans |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-09",
         "PBI-10"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Implements host, editor, directing, interactive, or publication capabilities; approval/publish controls are implementation, not actual approval or release."
     },
     {
       "sourceTaskId": "M-10",
@@ -196,7 +229,10 @@
       "originalSourceSection": "§8 Implementation plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| M-10 | Generation and localization | Admitted text/image/video workers, model/version/seed provenance, speech translation/timed dub and optional authorized lip-sync | Local approved model or explicit unavailable; versioned outputs, per-scene regeneration, voice rights fail closed |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-07",
         "PBI-08",
@@ -205,7 +241,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Implements the named vertical and requires real profile, provider, artifact, or output qualification."
     },
     {
       "sourceTaskId": "M-11",
@@ -213,14 +250,17 @@
       "originalSourceSection": "§8 Implementation plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| M-11 | Interactive and publish | Bounded signed interactive graph, sandbox, offline capabilities, governed output/destination receipt | Player cannot execute privileged product command; publication UNKNOWN stays reconcilable |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-11",
         "PBI-13"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Implements host, editor, directing, interactive, or publication capabilities; approval/publish controls are implementation, not actual approval or release."
     },
     {
       "sourceTaskId": "M-12",
@@ -228,7 +268,10 @@
       "originalSourceSection": "§8 Implementation plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| M-12 | Quality / observability / privacy | Real film, audio, codec, source, translation/caption, rights/PII and a11y QA with redacted traces and resource limits | Positive, malicious, stale, cancelled, exceeded budget, unavailable, UNKNOWN and replay tests pass |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-12",
         "PBI-13",
@@ -236,7 +279,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Implements quality, observability, and privacy controls and requires real artifact/security/accessibility qualification."
     },
     {
       "sourceTaskId": "M-13",
@@ -244,13 +288,19 @@
       "originalSourceSection": "§8 Implementation plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| M-13 | Canonical source migration; MIG-04 | Verify runtime mirror differences, binary/API/DB/event compatibility, shadow admission and rollback; explicit owner approval | Only admitted cutover changes writer; source ownership not inferred from repo copy |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "QUALIFICATION",
+        "INDEPENDENT_PRODUCT_APPROVAL",
+        "DELIVERY"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-15"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Requires compatibility/shadow/rollback qualification, explicit owner approval, and canonical writer cutover.",
+      "splitTreatment": "Keep compatibility/shadow qualification, owner authorization, and runtime cutover as separately gated work."
     },
     {
       "sourceTaskId": "M-14",
@@ -258,13 +308,18 @@
       "originalSourceSection": "§8 Implementation plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| M-14 | Incremental Build verification & dogfood | Qualify S01, then S02, then conditional F03; test production profiles on CPU/Apple/NVIDIA/Windows/Linux where relevant | Actually decoded film artifacts, exact source/voice/rights/QA receipts; independent film signoff distinct |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "QUALIFICATION",
+        "INDEPENDENT_PRODUCT_APPROVAL"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-14"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Requires production-profile qualification and explicitly separate independent film signoff.",
+      "splitTreatment": "Build verification and profile qualification are distinct from the independent film signoff."
     },
     {
       "sourceTaskId": "M-15",
@@ -272,13 +327,19 @@
       "originalSourceSection": "§8 Implementation plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| M-15 | Delivery and closure independent stages | Finish applicable capability/operation/screen/consumer implementations and tests, native proofs after real runtime work | Build DEV_COMPLETE ≠ PDP native closure ≠ release; each requires independently supported result |",
-      "stageClassification": "POST_BUILD_INDEPENDENT_CLOSURE_OR_DELIVERY",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "PDP_CLOSURE",
+        "DELIVERY"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-15"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Combines remaining implementation/tests, native proofs, closure, and Delivery.",
+      "splitTreatment": "Split Build completion, native PDP closure proof, and Delivery into separate prerequisites."
     },
     {
       "sourceTaskId": "INV-01",
@@ -286,14 +347,17 @@
       "originalSourceSection": "§15 Prioritized full-product implementation integration",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| INV-01 | PDP-0 source reconciliation | `.product-experience/pdp-0-product-truth/{requirements.yaml,capabilities.yaml,recorder-studio-extension.yaml}` | Join 100% audit IDs to exact existing PDP0 capability and acceptance cases. Decide source change vs accepted applicability; do not duplicate capability truth. | Zero review features unclassified; any new meaning gets phase-impact/owner decision, not status inflation. |",
-      "stageClassification": "DISCOVERY_DEFINITION_RECONCILIATION",
+      "stageClassification": [
+        "DEFINITION_WORK"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-00",
         "PBI-02"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Defines or reconciles PDP requirements, contracts, experience, or source-current Discovery inputs."
     },
     {
       "sourceTaskId": "INV-02",
@@ -301,14 +365,17 @@
       "originalSourceSection": "§15 Prioritized full-product implementation integration",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| INV-02 | PDP-1 operation effects | `.product-experience/pdp-1-domain-data/` + typed public op authority | Map speech clone/profile, soundtrack generation, lip sync, visual tracking, C2PA, review, model install, social variants to existing operations or minimum new typed ones. Preserve 52 edit kinds, CAS, timebases and outcome semantics. | Requests/results/errors/actor/rights/UNKNOWN and negative fixtures for every required effect; no fabricated public route. |",
-      "stageClassification": "DISCOVERY_DEFINITION_RECONCILIATION",
+      "stageClassification": [
+        "DEFINITION_WORK"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-02",
         "PBI-03"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Defines or reconciles PDP requirements, contracts, experience, or source-current Discovery inputs."
     },
     {
       "sourceTaskId": "INV-03",
@@ -316,14 +383,17 @@
       "originalSourceSection": "§15 Prioritized full-product implementation integration",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| INV-03 | PDP-2 design parity | `.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml` | Bind newly explicit controls to existing 13 proposed Studio pages, Shared design tokens/Media components and CLI/SDK/MCP parity; no fake screen counts. | One semantic action ID across GUI, keyboard/text, API/SDK and Explorer; a11y, mobile and denials. |",
-      "stageClassification": "DISCOVERY_DEFINITION_RECONCILIATION",
+      "stageClassification": [
+        "DEFINITION_WORK"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-02",
         "PBI-10"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Defines or reconciles PDP requirements, contracts, experience, or source-current Discovery inputs."
     },
     {
       "sourceTaskId": "INV-04",
@@ -331,14 +401,17 @@
       "originalSourceSection": "§15 Prioritized full-product implementation integration",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| INV-04 | PDP-3 experience coverage | `.product-experience/pdp-3-product-experience/` + Explorer projection | Add exact end-to-end voice dubbing, AI director, generative B-roll, face-safe captions, HDR, music, live/collab/interactive/locale scenario cases where applicable. | All affected journey steps have truthful receipt/denial/unavailable/UNKNOWN, source pins, approved source-linked screens. |",
-      "stageClassification": "DISCOVERY_DEFINITION_RECONCILIATION",
+      "stageClassification": [
+        "DEFINITION_WORK"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-10",
         "PBI-11"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Defines or reconciles PDP requirements, contracts, experience, or source-current Discovery inputs."
     },
     {
       "sourceTaskId": "INV-05",
@@ -346,13 +419,16 @@
       "originalSourceSection": "§15 Prioritized full-product implementation integration",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| INV-05 | Source-currentness gate | `scripts/check-media-recorder-studio-*`, PDP source manifest/explorer generators, phase gates | Run source-wide regressions and affected surface currentness; reconcile 216 successor cells and new artifact IDs without repinning history. | Native PASS on frozen source; formal Discovery exit before Build entry. |",
-      "stageClassification": "DISCOVERY_DEFINITION_RECONCILIATION",
+      "stageClassification": [
+        "DEFINITION_WORK"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-00"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Defines or reconciles PDP requirements, contracts, experience, or source-current Discovery inputs."
     },
     {
       "sourceTaskId": "INV-06",
@@ -360,14 +436,18 @@
       "originalSourceSection": "§15 Prioritized full-product implementation integration",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| INV-06 | Runtime speech/auth vertical | Canonical `ghatana/services/media` until MIG-04; `modules/speech` and existing Java TTS/STT contracts | Replace placeholder assumptions with real admitted Whisper/Piper+voice engine candidates; exact model/effective voice/rights. | Audible speech+real transcripts, no synthetic production pass, consent refusal, CPU baseline. |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-07",
         "PBI-08"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Pairs runtime/provider/editor/generation/render/director implementation with the stated output, rights, reliability, or platform qualification."
     },
     {
       "sourceTaskId": "INV-07",
@@ -375,14 +455,18 @@
       "originalSourceSection": "§15 Prioritized full-product implementation integration",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| INV-07 | Professional NLE | `libs/audio-video-ui`, existing Media timeline and `@ghatana/ai-voice-ui-react` | Audit-copy OpenReel/Voicebox MIT fragments at exact file pin; implement complete 52 operations, waveforms, precise timing, keyboard, undo/diff and safe effects. | Roundtrip human->agent->human edit, revision parity across every channel, real 30–60min project. |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-10",
         "PBI-11"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Pairs runtime/provider/editor/generation/render/director implementation with the stated output, rights, reliability, or platform qualification."
     },
     {
       "sourceTaskId": "INV-08",
@@ -390,14 +474,18 @@
       "originalSourceSection": "§15 Prioritized full-product implementation integration",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| INV-08 | Creative audio and language | Speech provider adapters, caption/timebase, approved inference boundary | Expressive TTS, local-LLM personality, diarization, sentence retakes, source separation, timed dubbing, language/glossary and per-voice effects; separate music generator rights. | Voice identity/time-sync/lang mix+consent+license acceptance on real audio. |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-07",
         "PBI-08"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Pairs runtime/provider/editor/generation/render/director implementation with the stated output, rights, reliability, or platform qualification."
     },
     {
       "sourceTaskId": "INV-09",
@@ -405,14 +493,18 @@
       "originalSourceSection": "§15 Prioritized full-product implementation integration",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| INV-09 | Video AI and compositing | Vision+generation adapters, `production-studio` existing pages | Integrate Diffusers+Wan/Mochi, SAM2, OpenColorIO, optional MuseTalk; own face-safe tracking/motion graphics shader sandbox, studio workflows. | Temporal/subject safe-zone, reference conditioning, no model fallback, synthetic label, GPU memory and final video QA. |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-09",
         "PBI-10"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Pairs runtime/provider/editor/generation/render/director implementation with the stated output, rights, reliability, or platform qualification."
     },
     {
       "sourceTaskId": "INV-10",
@@ -420,14 +512,18 @@
       "originalSourceSection": "§15 Prioritized full-product implementation integration",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| INV-10 | Render/interchange | Media composition renderer SPI, asset/quality/report/publish contracts | Permissive codecs and muxers first; WebCodecs/OS capabilities; OTIO/OpenColorIO; C2PA; optional separately admitted encoder for MP4/ProRes when needed. | Qualified actual output on OS×codec×resolution; supported/unsupported matrix and independent decoded QA. |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-11",
         "PBI-12"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Pairs runtime/provider/editor/generation/render/director implementation with the stated output, rights, reliability, or platform qualification."
     },
     {
       "sourceTaskId": "INV-11",
@@ -435,7 +531,10 @@
       "originalSourceSection": "§15 Prioritized full-product implementation integration",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| INV-11 | Director and scale | Existing job/outbox/AI Inference public model registry; agent typed Media op interface | Versioned production compiler, agent Skills, cost/generation planning, watch jobs, scene-local invalidate, manual locks, evaluation/approval and abort/recovery. | Recompile deterministically, only affected scene changes, semantic diffs/rollback; no unauthorized publish/effects. |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-09",
         "PBI-10",
@@ -443,7 +542,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Pairs runtime/provider/editor/generation/render/director implementation with the stated output, rights, reliability, or platform qualification."
     },
     {
       "sourceTaskId": "INV-12",
@@ -451,13 +551,19 @@
       "originalSourceSection": "§15 Prioritized full-product implementation integration",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| INV-12 | Dogfood and qualification | Gharbatai source fixtures/qualified scenario; Media real host | Deliver complete real S01 demo and reusable voice/video workflow before broad model experiments; then multi-locale and variant verticals. | Real film decoded and signed, product-effect readback, manual edit preserved, approval distinct. |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION",
+        "INDEPENDENT_PRODUCT_APPROVAL"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-14"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Combines dogfood implementation, real-film qualification, and an explicitly distinct approval.",
+      "splitTreatment": "Dogfood/qualification evidence does not replace the independent film approval receipt."
     },
     {
       "sourceTaskId": "DAS-01",
@@ -465,14 +571,18 @@
       "originalSourceSection": "§24 Concrete Build plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| **DAS-01 Definition-to-Build bridge** (PBI-00/02) | `.product-experience`, `docs/implementation`, generator scripts and contract clients: assign every Recorder/animation/simulation capability to its exact PDP source, PBI owner and scenario | Missing exact source ID or changed scope causes actionable `BLOCKED`, not green generated manifest |",
-      "stageClassification": "DISCOVERY_TO_BUILD_HANDOFF_NOT_ADMITTED",
+      "stageClassification": [
+        "DEFINITION_WORK"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-00",
         "PBI-02"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Defines or reconciles PDP requirements, contracts, experience, or source-current Discovery inputs.",
+      "splitTreatment": "The source mapping/definition portion is Discovery work; any later PBI handoff/admission is a separate Build gate."
     },
     {
       "sourceTaskId": "DAS-02",
@@ -480,14 +590,18 @@
       "originalSourceSection": "§24 Concrete Build plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| **DAS-02 Compiler and typed IR** (PBI-02/10) | Existing Media project/recipe/resolved-plan owners + types/SDK: schema AST validator; pipeline DAG; typed `capture/animation/simulation` discriminants | Round-trip/unknown-schema, unsafe-expression, missing version/source, partial invalidation and CAS tests |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-02",
         "PBI-10"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Combines implementation of the named vertical with its exact behavior, safety, or output qualification."
     },
     {
       "sourceTaskId": "DAS-03",
@@ -495,7 +609,10 @@
       "originalSourceSection": "§24 Concrete Build plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| **DAS-03 Real Recorder vertical** (PBI-03/04/05/06/10/11) | Existing Media recorder adapters + Gharbatai consumer-qualified source capture; product readback and scene re-capture | One real, decoded, narrated, capturable film from actual scenario with non-simulated product receipt; authorized lease cleanup |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-03",
         "PBI-04",
@@ -506,7 +623,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Combines implementation of the named vertical with its exact behavior, safety, or output qualification."
     },
     {
       "sourceTaskId": "DAS-04",
@@ -514,14 +632,18 @@
       "originalSourceSection": "§24 Concrete Build plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| **DAS-04 Declarative 2D animation** (PBI-10/11) | Existing Studio scene graph + approved SVG/Canvas/Three adapters; textual math/graph scene + keyframes | A declarative animated lesson and branding/title scene render identically within profiled tolerances across headless/editor; accessible semantic output |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-10",
         "PBI-11"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Combines implementation of the named vertical with its exact behavior, safety, or output qualification."
     },
     {
       "sourceTaskId": "DAS-05",
@@ -529,7 +651,10 @@
       "originalSourceSection": "§24 Concrete Build plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| **DAS-05 Voice and animated narration** (PBI-07/08/10) | Existing governed Piper/Whisper adapters and qualified voices; timed text/speech and motion mapping | Only changed phrase rerenders; captions/motion preserve audio sample mapping and locked manual edits |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-07",
         "PBI-08",
@@ -537,7 +662,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Combines implementation of the named vertical with its exact behavior, safety, or output qualification."
     },
     {
       "sourceTaskId": "DAS-06",
@@ -545,7 +671,10 @@
       "originalSourceSection": "§24 Concrete Build plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| **DAS-06 Model IR bridge and first solver** (PBI-09/10/12) | Public TutorPutor AEF compatibility adapter -> existing Media simulation-world/run/checkpoint; trusted exact/JS/WASM solver | F2 analytic unit-reference case plus EXACT graph/state-machine trace; unsupported solver typed unavailable |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-09",
         "PBI-10",
@@ -553,7 +682,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Combines implementation of the named vertical with its exact behavior, safety, or output qualification."
     },
     {
       "sourceTaskId": "DAS-07",
@@ -561,7 +691,10 @@
       "originalSourceSection": "§24 Concrete Build plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| **DAS-07 Interactive scientific scene** (PBI-10/11/13) | Existing `explore-simulation` screen and interactive player: control/measurement/branch/state semantic shadow | Force/mass changes correct model observable, A/B state isolation, keyboard/mobile/screen-reader, no unapproved mastery mutation |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-10",
         "PBI-11",
@@ -569,7 +702,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Combines implementation of the named vertical with its exact behavior, safety, or output qualification."
     },
     {
       "sourceTaskId": "DAS-08",
@@ -577,14 +711,17 @@
       "originalSourceSection": "§24 Concrete Build plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| **DAS-08 Advanced solver matrix** (PBI-10/14) | Conditionally qualified Rapier, SimPy, SciPy, and other domain/solver-specific workers, no premature duplicate packages | Per family F0–F4/invariants/uncertainty, numerical drift, resource limits and reproducibility receipts |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-10",
         "PBI-14"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Advanced solver family/profile qualification only; no solver admission is asserted."
     },
     {
       "sourceTaskId": "DAS-09",
@@ -592,7 +729,10 @@
       "originalSourceSection": "§24 Concrete Build plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| **DAS-09 Studio full edits/interchange** (PBI-10/11/12) | Existing 52 edit operations, same CAS path for manual/agent; render profile/interchange adapters | Edit/undo/redo/lock/reopen, GUI/CLI/API parity, no double project/version authority |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-10",
         "PBI-11",
@@ -600,7 +740,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Combines implementation of the named vertical with its exact behavior, safety, or output qualification."
     },
     {
       "sourceTaskId": "DAS-10",
@@ -608,7 +749,10 @@
       "originalSourceSection": "§24 Concrete Build plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| **DAS-10 Fan-out and selective regeneration** (PBI-05/10/14) | One source DAG outputs 16:9/9:16, narrated dubbed variants, videos plus interactive bundles | Input or model change rerenders only descendants; unaffected semantic hashes retained; no stale published manifest |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-05",
         "PBI-10",
@@ -616,7 +760,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Combines implementation of the named vertical with its exact behavior, safety, or output qualification."
     },
     {
       "sourceTaskId": "DAS-11",
@@ -624,7 +769,10 @@
       "originalSourceSection": "§24 Concrete Build plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| **DAS-11 Governance / QA** (PBI-13/14/15) | Rights, consent, model/solver/codec license policy, security, output fidelity and observability | Real renderer/profile and model-run QA, OTel traces redacted, license manifest admission, denied/unknown/retry tests |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-13",
         "PBI-14",
@@ -632,7 +780,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Combines implementation of the named vertical with its exact behavior, safety, or output qualification."
     },
     {
       "sourceTaskId": "DAS-12",
@@ -640,14 +789,21 @@
       "originalSourceSection": "§24 Concrete Build plan",
       "taskClass": "PLAN_TASK",
       "exactSourceMarkdownRow": "| **DAS-12 Controlled dogfood and migration** (PBI-14/15) | Gharbatai Recorder film, TutorPutor AEF/public package consumer, reversible canonical runtime cutover | Both consumers pass independently; Gharbatai business receipt, TutorPutor scientific/learner contract, no unauthorized writer switch |",
-      "stageClassification": "BUILD_IMPLEMENTATION_PLANNING_NOT_ADMITTED",
+      "stageClassification": [
+        "BUILD_IMPLEMENTATION",
+        "QUALIFICATION",
+        "INDEPENDENT_PRODUCT_APPROVAL",
+        "DELIVERY"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-14",
         "PBI-15"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Combines controlled dogfood, consumer qualification, independent consumer acceptance, and reversible runtime cutover.",
+      "splitTreatment": "Separate each consumer qualification and owner receipt from the migration/cutover gate."
     },
     {
       "sourceTaskId": "C-01",
@@ -655,14 +811,19 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-01 Replay as truth** | A real product action is captured and independently confirmed in owner readback; AI-generated lookalike is tagged illustration, never observed product truth. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION",
+        "INDEPENDENT_PRODUCT_APPROVAL"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-03",
         "PBI-12"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Tests real product capture and explicitly independent owner readback.",
+      "splitTreatment": "The experiment may qualify capture behavior; independent owner readback is a separate external acceptance receipt."
     },
     {
       "sourceTaskId": "C-02",
@@ -670,7 +831,9 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-02 0-GUI experience** | Take an API-only or CLI-only product scenario to storyboard, narration, timeline and accessible rendered video without fake browser UI. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-02",
         "PBI-10",
@@ -678,7 +841,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed product, channel, rights, runtime, rendering, generation, editing, or accessibility qualification experiment; no execution or approval is asserted."
     },
     {
       "sourceTaskId": "C-03",
@@ -686,7 +850,9 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-03 One-to-many** | Same immutable source project outputs desktop 16:9, social 9:16, dubbed language and interactive bundle with common lineage. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-05",
         "PBI-10",
@@ -694,7 +860,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed product, channel, rights, runtime, rendering, generation, editing, or accessibility qualification experiment; no execution or approval is asserted."
     },
     {
       "sourceTaskId": "C-04",
@@ -702,14 +869,17 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-04 Voice identity** | Declared speaker, selected provider, effective voice and output verification exactly agree; wrong voice triggers denial or review. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-07",
         "PBI-08"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed product, channel, rights, runtime, rendering, generation, editing, or accessibility qualification experiment; no execution or approval is asserted."
     },
     {
       "sourceTaskId": "C-05",
@@ -717,14 +887,17 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-05 Voice consent** | Revoked voice reference before a queued job denies synthesis; external provider unknown consent-erasure remains reconcilable. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-07",
         "PBI-13"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed product, channel, rights, runtime, rendering, generation, editing, or accessibility qualification experiment; no execution or approval is asserted."
     },
     {
       "sourceTaskId": "C-06",
@@ -732,7 +905,9 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-06 Long speech** | A chapter-long multivoice book/podcast job survives chunk splitting, crossfade, speaker changes, retries and preserves sample-clock alignment. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-07",
         "PBI-08",
@@ -740,7 +915,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed product, channel, rights, runtime, rendering, generation, editing, or accessibility qualification experiment; no execution or approval is asserted."
     },
     {
       "sourceTaskId": "C-07",
@@ -748,13 +924,16 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-07 Live dictation** | Device mic speech streams with actual VAD/ASR partial/final events and does not paste or log sensitive text without authorized focus. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-07"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed product, channel, rights, runtime, rendering, generation, editing, or accessibility qualification experiment; no execution or approval is asserted."
     },
     {
       "sourceTaskId": "C-08",
@@ -762,14 +941,17 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-08 Exact dub** | Dub at least two identified speakers in two languages; align words and silence, preserve soundtrack, verify speaker mapping and sync. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-08",
         "PBI-10"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed product, channel, rights, runtime, rendering, generation, editing, or accessibility qualification experiment; no execution or approval is asserted."
     },
     {
       "sourceTaskId": "C-09",
@@ -777,14 +959,17 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-09 Lip sync** | Authorized speaker portrait/video + generated audio returns actual synchronized frames without uncontrolled face change; consent, jitter and A/V offsets QA. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-09",
         "PBI-10"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed product, channel, rights, runtime, rendering, generation, editing, or accessibility qualification experiment; no execution or approval is asserted."
     },
     {
       "sourceTaskId": "C-10",
@@ -792,14 +977,17 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-10 Music licensing** | MusicGen-type noncommercial weights are rejected for commercial distribution; compare qualified ACE-Step MIT and HeartMuLa Apache weights with attribution/copyright/similarity/source-rights audit. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-08",
         "PBI-13"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed product, channel, rights, runtime, rendering, generation, editing, or accessibility qualification experiment; no execution or approval is asserted."
     },
     {
       "sourceTaskId": "C-11",
@@ -807,7 +995,9 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-11 Agent edit** | Agent proposes film edit, dry-runs semantic diff; actor approves; human changes same revision; stale automated commit fails and manual locks survive. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-09",
         "PBI-10",
@@ -815,7 +1005,9 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed product, channel, rights, runtime, rendering, generation, editing, or accessibility qualification experiment; no execution or approval is asserted.",
+      "splitTreatment": "The test verifies an actor approval workflow; the test result is not itself independent product approval."
     },
     {
       "sourceTaskId": "C-12",
@@ -823,14 +1015,17 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-12 All 52 edits** | Property/model tests across 52 manual discriminants, complete parameter schema, keyboard/CLI/API parity and save/reopen/render stable semantics. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-10",
         "PBI-11"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed product, channel, rights, runtime, rendering, generation, editing, or accessibility qualification experiment; no execution or approval is asserted."
     },
     {
       "sourceTaskId": "C-13",
@@ -838,14 +1033,17 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-13 Face-safe caption** | Person segmentation over moving face keeps captions in safe/contrast zones across selected frames; exception triggers manual review. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-09",
         "PBI-12"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed product, channel, rights, runtime, rendering, generation, editing, or accessibility qualification experiment; no execution or approval is asserted."
     },
     {
       "sourceTaskId": "C-14",
@@ -853,14 +1051,17 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-14 Segment recapture** | Change one source step and one narration line; recompute only dependent descendants; unrelated scene hashes and human-edited mask remain identical. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-03",
         "PBI-10"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed product, channel, rights, runtime, rendering, generation, editing, or accessibility qualification experiment; no execution or approval is asserted."
     },
     {
       "sourceTaskId": "C-15",
@@ -868,14 +1069,17 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-15 Generation provenance** | Text-to-video and image-to-video demonstrate reference ordering, condition controls, seed/precision/model identity, unavailable GPU and remote egress denial; Kandinsky joint A/V additionally verifies actual dialogue-sound sync. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-09",
         "PBI-10"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed product, channel, rights, runtime, rendering, generation, editing, or accessibility qualification experiment; no execution or approval is asserted."
     },
     {
       "sourceTaskId": "C-16",
@@ -883,14 +1087,17 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-16 Professional color** | LUT/ACES/SDR/HDR 10-bit requests preserve declared color primaries, transfer, pixel formats or fail unsupported rather than silently convert. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-10",
         "PBI-12"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed product, channel, rights, runtime, rendering, generation, editing, or accessibility qualification experiment; no execution or approval is asserted."
     },
     {
       "sourceTaskId": "C-17",
@@ -898,7 +1105,9 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-17 Media sync** | VFR screen capture with clock drops, waveform, word spans and 60-minute source exports stays synchronized under measured preapproved tolerances. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-05",
         "PBI-11",
@@ -906,7 +1115,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed product, channel, rights, runtime, rendering, generation, editing, or accessibility qualification experiment; no execution or approval is asserted."
     },
     {
       "sourceTaskId": "C-18",
@@ -914,14 +1124,17 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-18 Encoder independence** | Run on CPU Linux/macOS/Windows browser qualification; AV1/VP9 WebM when available, licensed MP4 optional; no implicit FFmpeg/ProRes claim. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-11",
         "PBI-12"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed product, channel, rights, runtime, rendering, generation, editing, or accessibility qualification experiment; no execution or approval is asserted."
     },
     {
       "sourceTaskId": "C-19",
@@ -929,14 +1142,17 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-19 Workflows as data** | Visual workflow editor and YAML/SDK generator serialize to the identical typed DAG and budget/policy plan fingerprint. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-02",
         "PBI-10"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed product, channel, rights, runtime, rendering, generation, editing, or accessibility qualification experiment; no execution or approval is asserted."
     },
     {
       "sourceTaskId": "C-20",
@@ -944,7 +1160,9 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-20 Creative variants** | Produce multiple social/locale brand variants with crop/logo/legal protected zones and single source revision lineage. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-05",
         "PBI-10",
@@ -952,7 +1170,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed product, channel, rights, runtime, rendering, generation, editing, or accessibility qualification experiment; no execution or approval is asserted."
     },
     {
       "sourceTaskId": "C-21",
@@ -960,14 +1179,19 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-21 Signed proof** | C2PA manifest verifies the shipped asset hard-binding on supported containers; source/model claims are linked to signed assertions, with distinct pre-sign and post-sign asset fingerprints. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION",
+        "DELIVERY"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-11",
         "PBI-12"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed signature/C2PA verification for a shipped asset.",
+      "splitTreatment": "Signature verification qualifies a Delivery property; no shipped asset or delivery receipt is asserted."
     },
     {
       "sourceTaskId": "C-22",
@@ -975,7 +1199,9 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-22 External failure** | Timeout, cancellation, retries, late provider callback, job ownership lease, publish UNKNOWN, disk full and legal hold never result in fabricated completed status. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-03",
         "PBI-13",
@@ -983,7 +1209,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed reliability, security, accessibility, performance, interchange, authorization, or lifecycle qualification experiment; no execution is asserted."
     },
     {
       "sourceTaskId": "C-23",
@@ -991,14 +1218,17 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-23 Content attacks** | Hostile subtitle/media/agent prompt/shader cannot run arbitrary code, cross tenant, publish, fetch URLs, log secrets or send protected file to provider. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-09",
         "PBI-13"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed reliability, security, accessibility, performance, interchange, authorization, or lifecycle qualification experiment; no execution is asserted."
     },
     {
       "sourceTaskId": "C-24",
@@ -1006,7 +1236,9 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-24 Accessibility** | 13 proposed Studio pages + player and headless paths support keyboard, focus, textual timecode, RTL/CJK/Devanagari, reduced motion, screen reader. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-10",
         "PBI-11",
@@ -1014,7 +1246,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed reliability, security, accessibility, performance, interchange, authorization, or lifecycle qualification experiment; no execution is asserted."
     },
     {
       "sourceTaskId": "C-25",
@@ -1022,13 +1255,16 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-25 Production economics** | Measure local vs remote, CPU/Metal/CUDA, energy/VRAM, p50/p95, re-render share, storage amplification and quality; only observed capability is advertised. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-14"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed reliability, security, accessibility, performance, interchange, authorization, or lifecycle qualification experiment; no execution is asserted."
     },
     {
       "sourceTaskId": "C-26",
@@ -1036,14 +1272,17 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-26 Full edit interchange** | Export and re-import qualified OTIO project and approved FCPXML/AAF adapter; exact clip timebases and unmappable effects are reported, never silently discarded. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-11",
         "PBI-12"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed reliability, security, accessibility, performance, interchange, authorization, or lifecycle qualification experiment; no execution is asserted."
     },
     {
       "sourceTaskId": "C-27",
@@ -1051,14 +1290,17 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-27 Cross-platform collaboration** | Share frame-anchored comment on immutable revision, apply edit, rebase/resolve comment and ensure viewer lacks author/editor privileges. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-10",
         "PBI-14"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed reliability, security, accessibility, performance, interchange, authorization, or lifecycle qualification experiment; no execution is asserted."
     },
     {
       "sourceTaskId": "C-28",
@@ -1066,14 +1308,17 @@
       "originalSourceSection": "§16 Competitive acceptance",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| **C-28 Model removal** | Delete unused model/cache without removing in-use content or breaking legal holds; content and rights lineage remain readable. |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-00",
         "PBI-14"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed reliability, security, accessibility, performance, interchange, authorization, or lifecycle qualification experiment; no execution is asserted."
     },
     {
       "sourceTaskId": "DAS-A01",
@@ -1081,14 +1326,19 @@
       "originalSourceSection": "§25.1 Product and scientific oracles",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| `DAS-A01` | Gharbatai seeded recording with 2 authorized business actions, product readbacks and exact ownership cleanup | Captured film reproduces observed state; run and film are not accepted without independent product and codec QA |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION",
+        "INDEPENDENT_PRODUCT_APPROVAL"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-03",
         "PBI-14"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Requires independent product and codec QA for the real consumer scenario.",
+      "splitTreatment": "Codec/product qualification and independent product QA require distinct source-bound results."
     },
     {
       "sourceTaskId": "DAS-A02",
@@ -1096,14 +1346,17 @@
       "originalSourceSection": "§25.1 Product and scientific oracles",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| `DAS-A02` | Real browser capture vs API-only journey | Browser has qualified pixels/cursor tracks; API-only has generated explanatory visual *clearly marked*, never fake captured UI |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-03",
         "PBI-10"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed capture, animation, simulation, solver, editing, or regeneration qualification experiment; no scientific/provider qualification is inferred."
     },
     {
       "sourceTaskId": "DAS-A03",
@@ -1111,14 +1364,17 @@
       "originalSourceSection": "§25.1 Product and scientific oracles",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| `DAS-A03` | Declarative text/graph/mathematics animation at 16:9 and 9:16 | Bounds/units/semantic shadow and equation content preserved, no protected-crop loss |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-10",
         "PBI-11"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed capture, animation, simulation, solver, editing, or regeneration qualification experiment; no scientific/provider qualification is inferred."
     },
     {
       "sourceTaskId": "DAS-A04",
@@ -1126,14 +1382,17 @@
       "originalSourceSection": "§25.1 Product and scientific oracles",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| `DAS-A04` | Replay animation at arbitrary t_story and after undo/redo | Same canonical revision renders same semantic state, no wall-time dependence or hidden side effect |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-10",
         "PBI-11"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed capture, animation, simulation, solver, editing, or regeneration qualification experiment; no scientific/provider qualification is inferred."
     },
     {
       "sourceTaskId": "DAS-A05",
@@ -1141,7 +1400,9 @@
       "originalSourceSection": "§25.1 Product and scientific oracles",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| `DAS-A05` | F2 constant force model (m=2 kg, F=6 N, t=2 s) | a=3 m/s²; v=6 m/s; displacement=6 m, within exact declared tolerance |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-09",
         "PBI-10",
@@ -1149,7 +1410,8 @@
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed capture, animation, simulation, solver, editing, or regeneration qualification experiment; no scientific/provider qualification is inferred."
     },
     {
       "sourceTaskId": "DAS-A06",
@@ -1157,14 +1419,17 @@
       "originalSourceSection": "§25.1 Product and scientific oracles",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| `DAS-A06` | F2 with mismatched unit, negative invalid mass, huge input, missing solver | Typed reject/UNAVAILABLE, no zero default or forged measurement |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-09",
         "PBI-13"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed capture, animation, simulation, solver, editing, or regeneration qualification experiment; no scientific/provider qualification is inferred."
     },
     {
       "sourceTaskId": "DAS-A07",
@@ -1172,14 +1437,17 @@
       "originalSourceSection": "§25.1 Product and scientific oracles",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| `DAS-A07` | Learner pauses explanation while simulation was at t_sim=0.75s | t_sim remains unchanged; story annotation updates without model mutation |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-09",
         "PBI-11"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed capture, animation, simulation, solver, editing, or regeneration qualification experiment; no scientific/provider qualification is inferred."
     },
     {
       "sourceTaskId": "DAS-A08",
@@ -1187,14 +1455,17 @@
       "originalSourceSection": "§25.1 Product and scientific oracles",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| `DAS-A08` | Exact state-machine model replays and forks after checkpoint | Same events and seed give same result; branch independent with preserved initial run and source identity |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-09",
         "PBI-10"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed capture, animation, simulation, solver, editing, or regeneration qualification experiment; no scientific/provider qualification is inferred."
     },
     {
       "sourceTaskId": "DAS-A09",
@@ -1202,14 +1473,17 @@
       "originalSourceSection": "§25.1 Product and scientific oracles",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| `DAS-A09` | Stochastic agent-based model with two seeds | Only statistical/tolerance claims according to declared reproducibility class; not falsely bit-identical |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-09",
         "PBI-14"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed capture, animation, simulation, solver, editing, or regeneration qualification experiment; no scientific/provider qualification is inferred."
     },
     {
       "sourceTaskId": "DAS-A10",
@@ -1217,14 +1491,17 @@
       "originalSourceSection": "§25.1 Product and scientific oracles",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| `DAS-A10` | Science validator reports non-convergence/limit breach after visually smooth scene | Output remains non-qualified or blocked; visual quality cannot override scientific outcome |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-09",
         "PBI-13"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed capture, animation, simulation, solver, editing, or regeneration qualification experiment; no scientific/provider qualification is inferred."
     },
     {
       "sourceTaskId": "DAS-A11",
@@ -1232,14 +1509,17 @@
       "originalSourceSection": "§25.1 Product and scientific oracles",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| `DAS-A11` | AI edits a product demo containing protected frame and educational model scene | Same typed Media edit-operation/CAS/actor policy used; no protected manual edit lost |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-10",
         "PBI-11"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed capture, animation, simulation, solver, editing, or regeneration qualification experiment; no scientific/provider qualification is inferred."
     },
     {
       "sourceTaskId": "DAS-A12",
@@ -1247,14 +1527,17 @@
       "originalSourceSection": "§25.1 Product and scientific oracles",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| `DAS-A12` | Partial voice/animation recompile from changed narration phrase | Unaffected DAG child hashes and manually locked regions preserved; aligned caption/animation time revalidated |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-07",
         "PBI-10"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed capture, animation, simulation, solver, editing, or regeneration qualification experiment; no scientific/provider qualification is inferred."
     },
     {
       "sourceTaskId": "DAS-A13",
@@ -1262,14 +1545,19 @@
       "originalSourceSection": "§25.1 Product and scientific oracles",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| `DAS-A13` | TutorPutor product receives edited interactive media package | Learner/assessment/credential authority remains TutorPutor; Media only owns derived media, code/mobile/offline profile admitted |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION",
+        "INDEPENDENT_PRODUCT_APPROVAL"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-11",
         "PBI-14"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Tests consumer receipt while TutorPutor retains learner/assessment/credential authority.",
+      "splitTreatment": "Consumer package qualification does not replace TutorPutor owner acceptance."
     },
     {
       "sourceTaskId": "DAS-A14",
@@ -1277,14 +1565,17 @@
       "originalSourceSection": "§25.1 Product and scientific oracles",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| `DAS-A14` | Accessibility: reduce motion, keyboard control, 400% zoom, high contrast and screen reader | Semantic quantities, focus, step/probe equivalents visible/announced; no canvas-only required state |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-11",
         "PBI-13"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed accessibility, security/licensing, reliability, performance/profile, or interchange qualification experiment; no execution is asserted."
     },
     {
       "sourceTaskId": "DAS-A15",
@@ -1292,13 +1583,16 @@
       "originalSourceSection": "§25.1 Product and scientific oracles",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| `DAS-A15` | Privacy/security/licensing negative matrix | No unauthorized file/network/model egress; no GPL/AGPL/conditional model dependency in strict permissive bundle |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-13"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed accessibility, security/licensing, reliability, performance/profile, or interchange qualification experiment; no execution is asserted."
     },
     {
       "sourceTaskId": "DAS-A16",
@@ -1306,14 +1600,17 @@
       "originalSourceSection": "§25.1 Product and scientific oracles",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| `DAS-A16` | Job failure, stale attempt, user cancel, publish timeout, worker restart | Current job identity and fencing; UNKNOWN not replayed blindly; no false terminal result |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-03",
         "PBI-14"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed accessibility, security/licensing, reliability, performance/profile, or interchange qualification experiment; no execution is asserted."
     },
     {
       "sourceTaskId": "DAS-A17",
@@ -1321,14 +1618,17 @@
       "originalSourceSection": "§25.1 Product and scientific oracles",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| `DAS-A17` | CPU/no-WebGPU, supported GPU, mobile/offline, large scene | Per-profile capability and performance truth, semantically correct fallback/UNAVAILABLE; bounded memory and power |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-09",
         "PBI-14"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed accessibility, security/licensing, reliability, performance/profile, or interchange qualification experiment; no execution is asserted."
     },
     {
       "sourceTaskId": "DAS-A18",
@@ -1336,14 +1636,39 @@
       "originalSourceSection": "§25.1 Product and scientific oracles",
       "taskClass": "ACCEPTANCE_EXPERIMENT",
       "exactSourceMarkdownRow": "| `DAS-A18` | Render export/import/reopen with audio narration, animation, simulation and captions | Fidelity/codec/clock conversions reported, source time preserved, typed project remains editable |",
-      "stageClassification": "BUILD_OR_INDEPENDENT_ACCEPTANCE_NOT_RUN",
+      "stageClassification": [
+        "QUALIFICATION"
+      ],
       "candidateExistingPbiPackages": [
         "PBI-10",
         "PBI-11"
       ],
       "canonicalTaskAuthority": "ORIGINAL_ATTACHED_BLUEPRINT_IS_PLANNING_REFERENCE; EXISTING_PBI_00_15_IS_SOLE_BUILD_QUEUE",
       "completionStatus": "NOT_ASSERTED_BY_THIS_RECONCILIATION",
-      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable"
+      "requiredNextEvidence": "Source phase currentness for definition tasks; real runtime/provider/science/dogfood proof for implementation and experiment tasks; independent authorization where applicable",
+      "stageClassificationRationale": "Proposed accessibility, security/licensing, reliability, performance/profile, or interchange qualification experiment; no execution is asserted."
     }
-  ]
+  ],
+  "stageClassificationSchema": {
+    "field": "items[].stageClassification",
+    "version": "media.source-task-stage-classification.v1",
+    "meaning": "Array of stage/work categories entailed by the exact original source row. Multiple categories mark separate work types or gates within one source item; they do not authorize parallel execution or imply completion.",
+    "allowedCategories": [
+      "DEFINITION_WORK",
+      "BUILD_IMPLEMENTATION",
+      "QUALIFICATION",
+      "INDEPENDENT_PRODUCT_APPROVAL",
+      "PDP_CLOSURE",
+      "DELIVERY"
+    ],
+    "categoryDefinitions": {
+      "DEFINITION_WORK": "PDP-0 through PDP-3 product-definition or source-current Discovery work.",
+      "BUILD_IMPLEMENTATION": "Build implementation or implementation verification work after the Discovery barrier.",
+      "QUALIFICATION": "Actual profile, artifact, provider, security, scientific, accessibility, performance, or other qualification work; a proposed experiment is not a result.",
+      "INDEPENDENT_PRODUCT_APPROVAL": "Independent product/consumer/owner approval or acceptance receipt from the authorized external authority; never inferred or agent-authored.",
+      "PDP_CLOSURE": "Native PDP closure/acceptance proof after applicable development completion; not the same as PDP DEV_COMPLETE.",
+      "DELIVERY": "Release, cutover, publication, handoff, or other Delivery-stage work under the applicable gate."
+    },
+    "statusGuard": "Classification is prospective work routing only. Preserve completionStatus as NOT_ASSERTED_BY_THIS_RECONCILIATION; it does not record execution, qualification, owner approval, closure, or delivery."
+  }
 }

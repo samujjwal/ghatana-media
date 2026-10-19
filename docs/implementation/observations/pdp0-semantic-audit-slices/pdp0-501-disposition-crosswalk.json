@@ -8,11 +8,11 @@
     "reviewBaselineCommit": "1c65a033d37fd8c2f9b3951c42c92b88fb725c13",
     "workingTreeSourceFingerprintsSha256": {
       "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
-      "docs/implementation/observations/media-unified-production-501-feature-reconciliation-2026-10-18.json": "937e772198b36599885b87a8b2f83742542a2f39cf07c63c172eac2eceec7e57",
+      "docs/implementation/observations/media-unified-production-501-feature-reconciliation-2026-10-18.json": "6bb129f13519dc08fe4e85ff57e46c2ca1cb6d425cbd6fcbb207ae588a46ae40",
       "docs/implementation/observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json": "84e4fa97094f5f018e779551eeb94cf7adabe08260ce125a616a4936c5a74df1",
       ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
-      ".product-experience/pdp-0-product-truth/requirements.yaml": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "af774f4db0a306ac3514475d65170560c345e7a6ecdf17305edb2ac3b9af41fe",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
       ".product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml": "ccfa544afaf056b8a7ffcc77f61dc17e36289d8ddfc0fb60c75f7998a4d116af",
       "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json": "fa4ae72cf2644cf2815a31447f57e2768579a96550d66aa2e4594510005a7533",
       "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-215-428.json": "71ad52105f6ea5953865faaf109e727daa9908c7cf7803b723d637311fb6632d",
@@ -20,18 +20,21 @@
       "docs/implementation/observations/pdp0-semantic-audit-slices/meaning-gap-qc.json": "8240dd7e36917c9a205fb592b6af4e118f1ede3909ff7007fa995b1ce546d565",
       "docs/implementation/observations/pdp0-semantic-audit-slices/acceptance-case-outcome-qc.json": "6812b39cd6107615b92cc7c2ad89f5fb2af5a67767dc31515b25853c4f6987fa",
       "docs/implementation/observations/pdp0-semantic-audit-slices/capture-time-fidelity-review.json": "e685293898c453e2bf2c2bed8e1404adddfbbe12093ebf6f5a8ef90c93ff9c41",
-      ".product-experience/decision-log.md": "17277282fac71c6f21e110a6820ae2ac6b797ece0a9d5276a849e1f37cdae16f",
+      ".product-experience/decision-log.md": "a1da4038be71d33a127c3344dc62fe7dd783e53d7185fe604526993fe4dc5fe5",
       ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml": "2359ae53756a4d35d84387707345c439c87050c6efafed40e5426e1c8e3e5ca4",
       ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
       ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "87c2e92a36a05bd6b9f34eed7b8e9b4cab2102a0448e9200615f85859526b8cb",
       ".product-experience/pdp-0-product-truth/intent-resolutions.yaml": "2bbc74c35dfdae2d9e940ff31a5487a5707118fdb76f2ed4a250f51853530898",
       ".product-experience/pdp-0-product-truth/journey-catalog.yaml": "0b30f351633d5d0209ea5f20a8a1b89d8641b086b3c554119014c22cf4e7d7ad",
       ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "faadcc8eaa9c1338d1b3014f899d8ae7c7b69c290d694956e8eae2c477003ac8",
-      ".product-experience/pdp-0-product-truth/quality-policy.yaml": "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770"
+      ".product-experience/pdp-0-product-truth/quality-policy.yaml": "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770",
+      "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json": "accb9b167a8de10199169b70f2befbc44b88a2aa705d1a5c2a8a593fe547e26a",
+      "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json": "8ffa4a5b3e98e3d4ed488dc7695477995cfb76d4cf899b69a0977bfee8919aa9",
+      "tests/pdp-migration-semantic-reconciliation.test.mjs": "56b2a989cccb5d1de277590f1012ed7de4e35f0add85641f1a7150ddb5a60482"
     },
     "fingerprintAlgorithm": "SHA-256 of exact file bytes",
-    "fingerprintNotes": "Fingerprints reflect the current P0 source cut including PXD-167. Coordinator source-disposition review is current; owner, independent, specialist, legal, platform, OS, and scientific acceptance remain unclaimed where applicable.",
-    "sourceCutStatus": "FINAL_SURFACE_SOURCE_CUT_FINGERPRINTED"
+    "fingerprintNotes": "Fingerprints reflect the current PDP-0 source cut, including PXD-168 and PXD-169 corrections, PXD-172 speech and keyboard meaning updates, the PXD-173 bounded source re-observation, PXD-174 definition updates and four-row crosswalk reconciliation, PXD-175 metadata-only observation-pin refresh with the same 462 capability leaf meanings, and PXD-176 qualification-policy status-only source-currentness refresh with unchanged decisionRules. PXD-177 defines parent-child cancellation meaning in MEDIA-REQ-CAP-JOB-AC-03; this refresh updates the exact requirements.yaml and decision-log.md whole-file pins. PXD-172 remains historical coordinator provenance and PXD-174 remains AUD-SIM3-018 row provenance. This is crosswalk currentness only; it is not owner acceptance, independent acceptance, implementation, qualification, or closure. PXD-178 rechecks P0-05 and P0-07 mappings against the current requirement source; direct-definition-criteria-review.json records those current-source reviews. The crosswalk pins the current decision log and direct-definition review source; the existing requirement pin remains current. PXD-172 and PXD-174 retain their historical and row-level provenance roles. PXD-179 updates the stale materialGap explanation for MPSEM-0376-C003: the bounded PDP-0 parent-cancellation definition is authored, while claim-specific semantic parity remains pending. Current-source pins include the decision log, affected candidate record, and regression test; no audit-row meaning or acceptance state changes. PXD-180 records a no-effect current-source review of PDP-1/PDP-2 validator wiring; the P0-07 predicate and meanings remain unchanged. This pin refresh updates the exact decision-log and direct-definition-review fingerprints only; the 501 audit rows and their dispositions remain unchanged.",
+    "sourceCutStatus": "CURRENT_PDP0_AUDIT_SOURCE_CUT_FINGERPRINTED"
   },
   "denominator": {
     "expectedOriginalAuditIds": 428,
@@ -59,11 +62,13 @@
     "BLOCKED_EXTERNAL_OWNER_DECISION": 0
   },
   "coordinatorReview": {
-    "status": "APPROVED_CURRENT_COORDINATOR_SOURCE_REVIEW",
-    "approval": "GRANTED_FOR_CROSSWALK_EVIDENCE_AND_HANDOFF_RECONCILIATION",
+    "status": "RECORDED_CURRENT_COORDINATOR_SOURCE_REVIEW",
+    "approval": "GRANTED_FOR_PDP0_SOURCE_DEFINITION_AND_CROSSWALK_RECONCILIATION",
     "ownerApproval": "NOT_CLAIMED",
-    "decisionRef": "PXD-167",
-    "note": "The coordinator reconciled all 27 independent meaning-gap QC rows to current PDP-0 source evidence and recorded exact downstream phase/use handoffs. The crosswalk has no unresolved PDP-0 meaning dispositions. Owner, independent, specialist, legal, platform, OS, and scientific acceptance remain unclaimed where applicable; PDP-0 DEV_COMPLETE is established only by the native producer."
+    "decisionRef": "PXD-172",
+    "note": "PXD-177 records the bounded parent-child cancellation definition update in MEDIA-REQ-CAP-JOB-AC-03. Existing row decisions and PXD-174 provenance, including AUD-SIM3-018, remain preserved; PXD-172 remains historical coordinator provenance and the imported acceptance-text mismatch remains provenance-only. This metadata refresh makes the source pins current only and does not redefine any row or claim owner, independent, specialist, legal, platform, OS, or scientific acceptance, implementation, qualification, or closure. The native PDP-0 producer alone determines source-current development completion. PXD-178 records current-source P0-05/P0-07 mapping rechecks; this pin refresh updates source currentness metadata only. Existing 501 row meanings and PXD-174 row provenance remain preserved. PXD-179 is a consistency-only correction for MPSEM-0376-C003; semantic parity remains pending and no owner or independent acceptance is claimed. This refresh updates exact current-source pins only and preserves the 501 audit rows and their existing provenance.",
+    "priorDecisionRef": "PXD-169",
+    "scope": "Current source reconciliation for the complete 501-row PDP-0 audit crosswalk."
   },
   "decisionRules": {
     "allowedDispositions": [
@@ -74,19 +79,37 @@
       "BLOCKED_EXTERNAL_OWNER_DECISION"
     ],
     "lexicalMatches": "Never sufficient; rows require semantic source evidence or remain a meaning change/blocker.",
-    "qcApplication": "Independent meaning-gap QC remains applied to its exact 27 source IDs. PXD-167 records the coordinator's current-source reconciliation: exact PDP-0 evidence resolves definition meaning, while applicable per-use and qualified authorities remain downstream. Owner and independent acceptance remain unclaimed.",
+    "qcApplication": "Independent meaning-gap QC remains applied to its exact source IDs. PXD-172 is the current coordinator source reconciliation for three completed source-meaning repairs and known provenance-only acceptance-text mismatches; PXD-168 and PXD-169 remain preserved for their separate corrections. Applicable owner, per-use, qualification, implementation, and later-phase gates remain unclaimed and at their owning stages.",
     "evidenceRule": "BOUND_EXISTING rows cite exact stable P0 source pointers. Conditional product boundaries resolve source meaning only; their per-use or qualified-admission gates remain explicitly unclaimed and downstream."
   },
   "unresolvedPdp0Ids": [],
   "externalOwnerBlockers": [],
   "laterPhaseHandoffs": {
     "countsByPhase": {
-      "UNSPECIFIED": 1001,
+      "PDP-2/PDP-3": 107,
+      "PDP-1": 237,
       "PDP-1/PDP-2/PDP-3": 27,
-      "BUILD": 16,
-      "PER_USE_OR_ADMISSION_AUTHORITY": 5
+      "PDP-1/PDP-2": 4,
+      "PDP-3": 6,
+      "BUILD/PDP-2": 1,
+      "PDP-1/BUILD": 1,
+      "BUILD/PDP-1": 4,
+      "BUILD/PDP-1/PDP-2/PDP-3": 8,
+      "per-use/admission handoff": 4,
+      "BUILD/PDP-1/PDP-3": 2,
+      "BUILD/PDP-1/qualification/rights": 1,
+      "BUILD/PDP-1/PDP-2": 1,
+      "BUILD/PDP-1/per-use rights admission": 2,
+      "BUILD/qualification/PDP-1/legal/rights admission": 1,
+      "BUILD": 44,
+      "PDP-2": 10,
+      "BUILD/PDP-1/PDP-2/PDP-3/per-use rights admission": 1,
+      "PDP-1/PDP-3": 1,
+      "PDP-1/PDP-3/per-use consent admission": 1,
+      "UNSPECIFIED": 37,
+      "PDP-1/qualified scientific claim/admission": 1
     },
-    "recordPolicy": "Per-row handoffs and five conditional per-use/admission gates are preserved separately; they do not reopen the PDP-0 product meaning. No legal, platform, OS, scientific, or external owner approval is claimed."
+    "recordPolicy": "Counts group the 501 audit rows by their complete, distinct handoff-label set; UNSPECIFIED denotes a row with no later-phase handoff. Per-row handoffs and conditional owner-admission or qualification gates remain explicit. Counts are a crosswalk projection only; they do not claim implementation, acceptance, closure, or scientific qualification."
   },
   "acceptanceCaseAudit": {
     "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/acceptance-case-outcome-qc.json",
@@ -317,13 +340,13 @@
         }
       ],
       "decisionRef": {
-        "id": "PXD-167",
-        "path": ".product-experience/decision-log.md#PXD-167",
+        "id": "PXD-172",
+        "path": ".product-experience/decision-log.md#PXD-172",
         "status": "RECORDED_CURRENT_COORDINATOR_SOURCE_REVIEW",
-        "approval": "GRANTED_FOR_CROSSWALK_EVIDENCE_AND_HANDOFF_RECONCILIATION",
+        "approval": "GRANTED_FOR_PDP0_SOURCE_DEFINITION_AND_CROSSWALK_RECONCILIATION",
         "ownerApproval": "NOT_CLAIMED"
       },
-      "decisionRationaleStatus": "PXD-167 records the current-source reconciliation of REFINE_EXISTING_P0 QC and downstream phase handoffs; owner acceptance remains unclaimed.",
+      "decisionRationaleStatus": "PXD-172 records that sourceAcceptanceText is preserved for provenance and is not feature-specific acceptance evidence; exact PDP-0 evidence remains in pdp0EvidenceRefs.",
       "independentAcceptance": "NOT_CLAIMED",
       "independentQcDispositionResolution": {
         "resolution": "RESOLVED_IN_CURRENT_PDP0_SOURCE",
@@ -333,7 +356,8 @@
         ],
         "ownerApproval": "NOT_CLAIMED"
       },
-      "downstreamApprovalHandoffs": []
+      "downstreamApprovalHandoffs": [],
+      "sourceAcceptanceAlignment": "Preserved verbatim from the source audit for provenance; it does not describe this feature row and is not PDP-0 acceptance evidence. Use the exact pdp0EvidenceRefs for feature-specific acceptance."
     },
     {
       "auditId": "AUD-SPEC-009",
@@ -854,22 +878,26 @@
       "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CAP-007",
       "disposition": "BOUND_EXISTING",
       "pdp0EvidenceRefs": [
-        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-compose-track-video-audio-caption-overlay.v1",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.track.video-audio-caption-overlay",
-        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.stream.recording.integrate",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.stream.recording.integrate/ownerDefinition/semanticOutcomeContract",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM/acceptanceCases/@id=MEDIA-REQ-CAP-STREAM-AC-03",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.understand",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/outcomes/@id=media.goal.understand-media"
       ],
       "pdp0ContextRefs": [],
       "proposedPdp0SourceChange": null,
       "externalOwnerDecision": null,
-      "phaseLocalRationale": "PDP-0 semantic match: the source feature asks for presenter teleprompter synchronized with scene/narration cue; the canonical owner intent media.compose.track.video-audio-caption-overlay defines the product result as P0 defines the compose video/audio/caption/overlay tracks result as a local composition candidate or draft whose intended operation is to arrange video, audio, caption, and overlay tracks together; it does not define a committed project change or rendered delivery. The typed inputs [{'slotId': 'input1', 'sourceType': 'versioned-project-and-selected-artifacts', 'cardinality': 'EXACTLY_ONE', 'required': True}, {'slotId': 'input2', 'sourceType': 'composition-intent', 'cardinality': 'EXACTLY_ONE', 'required': True}] establish the request meaning; guards require verified authority and eligible inputs, failure/unknown outcomes are explicit in ['INVALID_REQUEST', 'ACCESS_DENIED', 'RIGHTS_OR_CONSENT_DENIED', 'UNSUPPORTED_PROFILE', 'BOUNDS_EXCEEDED', 'CONFLICT', 'UNAVAILABLE', 'UNKNOWN_OUTCOME'], and the leaf constraints preserve source/avoid silent substitution. The feature-specific details beyond that product purpose belong to the separate handoff, not a new P0 task.",
+      "phaseLocalRationale": "PDP-0 meaning is now explicit: for an authorized presenter script with a declared scene/narration cue map, a prompt may follow the declared active cue with script and cue provenance. An absent map remains unbound; no cue alignment is inferred, and prompt presentation does not claim a committed recording or project edit. Typed cue relations remain PDP-1 work; presentation controls and the complete presenter journey remain PDP-2/PDP-3 work.",
       "reviewProvenance": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#recommendations/@auditId=AUD-CAP-007",
       "independentQcRef": null,
       "ownerApproval": "NOT_CLAIMED",
       "laterPhaseHandoffs": {
-        "ownerPhase": "PDP-2/PDP-3",
-        "gap": "teleprompter-not-direct-leaf",
+        "ownerPhase": "PDP-1/PDP-2/PDP-3",
+        "gap": "Define the typed script/cue relation in PDP-1 and its presentation controls and complete journey in PDP-2/PDP-3.",
         "status": "SEPARATE_HANDOFF_NOT_A_PDP0_TASK"
-      }
+      },
+      "decisionRef": ".product-experience/decision-log.md#PXD-168"
     },
     {
       "auditId": "AUD-CAP-008",
@@ -1032,24 +1060,26 @@
       "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CAP-014",
       "disposition": "BOUND_EXISTING",
       "pdp0EvidenceRefs": [
-        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.speaker.diarize",
-        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline/ownerDefinition/semanticOutcomeContract",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-03",
         ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.understand",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/outcomes/@id=media.goal.understand-media",
-        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-speech-transcription-speaker-diarize.v1"
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/outcomes/@id=media.goal.understand-media"
       ],
       "pdp0ContextRefs": [],
       "proposedPdp0SourceChange": null,
       "externalOwnerDecision": null,
-      "phaseLocalRationale": "PDP-0 semantic match: the source feature asks for active-speaker-aware automatic multicam cut proposals; the canonical owner intent media.speech.transcription.speaker.diarize defines the product result as The P0 result meaning is diarization as assigning speech portions to distinct within-recording speaker labels/turns when evidence is provided. The typed inputs [{'slotId': 'input1', 'sourceType': 'audio-artifact-or-live-stream', 'cardinality': 'EXACTLY_ONE_OF_DECLARED_ALTERNATIVES', 'required': True, 'alternatives': ['audio-artifact', 'live-stream']}, {'slotId': 'input2', 'sourceType': 'language-hint-when-provided', 'cardinality': 'ZERO_OR_ONE', 'required': False}] establish the request meaning; guards require verified authority and eligible inputs, failure/unknown outcomes are explicit in ['INVALID_REQUEST', 'ACCESS_DENIED', 'RIGHTS_OR_CONSENT_DENIED', 'UNSUPPORTED_PROFILE', 'BOUNDS_EXCEEDED', 'CONFLICT', 'UNAVAILABLE', 'UNKNOWN_OUTCOME'], and the leaf constraints preserve source/avoid silent substitution. The feature-specific details beyond that product purpose belong to the separate handoff, not a new P0 task.",
+      "phaseLocalRationale": "PDP-0 meaning is now explicit: active-speaker multicamera analysis may return a reviewable local cut proposal that links each proposed cut to speaker-turn and camera-source evidence. Missing or uncertain links remain explicit; diarization alone does not constitute a proposal, and proposal generation does not commit a project edit or render. Exact source/timebase joins remain PDP-1 work.",
       "reviewProvenance": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#recommendations/@auditId=AUD-CAP-014",
       "independentQcRef": null,
       "ownerApproval": "NOT_CLAIMED",
       "laterPhaseHandoffs": {
-        "ownerPhase": "PDP-1",
-        "gap": "multi-cam-actual-source-join",
+        "ownerPhase": "PDP-1/PDP-2/PDP-3",
+        "gap": "Define speaker-turn/camera-source/timebase joins and proposal data in PDP-1, then proposal review and edit-approval journeys in PDP-2/PDP-3.",
         "status": "SEPARATE_HANDOFF_NOT_A_PDP0_TASK"
-      }
+      },
+      "decisionRef": ".product-experience/decision-log.md#PXD-168"
     },
     {
       "auditId": "AUD-CAP-015",
@@ -1190,50 +1220,48 @@
       "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CAP-020",
       "disposition": "BOUND_EXISTING",
       "pdp0EvidenceRefs": [
-        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-rights-permitted-use-evaluate.v1",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate",
-        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@id=media.capability-adjudication.rights-permitted-use-evaluate/channelApplicability",
-        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/@id=MEDIA-REC-P0-AC-024",
         ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/@id=MEDIA-REC-P0-AC-058"
       ],
-      "pdp0ContextRefs": [],
+      "pdp0ContextRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate"
+      ],
       "proposedPdp0SourceChange": null,
       "externalOwnerDecision": null,
-      "phaseLocalRationale": "MEDIA-REC-P0-AC-058; MEDIA-REQ-CAP-RIGHTS",
+      "phaseLocalRationale": "MEDIA-REC-P0-AC-024 defines reversible mouse/keyboard-activity overlays and fail-closed masking before preview, recording, or export; MEDIA-REC-P0-AC-058 preserves pre-export redaction of sensitive source. The unrelated imported clock/readback sentence remains provenance-only.",
       "reviewProvenance": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#recommendations/@auditId=AUD-CAP-020",
       "independentQcRef": "docs/implementation/observations/pdp0-semantic-audit-slices/meaning-gap-qc.json#records/@sourceAuditId=AUD-CAP-020",
       "ownerApproval": "NOT_CLAIMED",
       "laterPhaseHandoffs": [
         {
           "phase": "PDP-2",
-          "scope": "Define sensitive-source redaction overlays and keystroke-masking workflow."
+          "scope": "Define visible overlay controls and the detailed keystroke-masking workflow against the frozen PDP-0 semantics."
         },
         {
           "stage": "BUILD",
-          "scope": "Implement and verify pre-export redaction across pixels, logs, and data."
+          "scope": "Implement and verify masking before preview, recording, and export; no runtime behavior is claimed."
         }
       ],
       "independentQcDispositionResolution": {
-        "resolution": "NO_ADDITIONAL_PDP0_MEANING",
-        "currentSourceReviewRef": ".product-experience/decision-log.md#PXD-167",
+        "resolution": "RESOLVED_IN_CURRENT_PDP0_SOURCE",
+        "currentSourceReviewRef": ".product-experience/decision-log.md#PXD-172",
         "currentSourceEvidenceRefs": [
-          ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-rights-permitted-use-evaluate.v1",
-          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate",
-          ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@id=media.capability-adjudication.rights-permitted-use-evaluate/channelApplicability",
-          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/@id=MEDIA-REC-P0-AC-024",
           ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/@id=MEDIA-REC-P0-AC-058"
         ],
         "ownerApproval": "NOT_CLAIMED"
       },
       "decisionRef": {
-        "id": "PXD-167",
-        "path": ".product-experience/decision-log.md#PXD-167",
+        "id": "PXD-172",
+        "path": ".product-experience/decision-log.md#PXD-172",
         "status": "RECORDED_CURRENT_COORDINATOR_SOURCE_REVIEW",
-        "approval": "GRANTED_FOR_CROSSWALK_EVIDENCE_AND_HANDOFF_RECONCILIATION",
+        "approval": "GRANTED_FOR_PDP0_SOURCE_DEFINITION_AND_CROSSWALK_RECONCILIATION",
         "ownerApproval": "NOT_CLAIMED"
       },
-      "decisionRationaleStatus": "PXD-167 records the current-source reconciliation of BOUND_EXISTING QC and downstream phase handoffs; owner acceptance remains unclaimed.",
-      "downstreamApprovalHandoffs": []
+      "decisionRationaleStatus": "PXD-172 records the current-source meaning reconciliation and provenance-only source-acceptance alignment; human owner acceptance remains unclaimed.",
+      "downstreamApprovalHandoffs": [],
+      "sourceAcceptanceAlignment": "Preserved verbatim from the source audit for provenance; it does not describe this feature row and is not PDP-0 acceptance evidence. Use the exact pdp0EvidenceRefs for feature-specific acceptance."
     },
     {
       "auditId": "AUD-CAP-021",
@@ -1557,22 +1585,26 @@
       "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASSET-005",
       "disposition": "BOUND_EXISTING",
       "pdp0EvidenceRefs": [
-        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-artifact-search.v1",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search/ownerDefinition/semanticOutcomeContract",
         ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search"
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-03",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.understand",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/outcomes/@id=media.goal.understand-media"
       ],
       "pdp0ContextRefs": [],
       "proposedPdp0SourceChange": null,
       "externalOwnerDecision": null,
-      "phaseLocalRationale": "PDP-0 semantic match: the source feature asks for ai search on authorized semantic transcripts; the canonical owner intent media.artifact.search defines the product result as The result is a bounded page of governed artifact records for exactly one supplied source-media or project reference under rights-and-retention context, with required pageSize (1–100) and optional opaque pageToken. Search fields, criteria, matching, ordering, and completeness are unspecified. The typed inputs [{'slotId': 'input1', 'sourceType': 'source-media-or-project-reference', 'cardinality': 'EXACTLY_ONE_OF_DECLARED_ALTERNATIVES', 'required': True, 'alternatives': ['source-media', 'project-reference']}, {'slotId': 'input2', 'sourceType': 'rights-and-retention-context', 'cardinality': 'EXACTLY_ONE', 'required': True}] establish the request meaning; guards require verified authority and eligible inputs, failure/unknown outcomes are explicit in ['INVALID_REQUEST', 'ACCESS_DENIED', 'RIGHTS_OR_CONSENT_DENIED', 'UNSUPPORTED_PROFILE', 'BOUNDS_EXCEEDED', 'CONFLICT', 'UNAVAILABLE', 'UNKNOWN_OUTCOME'], and the leaf constraints preserve source/avoid silent substitution. The feature-specific details beyond that product purpose belong to the separate handoff, not a new P0 task.",
+      "phaseLocalRationale": "PDP-0 meaning is now explicit: requested semantic transcript search returns bounded candidate matches anchored to an exact source version and transcript time range. Denied scope, unavailable transcript content, unknown matching/continuation, and an empty page remain distinct; completeness, ranking and transcript correctness are not implied. Typed query, index and result contracts remain PDP-1 work.",
       "reviewProvenance": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#recommendations/@auditId=AUD-ASSET-005",
       "independentQcRef": null,
       "ownerApproval": "NOT_CLAIMED",
       "laterPhaseHandoffs": {
-        "ownerPhase": "PDP-1",
-        "gap": "authorized-semantic-index-required",
+        "ownerPhase": "PDP-1/PDP-2/PDP-3",
+        "gap": "Define authorized transcript query, index, result and continuation contracts in PDP-1, with applicable search and result-review journey in PDP-2/PDP-3.",
         "status": "SEPARATE_HANDOFF_NOT_A_PDP0_TASK"
-      }
+      },
+      "decisionRef": ".product-experience/decision-log.md#PXD-168"
     },
     {
       "auditId": "AUD-ASSET-006",
@@ -1885,22 +1917,26 @@
       "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASSET-018",
       "disposition": "BOUND_EXISTING",
       "pdp0EvidenceRefs": [
-        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-artifact-search.v1",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search/ownerDefinition/semanticOutcomeContract",
         ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search"
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-04",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.understand",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/outcomes/@id=media.goal.understand-media"
       ],
       "pdp0ContextRefs": [],
       "proposedPdp0SourceChange": null,
       "externalOwnerDecision": null,
-      "phaseLocalRationale": "PDP-0 semantic match: the source feature asks for semantic duplicates and near-duplicate detection; the canonical owner intent media.artifact.search defines the product result as The result is a bounded page of governed artifact records for exactly one supplied source-media or project reference under rights-and-retention context, with required pageSize (1–100) and optional opaque pageToken. Search fields, criteria, matching, ordering, and completeness are unspecified. The typed inputs [{'slotId': 'input1', 'sourceType': 'source-media-or-project-reference', 'cardinality': 'EXACTLY_ONE_OF_DECLARED_ALTERNATIVES', 'required': True, 'alternatives': ['source-media', 'project-reference']}, {'slotId': 'input2', 'sourceType': 'rights-and-retention-context', 'cardinality': 'EXACTLY_ONE', 'required': True}] establish the request meaning; guards require verified authority and eligible inputs, failure/unknown outcomes are explicit in ['INVALID_REQUEST', 'ACCESS_DENIED', 'RIGHTS_OR_CONSENT_DENIED', 'UNSUPPORTED_PROFILE', 'BOUNDS_EXCEEDED', 'CONFLICT', 'UNAVAILABLE', 'UNKNOWN_OUTCOME'], and the leaf constraints preserve source/avoid silent substitution. The feature-specific details beyond that product purpose belong to the separate handoff, not a new P0 task.",
+      "phaseLocalRationale": "PDP-0 meaning is now explicit: duplicate or near-duplicate analysis may return bounded candidate groups that retain source artifact identities and expose matching uncertainty. Candidate grouping confirms neither identity nor permission to merge, replace, or delete any source; thresholds, matching contracts and qualification are downstream.",
       "reviewProvenance": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#recommendations/@auditId=AUD-ASSET-018",
       "independentQcRef": null,
       "ownerApproval": "NOT_CLAIMED",
       "laterPhaseHandoffs": {
-        "ownerPhase": "PDP-1",
-        "gap": "near-duplicate-algorithm-qualification",
+        "ownerPhase": "PDP-1/BUILD",
+        "gap": "Define typed candidate-group and matching-result semantics in PDP-1; any algorithm thresholds and empirical performance qualification remain separate Build/qualification work.",
         "status": "SEPARATE_HANDOFF_NOT_A_PDP0_TASK"
-      }
+      },
+      "decisionRef": ".product-experience/decision-log.md#PXD-168"
     },
     {
       "auditId": "AUD-ASSET-019",
@@ -3509,24 +3545,26 @@
       "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-010",
       "disposition": "BOUND_EXISTING",
       "pdp0EvidenceRefs": [
-        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.detect.silence",
-        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-AUDIO-ANALYSIS",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.file",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.file/ownerDefinition/semanticOutcomeContract",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-05",
         ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.understand",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/outcomes/@id=media.goal.understand-media",
-        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-audio-analysis-detect-silence.v1"
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/outcomes/@id=media.goal.understand-media"
       ],
       "pdp0ContextRefs": [],
       "proposedPdp0SourceChange": null,
       "externalOwnerDecision": null,
-      "phaseLocalRationale": "PDP-0 semantic match: the source feature asks for asr-assisted filler word and retake detection; the canonical owner intent media.audio.analysis.detect.silence defines the product result as The P0 result meaning is a set of candidate silence detection observations in audio. The typed inputs [{'slotId': 'input1', 'sourceType': 'audio-artifact', 'cardinality': 'EXACTLY_ONE', 'required': True}, {'slotId': 'input2', 'sourceType': 'analysis-request', 'cardinality': 'EXACTLY_ONE', 'required': True}] establish the request meaning; guards require verified authority and eligible inputs, failure/unknown outcomes are explicit in ['INVALID_REQUEST', 'ACCESS_DENIED', 'RIGHTS_OR_CONSENT_DENIED', 'UNSUPPORTED_PROFILE', 'BOUNDS_EXCEEDED', 'CONFLICT', 'UNAVAILABLE', 'UNKNOWN_OUTCOME'], and the leaf constraints preserve source/avoid silent substitution. The feature-specific details beyond that product purpose belong to the separate handoff, not a new P0 task.",
+      "phaseLocalRationale": "PDP-0 meaning is now explicit: requested ASR-assisted filler-word or retake analysis returns only uncertain candidate observations anchored to the exact source version and time range. These candidates are distinct from silence observations and never authorize automatic deletion, trimming, or cutting. Typed timing, observation and evidence contracts remain PDP-1 work.",
       "reviewProvenance": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#recommendations/@auditId=AUD-ASR-010",
       "independentQcRef": null,
       "ownerApproval": "NOT_CLAIMED",
       "laterPhaseHandoffs": {
-        "ownerPhase": "PDP-2/PDP-3",
-        "gap": "Define the feature-specific contract for asr-assisted filler word and retake detection at PDP-2/PDP-3; the current PDP-0 leaf already states the user-facing purpose/result. Keep operation types and domain constraints in PDP-1, interface grammar in PDP-2, and user action/journey contracts in PDP-3 as applicable.",
+        "ownerPhase": "PDP-1/PDP-2/PDP-3",
+        "gap": "Define typed source-time observation and uncertainty contracts in PDP-1, then candidate review and user editing journeys in PDP-2/PDP-3.",
         "status": "SEPARATE_HANDOFF_NOT_A_PDP0_TASK"
-      }
+      },
+      "decisionRef": ".product-experience/decision-log.md#PXD-168"
     },
     {
       "auditId": "AUD-ASR-011",
@@ -3561,24 +3599,26 @@
       "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-012",
       "disposition": "BOUND_EXISTING",
       "pdp0EvidenceRefs": [
-        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.punctuate-capitalize",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.file",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.file/ownerDefinition/semanticOutcomeContract",
         ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-04",
         ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.understand",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/outcomes/@id=media.goal.understand-media",
-        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-speech-transcription-punctuate-capitalize.v1"
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/outcomes/@id=media.goal.understand-media"
       ],
       "pdp0ContextRefs": [],
       "proposedPdp0SourceChange": null,
       "externalOwnerDecision": null,
-      "phaseLocalRationale": "PDP-0 semantic match: the source feature asks for custom glossary and correction dictionary; the canonical owner intent media.speech.transcription.punctuate-capitalize defines the product result as The P0 result meaning is punctuation and capitalization as text formatting of a transcript. The typed inputs [{'slotId': 'input1', 'sourceType': 'audio-artifact-or-live-stream', 'cardinality': 'EXACTLY_ONE_OF_DECLARED_ALTERNATIVES', 'required': True, 'alternatives': ['audio-artifact', 'live-stream']}, {'slotId': 'input2', 'sourceType': 'language-hint-when-provided', 'cardinality': 'ZERO_OR_ONE', 'required': False}] establish the request meaning; guards require verified authority and eligible inputs, failure/unknown outcomes are explicit in ['INVALID_REQUEST', 'ACCESS_DENIED', 'RIGHTS_OR_CONSENT_DENIED', 'UNSUPPORTED_PROFILE', 'BOUNDS_EXCEEDED', 'CONFLICT', 'UNAVAILABLE', 'UNKNOWN_OUTCOME'], and the leaf constraints preserve source/avoid silent substitution. The feature-specific details beyond that product purpose belong to the separate handoff, not a new P0 task.",
+      "phaseLocalRationale": "PDP-0 meaning is now explicit: an explicitly requested and admitted versioned custom glossary may guide transcription recognition or correction. Any produced transcript remains an unverified source-version/timebase-linked draft, the glossary version is identified, and ambiguous, unsupported, or unavailable entries are not silently applied. This is distinct from punctuation/capitalization formatting; typed glossary entry and application contracts remain PDP-1 work.",
       "reviewProvenance": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#recommendations/@auditId=AUD-ASR-012",
       "independentQcRef": null,
       "ownerApproval": "NOT_CLAIMED",
       "laterPhaseHandoffs": {
-        "ownerPhase": "PDP-1",
-        "gap": "custom-glossary-source-needed",
+        "ownerPhase": "PDP-1/PDP-2/PDP-3",
+        "gap": "Define typed glossary version, entry, application and transcript-source contracts in PDP-1, with applicable glossary controls and correction workflow in PDP-2/PDP-3.",
         "status": "SEPARATE_HANDOFF_NOT_A_PDP0_TASK"
-      }
+      },
+      "decisionRef": ".product-experience/decision-log.md#PXD-168"
     },
     {
       "auditId": "AUD-ASR-013",
@@ -3640,22 +3680,26 @@
       "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-015",
       "disposition": "BOUND_EXISTING",
       "pdp0EvidenceRefs": [
-        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-artifact-search.v1",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search/ownerDefinition/semanticOutcomeContract",
         ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search"
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-03",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.understand",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/outcomes/@id=media.goal.understand-media"
       ],
       "pdp0ContextRefs": [],
       "proposedPdp0SourceChange": null,
       "externalOwnerDecision": null,
-      "phaseLocalRationale": "PDP-0 semantic match: the source feature asks for semantic search through recorded material; the canonical owner intent media.artifact.search defines the product result as The result is a bounded page of governed artifact records for exactly one supplied source-media or project reference under rights-and-retention context, with required pageSize (1–100) and optional opaque pageToken. Search fields, criteria, matching, ordering, and completeness are unspecified. The typed inputs [{'slotId': 'input1', 'sourceType': 'source-media-or-project-reference', 'cardinality': 'EXACTLY_ONE_OF_DECLARED_ALTERNATIVES', 'required': True, 'alternatives': ['source-media', 'project-reference']}, {'slotId': 'input2', 'sourceType': 'rights-and-retention-context', 'cardinality': 'EXACTLY_ONE', 'required': True}] establish the request meaning; guards require verified authority and eligible inputs, failure/unknown outcomes are explicit in ['INVALID_REQUEST', 'ACCESS_DENIED', 'RIGHTS_OR_CONSENT_DENIED', 'UNSUPPORTED_PROFILE', 'BOUNDS_EXCEEDED', 'CONFLICT', 'UNAVAILABLE', 'UNKNOWN_OUTCOME'], and the leaf constraints preserve source/avoid silent substitution. The feature-specific details beyond that product purpose belong to the separate handoff, not a new P0 task.",
+      "phaseLocalRationale": "PDP-0 meaning is now explicit: semantic search through recorded material may return bounded candidate matches tied to exact source versions and transcript time ranges. The result distinguishes empty, denied, unavailable and unknown/incomplete states and does not claim a complete search or verified transcript correctness. Typed query, index and result contracts remain PDP-1 work.",
       "reviewProvenance": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#recommendations/@auditId=AUD-ASR-015",
       "independentQcRef": null,
       "ownerApproval": "NOT_CLAIMED",
       "laterPhaseHandoffs": {
-        "ownerPhase": "PDP-1",
-        "gap": "authorized-transcript-semantic-search",
+        "ownerPhase": "PDP-1/PDP-2/PDP-3",
+        "gap": "Define authorized transcript query, index, result and continuation contracts in PDP-1, with applicable search and result-review journey in PDP-2/PDP-3.",
         "status": "SEPARATE_HANDOFF_NOT_A_PDP0_TASK"
-      }
+      },
+      "decisionRef": ".product-experience/decision-log.md#PXD-168"
     },
     {
       "auditId": "AUD-ASR-016",
@@ -4233,49 +4277,47 @@
       ],
       "pdp0ContextRefs": [
         ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speaker.condition",
-        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.create",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/outcomes/@id=media.goal.finished-asset",
-        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-speech-synthesis-speaker-condition.v1"
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.create"
       ],
       "proposedPdp0SourceChange": null,
       "externalOwnerDecision": null,
-      "phaseLocalRationale": "Current PDP-0 acceptance case(s) explicitly define this product meaning: MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-03. Per-use authority, implementation, qualification, and later-phase contracts remain separate.",
+      "phaseLocalRationale": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-03 defines system-authored response text for a declared voice/personality profile, preserves request/context provenance, distinguishes supplied/quoted/generated content, and keeps claims unverified absent linked source review. Local model choice remains an implementation detail.",
       "reviewProvenance": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#recommendations/@auditId=AUD-TTS-017",
       "independentQcRef": "docs/implementation/observations/pdp0-semantic-audit-slices/meaning-gap-qc.json#records/@sourceAuditId=AUD-TTS-017",
       "ownerApproval": "NOT_CLAIMED",
       "laterPhaseHandoffs": [
         {
           "phase": "PDP-1",
-          "scope": "Represent composed text, speaker conditioning, and factual/identity limits."
+          "scope": "Represent response text, speaker conditioning, source/context provenance, and factual/identity limits."
         },
         {
           "phase": "PDP-3",
-          "scope": "Define compose/rewrite/respond conversational journeys."
+          "scope": "Define the compose/rewrite/respond conversational journeys."
         },
         {
           "stage": "BUILD",
-          "scope": "Implement local model/runtime behavior only after the source contract is current."
+          "scope": "Implement the selected model/runtime only after the Discovery exit barrier."
         }
       ],
       "decisionRef": {
-        "id": "PXD-167",
-        "path": ".product-experience/decision-log.md#PXD-167",
+        "id": "PXD-172",
+        "path": ".product-experience/decision-log.md#PXD-172",
         "status": "RECORDED_CURRENT_COORDINATOR_SOURCE_REVIEW",
-        "approval": "GRANTED_FOR_CROSSWALK_EVIDENCE_AND_HANDOFF_RECONCILIATION",
+        "approval": "GRANTED_FOR_PDP0_SOURCE_DEFINITION_AND_CROSSWALK_RECONCILIATION",
         "ownerApproval": "NOT_CLAIMED"
       },
-      "decisionRationaleStatus": "PXD-167 records the current-source reconciliation of REFINE_EXISTING_P0 QC and downstream phase handoffs; owner acceptance remains unclaimed.",
+      "decisionRationaleStatus": "PXD-172 records the current-source meaning reconciliation and provenance-only source-acceptance alignment; human owner acceptance remains unclaimed.",
       "independentAcceptance": "NOT_CLAIMED",
       "independentQcDispositionResolution": {
         "resolution": "RESOLVED_IN_CURRENT_PDP0_SOURCE",
-        "currentSourceReviewRef": ".product-experience/decision-log.md#PXD-167",
+        "currentSourceReviewRef": ".product-experience/decision-log.md#PXD-172",
         "currentSourceEvidenceRefs": [
           ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-03"
         ],
         "ownerApproval": "NOT_CLAIMED"
       },
-      "downstreamApprovalHandoffs": []
+      "downstreamApprovalHandoffs": [],
+      "sourceAcceptanceAlignment": "Preserved verbatim from the source audit for provenance; it does not describe this feature row and is not PDP-0 acceptance evidence. Use the exact pdp0EvidenceRefs for feature-specific acceptance."
     },
     {
       "auditId": "AUD-TTS-018",
@@ -4285,54 +4327,54 @@
       "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TTS-018",
       "disposition": "BOUND_EXISTING",
       "pdp0EvidenceRefs": [
-        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.streaming",
-        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.create",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/outcomes/@id=media.goal.finished-asset",
-        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-speech-synthesis-streaming.v1"
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05"
       ],
-      "pdp0ContextRefs": [],
+      "pdp0ContextRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.stream",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.streaming",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.understand",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.create",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/outcomes/@id=media.goal.understand-media",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/outcomes/@id=media.goal.finished-asset"
+      ],
       "proposedPdp0SourceChange": null,
       "externalOwnerDecision": null,
-      "phaseLocalRationale": "media.stream.session; media.speech.synthesis.text-to-speech; interaction journey owners",
+      "phaseLocalRationale": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05 defines the user purpose and outcome for a full-duplex voice conversation composed from existing streaming-transcription and streaming-synthesis leaves, including turn attribution, streaming/completion truth, interruption/cancellation, and no implicit project or publication effect.",
       "reviewProvenance": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#recommendations/@auditId=AUD-TTS-018",
       "independentQcRef": "docs/implementation/observations/pdp0-semantic-audit-slices/meaning-gap-qc.json#records/@sourceAuditId=AUD-TTS-018",
       "ownerApproval": "NOT_CLAIMED",
       "laterPhaseHandoffs": [
         {
           "phase": "PDP-1",
-          "scope": "Define streaming session and turn-taking states."
+          "scope": "Define typed streaming-session and turn-taking state representations."
         },
         {
           "phase": "PDP-3",
-          "scope": "Define the full-duplex conversational journey."
+          "scope": "Define the complete user-initiated full-duplex conversational journey."
         },
         {
           "stage": "BUILD",
-          "scope": "Implement the integrated voice loop after Discovery completion."
+          "scope": "Implement the integrated voice loop only after the Discovery exit barrier."
         }
       ],
       "independentQcDispositionResolution": {
-        "resolution": "NO_ADDITIONAL_PDP0_MEANING",
-        "currentSourceReviewRef": ".product-experience/decision-log.md#PXD-167",
+        "resolution": "RESOLVED_IN_CURRENT_PDP0_SOURCE",
+        "currentSourceReviewRef": ".product-experience/decision-log.md#PXD-172",
         "currentSourceEvidenceRefs": [
-          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.streaming",
-          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
-          ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.create",
-          ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/outcomes/@id=media.goal.finished-asset",
-          ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-speech-synthesis-streaming.v1"
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05"
         ],
         "ownerApproval": "NOT_CLAIMED"
       },
       "decisionRef": {
-        "id": "PXD-167",
-        "path": ".product-experience/decision-log.md#PXD-167",
+        "id": "PXD-172",
+        "path": ".product-experience/decision-log.md#PXD-172",
         "status": "RECORDED_CURRENT_COORDINATOR_SOURCE_REVIEW",
-        "approval": "GRANTED_FOR_CROSSWALK_EVIDENCE_AND_HANDOFF_RECONCILIATION",
+        "approval": "GRANTED_FOR_PDP0_SOURCE_DEFINITION_AND_CROSSWALK_RECONCILIATION",
         "ownerApproval": "NOT_CLAIMED"
       },
-      "decisionRationaleStatus": "PXD-167 records the current-source reconciliation of BOUND_EXISTING QC and downstream phase handoffs; owner acceptance remains unclaimed.",
-      "downstreamApprovalHandoffs": []
+      "decisionRationaleStatus": "PXD-172 records the current-source meaning reconciliation and provenance-only source-acceptance alignment; human owner acceptance remains unclaimed.",
+      "downstreamApprovalHandoffs": [],
+      "sourceAcceptanceAlignment": "Preserved verbatim from the source audit for provenance; it does not describe this feature row and is not PDP-0 acceptance evidence. Use the exact pdp0EvidenceRefs for feature-specific acceptance."
     },
     {
       "auditId": "AUD-TTS-019",
@@ -4401,13 +4443,13 @@
         }
       ],
       "decisionRef": {
-        "id": "PXD-167",
-        "path": ".product-experience/decision-log.md#PXD-167",
+        "id": "PXD-172",
+        "path": ".product-experience/decision-log.md#PXD-172",
         "status": "RECORDED_CURRENT_COORDINATOR_SOURCE_REVIEW",
-        "approval": "GRANTED_FOR_CROSSWALK_EVIDENCE_AND_HANDOFF_RECONCILIATION",
+        "approval": "GRANTED_FOR_PDP0_SOURCE_DEFINITION_AND_CROSSWALK_RECONCILIATION",
         "ownerApproval": "NOT_CLAIMED"
       },
-      "decisionRationaleStatus": "PXD-167 records the current-source reconciliation of REFINE_EXISTING_P0 QC and downstream phase handoffs; owner acceptance remains unclaimed.",
+      "decisionRationaleStatus": "PXD-172 records that sourceAcceptanceText is preserved for provenance and is not feature-specific acceptance evidence; exact PDP-0 evidence remains in pdp0EvidenceRefs.",
       "independentAcceptance": "NOT_CLAIMED",
       "independentQcDispositionResolution": {
         "resolution": "RESOLVED_IN_CURRENT_PDP0_SOURCE",
@@ -4417,7 +4459,8 @@
         ],
         "ownerApproval": "NOT_CLAIMED"
       },
-      "downstreamApprovalHandoffs": []
+      "downstreamApprovalHandoffs": [],
+      "sourceAcceptanceAlignment": "Preserved verbatim from the source audit for provenance; it does not describe this feature row and is not PDP-0 acceptance evidence. Use the exact pdp0EvidenceRefs for feature-specific acceptance."
     },
     {
       "auditId": "AUD-TTS-021",
@@ -4851,7 +4894,7 @@
       ],
       "proposedPdp0SourceChange": null,
       "externalOwnerDecision": null,
-      "phaseLocalRationale": "Current PDP-0 acceptance case(s) explicitly define this product meaning: MEDIA-REQ-CAP-QUALITY-AC-06. Per-use authority, implementation, qualification, and later-phase contracts remain separate.",
+      "phaseLocalRationale": "PDP-0 binds only scoped recognition of a declared synthetic watermark and robustness observations under the declared transformation: MEDIA-REQ-CAP-QUALITY-AC-06 permits detection, non-detection, or inconclusive results only within that check and scope. It explicitly excludes watermark stripping or removal and rejects any authorship, rights, or authenticity claim. This row does not establish voice-cloning rights, provenance, or provider support.",
       "reviewProvenance": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json#recommendations/@auditId=AUD-CLONE-012",
       "independentQcRef": "docs/implementation/observations/pdp0-semantic-audit-slices/meaning-gap-qc.json#records/@sourceAuditId=AUD-CLONE-012",
       "ownerApproval": "NOT_CLAIMED",
@@ -4877,13 +4920,14 @@
         }
       ],
       "decisionRef": {
-        "id": "PXD-167",
-        "path": ".product-experience/decision-log.md#PXD-167",
+        "id": "PXD-174",
+        "path": ".product-experience/decision-log.md#PXD-174",
         "status": "RECORDED_CURRENT_COORDINATOR_SOURCE_REVIEW",
         "approval": "GRANTED_FOR_CROSSWALK_EVIDENCE_AND_HANDOFF_RECONCILIATION",
         "ownerApproval": "NOT_CLAIMED"
       },
-      "decisionRationaleStatus": "PXD-167 records the current-source reconciliation of REFINE_EXISTING_P0 QC and downstream phase handoffs; owner acceptance remains unclaimed.",
+      "decisionRationaleStatus": "PXD-174 records coordinator source review of the watermark scope and provenance-only treatment of the mismatched imported cloning text; owner and independent acceptance remain NOT_CLAIMED.",
+      "sourceAcceptanceAlignment": "The sourceAcceptanceText is retained verbatim for provenance only; its voice-grant, cloning, and rights statements do not describe watermark recognition or robustness and are not this row's PDP-0 acceptance criterion. PXD-174 records this mismatch. Any separate clone-related review requires its own exact evidence and handoff.",
       "independentAcceptance": "NOT_CLAIMED",
       "independentQcDispositionResolution": {
         "resolution": "RESOLVED_IN_CURRENT_PDP0_SOURCE",
@@ -12102,22 +12146,31 @@
       "originalReuseCandidate": "Media player typed interaction grammar",
       "disposition": "BOUND_EXISTING",
       "pdp0EvidenceRefs": [
-        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-010",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.constraint"
+        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-007",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-061",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.interactive-scene-bundle"
       ],
       "pdp0ContextRefs": [],
       "proposedPdp0SourceChange": null,
       "externalOwnerDecision": null,
-      "phaseLocalRationale": "This source feature is bound at PDP-0 by its exact case semantics: MEDIA-DECL-P0-AC-010 defines: when constraints reference actual scene entities and typed physical or artistic bounds, then resolve explicit constraint order and surface conflicts for review; rejects reject cyclic unresolved constraints or false physics validity claims media.animation.constraint is the canonical intent leaf (Define animation constraints in a versioned scene/edit.).",
+      "phaseLocalRationale": "PDP-0 bounds procedural animation to admitted operators and bounded parameters, rejecting eval, imported arbitrary code, unbounded graphs, and hidden network I/O under MEDIA-DECL-P0-AC-007. For an interactive scene, MEDIA-DECL-P0-AC-061 permits only the action explicitly mapped to a gesture or trigger in the declared, versioned local map; unknown, out-of-scope, and unmapped triggers have no effect. media.deliver.interactive-scene-bundle is the relevant interactive-scene capability. These clauses do not define the typed interaction grammar or complete interaction experience; those remain with PDP-1/PDP-2/PDP-3.",
       "reviewProvenance": "docs/implementation/observations/pdp0-semantic-audit-slices/third-pass-001-073.json#records/@sourceAuditId=AUD-ANIM3-010",
       "independentQcRef": null,
       "ownerApproval": "NOT_CLAIMED",
       "laterPhaseHandoffs": [
         {
           "phase": "PDP-1/PDP-2/PDP-3",
-          "scope": "Carry the defined interaction/accessibility/interchange intent into typed domain/interface contracts and applicable journeys; no new P0 meaning is inferred by this handoff."
+          "scope": "Define the typed gesture/trigger/action grammar, interface contract, and complete interaction experience from the PDP-0 declared-action boundary; no new PDP-0 meaning is inferred by this handoff."
         }
-      ]
+      ],
+      "decisionRef": {
+        "id": "PXD-174",
+        "path": ".product-experience/decision-log.md#PXD-174",
+        "status": "RECORDED_CURRENT_COORDINATOR_SOURCE_REVIEW",
+        "approval": "GRANTED_FOR_CROSSWALK_EVIDENCE_AND_HANDOFF_RECONCILIATION",
+        "ownerApproval": "NOT_CLAIMED"
+      },
+      "decisionRationaleStatus": "PXD-174 records coordinator source review of the exact procedural-animation and declared-interaction boundaries; typed grammar and interaction experience remain PDP-1/PDP-2/PDP-3 handoffs, and owner and independent acceptance remain NOT_CLAIMED."
     },
     {
       "auditId": "AUD-ANIM3-011",
@@ -12511,25 +12564,34 @@
       "originalReuseCandidate": "Model-specific certified solver candidates",
       "disposition": "BOUND_EXISTING",
       "pdp0EvidenceRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION/acceptanceCases/@id=MEDIA-REQ-CAP-SIMULATION-AC-01",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION/acceptanceCases/@id=MEDIA-REQ-CAP-SIMULATION-AC-02",
         ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.cloth",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.soft-body",
         ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.rope",
         ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.particle",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.fluid",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.soft-body"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.fluid"
       ],
       "pdp0ContextRefs": [],
       "proposedPdp0SourceChange": null,
       "externalOwnerDecision": null,
-      "phaseLocalRationale": "PDP-0 has distinct capability leaves for cloth, rope, particle, and fluid simulation, each under the simulation family and each scoped to supplied model/initial conditions, declared units/boundaries/constraints, qualified output, and an explicit non-guarantee of scientific validity. That exact separation covers the source request that each model regime be treated separately; the source acceptance’s qualification/illustrative-fallback clause does not turn into a runtime qualification claim at PDP-0.",
+      "phaseLocalRationale": "MEDIA-REQ-CAP-SIMULATION-AC-01 and AC-02 define family-specific qualification and make any visual fallback explicitly illustrative, distinct from model-backed output, and non-quantitative. The five exact capability leaves separately scope cloth, soft-body, rope, particle, and fluid; qualification is evaluated for the exact family and requested dimensions, and visual similarity is not scientific or quantitative validity. The separate Build handoff remains responsible for implementation and per-family qualification; none is claimed by this P0 mapping.",
       "reviewProvenance": "docs/implementation/observations/pdp0-semantic-audit-slices/third-pass-001-073.json#records/@sourceAuditId=AUD-SIM3-009",
       "independentQcRef": null,
       "ownerApproval": "NOT_CLAIMED",
       "laterPhaseHandoffs": [
         {
           "phase": "BUILD",
-          "scope": "Qualify each model/solver independently and label illustrative fallback separately from quantitative output; this is implementation/qualification work, not a P0 meaning gap."
+          "scope": "Implement and qualify each model/solver independently; label any illustrative fallback separately from quantitative output. No Build implementation or scientific qualification is claimed by the PDP-0 definition."
         }
-      ]
+      ],
+      "decisionRef": {
+        "id": "PXD-169",
+        "path": ".product-experience/decision-log.md#PXD-169",
+        "status": "RECORDED_CURRENT_COORDINATOR_SOURCE_DEFINITION",
+        "approval": "GRANTED_FOR_PDP0_MEANING_AND_CROSSWALK_RECONCILIATION",
+        "ownerApproval": "NOT_CLAIMED"
+      }
     },
     {
       "auditId": "AUD-SIM3-010",
@@ -12541,8 +12603,11 @@
       "originalReuseCandidate": "Tutorp domain packs + SimPy or bespoke",
       "disposition": "BOUND_EXISTING",
       "pdp0EvidenceRefs": [
-        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION/acceptanceCases/@id=MEDIA-REQ-CAP-SIMULATION-AC-03",
-        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-034"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.agent",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-023",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-024",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-034",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION/acceptanceCases/@id=MEDIA-REQ-CAP-SIMULATION-AC-03"
       ],
       "pdp0ContextRefs": [
         ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.agent",
@@ -12550,43 +12615,46 @@
       ],
       "proposedPdp0SourceChange": null,
       "externalOwnerDecision": null,
-      "phaseLocalRationale": "MEDIA-REQ-CAP-SIMULATION-AC-03 defines user-supplied agent, economic, and epidemiological models as UNQUALIFIED unless applicable independent scientific validation is present and rejects causal, validated-science, or real-world-truth claims based only on execution or visualization. MEDIA-DECL-P0-AC-034 separately defines distribution, seed, sample count, estimates, confidence bounds, and rejection of deterministic-truth labeling. Typed PRNG/version representation is PDP-1; qualified scientific validation is required before making a qualified scientific or real-world claim.",
+      "phaseLocalRationale": "MEDIA-REQ-CAP-SIMULATION-AC-03 defines agent-based, economic, and epidemiological state models as conditional user-supplied inputs: exact family applicability requires qualified domain-owner admission, absent or unknown applicability blocks execution, and results remain UNQUALIFIED absent applicable independent scientific validation. MEDIA-DECL-P0-AC-023/024/034 define PRNG implementation/version, seed, distribution, sampling conditions, confidence bounds, reproducibility class, and NON_REPLAYABLE behavior. PDP-1 owns typed field representation; no family admission, scientific validation, or qualified claim is asserted here.",
       "reviewProvenance": "docs/implementation/observations/pdp0-semantic-audit-slices/third-pass-001-073.json#records/@sourceAuditId=AUD-SIM3-010",
       "independentQcRef": "docs/implementation/observations/pdp0-semantic-audit-slices/meaning-gap-qc.json#records/@sourceAuditId=AUD-SIM3-010",
       "ownerApproval": "NOT_CLAIMED",
       "laterPhaseHandoffs": [
         {
           "phase": "PDP-1",
-          "scope": "Define typed stochastic model identity, PRNG/version, distribution, sample-count and confidence-result contracts."
+          "scope": "Define typed stochastic model identity, PRNG implementation/version, distribution, sample-count, confidence-result, and reproducibility-class contracts."
         },
         {
           "stage": "qualified scientific claim/admission",
-          "scope": "Require applicable qualified scientific validation before making a qualified scientific or real-world claim; unqualified source-defined output remains explicitly labeled."
+          "scope": "Require qualified domain-owner admission of exact family scope before execution and applicable qualified scientific validation before making a qualified scientific or real-world claim; otherwise preserve UNKNOWN/UNQUALIFIED status."
         }
       ],
       "decisionRef": {
-        "id": "PXD-167",
-        "path": ".product-experience/decision-log.md#PXD-167",
-        "status": "RECORDED_CURRENT_COORDINATOR_SOURCE_REVIEW",
-        "approval": "GRANTED_FOR_CROSSWALK_EVIDENCE_AND_HANDOFF_RECONCILIATION",
+        "id": "PXD-169",
+        "path": ".product-experience/decision-log.md#PXD-169",
+        "status": "RECORDED_CURRENT_COORDINATOR_SOURCE_DEFINITION",
+        "approval": "GRANTED_FOR_PDP0_MEANING_AND_CROSSWALK_RECONCILIATION",
         "ownerApproval": "NOT_CLAIMED"
       },
-      "decisionRationaleStatus": "PXD-167 records the current-source reconciliation of EXTERNAL_OWNER_BLOCKER QC and downstream phase handoffs; owner acceptance remains unclaimed.",
+      "decisionRationaleStatus": "PXD-169 records the bounded conditional scope and reproducibility meaning. Qualified domain-owner admission remains required for each exact family scope; scientific validation remains unclaimed.",
       "independentAcceptance": "NOT_CLAIMED",
-      "conditionalProductScope": "Versioned user-supplied agent, economic, or epidemiological models retain declared assumptions and are labeled UNQUALIFIED unless applicable independent scientific validation is present; execution or visualization alone does not establish causal inference, validated science, or real-world truth.",
+      "conditionalProductScope": "Conditional user-supplied agent-based, economic, or epidemiological state models require explicit qualified domain-owner admission of exact family scope; absent or unknown applicability blocks execution. Results retain declared assumptions and reproducibility facts, remain UNQUALIFIED unless applicable independent scientific validation is present, and execution or visualization alone establishes no causal inference, validated science, or real-world truth.",
       "downstreamApprovalHandoffs": [
         {
           "authority": "NOT_CLAIMED",
           "stage": "PDP-1 / qualified scientific claim admission",
-          "requiredAction": "Define typed PRNG/version semantics in PDP-1; obtain applicable qualified scientific validation before making qualified scientific or real-world claims."
+          "requiredAction": "Define typed PRNG implementation/version, seed, distribution, sampling and reproducibility contracts in PDP-1; require qualified domain-owner admission of exact family scope before execution and applicable qualified scientific validation before qualified scientific or real-world claims."
         }
       ],
       "independentQcDispositionResolution": {
-        "resolution": "CURRENT_SOURCE_MEANING_COVERED_QUALIFIED_CLAIM_VALIDATION_DOWNSTREAM",
-        "currentSourceReviewRef": ".product-experience/decision-log.md#PXD-167",
+        "resolution": "CURRENT_SOURCE_MEANING_BOUNDED_BY_EXPLICIT_OWNER_ADMISSION_GATE",
+        "currentSourceReviewRef": ".product-experience/decision-log.md#PXD-169",
         "currentSourceEvidenceRefs": [
-          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION/acceptanceCases/@id=MEDIA-REQ-CAP-SIMULATION-AC-03",
-          ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-034"
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.agent",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-023",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-024",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-034",
+          ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION/acceptanceCases/@id=MEDIA-REQ-CAP-SIMULATION-AC-03"
         ],
         "ownerApproval": "NOT_CLAIMED"
       }
@@ -12789,24 +12857,34 @@
       "originalReuseCandidate": "existing Media JobAttempt/lease/outbox",
       "disposition": "BOUND_EXISTING",
       "pdp0EvidenceRefs": [
-        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-027",
-        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-039",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.scientific-demo",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.inspect"
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-JOB/acceptanceCases/@id=MEDIA-REQ-CAP-JOB-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-058"
       ],
       "pdp0ContextRefs": [],
       "proposedPdp0SourceChange": null,
       "externalOwnerDecision": null,
-      "phaseLocalRationale": "This source feature is bound at PDP-0 by its exact case semantics: MEDIA-DECL-P0-AC-027 defines: when a solver reports integration error, drift or invalid numerical stability, then fail scientific QA with bounded residual diagnostics and evidence of chosen step size; rejects reject a visually smooth render as proof of numerical correctness MEDIA-DECL-P0-AC-039 defines: when a PDP Explorer synthetic fixture resembles a simulation run, then expose synthetic-only classification and reject its use as solver calibration evidence; rejects reject product effect or scientific truth inferred from fixture replay media.simulation.scientific-demo is the canonical intent leaf (Represent a scientific concept demonstration as a local simulation candidate, identifying the domain owner and separating visual plausibility from validated results and scientific conclusions.). media.quality.inspect is the canonical intent leaf (Return a read-only quality observation for the requested dimensions of the supplied candidate or execution observation, or a bounded repair-plan result when that is the selected result variant. Keep measured or inferred observations distinguishable from a plan; the observation does not alter the candidate.).",
+      "phaseLocalRationale": "MEDIA-REQ-CAP-JOB-AC-03 defines that detaching a watcher changes no job state, cancellation remains pending until stop evidence is confirmed, and an uncertain effect must be reconciled under the same job identity before a new attempt is allowed. MEDIA-DECL-P0-AC-058 bounds resource use and recovery through limits, lease fencing, cancellation, idempotency, and UNKNOWN reconciliation. These clauses do not define the typed representation of partial results or finality; that belongs to PDP-1. Runtime resource, cancellation, retry, and recovery behavior still requires BUILD verification and qualification.",
       "reviewProvenance": "docs/implementation/observations/pdp0-semantic-audit-slices/third-pass-001-073.json#records/@sourceAuditId=AUD-SIM3-018",
       "independentQcRef": null,
       "ownerApproval": "NOT_CLAIMED",
       "laterPhaseHandoffs": [
         {
+          "phase": "PDP-1",
+          "scope": "Define typed result, partial-result labeling, and finality representation from the job lifecycle semantics; do not infer a successful or cancelled result from a request state."
+        },
+        {
           "phase": "BUILD",
-          "scope": "Perform runtime, dependency/license, hardware, quality, resource, and operational qualification as applicable; source acceptance does not imply implementation or qualification."
+          "scope": "Implement and qualify resource limits, lease fencing, cancellation, idempotency, reconciliation, and result/finality behavior; source definition does not imply implementation or qualification."
         }
-      ]
+      ],
+      "decisionRef": {
+        "id": "PXD-174",
+        "path": ".product-experience/decision-log.md#PXD-174",
+        "status": "RECORDED_CURRENT_COORDINATOR_SOURCE_REVIEW",
+        "approval": "GRANTED_FOR_CROSSWALK_EVIDENCE_AND_HANDOFF_RECONCILIATION",
+        "ownerApproval": "NOT_CLAIMED"
+      },
+      "decisionRationaleStatus": "PXD-174 records coordinator source review of job recovery and bounded-resource evidence; typed results/finality remain PDP-1 work, implementation and qualification remain BUILD work, and owner and independent acceptance remain NOT_CLAIMED."
     },
     {
       "auditId": "AUD-SIM3-019",
@@ -13223,18 +13301,33 @@
       "disposition": "BOUND_EXISTING",
       "pdp0EvidenceRefs": [
         ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-040",
-        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-043",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.template.interactive-lesson",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.2d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.template.interactive-lesson"
       ],
       "pdp0ContextRefs": [],
       "proposedPdp0SourceChange": null,
       "externalOwnerDecision": null,
-      "phaseLocalRationale": "This source feature is bound at PDP-0 by its exact case semantics: MEDIA-DECL-P0-AC-040 defines: when a TutorPutor experience references Media via a public versioned interface, then negotiate compatible Experience IR, Model IR, Scene IR and adapter versions; rejects reject private module imports or silent data-contract upgrades MEDIA-DECL-P0-AC-043 defines: when a TutorPutor Scene IR object is mapped into a Media visual scene graph, then preserve object and accessible-label identities, units and transformation provenance; rejects reject unknown semantic links and lossy conversion without disclosure media.recipe.template.interactive-lesson is the canonical intent leaf (The interactive lesson template binds supplied content and schema to the versioned recipe reference and produces a versioned MediaRecipe with those content/schema bindings.). media.animation.2d is the canonical intent leaf (Create/edit a 2D animation scene or edit definition from required animation intent.).",
+      "phaseLocalRationale": "MEDIA-DECL-P0-AC-040 defines only public AEF/USP versions published in the TutorPutor adapter contract: preserve each artifact's exact historical identity and version, keep unknown or unlisted versions NOT_ADMITTED, and require exact owner-issued semantic-parity evidence before replacing or retiring a historical version. media.recipe.template.interactive-lesson is the relevant capability. The exact published versions and contract remain dependent on the external TutorPutor owner; no external owner approval or blanket legacy support is claimed. Typed compatibility contracts remain a PDP-1/PDP-2/PDP-3 handoff, and golden semantic-parity verification for each exact artifact/version remains a BUILD handoff.",
       "reviewProvenance": "docs/implementation/observations/pdp0-semantic-audit-slices/third-pass-001-073.json#records/@sourceAuditId=AUD-EDU3-012",
       "independentQcRef": null,
       "ownerApproval": "NOT_CLAIMED",
-      "laterPhaseHandoffs": []
+      "laterPhaseHandoffs": [
+        {
+          "phase": "PDP-1/PDP-2/PDP-3",
+          "scope": "Define typed compatibility and interface contracts and carry the exact public-version boundary into the applicable consumer experience; external TutorPutor version publication remains required."
+        },
+        {
+          "phase": "BUILD",
+          "scope": "Verify golden semantic parity for each exact artifact/version before replacement or retirement; no parity test, implementation, or qualification is claimed here."
+        }
+      ],
+      "decisionRef": {
+        "id": "PXD-174",
+        "path": ".product-experience/decision-log.md#PXD-174",
+        "status": "RECORDED_CURRENT_COORDINATOR_SOURCE_REVIEW",
+        "approval": "GRANTED_FOR_CROSSWALK_EVIDENCE_AND_HANDOFF_RECONCILIATION",
+        "ownerApproval": "NOT_CLAIMED"
+      },
+      "decisionRationaleStatus": "PXD-174 records coordinator source review of the exact public AEF/USP version boundary; external TutorPutor version/contract dependence, typed compatibility handoffs, and BUILD parity verification remain separate, and owner and independent acceptance remain NOT_CLAIMED."
     },
     {
       "auditId": "AUD-CROSS3-001",
@@ -13490,10 +13583,10 @@
     }
   ],
   "decisionReference": {
-    "id": "PXD-165",
-    "path": ".product-experience/decision-log.md#PXD-165",
+    "id": "PXD-172",
+    "path": ".product-experience/decision-log.md#PXD-172",
     "status": "RECORDED_CURRENT_COORDINATOR_SOURCE_REVIEW",
-    "approval": "GRANTED_FOR_PDP0_SOURCE_DISPOSITIONS",
+    "approval": "GRANTED_FOR_PDP0_SOURCE_DEFINITION_AND_CROSSWALK_RECONCILIATION",
     "ownerApproval": "NOT_CLAIMED"
   },
   "resolvedCandidateMappings": {
@@ -13513,13 +13606,13 @@
       ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT-AC-04"
     ],
     "AUD-TTS-017": [
-      ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-03"
+      ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-03"
     ],
     "AUD-TTS-020": [
       ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY-AC-04"
     ],
     "AUD-CLONE-012": [
-      ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY-AC-06"
+      ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY/acceptanceCases/@id=MEDIA-REQ-CAP-QUALITY-AC-06"
     ],
     "AUD-DSP-007": [
       ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-MASTER-AUDIO-AC-03"
@@ -13567,6 +13660,13 @@
     "AUD-MUSIC-011": [
       ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS-AC-05",
       ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-04"
+    ],
+    "AUD-CAP-020": [
+      ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/@id=MEDIA-REC-P0-AC-024",
+      ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/@id=MEDIA-REC-P0-AC-058"
+    ],
+    "AUD-TTS-018": [
+      ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05"
     ]
   },
   "conditionalScopeTopics": {
@@ -13612,5 +13712,13 @@
       "downstreamApprovalHandoff": "Per-use rights, consent, and license eligibility must be established by applicable authorities before use; generation/provenance is not clearance.",
       "ownerApproval": "NOT_CLAIMED"
     }
+  },
+  "decision": {
+    "status": "RECORDED_CURRENT_COORDINATOR_SOURCE_DEFINITION",
+    "approval": "GRANTED_FOR_PDP0_MEANING_AND_CROSSWALK_RECONCILIATION",
+    "ownerApproval": "NOT_CLAIMED",
+    "decisionRef": "PXD-172",
+    "note": "PXD-172 resolves three current PDP-0 meaning gaps and marks imported acceptance-text mismatches provenance-only. Later-phase state, interaction, journey, implementation, per-use authorization, qualification, and human or independent acceptance remain separate and unclaimed. PDP-0 DEV_COMPLETE remains established only by the native producer.",
+    "priorDecisionRef": "PXD-169"
   }
 }

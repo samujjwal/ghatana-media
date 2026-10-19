@@ -359,8 +359,8 @@ test("P0-04 journey actors and requirement intent targets remain source-bound", 
     else noResolvedActorTargetRequirements += 1;
   }
   assert.equal(requirements.length, 38);
-  assert.equal(traceRefs, 69, "current owner-reviewed STREAM, PROVENANCE, and PROJECT traces are included");
-  assert.equal(resolvedTraceRefs, 69);
+  assert.equal(traceRefs, 70, "current owner-reviewed STREAM, PROVENANCE, PROJECT, and PXD-172 cross-family speech traces are included");
+  assert.equal(resolvedTraceRefs, 70);
   assert.equal(fullyResolvableRequirements, 38);
   assert.equal(partlyResolvableRequirements, 0);
   assert.equal(noResolvedActorTargetRequirements, 0);

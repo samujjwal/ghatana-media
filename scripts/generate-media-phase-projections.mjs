@@ -130,7 +130,9 @@ const definitions = [
       "docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json",
       "docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json",
       "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json",
+      "docs/implementation/verification/pdp-38/p0-capability-corrections-current-source-review-current.json",
       "docs/implementation/verification/pdp-38/p0-quality-current-source-review.json",
+      "docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json",
       ".product-experience/explorer/tools-binding.yaml",
     ],
     candidate: async (sources) => {
@@ -177,7 +179,7 @@ const definitions = [
         return { text, artifact: JSON.parse(text) };
       });
       const qualityPolicySourceText = textSource("quality-policy.yaml");
-      const qualityCurrentSourceReviewText = textSource("p0-quality-current-source-review.json");
+      const qualityCurrentSourceReviewText = textSource("p0-quality-current-source-review-current.json");
       const qualityCurrentSourceReview = JSON.parse(qualityCurrentSourceReviewText);
       const qualificationPolicyObservationText = textSource("feature-review-qualification-policy-current-source-observation.json");
       const qualificationPolicyObservation = JSON.parse(qualificationPolicyObservationText);
@@ -191,6 +193,8 @@ const definitions = [
       const p0CurrentSourceCorrection = JSON.parse(p0CurrentSourceCorrectionText);
       const p0UploadByteLengthCorrectionText = textSource("p0-upload-byte-length-minimum-current-source-review.json");
       const p0UploadByteLengthCorrection = JSON.parse(p0UploadByteLengthCorrectionText);
+      const p0CapabilityCorrectionsCurrentSourceReviewText = textSource("p0-capability-corrections-current-source-review-current.json");
+      const p0CapabilityCorrectionsCurrentSourceReview = JSON.parse(p0CapabilityCorrectionsCurrentSourceReviewText);
       const animationRelationshipObservationText = textSource("feature-review-animation-property-owner-current-source-observation.json");
       const animationRelationshipObservation = JSON.parse(animationRelationshipObservationText);
       const textToImageObservationText = textSource("feature-review-current-source-observation.json");
@@ -219,6 +223,8 @@ const definitions = [
         p0CurrentSourceCorrectionText,
         p0UploadByteLengthCorrection,
         p0UploadByteLengthCorrectionText,
+        p0CapabilityCorrectionsCurrentSourceReview,
+        p0CapabilityCorrectionsCurrentSourceReviewText,
         capabilitiesSourceText,
         qualityPolicySourceText,
         qualityMetricObservations,

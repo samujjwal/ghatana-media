@@ -22,7 +22,7 @@ const qualityMetricObservations = qualityMetricObservationPaths.map((path) => {
   return { text, artifact: JSON.parse(text) };
 });
 const qualityPolicySourceText = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/quality-policy.yaml"), "utf8");
-const qualityCurrentSourceReviewPath = "docs/implementation/verification/pdp-38/p0-quality-current-source-review.json";
+const qualityCurrentSourceReviewPath = "docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json";
 const qualityCurrentSourceReviewText = readFileSync(resolve(root, qualityCurrentSourceReviewPath), "utf8");
 const qualityCurrentSourceReview = JSON.parse(qualityCurrentSourceReviewText);
 const qualificationPolicyObservationPath = "docs/implementation/verification/pdp-38/feature-review-qualification-policy-current-source-observation.json";
@@ -48,6 +48,9 @@ const p0CurrentSourceCorrection = JSON.parse(p0CurrentSourceCorrectionText);
 const p0UploadByteLengthCorrectionPath = "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json";
 const p0UploadByteLengthCorrectionText = readFileSync(resolve(root, p0UploadByteLengthCorrectionPath), "utf8");
 const p0UploadByteLengthCorrection = JSON.parse(p0UploadByteLengthCorrectionText);
+const p0CapabilityCorrectionsCurrentSourceReviewPath = "docs/implementation/verification/pdp-38/p0-capability-corrections-current-source-review-current.json";
+const p0CapabilityCorrectionsCurrentSourceReviewText = readFileSync(resolve(root, p0CapabilityCorrectionsCurrentSourceReviewPath), "utf8");
+const p0CapabilityCorrectionsCurrentSourceReview = JSON.parse(p0CapabilityCorrectionsCurrentSourceReviewText);
 const policyAuthorityObservationPath = "docs/implementation/verification/pdp-38/feature-review-policy-authority-current-source-observation.json";
 const policyAuthorityObservationText = readFileSync(resolve(root, policyAuthorityObservationPath), "utf8");
 const policyAuthorityObservation = JSON.parse(policyAuthorityObservationText);
@@ -67,6 +70,7 @@ const resolveWithReviewedArtifact = (args) => resolvePdp0FeatureReviewApplicabil
   capabilitySemanticReview, capabilitySemanticReviewText,
   p0CurrentSourceCorrection, p0CurrentSourceCorrectionText,
   p0UploadByteLengthCorrection, p0UploadByteLengthCorrectionText,
+  p0CapabilityCorrectionsCurrentSourceReview, p0CapabilityCorrectionsCurrentSourceReviewText,
   policyAuthorityObservation, policyAuthorityObservationText, policyAuthoritySourceText,
   cliChannelObservation, cliChannelObservationText, applicationsChannelsSourceText, ...args });
 const capabilities = read(".product-experience/pdp-0-product-truth/capabilities.yaml");
@@ -402,6 +406,7 @@ test("15 review dimensions resolve every requirement type and all 462 exact leaf
     capabilitySemanticReview, capabilitySemanticReviewText,
     p0CurrentSourceCorrection, p0CurrentSourceCorrectionText,
     p0UploadByteLengthCorrection, p0UploadByteLengthCorrectionText,
+    p0CapabilityCorrectionsCurrentSourceReview, p0CapabilityCorrectionsCurrentSourceReviewText,
     policyAuthorityObservation, policyAuthorityObservationText, policyAuthoritySourceText,
     cliChannelObservation, cliChannelObservationText, applicationsChannelsSourceText }),
   "the production join rejects an altered or unreviewed approval artifact");
@@ -418,6 +423,7 @@ test("15 review dimensions resolve every requirement type and all 462 exact leaf
     capabilitySemanticReview, capabilitySemanticReviewText,
     p0CurrentSourceCorrection, p0CurrentSourceCorrectionText,
     p0UploadByteLengthCorrection, p0UploadByteLengthCorrectionText,
+    p0CapabilityCorrectionsCurrentSourceReview, p0CapabilityCorrectionsCurrentSourceReviewText,
     policyAuthorityObservation, policyAuthorityObservationText, policyAuthoritySourceText,
     cliChannelObservation, cliChannelObservationText, applicationsChannelsSourceText }).size, 462,
   "current source bytes are directly pinned; a changed supplemental correction artifact cannot alter the exact resolved population");

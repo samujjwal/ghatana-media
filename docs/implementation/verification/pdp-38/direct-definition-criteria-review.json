@@ -205,27 +205,40 @@
             "acceptanceBoundary": "Current PDP-0 direct-definition correction evidence only; no development completion or independent acceptance is inferred."
           },
           "acceptanceBoundary": "Current source correction evidence only; task acceptance, P0-010 independent semantic acceptance, PDP-1 operation/wire approval, implementation, qualification, runtime admission, deployment, certification, and Lifecycle receipts remain separate."
+        },
+        {
+          "decisionRef": ".product-experience/decision-log.md#PXD-153",
+          "phaseScope": "PDP-0",
+          "sourceFingerprints": {
+            ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+            "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json": "9a6cd435f128015b65ea4067f953b0b4d494402623ac2af8a3b84dd5ae5c9e7e",
+            "tests/pdp0-capability-intent-current-source-observation.test.mjs": "0b25f381bf17bf27a403c7115ab2f35fc078d73f4d681ef92bcca92c445fbe9a",
+            "tests/pdp0-capability-semantic-current-source-review.test.mjs": "53d0ee4af3b965f736b9a969495f62211228d4f7ef10f25920597e02b1700f99",
+            "tests/pdp0-existing-operation-semantic-corrections.test.mjs": "848ceb405cc4cef24190aacbdd40d51453be309ac23543f5e76007ac97bb0aa8"
+          },
+          "verification": {
+            "status": "PASS",
+            "evidenceRef": "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json",
+            "testEvidenceRef": "docs/implementation/verification/pdp-38/P0-01.log",
+            "acceptanceBoundary": "PXD-153 source review only; no runtime, qualification, admission, or downstream contract approval is inferred."
+          },
+          "status": "APPROVED_CURRENT_CORRECTION",
+          "reviewKind": "SCOPED_SEMANTIC_CORRECTION",
+          "scope": "PXD-153 rechecks only the PDP-0 owner parameter definition for media.artifact.upload: declaredByteLength.minimum changes from 0 to 1 to match the positive P1 begin-upload expectedSizeBytes source field. The maximum and NOT_EMPTY disposition are unchanged. PXD-142 remains a separate historical review for its other scoped corrections; this record does not approve them."
         }
       ],
       "currentCorrectiveReview": {
-        "decisionRef": ".product-experience/decision-log.md#PXD-153",
-        "phaseScope": "PDP-0",
+        "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+        "decisionRef": ".product-experience/decision-log.md#PXD-171",
+        "reviewKind": "EXACT_FIELD_CURRENT_SOURCE_RECHECK",
+        "scope": "PXD-171 re-reads only the three typed-input corrections, five optional success-output corrections, and the declaredByteLength.minimum correction on the current 462-capability source; historical PXD-142 and PXD-153 cuts remain preserved.",
         "sourceFingerprints": {
-          ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
-          "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json": "9a6cd435f128015b65ea4067f953b0b4d494402623ac2af8a3b84dd5ae5c9e7e",
-          "tests/pdp0-capability-intent-current-source-observation.test.mjs": "0b25f381bf17bf27a403c7115ab2f35fc078d73f4d681ef92bcca92c445fbe9a",
-          "tests/pdp0-capability-semantic-current-source-review.test.mjs": "53d0ee4af3b965f736b9a969495f62211228d4f7ef10f25920597e02b1700f99",
-          "tests/pdp0-existing-operation-semantic-corrections.test.mjs": "848ceb405cc4cef24190aacbdd40d51453be309ac23543f5e76007ac97bb0aa8"
+          ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+          "docs/implementation/verification/pdp-38/p0-capability-corrections-current-source-review-current.json": "63e0aa35b4dc5862d4265a0c61b4ab10a58c709c4a3d8c69e28cb7c8be906c85",
+          "tests/pdp0-existing-operation-semantic-corrections.test.mjs": "20ef778bf4df39488c1d19d04ffc3a126f6c14b31785413d9e6bce8e62c64e00",
+          "tests/pdp0-capability-semantic-current-source-review.test.mjs": "64fbd1aafd4ac5d28736b1f06c030daa7d541e5a311cb26974ce8b85672018ba"
         },
-        "verification": {
-          "status": "PASS",
-          "evidenceRef": "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json",
-          "testEvidenceRef": "docs/implementation/verification/pdp-38/P0-01.log",
-          "acceptanceBoundary": "PXD-153 source review only; no runtime, qualification, admission, or downstream contract approval is inferred."
-        },
-        "status": "APPROVED_CURRENT_CORRECTION",
-        "reviewKind": "SCOPED_SEMANTIC_CORRECTION",
-        "scope": "PXD-153 rechecks only the PDP-0 owner parameter definition for media.artifact.upload: declaredByteLength.minimum changes from 0 to 1 to match the positive P1 begin-upload expectedSizeBytes source field. The maximum and NOT_EMPTY disposition are unchanged. PXD-142 remains a separate historical review for its other scoped corrections; this record does not approve them."
+        "phaseScope": "PDP-0"
       }
     },
     {
@@ -404,28 +417,41 @@
             "acceptanceBoundary": "Current PDP-0 direct-definition correction evidence only; no development completion or independent acceptance is inferred."
           },
           "acceptanceBoundary": "Current source correction evidence only; task acceptance, P0-010 independent semantic acceptance, PDP-1 operation/wire approval, implementation, qualification, runtime admission, deployment, certification, and Lifecycle receipts remain separate."
+        },
+        {
+          "decisionRef": ".product-experience/decision-log.md#PXD-153",
+          "phaseScope": "PDP-0",
+          "sourceFingerprints": {
+            ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+            "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json": "9a6cd435f128015b65ea4067f953b0b4d494402623ac2af8a3b84dd5ae5c9e7e",
+            "tests/media-operation-bounds.test.mjs": "3d464c78f2c8a7f92a7466835269499fb2da6e94a86dc5a4fe4211884f8d6341",
+            "tests/pdp0-bounded-resource-admission.test.mjs": "9b7e26ee41a5b3c225ed2d368c3df36537703480767522852d71340cc451e644",
+            "tests/pdp0-existing-operation-semantic-corrections.test.mjs": "848ceb405cc4cef24190aacbdd40d51453be309ac23543f5e76007ac97bb0aa8"
+          },
+          "verification": {
+            "status": "PASS",
+            "evidenceRef": "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json",
+            "testEvidenceRef": "docs/implementation/verification/pdp-38/P0-02.log",
+            "acceptanceBoundary": "PXD-153 source review only; no runtime, qualification, admission, or downstream contract approval is inferred."
+          },
+          "status": "APPROVED_CURRENT_CORRECTION",
+          "reviewKind": "SCOPED_BOUNDS_CORRECTION",
+          "scope": "PXD-153 rechecks only the PDP-0 authored bound for media.artifact.upload.declaredByteLength.minimum (0 to 1), matching the positive P1 begin-upload expectedSizeBytes field. The maximum and NOT_EMPTY disposition are unchanged; this does not establish resource capacity or admission. PXD-142 remains a separate historical review for its other scoped corrections; this record does not approve them.",
+          "currentSourceCutNote": "The refreshed media-operation-bounds.test.mjs fingerprint includes a separate generic typed-slot shape-validator extension for ZERO_OR_MORE inputs. That extension is not within PXD-153's approval scope. The PXD-153 named regression was rerun against the current cut and passes; no additional capability semantics or acceptance are inferred."
         }
       ],
       "currentCorrectiveReview": {
-        "decisionRef": ".product-experience/decision-log.md#PXD-153",
-        "phaseScope": "PDP-0",
+        "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+        "decisionRef": ".product-experience/decision-log.md#PXD-171",
+        "reviewKind": "EXACT_FIELD_CURRENT_SOURCE_RECHECK",
+        "scope": "PXD-171 re-reads only the three typed-input corrections, five optional success-output corrections, and the declaredByteLength.minimum correction on the current 462-capability source; historical PXD-142 and PXD-153 cuts remain preserved.",
         "sourceFingerprints": {
-          ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
-          "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json": "9a6cd435f128015b65ea4067f953b0b4d494402623ac2af8a3b84dd5ae5c9e7e",
-          "tests/media-operation-bounds.test.mjs": "3d464c78f2c8a7f92a7466835269499fb2da6e94a86dc5a4fe4211884f8d6341",
-          "tests/pdp0-bounded-resource-admission.test.mjs": "9b7e26ee41a5b3c225ed2d368c3df36537703480767522852d71340cc451e644",
-          "tests/pdp0-existing-operation-semantic-corrections.test.mjs": "848ceb405cc4cef24190aacbdd40d51453be309ac23543f5e76007ac97bb0aa8"
+          ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+          "docs/implementation/verification/pdp-38/p0-capability-corrections-current-source-review-current.json": "63e0aa35b4dc5862d4265a0c61b4ab10a58c709c4a3d8c69e28cb7c8be906c85",
+          "tests/pdp0-existing-operation-semantic-corrections.test.mjs": "20ef778bf4df39488c1d19d04ffc3a126f6c14b31785413d9e6bce8e62c64e00",
+          "tests/pdp0-capability-semantic-current-source-review.test.mjs": "64fbd1aafd4ac5d28736b1f06c030daa7d541e5a311cb26974ce8b85672018ba"
         },
-        "verification": {
-          "status": "PASS",
-          "evidenceRef": "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json",
-          "testEvidenceRef": "docs/implementation/verification/pdp-38/P0-02.log",
-          "acceptanceBoundary": "PXD-153 source review only; no runtime, qualification, admission, or downstream contract approval is inferred."
-        },
-        "status": "APPROVED_CURRENT_CORRECTION",
-        "reviewKind": "SCOPED_BOUNDS_CORRECTION",
-        "scope": "PXD-153 rechecks only the PDP-0 authored bound for media.artifact.upload.declaredByteLength.minimum (0 to 1), matching the positive P1 begin-upload expectedSizeBytes field. The maximum and NOT_EMPTY disposition are unchanged; this does not establish resource capacity or admission. PXD-142 remains a separate historical review for its other scoped corrections; this record does not approve them.",
-        "currentSourceCutNote": "The refreshed media-operation-bounds.test.mjs fingerprint includes a separate generic typed-slot shape-validator extension for ZERO_OR_MORE inputs. That extension is not within PXD-153's approval scope. The PXD-153 named regression was rerun against the current cut and passes; no additional capability semantics or acceptance are inferred."
+        "phaseScope": "PDP-0"
       }
     },
     {
@@ -465,33 +491,37 @@
       "acceptanceBoundary": "Direct source criterion only; original full task ledger, dependencies, qualified independent reviews, runtime qualification and Lifecycle phase receipts remain unchanged.",
       "currentCorrectiveReview": {
         "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+        "decisionRef": ".product-experience/decision-log.md#PXD-178",
         "reviewKind": "SCOPED_SOURCE_DEFINITION_REVIEW",
-        "decisionRef": ".product-experience/decision-log.md#PXD-166",
         "phaseScope": "PDP-0",
-        "scope": "Current-source review of the added PDP-0 requirement acceptance cases and actor-binding rule against the existing P0-05 constitutional normative-field criterion. Existing exact family acceptanceCases references carry the additions; no constitutional statement, field mapping, acceptance state, owner approval, or human acceptance is changed.",
+        "scope": "PXD-178 rechecks the exact P0-05 constitutional mapping against the current requirement cut after PXD-174/PXD-177. All 32 constitutional identities retain their twelve required normative fields and full-array acceptance mappings; the job acceptance array bound by MEDIA-CONST-010, MEDIA-CONST-013, and MEDIA-CONST-023 now contains the current parent-child cancellation definition. No constitutional identity, field mapping, statement, or human-review state changed.",
         "sourceFingerprints": {
           ".product-experience/pdp-0-product-truth/constitution.yaml": "adde6bb5e9b0b67637e411b557b54e4a9110da7d383436209022f73b38fcd67b",
-          ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml": "2359ae53756a4d35d84387707345c439c87050c6efafed40e5426e1c8e3e5ca4",
-          ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "faadcc8eaa9c1338d1b3014f899d8ae7c7b69c290d694956e8eae2c477003ac8",
-          ".product-experience/pdp-0-product-truth/requirements.yaml": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
+          ".product-experience/pdp-0-product-truth/requirements.yaml": "af774f4db0a306ac3514475d65170560c345e7a6ecdf17305edb2ac3b9af41fe",
           "tests/pdp0-constitution-normative-completeness.test.mjs": "0786dcebb6628f2678bd62b9d454ee69ade94cad9f09b184c999ed91e454a770",
           "tests/pdp0-requirement-source-boundaries.test.mjs": "664ddb2d034f437a1ada5da478704b066014ba2a4ce11af0be94177a1886fa83",
-          "tests/pdp0-policy-authority-boundary.test.mjs": "0a18c713b2dd84cdbbc9fa6da4a435aac80318ff02a9478a4df6dcb16cb4505c"
+          "tests/pdp0-policy-authority-boundary.test.mjs": "0a18c713b2dd84cdbbc9fa6da4a435aac80318ff02a9478a4df6dcb16cb4505c",
+          "tests/pdp0-semantic-corrections.test.mjs": "fbee28f3f659c6053c1ed5c7f7b67bbec23f20ce09bb9edf7a0b5ceff26c3247",
+          "tests/media-pdp0-acceptance-actor-binding.test.mjs": "eef062735274b2799029622d5f2f80e9764e12eca73ed8a229aae8278355cef9",
+          "tests/media-pdp0-501-audit-dispositions.test.mjs": "28ff0c45d313b89938c95421308fea531a586ce8a4baab11553d1b230f12828c"
         },
         "verification": {
           "status": "PASS",
-          "tests": 12,
-          "passed": 12,
+          "tests": 38,
+          "passed": 38,
           "failed": 0,
-          "command": "node --test tests/pdp0-constitution-normative-completeness.test.mjs tests/pdp0-requirement-source-boundaries.test.mjs tests/pdp0-policy-authority-boundary.test.mjs",
+          "command": "node --test tests/pdp0-constitution-normative-completeness.test.mjs tests/pdp0-requirement-source-boundaries.test.mjs tests/pdp0-policy-authority-boundary.test.mjs tests/pdp0-semantic-corrections.test.mjs tests/media-pdp0-acceptance-actor-binding.test.mjs tests/media-pdp0-501-audit-dispositions.test.mjs",
           "evidenceRefs": [
             "tests/pdp0-constitution-normative-completeness.test.mjs",
             "tests/pdp0-requirement-source-boundaries.test.mjs",
-            "tests/pdp0-policy-authority-boundary.test.mjs"
+            "tests/pdp0-policy-authority-boundary.test.mjs",
+            "tests/pdp0-semantic-corrections.test.mjs",
+            "tests/media-pdp0-acceptance-actor-binding.test.mjs",
+            "tests/media-pdp0-501-audit-dispositions.test.mjs"
           ]
         },
-        "acceptanceBoundary": "Current PDP-0 direct-definition source review only. Constitutional acceptance remains pending human review; no owner approval, independent acceptance, downstream phase acceptance, qualification, runtime admission, or Lifecycle receipt is claimed.",
-        "currentSourceCutNote": "The requirements source adds AC-03+ clauses to 16 existing requirement-family acceptanceCases arrays and adds a general actorBindingRule. The P0-05 normative field refs already bind the full exact acceptanceCases arrays; actorBindingRule inherits parent actors without granting authority. The 32 constitutional identities, twelve-field structure, and structural acceptance conditions remain unchanged. Human acceptance remains pending."
+        "acceptanceBoundary": "Current PDP-0 direct-definition source review only; constitutional human acceptance remains pending. No owner approval, independent acceptance, downstream phase acceptance, qualification, runtime admission, or Lifecycle receipt is claimed.",
+        "currentSourceCutNote": "Exactly 32 unique MEDIA-CONST-001 through MEDIA-CONST-032 records resolve all 12 normative fields. Each outcome and acceptanceCriteria binding references the full acceptanceCases array across 13 requirement families. MEDIA-REQ-CAP-JOB-AC-03 is included through MEDIA-CONST-010, MEDIA-CONST-013, and MEDIA-CONST-023. MEDIA-DECL-P0-AC-061 and MEDIA-DECL-P0-AC-040 remain in their PDP-0 definition/audit scope and do not replace constitutional field targets."
       },
       "historicalCorrectiveReviews": [
         {
@@ -558,6 +588,41 @@
           },
           "acceptanceBoundary": "Current PDP-0 direct-definition criterion only. Historical approvals remain preserved. No downstream phase acceptance, task dependency acceptance, qualified independent P0-010 acceptance, implementation/qualification, runtime admission or Lifecycle receipt is claimed.",
           "currentSourceCutNote": "The refreshed requirement-boundaries test now records the current migration inventory arithmetic: 860 routed claims minus 500 parity-verified claims equals 360 pending locator-only claims. The historical unresolved population remains 260. This source-cut update has no semantic or acceptance effect."
+        },
+        {
+          "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+          "reviewKind": "SCOPED_SOURCE_DEFINITION_REVIEW",
+          "decisionRef": ".product-experience/decision-log.md#PXD-166",
+          "phaseScope": "PDP-0",
+          "scope": "Current-source review of the added PDP-0 requirement acceptance cases and actor-binding rule against the existing P0-05 constitutional normative-field criterion. Existing exact family acceptanceCases references carry the additions; no constitutional statement, field mapping, acceptance state, owner approval, or human acceptance is changed.",
+          "sourceFingerprints": {
+            ".product-experience/pdp-0-product-truth/constitution.yaml": "adde6bb5e9b0b67637e411b557b54e4a9110da7d383436209022f73b38fcd67b",
+            ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml": "2359ae53756a4d35d84387707345c439c87050c6efafed40e5426e1c8e3e5ca4",
+            ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "faadcc8eaa9c1338d1b3014f899d8ae7c7b69c290d694956e8eae2c477003ac8",
+            ".product-experience/pdp-0-product-truth/requirements.yaml": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
+            "tests/pdp0-constitution-normative-completeness.test.mjs": "0786dcebb6628f2678bd62b9d454ee69ade94cad9f09b184c999ed91e454a770",
+            "tests/pdp0-requirement-source-boundaries.test.mjs": "664ddb2d034f437a1ada5da478704b066014ba2a4ce11af0be94177a1886fa83",
+            "tests/pdp0-policy-authority-boundary.test.mjs": "0a18c713b2dd84cdbbc9fa6da4a435aac80318ff02a9478a4df6dcb16cb4505c"
+          },
+          "verification": {
+            "status": "PASS",
+            "tests": 12,
+            "passed": 12,
+            "failed": 0,
+            "command": "node --test tests/pdp0-constitution-normative-completeness.test.mjs tests/pdp0-requirement-source-boundaries.test.mjs tests/pdp0-policy-authority-boundary.test.mjs",
+            "evidenceRefs": [
+              "tests/pdp0-constitution-normative-completeness.test.mjs",
+              "tests/pdp0-requirement-source-boundaries.test.mjs",
+              "tests/pdp0-policy-authority-boundary.test.mjs"
+            ]
+          },
+          "acceptanceBoundary": "Current PDP-0 direct-definition source review only. Constitutional acceptance remains pending human review; no owner approval, independent acceptance, downstream phase acceptance, qualification, runtime admission, or Lifecycle receipt is claimed.",
+          "currentSourceCutNote": "The requirements source adds AC-03+ clauses to 16 existing requirement-family acceptanceCases arrays and adds a general actorBindingRule. The P0-05 normative field refs already bind the full exact acceptanceCases arrays; actorBindingRule inherits parent actors without granting authority. The 32 constitutional identities, twelve-field structure, and structural acceptance conditions remain unchanged. Human acceptance remains pending."
+        },
+        {
+          "decisionRef": ".product-experience/decision-log.md#PXD-173",
+          "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+          "phaseScope": "PDP-0"
         }
       ]
     },
@@ -702,30 +767,45 @@
             "acceptanceBoundary": "Current PDP-0 direct-definition correction evidence only; no development completion or independent acceptance is inferred."
           },
           "acceptanceBoundary": "Current source correction evidence only; task acceptance, P0-010 independent semantic acceptance, PDP-1 operation/wire approval, implementation, qualification, runtime admission, deployment, certification, and Lifecycle receipts remain separate."
+        },
+        {
+          "decisionRef": ".product-experience/decision-log.md#PXD-153",
+          "phaseScope": "PDP-0",
+          "sourceFingerprints": {
+            ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+            ".product-experience/pdp-0-product-truth/quality-policy.yaml": "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770",
+            "docs/implementation/verification/pdp-38/p0-quality-current-source-review.json": "344e4cefa3210a7420c7c098153b6f16e1c9f75c415d4fe42f2c2a0508efafa6",
+            "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json": "9a6cd435f128015b65ea4067f953b0b4d494402623ac2af8a3b84dd5ae5c9e7e",
+            "tests/media-measure-applicability-crosswalk.test.mjs": "215479fc8472f8febbde8a7b1baab0bcde79607e2def2f812154f3122723bd38",
+            "tests/pdp-truth-domain-quality-applicability.test.mjs": "8e5fae64d5b4b4ba4ca994f5a606410bf47d9d14471216cb7620dc60af5fb46b",
+            "tests/pdp0-existing-operation-semantic-corrections.test.mjs": "848ceb405cc4cef24190aacbdd40d51453be309ac23543f5e76007ac97bb0aa8",
+            "tests/pdp0-quality-current-source-review.test.mjs": "b0f01316b8ef6fd45a2160edc688a832dbfb886bf1624684648183b70209e0f5"
+          },
+          "verification": {
+            "status": "PASS",
+            "evidenceRef": "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json",
+            "testEvidenceRef": "docs/implementation/verification/pdp-38/P0-06.log",
+            "acceptanceBoundary": "PXD-153 source review only; no runtime, qualification, admission, or downstream contract approval is inferred."
+          },
+          "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+          "reviewKind": "NO_EFFECT_CURRENT_SOURCE_REVIEW",
+          "scope": "No-effect current-source review triggered by PXD-153: only media.artifact.upload.declaredByteLength.minimum changed. The six quality dimensions, sixteen metric definitions, and 462-leaf quality applicability joins remain unchanged for this correction. The current quality-source review separately accounts for PXD-142 typed-input projection changes; this PXD-153 record does not review or approve those changes. This review records current source only and grants no new quality semantic approval. PXD-142 remains a separate historical correction review."
         }
       ],
       "currentCorrectiveReview": {
-        "decisionRef": ".product-experience/decision-log.md#PXD-153",
-        "phaseScope": "PDP-0",
-        "sourceFingerprints": {
-          ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
-          ".product-experience/pdp-0-product-truth/quality-policy.yaml": "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770",
-          "docs/implementation/verification/pdp-38/p0-quality-current-source-review.json": "344e4cefa3210a7420c7c098153b6f16e1c9f75c415d4fe42f2c2a0508efafa6",
-          "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json": "9a6cd435f128015b65ea4067f953b0b4d494402623ac2af8a3b84dd5ae5c9e7e",
-          "tests/media-measure-applicability-crosswalk.test.mjs": "215479fc8472f8febbde8a7b1baab0bcde79607e2def2f812154f3122723bd38",
-          "tests/pdp-truth-domain-quality-applicability.test.mjs": "8e5fae64d5b4b4ba4ca994f5a606410bf47d9d14471216cb7620dc60af5fb46b",
-          "tests/pdp0-existing-operation-semantic-corrections.test.mjs": "848ceb405cc4cef24190aacbdd40d51453be309ac23543f5e76007ac97bb0aa8",
-          "tests/pdp0-quality-current-source-review.test.mjs": "b0f01316b8ef6fd45a2160edc688a832dbfb886bf1624684648183b70209e0f5"
-        },
-        "verification": {
-          "status": "PASS",
-          "evidenceRef": "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json",
-          "testEvidenceRef": "docs/implementation/verification/pdp-38/P0-06.log",
-          "acceptanceBoundary": "PXD-153 source review only; no runtime, qualification, admission, or downstream contract approval is inferred."
-        },
         "status": "APPROVED_CURRENT_SOURCE_REVIEW",
-        "reviewKind": "NO_EFFECT_CURRENT_SOURCE_REVIEW",
-        "scope": "No-effect current-source review triggered by PXD-153: only media.artifact.upload.declaredByteLength.minimum changed. The six quality dimensions, sixteen metric definitions, and 462-leaf quality applicability joins remain unchanged for this correction. The current quality-source review separately accounts for PXD-142 typed-input projection changes; this PXD-153 record does not review or approve those changes. This review records current source only and grants no new quality semantic approval. PXD-142 remains a separate historical correction review."
+        "decisionRef": ".product-experience/decision-log.md#PXD-170",
+        "reviewKind": "SCOPED_SOURCE_DEFINITION_REVIEW",
+        "scope": "PXD-170 is a no-effect current-source review of the complete quality applicability crosswalk against all 462 capability leaves and the current quality policy. Existing applicability dispositions remain unchanged; six dimensions, sixteen metric definitions, exact source joins, and NOT_EVALUATED measurement/qualification states remain intact.",
+        "sourceFingerprints": {
+          ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+          ".product-experience/pdp-0-product-truth/quality-policy.yaml": "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770",
+          "docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json": "bbf7de083ea84bcedabbd83b1f9272e40be3fe401b7a14a90600058353f3f5b7",
+          "tests/pdp0-quality-current-source-review.test.mjs": "a055ca902a955b5b1e1ceb1fd50be6167473a8edef6abeffc10f601ab000ee3b",
+          "tests/media-measure-applicability-crosswalk.test.mjs": "215479fc8472f8febbde8a7b1baab0bcde79607e2def2f812154f3122723bd38",
+          "tests/pdp-truth-domain-quality-applicability.test.mjs": "8e5fae64d5b4b4ba4ca994f5a606410bf47d9d14471216cb7620dc60af5fb46b"
+        },
+        "phaseScope": "PDP-0"
       }
     },
     {
@@ -890,39 +970,123 @@
           "status": "APPROVED_CURRENT_SOURCE_REVIEW",
           "reviewKind": "NO_EFFECT_CURRENT_SOURCE_REVIEW",
           "scope": "No-effect current-source review triggered by PXD-153: only media.artifact.upload.declaredByteLength.minimum changed. The 462-leaf channel applicability and feature review decisions remain unchanged. This review records current source only and grants no new channel or feature semantic approval. PXD-142 remains a separate historical correction review."
+        },
+        {
+          "decisionRef": ".product-experience/decision-log.md#PXD-165",
+          "phaseScope": "PDP-0",
+          "sourceFingerprints": {
+            ".product-experience/decision-log.md": "17277282fac71c6f21e110a6820ae2ac6b797ece0a9d5276a849e1f37cdae16f",
+            ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+            ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
+            ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+            ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
+            ".product-experience/pdp-0-product-truth/requirements.yaml": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
+            ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+            ".product-experience/surfaces/media-physical-topology.v1.json": "53f3e1073c11876d3675543bfe170e32b31bae7725a3ed3bd2712f13954e2017",
+            "scripts/check-media-pdp0-surface-denominator.mjs": "1295bd0233b596af179d3fd8fd0f3f00882a4c2a3fc8a2ceaa640660697e70b3",
+            "scripts/report-media-pdp-readiness.mjs": "63e12f6ea6f7dbd6bae643b4399a8f3d4d8488ce41bd1243c3dcde2588e2e014",
+            "tests/media-pdp0-surface-denominator.test.mjs": "85d9055fd79361034d5d757c5f15cdf5cadcbc79a5a4543fdc490deb61ae0c9b",
+            "tests/media-pdp-readiness.test.mjs": "7188d88738ecddb8311c204c4cea3e658fda55795e8e45d285414dcb19209440",
+            "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "2c9286664f46457ae279d8afbe4dad1de37faeef3bbdd978134324c2c53d734a",
+            "tests/media-p0-07-feature-channel-review.test.mjs": "4d03829dee1d9db0ca38497f60ef7e70e46768ef90075d8540f08b0dc1d04ee9",
+            "tests/pdp-truth-domain.test.mjs": "8ef1a6d5e11dc2e10ca32c3e6813fc8671c22a6c7f7038d48300d52f8feae578",
+            "tests/pdp0-feature-review-current-source-observation.test.mjs": "d9dcc9b75567d83057892e50a807f90d52c29086806dcdc84d2f3dd002dd14c1",
+            "docs/implementation/verification/pdp-38/feature-review-cli-channel-current-source-observation.json": "5e7c542991535ea4084faec0ec80a359650acf81f99259f1db3cc66cac3966d6",
+            "scripts/lib/pdp0-feature-review-applicability.mjs": "ba1570620160d559516ddd9e932f916cfea1e6f81bcb8cb6f559c9b8ee88fd94"
+          },
+          "verification": {
+            "status": "PASS",
+            "testEvidenceRef": "docs/implementation/verification/pdp-38/P0-07.log",
+            "acceptanceBoundary": "Current source-scope review only; no human owner acceptance, runtime admission, PDP-1/2/3 approval, independent acceptance, or Lifecycle closure is claimed."
+          },
+          "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+          "reviewKind": "SCOPED_SOURCE_DEFINITION_REVIEW",
+          "scope": "Current-source review of the exact logical-consumer scope: all 20 active logical consumers resolve to their exact PDP-0 leaf and requirement identities. The generic Web partition remains 77 applicable and 385 non-applicable leaves; Studio resolves its exact 20 Recorder profile leaves with 15 consumer-specific additions. The review adds no channel admission, runtime support, or PDP-3 journey."
+        },
+        {
+          "decisionRef": ".product-experience/decision-log.md#PXD-173",
+          "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+          "phaseScope": "PDP-0"
+        },
+        {
+          "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+          "decisionRef": ".product-experience/decision-log.md#PXD-178",
+          "reviewKind": "SCOPED_SOURCE_DEFINITION_REVIEW",
+          "phaseScope": "PDP-0",
+          "scope": "PXD-178 rechecks the exact P0-07 logical-consumer and applicability joins against the current requirement source after PXD-174/PXD-177. The same twenty active logical consumers resolve to their current canonical leaf/requirement identities and the 462-leaf applicability partition remains intact; no surface, consumer mapping, root requirement identity, or channel admission changes.",
+          "sourceFingerprints": {
+            ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+            ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
+            ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+            ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
+            ".product-experience/pdp-0-product-truth/requirements.yaml": "af774f4db0a306ac3514475d65170560c345e7a6ecdf17305edb2ac3b9af41fe",
+            ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+            ".product-experience/surfaces/media-physical-topology.v1.json": "53f3e1073c11876d3675543bfe170e32b31bae7725a3ed3bd2712f13954e2017",
+            "scripts/check-media-pdp0-surface-denominator.mjs": "1295bd0233b596af179d3fd8fd0f3f00882a4c2a3fc8a2ceaa640660697e70b3",
+            "scripts/report-media-pdp-readiness.mjs": "faefe88e304597cf591dfbcd92a1eea4e8e38a5bf5ef7b1d33f6289a9e07c681",
+            "tests/media-pdp0-surface-denominator.test.mjs": "85d9055fd79361034d5d757c5f15cdf5cadcbc79a5a4543fdc490deb61ae0c9b",
+            "tests/media-p0-07-feature-channel-review.test.mjs": "4d03829dee1d9db0ca38497f60ef7e70e46768ef90075d8540f08b0dc1d04ee9",
+            "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "072f003e76288d2f3aa04c340c5d87fc9913a963130e4e32c333fdb736b73f31",
+            "tests/pdp-truth-domain.test.mjs": "8ef1a6d5e11dc2e10ca32c3e6813fc8671c22a6c7f7038d48300d52f8feae578",
+            "tests/pdp0-feature-review-current-source-observation.test.mjs": "d1591a9d28a1e60c7d266174be826c0d75bf3ff4b438ac199f221d2c51a3a071",
+            "scripts/lib/pdp0-feature-review-applicability.mjs": "33d02a362f9187cbe8146f660769c7e2e897dc9d9afcdda682a1db627af319cc",
+            "tests/media-pdp-readiness.test.mjs": "eadd6e6840fa866df7fe78d63b910572bdea3f079192a40051e5dce40dbbe25e"
+          },
+          "verification": {
+            "status": "PASS",
+            "tests": 16,
+            "passed": 16,
+            "failed": 0,
+            "commands": [
+              "node --test tests/media-pdp0-surface-denominator.test.mjs",
+              "node --test tests/media-p0-07-feature-channel-review.test.mjs"
+            ],
+            "evidenceRefs": [
+              "tests/media-pdp0-surface-denominator.test.mjs",
+              "tests/media-p0-07-feature-channel-review.test.mjs"
+            ]
+          },
+          "acceptanceBoundary": "PDP-0 source-scope review only. No owner acceptance, channel or runtime admission, PDP-1/PDP-2/PDP-3 acceptance, independent acceptance, qualification, or Lifecycle closure is claimed.",
+          "currentSourceCutNote": "Twenty of twenty active logical consumer scopes resolve; total consumer identities are 21 including one archived. Generic Web remains 77 applicable plus 385 non-applicable leaves. Studio retains twenty Recorder-profile leaves with fifteen source-backed consumer-specific additions. Surface denominator remains 26 physical candidates, 7 compositions, 21 logical consumers, 54 identities; physical split is 15 PDP-0 applicable, 8 explicit support-N/A, and 3 implementation-not-admitted."
         }
       ],
       "currentCorrectiveReview": {
-        "decisionRef": ".product-experience/decision-log.md#PXD-165",
+        "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+        "decisionRef": ".product-experience/decision-log.md#PXD-180",
+        "reviewKind": "NO_EFFECT_CURRENT_SOURCE_REVIEW",
         "phaseScope": "PDP-0",
+        "scope": "No-effect current-source review of PDP-2/PDP-1 validator wiring changes. P0-07 feature, requirement, consumer, and channel/profile applicability meanings and its native acceptance predicate are unchanged.",
         "sourceFingerprints": {
-          ".product-experience/decision-log.md": "17277282fac71c6f21e110a6820ae2ac6b797ece0a9d5276a849e1f37cdae16f",
           ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
           ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
-          ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
           ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
-          ".product-experience/pdp-0-product-truth/requirements.yaml": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
+          ".product-experience/pdp-0-product-truth/requirements.yaml": "af774f4db0a306ac3514475d65170560c345e7a6ecdf17305edb2ac3b9af41fe",
           ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
           ".product-experience/surfaces/media-physical-topology.v1.json": "53f3e1073c11876d3675543bfe170e32b31bae7725a3ed3bd2712f13954e2017",
           "scripts/check-media-pdp0-surface-denominator.mjs": "1295bd0233b596af179d3fd8fd0f3f00882a4c2a3fc8a2ceaa640660697e70b3",
-          "scripts/report-media-pdp-readiness.mjs": "63e12f6ea6f7dbd6bae643b4399a8f3d4d8488ce41bd1243c3dcde2588e2e014",
+          "scripts/report-media-pdp-readiness.mjs": "322a89439ac03200aefd39202b5f7a2af9c5f698d921622cc82a77e873265c82",
           "tests/media-pdp0-surface-denominator.test.mjs": "85d9055fd79361034d5d757c5f15cdf5cadcbc79a5a4543fdc490deb61ae0c9b",
-          "tests/media-pdp-readiness.test.mjs": "7188d88738ecddb8311c204c4cea3e658fda55795e8e45d285414dcb19209440",
-          "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "2c9286664f46457ae279d8afbe4dad1de37faeef3bbdd978134324c2c53d734a",
           "tests/media-p0-07-feature-channel-review.test.mjs": "4d03829dee1d9db0ca38497f60ef7e70e46768ef90075d8540f08b0dc1d04ee9",
+          "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "072f003e76288d2f3aa04c340c5d87fc9913a963130e4e32c333fdb736b73f31",
           "tests/pdp-truth-domain.test.mjs": "8ef1a6d5e11dc2e10ca32c3e6813fc8671c22a6c7f7038d48300d52f8feae578",
-          "tests/pdp0-feature-review-current-source-observation.test.mjs": "d9dcc9b75567d83057892e50a807f90d52c29086806dcdc84d2f3dd002dd14c1",
-          "docs/implementation/verification/pdp-38/feature-review-cli-channel-current-source-observation.json": "5e7c542991535ea4084faec0ec80a359650acf81f99259f1db3cc66cac3966d6",
-          "scripts/lib/pdp0-feature-review-applicability.mjs": "ba1570620160d559516ddd9e932f916cfea1e6f81bcb8cb6f559c9b8ee88fd94"
+          "tests/pdp0-feature-review-current-source-observation.test.mjs": "d1591a9d28a1e60c7d266174be826c0d75bf3ff4b438ac199f221d2c51a3a071",
+          "scripts/lib/pdp0-feature-review-applicability.mjs": "33d02a362f9187cbe8146f660769c7e2e897dc9d9afcdda682a1db627af319cc",
+          "tests/media-pdp-readiness.test.mjs": "eadd6e6840fa866df7fe78d63b910572bdea3f079192a40051e5dce40dbbe25e"
         },
+        "supersedesReviewRef": ".product-experience/decision-log.md#PXD-178",
         "verification": {
           "status": "PASS",
-          "testEvidenceRef": "docs/implementation/verification/pdp-38/P0-07.log",
-          "acceptanceBoundary": "Current source-scope review only; no human owner acceptance, runtime admission, PDP-1/2/3 approval, independent acceptance, or Lifecycle closure is claimed."
+          "tests": 8,
+          "passed": 8,
+          "failed": 0,
+          "command": "node scripts/report-media-pdp-readiness.mjs --verify --phase-dev-status=PDP-0 --write",
+          "evidenceRefs": [
+            "docs/implementation/verification/pdp-38/P0-07.log"
+          ],
+          "acceptanceBoundary": "No-effect source-currentness review only; no owner approval, independent acceptance, runtime admission, qualification, or downstream acceptance is claimed."
         },
-        "status": "APPROVED_CURRENT_SOURCE_REVIEW",
-        "reviewKind": "SCOPED_SOURCE_DEFINITION_REVIEW",
-        "scope": "Current-source review of the exact logical-consumer scope: all 20 active logical consumers resolve to their exact PDP-0 leaf and requirement identities. The generic Web partition remains 77 applicable and 385 non-applicable leaves; Studio resolves its exact 20 Recorder profile leaves with 15 consumer-specific additions. The review adds no channel admission, runtime support, or PDP-3 journey."
+        "currentSourceCutNote": "PXD-178 remains preserved in historicalCorrectiveReviews. All of its P0-07 source pins remain unchanged except the readiness reporter hash, which is refreshed to the exact current bytes reviewed under PXD-180."
       }
     }
   ],

@@ -13,22 +13,24 @@
           "requiredSourcePhrase": "Each capability declares an explicit trust/reconstruction disposition against its P0 semantic inputs and outputs.",
           "historicalCurrentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
           "historicalCurrentTargetValueSha256": "528d2743c10dc3678364a3c4ff7ea6f096c002316bd511b155b11e777c65a6c5",
-          "currentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
+          "currentSourceFileSha256": "af774f4db0a306ac3514475d65170560c345e7a6ecdf17305edb2ac3b9af41fe",
           "currentTargetValueSha256": "528d2743c10dc3678364a3c4ff7ea6f096c002316bd511b155b11e777c65a6c5",
           "semanticEquivalence": "NOT_ASSERTED",
-          "acceptanceEffect": "none"
+          "acceptanceEffect": "none",
+          "supersededCurrentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4"
         },
         {
           "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#coverageRule",
           "requiredSourcePhrase": "Every scoped capability below is a finite semantic leaf.",
           "historicalCurrentSourceFileSha256": "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf",
           "historicalCurrentTargetValueSha256": "b5756336bf7681a60d3d18027e546f48d81d0548c6da7c9ea7413503ea2fb1e1",
-          "currentSourceFileSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+          "currentSourceFileSha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
           "currentTargetValueSha256": "b5756336bf7681a60d3d18027e546f48d81d0548c6da7c9ea7413503ea2fb1e1",
           "semanticEquivalence": "NOT_ASSERTED",
           "acceptanceEffect": "none",
           "sourceCorrectionDecisionRef": ".product-experience/decision-log.md#PXD-153",
-          "sourceCorrectionEvidenceRef": "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json"
+          "sourceCorrectionEvidenceRef": "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json",
+          "supersededCurrentSourceFileSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
         }
       ]
     },
@@ -51,12 +53,13 @@
           "requiredSourcePhrase": "Every scoped capability below is a finite semantic leaf.",
           "historicalCurrentSourceFileSha256": "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf",
           "historicalCurrentTargetValueSha256": "b5756336bf7681a60d3d18027e546f48d81d0548c6da7c9ea7413503ea2fb1e1",
-          "currentSourceFileSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+          "currentSourceFileSha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
           "currentTargetValueSha256": "b5756336bf7681a60d3d18027e546f48d81d0548c6da7c9ea7413503ea2fb1e1",
           "semanticEquivalence": "NOT_ASSERTED",
           "acceptanceEffect": "none",
           "sourceCorrectionDecisionRef": ".product-experience/decision-log.md#PXD-153",
-          "sourceCorrectionEvidenceRef": "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json"
+          "sourceCorrectionEvidenceRef": "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json",
+          "supersededCurrentSourceFileSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
         }
       ]
     },
@@ -69,7 +72,7 @@
           "requiredSourcePhrase": "Keep structural validity, perceptual quality, intent fidelity, scientific/domain constraints, rights/safety, and delivery compatibility as separate observations with method/version, applicability, uncertainty, and abstention.",
           "historicalCurrentSourceFileSha256": "ec39afca8df04e5087482a1f393a32af4775f990571a5568d3ab7caed3385e5e",
           "historicalCurrentTargetValueSha256": "1761028bd34799e45da3421f4cdd42f89e85ca51c4daddaaa3fbc6532cf20421",
-          "currentSourceFileSha256": "ec39afca8df04e5087482a1f393a32af4775f990571a5568d3ab7caed3385e5e",
+          "currentSourceFileSha256": "66104b2c95e75190ea153f6c7bd883783d4eb6c7d24d8a23c43d18e8ea795b03",
           "currentTargetValueSha256": "1761028bd34799e45da3421f4cdd42f89e85ca51c4daddaaa3fbc6532cf20421",
           "semanticEquivalence": "NOT_ASSERTED",
           "acceptanceEffect": "none"

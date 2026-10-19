@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "media.pdp0.capability-corrections-current-source-review.v1",
+  "artifactId": "P0-CAPABILITY-CORRECTIONS-CURRENT-SOURCE-REVIEW-002",
+  "decisionRef": ".product-experience/decision-log.md#PXD-171",
+  "predecessorReviewRefs": [
+    "docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json",
+    "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json"
+  ],
+  "source": {
+    "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+    "currentSha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+    "capabilityCount": 462
+  },
+  "records": [
+    {
+      "capabilityId": "media.project.source-asset.attach",
+      "fieldPath": "ownerDefinition.typedInputSlots",
+      "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.source-asset.attach/ownerDefinition/typedInputSlots",
+      "predecessorDecisionRef": ".product-experience/decision-log.md#PXD-142",
+      "fieldSha256": "2edd5a40cd6457012ca5254b3ece6c63df75b08ffcac4725f585d81ae6b113ff"
+    },
+    {
+      "capabilityId": "media.artifact.derive",
+      "fieldPath": "ownerDefinition.typedInputSlots",
+      "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.derive/ownerDefinition/typedInputSlots",
+      "predecessorDecisionRef": ".product-experience/decision-log.md#PXD-142",
+      "fieldSha256": "bc50817dce92660334b595f30f2dc9735d045499a843ce9d30fbff80b521d81c"
+    },
+    {
+      "capabilityId": "media.artifact.output.register",
+      "fieldPath": "ownerDefinition.typedInputSlots",
+      "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.output.register/ownerDefinition/typedInputSlots",
+      "predecessorDecisionRef": ".product-experience/decision-log.md#PXD-142",
+      "fieldSha256": "a1582535e99c94425d4f002d022aa1de00061acba26cc48f7a13299925f7f3d3"
+    },
+    {
+      "capabilityId": "media.artifact.upload",
+      "fieldPath": "ownerDefinition.successOutputs",
+      "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.upload/ownerDefinition/successOutputs",
+      "predecessorDecisionRef": ".product-experience/decision-log.md#PXD-142",
+      "fieldSha256": "8980f8e0c055c5e7a911ae775b81f25b902f09986d9dbb1be1c9ce23ecf2cc11"
+    },
+    {
+      "capabilityId": "media.artifact.upload.resume",
+      "fieldPath": "ownerDefinition.successOutputs",
+      "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.upload.resume/ownerDefinition/successOutputs",
+      "predecessorDecisionRef": ".product-experience/decision-log.md#PXD-142",
+      "fieldSha256": "ea033e20e713ca0792a9bbac1bdd79f0130fff4fc2ffedec0a82be4ec72392ea"
+    },
+    {
+      "capabilityId": "media.artifact.import",
+      "fieldPath": "ownerDefinition.successOutputs",
+      "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.import/ownerDefinition/successOutputs",
+      "predecessorDecisionRef": ".product-experience/decision-log.md#PXD-142",
+      "fieldSha256": "8f819298dcfbe119a3967ef9eefe5cf3d3bfac9c912d700aa96e654fef534514"
+    },
+    {
+      "capabilityId": "media.artifact.inspect",
+      "fieldPath": "ownerDefinition.successOutputs",
+      "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.inspect/ownerDefinition/successOutputs",
+      "predecessorDecisionRef": ".product-experience/decision-log.md#PXD-142",
+      "fieldSha256": "c340155dbcd161e54e84f988dffb662e14e56af14419c77b31d9c3b15bb485a3"
+    },
+    {
+      "capabilityId": "media.speech.transcription.file",
+      "fieldPath": "ownerDefinition.successOutputs",
+      "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.file/ownerDefinition/successOutputs",
+      "predecessorDecisionRef": ".product-experience/decision-log.md#PXD-142",
+      "fieldSha256": "fc9437c469476a818a6521847c93849f510f4a2d5e0002e76113c77d07f8e2e6"
+    },
+    {
+      "capabilityId": "media.artifact.upload",
+      "fieldPath": "ownerDefinition.parameterSchema.properties.declaredByteLength",
+      "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.upload/ownerDefinition/parameterSchema/properties/declaredByteLength",
+      "predecessorDecisionRef": ".product-experience/decision-log.md#PXD-153",
+      "fieldSha256": "aeb902cbbc4677981d7f78606c6f04ad97912665b293a8eca4486d7564b15995"
+    }
+  ],
+  "assessment": "The exact PXD-142 typed-input and optional-success-output corrections and the PXD-153 upload byte-length minimum were re-read from the current 462-capability source. Each reviewed subfield remains equal to its scoped predecessor correction. This establishes exact-field currentness only; it does not assert whole-document semantic equivalence or acceptance.",
+  "semanticEquivalence": "NOT_ASSERTED",
+  "acceptanceEffect": "none; exact corrected subfields reviewed against current P0 source"
+}

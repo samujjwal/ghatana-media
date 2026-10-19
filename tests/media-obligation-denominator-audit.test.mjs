@@ -75,8 +75,8 @@ test('refreshes the nine operation-source fingerprints only after their semantic
     'PXD-094 remains tied to its exact historical operation bytes');
   const directCriteria = readJson('docs/implementation/verification/pdp-38/direct-definition-criteria-review.json');
   const currentP001 = directCriteria.records.find(({ taskId }) => taskId === 'P0-01')?.currentCorrectiveReview;
-  assert.equal(currentP001?.status, 'APPROVED_CURRENT_CORRECTION');
-  assert.equal(currentP001?.decisionRef, '.product-experience/decision-log.md#PXD-153');
+  assert.equal(currentP001?.status, 'APPROVED_CURRENT_SOURCE_REVIEW');
+  assert.equal(currentP001?.decisionRef, '.product-experience/decision-log.md#PXD-171');
   const historicalP106 = directCriteria.records.find(({ taskId }) => taskId === 'P0-01')
     ?.historicalCorrectiveReviews.find(({ decisionRef }) => decisionRef === '.product-experience/decision-log.md#PXD-106');
   assert.equal(historicalP106?.status, 'APPROVED_CURRENT_CORRECTION');

@@ -11,6 +11,7 @@ const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const require = createRequire(resolve(root, "../ghatana-tools/package.json"));
 const { parse } = require("yaml");
 const candidate = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json"), "utf8"));
+const pxd173Successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd173.json"), "utf8"));
 const partition = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-pending-owner-partition-499.json"), "utf8"));
 const sha = (value) => createHash("sha256").update(value).digest("hex");
 const sources = new Map();
@@ -153,6 +154,34 @@ test("current proposal observations preserve historical source and owner pins", 
     assert.equal(binding.currentProposalObservation.priorSourceFileSha256, binding.sourceFileSha256);
     assert.equal(binding.currentProposalObservation.priorSourceValueSha256, binding.sourceValueSha256);
     assert.equal(binding.currentProposalObservation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  }
+});
+
+test("PXD-173 successors cover every refreshed PDP-0 candidate source observation", () => {
+  assert.equal(pxd173Successor.decisionRef, ".product-experience/decision-log.md#PXD-173");
+  const refreshed = pxd173Successor.records.filter((record) => record.sourceArtifactRef
+    === "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json");
+  assert.equal(refreshed.length, 32);
+  assert.equal(pxd173Successor.counts.targetValueDrift, 0);
+  assert.equal(pxd173Successor.counts.candidateObservations, refreshed.length);
+  for (const successor of refreshed) {
+    const owner = candidate.records.find((record) => record.claimId === successor.claimId);
+    assert.equal(owner.ownerPhase, "PDP-0");
+    let observation;
+    if (successor.sourceRecordRef.endsWith("/currentProposalObservation")) {
+      observation = owner.currentProposalObservation;
+    } else {
+      observation = owner.ownerSemanticReview.materialBindings.find((binding) => binding.ref === successor.targetRef)?.currentProposalObservation;
+    }
+    assert.ok(observation, `${successor.claimId} ${successor.targetRef} current observation`);
+    assert.equal(observation.supersededCurrentSourceFileSha256, successor.predecessorCurrentSourceFileSha256);
+    assert.equal(observation.currentSourceFileSha256, successor.currentSourceFileSha256);
+    assert.equal(observation.currentTargetValueSha256 ?? observation.currentSourceValueSha256, successor.currentTargetValueSha256);
+    const { source, value } = resolveSelector(successor.targetRef);
+    assert.equal(successor.currentSourceFileSha256, sha(source));
+    assert.equal(successor.currentTargetValueSha256, sha(typeof value === "string" ? value : JSON.stringify(value)));
+    assert.equal(successor.semanticEquivalence, "NOT_ASSERTED");
+    assert.equal(successor.acceptanceEffect, "none");
   }
 });
 

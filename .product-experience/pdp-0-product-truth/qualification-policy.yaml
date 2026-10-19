@@ -1,7 +1,7 @@
 schemaVersion: media.qualification-policy.v1
 productId: media
 authority: prospective-Phase-0 policy; does not itself qualify or activate any capability
-status: P0-003-definition-in-progress
+status: SOURCE_AUTHORED_DEFINITION_ONLY; PDP-0 phase DEV_COMPLETE is recorded only by the native source-bound docs/implementation/pdp-0-phase-dev-status.json after checks against its exact source cut; this artifact does not claim current phase completion, owner acceptance, independent P0-010 acceptance, or capability qualification
 purpose: Keep definition, implementation, license admission, technical qualification, and current runtime availability
   independent for every capability leaf and selected execution profile.
 productDefinitionContract:

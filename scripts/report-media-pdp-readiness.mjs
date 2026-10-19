@@ -64,9 +64,9 @@ const suites = {
   'P2-02': ['tests/pdp-design-current-public-consumer-bindings.test.mjs', 'tests/pdp-design-presentation-contracts.test.mjs'],
   'P2-03': ['tests/media-design-conformance.test.mjs', 'tests/pdp-design-exact-content-overlay-policy.test.mjs', 'tests/pdp-design-interface-component-contracts.test.mjs'],
   'P2-04': ['tests/media-ui-reuse-inventory.test.mjs', 'tests/pdp-design-reuse-disposition.test.mjs', 'tests/pdp-design-interface-component-contracts.test.mjs'],
-  'P2-05': ['tests/pdp-design-composition-catalogs.test.mjs', 'tests/pdp-2-recipe-layout-chains.test.mjs', 'tests/media-presentation-architecture.test.mjs'],
+  'P2-05': ['tests/pdp-design-composition-catalogs.test.mjs', 'tests/pdp-2-recipe-layout-chains.test.mjs', 'tests/media-presentation-architecture.test.mjs', 'tests/pdp2-gui-source-definition-bindings.test.mjs'],
   'P2-06': ['tests/pdp-design-responsive-comprehension.test.mjs', 'tests/pdp-design-responsive-rendered-references.test.mjs'],
-  'P2-07': ['tests/pdp-design-interface-parity.test.mjs', 'tests/pdp2-machine-interface-handoff.test.mjs', 'tests/media-agent-tool-contracts.test.mjs', 'tests/media-agent-tool-definition-contracts.test.mjs', 'tests/media-transcription-submission-interface-grammar.test.mjs'],
+  'P2-07': ['tests/pdp-design-interface-parity.test.mjs', 'tests/pdp2-machine-interface-handoff.test.mjs', 'tests/media-agent-tool-contracts.test.mjs', 'tests/media-agent-tool-definition-contracts.test.mjs', 'tests/media-transcription-submission-interface-grammar.test.mjs', 'tests/media-recorder-studio-definitions.test.mjs', 'tests/media-pdp2-declarative-interface.test.mjs', 'tests/pdp-cli-owner-command-contracts.test.mjs', 'tests/pdp2-read-consumer-adapters.test.mjs', 'tests/pdp-http-versioned-adapter-definitions.test.mjs'],
   'P2-08': ['tests/pdp-design-accessibility-text-spacing-target-size.test.mjs', 'tests/pdp-design-responsive-comprehension.test.mjs', 'tests/pdp2-media-renderer-dom.test.mjs'],
   'P2-09': ['tests/media-design-conformance.test.mjs', 'tests/pdp-design-current-public-consumer-bindings.test.mjs', 'tests/pdp-design-composition-catalogs.test.mjs', 'tests/media-ui-reuse-inventory.test.mjs', 'tests/media-presentation-architecture.test.mjs', 'tests/pdp2-phase-handoff-contract.test.mjs', 'tests/media-pdp-p2-dev-status.test.mjs'],
   'P3-01': ['tests/pdp-experience-definition-mapping.test.mjs', 'tests/pdp-experience-generic-journey-step-projection.test.mjs', 'tests/pdp-experience-transition-projection.test.mjs', 'tests/pdp-experience-component-projection.test.mjs', 'tests/pdp-experience-component-source-dispositions.test.mjs', 'tests/media-j01-definition-semantics.test.mjs', 'tests/media-j02-definition-semantics.test.mjs', 'tests/media-transcript-review-definition.test.mjs', 'tests/media-caption-version-experience-definitions.test.mjs'],
@@ -81,7 +81,13 @@ const suites = {
   'P3-10': ['tests/pdp-3-overview-denominator.test.mjs', 'tests/pdp-experience-definition-mapping.test.mjs', 'tests/pdp-experience-action-reconciliation-contract.test.mjs', 'tests/pdp-experience-transition-edge-bindings.test.mjs', 'tests/pdp-experience-view-state-binding.test.mjs', 'tests/pdp-experience-journey-purpose-bindings.test.mjs', 'tests/pdp-experience-step-version-binding-contracts.test.mjs', 'tests/pdp-experience-journey-scenario-bindings.test.mjs', 'tests/media-pdp-p3-dev-status.test.mjs', 'tests/pdp3-j03-decision-crosswalk.test.mjs'],
 };
 export const p103VerificationSuites = {
-  'bounded-owner-contracts': {files:['tests/pdp-truth-domain.test.mjs', 'tests/pdp-job-submit-parameter-contract.test.mjs'], testNamePattern:null},
+  'bounded-owner-contracts': {files:[
+    'tests/pdp-truth-domain.test.mjs',
+    'tests/pdp-job-submit-parameter-contract.test.mjs',
+    'tests/pdp1-opaque-id-operation-field-bounds.test.mjs',
+    'tests/media-declarative-production-p1-definitions.test.mjs',
+    'tests/media-recorder-studio-p1-definitions.test.mjs',
+  ], testNamePattern:null},
   'capability-intent-mapping': {files:[
     'tests/pdp1-capability-intent-operation-mapping.test.mjs',
     'tests/pdp1-artifact-upload-result-schema.test.mjs',
@@ -425,6 +431,17 @@ export function writePdp0DevStatus(status, repositoryRoot = root) {
 export const p1Criteria = Array.from({length: 11}, (_, i) => `P1-${String(i + 1).padStart(2, '0')}`);
 export const p1SourceRoots = [
   '.product-experience/decision-log.md',
+  '.product-experience/source-manifest.yaml',
+  '.product-experience/artifact-identities.yaml',
+  '.product-experience/authority-map.yaml',
+  '.product-experience/traceability.yaml',
+  '.product-experience/surface-registry.yaml',
+  '.product-experience/surfaces/media-physical-topology.v1.json',
+  'docs/implementation/pdp-0-phase-dev-status.json',
+  'docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json',
+  'docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json',
+  '.product-experience/pdp-0-product-truth/requirements.yaml',
+  '.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml',
   '.product-experience/pdp-0-product-truth/time-units-fidelity.yaml',
   '.product-experience/pdp-0-product-truth/capabilities.yaml',
   '.product-experience/pdp-1-domain-data',
@@ -448,6 +465,8 @@ export const p2SourceRoots = [
   '.product-experience/pdp-1-domain-data/handoff-contracts.yaml',
   '.product-experience/interface-parity',
   '.product-experience/pdp-3-product-experience/action-registry.yaml',
+  'docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json',
+  'docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json',
   'docs/implementation/pdp-1-phase-dev-status.json',
   'docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json',
   'libs/audio-video-ui/src',
@@ -460,6 +479,8 @@ export const p2DirectScripts = [
   'scripts/generate-media-phase-projections.mjs',
   'scripts/check-media-design-conformance.mjs',
   'scripts/check-media-presentation-architecture.mjs',
+  'scripts/check-media-recorder-studio-definitions.mjs',
+  'scripts/check-media-pdp2-declarative-interface.mjs',
   'scripts/lib/pdp-design-composition-validator.mjs',
   'scripts/lib/media-product-definition-residuals.mjs',
 ];
@@ -476,6 +497,9 @@ export const p3SourceRoots = [
   'docs/implementation/pdp-0-phase-dev-status.json',
   'docs/implementation/pdp-1-phase-dev-status.json',
   'docs/implementation/pdp-2-phase-dev-status.json',
+  'docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json',
+  'docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json',
+  'docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json',
   'docs/EXAMPLES.md',
   'libs/audio-video-ui/src',
   'libs/media-experience-simulation/src',
@@ -837,7 +861,7 @@ export function buildPdp2SourceCensus(repositoryRoot = root) {
   const expected = {
     componentFamilies: 31, typedComponentFamilies: 28, componentValueTypes: 122,
     semanticTokenAliases: 9, sharedPublicCssVariables: 24, mediaCssProjections: 20,
-    templates: 13, layouts: 11, recipes: 13, compositionRules: 42,
+    templates: 13, layouts: 11, recipes: 13, compositionRules: 43,
     interactionPatterns: 19, machineInterfaceInvariants: 12,
   };
   const integrityIssues = Object.entries(expected)
@@ -1363,7 +1387,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const audit=JSON.parse(fs.readFileSync(path.join(root,auditPath),'utf8'));
   // The implementation plan is an execution ledger, not normative phase input;
   // pinning it would make a phase-status update stale when the ledger is corrected.
-  const p0PinnedSources = ['.product-experience/pdp-0-product-truth', '.product-experience/authority-map.yaml', '.product-experience/gaps.yaml', '.product-experience/decision-log.md', '.product-experience/source-manifest.yaml', '.product-experience/artifact-identities.yaml', '.product-experience/surface-registry.yaml', '.product-experience/surfaces/media-physical-topology.v1.json', 'docs/migration/current-master-plan-claim-dispositions.json', 'docs/migration/master-plan-source-change-claims.yaml', 'docs/PRODUCT-DEFINITION-COVERAGE.md', 'docs/implementation/verification/pdp-38/direct-definition-criteria-review.json', 'docs/implementation/verification/pdp-38/migration-current-material-review.json', 'docs/implementation/verification/pdp-38/migration-p0-current-material-review.json', 'docs/implementation/verification/pdp-38/migration-current-owner-target-observations.json', 'docs/implementation/verification/pdp-38/migration-p0-current-source-observations.json', 'docs/implementation/verification/pdp-38/p0-leaf-trust-current-type-drift-inventory.json', 'docs/implementation/verification/pdp-38/policy-input-threats-current-source-observation.json', 'docs/implementation/verification/pdp-38/pending-locator-current-source-observations.json', 'docs/implementation/verification/pdp-38/p0-capability-intent-owner-binding-current-source-observation.json', 'docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json', 'docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json', 'docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json', 'docs/implementation/verification/pdp-38/p0-quality-current-source-review.json', 'docs/implementation/verification/pdp-38/feature-review-animation-property-owner-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-audio-defects-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-audio-naturalness-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-cli-channel-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-policy-authority-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-quality-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-qualification-policy-current-source-observation.json', 'docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json', 'docs/implementation/observations/media-unified-production-501-feature-reconciliation-2026-10-18.json', 'docs/implementation/observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json', 'docs/implementation/observations/media-unified-source-task-and-experiment-crosswalk-2026-10-18.json', 'docs/implementation/observations/pdp0-semantic-audit-slices', 'apps/media-experience-explorer/specification-artifacts.json'];
+  const p0PinnedSources = ['.product-experience/pdp-0-product-truth', '.product-experience/authority-map.yaml', '.product-experience/gaps.yaml', '.product-experience/decision-log.md', '.product-experience/source-manifest.yaml', '.product-experience/artifact-identities.yaml', '.product-experience/surface-registry.yaml', '.product-experience/surfaces/media-physical-topology.v1.json', 'docs/migration/current-master-plan-claim-dispositions.json', 'docs/migration/master-plan-source-change-claims.yaml', 'docs/PRODUCT-DEFINITION-COVERAGE.md', 'docs/implementation/verification/pdp-38/direct-definition-criteria-review.json', 'docs/implementation/verification/pdp-38/migration-current-material-review.json', 'docs/implementation/verification/pdp-38/migration-p0-current-material-review.json', 'docs/implementation/verification/pdp-38/migration-current-owner-target-observations.json', 'docs/implementation/verification/pdp-38/migration-p0-current-source-observations.json', 'docs/implementation/verification/pdp-38/p0-leaf-trust-current-type-drift-inventory.json', 'docs/implementation/verification/pdp-38/policy-input-threats-current-source-observation.json', 'docs/implementation/verification/pdp-38/pending-locator-current-source-observations.json', 'docs/implementation/verification/pdp-38/p0-capability-intent-owner-binding-current-source-observation.json', 'docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json', 'docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json', 'docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json', 'docs/implementation/verification/pdp-38/p0-capability-corrections-current-source-review-current.json', 'docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json', 'docs/implementation/verification/pdp-38/p0-quality-current-source-review.json', 'docs/implementation/verification/pdp-38/feature-review-animation-property-owner-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-audio-defects-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-audio-naturalness-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-cli-channel-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-policy-authority-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-quality-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-qualification-policy-current-source-observation.json', 'docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json', 'docs/implementation/observations/media-unified-production-501-feature-reconciliation-2026-10-18.json', 'docs/implementation/observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json', 'docs/implementation/observations/media-unified-source-task-and-experiment-crosswalk-2026-10-18.json', 'docs/implementation/observations/pdp0-semantic-audit-slices', 'apps/media-experience-explorer/specification-artifacts.json'];
   const p0DirectScripts = ['scripts/report-media-pdp-readiness.mjs', 'scripts/lib/media-product-definition-residuals.mjs', 'scripts/lib/pdp0-feature-review-applicability.mjs', 'scripts/lib/product-definition-domain-rule-mapping.mjs', 'scripts/generate-media-phase-projections.mjs', 'scripts/generate-media-product-manifest.mjs', 'scripts/check-product-definition-authority.mjs', 'scripts/check-media-pdp0-501-audit-dispositions.mjs', 'scripts/check-media-pdp0-surface-denominator.mjs'];
   const sourceRoots=phaseStatus==='PDP-1'?p1SourceRoots:phaseStatus==='PDP-2'?p2SourceRoots:phaseStatus==='PDP-3'?p3SourceRoots:p0PinnedSources;
   const phaseScripts=phaseStatus==='PDP-1'?['scripts/report-media-pdp-readiness.mjs']:phaseStatus==='PDP-2'?p2DirectScripts:phaseStatus==='PDP-3'?p3DirectScripts:p0DirectScripts;

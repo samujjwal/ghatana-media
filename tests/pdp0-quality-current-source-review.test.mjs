@@ -8,7 +8,8 @@ import { resolve } from "node:path";
 const root = resolve(new URL("..", import.meta.url).pathname);
 const require = createRequire(resolve(root, "../ghatana-tools/package.json"));
 const { parse } = require("yaml");
-const artifactPath = "docs/implementation/verification/pdp-38/p0-quality-current-source-review.json";
+const artifactPath = "docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json";
+const historicalArtifactPath = "docs/implementation/verification/pdp-38/p0-quality-current-source-review.json";
 const correctionReviewPath = "docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json";
 const qualityPath = ".product-experience/pdp-0-product-truth/quality-policy.yaml";
 const capabilityPath = ".product-experience/pdp-0-product-truth/capabilities.yaml";
@@ -50,6 +51,7 @@ const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
 test("P0 quality current-source review pins the complete 462-leaf policy crosswalk", () => {
   const review = JSON.parse(read(artifactPath).toString("utf8"));
+  const historicalReview = JSON.parse(read(historicalArtifactPath).toString("utf8"));
   const correctionReview = JSON.parse(read(correctionReviewPath).toString("utf8"));
   const uploadCorrectionReview = JSON.parse(read("docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json").toString("utf8"));
   const qualityBytes = read(qualityPath);
@@ -70,14 +72,22 @@ test("P0 quality current-source review pins the complete 462-leaf policy crosswa
   assert.equal(review.sources.qualityPolicy.currentSha256, sha256(qualityBytes));
   assert.equal(review.sources.capabilities.path, capabilityPath);
   assert.equal(review.sources.capabilities.currentSha256, sha256(capabilityBytes));
-  assert.equal(uploadCorrectionReview.source.currentSha256, sha256(capabilityBytes),
-    "PXD-153 pins the current capability source");
-  assert.equal(review.currentSourceRefresh.decisionRef, ".product-experience/decision-log.md#PXD-153");
+  assert.equal(uploadCorrectionReview.source.currentSha256, review.currentSourceRefresh.priorSourceSha256,
+    "PXD-153 remains the historical predecessor source pin");
+  assert.equal(review.artifactId, "P0-QUALITY-CURRENT-SOURCE-REVIEW-002");
+  assert.equal(review.predecessorReviewRef, historicalArtifactPath);
+  assert.equal(historicalReview.currentSourceRefresh.decisionRef, ".product-experience/decision-log.md#PXD-153");
+  assert.equal(review.currentSourceRefresh.decisionRef, ".product-experience/decision-log.md#PXD-170");
   assert.equal(review.currentSourceRefresh.priorSourceSha256,
-    "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf");
+    "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d");
   assert.equal(review.currentSourceRefresh.currentSourceSha256, sha256(capabilityBytes));
-  assert.equal(review.currentSourceRefresh.fieldRef,
-    ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.upload/ownerDefinition/parameterSchema/properties/declaredByteLength/minimum");
+  assert.deepEqual(review.currentSourceRefresh.reviewedCapabilityRefs, [
+    "media.artifact.search", "media.artifact.list", "media.stream.recording.integrate",
+    "media.speech.transcription.file", "media.audio.analysis.detect.silence",
+    "media.simulation.cloth", "media.simulation.soft-body", "media.simulation.rope",
+    "media.simulation.particle", "media.simulation.fluid", "media.simulation.agent",
+    "media.compose.multitrack-timeline",
+  ].map((id) => `${capabilityPath}#capabilities/@id=${id}`));
   assert.equal(review.currentSourceRefresh.acceptanceEffect, "none");
   assert.equal(review.sources.capabilities.capabilityCount, 462);
   assert.equal(capabilities.length, 462);
@@ -189,7 +199,13 @@ test("P0 quality current-source review pins the complete 462-leaf policy crosswa
   assert.equal(channelLeafObservation.allOtherOwnerLeafFieldsUnchangedFromHistoricalPxd141Source, true);
   assert.equal(channelLeafObservation.channelApplicabilityDecisionsChanged, false);
   assert.equal(channelLeafObservation.acceptanceEffect, "none");
-  assert.equal(correctionReview.sources.activeChannelCatalog.currentSha256, sha256(read(channelsPath)));
+  assert.equal(correctionReview.sources.activeChannelCatalog.currentSha256, priorP141Channels.sourceFingerprints[channelsPath],
+    "PXD-142 retains its historical active-channel catalog pin");
+  const p0SurfaceScope = directCriteria.records.find(({ taskId }) => taskId === "P0-07").currentCorrectiveReview;
+  assert.equal(p0SurfaceScope.decisionRef, ".product-experience/decision-log.md#PXD-165");
+  assert.equal(p0SurfaceScope.reviewKind, "SCOPED_SOURCE_DEFINITION_REVIEW");
+  assert.equal(p0SurfaceScope.sourceFingerprints[channelsPath], sha256(read(channelsPath)),
+    "PXD-165 is the current source-scope review for applications-channels.yaml");
   assert.equal(review.correctionOverlay.artifactSha256, sha256(read(correctionReviewPath)));
   assert.equal(review.correctionOverlay.qualityApplicabilityDecisionsChanged, false);
   assert.equal(review.correctionOverlay.channelApplicabilityDecisionsChanged, false);

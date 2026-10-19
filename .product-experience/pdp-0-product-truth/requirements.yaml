@@ -1,7 +1,7 @@
 schemaVersion: media.requirements.v1
 productId: media
 authority: prospective-Phase-0-definition; not accepted Product Truth
-status: P0-003-definition-in-progress
+status: SOURCE_AUTHORED_DEFINITION_ONLY; PDP-0 phase DEV_COMPLETE is recorded only by the native source-bound docs/implementation/pdp-0-phase-dev-status.json after checks against its exact source cut; this artifact does not claim current phase completion, owner acceptance, or independent P0-010 acceptance
 sourceAuthority: docs/migration/expert-reviewed-master-plan.md §§6, 18.3 and P0-003; MDI-001 scopes generic document intelligence
   to platform ownership
 productDefinitionContract:
@@ -400,6 +400,18 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-ARTIFACT-AC-03
+    given: An actor is authorized to search transcript content for an exact source-media or project version.
+    when: The actor requests a semantic transcript search.
+    then: Return bounded candidate matches anchored to the exact source version and transcript time range; distinguish
+      unavailable transcript content, denied scope, unknown matching, and an empty candidate page.
+    rejection: Reject presenting candidates as complete when matching or continuation is unknown, or returning transcript
+      content outside the admitted rights-and-retention scope.
+  - id: MEDIA-REQ-CAP-ARTIFACT-AC-04
+    given: An actor is authorized to inspect possible duplicate or near-duplicate artifacts.
+    when: the actor requests duplicate detection.
+    then: Return bounded candidate groups that retain every source artifact identity and state the matching uncertainty.
+    rejection: Reject merging, replacing, or deleting any source artifact as a consequence of candidate detection.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -585,7 +597,8 @@ requirements:
   - id: MEDIA-REQ-CAP-JOB-AC-03
     given: A job is accepted, a caller is watching it, and a cancel or retry is requested while outcome certainty is pending.
     when: The watcher detaches or is interrupted, then an authorized caller performs the explicit cancel/reconcile/retry operation.
-    then: Detaching changes no job state; cancellation remains pending until stop evidence is confirmed; an uncertain effect is reconciled under the same job identity before any new attempt is allowed.
+    then: Detaching or interrupting observation changes no job state; a cancellation request or acknowledgement is not terminal cancellation, which requires authoritative confirmation that the job's effects have stopped. For parent cancellation, stop admitting or dispatching new child work and request cancellation of active children; keep the parent pending or UNKNOWN until authoritative evidence resolves each child's effect outcome. Any partial result is explicitly labeled and bounded to its evidenced scope, never represented as full success. Keep the outcome UNKNOWN until exact authorized reconciliation resolves it, and reconcile under the same job identity before any new attempt is allowed.
+    rejection: Reject continued child admission or dispatch after parent cancellation; treating a cancellation request or acknowledgement as confirmed terminal cancellation or authoritative child-effect resolution; representing a partial result as full success; retrying before reconciliation under the same job identity; or resolving an unreconciled outcome as anything other than UNKNOWN.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -757,6 +770,12 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-STREAM-AC-03
+    given: An authorized presenter script and an explicit scene/narration cue map are supplied for a recording session.
+    when: The presenter uses the recording teleprompter.
+    then: Present the script prompt synchronized to the declared active cue and retain its script and cue provenance.
+    rejection: Reject inferring cue alignment when the map is absent, or treating prompt presentation as a committed recording
+      or project edit.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -1770,6 +1789,20 @@ requirements:
     when: the product inserts the resulting dictated text into that selected target.
     then: limit capture and insertion to the user-initiated session and selected OS-authorized target; report unavailable when permission or the required adapter is missing.
     rejection: reject background or global capture/insertion, choosing an unselected target, or bypassing denied or unavailable permission.
+  - id: MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-04
+    given: An authorized source version and an admitted, versioned custom glossary are supplied for transcription.
+    when: Glossary-guided recognition or correction is requested.
+    then: Return any produced transcript as an unverified, source-version/timebase-linked draft and identify the glossary
+      version used; keep this operation distinct from punctuation and capitalization.
+    rejection: Reject silently applying an ambiguous, unsupported, or unavailable glossary entry, or claiming that glossary
+      guidance verifies transcript correctness.
+  - id: MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-05
+    given: An authorized source version is admitted for speech transcription and filler/retake analysis.
+    when: The actor requests ASR-assisted filler-word or retake detection.
+    then: Return only uncertain candidate observations anchored to the exact source version and time range, distinct from
+      silence observations.
+    rejection: Reject classifying silence alone as a filler or retake, or automatically deleting, trimming, or cutting source
+      content from a candidate observation.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -2905,6 +2938,7 @@ requirements:
   priority: must
   traceToIntentIds:
   - media.intent.create
+  - media.intent.understand
   intentTraceState: traced-to-canonical-P0-002-intents
   actorRoles:
   - creator
@@ -2959,15 +2993,20 @@ requirements:
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
   - id: MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-03
-    given: A creator requests conversational text composition or rewriting for a declared voice profile.
-    when: the system prepares text for speech synthesis.
-    then: treat the text as authored content distinct from speaker-conditioned audio and preserve the declared source and identity boundaries.
-    rejection: reject implying that voice conditioning authored, verified, or authorized the text or its claims.
+    given: A creator requests conversational text composition, rewriting, or a response to a user-provided utterance or context for a declared voice/personality profile.
+    when: the system prepares proposed response text for speech synthesis.
+    then: treat the response as system-authored content distinct from speaker-conditioned audio; preserve its declared request/context provenance and the identity boundary; distinguish supplied, quoted, and generated content; label factual claims as unverified unless supported by an explicitly linked source and its applicable review.
+    rejection: reject implying that voice conditioning authored, verified, or authorized response text or its claims; reject presenting generated text as a user statement, verified fact, or approved communication.
   - id: MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-04
     given: A creator requests singing-voice synthesis conditioned on an identifiable voice, source recording, or voice model.
     when: the product produces a permitted synthesis result.
     then: retain the declared voice, source, and model provenance with the resulting media.
     rejection: reject omitting the provenance needed to distinguish the source and model used for the derived voice result.
+  - id: MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05
+    given: A user explicitly starts a full-duplex voice conversation and authorizes a live speech-input session; the streaming transcription and streaming synthesis leaves are separately admitted for the requested scope.
+    when: Media concurrently receives live speech input and prepares or returns a generated spoken response for the current conversational turn.
+    then: provide a response attributable to the current user-initiated turn, distinguish observed or transcribed input from generated response text and synthesized audio, expose whether the turn is still streaming or complete, and preserve interruption and cancellation as explicit outcomes; do not modify a project or publish a response as a separate effect.
+    rejection: reject hidden or background microphone capture, continuing capture after the user ends the session, representing partial or uncertain recognition as confirmed input, or reporting a complete response when the outcome is unknown or unavailable.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -3007,6 +3046,7 @@ requirements:
   unresolvedIntentTraceDispositions: []
   relatedOutcomeRefs:
   - media.goal.finished-asset
+  - media.goal.understand-media
   intentTraceSource: goals-jtbd.yaml#intents
   stateModelRefs:
   - media-job
@@ -3817,18 +3857,16 @@ requirements:
   - id: MEDIA-REQ-CAP-SIMULATION-AC-01
     given: A declared leaf, authorized input, and a binding that satisfies the requested profile and policy.
     when: The caller requests the operation.
-    then: The typed result, effective parameters, provenance, terminal/finality state, and measured dimensions are returned;
-      only the declared effect occurs.
+    then: The typed result is specific to the exact declared model family; its effective parameters, per-family qualification state, provenance, terminal/finality state, and measured dimensions are returned. Any visual fallback is explicitly illustrative, distinct from model-backed output, and not a quantitative claim.
   - id: MEDIA-REQ-CAP-SIMULATION-AC-02
     given: The requested language, format, right, profile, license, capability, or qualification is absent or unknown.
     when: Admission is evaluated.
-    then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
-      as available.
+    then: The operation is blocked or returns only an explicitly policy-permitted illustrative visual fallback, labeled non-quantitative and distinct from a model result; unknown is never reported as available.
   - id: MEDIA-REQ-CAP-SIMULATION-AC-03
-    given: A user supplies a versioned agent, economic, or epidemiological model with declared assumptions, seed, and distribution.
+    given: A user supplies a versioned agent-based, economic, or epidemiological state model with declared assumptions, PRNG algorithm and version, seed, distribution, and sampling plan, and a qualified domain owner has admitted the exact model-family scope; without that admission, applicability remains UNKNOWN.
     when: Media executes or presents the supplied model output.
-    then: retain the model identity and declared assumptions and label results UNQUALIFIED unless the applicable independent scientific validation is present.
-    rejection: reject presenting the output as causal inference, validated science, or real-world truth based only on execution or visualization.
+    then: retain the model identity and declared assumptions, report the PRNG algorithm and version, seed, distribution, sampling conditions, estimates and confidence bounds when available, and label results UNQUALIFIED unless applicable independent scientific validation is present; report the result as NON_REPLAYABLE when the declared execution profile cannot support replay.
+    rejection: reject execution when exact model-family applicability is absent or unknown; reject deterministic or replayability claims without the declared PRNG implementation/version and matching execution profile; reject presenting output as causal inference, validated science, or real-world truth based only on execution or visualization.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -5273,6 +5311,14 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-COMPOSE-AC-03
+    given: An actor requests an active-speaker-aware multicamera cut proposal from admitted speaker-turn and camera-source
+      observations.
+    when: The product prepares the proposal.
+    then: Return a reviewable local candidate that links each proposed cut to its speaker-turn and camera-source evidence and
+      makes uncertainty explicit.
+    rejection: Reject inferring missing speaker/camera evidence or committing the proposal to the project without an explicit
+      separate approval.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -7119,10 +7165,10 @@ recorderStudioProfile:
       parentRequirementId: MEDIA-REQ-CAP-COMPOSE
       capabilityLeafId: media.compose.multitrack-timeline
       surfaceId: media.surface.production-studio
-      given: "An editor has a permitted scene and versioned timeline"
-      when: "user changes zoom, pan, crop, reframe, masks, tracked region, mouse/click highlight, transitions or keyframes"
-      then: "create versioned reversible transform/effect operations with numerical/keyboard equivalents"
-      rejection: "auto AI reframe cannot override LOCKED human framing or exact brand/legal overlays"
+      given: "An editor has a permitted scene and versioned timeline with the applicable capture purpose and sensitive-input policy"
+      when: "the user changes zoom, pan, crop, reframe, masks, tracked region, mouse/click or keyboard-activity overlays, transitions, or keyframes"
+      then: "create versioned reversible transform/effect operations with numerical/keyboard equivalents; keyboard overlays indicate activity without exposing typed values by default; any explicitly permitted key display is limited to the declared capture scope, and sensitive or unclassified values are masked before preview, recording, or export"
+      rejection: "reject capturing or displaying typed values without explicit scope and authority, treating an unknown value as non-sensitive, or relying on a post-production mask after disclosure; auto AI reframe cannot override LOCKED human framing or exact brand/legal overlays"
       scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
     - id: MEDIA-REC-P0-AC-025
       group: STUDIO
@@ -8015,8 +8061,8 @@ declarativeProductionProfile:
       surfaceId: media.surface.recorder-orchestrator
       given: "A declared source and authorized Media project revision are in scope"
       when: "a run requests EXACT, BOUNDED or STOCHASTIC reproducibility"
-      then: "record RNG algorithm, seed, floating-point profile, environment and reproducibility class"
-      rejection: "reject false byte-exact replay claims for nondeterministic providers"
+      then: "record PRNG algorithm and implementation/version, seed, floating-point profile, environment, and reproducibility class; exact replay requires matching determinism inputs, bounded replay declares its tolerance, and stochastic reruns are distributionally comparable or explicitly NON_REPLAYABLE"
+      rejection: "reject false byte-exact replay claims for nondeterministic providers, missing PRNG implementation/version, or replayability claims unsupported by the declared profile"
       scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
     - id: MEDIA-DECL-P0-AC-024
       group: SIMULATION
@@ -8026,8 +8072,8 @@ declarativeProductionProfile:
       surfaceId: media.surface.recorder-orchestrator
       given: "A declared source and authorized Media project revision are in scope"
       when: "a checkpoint is requested at an admitted model state boundary"
-      then: "store model, solver, parameters, version, RNG and exact state digest for resume"
-      rejection: "reject cross-version restore without an admitted migration"
+      then: "store model, solver, parameters, version, PRNG implementation/version, seed, reproducibility class, and exact state digest for resume; classify a run NON_REPLAYABLE when the required execution profile is unavailable"
+      rejection: "reject cross-version restore without an admitted migration or replay claims without matching PRNG and execution-profile provenance"
       scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
     - id: MEDIA-DECL-P0-AC-025
       group: SIMULATION
@@ -8135,9 +8181,9 @@ declarativeProductionProfile:
       capabilityLeafId: media.simulation.agent
       surfaceId: media.surface.recorder-orchestrator
       given: "A declared source and authorized Media project revision are in scope"
-      when: "a stochastic model is qualified with distribution, seed and sample count"
-      then: "report outcome estimates, confidence bounds and sampling conditions"
-      rejection: "reject single-run stochastic output labeled deterministic truth"
+      when: "a stochastic model declares a distribution, PRNG algorithm and implementation/version, seed, and sample count"
+      then: "report outcome estimates, confidence bounds, sampling conditions, and reproducibility class; if the declared execution profile cannot support replay, report NON_REPLAYABLE"
+      rejection: "reject single-run stochastic output labeled deterministic truth, or replay claims that omit PRNG implementation/version or matching execution conditions"
       scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
     - id: MEDIA-DECL-P0-AC-035
       group: SIMULATION
@@ -8201,9 +8247,9 @@ declarativeProductionProfile:
       capabilityLeafId: media.recipe.template.interactive-lesson
       surfaceId: media.surface.recorder-orchestrator
       given: "An authorized TutorPutor consumer uses the public AEF compatibility contract"
-      when: "a TutorPutor experience references Media via a public versioned interface"
-      then: "negotiate compatible Experience IR, Model IR, Scene IR and adapter versions"
-      rejection: "reject private module imports or silent data-contract upgrades"
+      when: "a TutorPutor experience references Media through an AEF/USP version"
+      then: "admit compatibility only for exact AEF/USP versions published in the public TutorPutor adapter contract; preserve each artifact's exact historical identity and version; keep unknown or unlisted versions NOT_ADMITTED"
+      rejection: "reject private module imports, silent data-contract upgrades, or claims of blanket legacy support; do not replace or retire an exact historical version without exact owner-issued semantic-parity evidence for that artifact and version"
       scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
     - id: MEDIA-DECL-P0-AC-041
       group: TUTORPUTOR
@@ -8431,8 +8477,8 @@ declarativeProductionProfile:
       parentRequirementId: MEDIA-REQ-CAP-DELIVER
       capabilityLeafId: media.deliver.interactive-scene-bundle
       surfaceId: media.surface.interactive-demo-player
-      given: "A declared source and authorized Media project revision are in scope"
-      when: "a viewer manipulates a published interactive demo or educational scene"
-      then: "run only sandboxed local declared actions and verified artifacts"
-      rejection: "reject embedded product credentials, scripts or privileged external effects"
+      given: "A published interactive scene and its verified artifacts are in scope"
+      when: "a viewer invokes a gesture or trigger in the interactive scene"
+      then: "perform only the action explicitly mapped to that gesture or trigger in the scene's declared, versioned local gesture/trigger-to-action map; unknown, out-of-scope, and unmapped triggers have no effect"
+      rejection: "reject arbitrary embedded scripts, embedded product credentials, and privileged external effects"
       scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF

@@ -19,6 +19,7 @@ test("P0 capability semantic review pins current source checks without claiming 
   const observation = JSON.parse(read(observationPath).toString("utf8"));
   const correctionReview = JSON.parse(read(correctionReviewPath).toString("utf8"));
   const uploadCorrectionReview = JSON.parse(read("docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json").toString("utf8"));
+  const currentCorrectionsReview = JSON.parse(read("docs/implementation/verification/pdp-38/p0-capability-corrections-current-source-review-current.json").toString("utf8"));
   const bytes = read(sourcePath);
   const catalog = parse(bytes.toString("utf8"));
   const leaves = catalog.capabilities;
@@ -34,8 +35,10 @@ test("P0 capability semantic review pins current source checks without claiming 
 
   assert.equal(observation.source.currentSha256, correctionReview.historicalPins.find(({ decisionRef }) => decisionRef.endsWith("#PXD-122")).capabilitySha256,
     "the PXD-122 capability source fingerprint remains an immutable historical pin");
-  assert.equal(sha(bytes), uploadCorrectionReview.source.currentSha256,
-    "the additive PXD-153 review pins the current capability source while PXD-142 remains historical");
+  assert.equal(uploadCorrectionReview.source.currentSha256, "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+    "PXD-153 remains pinned to its historical capability source cut");
+  assert.equal(currentCorrectionsReview.source.currentSha256, sha(bytes),
+    "the PXD-171 successor review pins the exact current correction fields");
   assert.equal(observation.source.path, sourcePath);
   assert.equal(observation.source.historicalComparison.availability, "UNAVAILABLE_PRIOR_BYTES_NOT_RETAINED");
   assert.equal(observation.source.historicalComparison.parsedPathDelta, "NOT_ASSERTED");

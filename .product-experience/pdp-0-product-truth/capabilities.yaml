@@ -1,7 +1,7 @@
 schemaVersion: media.capabilities.v1
 productId: media
 authority: prospective-Phase-0-definition; not runtime authority or qualification evidence
-status: P0-003-definition-in-progress; no Phase-0 acceptance implied
+status: SOURCE_AUTHORED_DEFINITION_ONLY; PDP-0 phase DEV_COMPLETE is recorded only by the native source-bound docs/implementation/pdp-0-phase-dev-status.json after checks against its exact source cut; this artifact does not claim current phase completion, owner acceptance, or independent P0-010 acceptance
 sourceAuthority: .product-experience/pdp-0-product-truth/capabilities.yaml is
   the editable Media capability authority;
   docs/migration/expert-reviewed-master-plan.md §6 is migration provenance only,
@@ -6641,7 +6641,7 @@ capabilities:
     operation: search
     label: Search artifacts
     definitionState: IN_SCOPE_DRAFT
-    outcome: "The result is a bounded page of governed artifact records for exactly one supplied source-media or project reference under rights-and-retention context, with required pageSize (1–100) and optional opaque pageToken. Search fields, criteria, matching, ordering, and completeness are unspecified."
+    outcome: "The result is a bounded page of governed artifact records for exactly one supplied source-media or project reference under rights-and-retention context. Requested semantic transcript search returns candidate matches anchored to exact source versions and transcript time ranges; requested duplicate or near-duplicate search may organize records into candidate groups that retain source identities and matching uncertainty. Matching algorithms, ranking, and completeness are not guaranteed."
     sourceScope:
       masterPlanSection: §6.2
       sourcePhrase: Ingest, upload, resume, import, inspect, search/list, download,
@@ -6875,22 +6875,57 @@ capabilities:
           pageToken:
             type: optional-opaque-continuation-token
             maxLength: 512
+          searchIntent:
+            type: optional-enum
+            values:
+              - SEMANTIC_TRANSCRIPT_CANDIDATES
+              - DUPLICATE_OR_NEAR_DUPLICATE_CANDIDATES
+          transcriptQuery:
+            type: optional-actor-supplied-semantic-transcript-query
+        conditionalSemantics:
+          - when: searchIntent=SEMANTIC_TRANSCRIPT_CANDIDATES
+            requires: transcriptQuery
+            meaning: Search only authorized transcript content within the supplied source/project scope; do not infer transcript availability.
+          - when: searchIntent=DUPLICATE_OR_NEAR_DUPLICATE_CANDIDATES
+            meaning: Group only bounded candidates from the supplied source/project scope; matching policy, ranking, and completeness remain unspecified.
         emptyDisposition: NOT_EMPTY
       successOutputs:
-        [{"artifactType":"bounded-governed-artifact-result-page-and-opaque-continuation","requiredOnSuccess":true}]
+        - artifactType: bounded-governed-artifact-result-page-and-opaque-continuation
+          requiredOnSuccess: true
+          optionalSemanticObservations:
+            - id: transcriptSearchCandidates
+              when: searchIntent=SEMANTIC_TRANSCRIPT_CANDIDATES
+              fields:
+                sourceVersionRef: Exact source-media or project version searched.
+                transcriptTimeRange: Source-time range associated with each candidate.
+                matchingUncertainty: Explicit uncertainty for candidate matching.
+              constraints:
+                - Candidate matches do not establish transcript correctness, complete coverage, or ranking.
+            - id: duplicateCandidateGroups
+              when: searchIntent=DUPLICATE_OR_NEAR_DUPLICATE_CANDIDATES
+              fields:
+                candidateGroupRef: Opaque candidate-group identity.
+                sourceArtifactVersionRefs: Exact source artifact/version identities in the group.
+                matchingUncertainty: Explicit uncertainty for candidate grouping.
+              constraints:
+                - Candidate groups do not establish duplicate identity or authorize merge, replacement, or deletion.
       nonSuccessOutputs:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "The result is a bounded page of governed artifact records for exactly one supplied source-media or project reference under rights-and-retention context, with required pageSize (1–100) and optional opaque pageToken. Search fields, criteria, matching, ordering, and completeness are unspecified."
+        result: "The result is a bounded page of governed artifact records for exactly one supplied source-media or project reference under rights-and-retention context. Requested semantic transcript search returns candidate matches anchored to exact source versions and transcript time ranges; requested duplicate or near-duplicate search may organize records into candidate groups that retain source identities and matching uncertainty. Matching algorithms, ranking, and completeness are not guaranteed."
         outputDistinctions:
           - "search result page versus list enumeration"
           - "empty result versus denied, incomplete, or unknown"
           - "bounded page versus continuation"
-        unknownDisposition: "If authorized scope, matching result, or continuation status is unresolved, report denied or unknown as applicable; do not present uncertainty as an empty or complete result."
+          - "transcript match candidate versus verified transcript correctness or complete search"
+          - "duplicate candidate group versus confirmed identity or permission to merge, replace, or delete source artifacts"
+        unknownDisposition: "If authorized scope, transcript availability, matching result, duplicate similarity, or continuation status is unresolved, report denied or unknown as applicable; do not present uncertainty as an empty or complete result. Candidate search never establishes transcript correctness or authorizes merge, replacement, or deletion."
         sourceRefs:
           - ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-artifact-search.v1"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT"
+          - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-03"
+          - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-04"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search/sourceScope/sourcePhrase"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search/ownerDefinition/typedInputSlots"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search/ownerDefinition/parameterSchema"
@@ -6899,7 +6934,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search/constraints"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search/preconditions"
       effect:
-        semanticOutcome: "The result is a bounded page of governed artifact records for exactly one supplied source-media or project reference under rights-and-retention context, with required pageSize (1–100) and optional opaque pageToken. Search fields, criteria, matching, ordering, and completeness are unspecified."
+        semanticOutcome: "The result is a bounded page of governed artifact records for exactly one supplied source-media or project reference under rights-and-retention context. Requested semantic transcript search returns candidate matches anchored to exact source versions and transcript time ranges; requested duplicate or near-duplicate search may organize records into candidate groups that retain source identities and matching uncertainty. Matching algorithms, ranking, and completeness are not guaranteed."
         sourcePreservationRequired: false
         noSilentFallback: true
         effectIntentScope: OBSERVATION_ONLY
@@ -6965,7 +7000,7 @@ capabilities:
         and within declared bounds.
       - Capability, profile, license, policy, resource, and deployment admission
         are checked at the effect boundary.
-    supportedParameters: "P0 defines parameter fields in ownerDefinition.parameterSchema: pageSize, pageToken. This is a typed request-shape definition, not evidence of product support, qualification, or runtime availability; profile-specific defaults and eligibility remain separate owner decisions. Typed input meaning is defined by this leaf's P0 ownerDefinition.typedInputSlots."
+    supportedParameters: "P0 defines ownerDefinition.parameterSchema fields for bounded pagination and optional semantic-transcript or duplicate/near-duplicate candidate search. Specialized search requires an explicit searchIntent; transcript search also requires an actor-supplied transcriptQuery. This is a typed request-shape definition, not evidence of product support, qualification, algorithm, ranking, completeness, or runtime availability."
     constraints:
       [ "No product default/model/provider is inferred from names, package presence, tests, or source documentation.", Unsupported combinations remain explicit; no silent substitution., Preserve exact source lineage only for source-derived outputs; source-free authored or generated outputs identify their origin without fabricating a source artifact. Report reconstruction or estimation distinctly from measured/ground-truth output. ]
     actionStateReferences:
@@ -15466,7 +15501,7 @@ capabilities:
     operation: recording.integrate
     label: Integrate stream recording
     definitionState: IN_SCOPE_DRAFT
-    outcome: "Request governed recording integration for the identified stream and return the ordered stream observation or terminal state from the owning session/recording boundary."
+    outcome: "Request governed recording integration for the identified stream and return the ordered stream observation or terminal state from the owning session/recording boundary. When presenter prompting is requested, an optional presenter cue binding carries the authorized versioned script and explicit versioned scene/narration cue map tied to the session/source clock and active cue. The result may include a presenter prompt observation with its script, map, active-cue provenance, and presentation disposition; a missing, mismatched, or unavailable map remains UNBOUND, UNAVAILABLE, or UNKNOWN and never implies cue alignment. Prompt observation does not establish cue correctness, commit a recording, or edit a project."
     sourceScope:
       masterPlanSection: §6.2
       sourcePhrase: Audio/video/multimodal session open/connect/frame/ack/close,
@@ -15667,6 +15702,18 @@ capabilities:
           sourceType: stream-session-request
           cardinality: EXACTLY_ONE
           required: true
+          optionalSemanticComponents:
+            - id: presenterCueBinding
+              when: Presenter prompting is requested for an authorized recording session.
+              fields:
+                scriptRef: Exact authorized versioned presenter-script reference.
+                cueMapRef: Exact explicit versioned scene/narration cue-map reference.
+                clockDomainRef: Session/source clock domain to which cue timing is bound.
+                activeCueId: Declared active cue identity.
+              constraints:
+                - The script and cue map are separately identified and authorized for this session.
+                - Cue positions bind to the declared session/source clock and preserve explicit mapping uncertainty.
+                - Missing, mismatched, or unavailable cue mapping is reported as UNBOUND, UNAVAILABLE, or UNKNOWN; alignment is never inferred.
         - slotId: input2
           sourceType: consent-and-capability-context
           cardinality: EXACTLY_ONE
@@ -15680,15 +15727,29 @@ capabilities:
       successOutputs:
         - artifactType: ordered-stream-observation-or-terminal-session-state
           requiredOnSuccess: true
+          optionalSemanticObservations:
+            - id: presenterPromptObservation
+              when: Presenter prompting was requested for the session.
+              fields:
+                scriptRef: Exact script version selected for the prompt.
+                cueMapRef: Exact cue-map version selected for the prompt.
+                activeCueId: Declared active cue associated with the prompt.
+                presentationDisposition: [PRESENTED, UNBOUND, UNAVAILABLE, UNKNOWN]
+              constraints:
+                - PRESENTED requires an authorized script, a matching explicit cue map, and an observed active cue.
+                - UNBOUND, UNAVAILABLE, and UNKNOWN never imply that a synchronized prompt was presented.
+                - The observation establishes presentation only, not cue correctness, recording persistence, or project commit.
       nonSuccessOutputs:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "Request governed recording integration for the identified stream and return the ordered stream observation or terminal state from the owning session/recording boundary."
+        result: "Request governed recording integration for the identified stream and return the ordered stream observation or terminal state from the owning session/recording boundary. When presenter prompting is requested, an optional presenter cue binding carries the authorized versioned script and explicit versioned scene/narration cue map tied to the session/source clock and active cue. The result may include a presenter prompt observation with its script, map, active-cue provenance, and presentation disposition; a missing, mismatched, or unavailable map remains UNBOUND, UNAVAILABLE, or UNKNOWN and never implies cue alignment. Prompt observation does not establish cue correctness, commit a recording, or edit a project."
         outputDistinctions:
           - "Recording integration request or session observation is distinct from a canonical recording artifact being committed."
           - "A recording artifact/version and its finalization status require authoritative recording-owner evidence; stream activity alone does not establish persistence."
-        unknownDisposition: "If recording owner acknowledgement, artifact/version, or finalization is unresolved, report recording effect as UNKNOWN and reconcile before claiming a canonical recording exists. Latency and clock guarantees remain NOT_EVALUATED."
+          - "declared cue synchronization versus an inferred or unavailable cue mapping"
+          - "presenter prompt display versus a committed recording or project edit"
+        unknownDisposition: "If recording owner acknowledgement, artifact/version, finalization, or cue mapping is unresolved, report the affected result as UNKNOWN or unbound; do not infer cue alignment. Reconcile before claiming a canonical recording exists. Latency and clock guarantees remain NOT_EVALUATED."
         sourceRefs:
           - ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-stream-recording-integrate.v1"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.stream.recording.integrate/actorRefs"
@@ -15711,8 +15772,9 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.stream.recording.integrate/preconditions"
           - ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@id=media.capability-adjudication.stream-recording-integrate/channelApplicability"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM"
+          - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM/acceptanceCases/@id=MEDIA-REQ-CAP-STREAM-AC-03"
       effect:
-        semanticOutcome: "Request governed recording integration for the identified stream and return the ordered stream observation or terminal state from the owning session/recording boundary."
+        semanticOutcome: "Request governed recording integration for the identified stream and return the ordered stream observation or terminal state from the owning session/recording boundary. When presenter prompting is requested, an optional presenter cue binding carries the authorized versioned script and explicit versioned scene/narration cue map tied to the session/source clock and active cue. The result may include a presenter prompt observation with its script, map, active-cue provenance, and presentation disposition; a missing, mismatched, or unavailable map remains UNBOUND, UNAVAILABLE, or UNKNOWN and never implies cue alignment. Prompt observation does not establish cue correctness, commit a recording, or edit a project."
         sourcePreservationRequired: false
         noSilentFallback: true
         effectIntentScope: GOVERNED_EXTERNAL_REQUEST
@@ -21963,7 +22025,7 @@ capabilities:
     operation: file
     label: Transcribe audio file
     definitionState: IN_SCOPE_DRAFT
-    outcome: "The P0 result meaning is file transcription represented by a tracking reference and, if produced, an unverified transcript draft linked to source version/timebase with provided language or recognition evidence."
+    outcome: "File transcription is represented by a tracking reference and, if produced, an unverified transcript draft linked to the source version/timebase with provided language or recognition evidence. When explicitly requested and admitted, transcription may use a versioned custom glossary for recognition or correction and may return uncertain source-anchored filler-word or retake candidates. Glossary guidance is distinct from punctuation/capitalization formatting; filler/retake candidates are distinct from silence observations and do not alter the source."
     sourceScope:
       masterPlanSection: §6.3
       sourcePhrase: File and streaming STT; language detection; voice-activity
@@ -21996,7 +22058,7 @@ capabilities:
         dimensions are admitted by owner-reviewed qualification.
       - An idempotency identity is used for job creation; transcript output is a
         draft until explicit review and version registration.
-    supportedParameters: "P0 defines parameter fields in ownerDefinition.parameterSchema: languageHint, timestamps, speakerDiarization. This is a typed request-shape definition, not evidence of product support, qualification, or runtime availability; profile-specific defaults and eligibility remain separate owner decisions. Typed input meaning is defined by this leaf's P0 ownerDefinition.typedInputSlots."
+    supportedParameters: "P0 defines parameter fields in ownerDefinition.parameterSchema for languageHint, timestamps, speakerDiarization, optional versioned customGlossaryRef, and optional fillerRetakeCandidates. These are typed request-shape definitions, not evidence of product support, qualification, correctness, or runtime availability; profile-specific eligibility remains a separate decision."
     constraints:
       - The source version is immutable and is retained as transcript provenance.
       - Language detection, speaker attribution, word timing, and confidence are
@@ -22220,23 +22282,54 @@ capabilities:
               - phoneme
           speakerDiarization:
             type: boolean
+          customGlossaryRef:
+            type: optional-versioned-custom-glossary-reference
+          fillerRetakeCandidates:
+            type: optional-boolean
+        conditionalSemantics:
+          - when: customGlossaryRef is supplied
+            meaning: Identify the exact admitted glossary version used; if it is unsupported or unavailable, report UNAVAILABLE or reject without silently omitting glossary guidance.
+          - when: fillerRetakeCandidates=true
+            meaning: Return only uncertain source-version/time-anchored candidates, distinct from silence observations and without source deletion or edit.
         emptyDisposition: NOT_EMPTY
       successOutputs:
         - artifactType: owner-issued-transcription-job-reference
           requiredOnSuccess: true
         - artifactType: transcript-draft-with-source-version-and-timebase-if-produced
           requiredOnSuccess: false
+          optionalSemanticObservations:
+            - id: glossaryApplication
+              when: customGlossaryRef was supplied and admitted.
+              fields:
+                glossaryRef: Exact versioned glossary reference used.
+                applicationDisposition: [APPLIED, UNAVAILABLE, UNKNOWN]
+              constraints:
+                - Glossary use does not verify transcript correctness.
+                - An unavailable or unsupported glossary is not silently treated as applied.
+            - id: fillerRetakeCandidateObservations
+              when: fillerRetakeCandidates=true.
+              fields:
+                sourceVersionRef: Exact source-media version analyzed.
+                timeRange: Source-time range associated with each uncertain candidate.
+                candidateKind: [FILLER_WORD, RETAKE]
+                uncertainty: Explicit uncertainty for each candidate.
+              constraints:
+                - Silence alone is not a filler/retake classification.
+                - Candidate observations never delete, trim, or cut source content.
         - artifactType: language-and-recognition-evidence-when-provided
           requiredOnSuccess: false
       nonSuccessOutputs:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "The P0 result meaning is file transcription represented by a tracking reference and, if produced, an unverified transcript draft linked to source version/timebase with provided language or recognition evidence."
+        result: "File transcription is represented by a tracking reference and, if produced, an unverified transcript draft linked to the source version/timebase with provided language or recognition evidence. When explicitly requested and admitted, transcription may use a versioned custom glossary for recognition or correction and may return uncertain source-anchored filler-word or retake candidates. Glossary guidance is distinct from punctuation/capitalization formatting; filler/retake candidates are distinct from silence observations and do not alter the source."
         outputDistinctions:
           - "This is file transcription: a tracking reference and an unverified, source/timebase-linked draft if produced; it is not a verified transcript or registered caption."
           - "Recognition evidence is included only when provided; language, speaker identity, and language availability are not inferred."
-        unknownDisposition: "This P0 meaning does not establish implementation, license admission, qualification, runtime availability, execution, or finality; those remain UNKNOWN. Dispatch, source consumption, transcript production/completion, language/speaker identity, verification, provider effects, and finality remain UNKNOWN absent authoritative evidence; draft is not a registered caption/transcript version."
+          - "glossary-guided recognition/correction versus punctuation/capitalization formatting"
+          - "filler-word/retake candidate versus silence observation or automatic edit"
+          - "glossary use does not establish transcript correctness"
+        unknownDisposition: "This P0 meaning does not establish implementation, license admission, qualification, runtime availability, execution, or finality; those remain UNKNOWN. Dispatch, source consumption, transcript production/completion, language/speaker identity, glossary availability/application, filler/retake classification, verification, provider effects, and finality remain UNKNOWN absent authoritative evidence; ambiguous, unsupported, or unavailable glossary entries are not silently applied, and transcript text remains unverified."
         sourceRefs:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.file/sourceScope/sourcePhrase"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.file/ownerDefinition/successOutputs"
@@ -22253,8 +22346,10 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.file/provenance"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.file/preconditions"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION"
+          - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-04"
+          - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-05"
       effect:
-        semanticOutcome: "The P0 result meaning is file transcription represented by a tracking reference and, if produced, an unverified transcript draft linked to source version/timebase with provided language or recognition evidence."
+        semanticOutcome: "File transcription is represented by a tracking reference and, if produced, an unverified transcript draft linked to the source version/timebase with provided language or recognition evidence. When explicitly requested and admitted, transcription may use a versioned custom glossary for recognition or correction and may return uncertain source-anchored filler-word or retake candidates. Glossary guidance is distinct from punctuation/capitalization formatting; filler/retake candidates are distinct from silence observations and do not alter the source."
         sourcePreservationRequired: true
         noSilentFallback: true
         effectIntentScope: CANONICAL_PRODUCT_STATE_CHANGE
@@ -36834,7 +36929,7 @@ capabilities:
     operation: detect.silence
     label: Detect silence
     definitionState: IN_SCOPE_DRAFT
-    outcome: "The P0 result meaning is a set of candidate silence detection observations in audio."
+    outcome: "The result is a set of candidate silence-detection observations in audio. Silence observations are distinct from speech-based filler-word or retake candidates, which are uncertain ASR-assisted observations and never authorize automatic deletion or cutting."
     sourceScope:
       masterPlanSection: §6.3
       sourcePhrase: Speech/music/non-speech segmentation; loudness, peaks, clipping,
@@ -37058,11 +37153,11 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "The P0 result meaning is a set of candidate silence detection observations in audio."
+        result: "The result is a set of candidate silence-detection observations in audio. Silence observations are distinct from speech-based filler-word or retake candidates, which are uncertain ASR-assisted observations and never authorize automatic deletion or cutting."
         outputDistinctions:
           - "The result identifies candidate silent portions, distinct from voice-activity or beat/onset detection."
           - "Silence is not defined by a stated threshold or guaranteed to mean absence of all signal."
-        unknownDisposition: "This P0 meaning does not establish implementation, license admission, qualification, runtime availability, execution, or finality; those remain UNKNOWN. Silence threshold/definition, method/version, timing precision, and uncertainty are UNKNOWN."
+        unknownDisposition: "This P0 meaning does not establish implementation, license admission, qualification, runtime availability, execution, or finality; those remain UNKNOWN. Silence threshold/definition, method/version, timing precision, and uncertainty are UNKNOWN. A silence result cannot be promoted to a filler-word or retake classification."
         sourceRefs:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.detect.silence/sourceScope/sourcePhrase"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.detect.silence/ownerDefinition/successOutputs"
@@ -37077,7 +37172,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.detect.silence/preconditions"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-AUDIO-ANALYSIS"
       effect:
-        semanticOutcome: "The P0 result meaning is a set of candidate silence detection observations in audio."
+        semanticOutcome: "The result is a set of candidate silence-detection observations in audio. Silence observations are distinct from speech-based filler-word or retake candidates, which are uncertain ASR-assisted observations and never authorize automatic deletion or cutting."
         sourcePreservationRequired: false
         noSilentFallback: true
         effectIntentScope: OBSERVATION_ONLY
@@ -68938,7 +69033,7 @@ capabilities:
     operation: soft-body
     label: Simulate soft bodies
     definitionState: IN_SCOPE_DRAFT
-    outcome: "The soft body operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints to produce a qualified simulation observation or output."
+    outcome: "The soft body operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints; a qualified simulation observation or output is produced only when this soft body family is separately qualified for the requested dimensions. Any visual fallback is explicitly illustrative, distinct from model-backed output, and non-quantitative."
     sourceScope:
       masterPlanSection: §6.6
       sourcePhrase: Rigid/soft bodies; cloth/rope; particles; fluids, smoke and fire;
@@ -69170,9 +69265,10 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "The soft body operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints to produce a qualified simulation observation or output."
+        result: "The soft body operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints; a qualified simulation observation or output is produced only when this soft body family is separately qualified for the requested dimensions. Any visual fallback is explicitly illustrative, distinct from model-backed output, and non-quantitative."
         outputDistinctions:
           - "The result is specific to the soft body regime represented by the supplied domain model, initial conditions, units, boundaries, and constraints; it does not imply support for another simulation regime."
+          - "Qualification is assessed for this family and the requested dimensions; visual similarity or an illustrative fallback is not a quantitative or scientific validity claim."
           - "A qualified simulation observation or output is not, by itself, ground-truth measurement or independent physical/scientific validation; report produced, estimated, and unavailable dimensions separately."
         unknownDisposition: "Unknown or unavailable inputs, rights, applicability, qualification, runtime, or output dimensions remain explicitly unknown; block before dispatch when a required admission fact is unknown, disclose unavailable/estimated dimensions, and do not silently substitute or promote an uncertain result to success/failure."
         sourceRefs:
@@ -69193,7 +69289,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.soft-body/constraints"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION"
       effect:
-        semanticOutcome: "The soft body operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints to produce a qualified simulation observation or output."
+        semanticOutcome: "The soft body operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints; a qualified simulation observation or output is produced only when this soft body family is separately qualified for the requested dimensions. Any visual fallback is explicitly illustrative, distinct from model-backed output, and non-quantitative."
         sourcePreservationRequired: false
         noSilentFallback: true
         effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
@@ -69236,7 +69332,7 @@ capabilities:
     operation: cloth
     label: Simulate cloth
     definitionState: IN_SCOPE_DRAFT
-    outcome: "The cloth operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints to produce a qualified simulation observation or output."
+    outcome: "The cloth operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints; a qualified simulation observation or output is produced only when this cloth family is separately qualified for the requested dimensions. Any visual fallback is explicitly illustrative, distinct from model-backed output, and non-quantitative."
     sourceScope:
       masterPlanSection: §6.6
       sourcePhrase: Rigid/soft bodies; cloth/rope; particles; fluids, smoke and fire;
@@ -69468,9 +69564,10 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "The cloth operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints to produce a qualified simulation observation or output."
+        result: "The cloth operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints; a qualified simulation observation or output is produced only when this cloth family is separately qualified for the requested dimensions. Any visual fallback is explicitly illustrative, distinct from model-backed output, and non-quantitative."
         outputDistinctions:
           - "The result is specific to the cloth regime represented by the supplied domain model, initial conditions, units, boundaries, and constraints; it does not imply support for another simulation regime."
+          - "Qualification is assessed for this family and the requested dimensions; visual similarity or an illustrative fallback is not a quantitative or scientific validity claim."
           - "A qualified simulation observation or output is not, by itself, ground-truth measurement or independent physical/scientific validation; report produced, estimated, and unavailable dimensions separately."
         unknownDisposition: "Unknown or unavailable inputs, rights, applicability, qualification, runtime, or output dimensions remain explicitly unknown; block before dispatch when a required admission fact is unknown, disclose unavailable/estimated dimensions, and do not silently substitute or promote an uncertain result to success/failure."
         sourceRefs:
@@ -69491,7 +69588,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.cloth/constraints"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION"
       effect:
-        semanticOutcome: "The cloth operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints to produce a qualified simulation observation or output."
+        semanticOutcome: "The cloth operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints; a qualified simulation observation or output is produced only when this cloth family is separately qualified for the requested dimensions. Any visual fallback is explicitly illustrative, distinct from model-backed output, and non-quantitative."
         sourcePreservationRequired: false
         noSilentFallback: true
         effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
@@ -69534,7 +69631,7 @@ capabilities:
     operation: rope
     label: Simulate rope
     definitionState: IN_SCOPE_DRAFT
-    outcome: "The rope operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints to produce a qualified simulation observation or output."
+    outcome: "The rope operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints; a qualified simulation observation or output is produced only when this rope family is separately qualified for the requested dimensions. Any visual fallback is explicitly illustrative, distinct from model-backed output, and non-quantitative."
     sourceScope:
       masterPlanSection: §6.6
       sourcePhrase: Rigid/soft bodies; cloth/rope; particles; fluids, smoke and fire;
@@ -69766,9 +69863,10 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "The rope operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints to produce a qualified simulation observation or output."
+        result: "The rope operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints; a qualified simulation observation or output is produced only when this rope family is separately qualified for the requested dimensions. Any visual fallback is explicitly illustrative, distinct from model-backed output, and non-quantitative."
         outputDistinctions:
           - "The result is specific to the rope regime represented by the supplied domain model, initial conditions, units, boundaries, and constraints; it does not imply support for another simulation regime."
+          - "Qualification is assessed for this family and the requested dimensions; visual similarity or an illustrative fallback is not a quantitative or scientific validity claim."
           - "A qualified simulation observation or output is not, by itself, ground-truth measurement or independent physical/scientific validation; report produced, estimated, and unavailable dimensions separately."
         unknownDisposition: "Unknown or unavailable inputs, rights, applicability, qualification, runtime, or output dimensions remain explicitly unknown; block before dispatch when a required admission fact is unknown, disclose unavailable/estimated dimensions, and do not silently substitute or promote an uncertain result to success/failure."
         sourceRefs:
@@ -69789,7 +69887,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.rope/constraints"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION"
       effect:
-        semanticOutcome: "The rope operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints to produce a qualified simulation observation or output."
+        semanticOutcome: "The rope operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints; a qualified simulation observation or output is produced only when this rope family is separately qualified for the requested dimensions. Any visual fallback is explicitly illustrative, distinct from model-backed output, and non-quantitative."
         sourcePreservationRequired: false
         noSilentFallback: true
         effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
@@ -69832,7 +69930,7 @@ capabilities:
     operation: particle
     label: Simulate particles
     definitionState: IN_SCOPE_DRAFT
-    outcome: "The particle operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints to produce a qualified simulation observation or output."
+    outcome: "The particle operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints; a qualified simulation observation or output is produced only when this particle family is separately qualified for the requested dimensions. Any visual fallback is explicitly illustrative, distinct from model-backed output, and non-quantitative."
     sourceScope:
       masterPlanSection: §6.6
       sourcePhrase: Rigid/soft bodies; cloth/rope; particles; fluids, smoke and fire;
@@ -70064,9 +70162,10 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "The particle operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints to produce a qualified simulation observation or output."
+        result: "The particle operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints; a qualified simulation observation or output is produced only when this particle family is separately qualified for the requested dimensions. Any visual fallback is explicitly illustrative, distinct from model-backed output, and non-quantitative."
         outputDistinctions:
           - "The result is specific to the particle regime represented by the supplied domain model, initial conditions, units, boundaries, and constraints; it does not imply support for another simulation regime."
+          - "Qualification is assessed for this family and the requested dimensions; visual similarity or an illustrative fallback is not a quantitative or scientific validity claim."
           - "A qualified simulation observation or output is not, by itself, ground-truth measurement or independent physical/scientific validation; report produced, estimated, and unavailable dimensions separately."
         unknownDisposition: "Unknown or unavailable inputs, rights, applicability, qualification, runtime, or output dimensions remain explicitly unknown; block before dispatch when a required admission fact is unknown, disclose unavailable/estimated dimensions, and do not silently substitute or promote an uncertain result to success/failure."
         sourceRefs:
@@ -70087,7 +70186,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.particle/constraints"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION"
       effect:
-        semanticOutcome: "The particle operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints to produce a qualified simulation observation or output."
+        semanticOutcome: "The particle operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints; a qualified simulation observation or output is produced only when this particle family is separately qualified for the requested dimensions. Any visual fallback is explicitly illustrative, distinct from model-backed output, and non-quantitative."
         sourcePreservationRequired: false
         noSilentFallback: true
         effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
@@ -70130,7 +70229,7 @@ capabilities:
     operation: fluid
     label: Simulate fluids
     definitionState: IN_SCOPE_DRAFT
-    outcome: "The fluid operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints to produce a qualified simulation observation or output."
+    outcome: "The fluid operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints; a qualified simulation observation or output is produced only when this fluid family is separately qualified for the requested dimensions. Any visual fallback is explicitly illustrative, distinct from model-backed output, and non-quantitative."
     sourceScope:
       masterPlanSection: §6.6
       sourcePhrase: Rigid/soft bodies; cloth/rope; particles; fluids, smoke and fire;
@@ -70362,9 +70461,10 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "The fluid operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints to produce a qualified simulation observation or output."
+        result: "The fluid operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints; a qualified simulation observation or output is produced only when this fluid family is separately qualified for the requested dimensions. Any visual fallback is explicitly illustrative, distinct from model-backed output, and non-quantitative."
         outputDistinctions:
           - "The result is specific to the fluid regime represented by the supplied domain model, initial conditions, units, boundaries, and constraints; it does not imply support for another simulation regime."
+          - "Qualification is assessed for this family and the requested dimensions; visual similarity or an illustrative fallback is not a quantitative or scientific validity claim."
           - "A qualified simulation observation or output is not, by itself, ground-truth measurement or independent physical/scientific validation; report produced, estimated, and unavailable dimensions separately."
         unknownDisposition: "Unknown or unavailable inputs, rights, applicability, qualification, runtime, or output dimensions remain explicitly unknown; block before dispatch when a required admission fact is unknown, disclose unavailable/estimated dimensions, and do not silently substitute or promote an uncertain result to success/failure."
         sourceRefs:
@@ -70385,7 +70485,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.fluid/constraints"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION"
       effect:
-        semanticOutcome: "The fluid operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints to produce a qualified simulation observation or output."
+        semanticOutcome: "The fluid operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints; a qualified simulation observation or output is produced only when this fluid family is separately qualified for the requested dimensions. Any visual fallback is explicitly illustrative, distinct from model-backed output, and non-quantitative."
         sourcePreservationRequired: false
         noSilentFallback: true
         effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
@@ -72216,7 +72316,7 @@ capabilities:
     operation: agent
     label: Simulate agents
     definitionState: IN_SCOPE_DRAFT
-    outcome: "The agent operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints to produce a qualified simulation observation or output."
+    outcome: "The agent operation applies the supplied, versioned domain model and initial conditions under its declared units, boundaries, and constraints; its result retains the PRNG algorithm and implementation/version, seed, distribution, sampling conditions, uncertainty, and reproducibility class, including NON_REPLAYABLE when the declared execution profile cannot support replay."
     sourceScope:
       masterPlanSection: §6.6
       sourcePhrase: Rigid/soft bodies; cloth/rope; particles; fluids, smoke and fire;
@@ -72448,7 +72548,7 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "The agent operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints to produce a qualified simulation observation or output."
+        result: "The agent operation applies the supplied, versioned domain model and initial conditions under its declared units, boundaries, and constraints; its result retains the PRNG algorithm and implementation/version, seed, distribution, sampling conditions, uncertainty, and reproducibility class, including NON_REPLAYABLE when the declared execution profile cannot support replay."
         outputDistinctions:
           - "The result concerns modeled agent behavior under supplied initial conditions and constraints; it does not establish population behavior or identity facts."
           - "A qualified simulation observation or output is not, by itself, ground-truth measurement or independent physical/scientific validation; report produced, estimated, and unavailable dimensions separately."
@@ -72471,7 +72571,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.agent/constraints"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION"
       effect:
-        semanticOutcome: "The agent operation applies the supplied domain model and initial conditions under its declared units, boundaries, and constraints to produce a qualified simulation observation or output."
+        semanticOutcome: "The agent operation applies the supplied, versioned domain model and initial conditions under its declared units, boundaries, and constraints; its result retains the PRNG algorithm and implementation/version, seed, distribution, sampling conditions, uncertainty, and reproducibility class, including NON_REPLAYABLE when the declared execution profile cannot support replay."
         sourcePreservationRequired: false
         noSilentFallback: true
         effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
@@ -107563,7 +107663,7 @@ capabilities:
     operation: multitrack-timeline
     label: Compose multitrack timeline
     definitionState: IN_SCOPE_DRAFT
-    outcome: "P0 defines the compose multitrack timeline result as a local composition candidate or draft whose intended operation is to arrange selected media across a multitrack timeline; it does not define a committed project change or rendered delivery."
+    outcome: "The multitrack-timeline result is a local composition candidate or draft for arranging selected media. It may include a reviewable active-speaker multicamera cut proposal linked to speaker-turn and camera-source evidence, with missing links and uncertainty explicit; the proposal does not commit a project edit or create a rendered delivery."
     sourceScope:
       masterPlanSection: §6.8
       sourcePhrase: Multitrack timelines; scene/storyboard assembly;
@@ -107797,12 +107897,14 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "P0 defines the compose multitrack timeline result as a local composition candidate or draft whose intended operation is to arrange selected media across a multitrack timeline; it does not define a committed project change or rendered delivery."
+        result: "The multitrack-timeline result is a local composition candidate or draft for arranging selected media. It may include a reviewable active-speaker multicamera cut proposal linked to speaker-turn and camera-source evidence, with missing links and uncertainty explicit; the proposal does not commit a project edit or create a rendered delivery."
         outputDistinctions:
           - "The operation-specific meaning is arrange selected media across a multitrack timeline; it is bound to the leaf’s declared typed intent and source inputs, not inferred from a provider or profile name."
           - "The declared composition result concerns arrange selected media across a multitrack timeline; it remains a composition draft and does not itself assert a render."
           - "The required versioned-project-and-selected-artifacts supplies the composition basis, while composition-intent specifies what arrangement is intended."
-        unknownDisposition: "UNKNOWN: this leaf does not specify concrete timeline positions, compatibility rules, render settings, or validation thresholds beyond its typed inputs and declared intent. Implementation, license admission, qualification, and runtime availability remain separate unresolved dimensions. The local-candidate/draft scope does not establish dispatch, project commit, completed render, or delivery; preserve unknown outcome without inferring success, failure, retry eligibility, or substitution."
+          - "a multicamera cut proposal is a reviewable local candidate, distinct from diarization alone and a committed timeline edit"
+          - "each proposed cut requires linked speaker-turn and camera-source evidence; uncertain links remain explicit"
+        unknownDisposition: "UNKNOWN: this leaf does not specify concrete timeline positions, compatibility rules, render settings, or validation thresholds beyond its typed inputs and declared intent. Missing or uncertain speaker-turn/camera-source evidence cannot be inferred. Implementation, license admission, qualification, and runtime availability remain separate unresolved dimensions. The local-candidate/draft scope does not establish dispatch, project commit, completed render, or delivery; preserve unknown outcome without inferring success, failure, retry eligibility, or substitution."
         sourceRefs:
           - ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-compose-multitrack-timeline.v1"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline/operation"
@@ -107814,11 +107916,12 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline/ownerDefinition/effect/effectIntentScope"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline/provenance"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE"
+          - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-03"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline/sourceScope/sourcePhrase"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline/constraints"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline/preconditions"
       effect:
-        semanticOutcome: "P0 defines the compose multitrack timeline result as a local composition candidate or draft whose intended operation is to arrange selected media across a multitrack timeline; it does not define a committed project change or rendered delivery."
+        semanticOutcome: "The multitrack-timeline result is a local composition candidate or draft for arranging selected media. It may include a reviewable active-speaker multicamera cut proposal linked to speaker-turn and camera-source evidence, with missing links and uncertainty explicit; the proposal does not commit a project edit or create a rendered delivery."
         sourcePreservationRequired: true
         noSilentFallback: true
         effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT

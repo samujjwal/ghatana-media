@@ -4,22 +4,22 @@
   "campaign": {
     "macroStage": "DISCOVERY",
     "phase": "PDP-0",
-    "sourceBaselineCommit": "1c65a033d37fd8c2f9b3951c42c92b88fb725c13",
+    "sourceBaselineCommit": "32776faa580cb07ce89d0d2812bae63b4aa09439",
     "status": "DEV_COMPLETE"
   },
-  "generatedAt": "2026-10-18T21:05:59Z",
+  "generatedAt": "2026-10-19T03:44:54.673Z",
   "statusRecordRef": "docs/implementation/pdp-0-phase-dev-status.json",
-  "statusRecordSha256": "0eb0fd315a8c45f51f8b221409d4e4f5e00e2f712e72b5a5c72fe4b737531d1c",
-  "sourceFingerprintSetSha256": "e3b21f0086c83cb57eae6544ce211ffc56b867002b0666931f837c58d0909c3a",
+  "statusRecordSha256": "e987d7d48e21997ff34cb8facabdcb6f6f80b8b2951ce1850e86feef897b0d9a",
+  "sourceFingerprintSetSha256": "e87d70e4573e55d3fc8201b3c066f0c4c7b70890870bbf173206afd1ede80348",
   "sourceFingerprints": {
     ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
     ".product-experience/surfaces/media-physical-topology.v1.json": "53f3e1073c11876d3675543bfe170e32b31bae7725a3ed3bd2712f13954e2017",
     ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
     ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
     ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
-    ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
-    ".product-experience/pdp-0-product-truth/requirements.yaml": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
-    "docs/implementation/pdp-0-phase-dev-status.json": "0eb0fd315a8c45f51f8b221409d4e4f5e00e2f712e72b5a5c72fe4b737531d1c"
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "af774f4db0a306ac3514475d65170560c345e7a6ecdf17305edb2ac3b9af41fe",
+    "docs/implementation/pdp-0-phase-dev-status.json": "e987d7d48e21997ff34cb8facabdcb6f6f80b8b2951ce1850e86feef897b0d9a"
   },
   "denominatorValidation": {
     "status": "PASS",
@@ -85,7 +85,7 @@
         "media.surface.integrations"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -127,7 +127,7 @@
       ],
       "sourceFingerprints": {
         "apps/media-experience-explorer/package.json": "ded93378c7a69ae520df2c03666f27000778f808ca24fb9110f84243afc83b68",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -167,7 +167,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -213,7 +213,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -254,7 +254,7 @@
         "media.surface.public-http"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -384,7 +384,7 @@
         "media.surface.recorder-orchestrator"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -579,7 +579,7 @@
         "media.surface.types-library"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -776,7 +776,7 @@
         "media.surface.interactive-demo-player"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1072,7 +1072,7 @@
         "media.surface.agent-tools"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1112,7 +1112,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1153,7 +1153,7 @@
         "media.surface.recorder-orchestrator"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1195,7 +1195,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1262,7 +1262,7 @@
         "media.surface.integrations"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1306,7 +1306,7 @@
         "media.surface.integrations"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1350,7 +1350,7 @@
         "media.surface.integrations"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1488,7 +1488,7 @@
         "media.surface.integrations"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1539,7 +1539,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1578,7 +1578,7 @@
         "media.surface.ui-library"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1629,7 +1629,7 @@
         "media.surface.service-grpc"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1724,7 +1724,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1844,7 +1844,7 @@
         "media.surface.service-grpc"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1911,7 +1911,7 @@
         "media.surface.service-grpc"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1976,7 +1976,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2044,7 +2044,7 @@
         "media.surface.service-grpc"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2117,7 +2117,7 @@
         "media.surface.integrations"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2248,7 +2248,7 @@
         "media.surface.capture-adapters"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2397,7 +2397,7 @@
         "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md": "7c4fe45e3c2ed6e1e42926e418acb7f2d6bb7d02600b6479e0e63831d3eb08f8"
+        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md": "59699d732188d23787c33a402df9cef5c6006a42fc96eace422197bbd5a08401"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2452,7 +2452,7 @@
         "media.physical.adapters-ledger"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2556,7 +2556,7 @@
         "media.physical.modules-infrastructure-cache"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2627,7 +2627,7 @@
         "media.physical.modules-intelligence-speech-libs-speech-audio-rust"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2727,7 +2727,7 @@
         "media.physical.runtime-contracts"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2812,7 +2812,7 @@
         "media.physical.libs-audio-video-ui"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2978,7 +2978,7 @@
         "media.physical.apps-media-experience-explorer"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -4351,7 +4351,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml": "3b3c3f47dbe86edf8fe6d5697ceb5e98f64f68c4abaa2c02597c5db3d2006719",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
       },
       "sourceCurrent": true,
@@ -4543,7 +4543,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml": "3b3c3f47dbe86edf8fe6d5697ceb5e98f64f68c4abaa2c02597c5db3d2006719",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
       },
       "sourceCurrent": true,
@@ -4609,7 +4609,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml": "3b3c3f47dbe86edf8fe6d5697ceb5e98f64f68c4abaa2c02597c5db3d2006719",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
       },
       "sourceCurrent": true,
@@ -4676,7 +4676,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml": "3b3c3f47dbe86edf8fe6d5697ceb5e98f64f68c4abaa2c02597c5db3d2006719",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
       },
       "sourceCurrent": true,
@@ -4749,7 +4749,7 @@
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml": "3b3c3f47dbe86edf8fe6d5697ceb5e98f64f68c4abaa2c02597c5db3d2006719",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
       },
       "sourceCurrent": true,
@@ -4843,7 +4843,7 @@
         ".product-experience/surface-registry.yaml"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-2-design-interface-system/sdk/conventions.yaml": "5cceab0c9fb471824129a016853a9a4b7ba90f1934ae74b6f00d8ca0dcbecbba",
+        ".product-experience/pdp-2-design-interface-system/sdk/conventions.yaml": "e18f2ecd1f3948c4d3e435b8cc2c7ce9c3eaa7d52b88fac351d1d57e3a40ad7f",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
       },
       "sourceCurrent": true,
@@ -5393,7 +5393,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-3-product-experience/cli/command-registry.yaml": "6feed0105beddb02232045fff28cdd5d64d6e8314cb647c96dcdda3b945f82a4",
         ".product-experience/pdp-2-design-interface-system/cli/conventions.yaml": "aab04101e875e25509a8b0171e3f2e4518c78e56aca41a49a3531ad6350762a2",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
       },
       "sourceCurrent": true,
@@ -6290,7 +6290,7 @@
         ".product-experience/surface-registry.yaml"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md": "be9866bd818c01ab3b309d50914ff9d69539e6ca2ef74fb1ffaa765a47548976",
+        ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md": "1fe788580adbfa9b6b48e363bb8fd084c83dab117bcc5d6a758e3701c38b9908",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
       },
       "sourceCurrent": true,
@@ -6648,8 +6648,8 @@
         ".product-experience/surface-registry.yaml"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": "8d5a40beb330a94d5f454b616508957a85ff1a59335f33b57b94c2df641b93e5",
-        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml": "5abb308c964b16af8a81dd28e4b930dde6c2d56f6e07edc16e1bee84b495d4c2",
+        ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": "0435edb755889261776f1e37bc17a3253256e56730a40e6731d4bf37253ed2fa",
+        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml": "3bcc559debed0e6c0e21536ea409ede27fff59903e4e7e9ad852cef7f7a79f72",
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
       },
@@ -6723,8 +6723,8 @@
         ".product-experience/surface-registry.yaml"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": "8d5a40beb330a94d5f454b616508957a85ff1a59335f33b57b94c2df641b93e5",
-        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml": "5abb308c964b16af8a81dd28e4b930dde6c2d56f6e07edc16e1bee84b495d4c2",
+        ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": "0435edb755889261776f1e37bc17a3253256e56730a40e6731d4bf37253ed2fa",
+        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml": "3bcc559debed0e6c0e21536ea409ede27fff59903e4e7e9ad852cef7f7a79f72",
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
       },
@@ -6793,8 +6793,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
-        ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": "8d5a40beb330a94d5f454b616508957a85ff1a59335f33b57b94c2df641b93e5",
-        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml": "5abb308c964b16af8a81dd28e4b930dde6c2d56f6e07edc16e1bee84b495d4c2",
+        ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": "0435edb755889261776f1e37bc17a3253256e56730a40e6731d4bf37253ed2fa",
+        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml": "3bcc559debed0e6c0e21536ea409ede27fff59903e4e7e9ad852cef7f7a79f72",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
       },
       "sourceCurrent": true,
@@ -6876,8 +6876,8 @@
         ".product-experience/surface-registry.yaml"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": "8d5a40beb330a94d5f454b616508957a85ff1a59335f33b57b94c2df641b93e5",
-        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml": "5abb308c964b16af8a81dd28e4b930dde6c2d56f6e07edc16e1bee84b495d4c2",
+        ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": "0435edb755889261776f1e37bc17a3253256e56730a40e6731d4bf37253ed2fa",
+        ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml": "3bcc559debed0e6c0e21536ea409ede27fff59903e4e7e9ad852cef7f7a79f72",
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
       },
@@ -6912,5 +6912,41 @@
       "consumerSpecificApplicabilityRef": null
     }
   ],
-  "sourceFingerprintSetAlgorithm": "SHA-256 of compact JSON.stringify over sorted [repository-relative path, file SHA-256] tuples"
+  "sourceFingerprintSetAlgorithm": "SHA-256 of compact JSON.stringify over sorted [repository-relative path, file SHA-256] tuples",
+  "sourcePinImpactReview": {
+    "phase": "PDP-0",
+    "reviewedPath": "scripts/report-media-pdp-readiness.mjs",
+    "predecessorSha256": "1d315f951f96e2de32685a1b4528ca72f25669ed2d599052c82dce353f6a596d",
+    "currentSha256": "322a89439ac03200aefd39202b5f7a2af9c5f698d921622cc82a77e873265c82",
+    "disposition": "PDP1_PDP2_PDP3_VALIDATOR_WIRING_AND_PDP2_CENSUS_ONLY",
+    "impact": "PXD-180 reviewed the phase-local suite/source-root wiring and PDP-2 rule-count correction. The PDP-0 feature/channel definitions, P0-07 suite membership and native predicate are unchanged. P0-03 source pins were refreshed only for the PXD-180 decision log and direct-definition review record; all 501 audit row meanings and dispositions remain unchanged. The full native PDP-0 gate now passes on the current source cut.",
+    "pdp0Retest": "COMPLETED_NATIVE_PDP0_REVALIDATION",
+    "ownerApproval": "NOT_CLAIMED",
+    "nativeClosure": "NOT_PERFORMED"
+  },
+  "sourcePinImpactReviewHistory": [
+    {
+      "phase": "PDP-0",
+      "reviewedPath": "scripts/report-media-pdp-readiness.mjs",
+      "predecessorSha256": "63e12f6ea6f7dbd6bae643b4399a8f3d4d8488ce41bd1243c3dcde2588e2e014",
+      "intermediateSha256": "b3520df09a7338997b846ff5de7ae9956e2fe9fb4854f8800f8aa0709302717d",
+      "currentSha256": "36bee197a6be758a7ace3b52f6f41984af2d00d048b6657f14a1ce6ab45eb004",
+      "disposition": "PDP-1_VERIFICATION_SUITE_AND_SOURCE_ROOT_REGISTRATION_ONLY",
+      "impact": "The reporter diff expands only PDP-1 verification suites and source roots, including the phase denominator, predecessor status/matrix, semantic review, and exact declarative/Recorder P0 inputs. PDP-0 definitions, criteria, suite membership, and test inputs are unchanged; the completed PDP-0 source cut is reused.",
+      "pdp0Retest": "NOT_REQUIRED_NO_PDP0_MEANING_OR_TEST_SCOPE_CHANGE",
+      "ownerApproval": "NOT_CLAIMED",
+      "nativeClosure": "NOT_PERFORMED"
+    },
+    {
+      "phase": "PDP-0",
+      "reviewedPath": "scripts/report-media-pdp-readiness.mjs",
+      "predecessorSha256": "36bee197a6be758a7ace3b52f6f41984af2d00d048b6657f14a1ce6ab45eb004",
+      "currentSha256": "1d315f951f96e2de32685a1b4528ca72f25669ed2d599052c82dce353f6a596d",
+      "disposition": "PDP2_PDP3_PREDECESSOR_MATRIX_ROOT_REGISTRATION_ONLY",
+      "impact": "The reporter change adds PDP-0/PDP-1 predecessor surface phase matrices to the PDP-2 source roots and PDP-0/PDP-1/PDP-2 predecessor surface phase matrices to the PDP-3 source roots. PDP-0 definition sources, criteria, test suite membership, and test inputs are unchanged; the completed PDP-0 definition cut is reused.",
+      "pdp0Retest": "NOT_REQUIRED_NO_PDP0_MEANING_CRITERIA_OR_TEST_SCOPE_CHANGE",
+      "ownerApproval": "NOT_CLAIMED",
+      "nativeClosure": "NOT_PERFORMED"
+    }
+  ]
 }

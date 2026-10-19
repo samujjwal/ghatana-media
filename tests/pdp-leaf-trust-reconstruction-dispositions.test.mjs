@@ -15,6 +15,7 @@ const currentReview = JSON.parse(readFileSync(resolve(root, "docs/implementation
 const driftInventory = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/p0-leaf-trust-current-type-drift-inventory.json"), "utf8"));
 const currentCorrectionReview = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json"), "utf8"));
 const uploadMinimumReview = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json"), "utf8"));
+const retainedCorrectionsCurrentReview = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/p0-capability-corrections-current-source-review-current.json"), "utf8"));
 const policy = review.ownerTrustReconstructionDispositions;
 const rows = new Map(policy.records.map((row) => [row.capabilityRef, row]));
 const capById = new Map(capabilities.map((row) => [row.id, row]));
@@ -53,13 +54,20 @@ function valid(doc, inventory = driftInventory, semanticReview = currentReview) 
   if (uploadMinimumReview.decisionRef !== ".product-experience/decision-log.md#PXD-153"
     || uploadMinimumReview.supersedes.decisionRef !== latestCut.decisionRef
     || uploadMinimumReview.supersedes.historicalCapabilitiesSha256 !== latestCut.currentSourceSha256
-    || uploadMinimumReview.source.currentSha256 !== latestCapabilitySha
+    || uploadMinimumReview.source.currentSha256 !== "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
     || uploadMinimumReview.correction.capabilityId !== "media.artifact.upload"
     || !uploadMinimumReview.correction.p0FieldRef.endsWith("/properties/declaredByteLength")
     || uploadMinimumReview.correction.oldScalar.minimum !== 0
     || uploadMinimumReview.correction.newScalar.minimum !== 1
     || uploadMinimumReview.correction.oldScalar.maximum !== uploadMinimumReview.correction.newScalar.maximum
     || uploadMinimumReview.acceptanceEffect !== "none; bounded current-source correction evidence only") return false;
+  if (retainedCorrectionsCurrentReview.decisionRef !== ".product-experience/decision-log.md#PXD-171"
+    || retainedCorrectionsCurrentReview.source.path !== inventory.source.capabilitiesPath
+    || retainedCorrectionsCurrentReview.source.currentSha256 !== latestCapabilitySha
+    || retainedCorrectionsCurrentReview.source.capabilityCount !== 462
+    || retainedCorrectionsCurrentReview.records.length !== 9
+    || retainedCorrectionsCurrentReview.semanticEquivalence !== "NOT_ASSERTED"
+    || retainedCorrectionsCurrentReview.acceptanceEffect !== "none; exact corrected subfields reviewed against current P0 source") return false;
   const latestCorrections = new Map(latestCut.typedInputCorrections.map((item) => [item.capabilityId, item]));
   if (latestCorrections.size !== 3) return false;
   const audit = inventory.duplicateSelectorAudit;

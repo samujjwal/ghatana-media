@@ -8,7 +8,8 @@
   "scope": "Additive current-source observation for the single PXD-098 qualification decisionRules referent. It records the fail-closed rule added at index 4 and makes no semantic-parity claim.",
   "sourcePath": ".product-experience/pdp-0-product-truth/qualification-policy.yaml",
   "sourcePinSha256": "93a69ee00fbf5020f78b96e9558af61f2344b873f975f5381adbf1bd42840b7a",
-  "currentSourceSha256": "ec39afca8df04e5087482a1f393a32af4775f990571a5568d3ab7caed3385e5e",
+  "priorCurrentSourceSha256": "ec39afca8df04e5087482a1f393a32af4775f990571a5568d3ab7caed3385e5e",
+  "currentSourceSha256": "66104b2c95e75190ea153f6c7bd883783d4eb6c7d24d8a23c43d18e8ea795b03",
   "record": {
     "sourceRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#decisionRules",
     "identity": null,

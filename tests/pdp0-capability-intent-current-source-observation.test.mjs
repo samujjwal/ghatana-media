@@ -12,6 +12,7 @@ const observationPath = "docs/implementation/verification/pdp-38/p0-capability-i
 const semanticReviewPath = "docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json";
 const correctionReviewPath = "docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json";
 const uploadCorrectionReviewPath = "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json";
+const currentCorrectionsReviewPath = "docs/implementation/verification/pdp-38/p0-capability-corrections-current-source-review-current.json";
 const sourcePath = ".product-experience/pdp-0-product-truth/capabilities.yaml";
 const read = (path) => readFileSync(resolve(root, path));
 
@@ -20,6 +21,7 @@ test("P0 owner intent binding observation pins the exact 462-leaf source delta w
   const semanticReview = JSON.parse(read(semanticReviewPath).toString("utf8"));
   const correctionReview = JSON.parse(read(correctionReviewPath).toString("utf8"));
   const uploadCorrectionReview = JSON.parse(read(uploadCorrectionReviewPath).toString("utf8"));
+  const currentCorrectionsReview = JSON.parse(read(currentCorrectionsReviewPath).toString("utf8"));
   const bytes = read(sourcePath);
   const capabilities = parse(bytes.toString("utf8"));
   const leaves = capabilities.capabilities;
@@ -32,8 +34,10 @@ test("P0 owner intent binding observation pins the exact 462-leaf source delta w
     "PXD-121 remains pinned to its historical owner-binding source cut");
   assert.equal(semanticReview.source.currentSha256, correctionReview.historicalPins.find(({ decisionRef }) => decisionRef.endsWith("#PXD-122")).capabilitySha256,
     "PXD-122 remains pinned to its historical capability source cut");
-  assert.equal(sha(bytes), uploadCorrectionReview.source.currentSha256,
-    "PXD-153 pins the current capability source while PXD-142 remains historical");
+  assert.equal(uploadCorrectionReview.source.currentSha256, "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+    "PXD-153 remains pinned to its historical capability source cut");
+  assert.equal(currentCorrectionsReview.source.currentSha256, sha(bytes),
+    "PXD-171 pins the exact correction fields on the current capability source");
   assert.equal(semanticReview.source.historicalComparison.parsedPathDelta, "NOT_ASSERTED");
   assert.equal(observation.source.path, sourcePath);
   assert.equal(observation.source.recordPopulation.count, 462);
