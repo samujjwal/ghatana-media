@@ -4,13 +4,13 @@
   "campaign": {
     "macroStage": "DISCOVERY",
     "phase": "PDP-0",
-    "sourceBaselineCommit": "8d3d9e612485d88e7263e9a88a8ef85365523a58",
+    "sourceBaselineCommit": "c8f8e7bf28c1cf7e0ff6e1c59760c1b49db7ac66",
     "status": "DEV_COMPLETE"
   },
   "generatedAt": "2026-10-19T07:51:58.483Z",
   "statusRecordRef": "docs/implementation/pdp-0-phase-dev-status.json",
-  "statusRecordSha256": "59b75117598c4e4b97117b586e5d0f9081ac155fda05ffc66f220b88f31f32e2",
-  "sourceFingerprintSetSha256": "e0bd9ec46db37786149cf12f8aa753614e677e0a06c2a0ec8acee95515fb6d04",
+  "statusRecordSha256": "c5a8c776060ff004ec12cb08d42c21e459d7d6fca3ce46b0191601d343d18402",
+  "sourceFingerprintSetSha256": "2cb88777fa86b741f6946da374434519831fef5da0bae926d6e009dd3ecaa6aa",
   "sourceFingerprints": {
     ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
     ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
@@ -19,9 +19,9 @@
     ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
     ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
     ".product-experience/pdp-0-product-truth/requirements.yaml": "49c079d4aff2499bb3c226ac52e3a7101d483392775bd9b05a0a469295329ce2",
-    "docs/implementation/pdp-0-phase-dev-status.json": "59b75117598c4e4b97117b586e5d0f9081ac155fda05ffc66f220b88f31f32e2",
+    "docs/implementation/pdp-0-phase-dev-status.json": "c5a8c776060ff004ec12cb08d42c21e459d7d6fca3ce46b0191601d343d18402",
     ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-    ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+    ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
   },
   "denominatorValidation": {
     "status": "PASS",
@@ -91,7 +91,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -277,7 +277,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -425,7 +425,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -638,7 +638,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -852,7 +852,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1247,7 +1247,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1373,7 +1373,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1434,7 +1434,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1495,7 +1495,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1650,7 +1650,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1808,7 +1808,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2041,7 +2041,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2126,7 +2126,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2277,7 +2277,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2368,7 +2368,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2516,7 +2516,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2684,7 +2684,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md": "59699d732188d23787c33a402df9cef5c6006a42fc96eace422197bbd5a08401",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2756,7 +2756,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2880,7 +2880,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2971,7 +2971,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -3089,7 +3089,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -3193,7 +3193,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -3383,7 +3383,7 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -3564,7 +3564,7 @@
         ".product-experience/pdp-3-product-experience/screen-registry.yaml": "b49380a9bdedaee554a21a07b4eb26bd6891d16c784fb2ccbfb7c3bc09f1d438",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -3717,7 +3717,7 @@
         ".product-experience/pdp-3-product-experience/screen-registry.yaml": "b49380a9bdedaee554a21a07b4eb26bd6891d16c784fb2ccbfb7c3bc09f1d438",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -4269,7 +4269,7 @@
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml": "3b3c3f47dbe86edf8fe6d5697ceb5e98f64f68c4abaa2c02597c5db3d2006719",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -4832,7 +4832,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -5042,7 +5042,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -5126,7 +5126,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -5211,7 +5211,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -5302,7 +5302,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -5414,7 +5414,7 @@
         ".product-experience/pdp-2-design-interface-system/sdk/conventions.yaml": "e18f2ecd1f3948c4d3e435b8cc2c7ce9c3eaa7d52b88fac351d1d57e3a40ad7f",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -5981,7 +5981,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -6663,7 +6663,7 @@
         ".product-experience/pdp-0-product-truth/dependency-contracts.yaml": "b698f43e88c61170c1a25f6789062b87ef07bd1edaca2261e077cf5ae2efbaaf",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -7226,7 +7226,7 @@
         ".product-experience/authority-map.yaml": "03d010ab4985ff76b8dafea6a32d86196fe7bf2a034f8b43216b6378c35ead3e",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -7289,7 +7289,7 @@
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -7450,7 +7450,7 @@
         ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml": "3bcc559debed0e6c0e21536ea409ede27fff59903e4e7e9ad852cef7f7a79f72",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -7551,7 +7551,7 @@
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
-        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
+        ".product-experience/decision-log.md": "948d4e85711425de0639022ddecf3d4b12fa3e14f5dca83157e30bc0af7ded96"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
