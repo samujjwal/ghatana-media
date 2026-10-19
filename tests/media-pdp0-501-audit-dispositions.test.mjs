@@ -159,8 +159,8 @@ test('current crosswalk source pins and qualified scientific claim handoff valid
   const ledger = JSON.parse(fs.readFileSync(path.join(root, crosswalkPath), 'utf8'));
   const decisionLog = '.product-experience/decision-log.md';
   const currentPin = crypto.createHash('sha256').update(fs.readFileSync(path.join(root, decisionLog))).digest('hex');
-  assert.equal(ledger.coordinatorReview.decisionRef, 'PXD-191');
-  assert.equal(ledger.coordinatorReview.priorDecisionRef, 'PXD-190');
+  assert.equal(ledger.coordinatorReview.decisionRef, 'PXD-192');
+  assert.equal(ledger.coordinatorReview.priorDecisionRef, 'PXD-191');
   assert.equal(ledger.sourceBaseline.workingTreeSourceFingerprintsSha256[decisionLog], currentPin);
   assert.equal(ledger.coordinatorReview.ownerApproval, 'NOT_CLAIMED');
   const historical = ledger.coordinatorReview.reviewHistory.find(review => review.decisionRef === 'PXD-186');
@@ -169,7 +169,7 @@ test('current crosswalk source pins and qualified scientific claim handoff valid
   const previousCurrent = ledger.coordinatorReview.reviewHistory.find(review => review.decisionRef === 'PXD-190');
   assert.equal(previousCurrent.priorDecisionRef, 'PXD-186');
   assert.equal(previousCurrent.sourceFingerprints[decisionLog], '4c91f4058b9848c6fda562a35d76f5d687bd060ff671299f8377aae668f81eea');
-  assert.match(ledger.coordinatorReview.note, /PXD-190, PXD-189, PXD-188 and earlier decisions and source pins remain historical/iu);
+  assert.match(ledger.coordinatorReview.note, /PXD-191, PXD-190, PXD-189, PXD-188 and earlier decisions and source pins remain historical/iu);
   assert.match(ledger.coordinatorReview.note, /all row dispositions, meaning, denominator, owner-scope proposals, and phase handoffs remain unchanged/iu);
   assert.match(ledger.coordinatorReview.note, /owner.*NOT_CLAIMED|No owner.*claimed/iu);
 });

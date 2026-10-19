@@ -11,7 +11,8 @@ const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const require = createRequire(resolve(root, "../ghatana-tools/package.json"));
 const { parse } = require("yaml");
 const candidate = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json"), "utf8"));
-const headCandidate = JSON.parse(execFileSync("git", ["show", "HEAD:docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json"], { cwd: root, encoding: "utf8", maxBuffer: 10 * 1024 * 1024 }));
+const pxd173BaselineCommit = "1b3e4a4a10dec00e59f750b360fd3547f70ac70d";
+const pxd173BaselineCandidate = JSON.parse(execFileSync("git", ["show", pxd173BaselineCommit + ":docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json"], { cwd: root, encoding: "utf8", maxBuffer: 10 * 1024 * 1024 }));
 const pxd173Successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd173.json"), "utf8"));
 const pxd183Successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd183.json"), "utf8"));
 const pxd185Successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd185.json"), "utf8"));
@@ -706,12 +707,12 @@ test("PXD-173/PXD-183 history and PXD-185 current successors cover PDP-0 candida
     assert.equal(successor.semanticPromotion, false);
   }
   for (const predecessor of pxd173Records) {
-    const historicalOwner = headCandidate.records.find((record) => record.claimId === predecessor.claimId);
-    assert.ok(historicalOwner, `${predecessor.claimId} exists in the HEAD candidate`);
+    const historicalOwner = pxd173BaselineCandidate.records.find((record) => record.claimId === predecessor.claimId);
+    assert.ok(historicalOwner, `${predecessor.claimId} exists in the immutable PXD-173 baseline candidate`);
     const historicalObservation = predecessor.sourceRecordRef.endsWith("/currentProposalObservation")
       ? historicalOwner.currentProposalObservation
       : historicalOwner.ownerSemanticReview.materialBindings.find((binding) => binding.ref === predecessor.targetRef)?.currentProposalObservation;
-    assert.ok(historicalObservation, `${predecessor.claimId} ${predecessor.targetRef} HEAD observation`);
+    assert.ok(historicalObservation, `${predecessor.claimId} ${predecessor.targetRef} PXD-173 baseline observation`);
     assert.equal(predecessor.currentSourceFileSha256, historicalObservation.currentSourceFileSha256,
       "PXD-173 current source digest matches its immutable HEAD candidate observation");
     const pxd183Predecessor = pxd183Records.find((record) => record.claimId === predecessor.claimId && record.targetRef === predecessor.targetRef);
