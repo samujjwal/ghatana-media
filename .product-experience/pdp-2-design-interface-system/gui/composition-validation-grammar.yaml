@@ -12,6 +12,7 @@ sourceRefs:
   componentContracts: .product-experience/pdp-2-design-interface-system/component-contracts.yaml
   actions: .product-experience/pdp-3-product-experience/action-registry.yaml
   accessibility: .product-experience/pdp-2-design-interface-system/accessibility.yaml
+  motion: .product-experience/pdp-2-design-interface-system/motion.yaml
   finality: .product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml
 linkRules:
   template: screenContract.templateId and screenContract.templateContract.templateRef must identify the same canonical template.
@@ -25,6 +26,11 @@ accessibilityRules:
   screenFocus: Every screen composition carries an accessibility rule that preserves focus and reading order; this source rule is proposal-level and does not establish conformance.
   keyboard: Every composed component has an explicit keyboard contract and accessible behavior; every action identifier resolves to a source-owned action definition.
   unknownFinality: If an action can remain pending, uncertain, or unknown, the selected template's primary patterns or approved overlays must include a safe unknown-outcome/recovery pattern with an explicit unknown state.
+  motion: >-
+    When a GUI composition contains motion-bearing content or components, its reduced-motion behavior follows the
+    Media motion and accessibility requirements: remove decorative/nonessential movement and provide a static
+    equivalent while preserving explicit state, progress, and visible focus indication; motion must not be the sole
+    indication of a state or progress change.
 nonClaims:
   - This grammar does not claim rendered screen correctness, assistive-technology acceptance, public Shared package admission, or PDP-2 phase receipt.
   - A valid composition link does not authorize an action or establish runtime behavior.
@@ -115,6 +121,11 @@ normativeRuleRecords:
     sourceRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/accessibilityRules/unknownFinality"
     authorityRef: ".product-experience/decision-log.md#PXD-076"
     normativeRequirement: "If an action can remain pending, uncertain, or unknown, the selected template's primary patterns or approved overlays must include a safe unknown-outcome/recovery pattern with an explicit unknown state."
+  - id: "media.gui.composition-rule.accessibility.motion"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/accessibilityRules/motion"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/accessibilityRules/motion"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "When a GUI composition contains motion-bearing content or components, its reduced-motion behavior follows the Media motion and accessibility requirements: remove decorative/nonessential movement and provide a static equivalent while preserving explicit state, progress, and visible focus indication; motion must not be the sole indication of a state or progress change."
   - id: "media.gui.composition-region.template.collection"
     ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/templates/media.gui.template.collection"
     sourceRef: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/@id=media.gui.template.collection/regions"

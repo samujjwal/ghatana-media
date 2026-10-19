@@ -113,7 +113,7 @@ normativeRuleRecords:
     acceptanceEffect: none
   - id: media.p2.rule.cli-local-interruption-boundary.v1
     ruleRef: .product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedMachineOutputRules/@id=media.cli.local-interruption-boundary.v1
-    sourceAuthority: .product-experience/pdp-2-design-interface-system/cli-language.yaml#sigintSemantics
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/cli-language.yaml#machineOutput/sigintSemantics
     acceptanceEffect: none
   - id: media.p2.rule.cli-owner-canonical-command-contracts.v1
     ruleRef: .product-experience/pdp-2-design-interface-system/cli-language.yaml#ownerDefinedCanonicalCommandContracts

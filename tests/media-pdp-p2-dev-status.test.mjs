@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildPdp2DevStatus, buildPdp2SourceCensus, p2Criteria, p2SourceRoots, p2SuiteFiles } from "../scripts/report-media-pdp-readiness.mjs";
+import { buildPdp2DevStatus, buildPdp2SourceCensus, p2Criteria, p2DirectScripts, p2SourceRoots, p2SuiteFiles } from "../scripts/report-media-pdp-readiness.mjs";
 
 const hash = "a".repeat(64);
 const passingVerification = () => Object.fromEntries(p2Criteria.map(id => [id, {
@@ -25,18 +25,34 @@ const passingConformance = () => ({
 
 test("PDP-2 pins the current interface parity ledger and action registry consumed by P2-07", () => {
   assert.ok(p2SourceRoots.includes(".product-experience/interface-parity"));
+  assert.ok(p2SourceRoots.includes(".product-experience/surface-registry.yaml"));
+  assert.ok(p2SourceRoots.includes(".product-experience/surfaces/media-physical-topology.v1.json"));
+  assert.ok(p2SourceRoots.includes(".product-experience/explorer/EXPERIENCE-EXPLORER.md"));
+  assert.ok(p2SourceRoots.includes("apps/media-experience-explorer/README.md"));
   assert.ok(p2SourceRoots.includes(".product-experience/pdp-3-product-experience/action-registry.yaml"));
+  assert.ok(p2DirectScripts.includes("scripts/check-media-recorder-studio-definitions.mjs"));
+  assert.ok(p2DirectScripts.includes("scripts/check-media-pdp2-declarative-interface.mjs"));
+  assert.ok(p2DirectScripts.includes("scripts/check-media-physical-topology.mjs"));
+  assert.ok(p2SuiteFiles["P2-03"].includes("tests/media-pdp2-explorer-workbench.test.mjs"));
+  assert.ok(p2SuiteFiles["P2-09"].includes("tests/media-physical-topology.test.mjs"));
 });
 
 test("PDP-2 development gate requires nine source-pinned suites and definition-only conformance", () => {
   const census = buildPdp2SourceCensus();
   assert.deepEqual(census.integrityIssues, []);
+  assert.equal(census.populations.compositionRules, 43);
+  assert.equal(census.surfaceApplicability.status, "PASS");
+  assert.equal(census.surfaceApplicability.counts.totalSurfaceIdentities, census.surfaceApplicability.identitySet.length);
+  assert.equal(census.surfaceApplicability.counts.applicablePdp2 + census.surfaceApplicability.counts.explicitNotApplicablePdp2,
+    census.surfaceApplicability.counts.totalSurfaceIdentities);
+  assert.equal(census.surfaceApplicability.explorerBinding.reconciled, true);
   const status = buildPdp2DevStatus({
     mainSha: "0".repeat(40), sourceShaSet: {}, verification: passingVerification(),
     sourceCensus: census, sourceCutStable: true, designConformance: passingConformance(),
   });
   assert.equal(status.phase, "PDP-2");
   assert.equal(status.status, "DEV_COMPLETE");
+  assert.equal(status.surfaceApplicability.status, "PASS");
   assert.deepEqual(status.exportedHandoffIds, ["media.pdp2-pdp3.design-interface-handoff.v1"]);
   assert.deepEqual(status.importedHandoffIds, ["media.pdp1-pdp2.canonical-domain-handoff.v1"]);
   assert.equal(status.definitionOnlyConformance.acceptanceClaim, "NONE");

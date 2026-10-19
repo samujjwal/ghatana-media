@@ -106,13 +106,15 @@
           "domainObjectIds": []
         },
         "PDP-2": {
-          "disposition": "NOT_APPLICABLE",
+          "disposition": "GUI_TOOLING_CONSUMER",
           "authorityRefs": [
-            ".product-experience/pdp-2-design-interface-system/api/",
-            ".product-experience/pdp-2-design-interface-system/sdk/",
-            ".product-experience/pdp-2-design-interface-system/gui/"
+            ".product-experience/pdp-2-design-interface-system/gui/explorer-workbench.yaml",
+            ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#channels/GUI",
+            ".product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml",
+            ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
+            ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml"
           ],
-          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages."
+          "rationale": "This mapped physical leaf is a Media-owned browser workbench with Product, Explore, Specification, Verify, and Tools Review interactions, so its GUI boundary has a PDP-2 contract. The local fixture/source-projection scope is not a production Media UI and does not claim runtime admission, owner acceptance, or phase acceptance."
         },
         "PDP-3": {
           "disposition": "TOOLING_OR_SUPPORT",

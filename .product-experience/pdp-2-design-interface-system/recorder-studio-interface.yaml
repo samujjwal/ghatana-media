@@ -1,7 +1,7 @@
 schemaVersion: media.recorder-studio-interface.v1
 productId: media
 sourcePhase: PDP-2
-status: SOURCE_AUTHORED_SUCCESSOR_PENDING_REVALIDATION
+status: SOURCE_AUTHORED_PDP2_DEFINITION
 predecessor: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml
 authority: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml
 surfaceInterfaces:
@@ -829,7 +829,7 @@ securityAndPrivacyViews:
 # Composition source map reuses Media PDP-2 component contracts, not a second
 # component library. PDP-3 owns concrete view/journey/action registrations.
 recorderStudioComponentCompositions:
-  status: SOURCE_AUTHORED_SUCCESSOR_PENDING_REVALIDATION
+  status: SOURCE_AUTHORED_PDP2_DEFINITION
   designPrimitiveAuthority: ghatana-shared-public-design-system-after-artifact-admission
   mediaComponentAuthority: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#components
   interactionSource: .product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml
@@ -866,7 +866,7 @@ recorderStudioComponentCompositions:
 # Source-owned page-local design composition. Do not mint new screens, token
 # values or design-system components. PDP-3 projects these exact workspace keys.
 productionStudioPageCompositionContracts:
-  status: SOURCE_AUTHORED_SUCCESSOR_PENDING_NATIVE_VALIDATION
+  status: SOURCE_AUTHORED_PDP2_DEFINITION
   ownerSurface: media.surface.production-studio
   templateAuthority: .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#templates
   layoutAuthority: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layouts

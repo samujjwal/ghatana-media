@@ -47,8 +47,23 @@ proposalRules:
       - Return a handle only when the API reports an accepted asynchronous operation and its canonical identity/status reference.
       - A handle keeps one operation identity across status, result, cancellation, retry, and outcome checks; wait/progress is observation, not completion evidence.
       - Preserve server-advertised status/cancel/retry/result references and capability flags; do not invent URLs or treat a client timeout as job failure.
+      - For the observed SDK handle, the status result contract is the SDK MediaProcessingJob schema; the OpenAPI PlatformOperation schema is separate API evidence and is not its DTO selector.
+      - No equality or crosswalk between PlatformOperation.operationId and MediaProcessingJob.id is admitted; no API-to-SDK state conversion is admitted.
+    negativeCases:
+      - platform-operation-operationId-treated-as-sdk-job-id-or-canonical-jobId-without-an-explicit-owner-binding
+      - api-succeeded-promoted-to-sdk-completed-without-an-admitted-state-mapping
+      - api-state-used-to-infer-sdk-partially-succeeded-outcome-unknown-or-reconciling
+      - sdk-unknown-or-reconciling-promoted-to-success-failure-or-running-from-api-enum
+      - cancellation-request-or-cancelled-label-used-to-erase-distinct-finality-or-effect-evidence
     observedSource: libs/audio-video-client/src/operations.ts#MediaOperationHandle
-    contract: contracts/openapi/media.yaml#/components/schemas/PlatformOperation
+    contract:
+      sdkStatusResult: libs/audio-video-types/src/contracts.ts#MediaProcessingJobSchema
+      sdkObservation: libs/audio-video-client/src/operations.ts#MediaOperationClient.getOperation
+      apiOperationEvidence: contracts/openapi/media.yaml#/components/schemas/PlatformOperation
+      apiOperationIdentityField: contracts/openapi/media.yaml#/components/schemas/PlatformOperation/properties/operationId
+      identityRelation: no-admitted-equality-or-crosswalk-to-MediaProcessingJob.id-or-canonical-jobId
+      stateRelation: no-admitted-API-to-SDK-state-conversion; per-state-mapping-remains-unresolved
+      admission: definition-level-contract-only; legacy-route-not-active; runtime-NOT_ADMITTED
   cancellationDeadlinesAndInterruption:
     proposal:
       - Distinguish caller abort of a local request/wait from an explicit domain cancellation request and from server-confirmed cancellation.
@@ -79,7 +94,7 @@ proposalRules:
       operationSchema: contracts/openapi/media.yaml#/components/schemas/PlatformOperation
       domainTypes: libs/audio-video-types/src/contracts.ts
       clientError: libs/audio-video-client/src/operations.ts#MediaClientError
-      observedStateMismatch: API PlatformOperation enum is ACCEPTED/QUEUED/RUNNING/SUCCEEDED/FAILED/CANCELLED; SDK domain terminal helper uses COMPLETED/FAILED/PARTIALLY_SUCCEEDED/CANCELLED; canonical mapping is unresolved
+      observedStateMismatch: API PlatformOperation enum is ACCEPTED/QUEUED/RUNNING/SUCCEEDED/FAILED/CANCELLED; SDK MediaProcessingJobSchema uses QUEUED/RUNNING/RETRY_PENDING/OUTCOME_UNKNOWN/RECONCILING/COMPLETED/FAILED/PARTIALLY_SUCCEEDED/CANCELLED; these are distinct interface projections with no admitted identity crosswalk or state conversion, and every cross-projection mapping remains unresolved
   compatibility:
     proposal:
       - Treat public method names, argument/result shapes, errors, defaults, and retry behavior as compatibility surface; changes require versioning and consumer impact review.

@@ -79,7 +79,7 @@
       "sourceStatus": "MEDIA_OWNER_ACCEPTED",
       "decision": {
         "authority": "User-delegated Media owner decision",
-        "rationale": "Media owns reusable composition templates. The eight catalog entries define task purposes, regions, and pattern links; source-level architecture validation resolves their declared pattern chains. This admits the catalog rules without accepting individual screens or product implementations."
+        "rationale": "Media owns reusable composition templates. The 13 catalog entries define task purposes, regions, and pattern links. PXD-037 (.product-experience/decision-log.md#PXD-037) approved five additional reusable template definitions and resolved the six previously withheld top-level links; source-level architecture validation resolves declared pattern chains. This admits reusable catalog rules and top-level links only, without accepting individual screen compositions, Shared bindings, implementations, rendered conformance, or phase closure."
       },
       "evidenceRefs": [
         ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#templates",
@@ -94,7 +94,7 @@
       "sourceStatus": "MEDIA_OWNER_ACCEPTED",
       "decision": {
         "authority": "User-delegated Media owner decision",
-        "rationale": "Media owns information hierarchy and responsive composition. The eight layout records preserve identity, state/finality, provenance, and safe actions in stated reading order; Shared layout primitives and rendered viewport/accessibility conformance remain unaccepted."
+        "rationale": "Media owns information hierarchy and responsive composition. The 11 layout records preserve identity, state/finality, provenance, and safe actions in stated reading order. PXD-037 (.product-experience/decision-log.md#PXD-037) approved three additional reusable layout definitions and resolved the six previously withheld top-level links; Shared layout primitives, rendered viewport/accessibility conformance, individual screen compositions, implementation, and phase closure remain unaccepted."
       },
       "evidenceRefs": [
         ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules",

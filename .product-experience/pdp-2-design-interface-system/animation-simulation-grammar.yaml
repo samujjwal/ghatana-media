@@ -99,7 +99,7 @@ ownerDefinedVisualVsScientificFidelityBoundary:
 declarativeProductionInterface:
   schemaVersion: media.declarative-production.pdp2.v1
   sourcePhase: PDP-2
-  status: SOURCE_AUTHORED_PENDING_NATIVE_VALIDATION_AND_CURRENT_SOURCE_REVIEW
+  status: SOURCE_AUTHORED_PDP2_DEFINITION
   normativeCaseAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile
   operationAndValueAuthority: .product-experience/pdp-1-domain-data/declarative-production-contracts.yaml
   componentAuthority: .product-experience/pdp-2-design-interface-system/component-contracts.yaml
@@ -894,7 +894,7 @@ declarativeProductionInterface:
       group: UNIFIED
       capabilityRef: media.job.submit
       surfaceId: media.surface.recorder-orchestrator
-      operationRef: media.operation-slice.submit-job
+      operationRef: media.operation.job.submit.v1
       intendedPresentation: "Bounded resources and failure recovery"
       canonicalScreenReuseRef: media.view.compose-media
       interfaceKind: HEADLESS_DECLARATIVE_PROJECTION

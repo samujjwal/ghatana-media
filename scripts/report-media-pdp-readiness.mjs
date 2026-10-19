@@ -62,13 +62,13 @@ const suites = {
   'P1-11': ['tests/media-pdp-p1-dev-status.test.mjs', 'tests/pdp1-phase-handoff-contract.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp1-j29-execution-recovery-read-contract.test.mjs', 'tests/pdp-truth-domain-erasure-contract.test.mjs', 'tests/pdp1-domain-identity-reference-contracts.test.mjs', 'tests/pdp1-operation-current-source-review.test.mjs', 'tests/pdp1-interface-current-source-review.test.mjs', 'tests/pdp1-transition-guard-definition-evaluator.test.mjs', 'tests/pdp1-owner-action-wire-contracts.test.mjs', 'tests/media-event-interface-owner-bindings.test.mjs', 'tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs', 'tests/pdp-tts-request-origin-binding.test.mjs'],
   'P2-01': ['tests/pdp-2-tools-experience-language-contract.test.mjs', 'tests/pdp-2-experience-language-projection.test.mjs'],
   'P2-02': ['tests/pdp-design-current-public-consumer-bindings.test.mjs', 'tests/pdp-design-presentation-contracts.test.mjs'],
-  'P2-03': ['tests/media-design-conformance.test.mjs', 'tests/pdp-design-exact-content-overlay-policy.test.mjs', 'tests/pdp-design-interface-component-contracts.test.mjs'],
+  'P2-03': ['tests/media-design-conformance.test.mjs', 'tests/pdp-design-exact-content-overlay-policy.test.mjs', 'tests/pdp-design-interface-component-contracts.test.mjs', 'tests/media-pdp2-explorer-workbench.test.mjs'],
   'P2-04': ['tests/media-ui-reuse-inventory.test.mjs', 'tests/pdp-design-reuse-disposition.test.mjs', 'tests/pdp-design-interface-component-contracts.test.mjs'],
   'P2-05': ['tests/pdp-design-composition-catalogs.test.mjs', 'tests/pdp-2-recipe-layout-chains.test.mjs', 'tests/media-presentation-architecture.test.mjs', 'tests/pdp2-gui-source-definition-bindings.test.mjs'],
   'P2-06': ['tests/pdp-design-responsive-comprehension.test.mjs', 'tests/pdp-design-responsive-rendered-references.test.mjs'],
   'P2-07': ['tests/pdp-design-interface-parity.test.mjs', 'tests/pdp2-machine-interface-handoff.test.mjs', 'tests/media-agent-tool-contracts.test.mjs', 'tests/media-agent-tool-definition-contracts.test.mjs', 'tests/media-transcription-submission-interface-grammar.test.mjs', 'tests/media-recorder-studio-definitions.test.mjs', 'tests/media-pdp2-declarative-interface.test.mjs', 'tests/pdp-cli-owner-command-contracts.test.mjs', 'tests/pdp2-read-consumer-adapters.test.mjs', 'tests/pdp-http-versioned-adapter-definitions.test.mjs'],
   'P2-08': ['tests/pdp-design-accessibility-text-spacing-target-size.test.mjs', 'tests/pdp-design-responsive-comprehension.test.mjs', 'tests/pdp2-media-renderer-dom.test.mjs'],
-  'P2-09': ['tests/media-design-conformance.test.mjs', 'tests/pdp-design-current-public-consumer-bindings.test.mjs', 'tests/pdp-design-composition-catalogs.test.mjs', 'tests/media-ui-reuse-inventory.test.mjs', 'tests/media-presentation-architecture.test.mjs', 'tests/pdp2-phase-handoff-contract.test.mjs', 'tests/media-pdp-p2-dev-status.test.mjs'],
+  'P2-09': ['tests/media-design-conformance.test.mjs', 'tests/pdp-design-current-public-consumer-bindings.test.mjs', 'tests/pdp-design-composition-catalogs.test.mjs', 'tests/media-ui-reuse-inventory.test.mjs', 'tests/media-presentation-architecture.test.mjs', 'tests/pdp2-phase-handoff-contract.test.mjs', 'tests/media-pdp-p2-dev-status.test.mjs', 'tests/media-physical-topology.test.mjs'],
   'P3-01': ['tests/pdp-experience-definition-mapping.test.mjs', 'tests/pdp-experience-generic-journey-step-projection.test.mjs', 'tests/pdp-experience-transition-projection.test.mjs', 'tests/pdp-experience-component-projection.test.mjs', 'tests/pdp-experience-component-source-dispositions.test.mjs', 'tests/media-j01-definition-semantics.test.mjs', 'tests/media-j02-definition-semantics.test.mjs', 'tests/media-transcript-review-definition.test.mjs', 'tests/media-caption-version-experience-definitions.test.mjs'],
   'P3-02': ['tests/pdp-3-screen-journey-crosslinks.test.mjs', 'tests/pdp-3-screen-source-bindings.test.mjs', 'tests/pdp-experience-view-state-binding.test.mjs', 'tests/pdp-experience-view-observation-state-projection.test.mjs', 'tests/pdp-experience-view-observation-predicates.test.mjs', 'tests/pdp-experience-default-navigation.test.mjs', 'tests/pdp-job-status-screen-definition.test.mjs'],
   'P3-03': ['tests/pdp-experience-step-semantics.test.mjs', 'tests/pdp-experience-step-definition-oracle.test.mjs', 'tests/pdp-experience-journey-purpose-bindings.test.mjs', 'tests/pdp-experience-step-version-binding-contracts.test.mjs', 'tests/pdp-experience-journey-operation-bindings.test.mjs', 'tests/pdp-experience-step-guard-fact-contracts.test.mjs', 'tests/pdp-experience-typed-guard-fact-evaluator.test.mjs', 'tests/pdp-experience-rights-guard-fact-evaluator.test.mjs', 'tests/media-transcription-submission-experience-definition.test.mjs', 'tests/pdp3-j03-decision-crosswalk.test.mjs', 'tests/pdp-experience-immediate-result-sources.test.mjs'],
@@ -462,6 +462,10 @@ export const p1SourceRoots = [
 ];
 export const p2SourceRoots = [
   '.product-experience/pdp-2-design-interface-system',
+  '.product-experience/surface-registry.yaml',
+  '.product-experience/surfaces/media-physical-topology.v1.json',
+  '.product-experience/explorer/EXPERIENCE-EXPLORER.md',
+  'apps/media-experience-explorer/README.md',
   '.product-experience/pdp-1-domain-data/handoff-contracts.yaml',
   '.product-experience/interface-parity',
   '.product-experience/pdp-3-product-experience/action-registry.yaml',
@@ -481,6 +485,7 @@ export const p2DirectScripts = [
   'scripts/check-media-presentation-architecture.mjs',
   'scripts/check-media-recorder-studio-definitions.mjs',
   'scripts/check-media-pdp2-declarative-interface.mjs',
+  'scripts/check-media-physical-topology.mjs',
   'scripts/lib/pdp-design-composition-validator.mjs',
   'scripts/lib/media-product-definition-residuals.mjs',
 ];
@@ -828,6 +833,7 @@ export function writePdp1DevStatus(status, repositoryRoot = root) {
 }
 export function buildPdp2SourceCensus(repositoryRoot = root) {
   const read = file => parseYaml(fs.readFileSync(path.join(repositoryRoot, file), 'utf8'));
+  const readJson = file => JSON.parse(fs.readFileSync(path.join(repositoryRoot, file), 'utf8'));
   const base = '.product-experience/pdp-2-design-interface-system/';
   const components = read(`${base}component-contracts.yaml`);
   const valueTypes = read(`${base}component-value-types.yaml`);
@@ -838,6 +844,9 @@ export function buildPdp2SourceCensus(repositoryRoot = root) {
   const composition = read(`${base}gui/composition-validation-grammar.yaml`);
   const patterns = read(`${base}gui/patterns/catalog.yaml`);
   const interfaceGrammar = read(`${base}interface-grammar.yaml`);
+  const surfaceRegistry = read('.product-experience/surface-registry.yaml');
+  const topology = readJson('.product-experience/surfaces/media-physical-topology.v1.json');
+  const p1SurfaceMatrix = readJson('docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json');
   const p1Handoff = read('.product-experience/pdp-1-domain-data/handoff-contracts.yaml').handoffs?.pdp1ToPdp2CanonicalDomain;
   const p1Status = JSON.parse(fs.readFileSync(path.join(repositoryRoot, 'docs/implementation/pdp-1-phase-dev-status.json'), 'utf8'));
   const handoffPath = `${base}handoff-contracts.yaml`;
@@ -858,15 +867,104 @@ export function buildPdp2SourceCensus(repositoryRoot = root) {
     interactionPatterns: patterns.patterns?.length ?? 0,
     machineInterfaceInvariants: Object.keys(interfaceGrammar.invariants ?? {}).length,
   };
+  const physical = topology.manifestCandidates ?? [];
+  const compositions = topology.compositions ?? [];
+  const consumers = topology.consumerCrosswalk ?? [];
+  const registryConsumers = surfaceRegistry.surfaces ?? [];
+  const priorMatrixRows = p1SurfaceMatrix.surfaces ?? [];
+  const registryById = new Map(registryConsumers.map(record => [record.surfaceId, record]));
+  const consumerById = new Map(consumers.map(record => [record.surfaceId, record]));
+  const surfaceIds = [...physical, ...compositions, ...consumers].map(record => record.surfaceId);
+  const surfaceApplicabilityIssues = [];
+  const p2Applicable = cell => Boolean(cell?.disposition) && cell.disposition !== 'NOT_APPLICABLE';
+  if (physical.length !== topology.activeManifestCandidateCount) surfaceApplicabilityIssues.push('physical-topology-count-does-not-match-declared-count');
+  if (new Set(surfaceIds).size !== surfaceIds.length) surfaceApplicabilityIssues.push('duplicate-surface-identity-in-physical-composite-logical-denominator');
+  if (registryById.size !== registryConsumers.length || registryById.size !== consumers.length
+      || [...registryById.keys()].some(id => !consumerById.has(id)) || [...consumerById.keys()].some(id => !registryById.has(id))) {
+    surfaceApplicabilityIssues.push('logical-surface-registry-and-topology-crosswalk-identity-mismatch');
+  }
+  if (priorMatrixRows.length !== surfaceIds.length
+      || new Set(priorMatrixRows.map(row => row.surfaceId)).size !== priorMatrixRows.length
+      || surfaceIds.some(id => !priorMatrixRows.some(row => row.surfaceId === id))) {
+    surfaceApplicabilityIssues.push('pdp2-denominator-does-not-match-source-current-pdp1-matrix');
+  }
+  for (const node of [...physical, ...compositions]) {
+    const cell = node.phaseApplicability?.['PDP-2'];
+    if (!cell?.disposition || !cell?.rationale) {
+      surfaceApplicabilityIssues.push(`missing-explicit-pdp2-applicability:${node.surfaceId}`);
+      continue;
+    }
+    const refs = [cell.authorityRef, ...(cell.authorityRefs ?? [])].filter(Boolean);
+    if (p2Applicable(cell) && refs.length === 0) surfaceApplicabilityIssues.push(`applicable-pdp2-surface-has-no-authority-ref:${node.surfaceId}`);
+    for (const ref of refs) {
+      const source = ref.split('#', 1)[0];
+      if (!source || !fs.existsSync(path.join(repositoryRoot, source))) surfaceApplicabilityIssues.push(`missing-pdp2-surface-authority:${node.surfaceId}:${ref}`);
+    }
+  }
+  for (const consumer of consumers) {
+    const record = registryById.get(consumer.surfaceId);
+    if (!record || !Array.isArray(record.applicablePdpArtifacts) || !record.applicabilityDisposition || !record.applicabilityRationale) {
+      surfaceApplicabilityIssues.push(`missing-explicit-pdp2-logical-applicability:${consumer.surfaceId}`);
+      continue;
+    }
+    const applicable = record.applicablePdpArtifacts.includes('PDP-2');
+    if (!applicable && record.applicabilityDisposition !== 'NOT_ACTIVE_ARCHIVED') {
+      surfaceApplicabilityIssues.push(`pdp2-omission-without-explicit-archived-disposition:${consumer.surfaceId}`);
+    }
+    for (const ref of [record.interactionModel, record.contractAuthority, ...(record.upstreamProductTruth ?? []), record.securityAuthorityModel].filter(Boolean)) {
+      let source = ref.split('#', 1)[0];
+      if (source.includes('*')) source = source.slice(0, source.indexOf('*')).replace(/\/+$/u, '');
+      if (!source || !fs.existsSync(path.join(repositoryRoot, source))) surfaceApplicabilityIssues.push(`missing-logical-surface-authority:${consumer.surfaceId}:${ref}`);
+    }
+  }
+  const explorerPhysical = physical.find(record => record.surfaceId === 'media.physical.apps-media-experience-explorer');
+  const explorerLogical = registryById.get('media.surface.explorer');
+  const explorerP2 = explorerPhysical?.phaseApplicability?.['PDP-2'];
+  if (explorerPhysical && explorerLogical?.applicablePdpArtifacts?.includes('PDP-2')) {
+    const explorerAuthority = `${base}gui/explorer-workbench.yaml`;
+    if (!p2Applicable(explorerP2) || !(explorerP2?.authorityRefs ?? []).includes(explorerAuthority)) {
+      surfaceApplicabilityIssues.push('explorer-physical-and-logical-pdp2-applicability-not-reconciled-to-pdp2-authority');
+    }
+  }
+  const physicalApplicableCount = physical.filter(node => p2Applicable(node.phaseApplicability?.['PDP-2'])).length;
+  const compositionApplicableCount = compositions.filter(node => p2Applicable(node.phaseApplicability?.['PDP-2'])).length;
+  const logicalApplicableCount = consumers.filter(node => registryById.get(node.surfaceId)?.applicablePdpArtifacts?.includes('PDP-2')).length;
+  const totalSurfaceIdentityCount = surfaceIds.length;
+  const applicableSurfaceCount = physicalApplicableCount + compositionApplicableCount + logicalApplicableCount;
+  const surfaceApplicability = {
+    status: surfaceApplicabilityIssues.length === 0 ? 'PASS' : 'FAIL',
+    counts: {
+      physical: physical.length,
+      compositions: compositions.length,
+      logicalConsumers: consumers.length,
+      totalSurfaceIdentities: totalSurfaceIdentityCount,
+      applicablePdp2: applicableSurfaceCount,
+      explicitNotApplicablePdp2: totalSurfaceIdentityCount - applicableSurfaceCount,
+      physicalApplicablePdp2: physicalApplicableCount,
+      compositionApplicablePdp2: compositionApplicableCount,
+      logicalApplicablePdp2: logicalApplicableCount,
+    },
+    explorerBinding: explorerPhysical && explorerLogical ? {
+      physicalDisposition: explorerP2?.disposition ?? 'MISSING',
+      logicalPdp2Applicable: explorerLogical.applicablePdpArtifacts?.includes('PDP-2') === true,
+      physicalContractRef: `${base}gui/explorer-workbench.yaml`,
+      reconciled: p2Applicable(explorerP2) && (explorerP2?.authorityRefs ?? []).includes(`${base}gui/explorer-workbench.yaml`)
+        && explorerLogical.applicablePdpArtifacts?.includes('PDP-2') === true,
+    } : {reconciled: false},
+    identitySet: surfaceIds.slice().sort(),
+    issues: [...new Set(surfaceApplicabilityIssues)].sort(),
+  };
+  const integrityIssues = [];
+  if (surfaceApplicabilityIssues.length) integrityIssues.push(...surfaceApplicabilityIssues.map(issue => `pdp2-surface-applicability:${issue}`));
   const expected = {
     componentFamilies: 31, typedComponentFamilies: 28, componentValueTypes: 122,
     semanticTokenAliases: 9, sharedPublicCssVariables: 24, mediaCssProjections: 20,
     templates: 13, layouts: 11, recipes: 13, compositionRules: 43,
     interactionPatterns: 19, machineInterfaceInvariants: 12,
   };
-  const integrityIssues = Object.entries(expected)
+  integrityIssues.push(...Object.entries(expected)
     .filter(([population, count]) => populations[population] !== count)
-    .map(([population, count]) => `pdp2-population-mismatch:${population}:${populations[population]}!=${count}`);
+    .map(([population, count]) => `pdp2-population-mismatch:${population}:${populations[population]}!=${count}`));
   const expectedInputHandoff = 'media.pdp1-pdp2.canonical-domain-handoff.v1';
   if (p1Handoff?.id !== expectedInputHandoff || p1Handoff?.status !== 'DEFINITION_HANDOFF_CONTRACT'
       || p1Status.phase !== 'PDP-1' || p1Status.status !== 'DEV_COMPLETE'
@@ -931,6 +1029,7 @@ export function buildPdp2SourceCensus(repositoryRoot = root) {
   return {
     boundary: 'Finite PDP-2 design/interface source population and exact frozen PDP-1 input. Counts establish source inventory only; development completeness is established by the phase-specific suites and definition-only conformance check.',
     populations,
+    surfaceApplicability,
     componentFamilyIds: (components.components ?? []).map(record => record.id).filter(Boolean).sort(),
     importedHandoffIds: [expectedInputHandoff],
     exportedHandoffIds: integrityIssues.length === 0 ? [expectedOutputHandoff] : [],
@@ -976,6 +1075,7 @@ export function buildPdp2DevStatus({mainSha, sourceShaSet = {}, verification = {
   return {
     schemaVersion: 'media.phase-dev-status.v1', phase: 'PDP-2', mainSha, sourceShaSet,
     sourcePopulations: census.populations, sourceFamilyIds: census.componentFamilyIds,
+    surfaceApplicability: census.surfaceApplicability,
     importedHandoffIds: census.importedHandoffIds, exportedHandoffIds: census.exportedHandoffIds,
     outstandingMeaningIds, testsActuallyRun, directDevelopmentCriteria,
     definitionOnlyConformance: designConformance ? {

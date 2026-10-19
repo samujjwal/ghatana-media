@@ -2,93 +2,99 @@ TAP version 13
 # Subtest: PDP-2 reuse audit counts match the executable UI inventory
 ok 1 - PDP-2 reuse audit counts match the executable UI inventory
   ---
-  duration_ms: 126.219297
+  duration_ms: 80.555944
   type: 'test'
   ...
 # Subtest: PDP-2 reuse audit records exact cross-product reuse and semantic exclusions
 ok 2 - PDP-2 reuse audit records exact cross-product reuse and semantic exclusions
   ---
-  duration_ms: 68.587236
+  duration_ms: 47.342199
   type: 'test'
   ...
 # Subtest: PDP-2 family crosswalk binds only source-exact public component exports and consumers
 ok 3 - PDP-2 family crosswalk binds only source-exact public component exports and consumers
   ---
-  duration_ms: 305.84571
+  duration_ms: 279.960089
   type: 'test'
   ...
 # Subtest: PDP-2 reuse audit covers the broader Ghatana workspace and dependency boundaries
 ok 4 - PDP-2 reuse audit covers the broader Ghatana workspace and dependency boundaries
   ---
-  duration_ms: 31.676912
+  duration_ms: 30.931788
   type: 'test'
   ...
 # Subtest: all 31 component families have one honest whole-family disposition
 ok 5 - all 31 component families have one honest whole-family disposition
   ---
-  duration_ms: 29.632861
+  duration_ms: 26.673526
+  type: 'test'
+  ...
+# Subtest: PDP-2 action identity enums exactly match the current PDP-3 action registry
+ok 6 - PDP-2 action identity enums exactly match the current PDP-3 action registry
+  ---
+  duration_ms: 1.759794
   type: 'test'
   ...
 # Subtest: all 28 contract-only component families have typed, meaningful Media source definitions
-ok 6 - all 28 contract-only component families have typed, meaningful Media source definitions
+ok 7 - all 28 contract-only component families have typed, meaningful Media source definitions
   ---
-  duration_ms: 2117.733543
+  duration_ms: 1847.28401
   type: 'test'
   ...
 # Subtest: every family rejects a missing material field, an untyped field, and a missing semantic invariant
-ok 7 - every family rejects a missing material field, an untyped field, and a missing semantic invariant
+ok 8 - every family rejects a missing material field, an untyped field, and a missing semantic invariant
   ---
-  duration_ms: 3807.709923
+  duration_ms: 3071.242935
   type: 'test'
   ...
 # Subtest: all 28 closed schemas validate positive values and reject invalid field types and contradictory state/variant pairs
-ok 8 - all 28 closed schemas validate positive values and reject invalid field types and contradictory state/variant pairs
+ok 9 - all 28 closed schemas validate positive values and reject invalid field types and contradictory state/variant pairs
   ---
-  duration_ms: 371.095612
+  duration_ms: 394.290502
   type: 'test'
   ...
 # Subtest: identity readiness requires an exact resolved upstream context tuple
-ok 9 - identity readiness requires an exact resolved upstream context tuple
+ok 10 - identity readiness requires an exact resolved upstream context tuple
   ---
-  duration_ms: 161.970076
+  duration_ms: 161.301738
   type: 'test'
   ...
 # Subtest: typed schema validators refresh when the current source bytes change
-ok 10 - typed schema validators refresh when the current source bytes change
+ok 11 - typed schema validators refresh when the current source bytes change
   ---
-  duration_ms: 860.672223
+  duration_ms: 766.062078
   type: 'test'
   ...
 # Subtest: rational clock values and half-open intervals enforce exact bounded semantics
-ok 11 - rational clock values and half-open intervals enforce exact bounded semantics
+ok 12 - rational clock values and half-open intervals enforce exact bounded semantics
   ---
-  duration_ms: 75.548698
+  duration_ms: 76.701978
   type: 'test'
   ...
 # Subtest: public-source dispositions remain distinct and are not mislabeled as typed Media contracts
-ok 12 - public-source dispositions remain distinct and are not mislabeled as typed Media contracts
+ok 13 - public-source dispositions remain distinct and are not mislabeled as typed Media contracts
   ---
-  duration_ms: 0.289429
+  duration_ms: 0.224652
   type: 'test'
   ...
 # Subtest: all 31 Media component families have an exact export or an explicit contract-only disposition
-ok 13 - all 31 Media component families have an exact export or an explicit contract-only disposition
+ok 14 - all 31 Media component families have an exact export or an explicit contract-only disposition
   ---
-  duration_ms: 5.730824
+  duration_ms: 2.753991
   type: 'test'
   ...
 # Subtest: screen candidates, partial Shared reuse, and similar component exports never become family equivalence
-ok 14 - screen candidates, partial Shared reuse, and similar component exports never become family equivalence
+ok 15 - screen candidates, partial Shared reuse, and similar component exports never become family equivalence
   ---
-  duration_ms: 2.67109
+  duration_ms: 1.835815
   type: 'test'
   ...
-1..14
-# tests 14
+1..15
+# tests 15
 # suites 0
-# pass 14
+# pass 15
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 8197.939001
+# duration_ms 7137.75099

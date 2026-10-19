@@ -122,6 +122,56 @@ test("unregistered local component implementation fails", () => withFixture({ ex
   assert.ok(result.findings.some((item) => item.kind === "unregistered-local-component" && item.detail.includes("LocalCard")));
 }));
 
+test("candidate-first semantic bindings register exports and their interaction selectors only with valid sources and component refs", () => {
+  const semanticPath = ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml";
+  const binding = (candidate, componentRef = "media.component.sample") => `status: SOURCE_INCOMPLETE\nbindings:\n  - implementationCandidate: ${candidate}\n    componentRefs: [${componentRef}]\n    implementationExport: MediaTaskFlow\n`;
+  const source = "export function MediaTaskFlow() { return null; }";
+
+  withFixture({ css: ".media-task-flow:hover { color: var(--text); }", extraSource: source }, (root) => {
+    write(root, semanticPath, binding("libs/audio-video-ui/src/Local.tsx"));
+    const result = analyzeDesignConformance(root);
+    assert.ok(!result.findings.some((item) => item.kind === "unregistered-local-component" && item.detail.includes("MediaTaskFlow")));
+    assert.ok(!result.findings.some((item) => item.kind === "one-off-interaction-behavior" && item.detail.includes(".media-task-flow:hover")));
+  });
+
+  for (const [candidate, componentRef] of [
+    ["libs/audio-video-ui/src/Missing.tsx", "media.component.sample"],
+    ["libs/audio-video-ui/src/Local.tsx", "media.component.missing"],
+  ]) {
+    withFixture({ css: ".media-task-flow:hover { color: var(--text); }", extraSource: source }, (root) => {
+      write(root, semanticPath, binding(candidate, componentRef));
+      const result = analyzeDesignConformance(root);
+      assert.ok(result.findings.some((item) => item.kind === "unregistered-local-component" && item.detail.includes("MediaTaskFlow")));
+      assert.ok(result.findings.some((item) => item.kind === "one-off-interaction-behavior" && item.detail.includes(".media-task-flow:hover")));
+    });
+  }
+});
+
+test("root renderer-adapter bindings register exports and interaction selectors only with valid sources and component refs", () => {
+  const semanticPath = ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml";
+  const adapterBinding = (candidate, componentRef = "media.component.sample") => `status: SOURCE_INCOMPLETE\nrendererAdapterBindings:\n  - id: media.gui.renderer-adapter.fixture.v1\n    implementationExport: MediaFamily\n    implementationCandidate: ${candidate}\n    componentRefs: [${componentRef}]\n`;
+  const source = "export function MediaFamily() { return null; }";
+
+  withFixture({ css: ".media-family:focus-visible { color: var(--text); }", extraSource: source }, (root) => {
+    write(root, semanticPath, adapterBinding("libs/audio-video-ui/src/Local.tsx"));
+    const result = analyzeDesignConformance(root);
+    assert.ok(!result.findings.some((item) => item.kind === "unregistered-local-component" && item.detail.includes("MediaFamily")));
+    assert.ok(!result.findings.some((item) => item.kind === "one-off-interaction-behavior" && item.detail.includes(".media-family:focus-visible")));
+  });
+
+  for (const [candidate, componentRef] of [
+    ["libs/audio-video-ui/src/Missing.tsx", "media.component.sample"],
+    ["libs/audio-video-ui/src/Local.tsx", "media.component.missing"],
+  ]) {
+    withFixture({ css: ".media-family:focus-visible { color: var(--text); }", extraSource: source }, (root) => {
+      write(root, semanticPath, adapterBinding(candidate, componentRef));
+      const result = analyzeDesignConformance(root);
+      assert.ok(result.findings.some((item) => item.kind === "unregistered-local-component" && item.detail.includes("MediaFamily")));
+      assert.ok(result.findings.some((item) => item.kind === "one-off-interaction-behavior" && item.detail.includes(".media-family:focus-visible")));
+    });
+  }
+});
+
 test("missing template and layout bindings fail", () => withFixture({ screen: "templateId: null\nlayoutIds: []\n" }, (root) => {
   const result = analyzeDesignConformance(root);
   assert.ok(result.findings.some((item) => item.kind === "missing-template-binding"));

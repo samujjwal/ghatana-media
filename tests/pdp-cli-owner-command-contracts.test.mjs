@@ -20,6 +20,7 @@ function resolveExact(ref) {
   const file = ref.slice(0, split);
   const pointer = ref.slice(split + 1);
   const sources = {
+    ".product-experience/pdp-2-design-interface-system/cli-language.yaml": cli,
     ".product-experience/pdp-0-product-truth/capabilities.yaml": capabilities,
     ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": leafReview,
     ".product-experience/pdp-1-domain-data/operations.yaml": operations,
@@ -289,6 +290,20 @@ test("CLI host context keeps authority separate while preserving request-schema 
     assert.notDeepEqual(mutated.callerForbiddenOverrides, mutated.trustedHostOnlyFields, `${field} remains host-only`);
   }
   assert.equal(cli.ownerDefinedCanonicalCommandContracts.schemaRule.includes("User-selected purpose"), true);
+});
+
+test("local interruption provenance resolves to the declared SIGINT semantics", () => {
+  const rule = cli.normativeRuleRecords.find((row) => row.id === "media.p2.rule.cli-local-interruption-boundary.v1");
+  assert.ok(rule, "the local interruption boundary remains a named PDP-2 rule");
+  assert.equal(
+    rule.sourceAuthority,
+    ".product-experience/pdp-2-design-interface-system/cli-language.yaml#machineOutput/sigintSemantics",
+  );
+  assert.equal(
+    resolveExact(rule.sourceAuthority),
+    "distinguish-stop-watching-from-request-cancellation-and-confirmed-cancellation",
+    "the selector resolves to the existing three-way interruption semantics",
+  );
 });
 
 test("CLI command contracts fail closed on guessed operations, untyped flags, and false action bindings", () => {

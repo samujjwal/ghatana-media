@@ -399,7 +399,7 @@ boundedTranscriptionSubmissionSlice:
     commonRequiredFields: [requestMode]
     commonAllowedFields: [requestMode]
     submitFields: [requestId, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, timestamps, speakerDiarization, purposeRef, rightsEvidenceRefs]
-    submitAllowedFields: [requestMode, requestId, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, timestamps, speakerDiarization, purposeRef, rightsEvidenceRefs, consentRef, retentionPolicyRef, policyDecisionRef, languageHint]
+    submitAllowedFields: [requestMode, requestId, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, timestamps, speakerDiarization, purposeRef, rightsEvidenceRefs, consentRef, retentionPolicyRef, policyDecisionRef, languageHint, customGlossaryRef, fillerRetakeCandidates]
     reconcileFields: [requestId, requestFingerprint]
     reconcileAllowedFields: [requestMode, requestId, requestFingerprint]
     branchFieldRule: exactly-the-allowedFields-for-selected-requestMode; reject-unknown-branch-mixed-caller-identity-or-ignored-fields-before-any-effect
@@ -443,15 +443,26 @@ boundedTranscriptionSubmissionSlice:
       fingerprintUses: exact-owner-resolved-values-including-explicit-null-and-resolvedProcessingLocation
     fingerprintValueSource: caller-supplied-reference-locators-are-only-input-to-current-owner-resolution; fingerprint-uses-exact-owner-resolved-effective-values-from-the-retained-original-submit-snapshot-under-the-same-P1-field-names; never-substitute-caller-locator-strings-for-resolved-values
     requestFingerprint:
-      version: media.transcription-submission-fingerprint.v2
+      version: media.transcription-submission-fingerprint.v4
+      supersedes: media.transcription-submission-fingerprint.v3
       algorithm: SHA-256
       encoding: compact-UTF-8-JSON-array-no-whitespace-in-this-exact-field-order-with-JSON-string-escaping-and-explicit-null-or-value-presence
-      fields: [tenantId, principalId, delegationRef, operationId, requestId, sourceArtifactId, sourceArtifactVersionId, authoritativeSourceContentDigest, languageIntent, profileId, profileVersion, profileConfigurationDigest, timestamps, speakerDiarization, purposeRef, rightsEvidenceRefs, consentRef, retentionPolicyRef, policyDecisionRef, resolvedProcessingLocation]
+      fields: [tenantId, principalId, delegationRef, operationId, requestId, sourceArtifactId, sourceArtifactVersionId, authoritativeSourceContentDigest, languageIntent, profileId, profileVersion, profileConfigurationDigest, timestamps, speakerDiarization, customGlossaryRef, fillerRetakeCandidates, purposeRef, rightsEvidenceRefs, consentRef, retentionPolicyRef, policyDecisionRef, resolvedProcessingLocation]
       languageIntentEncoding:
         EXPLICIT: [EXPLICIT, exact-languageTag]
         AUTO_REQUESTED: [AUTO_REQUESTED]
         rule: fixed-ordered-tuples-never-an-unordered-object
-      scalarEncoding: fixed-string-or-explicit-null-types-only; rightsEvidenceRefs-is-an-ordered-array-of-exact-validated-references; timestamps-is-one-of-none-segment-word-phoneme; speakerDiarization-is-a-JSON-boolean-without-coercion; profileConfigurationDigest-and-authoritativeSourceContentDigest-are-lowercase-64-hex-SHA256; invalid-types-or-digests-reject-before-hashing
+      optionalFieldEncoding:
+        customGlossaryRef:
+          whenAbsent: encode-host-only-null-sentinel-in-the-ordered-array
+          whenPresent: exact-validated-immutable-versioned-reference
+          callerSuppliedNull: reject-before-hashing
+        fillerRetakeCandidates:
+          whenAbsent: encode-host-only-null-sentinel-in-the-ordered-array
+          whenPresent: exact-JSON-boolean-without-coercion; preserve-explicit-false
+          callerSuppliedNull: reject-before-hashing
+          behaviorDefault: false-applies-only-to-effective-behavior; never-rewrite-the-retained-request-snapshot-or-fingerprint
+      scalarEncoding: fixed-string-or-host-only-absence-null-sentinel-types-only; rightsEvidenceRefs-is-an-ordered-array-of-exact-validated-references; timestamps-is-one-of-none-segment-word-phoneme; speakerDiarization-is-a-JSON-boolean-without-coercion; customGlossaryRef-is-an-exact-immutable-versioned-reference-when-present; omission-uses-host-only-null-sentinel; caller-null-rejected; fillerRetakeCandidates-is-a-JSON-boolean-without-coercion-when-present; omission-uses-host-only-null-sentinel; explicit-false-is-preserved; profileConfigurationDigest-and-authoritativeSourceContentDigest-are-lowercase-64-hex-SHA256; invalid-types-or-digests-reject-before-hashing
       digestField: requestFingerprint; lowercase-64-hex-SHA256-of-the-canonical-compact-array-bytes
       normalization: validate-types-and-enums-first; preserve-exact-validated-string-values-and-optional-presence; no-trimming-case-folding-default-insertion-or-map-order-dependence
     snapshot: before-first-dispatch-the-host-canonically-validates-and-retains-the-complete-immutable-submit-field-snapshot-including-current-owner-resolutions-for-optional-consent-retention-policy-and-processing-location-and-computed-fingerprint-for-this-key; the-caller-retains-the-same-snapshot-for-reconciliation-after-lost-response; never-depend-on-a-server-returned-fingerprint-the-caller-may-not-have-received

@@ -371,12 +371,26 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT, { definitionOnly =
   for (const match of rendererAdapters.matchAll(/^\s+exportName:\s*([A-Z][A-Za-z0-9_]*)\s*$/gmu)) registeredComponentNames.add(match[1]);
   const semanticBindingSource = semanticBindings ?? "";
   const componentIdSet = new Set(listIds(componentContracts, "id"));
-  for (const block of semanticBindingSource.split(/(?=^  - )/mu).slice(1)) {
-    const exportName = block.match(/^\s+implementationExport:\s*([A-Z][A-Za-z0-9_]*)\s*$/mu)?.[1];
-    const componentRefs = [...block.matchAll(/\b(media\.component\.[A-Za-z0-9._-]+)/gu)].map((match) => match[1]);
-    const sourcePath = block.match(/^\s+(?:implementationCandidate|externalComponentCandidate):\s*([^\s#]+)/mu)?.[1];
-    if (!exportName || !sourcePath || !existsSync(join(root, sourcePath))) continue;
-    if (componentRefs.some((componentRef) => componentIdSet.has(componentRef))) registeredComponentNames.add(exportName);
+  let semanticBindingRecords = [];
+  try {
+    const semanticBindingDocument = parseYaml(semanticBindingSource);
+    semanticBindingRecords = [
+      ...(semanticBindingDocument?.bindings ?? []),
+      ...(semanticBindingDocument?.rendererAdapterBindings ?? []),
+    ];
+  } catch {
+    // The canonical source-validation path below reports malformed YAML. Do
+    // not infer component registration from a partially parsed binding file.
+  }
+  for (const record of semanticBindingRecords) {
+    const exportName = record?.implementationExport;
+    const componentRefs = record?.componentRefs;
+    const sourcePath = record?.implementationCandidate ?? record?.externalComponentCandidate;
+    if (typeof exportName !== "string" || !/^[A-Z][A-Za-z0-9_]*$/u.test(exportName)
+        || !Array.isArray(componentRefs) || componentRefs.length === 0
+        || !componentRefs.every((componentRef) => componentIdSet.has(componentRef))
+        || typeof sourcePath !== "string" || !existsSync(join(root, sourcePath))) continue;
+    registeredComponentNames.add(exportName);
   }
   for (const { path, content } of productSourceContent.filter(({ path }) => /\.(?:tsx|jsx|ts|js)$/u.test(path))) {
     for (const match of content.matchAll(/(?:function\s+([A-Z][A-Za-z0-9_]*)\s*\(|const\s+([A-Z][A-Za-z0-9_]*)\s*=\s*(?:\([^)]*\)\s*=>|function\s*\())/gu)) {

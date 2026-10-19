@@ -123,8 +123,9 @@ machineInterfaceHandoff:
     - missing-route-or-method-filled-by-inventing-endpoint-or-runtime-support
 
 recorderStudioInterfaceSpecialization:
-  status: SOURCE_AUTHORED_PENDING_PDP2_CURRENTNESS_AND_PDP3_BINDINGS
+  status: SOURCE_AUTHORED_PDP2_DEFINITION
   source: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml
+  pdp3BindingStatus: PDP3_BINDINGS_PENDING
   consumerSurfaceIds: [media.surface.recorder-orchestrator, media.surface.capture-adapters, media.surface.production-studio, media.surface.interactive-demo-player]
   semanticContracts: [same-project-CAS, typed-headless-JSON-JSONL, keyboard-screenreader-manual-parity, rational-time-and-audio-frame-fidelity, AI-abstention-and-review, policy-and-publication-denial, unknown-finality-reconciliation, signed-sandbox-interactive-player]
   manualEditDiscriminants: 52

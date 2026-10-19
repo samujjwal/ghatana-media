@@ -355,6 +355,10 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
       workspaceKeys.length !== 13 ||
       !sameSet(designedPages.map(page => page.workspaceKey), workspaceKeys))
     fail('PDP2 Studio page-level design must bind the 13 canonical workspace keys');
+  for (const boundary of ['no-new-screen', 'no-runtime-UI', 'no-Shared-package-admission', 'no-PDP3-phase-exit']) {
+    if (!designPageSource?.nonClaims?.includes(boundary))
+      fail('PDP2 Studio page design must preserve deferred admission boundary: '+boundary);
+  }
   const templates = parsedDocs.templates.toJS()?.templates ?? [];
   const recipes = parsedDocs.recipes.toJS()?.recipes ?? [];
   const layouts = parsedDocs.layouts.toJS()?.layouts ?? [];
@@ -429,10 +433,16 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
     fail('PDP2 sixteen surface feature groups missing');
   if (!p2.includes('no-fictitious-product-screenshot') || !p2.includes('CONTENT_SECURITY_POLICY') && !p2.includes('content-security-policy'))
     fail('PDP2 headless no-GUI and interactive player security required');
-  if (!p2.includes('status: SOURCE_AUTHORED_SUCCESSOR_PENDING_REVALIDATION')
-    || !p0.includes('status: SOURCE_AUTHORED_SUCCESSOR_PENDING_REVALIDATION')
-    || !p1.includes('status: SOURCE_AUTHORED_SUCCESSOR_PENDING_REVALIDATION'))
-    fail('new PDP source status must not imply DEV_COMPLETE or Build admission');
+  const currentPdp2SuccessorStatus = 'SOURCE_AUTHORED_PDP2_DEFINITION';
+  if (p2Doc.status !== currentPdp2SuccessorStatus ||
+      p2Doc.recorderStudioComponentCompositions?.status !== currentPdp2SuccessorStatus ||
+      p2Doc.productionStudioPageCompositionContracts?.status !== currentPdp2SuccessorStatus ||
+      parsedDocs.editingGrammar.toJS()?.recorderStudioTimelineSpecialization?.status !== currentPdp2SuccessorStatus)
+    fail('PDP2 successor records must be source-current without declaring phase DEV_COMPLETE or Build admission');
+  const interfaceSuccessor = parsedDocs.interfaceGrammar.toJS()?.recorderStudioInterfaceSpecialization;
+  if (interfaceSuccessor?.status !== currentPdp2SuccessorStatus ||
+      interfaceSuccessor?.pdp3BindingStatus !== 'PDP3_BINDINGS_PENDING')
+    fail('PDP2 interface specialization must be current while keeping PDP3 binding pending');
   return {
     errors,
     stats: {

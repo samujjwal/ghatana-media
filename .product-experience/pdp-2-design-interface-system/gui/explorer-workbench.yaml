@@ -1,0 +1,83 @@
+schemaVersion: media.gui-explorer-workbench.v1
+productId: media
+owner: ghatana-media-product-experience
+authority: Media PDP-2 contract for the Media-owned local Explorer browser workbench; Tools owns the generic Explorer host and package contracts
+status: SOURCE_AUTHORED_DEFINITION; owner review and phase acceptance are not claimed
+sourceRefs:
+  - apps/media-experience-explorer/README.md
+  - .product-experience/explorer/EXPERIENCE-EXPLORER.md
+  - .product-experience/surface-registry.yaml#media.surface.explorer
+  - .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#channels/GUI
+  - .product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml
+  - .product-experience/pdp-2-design-interface-system/accessibility.yaml
+  - .product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml
+scope:
+  physicalSurfaceId: media.physical.apps-media-experience-explorer
+  logicalSurfaceId: media.surface.explorer
+  purpose: Developer-facing local workbench for source-linked review, deterministic fixture simulation, and inspection of Media definitions.
+  authorityBoundary: Explorer is a projection of PDP-owned records, not an authority for those definitions or a separate PDP phase.
+  exclusions:
+    - production Media UI or runtime client
+    - generic Tools Explorer host or package authority
+    - canonical authority for projected PDP-0 through PDP-3 definitions
+    - runtime dispatch, owner acceptance, phase closure, or release qualification
+shell:
+  initialMode: Explore
+  modes: [Product, Explore, Specification, Verify, Tools Review]
+  navigation:
+    rule: Workbench navigation selects a review or projection mode; it does not change the authority or status of the selected source record.
+  browserRoutes:
+    rule: Product preview routes are addressable and browser history returns to the workbench.
+    productPresentation: Product routes omit the workbench header, mode tabs, Explorer tab panel, and Explore controls; the document title follows the selected view.
+modeContracts:
+  Product:
+    purpose: Present the selected source-defined product lane or a route-addressable read-only proposal projection of a PDP-3 screen contract.
+    rules:
+      - Proposal actions are visibly disabled and labeled as not executable.
+      - A proposal route does not claim that the canonical screen is implemented or accepted.
+  Explore:
+    purpose: Select a named deterministic scenario and its supported web or CLI fixture projection.
+    rules:
+      - Actor, locale, and scenario state come from the selected fixture.
+      - Commands use the synthetic fixture state and reducer; they do not call Media runtime services or processing providers.
+      - Identity or workspace authority that is unavailable remains unavailable; the fixture does not authenticate users or create production projects.
+  Specification:
+    purpose: Inspect generated, source-linked projections of the indexed PDP records and their declared contracts.
+    rules:
+      - Previews expose declared purpose, context, anatomy, states, actions, channel dispositions, responsive guidance, and accessibility guidance when present in the source.
+      - Actions remain read-only and labeled as not connected; source YAML remains available for inspection.
+      - Explorer projection IDs and currentness indicators do not become semantic authority or Lifecycle currentness evidence.
+  Verify:
+    purpose: Report local fixture, source-binding, and browser/accessibility evidence together with explicit outstanding blockers.
+    rules:
+      - Local structural checks and browser observations are identified as local evidence.
+      - Missing owner review, lifecycle currentness, or acceptance remains unresolved; no pass is inferred from source presence.
+  Tools Review:
+    purpose: Inspect the scoped Media package through the public Tools API and expose deterministic render, inspect, dispatch observations, and blockers.
+    rules:
+      - Fixture state remains explicitly synthetic.
+      - Loading or dispatching through a local adapter does not establish published bindings, runtime admission, owner acceptance, or native phase acceptance.
+sharedPresentation:
+  rule: Host modes and semantic views are Explorer functions; product meaning continues to use the canonical PDP-owned identifiers and source records.
+  interactionModel: All modes use the same deterministic Media fixture action/effect model where applicable.
+  accessibilityAndResponsive:
+    source: [.product-experience/pdp-2-design-interface-system/accessibility.yaml, .product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml]
+    rule: Workbench controls follow the GUI keyboard, focus, naming, reflow, and non-color requirements in the referenced PDP-2 contracts; those requirements do not imply independent conformance review.
+nonAuthorityCases:
+  - source-projection-presented-as-canonical-PDP-authority
+  - disabled-proposal-action-presented-as-executable
+  - synthetic-fixture-state-presented-as-production-runtime-state
+  - local-adapter-dispatch-presented-as-runtime-admission
+  - source-index-or-structural-check-presented-as-semantic-acceptance
+  - local-browser-observation-presented-as-independent-accessibility-or-visual-review
+  - Explorer-currentness-label-presented-as-Lifecycle-currentness
+acceptance:
+  criteria:
+    - Every mode communicates its purpose and source/fixture status.
+    - Product proposal actions remain visibly non-executable.
+    - Source projections retain links to their owning authorities and do not replace them.
+    - Browser, fixture, and Tools adapter behavior never implies production runtime, owner acceptance, phase closure, or release qualification.
+  status: pending-owner-review
+verification:
+  method: Review each mode and route against the README and Explorer package contract; inspect source links, disabled proposal actions, fixture labeling, browser navigation, keyboard/focus behavior, and non-authority states.
+  status: not-run

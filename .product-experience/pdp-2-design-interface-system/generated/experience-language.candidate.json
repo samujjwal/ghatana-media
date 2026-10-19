@@ -5,8 +5,8 @@
   "sourceAuthorities": [
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
-      "sha256": "9bfb2fbc3adc09388cc25243f5b91a2caa00209b1dd43ac8c38e439a748a7ba2",
-      "bytes": 9586,
+      "sha256": "1fe788580adbfa9b6b48e363bb8fd084c83dab117bcc5d6a758e3701c38b9908",
+      "bytes": 14849,
       "format": "markdown"
     },
     {
@@ -408,8 +408,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-      "sha256": "9d7c3b0a2b0641913d60399afe5ebdac1ccae6da31a20e9a444a06675a0989eb",
-      "bytes": 51378,
+      "sha256": "66ce7f3ab3d5f2f8bb46fcfd70e5103228f9ba8e8e9382ee741db53dab203934",
+      "bytes": 51234,
       "format": "yaml",
       "schemaVersion": "media.gui-semantic-component-bindings.v1",
       "authority": "semantic aliases are defined in ../media-token-aliases.yaml; Shared owns primitive token values and styling behavior",
@@ -1384,8 +1384,8 @@
         "presentationEffect": "Processing stopped by consent change: New processing is blocked; existing output and deletion scope follow the owning lifecycle policy."
       }
     ],
-    "createdAt": "2026-10-17T12:08:24.264Z",
-    "updatedAt": "2026-10-17T12:08:24.264Z"
+    "createdAt": "2026-10-19T04:04:04.288Z",
+    "updatedAt": "2026-10-19T04:04:04.288Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",

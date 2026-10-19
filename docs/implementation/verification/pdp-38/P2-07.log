@@ -2,285 +2,711 @@ TAP version 13
 # Subtest: tool registry records the exact four handler-observed contracts without implying admission
 ok 1 - tool registry records the exact four handler-observed contracts without implying admission
   ---
-  duration_ms: 2.821234
+  duration_ms: 4.064906
   type: 'test'
   ...
 # Subtest: all four entries inventory validated inputs while retaining output and operation admission gates
 ok 2 - all four entries inventory validated inputs while retaining output and operation admission gates
   ---
-  duration_ms: 1.032773
+  duration_ms: 1.321064
   type: 'test'
   ...
 # Subtest: tool registry rejects missing, extra, or duplicate handler entries and missing observed fields
 ok 3 - tool registry rejects missing, extra, or duplicate handler entries and missing observed fields
   ---
-  duration_ms: 2.087475
+  duration_ms: 2.870635
   type: 'test'
   ...
 # Subtest: each handler input/error source drift is rejected independently
 ok 4 - each handler input/error source drift is rejected independently
   ---
-  duration_ms: 5.252662
+  duration_ms: 9.57343
   type: 'test'
   ...
 # Subtest: observed authoring inputs match exact handler defaults, bounds, and closed-field behavior
 ok 5 - observed authoring inputs match exact handler defaults, bounds, and closed-field behavior
   ---
-  duration_ms: 0.356509
+  duration_ms: 0.409778
   type: 'test'
   ...
 # Subtest: registry distinguishes pre-dispatch local failures from ambiguous post-dispatch outcomes
 ok 6 - registry distinguishes pre-dispatch local failures from ambiguous post-dispatch outcomes
   ---
-  duration_ms: 0.400272
+  duration_ms: 0.537462
   type: 'test'
   ...
 # Subtest: registry rejects accidental runtime, operation, authority, or finality promotion
 ok 7 - registry rejects accidental runtime, operation, authority, or finality promotion
   ---
-  duration_ms: 2.076553
+  duration_ms: 2.169776
   type: 'test'
   ...
 # Subtest: runtime source observation does not turn Tools build resolution into Shared owner acceptance
 ok 8 - runtime source observation does not turn Tools build resolution into Shared owner acceptance
   ---
-  duration_ms: 2.323187
+  duration_ms: 2.065571
   type: 'test'
   ...
 # Subtest: owner-selected operation families remain definition-only until handler bindings and admission are proved
 ok 9 - owner-selected operation families remain definition-only until handler bindings and admission are proved
   ---
-  duration_ms: 1.6837
+  duration_ms: 1.55033
   type: 'test'
   ...
 # Subtest: adapter input validation and generic unknown outcome support do not admit Media tool execution
 ok 10 - adapter input validation and generic unknown outcome support do not admit Media tool execution
   ---
-  duration_ms: 1.126201
+  duration_ms: 2.177343
   type: 'test'
   ...
 # Subtest: bounded Media planning is a closed definition, not dynamic agent or dispatch authority
 ok 11 - bounded Media planning is a closed definition, not dynamic agent or dispatch authority
   ---
-  duration_ms: 205.069848
+  duration_ms: 318.194116
   type: 'test'
   ...
 # Subtest: Media Agent Tool contracts resolve exact canonical source records and stay definition-only
 ok 12 - Media Agent Tool contracts resolve exact canonical source records and stay definition-only
   ---
-  duration_ms: 12182.523398
+  duration_ms: 14748.55068
   type: 'test'
   ...
 # Subtest: host execution budget capability bounds join exactly to each selected canonical operation
 ok 13 - host execution budget capability bounds join exactly to each selected canonical operation
   ---
-  duration_ms: 863.38702
+  duration_ms: 1135.984659
   type: 'test'
   ...
 # Subtest: contract validator rejects exact-ref substitutions, admitted bindings, missing unknown semantics, and weak success evidence
 ok 14 - contract validator rejects exact-ref substitutions, admitted bindings, missing unknown semantics, and weak success evidence
   ---
-  duration_ms: 256.540635
+  duration_ms: 280.800228
   type: 'test'
   ...
 # Subtest: input schemas enforce bounds, formats, and decoded byte counts at the exact 20 MiB boundary
 ok 15 - input schemas enforce bounds, formats, and decoded byte counts at the exact 20 MiB boundary
   ---
-  duration_ms: 919.156815
+  duration_ms: 1011.213727
   type: 'test'
   ...
 # Subtest: host context requires exact object/version/tenant/purpose authority evidence, not opaque resource refs
 ok 16 - host context requires exact object/version/tenant/purpose authority evidence, not opaque resource refs
   ---
-  duration_ms: 93.55616
+  duration_ms: 120.309992
   type: 'test'
   ...
 # Subtest: closed result/error union uses bounded error codes and keeps unknown non-final
 ok 17 - closed result/error union uses bounded error codes and keeps unknown non-final
   ---
-  duration_ms: 34.101172
+  duration_ms: 39.021455
   type: 'test'
   ...
 # Subtest: pre-dispatch failure, accepted receipt, unknown dispatch, and completion remain distinct
 ok 18 - pre-dispatch failure, accepted receipt, unknown dispatch, and completion remain distinct
   ---
-  duration_ms: 189.537623
+  duration_ms: 310.306397
+  type: 'test'
+  ...
+# Subtest: PDP-2 declarative interface preserves exact 61-case, four-surface, 52-edit source bindings
+ok 19 - PDP-2 declarative interface preserves exact 61-case, four-surface, 52-edit source bindings
+  ---
+  duration_ms: 945.81709
+  type: 'test'
+  ...
+# Subtest: PDP-2 rejects operation drift from the exact P1 case binding
+ok 20 - PDP-2 rejects operation drift from the exact P1 case binding
+  ---
+  duration_ms: 460.427761
+  type: 'test'
+  ...
+# Subtest: PDP-2 cannot self-promote its authored source status to DEV_COMPLETE
+ok 21 - PDP-2 cannot self-promote its authored source status to DEV_COMPLETE
+  ---
+  duration_ms: 358.848533
+  type: 'test'
+  ...
+# Subtest: PDP-2 case presentation does not claim runtime or Explorer admission
+ok 22 - PDP-2 case presentation does not claim runtime or Explorer admission
+  ---
+  duration_ms: 442.028021
+  type: 'test'
+  ...
+# Subtest: PDP-2 keeps presentation negatives and unknown finality explicit
+ok 23 - PDP-2 keeps presentation negatives and unknown finality explicit
+  ---
+  duration_ms: 381.689017
+  type: 'test'
+  ...
+# Subtest: PDP-2 refuses loss of the 61-case denominator and 52-kind manual parity
+ok 24 - PDP-2 refuses loss of the 61-case denominator and 52-kind manual parity
+  ---
+  duration_ms: 334.193174
+  type: 'test'
+  ...
+# Subtest: PDP0–2 Recorder Studio requirements/surfaces/parity are structurally complete
+ok 25 - PDP0–2 Recorder Studio requirements/surfaces/parity are structurally complete
+  ---
+  duration_ms: 1379.22637
+  type: 'test'
+  ...
+# Subtest: rejects an omitted PDP2 acceptance binding
+ok 26 - rejects an omitted PDP2 acceptance binding
+  ---
+  duration_ms: 697.158985
+  type: 'test'
+  ...
+# Subtest: rejects a missing keyboard/manual parity operation
+ok 27 - rejects a missing keyboard/manual parity operation
+  ---
+  duration_ms: 606.687515
+  type: 'test'
+  ...
+# Subtest: rejects removal or duplication of a logical surface
+ok 28 - rejects removal or duplication of a logical surface
+  ---
+  duration_ms: 602.564867
+  type: 'test'
+  ...
+# Subtest: rejects fictional Media domain identities
+ok 29 - rejects fictional Media domain identities
+  ---
+  duration_ms: 544.166248
+  type: 'test'
+  ...
+# Subtest: rejects a valid but incorrectly grouped capability without changing case counts
+ok 30 - rejects a valid but incorrectly grouped capability without changing case counts
+  ---
+  duration_ms: 578.986631
+  type: 'test'
+  ...
+# Subtest: rejects a source-valid acceptance case attached to a different owner surface
+ok 31 - rejects a source-valid acceptance case attached to a different owner surface
+  ---
+  duration_ms: 564.990576
+  type: 'test'
+  ...
+# Subtest: rejects removal of a capability leaf that still owns acceptance cases
+ok 32 - rejects removal of a capability leaf that still owns acceptance cases
+  ---
+  duration_ms: 553.088595
+  type: 'test'
+  ...
+# Subtest: native YAML grammar and duplicate-key checks cover Recorder Studio changed sources
+ok 33 - native YAML grammar and duplicate-key checks cover Recorder Studio changed sources
+  ---
+  duration_ms: 434.163184
+  type: 'test'
+  ...
+# Subtest: native YAML parser rejects malformed Recorder Studio authoring
+ok 34 - native YAML parser rejects malformed Recorder Studio authoring
+  ---
+  duration_ms: 8.156628
+  type: 'test'
+  ...
+# Subtest: mandatory definition checker rejects invalid YAML in changed journey source
+ok 35 - mandatory definition checker rejects invalid YAML in changed journey source
+  ---
+  duration_ms: 514.043643
+  type: 'test'
+  ...
+# Subtest: mandatory definition checker rejects duplicate keys in changed interface grammar
+ok 36 - mandatory definition checker rejects duplicate keys in changed interface grammar
+  ---
+  duration_ms: 534.883693
+  type: 'test'
+  ...
+# Subtest: rejects mismatched logical parent in the physical consumer crosswalk
+ok 37 - rejects mismatched logical parent in the physical consumer crosswalk
+  ---
+  duration_ms: 603.160712
+  type: 'test'
+  ...
+# Subtest: rejects a registry parent that conflicts with the source PDP-0 hierarchy
+ok 38 - rejects a registry parent that conflicts with the source PDP-0 hierarchy
+  ---
+  duration_ms: 541.070618
+  type: 'test'
+  ...
+# Subtest: rejects successor surface type drift without changing the surface census
+ok 39 - rejects successor surface type drift without changing the surface census
+  ---
+  duration_ms: 566.456532
+  type: 'test'
+  ...
+# Subtest: rejects false runtime qualification on a source-only logical surface
+ok 40 - rejects false runtime qualification on a source-only logical surface
+  ---
+  duration_ms: 574.022419
+  type: 'test'
+  ...
+# Subtest: rejects a fictional actor in a scoped Recorder Studio feature
+ok 41 - rejects a fictional actor in a scoped Recorder Studio feature
+  ---
+  duration_ms: 510.840745
+  type: 'test'
+  ...
+# Subtest: rejects empty feature participant actors even if the P0 aggregate is unchanged
+ok 42 - rejects empty feature participant actors even if the P0 aggregate is unchanged
+  ---
+  duration_ms: 653.134718
+  type: 'test'
+  ...
+# Subtest: does not allow actor applicability to invent authorization or audience privileges
+ok 43 - does not allow actor applicability to invent authorization or audience privileges
+  ---
+  duration_ms: 679.100129
+  type: 'test'
+  ...
+# Subtest: additional Studio editing affordances are present in the canonical 52-kind parity inventory
+ok 44 - additional Studio editing affordances are present in the canonical 52-kind parity inventory
+  ---
+  duration_ms: 1.012853
+  type: 'test'
+  ...
+# Subtest: rejects removal of Studio mute/solo/speed-ramp parity from PDP2
+ok 45 - rejects removal of Studio mute/solo/speed-ramp parity from PDP2
+  ---
+  duration_ms: 581.958527
+  type: 'test'
+  ...
+# Subtest: rejects a profile that claims fewer acceptance clauses than it owns
+ok 46 - rejects a profile that claims fewer acceptance clauses than it owns
+  ---
+  duration_ms: 715.618363
+  type: 'test'
+  ...
+# Subtest: rejects canonical requirements with a stale accepted 78-case denominator
+ok 47 - rejects canonical requirements with a stale accepted 78-case denominator
+  ---
+  duration_ms: 719.793829
+  type: 'test'
+  ...
+# Subtest: rejects falsely declared manual operation count even if all edit kinds still match
+ok 48 - rejects falsely declared manual operation count even if all edit kinds still match
+  ---
+  duration_ms: 636.132131
+  type: 'test'
+  ...
+# Subtest: rejects an existing but wrong requirement family for a Recorder capability
+ok 49 - rejects an existing but wrong requirement family for a Recorder capability
+  ---
+  duration_ms: 605.665055
+  type: 'test'
+  ...
+# Subtest: rejects a canonical case moved into a different PDP1 operation group
+ok 50 - rejects a canonical case moved into a different PDP1 operation group
+  ---
+  duration_ms: 642.952795
+  type: 'test'
+  ...
+# Subtest: rejects a valid but incorrect PDP2 operation mapping
+ok 51 - rejects a valid but incorrect PDP2 operation mapping
+  ---
+  duration_ms: 618.728794
+  type: 'test'
+  ...
+# Subtest: rejects a Studio manual edit with the wrong CLI/API intent
+ok 52 - rejects a Studio manual edit with the wrong CLI/API intent
+  ---
+  duration_ms: 533.439712
+  type: 'test'
+  ...
+# Subtest: rejects a PDP1 operation without its mandatory wrong-tenant denial
+ok 53 - rejects a PDP1 operation without its mandatory wrong-tenant denial
+  ---
+  duration_ms: 744.968223
+  type: 'test'
+  ...
+# Subtest: PDP1 value contracts and PDP2 editor bindings use one source authority
+ok 54 - PDP1 value contracts and PDP2 editor bindings use one source authority
+  ---
+  duration_ms: 1191.476433
+  type: 'test'
+  ...
+# Subtest: PDP2 source-bound editor must retain accessible denial
+ok 55 - PDP2 source-bound editor must retain accessible denial
+  ---
+  duration_ms: 545.663135
+  type: 'test'
+  ...
+# Subtest: returns diagnostics rather than throwing on malformed YAML in a typed contract owner
+ok 56 - returns diagnostics rather than throwing on malformed YAML in a typed contract owner
+  ---
+  duration_ms: 554.29292
+  type: 'test'
+  ...
+# Subtest: returns diagnostics rather than throwing on invalid topology JSON
+ok 57 - returns diagnostics rather than throwing on invalid topology JSON
+  ---
+  duration_ms: 607.273868
+  type: 'test'
+  ...
+# Subtest: rejects deletion of a typed Studio operation parameter contract
+ok 58 - rejects deletion of a typed Studio operation parameter contract
+  ---
+  duration_ms: 918.274664
+  type: 'test'
+  ...
+# Subtest: rejects Studio parameter binding to a fictional Media component
+ok 59 - rejects Studio parameter binding to a fictional Media component
+  ---
+  duration_ms: 613.947225
+  type: 'test'
+  ...
+# Subtest: rejects an edit parameter contract with missing required field
+ok 60 - rejects an edit parameter contract with missing required field
+  ---
+  duration_ms: 465.913868
+  type: 'test'
+  ...
+# Subtest: rejects a typed Studio parameter using an unresolved value type
+ok 61 - rejects a typed Studio parameter using an unresolved value type
+  ---
+  duration_ms: 584.966525
+  type: 'test'
+  ...
+# Subtest: PDP2 defines all thirteen Studio workspace design compositions
+ok 62 - PDP2 defines all thirteen Studio workspace design compositions
+  ---
+  duration_ms: 753.998318
+  type: 'test'
+  ...
+# Subtest: PDP2 rejects a Studio page disconnected from the reusable Media template catalog
+ok 63 - PDP2 rejects a Studio page disconnected from the reusable Media template catalog
+  ---
+  duration_ms: 571.636637
+  type: 'test'
+  ...
+# Subtest: PDP2 rejects an absent Studio workspace despite stable other phase denominators
+ok 64 - PDP2 rejects an absent Studio workspace despite stable other phase denominators
+  ---
+  duration_ms: 373.745087
+  type: 'test'
+  ...
+# Subtest: PDP2 rejects missing Studio page headless parity and safe denial
+ok 65 - PDP2 rejects missing Studio page headless parity and safe denial
+  ---
+  duration_ms: 470.280401
+  type: 'test'
+  ...
+# Subtest: PDP2 Studio composition keeps screen, runtime, Shared admission and phase exit deferred
+ok 66 - PDP2 Studio composition keeps screen, runtime, Shared admission and phase exit deferred
+  ---
+  duration_ms: 578.256023
+  type: 'test'
+  ...
+# Subtest: PDP2 interface grammar keeps only the downstream PDP3 binding pending
+ok 67 - PDP2 interface grammar keeps only the downstream PDP3 binding pending
+  ---
+  duration_ms: 703.92828
+  type: 'test'
+  ...
+# Subtest: PDP2 rejects a Studio page composition referencing an unregistered component
+ok 68 - PDP2 rejects a Studio page composition referencing an unregistered component
+  ---
+  duration_ms: 824.685328
+  type: 'test'
+  ...
+# Subtest: PDP2 rejects a layout catalog missing its reciprocal template compatibility
+ok 69 - PDP2 rejects a layout catalog missing its reciprocal template compatibility
+  ---
+  duration_ms: 794.332743
+  type: 'test'
+  ...
+# Subtest: PDP2 rejects a page with a private conflict vocabulary instead of Studio surface states
+ok 70 - PDP2 rejects a page with a private conflict vocabulary instead of Studio surface states
+  ---
+  duration_ms: 684.255575
   type: 'test'
   ...
 # Subtest: J03-2 submission grammar binds the existing operation and exact request, receipt, policy, and fingerprint semantics
-ok 19 - J03-2 submission grammar binds the existing operation and exact request, receipt, policy, and fingerprint semantics
+ok 71 - J03-2 submission grammar binds the existing operation and exact request, receipt, policy, and fingerprint semantics
   ---
-  duration_ms: 12793.334364
+  duration_ms: 15805.054929
   type: 'test'
   ...
 # Subtest: submission grammar rejects fingerprint, authority, and unknown-outcome scope broadening
-ok 20 - submission grammar rejects fingerprint, authority, and unknown-outcome scope broadening
+ok 72 - submission grammar rejects fingerprint, authority, and unknown-outcome scope broadening
   ---
-  duration_ms: 8368.881857
+  duration_ms: 14377.448263
   type: 'test'
   ...
 # Subtest: submission acknowledgement, job execution, and provider RPC interfaces remain separate
-ok 21 - submission acknowledgement, job execution, and provider RPC interfaces remain separate
+ok 73 - submission acknowledgement, job execution, and provider RPC interfaces remain separate
   ---
-  duration_ms: 13.156821
+  duration_ms: 15.153587
+  type: 'test'
+  ...
+# Subtest: finite owner CLI commands resolve exact capability, operation, and schema contracts
+ok 74 - finite owner CLI commands resolve exact capability, operation, and schema contracts
+  ---
+  duration_ms: 44.876893
+  type: 'test'
+  ...
+# Subtest: CLI host context keeps authority separate while preserving request-schema selections
+ok 75 - CLI host context keeps authority separate while preserving request-schema selections
+  ---
+  duration_ms: 0.922659
+  type: 'test'
+  ...
+# Subtest: local interruption provenance resolves to the declared SIGINT semantics
+ok 76 - local interruption provenance resolves to the declared SIGINT semantics
+  ---
+  duration_ms: 0.434362
+  type: 'test'
+  ...
+# Subtest: CLI command contracts fail closed on guessed operations, untyped flags, and false action bindings
+ok 77 - CLI command contracts fail closed on guessed operations, untyped flags, and false action bindings
+  ---
+  duration_ms: 3.056554
+  type: 'test'
+  ...
+# Subtest: historical CLI dependency observations remain immutable while current owner operations are separately bound
+ok 78 - historical CLI dependency observations remain immutable while current owner operations are separately bound
+  ---
+  duration_ms: 1.025172
+  type: 'test'
+  ...
+# Subtest: finite CLI command inventory rejects omissions and same-count substitutions
+ok 79 - finite CLI command inventory rejects omissions and same-count substitutions
+  ---
+  duration_ms: 0.530742
+  type: 'test'
+  ...
+# Subtest: CLI action candidates require an exact action, capability, and leaf-operation triple
+ok 80 - CLI action candidates require an exact action, capability, and leaf-operation triple
+  ---
+  duration_ms: 1.155259
+  type: 'test'
+  ...
+# Subtest: job-submit CLI accepts open parameters only through the exact closed target-schema resolver
+ok 81 - job-submit CLI accepts open parameters only through the exact closed target-schema resolver
+  ---
+  duration_ms: 19.468843
   type: 'test'
   ...
 # Subtest: current method/path/action source matrix binds finite identities to owner and implementation evidence without parity promotion
-ok 22 - current method/path/action source matrix binds finite identities to owner and implementation evidence without parity promotion
+ok 82 - current method/path/action source matrix binds finite identities to owner and implementation evidence without parity promotion
   ---
-  duration_ms: 564.395412
+  duration_ms: 574.345211
   type: 'test'
   ...
 # Subtest: HTTP health and diagnostic identities have exact source-backed transport dispositions
-ok 23 - HTTP health and diagnostic identities have exact source-backed transport dispositions
+ok 83 - HTTP health and diagnostic identities have exact source-backed transport dispositions
   ---
-  duration_ms: 83.70002
+  duration_ms: 82.013089
   type: 'test'
   ...
 # Subtest: HTTP identities carry exact route, request/result, role, and bounded-or-candidate operation evidence
-ok 24 - HTTP identities carry exact route, request/result, role, and bounded-or-candidate operation evidence
+ok 84 - HTTP identities carry exact route, request/result, role, and bounded-or-candidate operation evidence
   ---
-  duration_ms: 7484.229706
+  duration_ms: 14155.785192
   type: 'test'
   ...
 # Subtest: HTTP crosswalk rejects semantic drift even when an identity and route still exist
-ok 25 - HTTP crosswalk rejects semantic drift even when an identity and route still exist
+ok 85 - HTTP crosswalk rejects semantic drift even when an identity and route still exist
   ---
-  duration_ms: 28.73985
+  duration_ms: 47.096131
   type: 'test'
   ...
 # Subtest: gRPC transport and provider administration methods partition the exact observed service inventory
-ok 26 - gRPC transport and provider administration methods partition the exact observed service inventory
+ok 86 - gRPC transport and provider administration methods partition the exact observed service inventory
   ---
-  duration_ms: 7177.259281
+  duration_ms: 9945.391265
   type: 'test'
   ...
 # Subtest: gRPC crosswalk rejects request/result or streaming drift and invented domain equivalence
-ok 27 - gRPC crosswalk rejects request/result or streaming drift and invented domain equivalence
+ok 87 - gRPC crosswalk rejects request/result or streaming drift and invented domain equivalence
   ---
-  duration_ms: 1.537806
+  duration_ms: 2.21747
   type: 'test'
   ...
 # Subtest: gRPC identities retain every exact request/result field while leaving semantic field parity open
-ok 28 - gRPC identities retain every exact request/result field while leaving semantic field parity open
+ok 88 - gRPC identities retain every exact request/result field while leaving semantic field parity open
   ---
-  duration_ms: 7829.460043
+  duration_ms: 8933.422851
   type: 'test'
   ...
 # Subtest: TTS profile RPCs remain provider-engine administration and feedback remains explicitly unimplemented
-ok 29 - TTS profile RPCs remain provider-engine administration and feedback remains explicitly unimplemented
+ok 89 - TTS profile RPCs remain provider-engine administration and feedback remains explicitly unimplemented
   ---
-  duration_ms: 5.592611
+  duration_ms: 5.068263
   type: 'test'
   ...
 # Subtest: STT file-transcription candidate records the exact canonical adapter gaps and rejects false parity
-ok 30 - STT file-transcription candidate records the exact canonical adapter gaps and rejects false parity
+ok 90 - STT file-transcription candidate records the exact canonical adapter gaps and rejects false parity
   ---
-  duration_ms: 1.024366
+  duration_ms: 0.88031
   type: 'test'
   ...
 # Subtest: STT streaming candidate separates transport chunks from canonical versioned-stream inputs and receipts
-ok 31 - STT streaming candidate separates transport chunks from canonical versioned-stream inputs and receipts
+ok 91 - STT streaming candidate separates transport chunks from canonical versioned-stream inputs and receipts
   ---
-  duration_ms: 0.885531
+  duration_ms: 0.79417
   type: 'test'
   ...
 # Subtest: STT correction acknowledgement stub cannot be promoted to a canonical correction effect
-ok 32 - STT correction acknowledgement stub cannot be promoted to a canonical correction effect
+ok 92 - STT correction acknowledgement stub cannot be promoted to a canonical correction effect
   ---
-  duration_ms: 0.588605
+  duration_ms: 0.535859
   type: 'test'
   ...
 # Subtest: STT profile and adaptation identities retain source-exact effects while canonical ownership remains unresolved
-ok 33 - STT profile and adaptation identities retain source-exact effects while canonical ownership remains unresolved
+ok 93 - STT profile and adaptation identities retain source-exact effects while canonical ownership remains unresolved
   ---
-  duration_ms: 0.688924
+  duration_ms: 0.649425
   type: 'test'
   ...
 # Subtest: TTS synthesis remains a family candidate because its implementation lacks canonical authority and durable receipts
-ok 34 - TTS synthesis remains a family candidate because its implementation lacks canonical authority and durable receipts
+ok 94 - TTS synthesis remains a family candidate because its implementation lacks canonical authority and durable receipts
   ---
-  duration_ms: 0.499477
+  duration_ms: 0.449544
   type: 'test'
   ...
 # Subtest: TTS voice cloning remains unadmitted until exact voice-rights and enrollment-source semantics exist
-ok 35 - TTS voice cloning remains unadmitted until exact voice-rights and enrollment-source semantics exist
+ok 95 - TTS voice cloning remains unadmitted until exact voice-rights and enrollment-source semantics exist
   ---
-  duration_ms: 0.468221
+  duration_ms: 0.429187
   type: 'test'
   ...
 # Subtest: parity inventory fails closed on duplicate or stale disposition identities
-ok 36 - parity inventory fails closed on duplicate or stale disposition identities
+ok 96 - parity inventory fails closed on duplicate or stale disposition identities
   ---
-  duration_ms: 0.531582
+  duration_ms: 0.48987
   type: 'test'
   ...
 # Subtest: Media interface grammar resolves every source and preserves the complete finality safety vocabulary
-ok 37 - Media interface grammar resolves every source and preserves the complete finality safety vocabulary
+ok 97 - Media interface grammar resolves every source and preserves the complete finality safety vocabulary
   ---
-  duration_ms: 0.436933
+  duration_ms: 0.399406
   type: 'test'
   ...
 # Subtest: legacy and candidate SDK paths stay explicitly unadmitted when absent from the active route manifest
-ok 38 - legacy and candidate SDK paths stay explicitly unadmitted when absent from the active route manifest
+ok 98 - legacy and candidate SDK paths stay explicitly unadmitted when absent from the active route manifest
   ---
-  duration_ms: 0.362545
+  duration_ms: 0.331022
   type: 'test'
   ...
 # Subtest: remaining machine-channel identities are finite, source-backed, and explicitly non-accepted
-ok 39 - remaining machine-channel identities are finite, source-backed, and explicitly non-accepted
+ok 99 - remaining machine-channel identities are finite, source-backed, and explicitly non-accepted
   ---
-  duration_ms: 73.371713
+  duration_ms: 72.231748
   type: 'test'
   ...
 # Subtest: client callbacks and UI action intents are not canonical lifecycle events
-ok 40 - client callbacks and UI action intents are not canonical lifecycle events
+ok 100 - client callbacks and UI action intents are not canonical lifecycle events
   ---
-  duration_ms: 3.173426
+  duration_ms: 2.644208
   type: 'test'
   ...
 # Subtest: all UI action effect contracts are source-exact and stay separate from operation acceptance
-ok 41 - all UI action effect contracts are source-exact and stay separate from operation acceptance
+ok 101 - all UI action effect contracts are source-exact and stay separate from operation acceptance
   ---
-  duration_ms: 6.484089
+  duration_ms: 7.333577
   type: 'test'
   ...
 # Subtest: runtime lifecycle events and client notifications keep their distinct exact source roles
-ok 42 - runtime lifecycle events and client notifications keep their distinct exact source roles
+ok 102 - runtime lifecycle events and client notifications keep their distinct exact source roles
   ---
-  duration_ms: 0.540547
+  duration_ms: 0.664216
   type: 'test'
   ...
 # Subtest: fixture CLI crosswalk rejects a different parser action and production-scope promotion
-ok 43 - fixture CLI crosswalk rejects a different parser action and production-scope promotion
+ok 103 - fixture CLI crosswalk rejects a different parser action and production-scope promotion
   ---
-  duration_ms: 0.45118
+  duration_ms: 0.495009
   type: 'test'
   ...
 # Subtest: SDK crosswalk rejects wrong leaf bindings, client-local promotion, and unadmitted retry
-ok 44 - SDK crosswalk rejects wrong leaf bindings, client-local promotion, and unadmitted retry
+ok 104 - SDK crosswalk rejects wrong leaf bindings, client-local promotion, and unadmitted retry
   ---
-  duration_ms: 0.502038
+  duration_ms: 0.542778
+  type: 'test'
+  ...
+# Subtest: all 13 observed HTTP routes have exact versioned canonical schemas and source-field adapter dispositions
+ok 105 - all 13 observed HTTP routes have exact versioned canonical schemas and source-field adapter dispositions
+  ---
+  duration_ms: 10.540202
+  type: 'test'
+  ...
+# Subtest: adapter validation rejects invented operation bindings, route admission, and lost material rejection rules
+ok 106 - adapter validation rejects invented operation bindings, route admission, and lost material rejection rules
+  ---
+  duration_ms: 13.569787
+  type: 'test'
+  ...
+# Subtest: Media HTTP source acceptance and acknowledgements cannot erase canonical authority or finality requirements
+ok 107 - Media HTTP source acceptance and acknowledgements cannot erase canonical authority or finality requirements
+  ---
+  duration_ms: 0.346485
+  type: 'test'
+  ...
+# Subtest: canonical HTTP envelopes validate a closed outer shape and the exact operation payload schemas
+ok 108 - canonical HTTP envelopes validate a closed outer shape and the exact operation payload schemas
+  ---
+  duration_ms: 1659.190844
+  type: 'test'
+  ...
+# Subtest: every HTTP source projection is schema-bound and invalid canonical paths fail closed
+ok 109 - every HTTP source projection is schema-bound and invalid canonical paths fail closed
+  ---
+  duration_ms: 1.017554
+  type: 'test'
+  ...
+# Subtest: operation identities, idempotency and owner outcome meanings cannot diverge from the outer receipt
+ok 110 - operation identities, idempotency and owner outcome meanings cannot diverge from the outer receipt
+  ---
+  duration_ms: 856.347275
   type: 'test'
   ...
 # Subtest: PDP-2 machine-interface grammar consumes the frozen PDP-1 handoff without accepting parity or runtime
-ok 45 - PDP-2 machine-interface grammar consumes the frozen PDP-1 handoff without accepting parity or runtime
+ok 111 - PDP-2 machine-interface grammar consumes the frozen PDP-1 handoff without accepting parity or runtime
   ---
-  duration_ms: 12643.644395
+  duration_ms: 15377.561395
+  type: 'test'
+  ...
+# Subtest: PDP-2 SDK async-handle definition keeps API operation and SDK job projections distinct
+ok 112 - PDP-2 SDK async-handle definition keeps API operation and SDK job projections distinct
+  ---
+  duration_ms: 5.040671
   type: 'test'
   ...
 # Subtest: handoff grammar negative cases retain each machine-channel boundary
-ok 46 - handoff grammar negative cases retain each machine-channel boundary
+ok 113 - handoff grammar negative cases retain each machine-channel boundary
   ---
-  duration_ms: 0.262159
+  duration_ms: 0.38492
   type: 'test'
   ...
-1..46
-# tests 46
+# Subtest: artifact source read is exact Java observation and never canonical version proof
+ok 114 - artifact source read is exact Java observation and never canonical version proof
+  ---
+  duration_ms: 20.228408
+  type: 'test'
+  ...
+# Subtest: transcript exact-version schema preserves explicit absence and validates clock-bound branches
+ok 115 - transcript exact-version schema preserves explicit absence and validates clock-bound branches
+  ---
+  duration_ms: 9.021856
+  type: 'test'
+  ...
+# Subtest: canonical and legacy transcript branches remain disjoint and identity-bound
+ok 116 - canonical and legacy transcript branches remain disjoint and identity-bound
+  ---
+  duration_ms: 15.040421
+  type: 'test'
+  ...
+# Subtest: canonical fingerprinting refuses values outside the JSON data model
+ok 117 - canonical fingerprinting refuses values outside the JSON data model
+  ---
+  duration_ms: 1.163767
+  type: 'test'
+  ...
+1..117
+# tests 117
 # suites 0
-# pass 46
+# pass 117
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 36670.294782
+# duration_ms 50259.458971

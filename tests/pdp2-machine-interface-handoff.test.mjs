@@ -169,6 +169,41 @@ test("PDP-2 machine-interface grammar consumes the frozen PDP-1 handoff without 
   assert.match(agent.mediaOwnedToolDefinitionContracts.invocationSemantics.scopeStatus, /runtime admission pending/u);
 });
 
+test("PDP-2 SDK async-handle definition keeps API operation and SDK job projections distinct", () => {
+  const sdk = readYaml(".product-experience/pdp-2-design-interface-system/sdk/conventions.yaml");
+  const handle = sdk.proposalRules.asynchronousHandles;
+  const contract = handle.contract;
+  const apiSchema = readFileSync(resolve(root, "contracts/openapi/media.yaml"), "utf8");
+  const sdkTypes = readFileSync(resolve(root, "libs/audio-video-types/src/contracts.ts"), "utf8");
+  const client = readFileSync(resolve(root, "libs/audio-video-client/src/operations.ts"), "utf8");
+
+  assert.equal(contract.sdkStatusResult, "libs/audio-video-types/src/contracts.ts#MediaProcessingJobSchema");
+  assert.equal(contract.sdkObservation, "libs/audio-video-client/src/operations.ts#MediaOperationClient.getOperation");
+  assert.equal(contract.apiOperationEvidence, "contracts/openapi/media.yaml#/components/schemas/PlatformOperation");
+  assert.equal(contract.apiOperationIdentityField,
+    "contracts/openapi/media.yaml#/components/schemas/PlatformOperation/properties/operationId");
+  assert.match(contract.identityRelation, /no-admitted-equality-or-crosswalk/u);
+  assert.match(contract.stateRelation, /no-admitted-API-to-SDK-state-conversion/u);
+  assert.equal(contract.admission, "definition-level-contract-only; legacy-route-not-active; runtime-NOT_ADMITTED");
+
+  assert.match(apiSchema, /PlatformOperation:[\s\S]*?operationId:[\s\S]*?state:[\s\S]*?- SUCCEEDED/u);
+  assert.match(sdkTypes, /export const MediaProcessingJobSchema = z\.discriminatedUnion\("state"/u);
+  assert.match(sdkTypes, /state: z\.literal\("OUTCOME_UNKNOWN"\)/u);
+  assert.match(sdkTypes, /state: z\.literal\("RECONCILING"\)/u);
+  assert.match(sdkTypes, /state: z\.enum\(\["FAILED", "PARTIALLY_SUCCEEDED"\]\)/u);
+  assert.match(client, /getOperation\([\s\S]*?MediaProcessingJobSchema/u);
+
+  for (const expected of [
+    "platform-operation-operationId-treated-as-sdk-job-id-or-canonical-jobId-without-an-explicit-owner-binding",
+    "api-succeeded-promoted-to-sdk-completed-without-an-admitted-state-mapping",
+    "api-state-used-to-infer-sdk-partially-succeeded-outcome-unknown-or-reconciling",
+    "sdk-unknown-or-reconciling-promoted-to-success-failure-or-running-from-api-enum",
+    "cancellation-request-or-cancelled-label-used-to-erase-distinct-finality-or-effect-evidence",
+  ]) assert.ok(handle.negativeCases.includes(expected), `missing SDK/API distinction negative case ${expected}`);
+  assert.equal(new Set(handle.negativeCases).size, handle.negativeCases.length,
+    "async-handle negative cases must be unique");
+});
+
 test("handoff grammar negative cases retain each machine-channel boundary", () => {
   const negative = grammar.machineInterfaceHandoff.negativeCases;
   for (const expected of [

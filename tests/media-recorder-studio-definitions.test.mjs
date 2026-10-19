@@ -334,6 +334,25 @@ test('PDP2 rejects missing Studio page headless parity and safe denial', () => {
   const result=verifyRecorderStudioDefinitions({overrides:{p2:changed}});
   assert.ok(result.errors.some(x=>x.includes('responsive/accessibility/headless/denial/admission meaning')),result.errors.join('\n'));
 });
+
+test('PDP2 Studio composition keeps screen, runtime, Shared admission and phase exit deferred', () => {
+  const source = read('.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml');
+  const changed = source.replace(
+    'nonClaims: [no-new-screen, no-runtime-UI, no-Shared-package-admission, no-PDP3-phase-exit]',
+    'nonClaims: [no-new-screen, no-runtime-UI, no-PDP3-phase-exit]'
+  );
+  assert.notEqual(source, changed);
+  const result = verifyRecorderStudioDefinitions({ overrides: { p2: changed } });
+  assert.ok(result.errors.some(error => error.includes('deferred admission boundary: no-Shared-package-admission')),
+    result.errors.join('\n'));
+});
+test('PDP2 interface grammar keeps only the downstream PDP3 binding pending', () => {
+  const source = read('.product-experience/pdp-2-design-interface-system/interface-grammar.yaml');
+  const changed = source.replace('pdp3BindingStatus: PDP3_BINDINGS_PENDING', 'pdp3BindingStatus: PDP3_BINDINGS_COMPLETE');
+  assert.notEqual(source, changed);
+  const result = verifyRecorderStudioDefinitions({ overrides: { interfaceGrammar: changed } });
+  assert.ok(result.errors.some(error => error.includes('keeping PDP3 binding pending')), result.errors.join('\n'));
+});
 test('PDP2 rejects a Studio page composition referencing an unregistered component', () => {
   const source=read('.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml');
   const changed=source.replace('componentRefs: ["media.component.project-browser"', 'componentRefs: ["media.component.unregistered"');

@@ -24,7 +24,7 @@ test("PDP-2 exports a finite design/interface definition handoff for PDP-3", () 
     templates: { count: 13, source: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#templates" },
     layouts: { count: 11, source: ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#layouts" },
     recipes: { count: 13, source: ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml#recipes" },
-    compositionRules: { count: 42, source: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#normativeRuleRecords" },
+    compositionRules: { count: 43, source: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#normativeRuleRecords" },
     interactionPatterns: { count: 19, source: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#patterns" },
     machineInterfaceInvariants: { count: 12, source: ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants" },
     selectedScreenDesignLinks: { count: 47, source: ".product-experience/pdp-3-product-experience/screen-contracts" },

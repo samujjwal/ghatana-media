@@ -85,7 +85,7 @@ normativeRuleRecords:
     acceptanceEffect: none
 
 recorderStudioTimelineSpecialization:
-  status: SOURCE_AUTHORED_PENDING_PDP2_REVALIDATION
+  status: SOURCE_AUTHORED_PDP2_DEFINITION
   source: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml
   operationSource: .product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml#objects/media.recorder.edit-operation
   manualOperationKindCount: 52

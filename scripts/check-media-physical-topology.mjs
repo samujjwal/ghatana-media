@@ -128,6 +128,39 @@ export function validateTopology(topology, root = repo) {
       fail(`${aiVoiceUi.surfaceId}: PDP-0 UI scope cannot imply every speech-synthesis processing leaf`);
     }
   }
+  const mediaExplorer = byId.get('media.physical.apps-media-experience-explorer');
+  if (mediaExplorer) {
+    const p2 = mediaExplorer.phaseApplicability?.['PDP-2'];
+    const expectedAuthorityRefs = [
+      '.product-experience/pdp-2-design-interface-system/gui/explorer-workbench.yaml',
+      '.product-experience/pdp-2-design-interface-system/interface-grammar.yaml#channels/GUI',
+      '.product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml',
+      '.product-experience/pdp-2-design-interface-system/accessibility.yaml',
+      '.product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml'
+    ];
+    if (p2?.disposition !== 'GUI_TOOLING_CONSUMER') {
+      fail(`${mediaExplorer.surfaceId}: mapped browser workbench must be classified as an applicable PDP-2 GUI tooling consumer`);
+    }
+    compareExactIds(p2?.authorityRefs, expectedAuthorityRefs, `${mediaExplorer.surfaceId} PDP-2 GUI authority refs`, fail);
+    if (!/browser workbench/u.test(p2?.rationale ?? '')
+      || !/not a production Media UI/u.test(p2?.rationale ?? '')
+      || !/does not claim runtime admission, owner acceptance, or phase acceptance/u.test(p2?.rationale ?? '')) {
+      fail(`${mediaExplorer.surfaceId}: PDP-2 rationale must bind its own GUI contract while preserving local-tool and non-authority boundaries`);
+    }
+    const registry = source('.product-experience/surface-registry.yaml');
+    const explorerRegistryEntry = registry.split(/^  - surfaceId:\s*/m).find((entry) => entry.startsWith('media.surface.explorer\n')) ?? '';
+    if (!/applicablePdpArtifacts:\s*\[PDP-0, PDP-1, PDP-2, PDP-3\]/u.test(explorerRegistryEntry)) {
+      fail(`${mediaExplorer.surfaceId}: PDP-2 physical applicability must agree with the logical Explorer surface registry`);
+    }
+    const explorerContract = source('.product-experience/pdp-2-design-interface-system/gui/explorer-workbench.yaml');
+    if (!explorerContract.includes('physicalSurfaceId: media.physical.apps-media-experience-explorer')
+      || !explorerContract.includes('logicalSurfaceId: media.surface.explorer')
+      || !['Product', 'Explore', 'Specification', 'Verify', 'Tools Review'].every((mode) => explorerContract.includes(mode))
+      || !explorerContract.includes('owner review and phase acceptance are not claimed')
+      || !explorerContract.includes('Explorer is a projection')) {
+      fail(`${mediaExplorer.surfaceId}: PDP-2 workbench contract must bind the mapped GUI modes and retain the non-authoritative Explorer boundary`);
+    }
+  }
   const agentTools = crosswalk.find((consumer) => consumer.surfaceId === 'media.surface.agent-tools');
   const common = byId.get('media.physical.libs-common');
   if (agentTools && common) {

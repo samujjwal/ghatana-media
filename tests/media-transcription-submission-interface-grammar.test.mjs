@@ -66,7 +66,30 @@ function assertSubmissionGrammar(grammar, operation, familyBindings, journey, ac
   assert.equal(grammar.operation.languageIntent.AUTO_REQUESTED.rule, input.languageIntent.AUTO_REQUESTED.rule);
   assert.deepEqual(grammar.operation.languageIntent.EXPLICIT.encoding, ['EXPLICIT', 'exact-languageTag']);
   assert.deepEqual(grammar.operation.languageIntent.AUTO_REQUESTED.encoding, ['AUTO_REQUESTED']);
-  assert.deepEqual(grammar.operation.requestFingerprint, input.requestFingerprint);
+  const fingerprint = grammar.operation.requestFingerprint;
+  assert.deepEqual(fingerprint, input.requestFingerprint);
+  assert.equal(fingerprint.version, 'media.transcription-submission-fingerprint.v4');
+  assert.equal(fingerprint.supersedes, 'media.transcription-submission-fingerprint.v3');
+  assert.deepEqual(fingerprint.fields, [
+    'tenantId', 'principalId', 'delegationRef', 'operationId', 'requestId', 'sourceArtifactId',
+    'sourceArtifactVersionId', 'authoritativeSourceContentDigest', 'languageIntent', 'profileId',
+    'profileVersion', 'profileConfigurationDigest', 'timestamps', 'speakerDiarization',
+    'customGlossaryRef', 'fillerRetakeCandidates', 'purposeRef', 'rightsEvidenceRefs', 'consentRef',
+    'retentionPolicyRef', 'policyDecisionRef', 'resolvedProcessingLocation',
+  ]);
+  assert.deepEqual(fingerprint.optionalFieldEncoding, {
+    customGlossaryRef: {
+      whenAbsent: 'encode-host-only-null-sentinel-in-the-ordered-array',
+      whenPresent: 'exact-validated-immutable-versioned-reference',
+      callerSuppliedNull: 'reject-before-hashing',
+    },
+    fillerRetakeCandidates: {
+      whenAbsent: 'encode-host-only-null-sentinel-in-the-ordered-array',
+      whenPresent: 'exact-JSON-boolean-without-coercion; preserve-explicit-false',
+      callerSuppliedNull: 'reject-before-hashing',
+      behaviorDefault: 'false-applies-only-to-effective-behavior; never-rewrite-the-retained-request-snapshot-or-fingerprint',
+    },
+  });
   assert.deepEqual(grammar.operation.scalarNullability, input.scalarNullability);
   assert.equal(grammar.operation.submitReplayRule, input.submitReplayRule);
   assert.equal(grammar.operation.immutableSource, input.immutableSource);
@@ -163,8 +186,32 @@ test('submission grammar rejects fingerprint, authority, and unknown-outcome sco
 
   const fingerprintOmission = structuredClone(original);
   fingerprintOmission.operation.requestFingerprint.fields = fingerprintOmission.operation.requestFingerprint.fields
-    .filter(field => field !== 'profileConfigurationDigest');
+    .filter(field => field !== 'customGlossaryRef');
   assert.throws(() => assertSubmissionGrammar(fingerprintOmission, operation, familyBindings, journey, action),
+    /deep-equal/u);
+
+  const fingerprintPresenceCollapsed = structuredClone(original);
+  fingerprintPresenceCollapsed.operation.requestFingerprint.optionalFieldEncoding.fillerRetakeCandidates.whenAbsent =
+    'default-false-before-hashing';
+  assert.throws(() => assertSubmissionGrammar(fingerprintPresenceCollapsed, operation, familyBindings, journey, action),
+    /deep-equal/u);
+
+  const fingerprintCallerNullAccepted = structuredClone(original);
+  fingerprintCallerNullAccepted.operation.requestFingerprint.optionalFieldEncoding.customGlossaryRef.callerSuppliedNull =
+    'encode-null-as-absence';
+  assert.throws(() => assertSubmissionGrammar(fingerprintCallerNullAccepted, operation, familyBindings, journey, action),
+    /deep-equal/u);
+
+  const fingerprintExplicitFalseCollapsed = structuredClone(original);
+  fingerprintExplicitFalseCollapsed.operation.requestFingerprint.optionalFieldEncoding.fillerRetakeCandidates.whenPresent =
+    'boolean-with-default-coercion';
+  assert.throws(() => assertSubmissionGrammar(fingerprintExplicitFalseCollapsed, operation, familyBindings, journey, action),
+    /deep-equal/u);
+
+  const fingerprintDefaultRewritesSnapshot = structuredClone(original);
+  fingerprintDefaultRewritesSnapshot.operation.requestFingerprint.optionalFieldEncoding.fillerRetakeCandidates.behaviorDefault =
+    'false-is-inserted-into-retained-request-snapshot-and-fingerprint';
+  assert.throws(() => assertSubmissionGrammar(fingerprintDefaultRewritesSnapshot, operation, familyBindings, journey, action),
     /deep-equal/u);
 
   const mapOrderFingerprint = structuredClone(original);
