@@ -1242,7 +1242,8 @@ operations:
       purposeAndLocation: purposeRef-is-an-exact-typed-purpose-reference;
         processingLocation-is-resolved-only-from-current-trusted-policy-and-qualified-profile-context
       requestFingerprint:
-        version: media.transcription-submission-fingerprint.v3
+        version: media.transcription-submission-fingerprint.v4
+        supersedes: media.transcription-submission-fingerprint.v3
         algorithm: SHA-256
         encoding: compact-UTF-8-JSON-array-no-whitespace-in-this-exact-field-order-with-JSON-string-escaping-and-explicit-null-or-value-presence
         fields:
@@ -1260,6 +1261,8 @@ operations:
           - profileConfigurationDigest
           - timestamps
           - speakerDiarization
+          - customGlossaryRef
+          - fillerRetakeCandidates
           - purposeRef
           - rightsEvidenceRefs
           - consentRef
@@ -1273,12 +1276,22 @@ operations:
           AUTO_REQUESTED:
             - AUTO_REQUESTED
           rule: fixed-ordered-tuples-never-an-unordered-object
-        scalarEncoding: fixed-string-or-explicit-null-types-only;
+        optionalFieldEncoding:
+          customGlossaryRef:
+            whenAbsent: encode-host-only-null-sentinel-in-the-ordered-array
+            whenPresent: exact-validated-immutable-versioned-reference
+            callerSuppliedNull: reject-before-hashing
+          fillerRetakeCandidates:
+            whenAbsent: encode-host-only-null-sentinel-in-the-ordered-array
+            whenPresent: exact-JSON-boolean-without-coercion; preserve-explicit-false
+            callerSuppliedNull: reject-before-hashing
+            behaviorDefault: false-applies-only-to-effective-behavior; never-rewrite-the-retained-request-snapshot-or-fingerprint
+        scalarEncoding: fixed-string-or-host-only-absence-null-sentinel-types-only;
           rightsEvidenceRefs-is-an-ordered-array-of-exact-validated-references;
           timestamps-is-one-of-none-segment-word-phoneme;
           speakerDiarization-is-a-JSON-boolean-without-coercion;
-          customGlossaryRef-is-an-exact-immutable-versioned-reference-or-explicit-null;
-          fillerRetakeCandidates-is-a-JSON-boolean-without-coercion;
+          customGlossaryRef-is-an-exact-immutable-versioned-reference-when-present; omission-uses-host-only-null-sentinel; caller-null-rejected;
+          fillerRetakeCandidates-is-a-JSON-boolean-without-coercion-when-present; omission-uses-host-only-null-sentinel; explicit-false-is-preserved;
           profileConfigurationDigest-and-authoritativeSourceContentDigest-are-lowercase-64-hex-SHA256;
           invalid-types-or-digests-reject-before-hashing
         normalization: validate-types-and-enums-first;
@@ -80809,11 +80822,16 @@ capabilityOperationContracts:
             optional: true
             type: boolean
             default: false
+            defaultScope: effective-behavior-only; omission-remains-absent-in-the-retained-request-snapshot-and-fingerprint
             true: request-uncertain-filler-and-retake-candidate-observations
         fingerprint:
-          version: media.transcription-submission-fingerprint.v3
+          version: media.transcription-submission-fingerprint.v4
+          supersedes: media.transcription-submission-fingerprint.v3
           include: [customGlossaryRef, fillerRetakeCandidates]
           preserveOptionalPresence: true
+          absentEncoding: host-computed-null-sentinel-in-the-ordered-canonical-array
+          callerSuppliedNull: reject-before-hashing
+          fillerRetakeCandidatesDefault: false-applies-only-to-effective-behavior; omission-and-explicit-false-remain-distinct-fingerprinted-inputs
           replay: exact-original-source-version-profile-glossary-and-all-fingerprinted-values-only
         validatorContract:
           requestResultInvariants:

@@ -167,7 +167,11 @@ test('C04 stale or unknown rights and consent cannot satisfy the synthesis effec
 test('human approval is a read-only observation of the exact registered immutable output version', () => {
   const approvalRequest = typedRights.requestSchema.allOf.find((rule) => rule.if?.properties?.decisionKind?.const === 'HUMAN_REVIEW_APPROVAL');
   assert.ok(approvalRequest, 'approval request must have a decision-kind-specific exact version rule');
-  assert.equal(approvalRequest.then.properties.subjectArtifactVersionRef.type, 'CanonicalObjectReference');
+  const subjectArtifactVersionRef = typedRights.requestSchema.properties.subjectArtifactVersionRef;
+  assert.equal(subjectArtifactVersionRef.type, 'string');
+  assert.equal(subjectArtifactVersionRef.scalarTypeRef,
+    '.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference');
+  assert.equal(approvalRequest.then.properties.subjectArtifactVersionRef.type, 'string');
   assert.deepEqual(approvalRequest.then.properties.subjectArtifactVersionRef.allowedObjectRefs, ['media.domain.artifact-version']);
   assert.match(approvalRequest.then.properties.subjectArtifactVersionRef.versionRule, /exact owner-confirmed registered output ArtifactVersionRef required/);
 

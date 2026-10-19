@@ -23,9 +23,56 @@ test("transcription submit preserves every required P0 parameter in typed wire f
     assert.ok(operation.inputSemantics.submitRequiredFields.includes(field), `${field} must be required by operation semantics`);
     assert.ok(operation.inputSemantics.requestFingerprint.fields.includes(field), `${field} must be fingerprint-bound`);
   }
-  assert.equal(operation.inputSemantics.requestFingerprint.version, "media.transcription-submission-fingerprint.v3");
+  assert.equal(operation.inputSemantics.requestFingerprint.version, "media.transcription-submission-fingerprint.v4");
+  assert.equal(operation.inputSemantics.requestFingerprint.supersedes, "media.transcription-submission-fingerprint.v3");
   assert.match(operation.inputSemantics.requestFingerprint.scalarEncoding, /speakerDiarization-is-a-JSON-boolean-without-coercion/u);
   assert.match(operation.inputSemantics.requestFingerprint.scalarEncoding, /timestamps-is-one-of-none-segment-word-phoneme/u);
+});
+
+test("transcription fingerprint includes optional behavior inputs with distinct omission and explicit-value encodings", () => {
+  const fingerprint = operation.inputSemantics.requestFingerprint;
+  const sourceFingerprint = binding.sourceSemanticContract.fingerprint;
+  const expectedFields = [
+    "tenantId", "principalId", "delegationRef", "operationId", "requestId",
+    "sourceArtifactId", "sourceArtifactVersionId", "authoritativeSourceContentDigest",
+    "languageIntent", "profileId", "profileVersion", "profileConfigurationDigest",
+    "timestamps", "speakerDiarization", "customGlossaryRef", "fillerRetakeCandidates",
+    "purposeRef", "rightsEvidenceRefs", "consentRef", "retentionPolicyRef",
+    "policyDecisionRef", "resolvedProcessingLocation",
+  ];
+
+  assert.deepEqual(fingerprint.fields, expectedFields);
+  assert.deepEqual(fingerprint.optionalFieldEncoding, {
+    customGlossaryRef: {
+      whenAbsent: "encode-host-only-null-sentinel-in-the-ordered-array",
+      whenPresent: "exact-validated-immutable-versioned-reference",
+      callerSuppliedNull: "reject-before-hashing",
+    },
+    fillerRetakeCandidates: {
+      whenAbsent: "encode-host-only-null-sentinel-in-the-ordered-array",
+      whenPresent: "exact-JSON-boolean-without-coercion; preserve-explicit-false",
+      callerSuppliedNull: "reject-before-hashing",
+      behaviorDefault: "false-applies-only-to-effective-behavior; never-rewrite-the-retained-request-snapshot-or-fingerprint",
+    },
+  });
+  assert.ok(!submit.required.includes("customGlossaryRef"));
+  assert.ok(!submit.required.includes("fillerRetakeCandidates"));
+  assert.equal(submit.properties.customGlossaryRef.type, "string", "caller-supplied null is outside the wire type");
+  assert.equal(submit.properties.fillerRetakeCandidates.type, "boolean", "caller-supplied null is outside the wire type");
+  assert.match(operation.inputSemantics.scalarNullability.noOtherNulls, /reject-null/u);
+  assert.match(operation.inputSemantics.requestFingerprint.normalization, /preserve-exact-validated-string-values-and-optional-presence/u);
+  assert.match(operation.inputSemantics.requestFingerprint.normalization, /case-folding-default-insertion/u);
+
+  assert.equal(sourceFingerprint.version, fingerprint.version);
+  assert.equal(sourceFingerprint.supersedes, fingerprint.supersedes);
+  assert.deepEqual(sourceFingerprint.include, ["customGlossaryRef", "fillerRetakeCandidates"]);
+  assert.equal(sourceFingerprint.preserveOptionalPresence, true);
+  assert.equal(sourceFingerprint.absentEncoding, "host-computed-null-sentinel-in-the-ordered-canonical-array");
+  assert.equal(sourceFingerprint.callerSuppliedNull, "reject-before-hashing");
+  assert.equal(sourceFingerprint.fillerRetakeCandidatesDefault,
+    "false-applies-only-to-effective-behavior; omission-and-explicit-false-remain-distinct-fingerprinted-inputs");
+  assert.equal(binding.sourceSemanticContract.requestFields.fillerRetakeCandidates.defaultScope,
+    "effective-behavior-only; omission-remains-absent-in-the-retained-request-snapshot-and-fingerprint");
 });
 
 test("optional glossary and filler-retake parameters preserve their exact mappings and conditional behavior", () => {

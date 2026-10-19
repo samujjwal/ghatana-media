@@ -9,11 +9,11 @@
     },
     {
       "path": ".product-experience/pdp-1-domain-data/operations.yaml",
-      "sha256": "a038e57033cb67a072f7574185e2cfbe407511f1b58d6e2ea288ee8e98d3cf88"
+      "sha256": "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2"
     },
     {
       "path": ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
-      "sha256": "e01f916178563e9405c67ef72a577d480a47676716898918f40bcaa195d09fb5"
+      "sha256": "4d4da35d52522d8dcd2f9a1d3dedff528b6bda09653084efa13ef018a56eb7f6"
     },
     {
       "path": ".product-experience/pdp-3-product-experience/action-registry.yaml",
@@ -359,11 +359,11 @@
   },
   "currentSourceCutDeltaReview": {
     "status": "RECONCILED_CURRENT_SOURCE_CUT",
-    "reviewedOn": "2026-10-18",
-    "operationsSha256": "a038e57033cb67a072f7574185e2cfbe407511f1b58d6e2ea288ee8e98d3cf88",
+    "reviewedOn": "2026-10-19",
+    "operationsSha256": "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2",
     "actionRegistrySha256": "53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426",
     "operationParitySha256": "bcc2f132b39dfe09085eef07436fdceed5561b0f06abc9ae4ca22d1a5c4e615a",
-    "meaning": "Re-reviewed the current operations source against exact interface identities, action crosswalks, and typed observation inventory. The preceding reviewed operations bytes are not available in the checked-out Git history, so this is a full current-cut parity review, not a reconstructed byte-exact delta. The exact source inventory contains 15/15 current owner typed observation contracts and 15 validation rules, including exact transcript submission lineage, seven-dimension job status, immutable output-preview/version lineage, and the rights/quality/profile evidence joins used by the affected MDC-30 result definitions. These are logical definitions only: they do not establish accepted interface mapping, transport equivalence, external owner acceptance, independent review, or runtime admission. The inspect-source action retains its exact current PDP-3 preconditions and one matching PDP-1 QUERY inventory identity. Logical operation identity remains separate from route/transport identity. The subsequent source-bound opaque-ID repair restores the exact declared identifier grammar on ten operation fields; the bounded reconciliation is recorded in postOpaqueIdBoundRepairReconciliation. The PXD-177 parameter-schema consistency correction restores non-whitespace constraints on transcriptQuery and customGlossaryRef; all 14 proposal rows remain unresolved definition-only diagnostics, with runtime and transport NOT_ADMITTED.",
+    "meaning": "Re-reviewed the current operations source against exact interface identities, action crosswalks, and typed observation inventory. The preceding reviewed operations bytes are not available in the checked-out Git history, so this is a full current-cut parity review, not a reconstructed byte-exact delta. The exact source inventory contains 15/15 current owner typed observation contracts and 15 validation rules, including exact transcript submission lineage, seven-dimension job status, immutable output-preview/version lineage, and the rights/quality/profile evidence joins used by the affected MDC-30 result definitions. These are logical definitions only: they do not establish accepted interface mapping, transport equivalence, external owner acceptance, independent review, or runtime admission. The inspect-source action retains its exact current PDP-3 preconditions and one matching PDP-1 QUERY inventory identity. Logical operation identity remains separate from route/transport identity. The subsequent source-bound opaque-ID repair restores the exact declared identifier grammar on ten operation fields; the bounded reconciliation is recorded in postOpaqueIdBoundRepairReconciliation. The PXD-177 parameter-schema consistency correction restores non-whitespace constraints on transcriptQuery and customGlossaryRef; all 14 proposal rows remain unresolved definition-only diagnostics, with runtime and transport NOT_ADMITTED. The current PDP-1 operation source is source-current after the transcription fingerprint v4 successor correction; this refresh changes no cross-interface identity or binding disposition.",
     "outstandingMeaningIds": [],
     "runtimeAdmission": "NOT_ADMITTED",
     "typedUiActionSemanticRecordCount": 147,
@@ -372,7 +372,7 @@
     "previousReviewedOperationsBytesAvailableInGit": false,
     "operationsSourceReinspection": {
       "status": "REINSPECTED_CURRENT_SOURCE_CUT",
-      "sourceSha256": "a038e57033cb67a072f7574185e2cfbe407511f1b58d6e2ea288ee8e98d3cf88",
+      "sourceSha256": "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2",
       "previousReviewedSourceSha256": "2ea3da8af4d332be51c7322060641de5f59a13e3b00833e03105f5d13049d55c",
       "previousSourceBytesAvailableInGit": false,
       "populations": {
@@ -448,7 +448,7 @@
       "transportAdmission": "NOT_ADMITTED"
     },
     "sourcePinRefresh": {
-      "reviewedOn": "2026-10-18",
+      "reviewedOn": "2026-10-19",
       "status": "INTERNAL_SOURCE_REINSPECTION_COMPLETE; PHASE_ACCEPTANCE_NOT_CLAIMED",
       "previousSourceFingerprintsPreserved": {
         ".product-experience/interface-parity/operation-parity.yaml": "41e64cc7dbb063fbd581463e65e029b4cce9bdbf01130a6aac298ba0187a22d5",
@@ -473,8 +473,8 @@
       },
       "currentSourceFingerprints": {
         ".product-experience/interface-parity/operation-parity.yaml": "bcc2f132b39dfe09085eef07436fdceed5561b0f06abc9ae4ca22d1a5c4e615a",
-        ".product-experience/pdp-1-domain-data/operations.yaml": "a038e57033cb67a072f7574185e2cfbe407511f1b58d6e2ea288ee8e98d3cf88",
-        ".product-experience/pdp-1-domain-data/operations-current-source-review.json": "e01f916178563e9405c67ef72a577d480a47676716898918f40bcaa195d09fb5",
+        ".product-experience/pdp-1-domain-data/operations.yaml": "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2",
+        ".product-experience/pdp-1-domain-data/operations-current-source-review.json": "4d4da35d52522d8dcd2f9a1d3dedff528b6bda09653084efa13ef018a56eb7f6",
         ".product-experience/pdp-3-product-experience/action-registry.yaml": "53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426",
         ".product-experience/pdp-3-product-experience/cli-command-registry.yaml": "81c7e55299fef3b14584c3a77f2d8312b2daabfe610c1ec69449b9302da57604",
         ".product-experience/pdp-3-product-experience/cli/command-registry.yaml": "6feed0105beddb02232045fff28cdd5d64d6e8314cb647c96dcdda3b945f82a4",

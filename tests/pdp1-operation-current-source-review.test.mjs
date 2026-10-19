@@ -83,9 +83,27 @@ test("P1 operation current-source review pins this source and preserves historic
   assert.equal(review.currentSourceCutDeltaReview.focusedVerification.currentSourceSha256,
     "62d0a4050a43da1c58a63d12adaa7c27055c63afc51580bd1e2478d1da3dace8");
   assert.equal(review.currentSourceCutDeltaReview.supplementalPdp1DefinitionDelta.currentSourceSha256, sha256);
+  const definitionDelta = review.currentSourceCutDeltaReview.supplementalPdp1DefinitionDelta;
+  assert.equal(definitionDelta.priorPdp1DefinitionFollowUp.findingId,
+    "PDP1-TRANSCRIPTION-FINGERPRINT-OPTIONAL-FIELDS-OMITTED");
+  const transcriptionFingerprintFollowUp = definitionDelta.latestPdp1DefinitionFollowUp;
+  assert.equal(transcriptionFingerprintFollowUp.findingId, "PDP1-TRANSCRIPTION-FINGERPRINT-VERSION-NOT-ADVANCED");
+  assert.equal(transcriptionFingerprintFollowUp.operationId, "media.operation.transcription-submission");
+  assert.equal(transcriptionFingerprintFollowUp.currentSourceSha256, sha256);
+  assert.equal(transcriptionFingerprintFollowUp.disposition,
+    "RESOLVED_WITH_SUCCESSOR_FINGERPRINT_VERSION");
+  assert.equal(transcriptionFingerprintFollowUp.focusedVerification.command,
+    "node --test tests/pdp1-transcription-exact-contract.test.mjs");
+  assert.equal(transcriptionFingerprintFollowUp.focusedVerification.status, "PASS");
+  assert.equal(transcriptionFingerprintFollowUp.focusedVerification.passed, 9);
+  assert.equal(transcriptionFingerprintFollowUp.focusedVerification.total, 9);
+  assert.equal(transcriptionFingerprintFollowUp.definitionResolution.requestFingerprintVersion,
+    "media.transcription-submission-fingerprint.v4");
+  assert.equal(transcriptionFingerprintFollowUp.definitionResolution.supersedes,
+    "media.transcription-submission-fingerprint.v3");
   assert.equal(reinspection.previousSourceBytesAvailableInGit, false);
   assert.equal(reinspection.immediatePredecessorSourceSha256,
-    "317878be9ebe9c978f356a4e81060620fcb69af02ea25c2ff1d47bd20180c069");
+    "a038e57033cb67a072f7574185e2cfbe407511f1b58d6e2ea288ee8e98d3cf88");
   assert.equal(reinspection.immediatePredecessorSourceBytesAvailableInGit, true);
   assert.match(reinspection.method, /complete final operations source tree/u);
   assert.match(reinspection.sourceChangeGroupsInterpretation,
@@ -121,8 +139,8 @@ test("P1 operation current-source review pins this source and preserves historic
   assert.equal(pxd164.wireSourceSha256, wireSha256);
   assert.equal(pxd164.status, "INTERNAL_SOURCE_REVIEW_COMPLETE; PHASE_ACCEPTANCE_NOT_CLAIMED");
   assert.equal(pxd164.focusedVerification.status, "PASS");
-  assert.equal(pxd164.focusedVerification.passed, 68);
-  assert.equal(pxd164.focusedVerification.total, 68);
+  assert.equal(pxd164.focusedVerification.passed, 75);
+  assert.equal(pxd164.focusedVerification.total, 75);
   assert.equal(pxd164.focusedVerification.sourcePins.operationsSha256, sha256);
   assert.equal(pxd164.focusedVerification.sourcePins.ownerActionWireContractsSha256, wireSha256);
   assert.equal(pxd164.ownerAcceptance, "NOT_CLAIMED");
