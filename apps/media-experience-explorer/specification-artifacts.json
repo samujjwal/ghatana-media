@@ -224,6 +224,13 @@
     "title": "Applications Channels"
   },
   {
+    "artifactId": "ART-P0-CAMPAIGN-EXTENSIONS",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
+    "phase": "PDP-0",
+    "path": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+    "title": "Campaign Extensions"
+  },
+  {
     "artifactId": "ART-P0-CAPABILITIES",
     "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
@@ -385,6 +392,13 @@
     "title": "Quality Policy"
   },
   {
+    "artifactId": "ART-P0-RECORDER-STUDIO-EXTENSION",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
+    "phase": "PDP-0",
+    "path": ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml",
+    "title": "Recorder Studio Extension"
+  },
+  {
     "artifactId": "ART-P0-REQUIREMENTS",
     "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
@@ -453,6 +467,13 @@
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/decisions.yaml",
     "title": "Decisions"
+  },
+  {
+    "artifactId": "ART-P1-DECLARATIVE-PRODUCTION-CONTRACTS",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
+    "phase": "PDP-1",
+    "path": ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml",
+    "title": "Declarative Production Contracts"
   },
   {
     "artifactId": "ART-MEDIA-04EC9D20A16F",
@@ -537,6 +558,13 @@
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/provenance.yaml",
     "title": "Provenance"
+  },
+  {
+    "artifactId": "ART-P1-RECORDER-STUDIO-CONTRACTS",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
+    "phase": "PDP-1",
+    "path": ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml",
+    "title": "Recorder Studio Contracts"
   },
   {
     "artifactId": "ART-MEDIA-0A5282A28C1D",
@@ -805,6 +833,13 @@
     "title": "Composition Validation Grammar"
   },
   {
+    "artifactId": "ART-P2-GUI-EXPLORER-WORKBENCH",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
+    "phase": "PDP-2",
+    "path": ".product-experience/pdp-2-design-interface-system/gui/explorer-workbench.yaml",
+    "title": "Explorer Workbench"
+  },
+  {
     "artifactId": "ART-MEDIA-8B2627A1C5C0",
     "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
@@ -943,6 +978,13 @@
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/motion.yaml",
     "title": "Motion"
+  },
+  {
+    "artifactId": "ART-P2-RECORDER-STUDIO-INTERFACE",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
+    "phase": "PDP-2",
+    "path": ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml",
+    "title": "Recorder Studio Interface"
   },
   {
     "artifactId": "ART-P1-PHASE-1-DESIGN-LANGUAGE-RESPONSIVE-ADAPTIVE-YAML",
@@ -1293,6 +1335,13 @@
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/data-view-contracts.yaml",
     "title": "Data View Contracts"
+  },
+  {
+    "artifactId": "ART-P3-DECLARATIVE-PRODUCTION-EXPERIENCE",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/declarative-production-experience.yaml",
+    "title": "Declarative Production Experience"
   },
   {
     "artifactId": "ART-MEDIA-6DEC24896131",
@@ -1937,6 +1986,13 @@
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/public-effect-finality-taxonomy.yaml",
     "title": "Public Effect Finality Taxonomy"
+  },
+  {
+    "artifactId": "ART-P3-RECORDER-STUDIO-EXPERIENCE",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml",
+    "title": "Recorder Studio Experience"
   },
   {
     "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-RECOVERY-FINALITY-CONTRACTS-YAML",

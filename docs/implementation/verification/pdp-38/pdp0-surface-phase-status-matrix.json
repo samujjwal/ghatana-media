@@ -4,22 +4,24 @@
   "campaign": {
     "macroStage": "DISCOVERY",
     "phase": "PDP-0",
-    "sourceBaselineCommit": "32776faa580cb07ce89d0d2812bae63b4aa09439",
+    "sourceBaselineCommit": "8d3d9e612485d88e7263e9a88a8ef85365523a58",
     "status": "DEV_COMPLETE"
   },
-  "generatedAt": "2026-10-19T03:44:54.673Z",
+  "generatedAt": "2026-10-19T07:51:58.483Z",
   "statusRecordRef": "docs/implementation/pdp-0-phase-dev-status.json",
-  "statusRecordSha256": "e987d7d48e21997ff34cb8facabdcb6f6f80b8b2951ce1850e86feef897b0d9a",
-  "sourceFingerprintSetSha256": "e87d70e4573e55d3fc8201b3c066f0c4c7b70890870bbf173206afd1ede80348",
+  "statusRecordSha256": "59b75117598c4e4b97117b586e5d0f9081ac155fda05ffc66f220b88f31f32e2",
+  "sourceFingerprintSetSha256": "e0bd9ec46db37786149cf12f8aa753614e677e0a06c2a0ec8acee95515fb6d04",
   "sourceFingerprints": {
     ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
-    ".product-experience/surfaces/media-physical-topology.v1.json": "53f3e1073c11876d3675543bfe170e32b31bae7725a3ed3bd2712f13954e2017",
+    ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
     ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
     ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
     ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
     ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
-    ".product-experience/pdp-0-product-truth/requirements.yaml": "af774f4db0a306ac3514475d65170560c345e7a6ecdf17305edb2ac3b9af41fe",
-    "docs/implementation/pdp-0-phase-dev-status.json": "e987d7d48e21997ff34cb8facabdcb6f6f80b8b2951ce1850e86feef897b0d9a"
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "49c079d4aff2499bb3c226ac52e3a7101d483392775bd9b05a0a469295329ce2",
+    "docs/implementation/pdp-0-phase-dev-status.json": "59b75117598c4e4b97117b586e5d0f9081ac155fda05ffc66f220b88f31f32e2",
+    ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+    ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
   },
   "denominatorValidation": {
     "status": "PASS",
@@ -82,10 +84,14 @@
         "adapters/ledger/build.gradle.kts",
         "adapters/ledger",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        "media.surface.integrations"
+        "media.surface.integrations",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -104,7 +110,20 @@
       "capabilityFamilyIds": [],
       "capabilityIntentRefs": [],
       "requirementRefs": [],
-      "intentRefs": []
+      "intentRefs": [],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.product-integration"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.physical.apps-media-experience-explorer",
@@ -251,10 +270,14 @@
         "launcher/build.gradle.kts",
         "launcher",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        "media.surface.public-http"
+        "media.surface.public-http",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -359,6 +382,20 @@
         "media.intent.review-exact-version",
         "media.intent.simulate",
         "media.intent.understand"
+      ],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.api",
+            "media.channel.http-api"
+          ]
+        }
       ]
     },
     {
@@ -381,10 +418,14 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
         "media.surface.cli",
         "media.surface.sdk",
-        "media.surface.recorder-orchestrator"
+        "media.surface.recorder-orchestrator",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -555,6 +596,20 @@
         "media.intent.review-exact-version",
         "media.intent.simulate",
         "media.intent.understand"
+      ],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.cli",
+            "media.channel.sdk"
+          ]
+        }
       ]
     },
     {
@@ -576,10 +631,14 @@
         "libs/audio-video-types",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
         "media.surface.sdk",
-        "media.surface.types-library"
+        "media.surface.types-library",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -749,6 +808,19 @@
         "media.intent.review-exact-version",
         "media.intent.simulate",
         "media.intent.understand"
+      ],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.sdk"
+          ]
+        }
       ]
     },
     {
@@ -773,10 +845,14 @@
         "media.surface.ui-library",
         "media.surface.web",
         "media.surface.production-studio",
-        "media.surface.interactive-demo-player"
+        "media.surface.interactive-demo-player",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1050,6 +1126,20 @@
         "media.intent.review-rights-and-consent",
         "media.intent.simulate",
         "media.intent.understand"
+      ],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.embedded",
+            "media.channel.web"
+          ]
+        }
       ]
     },
     {
@@ -1150,10 +1240,14 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
         "media.surface.cli",
         "media.surface.explorer",
-        "media.surface.recorder-orchestrator"
+        "media.surface.recorder-orchestrator",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1174,7 +1268,20 @@
       "capabilityFamilyIds": [],
       "capabilityIntentRefs": [],
       "requirementRefs": [],
-      "intentRefs": []
+      "intentRefs": [],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.cli"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.physical.modules-audio-streaming",
@@ -1259,10 +1366,14 @@
         "modules/infrastructure/cache/build.gradle.kts",
         "modules/infrastructure/cache",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        "media.surface.integrations"
+        "media.surface.integrations",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1281,7 +1392,20 @@
       "capabilityFamilyIds": [],
       "capabilityIntentRefs": [],
       "requirementRefs": [],
-      "intentRefs": []
+      "intentRefs": [],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.product-integration"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.physical.modules-infrastructure-messaging",
@@ -1303,10 +1427,14 @@
         "modules/infrastructure/messaging",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
         "media.surface.events",
-        "media.surface.integrations"
+        "media.surface.integrations",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1326,7 +1454,20 @@
       "capabilityFamilyIds": [],
       "capabilityIntentRefs": [],
       "requirementRefs": [],
-      "intentRefs": []
+      "intentRefs": [],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.product-integration"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.physical.modules-infrastructure-persistence",
@@ -1347,10 +1488,14 @@
         "modules/infrastructure/persistence/build.gradle.kts",
         "modules/infrastructure/persistence",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        "media.surface.integrations"
+        "media.surface.integrations",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1465,6 +1610,19 @@
         "media.intent.review-rights-and-consent",
         "media.intent.simulate",
         "media.intent.understand"
+      ],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.product-integration"
+          ]
+        }
       ]
     },
     {
@@ -1485,10 +1643,14 @@
         "modules/infrastructure/security/build.gradle.kts",
         "modules/infrastructure/security",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        "media.surface.integrations"
+        "media.surface.integrations",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1518,6 +1680,19 @@
       "intentRefs": [
         "media.intent.deliver",
         "media.intent.review-rights-and-consent"
+      ],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.product-integration"
+          ]
+        }
       ]
     },
     {
@@ -1626,10 +1801,14 @@
         "modules/intelligence/multimodal-service",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
         "media.surface.grpc.multimodal",
-        "media.surface.service-grpc"
+        "media.surface.service-grpc",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1703,6 +1882,20 @@
       ],
       "intentRefs": [
         "media.intent.understand"
+      ],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.api",
+            "media.channel.grpc-api"
+          ]
+        }
       ]
     },
     {
@@ -1841,10 +2034,14 @@
         "modules/speech/stt-service",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
         "media.surface.grpc.stt",
-        "media.surface.service-grpc"
+        "media.surface.service-grpc",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1887,6 +2084,20 @@
       ],
       "intentRefs": [
         "media.intent.understand"
+      ],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.api",
+            "media.channel.grpc-api"
+          ]
+        }
       ]
     },
     {
@@ -1908,10 +2119,14 @@
         "modules/speech/tts-service",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
         "media.surface.grpc.tts",
-        "media.surface.service-grpc"
+        "media.surface.service-grpc",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -1955,6 +2170,20 @@
       ],
       "intentRefs": [
         "media.intent.create"
+      ],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.api",
+            "media.channel.grpc-api"
+          ]
+        }
       ]
     },
     {
@@ -2041,10 +2270,14 @@
         "modules/vision/vision-service",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
         "media.surface.grpc.vision",
-        "media.surface.service-grpc"
+        "media.surface.service-grpc",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2095,6 +2328,20 @@
       ],
       "intentRefs": [
         "media.intent.understand"
+      ],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.api",
+            "media.channel.grpc-api"
+          ]
+        }
       ]
     },
     {
@@ -2114,10 +2361,14 @@
         "providers/aws-postgresql/build.gradle.kts",
         "providers/aws-postgresql",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        "media.surface.integrations"
+        "media.surface.integrations",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2218,6 +2469,19 @@
         "media.intent.review-exact-version",
         "media.intent.simulate",
         "media.intent.understand"
+      ],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.product-integration"
+          ]
+        }
       ]
     },
     {
@@ -2245,10 +2509,14 @@
         "media.surface.events",
         "media.surface.public-http",
         "media.surface.service-grpc",
-        "media.surface.capture-adapters"
+        "media.surface.capture-adapters",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2367,6 +2635,21 @@
         "media.intent.review-rights-and-consent",
         "media.intent.simulate",
         "media.intent.understand"
+      ],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.api",
+            "media.channel.grpc-api",
+            "media.channel.http-api"
+          ]
+        }
       ]
     },
     {
@@ -2394,10 +2677,14 @@
         "media.physical.libs-java-common",
         "media.physical.libs-media-experience-simulation",
         "media.physical.modules-integration-tests",
-        "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react"
+        "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md": "59699d732188d23787c33a402df9cef5c6006a42fc96eace422197bbd5a08401"
+        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md": "59699d732188d23787c33a402df9cef5c6006a42fc96eace422197bbd5a08401",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2425,7 +2712,20 @@
       "capabilityFamilyIds": [],
       "capabilityIntentRefs": [],
       "requirementRefs": [],
-      "intentRefs": []
+      "intentRefs": [],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.cli"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.composition.ingestion-and-versioned-artifacts",
@@ -2449,10 +2749,14 @@
         "media.physical.modules-infrastructure-messaging",
         "media.physical.modules-infrastructure-cache",
         "media.physical.providers-aws-postgresql",
-        "media.physical.adapters-ledger"
+        "media.physical.adapters-ledger",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2531,6 +2835,22 @@
         "media.intent.review-rights-and-consent",
         "media.intent.simulate",
         "media.intent.understand"
+      ],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.api",
+            "media.channel.grpc-api",
+            "media.channel.http-api",
+            "media.channel.product-integration"
+          ]
+        }
       ]
     },
     {
@@ -2553,10 +2873,14 @@
         "media.physical.modules-infrastructure-messaging",
         "media.physical.modules-infrastructure-persistence",
         "media.physical.modules-infrastructure-security",
-        "media.physical.modules-infrastructure-cache"
+        "media.physical.modules-infrastructure-cache",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2604,6 +2928,22 @@
         "media.intent.resolve-job",
         "media.intent.simulate",
         "media.intent.understand"
+      ],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.api",
+            "media.channel.grpc-api",
+            "media.channel.http-api",
+            "media.channel.product-integration"
+          ]
+        }
       ]
     },
     {
@@ -2624,10 +2964,14 @@
         "media.physical.modules-speech-stt-service",
         "media.physical.modules-speech-tts-service",
         "media.physical.modules-audio-streaming",
-        "media.physical.modules-intelligence-speech-libs-speech-audio-rust"
+        "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2704,6 +3048,20 @@
       "intentRefs": [
         "media.intent.create",
         "media.intent.understand"
+      ],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.api",
+            "media.channel.grpc-api"
+          ]
+        }
       ]
     },
     {
@@ -2724,10 +3082,14 @@
         "media.physical.modules-vision-vision-service",
         "media.physical.modules-intelligence-multimodal-service",
         "media.physical.modules-video-streaming",
-        "media.physical.runtime-contracts"
+        "media.physical.runtime-contracts",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2786,6 +3148,21 @@
       ],
       "intentRefs": [
         "media.intent.understand"
+      ],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.api",
+            "media.channel.grpc-api",
+            "media.channel.http-api"
+          ]
+        }
       ]
     },
     {
@@ -2809,10 +3186,14 @@
         "media.physical.modules-infrastructure-messaging",
         "media.physical.libs-audio-video-types",
         "media.physical.libs-audio-video-client",
-        "media.physical.libs-audio-video-ui"
+        "media.physical.libs-audio-video-ui",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -2950,6 +3331,26 @@
         "media.intent.edit",
         "media.intent.improve",
         "media.intent.understand"
+      ],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.api",
+            "media.channel.cli",
+            "media.channel.embedded",
+            "media.channel.grpc-api",
+            "media.channel.http-api",
+            "media.channel.product-integration",
+            "media.channel.sdk",
+            "media.channel.web"
+          ]
+        }
       ]
     },
     {
@@ -2975,10 +3376,14 @@
         "media.physical.modules-speech-tts-service",
         "media.physical.modules-vision-vision-service",
         "media.physical.modules-intelligence-multimodal-service",
-        "media.physical.apps-media-experience-explorer"
+        "media.physical.apps-media-experience-explorer",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -3112,6 +3517,25 @@
         "media.intent.resolve-job",
         "media.intent.simulate",
         "media.intent.understand"
+      ],
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.api",
+            "media.channel.cli",
+            "media.channel.embedded",
+            "media.channel.grpc-api",
+            "media.channel.http-api",
+            "media.channel.sdk",
+            "media.channel.web"
+          ]
+        }
       ]
     },
     {
@@ -3132,11 +3556,15 @@
         ".product-experience/pdp-3-product-experience/screen-contracts/",
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",
         ".product-experience/pdp-0-product-truth",
-        ".product-experience/surface-registry.yaml"
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-3-product-experience/screen-registry.yaml": "b49380a9bdedaee554a21a07b4eb26bd6891d16c784fb2ccbfb7c3bc09f1d438",
-        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -3247,7 +3675,20 @@
         "MEDIA-REQ-CAP-STREAM"
       ],
       "consumerSurfaceStatus": "TARGET_PENDING_ADMISSION",
-      "consumerSpecificApplicabilityRef": null
+      "consumerSpecificApplicabilityRef": null,
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.web"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.surface.embedded",
@@ -3268,11 +3709,15 @@
         ".product-experience/pdp-3-product-experience/screen-contracts/",
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",
         ".product-experience/pdp-0-product-truth",
-        ".product-experience/surface-registry.yaml"
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-3-product-experience/screen-registry.yaml": "b49380a9bdedaee554a21a07b4eb26bd6891d16c784fb2ccbfb7c3bc09f1d438",
-        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -3783,7 +4228,20 @@
         "MEDIA-REQ-CAP-VISION-SCENE-TEXT"
       ],
       "consumerSurfaceStatus": "TARGET_HOST_CONTRACT_PENDING",
-      "consumerSpecificApplicabilityRef": null
+      "consumerSpecificApplicabilityRef": null,
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.embedded"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.surface.public-http",
@@ -3803,11 +4261,15 @@
         "contracts/openapi/media.yaml",
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml",
         ".product-experience/pdp-0-product-truth",
-        ".product-experience/surface-registry.yaml"
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml": "3b3c3f47dbe86edf8fe6d5697ceb5e98f64f68c4abaa2c02597c5db3d2006719",
-        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -4327,7 +4789,21 @@
         "MEDIA-REQ-CAP-VISION-SCENE-TEXT"
       ],
       "consumerSurfaceStatus": "COMPATIBILITY_CANONICALIZATION_PENDING",
-      "consumerSpecificApplicabilityRef": null
+      "consumerSpecificApplicabilityRef": null,
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.api",
+            "media.channel.http-api"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.surface.service-grpc",
@@ -4347,12 +4823,16 @@
         "modules/*/src/main/proto/*.proto",
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/surface-registry.yaml"
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml": "3b3c3f47dbe86edf8fe6d5697ceb5e98f64f68c4abaa2c02597c5db3d2006719",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
-        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -4519,7 +4999,21 @@
         "MEDIA-REQ-CAP-VISION-SCENE-TEXT"
       ],
       "consumerSurfaceStatus": "COMPATIBILITY_CANONICALIZATION_PENDING",
-      "consumerSpecificApplicabilityRef": null
+      "consumerSpecificApplicabilityRef": null,
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.api",
+            "media.channel.grpc-api"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.surface.grpc.stt",
@@ -4539,12 +5033,16 @@
         "modules/speech/stt-service/src/main/proto/stt_service.proto",
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/surface-registry.yaml"
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml": "3b3c3f47dbe86edf8fe6d5697ceb5e98f64f68c4abaa2c02597c5db3d2006719",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
-        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -4585,7 +5083,21 @@
         "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION"
       ],
       "consumerSurfaceStatus": "COMPATIBILITY_CANONICALIZATION_PENDING",
-      "consumerSpecificApplicabilityRef": null
+      "consumerSpecificApplicabilityRef": null,
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.api",
+            "media.channel.grpc-api"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.surface.grpc.tts",
@@ -4605,12 +5117,16 @@
         "modules/speech/tts-service/src/main/proto/tts_service.proto",
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/surface-registry.yaml"
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml": "3b3c3f47dbe86edf8fe6d5697ceb5e98f64f68c4abaa2c02597c5db3d2006719",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
-        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -4652,7 +5168,21 @@
         "MEDIA-REQ-CAP-SPEECH-SYNTHESIS"
       ],
       "consumerSurfaceStatus": "COMPATIBILITY_CANONICALIZATION_PENDING",
-      "consumerSpecificApplicabilityRef": null
+      "consumerSpecificApplicabilityRef": null,
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.api",
+            "media.channel.grpc-api"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.surface.grpc.vision",
@@ -4672,12 +5202,16 @@
         "modules/vision/vision-service/src/main/proto/vision_service.proto",
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/surface-registry.yaml"
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml": "3b3c3f47dbe86edf8fe6d5697ceb5e98f64f68c4abaa2c02597c5db3d2006719",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
-        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -4725,7 +5259,21 @@
         "MEDIA-REQ-CAP-VISION-SCENE-TEXT"
       ],
       "consumerSurfaceStatus": "COMPATIBILITY_CANONICALIZATION_PENDING",
-      "consumerSpecificApplicabilityRef": null
+      "consumerSpecificApplicabilityRef": null,
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.api",
+            "media.channel.grpc-api"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.surface.grpc.multimodal",
@@ -4745,12 +5293,16 @@
         "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto",
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/surface-registry.yaml"
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml": "3b3c3f47dbe86edf8fe6d5697ceb5e98f64f68c4abaa2c02597c5db3d2006719",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
-        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -4820,7 +5372,21 @@
         "MEDIA-REQ-CAP-VISION"
       ],
       "consumerSurfaceStatus": "COMPATIBILITY_CANONICALIZATION_PENDING",
-      "consumerSpecificApplicabilityRef": null
+      "consumerSpecificApplicabilityRef": null,
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.api",
+            "media.channel.grpc-api"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.surface.sdk",
@@ -4840,11 +5406,15 @@
         "libs/audio-video-client/src/operations.ts",
         ".product-experience/pdp-2-design-interface-system/sdk/conventions.yaml",
         ".product-experience/pdp-0-product-truth",
-        ".product-experience/surface-registry.yaml"
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/sdk/conventions.yaml": "e18f2ecd1f3948c4d3e435b8cc2c7ce9c3eaa7d52b88fac351d1d57e3a40ad7f",
-        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -5369,7 +5939,20 @@
         "MEDIA-REQ-CAP-VISION-SCENE-TEXT"
       ],
       "consumerSurfaceStatus": "COMPATIBILITY_CONSOLIDATION_PENDING",
-      "consumerSpecificApplicabilityRef": null
+      "consumerSpecificApplicabilityRef": null,
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.sdk"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.surface.cli",
@@ -5388,13 +5971,17 @@
         ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
         ".product-experience/pdp-2-design-interface-system/cli/conventions.yaml",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/surface-registry.yaml"
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-3-product-experience/cli/command-registry.yaml": "6feed0105beddb02232045fff28cdd5d64d6e8314cb647c96dcdda3b945f82a4",
         ".product-experience/pdp-2-design-interface-system/cli/conventions.yaml": "aab04101e875e25509a8b0171e3f2e4518c78e56aca41a49a3531ad6350762a2",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
-        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -5919,7 +6506,20 @@
         "MEDIA-REQ-CAP-VISION-SCENE-TEXT"
       ],
       "consumerSurfaceStatus": "TARGET_FIXTURE_ONLY",
-      "consumerSpecificApplicabilityRef": null
+      "consumerSpecificApplicabilityRef": null,
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.cli"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.surface.agent-tools",
@@ -6053,13 +6653,17 @@
         ".product-experience/pdp-3-product-experience/services/service-registry.yaml",
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml",
         ".product-experience/pdp-0-product-truth/dependency-contracts.yaml",
-        ".product-experience/surface-registry.yaml"
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-3-product-experience/services/service-registry.yaml": "b743461f6d5584fcd79d47b6ef9c17046152cd4c905e583b7b7e945c1e711449",
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml": "3b3c3f47dbe86edf8fe6d5697ceb5e98f64f68c4abaa2c02597c5db3d2006719",
         ".product-experience/pdp-0-product-truth/dependency-contracts.yaml": "b698f43e88c61170c1a25f6789062b87ef07bd1edaca2261e077cf5ae2efbaaf",
-        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -6093,7 +6697,20 @@
         "MEDIA-REQ-CAP-ARTIFACT"
       ],
       "consumerSurfaceStatus": "TARGET_HOST_CONTRACT_PENDING",
-      "consumerSpecificApplicabilityRef": null
+      "consumerSpecificApplicabilityRef": null,
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.product-integration"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.surface.types-library",
@@ -6290,7 +6907,7 @@
         ".product-experience/surface-registry.yaml"
       ],
       "sourceFingerprints": {
-        ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md": "1fe788580adbfa9b6b48e363bb8fd084c83dab117bcc5d6a758e3701c38b9908",
+        ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md": "2c36aae2171c6aea3057620561142b5f5d1cbe78e794e8b1901a878c9d7d309f",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
       },
       "sourceCurrent": true,
@@ -6558,9 +7175,9 @@
         ".product-experience/surface-registry.yaml"
       ],
       "sourceFingerprints": {
-        "apps/media-experience-explorer/specification-artifacts.json": "6cb5006b07b113dfa5cc1b41a78648be56e76910c60b60bd82f286c1593b8593",
+        "apps/media-experience-explorer/specification-artifacts.json": "7e89c5b026a1fb0327a99d0952d335d34ccb158205bdca4f23c8354baf7850b6",
         ".product-experience/explorer/EXPERIENCE-EXPLORER.md": "0331b71c41e8867dc9a16833c967bf28964814ac1ea2eaaa0ee62a2e111dc145",
-        ".product-experience/source-manifest.yaml": "a567d1fafc9978ed8ef6c97c07e75aa59371aaaf4a7ee9737b7aa69300579a67",
+        ".product-experience/source-manifest.yaml": "dc2cc4ff58c3b3bd29f8d11036f0a3640c574cb4abceb0902fcafd3aad2c6cf2",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
       },
       "sourceCurrent": true,
@@ -6601,11 +7218,15 @@
         "archive/media-desktop-apps/",
         "archive/media-desktop-apps/",
         ".product-experience/authority-map.yaml",
-        ".product-experience/surface-registry.yaml"
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
         ".product-experience/authority-map.yaml": "03d010ab4985ff76b8dafea6a32d86196fe7bf2a034f8b43216b6378c35ead3e",
-        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -6623,7 +7244,20 @@
       "capabilityIntentRefs": [],
       "requirementRefs": [],
       "consumerSurfaceStatus": "NOT_ACTIVE_ARCHIVED",
-      "consumerSpecificApplicabilityRef": null
+      "consumerSpecificApplicabilityRef": null,
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "NOT_APPLICABLE_ARCHIVED",
+          "channelRefs": [
+            "media.channel.legacy-desktop"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.surface.recorder-orchestrator",
@@ -6645,13 +7279,17 @@
         ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml",
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml",
-        ".product-experience/surface-registry.yaml"
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": "0435edb755889261776f1e37bc17a3253256e56730a40e6731d4bf37253ed2fa",
         ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml": "3bcc559debed0e6c0e21536ea409ede27fff59903e4e7e9ad852cef7f7a79f72",
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
-        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -6698,7 +7336,20 @@
         "MEDIA-REQ-CAP-RIGHTS"
       ],
       "consumerSurfaceStatus": "TARGET_PENDING_ADMISSION",
-      "consumerSpecificApplicabilityRef": null
+      "consumerSpecificApplicabilityRef": null,
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.cli"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.surface.capture-adapters",
@@ -6788,14 +7439,18 @@
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml",
         ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml",
-        ".product-experience/surface-registry.yaml"
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
         ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": "0435edb755889261776f1e37bc17a3253256e56730a40e6731d4bf37253ed2fa",
         ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml": "3bcc559debed0e6c0e21536ea409ede27fff59903e4e7e9ad852cef7f7a79f72",
-        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -6851,7 +7506,20 @@
         "MEDIA-REQ-CAP-RIGHTS"
       ],
       "consumerSurfaceStatus": "TARGET_PENDING_ADMISSION",
-      "consumerSpecificApplicabilityRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.web/ownerDefinitionApplicability/consumerSpecificApplicability/@surfaceRef=media.surface.production-studio"
+      "consumerSpecificApplicabilityRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.web/ownerDefinitionApplicability/consumerSpecificApplicability/@surfaceRef=media.surface.production-studio",
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.web"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.surface.interactive-demo-player",
@@ -6873,13 +7541,17 @@
         ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml",
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml",
-        ".product-experience/surface-registry.yaml"
+        ".product-experience/surface-registry.yaml",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+        ".product-experience/decision-log.md#PXD-188"
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml": "0435edb755889261776f1e37bc17a3253256e56730a40e6731d4bf37253ed2fa",
         ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml": "3bcc559debed0e6c0e21536ea409ede27fff59903e4e7e9ad852cef7f7a79f72",
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
-        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8"
+        ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+        ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "Validated against native PDP-0 source cut and exact denominator/scope checker; row fingerprints record the selected current source files.",
@@ -6909,7 +7581,20 @@
         "MEDIA-REQ-CAP-RECIPE-TEMPLATE"
       ],
       "consumerSurfaceStatus": "TARGET_PENDING_ADMISSION",
-      "consumerSpecificApplicabilityRef": null
+      "consumerSpecificApplicabilityRef": null,
+      "campaignExtensionApplicability": [
+        {
+          "featureId": "AUD-SPEC-020",
+          "capabilityRef": "media.rules.manage",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability",
+          "applicabilityState": "PROPOSED; owner disposition pending",
+          "disposition": "PROPOSED_APPLICABLE",
+          "channelRefs": [
+            "media.channel.embedded"
+          ]
+        }
+      ]
     }
   ],
   "sourceFingerprintSetAlgorithm": "SHA-256 of compact JSON.stringify over sorted [repository-relative path, file SHA-256] tuples",

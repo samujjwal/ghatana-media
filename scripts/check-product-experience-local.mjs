@@ -12,10 +12,13 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { createHash } from "node:crypto";
+import { createRequire } from "node:module";
 
 const rootArgument = process.argv.find((argument) => argument.startsWith("--root="))?.slice("--root=".length);
 const root = rootArgument ? resolve(rootArgument) : resolve(new URL("..", import.meta.url).pathname);
 const productRoot = join(root, ".product-experience");
+const require = createRequire(import.meta.url);
+const { parse: parseYaml } = require("yaml");
 const indexPath = join(root, "apps/media-experience-explorer/specification-artifacts.json");
 const matrixPath = join(productRoot, "mandatory-surface-closure-matrix.yaml");
 const failures = [];
@@ -229,6 +232,23 @@ function assertBlocksHaveFields(blocks, fields, label) {
   return complete;
 }
 
+function resolveStableAnchor(source, anchor) {
+  const prefix = ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#";
+  if (typeof anchor !== "string" || !anchor.startsWith(prefix)) return undefined;
+  let value = source;
+  for (const segment of anchor.slice(prefix.length).split("/").filter(Boolean)) {
+    if (segment.startsWith("@id=")) {
+      if (!Array.isArray(value)) return undefined;
+      value = value.find((record) => record?.id === segment.slice(4));
+    } else {
+      if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+      value = value[segment];
+    }
+    if (value === undefined || value === null) return undefined;
+  }
+  return value;
+}
+
 const capabilitySource = read(join(productRoot, "pdp-0-product-truth/capabilities.yaml"));
 const familySection = capabilitySource.split(/^families:\s*$/mu)[1]?.split(/^capabilities:\s*$/mu)[0] ?? "";
 const capabilitySection = capabilitySource.split(/^capabilities:\s*$/mu)[1] ?? "";
@@ -237,11 +257,15 @@ const familyIds = new Set(idsFrom(familySection, /^\s*- id: (media\.[A-Za-z0-9._
 const capabilityFamilyRefs = collectMatches([capabilitySection], /^\s*familyId: (media\.[A-Za-z0-9._-]+)$/gmu);
 const requirementSource = read(join(productRoot, "pdp-0-product-truth/requirements.yaml"));
 const goalsSource = read(join(productRoot, "pdp-0-product-truth/goals-jtbd.yaml"));
+const leafReviewSource = read(join(productRoot, "pdp-0-product-truth/capability-leaf-review.yaml"));
+const campaignExtensionPath = join(productRoot, "pdp-0-product-truth/campaign-extensions.yaml");
+const campaignExtensionSource = read(campaignExtensionPath);
 const journeyCatalogSource = read(join(productRoot, "pdp-0-product-truth/journey-catalog.yaml"));
 const coverageSource = read(join(productRoot, "vision-requirements-coverage.yaml"));
 const requirementIds = new Set(idsFrom(requirementSource, /^- id: (MEDIA-REQ-[A-Z0-9-]+)[ \t]*$/gmu));
 const capabilityRequirementRefs = collectMatches([capabilitySection], /^\s*- (MEDIA-REQ-[A-Z0-9-]+)$/gmu);
-if (capabilityIds.size !== 462) fail(`PDP-0 capability leaf denominator is ${capabilityIds.size}; expected 462`);
+if (capabilityIds.size !== 462) fail(`PDP-0 historical capability leaf denominator is ${capabilityIds.size}; expected 462`);
+if (familyIds.size !== 38) fail(`PDP-0 historical capability family denominator is ${familyIds.size}; expected 38`);
 unique([...capabilityIds], "PDP-0 capability ID");
 unique([...familyIds], "PDP-0 capability family ID");
 assertKnown(capabilityFamilyRefs, familyIds, "Capability family reference");
@@ -277,7 +301,164 @@ for (const block of outcomeCoverageBlocks) {
 const requirementBlocks = topLevelBlocks(requirementSource);
 const requirementOutcomeTraceCount = requirementBlocks.filter((block) =>
   /^\s*relatedOutcomeRefs:\s*$/mu.test(block) && /\n\s*-\s*media\.goal\./mu.test(block)).length;
-if (requirementIds.size !== 38) fail("Requirement denominator is " + requirementIds.size + "; expected 38");
+if (requirementIds.size !== 38) fail("Historical requirement-family denominator is " + requirementIds.size + "; expected 38");
+const intentIds = new Set(idsFrom(goalsSource, /^\s*- id: (media\.intent\.[A-Za-z0-9._-]+)$/gmu));
+const ownerAdjudicationIds = new Set(idsFrom(leafReviewSource, /^\s*- capabilityRef: (media\.[A-Za-z0-9._-]+)$/gmu));
+if (intentIds.size !== 19) fail(`Historical intent denominator is ${intentIds.size}; expected 19`);
+if (ownerAdjudicationIds.size !== 462) fail(`Owner adjudication denominator is ${ownerAdjudicationIds.size}; expected 462`);
+let campaignExtensions;
+try { campaignExtensions = parseYaml(campaignExtensionSource); }
+catch (error) { fail(`PDP-0 campaign extension is not valid YAML: ${error.message}`); campaignExtensions = {}; }
+const extension = campaignExtensions.records?.find((record) => record.id === "AUD-SPEC-020");
+if (!extension) fail("PDP-0 campaign extension is missing stable record AUD-SPEC-020");
+else {
+  const canonical = campaignExtensions.canonicalDenominator ?? {};
+  for (const [field, expected] of Object.entries({ capabilityLeaves: 462, requirementFamilies: 38, intents: 19, ownerAdjudications: 462 })) {
+    if (canonical[field] !== expected) fail(`AUD-SPEC-020 canonicalDenominator.${field} is ${canonical[field]}; expected ${expected}`);
+  }
+  if (extension.stableFeatureId !== "media.rules.manage" || extension.campaignId !== "media.pdp0.501-campaign") fail("AUD-SPEC-020 extension has an unexpected feature or campaign identity");
+  if (extension.coordinatorScopeDecision?.disposition !== "INCLUDED_IN_PDP0_CAMPAIGN") fail("AUD-SPEC-020 lacks an explicit PDP-0 coordinator scope decision");
+  if (extension.coordinatorScopeDecision?.ownerApproval !== "NOT_CLAIMED" || extension.coordinatorScopeDecision?.independentAcceptance !== "NOT_CLAIMED") fail("AUD-SPEC-020 must leave owner and independent acceptance NOT_CLAIMED");
+  for (const [field, expected] of Object.entries({ implementationState: "UNKNOWN", qualificationState: "NOT_EVALUATED", runtimeAvailability: "UNKNOWN", executionAdmission: "NOT_ADMITTED" })) {
+    if (extension.coordinatorScopeDecision?.[field] !== expected) fail(`AUD-SPEC-020 coordinator state ${field} must remain ${expected}`);
+  }
+  if (extension.capabilityDefinition?.id !== "media.rules.manage" || extension.requirementDefinition?.id !== "MEDIA-REQ-CAP-RULES" || extension.intentDefinition?.id !== "media.intent.manage-reusable-rules") fail("AUD-SPEC-020 typed capability, requirement, and intent definitions are not bound by stable IDs");
+  const applicability = extension.channelApplicability?.records?.find((record) => record.capabilityRef === "media.rules.manage")?.channelApplicability ?? [];
+  const proposed = new Set(["media.channel.web", "media.channel.api", "media.channel.embedded", "media.channel.http-api", "media.channel.grpc-api", "media.channel.sdk", "media.channel.cli", "media.channel.product-integration"]);
+  const expectedChannels = new Set([...proposed, "media.channel.legacy-desktop", "media.channel.agent", "media.channel.event"]);
+  const actualChannels = new Set(applicability.map((decision) => decision.channelRef));
+  if (actualChannels.size !== 11 || [...expectedChannels].some((channel) => !actualChannels.has(channel))) fail("AUD-SPEC-020 must declare exactly the eight proposal channels and three explicit non-applicability channels");
+  if (applicability.filter((decision) => decision.disposition === "PROPOSED_APPLICABLE").length !== 8) fail("AUD-SPEC-020 must have exactly eight proposed applicable channels");
+  for (const channel of ["media.channel.legacy-desktop", "media.channel.agent", "media.channel.event"]) {
+    if (!applicability.find((decision) => decision.channelRef === channel)?.rationale) fail(`AUD-SPEC-020 ${channel} N/A decision requires a rationale`);
+  }
+  // Resolve every proposed channel against the existing physical, composite, and logical
+  // surface denominator. These are definition-scope proposals only, never owner receipts.
+  let surfaceRegistry;
+  let physicalTopology;
+  try {
+    surfaceRegistry = parseYaml(read(join(productRoot, "surface-registry.yaml")));
+    physicalTopology = JSON.parse(read(join(productRoot, "surfaces/media-physical-topology.v1.json")));
+  } catch (error) {
+    fail(`AUD-SPEC-020 surface applicability authorities are invalid: ${error.message}`);
+    surfaceRegistry = {};
+    physicalTopology = {};
+  }
+  const physicalCandidates = physicalTopology.manifestCandidates ?? [];
+  const composites = physicalTopology.compositions ?? [];
+  const consumers = physicalTopology.consumerCrosswalk ?? [];
+  const registrySurfaces = surfaceRegistry.surfaces ?? [];
+  const logicalIds = new Set(consumers.map((row) => row.surfaceId));
+  const allSurfaceIds = new Set([
+    ...physicalCandidates.map((row) => row.surfaceId),
+    ...composites.map((row) => row.surfaceId),
+    ...consumers.map((row) => row.surfaceId),
+  ]);
+  if (physicalCandidates.length !== 26 || composites.length !== 7 || consumers.length !== 21
+      || registrySurfaces.length !== 21 || allSurfaceIds.size !== 54
+      || registrySurfaces.some((row) => !logicalIds.has(row.surfaceId))) {
+    fail("AUD-SPEC-020 surface crosswalk must preserve the exact 54-identity PDP-0 denominator (26 physical, 7 composite, 21 logical)");
+  }
+  const mappingRows = surfaceRegistry.channelSurfaceProposals?.mappings ?? [];
+  const mappingsByChannel = new Map(mappingRows.map((row) => [row.channelRef, row.candidateSurfaceRefs ?? []]));
+  const transportRefs = [...(mappingsByChannel.get("media.channel.http-api") ?? []), ...(mappingsByChannel.get("media.channel.grpc-api") ?? [])];
+  const expectedSurfaceRefsByChannel = new Map(mappingsByChannel);
+  // The generic API mapping is scoped to a different PDP-0 proposal (Recorder capture).
+  // AUD-SPEC-020 explicitly defines API as an umbrella over HTTP and gRPC.
+  expectedSurfaceRefsByChannel.set("media.channel.api", [...new Set(transportRefs)]);
+  const consumerById = new Map(consumers.map((row) => [row.surfaceId, row]));
+  const physicalIds = new Set(physicalCandidates.map((row) => row.surfaceId));
+  const compositeIds = new Set(composites.map((row) => row.surfaceId));
+  const expectedDispositionByChannel = new Map([
+    ...["media.channel.web", "media.channel.api", "media.channel.embedded", "media.channel.http-api", "media.channel.grpc-api", "media.channel.sdk", "media.channel.cli", "media.channel.product-integration"].map((channel) => [channel, "PROPOSED_APPLICABLE"]),
+    ["media.channel.legacy-desktop", "NOT_APPLICABLE_ARCHIVED"],
+    ["media.channel.agent", "NOT_APPLICABLE_NON_INVOCATION"],
+    ["media.channel.event", "NOT_APPLICABLE_NON_INVOCATION"],
+  ]);
+  const sorted = (values) => [...values].sort();
+  if (applicability.length !== expectedDispositionByChannel.size
+      || new Set(applicability.map((row) => row.channelRef)).size !== expectedDispositionByChannel.size) {
+    fail("AUD-SPEC-020 must resolve exactly eight proposed channels and three scoped N/A channels");
+  }
+  for (const row of applicability) {
+    const expectedDisposition = expectedDispositionByChannel.get(row.channelRef);
+    const resolution = row.surfaceResolution ?? {};
+    const expectedLogical = expectedSurfaceRefsByChannel.get(row.channelRef) ?? [];
+    const expectedPhysical = [...new Set(expectedLogical.flatMap((surfaceId) => consumerById.get(surfaceId)?.physicalRefs ?? []))];
+    const expectedComposites = composites
+      .filter((composition) => (composition.children ?? []).some((child) => expectedPhysical.includes(child)))
+      .map((composition) => composition.surfaceId);
+    const logicalRefs = resolution.logicalConsumerSurfaceRefs ?? [];
+    const physicalRefs = resolution.physicalSurfaceRefs ?? [];
+    const compositeRefs = resolution.compositeSurfaceRefs ?? [];
+    if (!expectedDisposition || row.disposition !== expectedDisposition) {
+      fail(`AUD-SPEC-020 ${row.channelRef} has an invalid or promoted applicability disposition`);
+    }
+    if (sorted(logicalRefs).join("\0") !== sorted(expectedLogical).join("\0")
+        || sorted(physicalRefs).join("\0") !== sorted(expectedPhysical).join("\0")
+        || sorted(compositeRefs).join("\0") !== sorted(expectedComposites).join("\0")) {
+      fail(`AUD-SPEC-020 ${row.channelRef} must crosswalk exactly to its current registered surface identities`);
+    }
+    if ([...logicalRefs].some((id) => !logicalIds.has(id))
+        || [...physicalRefs].some((id) => !physicalIds.has(id))
+        || [...compositeRefs].some((id) => !compositeIds.has(id))) {
+      fail(`AUD-SPEC-020 ${row.channelRef} references an unknown or newly invented surface identity`);
+    }
+    if (row.channelRef === "media.channel.api"
+        && (resolution.kind !== "UMBRELLA_INHERITS_EXACT_TRANSPORT_SURFACES"
+          || sorted(resolution.inheritsChannelRefs ?? []).join("\0") !== sorted(["media.channel.http-api", "media.channel.grpc-api"]).join("\0"))) {
+      fail("AUD-SPEC-020 protocol-neutral API must inherit the exact HTTP and gRPC consumer surfaces");
+    }
+    if (expectedDisposition === "PROPOSED_APPLICABLE" && resolution.kind !== "DIRECT_DEFINITION_SCOPE"
+        && row.channelRef !== "media.channel.api") {
+      fail(`AUD-SPEC-020 ${row.channelRef} must remain a direct definition-scope proposal`);
+    }
+    if (expectedDisposition !== "PROPOSED_APPLICABLE"
+        && (resolution.kind !== "COORDINATOR_PROPOSED_SCOPED_NOT_APPLICABLE"
+          || resolution.ownerApproval !== "NOT_CLAIMED" || !row.rationale?.trim())) {
+      fail(`AUD-SPEC-020 ${row.channelRef} scoped N/A must remain a reasoned coordinator proposal with owner approval NOT_CLAIMED`);
+    }
+  }
+  const channelApplicabilityRecord = extension.channelApplicability?.records?.find((record) => record.capabilityRef === "media.rules.manage");
+  if (extension.channelApplicability?.status !== "PROPOSAL_ONLY; cannot satisfy owner acceptance, independent acceptance, closure, admission, or runtime support"
+      || channelApplicabilityRecord?.ownerApproval !== "NOT_CLAIMED"
+      || channelApplicabilityRecord?.independentAcceptance !== "NOT_CLAIMED"
+      || channelApplicabilityRecord?.applicabilityState !== "PROPOSED; owner disposition pending"
+      || channelApplicabilityRecord?.implementationState !== "UNKNOWN"
+      || channelApplicabilityRecord?.qualificationState !== "NOT_EVALUATED"
+      || channelApplicabilityRecord?.runtimeAvailability !== "UNKNOWN"
+      || channelApplicabilityRecord?.executionAdmission !== "NOT_ADMITTED") {
+    fail("AUD-SPEC-020 channel applicability must remain proposal-only with owner acceptance unclaimed");
+  }
+  if (extension.compileAcceptance?.outputs?.normalizedSemanticGraph !== "media.rules.normalized-semantic-graph" || extension.compileAcceptance?.outputs?.semanticFingerprint !== "media.rules.semantic-fingerprint") fail("AUD-SPEC-020 P0 compile acceptance must expose typed graph and fingerprint outputs");
+  const auditDimensions = extension.validationCoverage?.auditValidationDimensions ?? {};
+  const expectedDimensions = ["positive", "negative", "unavailable", "UNKNOWN_or_explicit_NA", "rights_license", "manual_agent_parity_when_applicable", "source_version_and_provenance"];
+  const auditReference = "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json";
+  let auditRecord;
+  try {
+    auditRecord = JSON.parse(read(join(root, auditReference))).originalAudit?.inventory?.find((row) => row.audit_id === "AUD-SPEC-020");
+  } catch { auditRecord = undefined; }
+  if (!auditRecord || extension.validationCoverage?.sourceValidationRef !== `${auditReference}#originalAudit.inventory/@audit_id=AUD-SPEC-020/validations_required` ||
+      JSON.stringify([...expectedDimensions].sort()) !== JSON.stringify([...(auditRecord.validations_required ?? [])].sort())) {
+    fail("AUD-SPEC-020 validation coverage does not match its source audit validation dimensions");
+  }
+  for (const dimension of expectedDimensions) {
+    if (!auditDimensions[dimension]?.caseRefs?.length || !auditDimensions[dimension]?.criterion) fail(`AUD-SPEC-020 validation coverage is missing source-bound cases/criterion for ${dimension}`);
+    for (const anchor of auditDimensions[dimension]?.caseRefs ?? []) {
+      if (!anchor.includes("#records/@id=AUD-SPEC-020/") || /\[[0-9.]+\]/u.test(anchor) || resolveStableAnchor(campaignExtensions, anchor) === undefined) {
+        fail(`AUD-SPEC-020 ${dimension} validation anchor is stale or lacks stable selectors: ${anchor}`);
+      }
+    }
+  }
+  if (auditDimensions.manual_agent_parity_when_applicable?.disposition !== "JUSTIFIED_NA") fail("AUD-SPEC-020 agent-parity N/A requires an explicit justified disposition");
+  const compileBinding = extension.validationCoverage?.compileEquivalenceAndFingerprint;
+  if (!compileBinding?.boundToNormalizedSemanticGraph || !compileBinding?.boundToStableSemanticFingerprint ||
+      compileBinding?.compileAcceptanceId !== extension.compileAcceptance?.id ||
+      resolveStableAnchor(campaignExtensions, compileBinding?.compileAcceptanceRef) !== extension.compileAcceptance ||
+      resolveStableAnchor(campaignExtensions, compileBinding?.criterionRef) !== extension.compileAcceptance?.criterion) {
+    fail("AUD-SPEC-020 normalized graph equivalence and stable fingerprint are not source-bound validation criteria");
+  }
+}
 if (requirementOutcomeTraceCount !== requirementIds.size) {
   fail("Only " + requirementOutcomeTraceCount + " of " + requirementIds.size + " requirements have an outcome trace");
 }
@@ -304,7 +485,7 @@ if (/localProjection: (?:P0|P1|P2|P3)(?:\s|$)/mu.test(coverageSource)) {
   fail("Vision/requirements crosswalk contains legacy P0/P1/P2/P3 projections");
 }
 note(outcomeIds.size + " PDP-0 vision outcomes have journey/supporting-view coverage; " + requirementOutcomeTraceCount + " requirement groups have outcome traces");
-note(`${capabilityIds.size} PDP-0 capability leaves resolve to ${familyIds.size} families and ${requirementIds.size} requirement IDs. Historical inline-field observation: ${capabilityCoreComplete} legacy inline shapes and ${operationSpecificParameterProposals} inline parameter proposals; this parser does not evaluate the additive owner capability/operation contracts or their reviewed bounds`);
+note(`${capabilityIds.size} historical PDP-0 capability leaves resolve to ${familyIds.size} families and ${requirementIds.size} requirement IDs; ${intentIds.size} intents and ${ownerAdjudicationIds.size} owner adjudications remain canonical. AUD-SPEC-020 is checked as a separate campaign extension. Historical inline-field observation: ${capabilityCoreComplete} legacy inline shapes and ${operationSpecificParameterProposals} inline parameter proposals`);
 
 const componentSource = read(join(productRoot, "pdp-2-design-interface-system/component-contracts.yaml"));
 const componentSection = componentSource.split(/^components:\s*$/mu)[1]?.split(/^masterPlanCoverage:\s*$/mu)[0] ?? "";

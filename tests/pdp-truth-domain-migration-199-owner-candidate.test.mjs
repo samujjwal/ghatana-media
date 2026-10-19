@@ -11,8 +11,12 @@ const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const require = createRequire(resolve(root, "../ghatana-tools/package.json"));
 const { parse } = require("yaml");
 const candidate = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json"), "utf8"));
+const headCandidate = JSON.parse(execFileSync("git", ["show", "HEAD:docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json"], { cwd: root, encoding: "utf8", maxBuffer: 10 * 1024 * 1024 }));
 const pxd173Successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd173.json"), "utf8"));
+const pxd183Successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd183.json"), "utf8"));
+const pxd185Successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd185.json"), "utf8"));
 const partition = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-pending-owner-partition-499.json"), "utf8"));
+const pdp0Status = JSON.parse(readFileSync(resolve(root, "docs/implementation/pdp-0-phase-dev-status.json"), "utf8"));
 const sha = (value) => createHash("sha256").update(value).digest("hex");
 const sources = new Map();
 const pinnedPlan = execFileSync("git", ["show", "e62514f94c45a4ecbc438d26298bf82b6a6f3d69:docs/migration/expert-reviewed-master-plan.md"], { cwd: root, encoding: "utf8" });
@@ -119,6 +123,34 @@ test("the 199-row cohort preserves historical claim identity and phase-scoped li
   }
 });
 
+test("later-phase source locator refreshes remain explicit unaccepted handoffs", () => {
+  const handoffs = candidate.laterPhaseHandoffs ?? [];
+  assert.equal(handoffs.length, 2);
+  const routeHandoff = handoffs.find(({ claimId }) => claimId === "MPSEM-0023-C002");
+  assert.equal(routeHandoff.ownerPhase, "PDP-1/PDP-2 cross-interface");
+  assert.equal(routeHandoff.status, "PENDING_OWNER_PHASE_REVIEW");
+  assert.equal(routeHandoff.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+  assert.equal(routeHandoff.acceptanceEffect, "none");
+  const route = candidate.records.find(({ claimId }) => claimId === routeHandoff.claimId);
+  assert.equal(routeHandoff.sourceRef, route.priorLocatorRef);
+  assert.equal(route.currentProposalObservation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+
+  const operationHandoff = handoffs.find(({ claimId }) => claimId === "MPSEM-0039-C004");
+  assert.equal(operationHandoff.ownerPhase, "PDP-1");
+  assert.equal(operationHandoff.status, "PENDING_OWNER_PHASE_REVIEW");
+  assert.equal(operationHandoff.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+  assert.equal(operationHandoff.acceptanceEffect, "none");
+  const operationRow = candidate.records.find(({ claimId }) => claimId === operationHandoff.claimId);
+  const laterPhaseRefs = operationRow.ownerSemanticReview.materialBindings
+    .filter(({ ref }) => ref.startsWith(".product-experience/pdp-1-domain-data/"))
+    .map(({ ref }) => ref);
+  assert.deepEqual(operationHandoff.sourceRefs, laterPhaseRefs);
+  for (const ref of operationHandoff.sourceRefs) {
+    const binding = operationRow.ownerSemanticReview.materialBindings.find((item) => item.ref === ref);
+    assert.equal(binding.currentProposalObservation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  }
+});
+
 test("MPSEM-0278-C001 keeps the historical partition locator and explicitly observes current rule 6", () => {
   const record = candidate.records.find(({ claimId }) => claimId === "MPSEM-0278-C001");
   const sourceClaim = partition.records.find(({ claimId }) => claimId === record.claimId);
@@ -132,6 +164,27 @@ test("MPSEM-0278-C001 keeps the historical partition locator and explicitly obse
   assert.equal(currentValueSha256, "1761028bd34799e45da3421f4cdd42f89e85ca51c4daddaaa3fbc6532cf20421");
   assert.equal(record.currentProposalObservation.currentTargetValueSha256, currentValueSha256);
   assert.notEqual(record.currentProposalObservation.currentTargetRef, record.priorLocatorRef, "stale rule 5 cannot stand in for the current selector");
+});
+
+test("MPSEM-0170-C003 binds the current PXD-187 rule without promoting acceptance", () => {
+  const row = candidate.records.find(({ claimId }) => claimId === "MPSEM-0170-C003");
+  const targetRef = ".product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml#/rules/0";
+  assert.equal(row.priorLocatorRef, targetRef);
+  assert.equal(row.currentProposalObservation.priorSourceFileSha256,
+    "ccfa544afaf056b8a7ffcc77f61dc17e36289d8ddfc0fb60c75f7998a4d116af");
+  assert.equal(row.currentProposalObservation.priorTargetValueSha256,
+    "40fe21f5f22665a5f4e6cdda536607dae8d43fa082d0d9c81757f53caaedde9e");
+  const { source, value } = resolveSelector(targetRef);
+  assert.match(value, /one stable leaf record or an explicit semantic alias/u);
+  assert.match(value, /AUD-SPEC-020 campaign extension is additive/u);
+  assert.match(value, /without reducing the master-plan denominator/u);
+  assert.equal(row.currentProposalObservation.currentSourceFileSha256, sha(source));
+  assert.equal(row.currentProposalObservation.currentTargetValueSha256, sha(value));
+  assert.equal(row.ownerSemanticReview.materialBindings[0].requiredSourcePhrase, value);
+  assert.equal(row.currentProposalObservation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+  assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
+  assert.equal(row.ownerSemanticReview.runtimeStatus, "NOT_EVALUATED");
 });
 
 test("current proposal observations preserve historical source and owner pins", () => {
@@ -157,13 +210,471 @@ test("current proposal observations preserve historical source and owner pins", 
   }
 });
 
-test("PXD-173 successors cover every refreshed PDP-0 candidate source observation", () => {
+test("MPSEM-0042-C001 and MPSEM-0045-C002 refresh only exact PDP-1 source-file observations", () => {
+  const cli = candidate.records.find(({ claimId }) => claimId === "MPSEM-0042-C001");
+  assert.equal(cli.ownerPhase, "PDP-1");
+  assert.equal(cli.ownerSourceFile, ".product-experience/pdp-1-domain-data/operations.yaml");
+  assert.equal(cli.priorLocatorRef,
+    ".product-experience/pdp-1-domain-data/operations.yaml#/sourceDenominators/lifecycleEventNames/bindingStatus");
+  const cliObservation = cli.currentProposalObservation;
+  const cliCurrent = resolveSelector(cliObservation.currentTargetRef ?? cli.priorLocatorRef);
+  assert.equal(cliObservation.priorSourceFileSha256, cli.ownerSourceSha256);
+  assert.equal(cliObservation.priorTargetValueSha256, cli.currentTargetValueSha256);
+  assert.equal(cliObservation.supersededCurrentSourceFileSha256,
+    "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5");
+  assert.equal(cliObservation.currentSourceFileSha256, sha(cliCurrent.source));
+  assert.equal(cliObservation.currentTargetValueSha256, sha(cliCurrent.value));
+  assert.equal(cliObservation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  assert.equal(cli.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+  assert.equal(cli.ownerSemanticReview.acceptanceEffect, "none");
+
+  const scene = candidate.records.find(({ claimId }) => claimId === "MPSEM-0045-C002");
+  assert.equal(scene.ownerPhase, "PDP-1");
+  assert.equal(scene.ownerSourceFile, ".product-experience/pdp-1-domain-data/domain-objects.yaml");
+  assert.equal(scene.priorLocatorRef,
+    ".product-experience/pdp-1-domain-data/domain-objects.yaml#/canonicalRelationshipAdjudication/records/17/relationships/0/meaning");
+  const sceneObservation = scene.currentProposalObservation;
+  const sceneCurrent = resolveSelector(sceneObservation.currentTargetRef ?? scene.priorLocatorRef);
+  assert.equal(sceneObservation.priorSourceFileSha256, scene.ownerSourceSha256);
+  assert.equal(sceneObservation.priorTargetValueSha256, scene.currentTargetValueSha256);
+  assert.equal(sceneObservation.supersededCurrentSourceFileSha256,
+    "ed045314dbdb6ece934348a9eba6d7c2ae791438476ef11d343cb57a04a05e04");
+  assert.equal(sceneObservation.currentSourceFileSha256, sha(sceneCurrent.source));
+  assert.equal(sceneObservation.currentTargetValueSha256, sha(sceneCurrent.value));
+  assert.equal(sceneObservation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  assert.equal(scene.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+  assert.equal(scene.ownerSemanticReview.acceptanceEffect, "none");
+  assert.equal(scene.ownerSemanticReview.runtimeStatus, "NOT_EVALUATED");
+
+  for (const binding of scene.ownerSemanticReview.materialBindings) {
+    const observation = binding.currentProposalObservation;
+    const current = resolveSelector(binding.ref);
+    const serialized = typeof current.value === "string" ? current.value : JSON.stringify(current.value);
+    assert.equal(observation.priorSourceFileSha256, binding.sourceFileSha256);
+    assert.equal(observation.priorSourceValueSha256, binding.sourceValueSha256);
+    assert.equal(observation.supersededCurrentSourceFileSha256,
+      "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5");
+    assert.equal(observation.currentSourceFileSha256, sha(current.source));
+    assert.equal(observation.currentSourceValueSha256, sha(serialized));
+    assert.equal(observation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+    assert.equal(observation.acceptanceEffect ?? "none", "none");
+  }
+});
+
+test("MPSEM-0058-C002 and MPSEM-0101-C003 refresh stable current source files without value or acceptance promotion", () => {
+  const caption = candidate.records.find(({ claimId }) => claimId === "MPSEM-0058-C002");
+  assert.equal(caption.ownerPhase, "PDP-1");
+  const captionLive = resolveSelector(caption.currentProposalObservation.currentTargetRef ?? caption.priorLocatorRef);
+  assert.equal(caption.currentProposalObservation.priorSourceFileSha256, caption.ownerSourceSha256);
+  assert.equal(caption.currentProposalObservation.priorTargetValueSha256, caption.currentTargetValueSha256);
+  assert.equal(caption.currentProposalObservation.supersededCurrentSourceFileSha256,
+    "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5");
+  assert.equal(caption.currentProposalObservation.currentSourceFileSha256, sha(captionLive.source));
+  assert.equal(caption.currentProposalObservation.currentTargetValueSha256, sha(captionLive.value));
+  assert.equal(caption.currentProposalObservation.currentTargetValueSha256, caption.currentTargetValueSha256);
+  assert.equal(caption.currentProposalObservation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  assert.equal(caption.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+  assert.equal(caption.ownerSemanticReview.acceptanceEffect, "none");
+
+  const decision = candidate.records.find(({ claimId }) => claimId === "MPSEM-0101-C003");
+  assert.equal(decision.ownerPhase, "PDP-1");
+  const decisionLive = resolveSelector(decision.currentProposalObservation.currentTargetRef ?? decision.priorLocatorRef);
+  assert.equal(decision.currentProposalObservation.priorSourceFileSha256, decision.ownerSourceSha256);
+  assert.equal(decision.currentProposalObservation.priorTargetValueSha256, decision.currentTargetValueSha256);
+  assert.equal(decision.currentProposalObservation.currentSourceFileSha256, sha(decisionLive.source));
+  assert.equal(decision.currentProposalObservation.currentTargetValueSha256, sha(decisionLive.value));
+  assert.equal(decision.currentProposalObservation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  assert.equal(decision.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+  assert.equal(decision.ownerSemanticReview.acceptanceEffect, "none");
+  assert.equal(decision.ownerSemanticReview.runtimeStatus, "NOT_EVALUATED");
+
+  const requirementPath = ".product-experience/pdp-0-product-truth/requirements.yaml";
+  const requirementBinding = decision.ownerSemanticReview.materialBindings.find(({ ref }) => ref.startsWith(`${requirementPath}#`));
+  assert.ok(requirementBinding, "PDP-0 requirement remains a source binding only");
+  const requirementObservation = requirementBinding.currentProposalObservation;
+  const requirementLive = resolveSelector(requirementBinding.ref);
+  const serialized = typeof requirementLive.value === "string" ? requirementLive.value : JSON.stringify(requirementLive.value);
+  const currentP0RequirementsSha = sha(requirementLive.source);
+  assert.equal(currentP0RequirementsSha, pdp0Status.sourceShaSet[requirementPath],
+    "the nested PDP-0 source digest agrees with its current native status pin");
+  assert.equal(requirementBinding.sourceFileSha256, "b38f02657ed709eabb0ed08802cd673acc9cc12771ae34dcd6ecc87491339833");
+  assert.equal(requirementObservation.priorSourceFileSha256, requirementBinding.sourceFileSha256);
+  assert.equal(requirementObservation.previousCurrentSourceFileSha256,
+    "0499998a4360d3e389b3f579b345d8a1d091fd53453f60c6a9c1937004c53e36");
+  assert.equal(requirementObservation.supersededCurrentSourceFileSha256,
+    "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6");
+  assert.equal(requirementObservation.currentSourceFileSha256, currentP0RequirementsSha);
+  assert.equal(requirementObservation.currentSourceValueSha256, sha(serialized));
+  assert.equal(requirementObservation.currentSourceValueSha256, requirementObservation.priorSourceValueSha256,
+    "the exact selected PDP-0 requirement value remains byte-identical");
+  assert.equal(requirementObservation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  assert.equal(requirementObservation.acceptanceEffect ?? "none", "none");
+});
+
+test("MPSEM-0167-C001 refreshes stable PDP-1 source fingerprints while preserving selected values and predecessors", () => {
+  const row = candidate.records.find(({ claimId }) => claimId === "MPSEM-0167-C001");
+  assert.equal(row.ownerPhase, "PDP-1");
+  assert.equal(row.priorTargetValueSha256, "6ced0b187865f5481f58baa6a41aa408478c925f46a4c1bdca692558e4cb25d5");
+  assert.equal(row.currentTargetValueSha256, "fefaf4ef885148d74d031dd06a3fc778bc994b647343b7e87bb69d8cb2a290d5");
+  const observation = row.currentProposalObservation;
+  assert.equal(observation.priorSourceFileSha256, row.ownerSourceSha256);
+  assert.equal(observation.currentSourceFileSha256, "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629");
+  assert.equal(observation.currentTargetValueSha256, row.currentTargetValueSha256);
+  assert.equal(observation.supersededCurrentSourceFileSha256, "ed045314dbdb6ece934348a9eba6d7c2ae791438476ef11d343cb57a04a05e04");
+  assert.equal(observation.sourceFileSha256History.at(-1), observation.supersededCurrentSourceFileSha256);
+  assert.equal(observation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+  assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
+  for (const binding of row.ownerSemanticReview.materialBindings) {
+    const current = binding.currentProposalObservation;
+    assert.equal(current.currentSourceFileSha256, "dc2cc4ff58c3b3bd29f8d11036f0a3640c574cb4abceb0902fcafd3aad2c6cf2");
+    const selected = resolveSelector(binding.ref).value;
+    assert.equal(current.currentSourceValueSha256, sha(typeof selected === "string" ? selected : JSON.stringify(selected)));
+    assert.equal(current.supersededCurrentSourceFileSha256, "a567d1fafc9978ed8ef6c97c07e75aa59371aaaf4a7ee9737b7aa69300579a67");
+    assert.equal(current.sourceFileSha256History.at(-1), current.supersededCurrentSourceFileSha256);
+    assert.equal(current.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  }
+});
+
+test("MPSEM-0172-C004 and MPSEM-0172-C005 refresh only stable exact PDP-1 source fingerprints", () => {
+  const composition = candidate.records.find(({ claimId }) => claimId === "MPSEM-0172-C004");
+  assert.equal(composition.ownerPhase, "PDP-1");
+  assert.equal(composition.currentProposalObservation.currentSourceFileSha256,
+    "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629");
+  assert.equal(composition.currentProposalObservation.currentTargetValueSha256, composition.currentTargetValueSha256);
+  assert.equal(composition.currentProposalObservation.supersededCurrentSourceFileSha256,
+    "ed045314dbdb6ece934348a9eba6d7c2ae791438476ef11d343cb57a04a05e04");
+  assert.equal(composition.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+  assert.equal(composition.ownerSemanticReview.acceptanceEffect, "none");
+  const requirementBinding = composition.ownerSemanticReview.materialBindings.find(({ ref }) => ref.includes("requirements.yaml"));
+  assert.equal(requirementBinding.currentProposalObservation.currentSourceFileSha256,
+    "49c079d4aff2499bb3c226ac52e3a7101d483392775bd9b05a0a469295329ce2");
+  assert.equal(requirementBinding.currentProposalObservation.currentSourceValueSha256,
+    sha(resolveSelector(requirementBinding.ref).value));
+  assert.equal(requirementBinding.currentProposalObservation.supersededCurrentSourceFileSha256,
+    "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6");
+
+  const cardinality = candidate.records.find(({ claimId }) => claimId === "MPSEM-0172-C005");
+  assert.equal(cardinality.ownerPhase, "PDP-1");
+  const relationship = cardinality.ownerSemanticReview.materialBindings.find(({ ref }) => ref.includes("domain-objects.yaml"));
+  const aliasing = cardinality.ownerSemanticReview.materialBindings.find(({ ref }) => ref.includes("capabilities.yaml"));
+  for (const binding of [relationship, aliasing]) {
+    const current = binding.currentProposalObservation;
+    assert.equal(current.currentSourceFileSha256, sha(resolveSelector(binding.ref).source));
+    assert.equal(current.currentSourceValueSha256, sha(resolveSelector(binding.ref).value));
+    assert.equal(current.sourceFileSha256History.at(-1), current.supersededCurrentSourceFileSha256);
+    assert.equal(current.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  }
+  assert.equal(cardinality.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+  assert.equal(cardinality.ownerSemanticReview.acceptanceEffect, "none");
+});
+
+test("MPSEM-0261-C001 refreshes stable PDP-1 conversion source fingerprints without changing selected values", () => {
+  const row = candidate.records.find(({ claimId }) => claimId === "MPSEM-0261-C001");
+  assert.equal(row.ownerPhase, "PDP-1");
+  const current = row.currentProposalObservation;
+  assert.equal(current.currentSourceFileSha256,
+    "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916");
+  assert.equal(current.currentTargetValueSha256, row.currentTargetValueSha256);
+  assert.equal(current.supersededCurrentSourceFileSha256,
+    "d497f5bc0ab88ccd51754e9ea66925449aa793433170601fa4fe88fe40153125");
+  assert.equal(current.sourceFileSha256History.at(-1), current.supersededCurrentSourceFileSha256);
+  for (const binding of row.ownerSemanticReview.materialBindings.filter(({ ref }) => ref.includes("value-objects.yaml"))) {
+    const observation = binding.currentProposalObservation;
+    assert.equal(observation.currentSourceFileSha256,
+      "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916");
+    assert.equal(observation.currentSourceValueSha256, sha(resolveSelector(binding.ref).value));
+    assert.equal(observation.sourceFileSha256History.at(-1), observation.supersededCurrentSourceFileSha256);
+    assert.equal(observation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  }
+  assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+  assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
+});
+
+test("MPSEM-0296-C001 refreshes stable PDP-1 operation source fingerprints without changing selected bindings", () => {
+  const row = candidate.records.find(({ claimId }) => claimId === "MPSEM-0296-C001");
+  assert.equal(row.ownerPhase, "PDP-1");
+  const current = row.currentProposalObservation;
+  assert.equal(current.currentSourceFileSha256,
+    "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2");
+  assert.equal(current.currentTargetValueSha256, row.currentTargetValueSha256);
+  assert.equal(current.supersededCurrentSourceFileSha256,
+    "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5");
+  for (const binding of row.ownerSemanticReview.materialBindings) {
+    const observation = binding.currentProposalObservation;
+    assert.equal(observation.currentSourceFileSha256,
+      "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2");
+    assert.equal(observation.currentSourceValueSha256, sha(resolveSelector(binding.ref).value));
+    assert.equal(observation.sourceFileSha256History.at(-1), observation.supersededCurrentSourceFileSha256);
+    assert.equal(observation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  }
+  assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+  assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
+});
+
+test("MPSEM-0297-C002 and MPSEM-0326-C001 refresh stable exact source fingerprints without acceptance promotion", () => {
+  const operationRef = "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2";
+  const slice = candidate.records.find(({ claimId }) => claimId === "MPSEM-0297-C002");
+  assert.equal(slice.ownerPhase, "PDP-1");
+  assert.equal(slice.currentProposalObservation.currentSourceFileSha256, operationRef);
+  assert.equal(slice.currentProposalObservation.currentTargetValueSha256, slice.currentTargetValueSha256);
+  assert.equal(slice.currentProposalObservation.supersededCurrentSourceFileSha256,
+    "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5");
+  const vision = candidate.records.find(({ claimId }) => claimId === "MPSEM-0326-C001");
+  assert.equal(vision.ownerPhase, "PDP-1");
+  assert.equal(vision.currentProposalObservation.currentSourceFileSha256, operationRef);
+  assert.equal(vision.currentProposalObservation.currentTargetValueSha256, vision.currentTargetValueSha256);
+  for (const binding of vision.ownerSemanticReview.materialBindings) {
+    const observation = binding.currentProposalObservation;
+    assert.equal(observation.currentSourceFileSha256, sha(resolveSelector(binding.ref).source));
+    assert.equal(observation.currentSourceValueSha256, sha(resolveSelector(binding.ref).value));
+    assert.equal(observation.sourceFileSha256History.at(-1), observation.supersededCurrentSourceFileSha256);
+    assert.equal(observation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  }
+  for (const row of [slice, vision]) {
+    assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+    assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
+  }
+});
+
+test("MPSEM-0314-C002 and MPSEM-0335-C003 refresh stable current exact source fingerprints", () => {
+  const operations = "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2";
+  const channel = "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76";
+  const sdk = candidate.records.find(({ claimId }) => claimId === "MPSEM-0314-C002");
+  assert.equal(sdk.ownerPhase, "PDP-1");
+  assert.equal(sdk.currentProposalObservation.currentSourceFileSha256, operations);
+  assert.equal(sdk.currentProposalObservation.currentTargetValueSha256, sdk.currentTargetValueSha256);
+  const stream = candidate.records.find(({ claimId }) => claimId === "MPSEM-0335-C003");
+  assert.equal(stream.ownerPhase, "PDP-1");
+  assert.equal(stream.currentProposalObservation.currentSourceFileSha256, operations);
+  assert.equal(stream.currentProposalObservation.currentTargetValueSha256, stream.currentTargetValueSha256);
+  for (const binding of stream.ownerSemanticReview.materialBindings) {
+    const current = binding.currentProposalObservation;
+    assert.equal(current.currentSourceFileSha256, channel);
+    assert.equal(current.currentSourceValueSha256, sha(resolveSelector(binding.ref).value));
+    assert.equal(current.sourceFileSha256History.at(-1), current.supersededCurrentSourceFileSha256);
+    assert.equal(current.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  }
+  for (const row of [sdk, stream]) {
+    assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+    assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
+  }
+});
+
+test("MPSEM-0334-C004 and MPSEM-0336-C001 refresh stable exact PDP-1 candidate locators", () => {
+  const operations = "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2";
+  const channel = "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76";
+  const action = candidate.records.find(({ claimId }) => claimId === "MPSEM-0334-C004");
+  assert.equal(action.ownerPhase, "PDP-1");
+  assert.equal(action.currentProposalObservation.currentSourceFileSha256, operations);
+  assert.equal(action.currentProposalObservation.currentTargetValueSha256, action.currentTargetValueSha256);
+  const state = candidate.records.find(({ claimId }) => claimId === "MPSEM-0336-C001");
+  assert.equal(state.ownerPhase, "PDP-1");
+  for (const binding of state.ownerSemanticReview.materialBindings) {
+    const current = binding.currentProposalObservation;
+    assert.equal(current.currentSourceFileSha256, channel);
+    assert.equal(current.currentSourceValueSha256, sha(resolveSelector(binding.ref).value));
+    assert.equal(current.sourceFileSha256History.at(-1), current.supersededCurrentSourceFileSha256);
+    assert.equal(current.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  }
+  for (const row of [action, state]) {
+    assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+    assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
+  }
+});
+
+test("MPSEM-0336-C002 and MPSEM-0336-C004 refresh stable exact source fingerprints", () => {
+  const channel = "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76";
+  const operations = "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2";
+  const cancellation = candidate.records.find(({ claimId }) => claimId === "MPSEM-0336-C002");
+  assert.equal(cancellation.ownerPhase, "PDP-1");
+  for (const binding of cancellation.ownerSemanticReview.materialBindings) {
+    const current = binding.currentProposalObservation;
+    assert.equal(current.currentSourceFileSha256, channel);
+    const selected = resolveSelector(binding.ref).value;
+    assert.equal(current.currentSourceValueSha256, sha(typeof selected === "string" ? selected : JSON.stringify(selected)));
+    assert.equal(current.sourceFileSha256History.at(-1), current.supersededCurrentSourceFileSha256);
+  }
+  const sdk = candidate.records.find(({ claimId }) => claimId === "MPSEM-0336-C004");
+  assert.equal(sdk.ownerPhase, "PDP-1");
+  assert.equal(sdk.currentProposalObservation.currentSourceFileSha256, operations);
+  assert.equal(sdk.currentProposalObservation.currentTargetValueSha256, sdk.currentTargetValueSha256);
+  for (const row of [cancellation, sdk]) {
+    assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+    assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
+  }
+});
+
+test("MPSEM-0348-C001 refreshes stable operation owner and material source fingerprints", () => {
+  const row = candidate.records.find(({ claimId }) => claimId === "MPSEM-0348-C001");
+  const currentHash = "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2";
+  assert.equal(row.ownerPhase, "PDP-1");
+  assert.equal(row.currentProposalObservation.currentSourceFileSha256, currentHash);
+  assert.equal(row.currentProposalObservation.currentTargetValueSha256, row.currentTargetValueSha256);
+  for (const binding of row.ownerSemanticReview.materialBindings) {
+    const current = binding.currentProposalObservation;
+    assert.equal(current.currentSourceFileSha256, currentHash);
+    const value = resolveSelector(binding.ref).value;
+    assert.equal(current.currentSourceValueSha256, sha(typeof value === "string" ? value : JSON.stringify(value)));
+    assert.equal(current.sourceFileSha256History.at(-1), current.supersededCurrentSourceFileSha256);
+  }
+  assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+  assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
+});
+
+test("MPSEM-0358-C002 and MPSEM-0345-C001 refresh stable exact PDP-1 locators", () => {
+  const relationship = candidate.records.find(({ claimId }) => claimId === "MPSEM-0358-C002");
+  assert.equal(relationship.ownerPhase, "PDP-1");
+  assert.equal(relationship.currentProposalObservation.currentSourceFileSha256,
+    "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629");
+  assert.equal(relationship.currentProposalObservation.currentTargetValueSha256, relationship.currentTargetValueSha256);
+  const cancellation = candidate.records.find(({ claimId }) => claimId === "MPSEM-0345-C001");
+  assert.equal(cancellation.ownerPhase, "PDP-1");
+  const operation = cancellation.ownerSemanticReview.materialBindings.find(({ ref }) => ref.includes("operations.yaml"));
+  assert.equal(operation.currentProposalObservation.currentSourceFileSha256,
+    "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2");
+  const operationValue = resolveSelector(operation.ref).value;
+  assert.equal(operation.currentProposalObservation.currentSourceValueSha256,
+    sha(typeof operationValue === "string" ? operationValue : JSON.stringify(operationValue)));
+  const beginUpload = candidate.records.find(({ claimId }) => claimId === "MPSEM-0358-C003");
+  assert.equal(beginUpload.ownerPhase, "PDP-1");
+  assert.equal(beginUpload.currentProposalObservation.currentSourceFileSha256,
+    "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2");
+  assert.equal(beginUpload.currentProposalObservation.currentTargetValueSha256, beginUpload.currentTargetValueSha256);
+  for (const row of [relationship, cancellation]) {
+    assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+    assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
+  }
+});
+
+test("MPSEM-0369-C003 and MPSEM-0372-C005 refresh stable exact PDP-1 locators", () => {
+  const identity = candidate.records.find(({ claimId }) => claimId === "MPSEM-0369-C003");
+  assert.equal(identity.ownerPhase, "PDP-1");
+  assert.equal(identity.currentProposalObservation.currentSourceFileSha256,
+    "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629");
+  assert.equal(identity.currentProposalObservation.currentTargetValueSha256, identity.currentTargetValueSha256);
+  const cancellation = candidate.records.find(({ claimId }) => claimId === "MPSEM-0372-C005");
+  assert.equal(cancellation.ownerPhase, "PDP-1");
+  const binding = cancellation.ownerSemanticReview.materialBindings.find(({ ref }) => ref.includes("operations.yaml"));
+  assert.equal(binding.currentProposalObservation.currentSourceFileSha256,
+    "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2");
+  const value = resolveSelector(binding.ref).value;
+  assert.equal(binding.currentProposalObservation.currentSourceValueSha256,
+    sha(typeof value === "string" ? value : JSON.stringify(value)));
+  const health = candidate.records.find(({ claimId }) => claimId === "MPSEM-0369-C004");
+  assert.equal(health.ownerPhase, "PDP-1");
+  assert.equal(health.currentProposalObservation.currentSourceFileSha256,
+    "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2");
+  const submission = candidate.records.find(({ claimId }) => claimId === "MPSEM-0373-C001");
+  assert.equal(submission.ownerPhase, "PDP-1");
+  for (const auditBinding of submission.ownerSemanticReview.materialBindings.filter(({ ref }) => ref.includes("operations.yaml"))) {
+    const observation = auditBinding.currentProposalObservation;
+    assert.equal(observation.currentSourceFileSha256,
+      "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2");
+    const selected = resolveSelector(auditBinding.ref).value;
+    assert.equal(observation.currentSourceValueSha256,
+      sha(typeof selected === "string" ? selected : JSON.stringify(selected)));
+  }
+  for (const row of [identity, cancellation, health, submission]) {
+    assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+    assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
+  }
+});
+
+test("MPSEM-0378-C004 and MPSEM-0376-C002 refresh stable exact PDP-1 operation locators", () => {
+  const operations = "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2";
+  const downstream = candidate.records.find(({ claimId }) => claimId === "MPSEM-0378-C004");
+  assert.equal(downstream.ownerPhase, "PDP-1");
+  assert.equal(downstream.currentProposalObservation.currentSourceFileSha256, operations);
+  assert.equal(downstream.currentProposalObservation.currentTargetValueSha256, downstream.currentTargetValueSha256);
+  const retry = candidate.records.find(({ claimId }) => claimId === "MPSEM-0376-C002");
+  assert.equal(retry.ownerPhase, "PDP-1");
+  for (const binding of retry.ownerSemanticReview.materialBindings.filter(({ ref }) => ref.includes("operations.yaml"))) {
+    const current = binding.currentProposalObservation;
+    assert.equal(current.currentSourceFileSha256, operations);
+    const value = resolveSelector(binding.ref).value;
+    assert.equal(current.currentSourceValueSha256, sha(typeof value === "string" ? value : JSON.stringify(value)));
+  }
+  for (const row of [downstream, retry]) {
+    assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+    assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
+  }
+});
+
+test("MPSEM-0385-C003 and MPSEM-0378-C004 refresh stable exact source fingerprints", () => {
+  const operations = "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2";
+  const availability = candidate.records.find(({ claimId }) => claimId === "MPSEM-0385-C003");
+  assert.equal(availability.ownerPhase, "PDP-1");
+  assert.equal(availability.currentProposalObservation.currentSourceFileSha256, operations);
+  assert.equal(availability.currentProposalObservation.currentTargetValueSha256, availability.currentTargetValueSha256);
+  const requirement = availability.ownerSemanticReview.materialBindings.find(({ ref }) => ref.includes("/requirements.yaml#"));
+  assert.equal(requirement.currentProposalObservation.currentSourceFileSha256,
+    "49c079d4aff2499bb3c226ac52e3a7101d483392775bd9b05a0a469295329ce2");
+  const value = resolveSelector(requirement.ref).value;
+  assert.equal(requirement.currentProposalObservation.currentSourceValueSha256,
+    sha(typeof value === "string" ? value : JSON.stringify(value)));
+  const publication = candidate.records.find(({ claimId }) => claimId === "MPSEM-0378-C004");
+  const binding = publication.ownerSemanticReview.materialBindings.find(({ ref }) => ref.includes("operations.yaml"));
+  assert.equal(binding.currentProposalObservation.currentSourceFileSha256, operations);
+  const publicationValue = resolveSelector(binding.ref).value;
+  assert.equal(binding.currentProposalObservation.currentSourceValueSha256,
+    sha(typeof publicationValue === "string" ? publicationValue : JSON.stringify(publicationValue)));
+  for (const row of [availability, publication]) {
+    assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+    assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
+  }
+});
+
+test("MPSEM-0446-C002 refreshes stable exact PDP-1 operation fingerprints", () => {
+  const row = candidate.records.find(({ claimId }) => claimId === "MPSEM-0446-C002");
+  const operations = "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2";
+  assert.equal(row.ownerPhase, "PDP-1");
+  assert.equal(row.currentProposalObservation.currentSourceFileSha256, operations);
+  assert.equal(row.currentProposalObservation.currentTargetValueSha256, row.currentTargetValueSha256);
+  for (const binding of row.ownerSemanticReview.materialBindings) {
+    const current = binding.currentProposalObservation;
+    assert.equal(current.currentSourceFileSha256, operations);
+    const value = resolveSelector(binding.ref).value;
+    assert.equal(current.currentSourceValueSha256, sha(typeof value === "string" ? value : JSON.stringify(value)));
+    assert.equal(current.sourceFileSha256History.at(-1), current.supersededCurrentSourceFileSha256);
+  }
+  assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+  assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
+});
+
+test("MPSEM-0447-C005 refreshes stable exact PDP-1 operation fingerprints", () => {
+  const row = candidate.records.find(({ claimId }) => claimId === "MPSEM-0447-C005");
+  const operations = "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2";
+  assert.equal(row.ownerPhase, "PDP-1");
+  assert.equal(row.currentProposalObservation.currentSourceFileSha256, operations);
+  assert.equal(row.currentProposalObservation.currentTargetValueSha256, row.currentTargetValueSha256);
+  for (const binding of row.ownerSemanticReview.materialBindings) {
+    const current = binding.currentProposalObservation;
+    assert.equal(current.currentSourceFileSha256, operations);
+    const value = resolveSelector(binding.ref).value;
+    assert.equal(current.currentSourceValueSha256, sha(typeof value === "string" ? value : JSON.stringify(value)));
+    assert.equal(current.sourceFileSha256History.at(-1), current.supersededCurrentSourceFileSha256);
+  }
+  assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+  assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
+});
+
+test("PXD-173/PXD-183 history and PXD-185 current successors cover PDP-0 candidate observations", () => {
   assert.equal(pxd173Successor.decisionRef, ".product-experience/decision-log.md#PXD-173");
-  const refreshed = pxd173Successor.records.filter((record) => record.sourceArtifactRef
+  assert.equal(pxd183Successor.decisionRef, ".product-experience/decision-log.md#PXD-183");
+  assert.equal(pxd185Successor.decisionRef, ".product-experience/decision-log.md#PXD-185");
+  const pxd173Records = pxd173Successor.records.filter((record) => record.sourceArtifactRef
     === "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json");
-  assert.equal(refreshed.length, 32);
+  assert.equal(pxd173Records.length, 32);
   assert.equal(pxd173Successor.counts.targetValueDrift, 0);
-  assert.equal(pxd173Successor.counts.candidateObservations, refreshed.length);
+  assert.equal(pxd173Successor.counts.candidateObservations, pxd173Records.length);
+  const pxd183Records = pxd183Successor.records.filter((record) => record.sourceArtifactRef
+    === "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json");
+  const refreshed = pxd185Successor.records.filter((record) => record.sourceArtifactRef
+    === "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json");
+  assert.equal(refreshed.length, 22);
+  assert.equal(pxd185Successor.counts.targetValueDrift, 0);
+  assert.equal(pxd185Successor.counts.candidateObservations, refreshed.length);
   for (const successor of refreshed) {
     const owner = candidate.records.find((record) => record.claimId === successor.claimId);
     assert.equal(owner.ownerPhase, "PDP-0");
@@ -171,17 +682,43 @@ test("PXD-173 successors cover every refreshed PDP-0 candidate source observatio
     if (successor.sourceRecordRef.endsWith("/currentProposalObservation")) {
       observation = owner.currentProposalObservation;
     } else {
-      observation = owner.ownerSemanticReview.materialBindings.find((binding) => binding.ref === successor.targetRef)?.currentProposalObservation;
+      observation = owner.ownerSemanticReview.materialBindings[successor.sourceBindingIndex]?.currentProposalObservation;
     }
     assert.ok(observation, `${successor.claimId} ${successor.targetRef} current observation`);
-    assert.equal(observation.supersededCurrentSourceFileSha256, successor.predecessorCurrentSourceFileSha256);
+    const pxd173Predecessor = pxd173Records.find((prior) => prior.claimId === successor.claimId && prior.targetRef === successor.targetRef);
+    const pxd183Predecessor = pxd183Records.find((prior) => prior.claimId === successor.claimId && prior.targetRef === successor.targetRef);
+    assert.ok(pxd173Predecessor, `${successor.claimId} retains its PXD-173 source observation`);
+    assert.ok(pxd183Predecessor, `${successor.claimId} retains its PXD-183 source observation`);
+    assert.equal(pxd183Predecessor.predecessorCurrentSourceFileSha256, pxd173Predecessor.currentSourceFileSha256);
+    assert.equal(observation.supersededCurrentSourceFileSha256, pxd173Predecessor.predecessorCurrentSourceFileSha256);
+    assert.equal(observation.currentSourceSuccessorPredecessorFileSha256, pxd183Predecessor.currentSourceFileSha256);
+    assert.equal(successor.predecessorCurrentSourceFileSha256, pxd183Predecessor.currentSourceFileSha256);
+    assert.equal(successor.predecessorCurrentTargetValueSha256, pxd183Predecessor.currentTargetValueSha256);
     assert.equal(observation.currentSourceFileSha256, successor.currentSourceFileSha256);
     assert.equal(observation.currentTargetValueSha256 ?? observation.currentSourceValueSha256, successor.currentTargetValueSha256);
+    assert.equal(observation.currentSourceSuccessorRef,
+      `docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd185.json#/records/@observationId=${successor.observationId}`);
     const { source, value } = resolveSelector(successor.targetRef);
     assert.equal(successor.currentSourceFileSha256, sha(source));
     assert.equal(successor.currentTargetValueSha256, sha(typeof value === "string" ? value : JSON.stringify(value)));
     assert.equal(successor.semanticEquivalence, "NOT_ASSERTED");
     assert.equal(successor.acceptanceEffect, "none");
+    assert.equal(successor.semanticPromotion, false);
+  }
+  for (const predecessor of pxd173Records) {
+    const historicalOwner = headCandidate.records.find((record) => record.claimId === predecessor.claimId);
+    assert.ok(historicalOwner, `${predecessor.claimId} exists in the HEAD candidate`);
+    const historicalObservation = predecessor.sourceRecordRef.endsWith("/currentProposalObservation")
+      ? historicalOwner.currentProposalObservation
+      : historicalOwner.ownerSemanticReview.materialBindings.find((binding) => binding.ref === predecessor.targetRef)?.currentProposalObservation;
+    assert.ok(historicalObservation, `${predecessor.claimId} ${predecessor.targetRef} HEAD observation`);
+    assert.equal(predecessor.currentSourceFileSha256, historicalObservation.currentSourceFileSha256,
+      "PXD-173 current source digest matches its immutable HEAD candidate observation");
+    const pxd183Predecessor = pxd183Records.find((record) => record.claimId === predecessor.claimId && record.targetRef === predecessor.targetRef);
+    if (pxd183Predecessor) {
+      assert.equal(pxd183Predecessor.predecessorCurrentSourceFileSha256, predecessor.currentSourceFileSha256,
+        "PXD-183 preserves the exact PXD-173 current source digest");
+    }
   }
 });
 

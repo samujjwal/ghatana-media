@@ -1,0 +1,511 @@
+schemaVersion: media.pdp-1.rule-management-contracts.v1
+artifactId: media.pdp-1.rule-management-contracts
+productId: media
+semanticOwner: media
+authority: .product-experience/decision-log.md#PXD-185
+scopeStatus: proposal-only; pending-owner-review; no-runtime-or-execution-admission
+ownerApproval: NOT_CLAIMED
+independentAcceptance: NOT_CLAIMED
+runtimeAdmission: NOT_ADMITTED
+executionAdmission: NOT_ADMITTED
+sourceRefs:
+  - .product-experience/decision-log.md#PXD-185
+  - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/compileAcceptance
+  - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/validationCoverage
+  - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/acceptanceCases/@id=AUD-SPEC-020-CAP-AC-01
+  - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/requirementDefinition/acceptanceCases/@id=MEDIA-REQ-CAP-RULES-AC-01
+contractIdentity:
+  featureRef: media.rules.manage
+  capabilityRef: media.rules.manage
+  requirementRef: MEDIA-REQ-CAP-RULES
+  intentRef: media.intent.manage-reusable-rules
+  contractVersion: 1
+  operationDisposition: PROPOSED_PDP1_CONTRACT_ONLY; NOT_IN_CANONICAL_OPERATION_DENOMINATOR
+  admittedOperations: []
+referenceEncoding:
+  ruleSetRef: "media.ruleset:{tenantRef}:{ruleSetId}"
+  ruleSetVersionRef: "media.ruleset-version:{tenantRef}:{ruleSetId}:{versionId}"
+  invariants:
+    - Decode ruleSetRef and ruleSetVersionRef without lossy normalization; embedded tenantRef/ruleSetId/versionId must equal the accompanying typed tuple.
+    - requestContext.tenantRef equals ruleSetVersion.tenantRef; requestContext.purposeRef equals declaredScope.purposeRef.
+    - Every operation request's ruleSetRef or candidateVersionRef identifies that same exact typed tuple; a mismatch is CONFLICT or STALE.
+    - A compile request's ruleSetRef identifies its tenant and stable rule-set ID; its COMPILED candidate returns the exact resulting tuple and same ruleSetRef.
+    - On compile, decode request.ruleSetRef and require its tenantRef to equal requestContext.tenantRef; when expectedVersionRef is non-null, decode it and require the same tenantRef and ruleSetId as request.ruleSetRef. A mismatch is CONFLICT and cannot return a candidate.
+    - A COMPILED result.ruleSetRef equals both request.ruleSetRef and candidate.ruleSetRef; the candidate tuple's tenantRef and ruleSetId equal the decoded request.ruleSetRef.
+ruleSetVersion:
+  identity:
+    schema:
+      type: object
+      additionalProperties: false
+      required: [tenantRef, ruleSetId, versionId]
+      properties:
+        tenantRef: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+        ruleSetId: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+        versionId: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+    required: [tenantRef, ruleSetId, versionId]
+    tenantRef: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+    ruleSetId: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+    versionId: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+  candidate:
+    schema:
+      type: object
+      additionalProperties: false
+      required: [candidateId, ruleSetRef, ruleSetVersion, parentVersionRef, declaredScope, declaredInputs, constraints, sourceRefs, rules, lifecycleState]
+      properties:
+        candidateId: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+        ruleSetRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+        ruleSetVersion: { $ref: "#/ruleSetVersion/identity/schema" }
+        parentVersionRef: { type: [string, "null"], format: opaque-versioned-reference, maxLength: 384 }
+        declaredScope:
+          type: object
+          additionalProperties: false
+          required: [targetOperationRefs, subjectScopeRef, purposeRef]
+          properties:
+            targetOperationRefs: { type: array, minItems: 1, uniqueItems: true, items: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 } }
+            subjectScopeRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+            purposeRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+        declaredInputs: { type: array, minItems: 1, uniqueItems: true, items: { $ref: "#/declaredInputSchema" } }
+        constraints: { type: array, uniqueItems: true, items: { $ref: "#/constraintSchema" } }
+        sourceRefs: { type: array, minItems: 1, uniqueItems: true, items: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 } }
+        rules:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [ruleId, operatorRef, parameters, sourceRefs]
+            properties:
+              ruleId: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+              operatorRef: { enum: [media.rules.operator.compare-field.v1, media.rules.operator.membership-field.v1] }
+              parameters: { $ref: "#/ruleSetVersion/parameterSchema" }
+              sourceRefs: { type: array, minItems: 1, uniqueItems: true, items: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 } }
+            allOf:
+              - if: { properties: { operatorRef: { const: media.rules.operator.compare-field.v1 } }, required: [operatorRef] }
+                then: { properties: { parameters: { properties: { kind: { const: FIELD_COMPARISON } } } } }
+              - if: { properties: { operatorRef: { const: media.rules.operator.membership-field.v1 } }, required: [operatorRef] }
+                then: { properties: { parameters: { properties: { kind: { const: SET_MEMBERSHIP } } } } }
+        lifecycleState: { const: CANDIDATE }
+  invariants:
+    - A candidate is immutable after creation; every edit creates a distinct successor version.
+    - parentVersionRef is null only for the first version; otherwise it identifies the exact prior version.
+    - The candidate is not an approval, execution plan, operation invocation, measured result, or permission to mutate media.
+    - Every rule has an explicit allowlisted operator and typed parameter schema; unknown operators or parameters fail validation.
+    - tenantRef in the exact version tuple must equal requestContext.tenantRef; declaredScope.purposeRef must equal requestContext.purposeRef.
+    - ruleSetRef must encode the exact ruleSetVersion.tenantRef and ruleSetVersion.ruleSetId.
+  parameterSchema:
+    oneOf:
+      - type: object
+        additionalProperties: false
+        required: [kind, fieldRef, comparator, expectedValue]
+        properties:
+          kind: { const: FIELD_COMPARISON }
+          fieldRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+          comparator: { enum: [EQ, NE, GT, GTE, LT, LTE] }
+          expectedValue: { type: [string, number, boolean, "null"] }
+      - type: object
+        additionalProperties: false
+        required: [kind, fieldRef, comparator, expectedValues]
+        properties:
+          kind: { const: SET_MEMBERSHIP }
+          fieldRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+          comparator: { enum: [IN, NOT_IN] }
+          expectedValues:
+            type: array
+            minItems: 1
+            uniqueItems: true
+            items: { type: [string, number, boolean, "null"] }
+    discriminator:
+      propertyName: kind
+      mapping: { FIELD_COMPARISON: 0, SET_MEMBERSHIP: 1 }
+  parameterOperatorBindings:
+    - operatorRef: media.rules.operator.compare-field.v1
+      parameterKind: FIELD_COMPARISON
+    - operatorRef: media.rules.operator.membership-field.v1
+      parameterKind: SET_MEMBERSHIP
+  valueCompatibility:
+    FIELD_COMPARISON:
+      EQ_NE: expectedValue type must equal the referenced declared input valueType; null is permitted only for NULLABLE_* input types.
+      GT_GTE_LT_LTE: only NUMBER or NULLABLE_NUMBER inputs and numeric expectedValue are admitted.
+    SET_MEMBERSHIP:
+      expectedValues: every value type must equal the referenced declared input valueType; null is permitted only for NULLABLE_* input types.
+      comparator: IN or NOT_IN only.
+    mismatches: REJECT_WITHOUT_EFFECTS
+declaredInputSchema:
+  type: object
+  additionalProperties: false
+  required: [inputRef, sourceVersionRef, valueType]
+  properties:
+    inputRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+    sourceVersionRef: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 }
+    valueType: { enum: [STRING, NUMBER, BOOLEAN, NULLABLE_STRING, NULLABLE_NUMBER, NULLABLE_BOOLEAN] }
+constraintSchema:
+  type: object
+  additionalProperties: false
+  required: [constraintRef, constraintKind, sourceRef]
+  properties:
+    constraintRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+    constraintKind: { enum: [BOUNDS, ALLOWLIST, DENYLIST, REQUIREDNESS, POLICY_GUARD] }
+    sourceRef: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 }
+normalizedSemanticGraph:
+  typeRef: media.rules.normalized-semantic-graph
+  schema:
+    type: object
+    additionalProperties: false
+    required: [graphFormat, ruleSetRef, ruleSetVersion, scope, declaredInputs, constraints, nodes, edges]
+    properties:
+      graphFormat: { const: media.rules.graph.v1 }
+      ruleSetRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+      ruleSetVersion: { $ref: "#/ruleSetVersion/identity/schema" }
+      scope:
+        type: object
+        additionalProperties: false
+        required: [targetOperationRefs, subjectScopeRef, purposeRef]
+        properties:
+          targetOperationRefs: { type: array, minItems: 1, uniqueItems: true, items: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 } }
+          subjectScopeRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+          purposeRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+      declaredInputs: { type: array, minItems: 1, uniqueItems: true, items: { $ref: "#/declaredInputSchema" } }
+      constraints: { type: array, uniqueItems: true, items: { $ref: "#/constraintSchema" } }
+      nodes:
+        type: array
+        items:
+          oneOf:
+            - type: object
+              additionalProperties: false
+              required: [nodeId, nodeKind, ruleId, operatorRef, parameters, sourceRefs]
+              properties:
+                nodeId: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+                nodeKind: { const: RULE }
+                ruleId: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+                operatorRef: { enum: [media.rules.operator.compare-field.v1, media.rules.operator.membership-field.v1] }
+                parameters: { $ref: "#/ruleSetVersion/parameterSchema" }
+                sourceRefs: { type: array, minItems: 1, uniqueItems: true, items: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 } }
+              allOf:
+                - if: { properties: { operatorRef: { const: media.rules.operator.compare-field.v1 } }, required: [operatorRef] }
+                  then: { properties: { parameters: { properties: { kind: { const: FIELD_COMPARISON } } } } }
+                - if: { properties: { operatorRef: { const: media.rules.operator.membership-field.v1 } }, required: [operatorRef] }
+                  then: { properties: { parameters: { properties: { kind: { const: SET_MEMBERSHIP } } } } }
+            - type: object
+              additionalProperties: false
+              required: [nodeId, nodeKind, inputRef, sourceVersionRef]
+              properties:
+                nodeId: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+                nodeKind: { const: INPUT }
+                inputRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+                sourceVersionRef: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 }
+            - type: object
+              additionalProperties: false
+              required: [nodeId, nodeKind, outputRef]
+              properties:
+                nodeId: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+                nodeKind: { const: OUTPUT }
+                outputRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+      edges:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [edgeId, fromNodeId, toNodeId, port]
+          properties:
+            edgeId: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+            fromNodeId: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+            toNodeId: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+            port: { enum: [input, result] }
+  normalization:
+    algorithm: media.rules.graph-normalization.v1
+    rules:
+      - Graph format, node kinds, operator identifiers, and typed parameters are explicit; no executable expressions or implicit operators are admitted.
+      - Normalize object member names to Unicode NFC; reject duplicate keys after normalization.
+      - Sort normalized object member names by unsigned lexicographic UTF-8 bytes; reject keys that collide after NFC normalization.
+      - Sort nodes by unsigned lexicographic UTF-8 bytes of nodeId, edges by unsigned lexicographic UTF-8 bytes of edgeId, and each semantically unordered reference set by the same byte ordering.
+      - Preserve ordered parameter arrays; reject non-finite numbers and unsupported numeric encodings.
+      - Require unique node IDs and unique edge IDs; every edge endpoint must name a graph node.
+      - Require graph scope, declaredInputs, constraints, ruleSetRef, and version identity to equal the exact candidate values; all rule/source/input/constraint references must resolve inside that candidate or its declared sourceRefs.
+      - Require at least one RULE and one OUTPUT node, no edge into INPUT nodes, no edge out of OUTPUT nodes, all RULE nodes to be reachable from an INPUT and to reach an OUTPUT, and the directed graph to be acyclic.
+      - For port=input, the target node is RULE and the source node is INPUT or RULE; for port=result, the source is RULE and the target is RULE or OUTPUT. Reject every other source/port/target combination.
+      - Reject duplicate node/edge IDs, dangling endpoints, undeclared operators, operator/parameter-kind mismatch, invalid parameters, and inconsistent scope before fingerprinting.
+  operatorCatalog:
+    status: proposed-allowlist; pending-owner-review
+    operators:
+      - id: media.rules.operator.compare-field.v1
+        parameterKind: FIELD_COMPARISON
+        parameters: [fieldRef, comparator, expectedValue]
+        comparators: [EQ, NE, GT, GTE, LT, LTE]
+        unknownFields: REJECT
+      - id: media.rules.operator.membership-field.v1
+        parameterKind: SET_MEMBERSHIP
+        parameters: [fieldRef, comparator, expectedValues]
+        comparators: [IN, NOT_IN]
+        unknownFields: REJECT
+semanticFingerprint:
+  typeRef: media.rules.semantic-fingerprint
+  schema:
+    type: object
+    additionalProperties: false
+    required: [algorithm, value, graphFormat]
+    properties:
+      algorithm: { const: media.rules.fingerprint.sha256-canonical-json.v1 }
+      value: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+      graphFormat: { const: media.rules.graph.v1 }
+  calculation:
+    algorithm: media.rules.fingerprint.sha256-canonical-json.v1
+    preimage: UTF-8 bytes of `media.rules.graph.v1\n` followed by canonical JSON for the normalized semantic graph.
+    canonicalJson: Canonical UTF-8 JSON v1; recursively serialize object keys sorted by unsigned lexicographic UTF-8 bytes after NFC normalization, preserve array order unless normalization rules mark the collection unordered, use ECMAScript JSON number serialization, reject non-finite values, and emit no insignificant whitespace.
+    digest: SHA-256; encode as lowercase hexadecimal with `sha256:` prefix.
+    equivalence: Equivalent authorized semantic inputs normalize to byte-identical graphs and therefore identical fingerprints.
+    distinction: Any material semantic change to scope, exact declared input references, constraint references, version tuple, node, edge, operator, typed parameter, or provenance changes canonical graph content and fingerprint.
+requestContextSchema:
+  type: object
+  additionalProperties: false
+  required: [tenantRef, actorRef, principalRef, purposeRef, rightsConsentContextRef, requestIdentity, idempotencyKey]
+  properties:
+    tenantRef: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+    actorRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+    principalRef: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+    purposeRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+    rightsConsentContextRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+    requestIdentity: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+    idempotencyKey: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+requestContextRules:
+  - Bind each request identity and idempotency key to tenantRef, principalRef, operationRef, and canonical request payload fingerprint.
+  - Reusing a key with a different payload is CONFLICT; a duplicate exact key and payload returns or reconciles the same request outcome without creating a second candidate.
+  - rightsConsentContextRef is an exact authority/evidence context reference, not an assertion that rights or consent are granted; missing or unknown evidence remains UNKNOWN.
+compileContract:
+  operationRef: media.rules.compile-candidate.v1
+  disposition: PROPOSAL_ONLY; NOT_IN_CANONICAL_OPERATION_DENOMINATOR; NOT_ADMITTED
+  requestSchema:
+    type: object
+    additionalProperties: false
+    required: [requestContext, ruleSetRef, expectedVersionRef, declaredScope, declaredInputs, constraints, sourceRefs, rules]
+    properties:
+      requestContext: { $ref: "#/requestContextSchema" }
+      ruleSetRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+      expectedVersionRef: { type: [string, "null"], format: opaque-versioned-reference, maxLength: 384 }
+      declaredScope: { $ref: "#/ruleSetVersion/candidate/schema/properties/declaredScope" }
+      declaredInputs: { type: array, minItems: 1, uniqueItems: true, items: { $ref: "#/declaredInputSchema" } }
+      constraints: { type: array, uniqueItems: true, items: { $ref: "#/constraintSchema" } }
+      sourceRefs: { type: array, minItems: 1, uniqueItems: true, items: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 } }
+      rules: { type: array, items: { $ref: "#/ruleSetVersion/candidate/schema/properties/rules/items" } }
+  resultSchema:
+    type: object
+    additionalProperties: false
+    required: [outcome, requestContext, ruleSetRef, observedAt]
+    properties:
+      outcome: { enum: [COMPILED, REJECTED, UNSUPPORTED, DENIED, CONFLICT, STALE, UNKNOWN, UNAVAILABLE] }
+      requestContext: { $ref: "#/requestContextSchema" }
+      ruleSetRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+      observedAt: { type: string, format: date-time }
+      candidate: { $ref: "#/ruleSetVersion/candidate/schema" }
+      normalizedSemanticGraph: { $ref: "#/normalizedSemanticGraph/schema" }
+      semanticFingerprint: { $ref: "#/semanticFingerprint/schema" }
+      diagnostics: { type: array, items: { $ref: "#/validationContract/diagnosticSchema" } }
+      reasonRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+    oneOf:
+      - { properties: { outcome: { const: COMPILED } }, required: [candidate, normalizedSemanticGraph, semanticFingerprint] }
+      - properties: { outcome: { const: REJECTED } }
+        required: [diagnostics]
+        not: { anyOf: [{ required: [candidate] }, { required: [normalizedSemanticGraph] }, { required: [semanticFingerprint] }] }
+      - properties: { outcome: { const: UNSUPPORTED } }
+        required: [diagnostics]
+        not: { anyOf: [{ required: [candidate] }, { required: [normalizedSemanticGraph] }, { required: [semanticFingerprint] }] }
+      - properties: { outcome: { const: DENIED } }
+        required: [reasonRef]
+        not: { anyOf: [{ required: [candidate] }, { required: [normalizedSemanticGraph] }, { required: [semanticFingerprint] }] }
+      - properties: { outcome: { const: CONFLICT } }
+        required: [reasonRef]
+        not: { anyOf: [{ required: [candidate] }, { required: [normalizedSemanticGraph] }, { required: [semanticFingerprint] }] }
+      - properties: { outcome: { const: STALE } }
+        required: [reasonRef]
+        not: { anyOf: [{ required: [candidate] }, { required: [normalizedSemanticGraph] }, { required: [semanticFingerprint] }] }
+      - properties: { outcome: { const: UNKNOWN } }
+        required: [reasonRef]
+        not: { anyOf: [{ required: [candidate] }, { required: [normalizedSemanticGraph] }, { required: [semanticFingerprint] }] }
+      - properties: { outcome: { const: UNAVAILABLE } }
+        required: [reasonRef]
+        not: { anyOf: [{ required: [candidate] }, { required: [normalizedSemanticGraph] }, { required: [semanticFingerprint] }] }
+  outcomeRules:
+    COMPILED: [candidate, normalizedSemanticGraph, semanticFingerprint]
+    REJECTED: [diagnostics]
+    UNSUPPORTED: [diagnostics]
+    DENIED: [reasonRef]
+    CONFLICT: [reasonRef]
+    STALE: [reasonRef]
+    UNKNOWN: [reasonRef]
+    UNAVAILABLE: [reasonRef]
+    noEffectOn: [REJECTED, UNSUPPORTED, DENIED, CONFLICT, STALE, UNKNOWN, UNAVAILABLE]
+inspectContract:
+  operationRef: media.rules.inspect-candidate.v1
+  disposition: PROPOSAL_ONLY; NOT_IN_CANONICAL_OPERATION_DENOMINATOR; NOT_ADMITTED
+  requestSchema:
+    type: object
+    additionalProperties: false
+    required: [requestContext, ruleSetVersion]
+    properties:
+      requestContext: { $ref: "#/requestContextSchema" }
+      ruleSetVersion: { $ref: "#/ruleSetVersion/identity/schema" }
+  resultSchema:
+    type: object
+    additionalProperties: false
+    required: [outcome, requestContext, ruleSetVersion]
+    properties:
+      outcome: { enum: [INSPECTED, DENIED, CONFLICT, STALE, UNKNOWN, UNAVAILABLE] }
+      requestContext: { $ref: "#/requestContextSchema" }
+      ruleSetVersion: { $ref: "#/ruleSetVersion/identity/schema" }
+      candidate: { $ref: "#/ruleSetVersion/candidate/schema" }
+      sourceRefs: { type: array, items: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 } }
+      reasonRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+    oneOf:
+      - { properties: { outcome: { const: INSPECTED } }, required: [candidate, sourceRefs] }
+      - properties: { outcome: { enum: [DENIED, CONFLICT, STALE, UNKNOWN, UNAVAILABLE] } }
+        required: [reasonRef]
+        not: { anyOf: [{ required: [candidate] }, { required: [sourceRefs] }] }
+  rules:
+    - Inspection names one exact tenant/rule-set/version tuple and is read-only.
+    - Inspection never returns a different version through fallback; mismatch is STALE or CONFLICT.
+    - Inspection does not imply validation, approval, reuse, application, or execution.
+validationContract:
+  operationRef: media.rules.validate-candidate.v1
+  disposition: PROPOSAL_ONLY; NOT_IN_CANONICAL_OPERATION_DENOMINATOR; NOT_ADMITTED
+  diagnosticSchema:
+    type: object
+    additionalProperties: false
+    required: [code, path, disposition]
+    properties:
+      code: { type: string, pattern: '^[A-Z][A-Z0-9_]{1,63}$' }
+      path: { type: string, minLength: 1, maxLength: 512 }
+      disposition: { enum: [ERROR, UNKNOWN, UNAVAILABLE] }
+      sourceRef: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 }
+      detailRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+  requestSchema:
+    type: object
+    additionalProperties: false
+    required: [requestContext, candidateVersionRef, ruleSetVersion, expectedFingerprint, validationContextRef]
+    properties:
+      requestContext: { $ref: "#/requestContextSchema" }
+      candidateVersionRef: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 }
+      ruleSetVersion: { $ref: "#/ruleSetVersion/identity/schema" }
+      expectedFingerprint: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+      validationContextRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+  resultSchema:
+    type: object
+    additionalProperties: false
+    required: [validationResultRef, outcome, requestContext, candidateVersionRef, ruleSetVersion, fingerprint, validationContextRef, observedAt, sourceRefs, diagnostics]
+    properties:
+      outcome: { enum: [VALID, INVALID, UNSUPPORTED, UNAVAILABLE, DENIED, CONFLICT, STALE, UNKNOWN] }
+      validationResultRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+      requestContext: { $ref: "#/requestContextSchema" }
+      candidateVersionRef: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 }
+      ruleSetVersion: { $ref: "#/ruleSetVersion/identity/schema" }
+      fingerprint: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+      validationContextRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+      observedAt: { type: string, format: date-time }
+      sourceRefs: { type: array, minItems: 1, uniqueItems: true, items: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 } }
+      diagnostics: { type: array, items: { $ref: "#/validationContract/diagnosticSchema" } }
+      reasonRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+    oneOf:
+      - properties: { outcome: { const: VALID }, diagnostics: { maxItems: 0 } }
+        not: { required: [reasonRef] }
+      - properties: { outcome: { enum: [INVALID, UNSUPPORTED] }, diagnostics: { minItems: 1 } }
+        required: [diagnostics]
+      - properties: { outcome: { enum: [UNAVAILABLE, DENIED, CONFLICT, STALE, UNKNOWN] } }
+        required: [reasonRef]
+  validationResultIdentity: "media.rules.validation-result:{tenantRef}:{requestIdentity}"
+  rules:
+    - validationResultRef is a stable receipt identity over request identity, exact version tuple, candidateVersionRef, fingerprint, validationContextRef, and sourceRefs.
+    - candidateVersionRef must encode exactly ruleSetVersion; requestContext.tenantRef must equal ruleSetVersion.tenantRef.
+    - VALID applies only to the exact candidate version, expected fingerprint, declared scope, and current validation context.
+    - INVALID, UNKNOWN, UNAVAILABLE, DENIED, and STALE are distinct non-success outcomes and never authorize application or execution.
+    - A missing, unauthorized, stale, unsupported, or unverifiable dependency cannot be defaulted to valid.
+  noEffectsOn: [INVALID, UNSUPPORTED, UNAVAILABLE, DENIED, CONFLICT, STALE, UNKNOWN]
+reuseContract:
+  operationRef: media.rules.reuse-candidate.v1
+  disposition: PROPOSAL_ONLY; NOT_IN_CANONICAL_OPERATION_DENOMINATOR; NOT_ADMITTED
+  requestSchema:
+    type: object
+    additionalProperties: false
+    required: [requestContext, candidateVersionRef, ruleSetVersion, expectedFingerprint, targetOperationRef, targetOperationAuthorizationRef, validationResultRef, validationContextRef]
+    properties:
+      requestContext: { $ref: "#/requestContextSchema" }
+      candidateVersionRef: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 }
+      ruleSetVersion: { $ref: "#/ruleSetVersion/identity/schema" }
+      expectedFingerprint: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+      targetOperationRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+      targetOperationAuthorizationRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+      validationResultRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+      validationContextRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+  resultSchema:
+    type: object
+    additionalProperties: false
+    required: [outcome, requestContext, candidateVersionRef]
+    properties:
+      outcome: { enum: [REUSE_REQUESTED, DENIED, CONFLICT, UNKNOWN, UNAVAILABLE, STALE, INVALID, UNSUPPORTED] }
+      requestContext: { $ref: "#/requestContextSchema" }
+      candidateVersionRef: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 }
+      operationPlan: { $ref: "#/reuseContract/operationPlanSchema" }
+      reasonRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+    oneOf:
+      - { properties: { outcome: { const: REUSE_REQUESTED } }, required: [operationPlan] }
+      - properties: { outcome: { enum: [DENIED, CONFLICT, UNKNOWN, UNAVAILABLE, STALE, INVALID, UNSUPPORTED] } }
+        required: [reasonRef]
+        not: { required: [operationPlan] }
+  operationPlanSchema:
+    type: object
+    additionalProperties: false
+    required: [planRef, candidateVersionRef, ruleSetVersion, fingerprint, targetOperationRef, targetOperationAuthorizationRef, declaredScope, declaredInputs, constraints, validationResultRef, validationContextRef, sourceRefs, requestedBy, reuseRequestRef, disposition, executionAdmission]
+    properties:
+      planRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+      candidateVersionRef: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 }
+      ruleSetVersion: { $ref: "#/ruleSetVersion/identity/schema" }
+      fingerprint: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+      targetOperationRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+      targetOperationAuthorizationRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+      declaredScope: { $ref: "#/ruleSetVersion/candidate/schema/properties/declaredScope" }
+      declaredInputs: { type: array, minItems: 1, uniqueItems: true, items: { $ref: "#/declaredInputSchema" } }
+      constraints: { type: array, uniqueItems: true, items: { $ref: "#/constraintSchema" } }
+      validationResultRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+      validationContextRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+      sourceRefs: { type: array, minItems: 1, uniqueItems: true, items: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 } }
+      requestedBy: { $ref: "#/requestContextSchema" }
+      reuseRequestRef: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
+      disposition: { const: CANDIDATE_OPERATION_PLAN_ONLY }
+      executionAdmission: { const: NOT_ADMITTED }
+  recovery:
+    - On UNKNOWN, inspect or reconcile the same requestIdentity and idempotencyKey against the exact tenant/principal/operation/payload fingerprint before retrying.
+    - Retry only with the same key and byte-equivalent canonical request; a changed request requires a new key and explicit request.
+    - On CONFLICT or STALE, inspect the exact current version, present the differing version/scope, and require a new explicit request; never overwrite or silently rebase.
+    - No recovery path applies a rule, invokes a target operation, or treats UNKNOWN as success.
+  rules:
+    - Reuse refers to one exact candidate version and fingerprint; changed candidate content requires a new version and validation.
+    - Reuse is a distinct request only; it does not apply rules, approve them, invoke target operations, or create media effects.
+    - A CANDIDATE_OPERATION_PLAN_ONLY is returned only for an explicit reuse request and binds its request identity, exact version tuple, validation observation, fingerprint, declared inputs/constraints, target operation, and source provenance.
+    - validationResultRef, candidateVersionRef, ruleSetVersion, expectedFingerprint, validationContextRef, and the source-bound validation observation must match exactly; mismatch is STALE or CONFLICT.
+    - targetOperationRef must be one member of candidate declaredScope.targetOperationRefs and targetOperationAuthorizationRef must bind a separate current authorization decision for that exact operation; the plan itself remains NOT_ADMITTED.
+    - candidateVersionRef must encode ruleSetVersion and requestContext.tenantRef must equal its tenantRef. The plan preserves the exact reuse requestContext as requestedBy and requestIdentity as reuseRequestRef; plan.sourceRefs equal the validated candidate's receipt sourceRefs.
+failClosedCases:
+  - id: MRC-NEG-INVALID-RULE
+    condition: malformed rule, unknown operator, or invalid typed parameter
+    outcome: REJECTED or INVALID
+    effect: NONE
+  - id: MRC-NEG-UNAUTHORIZED-SCOPE
+    condition: caller is unauthorized for exact declared scope or target operation
+    outcome: DENIED
+    effect: NONE
+  - id: MRC-NEG-STALE-VERSION
+    condition: expected parent/version or expected fingerprint differs from current exact input
+    outcome: STALE
+    effect: NONE
+  - id: MRC-NEG-UNKNOWN-EVIDENCE
+    condition: required authority, rights/license, source, or validation evidence is unknown
+    outcome: UNKNOWN
+    effect: NONE
+  - id: MRC-NEG-UNAVAILABLE-DEPENDENCY
+    condition: required source or validation dependency is unavailable
+    outcome: UNAVAILABLE
+    effect: NONE
+  - id: MRC-NEG-UNSUPPORTED-CONSTRUCT
+    condition: graph uses unsupported graph version, operator, numeric encoding, or parameter form
+    outcome: REJECTED or INVALID
+    effect: NONE
+effectBoundary:
+  forbidden: [rule-application, target-operation-execution, approval, approval-equivalence, persistent-media-mutation, measured-result-claim]
+  requiredForAllNonSuccessOutcomes: NONE
+  status: definition-only; no runtime implementation or execution semantics admitted

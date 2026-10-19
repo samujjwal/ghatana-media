@@ -13,11 +13,13 @@
           "requiredSourcePhrase": "Each capability declares an explicit trust/reconstruction disposition against its P0 semantic inputs and outputs.",
           "historicalCurrentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
           "historicalCurrentTargetValueSha256": "528d2743c10dc3678364a3c4ff7ea6f096c002316bd511b155b11e777c65a6c5",
-          "currentSourceFileSha256": "af774f4db0a306ac3514475d65170560c345e7a6ecdf17305edb2ac3b9af41fe",
+          "currentSourceFileSha256": "49c079d4aff2499bb3c226ac52e3a7101d483392775bd9b05a0a469295329ce2",
           "currentTargetValueSha256": "528d2743c10dc3678364a3c4ff7ea6f096c002316bd511b155b11e777c65a6c5",
           "semanticEquivalence": "NOT_ASSERTED",
           "acceptanceEffect": "none",
-          "supersededCurrentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4"
+          "supersededCurrentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
+          "currentSourceSuccessorRef": "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd185.json#/records/@observationId=P0-MIGRATION-CURRENT-089",
+          "currentSourceSuccessorPredecessorFileSha256": "4fe7fa39a380c8209741301b5488739db204a89444c150adba39f4ec3d2ff3a8"
         },
         {
           "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#coverageRule",

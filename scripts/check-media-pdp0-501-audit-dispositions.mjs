@@ -184,6 +184,29 @@ export function validatePdp0AuditDispositions({repositoryRoot = root, crosswalk 
     if (typeof row.phaseLocalRationale !== 'string' || !row.phaseLocalRationale.trim()) addError(errors, `${id}: phaseLocalRationale required`);
     if (row.ownerApproval !== 'NOT_CLAIMED') addError(errors, `${id}: ownerApproval must remain NOT_CLAIMED`);
 
+    const ownerSurfaceProposal = source.owner_surface_proposal;
+    const definitionScopeBinding = row.definitionScopeBinding;
+    const expectedSurfaceRegistryRef = `.product-experience/surface-registry.yaml#surfaces/@surfaceId=${ownerSurfaceProposal}`;
+    const expectedPdp0ScopeRef = `.product-experience/pdp-0-product-truth/applications-channels.yaml#/logicalConsumerPdp0Scope/records/@surfaceRef=${ownerSurfaceProposal}`;
+    if (row.ownerSurfaceProposal !== ownerSurfaceProposal
+        || definitionScopeBinding?.status !== 'DEFINITION_SCOPE_ONLY'
+        || definitionScopeBinding?.surfaceRegistryRef !== expectedSurfaceRegistryRef
+        || definitionScopeBinding?.pdp0ScopeRef !== expectedPdp0ScopeRef
+        || definitionScopeBinding?.ownerApproval !== 'NOT_CLAIMED'
+        || definitionScopeBinding?.runtimeAdmission !== 'NOT_CLAIMED') {
+      addError(errors, `${id}: preserve the exact source owner-surface proposal and bind it to current PDP-0 definition scope only, with owner approval and runtime admission unclaimed`);
+    } else {
+      const surface = resolveRef(expectedSurfaceRegistryRef);
+      const scope = resolveRef(expectedPdp0ScopeRef);
+      if (!surface.ok || surface.value?.surfaceId !== ownerSurfaceProposal
+          || !(surface.value?.applicablePdpArtifacts ?? []).includes('PDP-0')) {
+        addError(errors, `${id}: proposed owner surface does not resolve to an exact registered PDP-0 surface`);
+      }
+      if (!scope.ok || scope.value?.surfaceRef !== ownerSurfaceProposal) {
+        addError(errors, `${id}: proposed owner surface has no exact current PDP-0 logical-consumer scope`);
+      }
+    }
+
     const evidenceRefs = Array.isArray(row.pdp0EvidenceRefs) ? row.pdp0EvidenceRefs : [];
     const contextRefs = Array.isArray(row.pdp0ContextRefs) ? row.pdp0ContextRefs : [];
     for (const [kind, refs] of [['PDP-0 evidence', evidenceRefs], ['PDP-0 context', contextRefs]]) {
@@ -266,7 +289,9 @@ export function validatePdp0AuditDispositions({repositoryRoot = root, crosswalk 
   if (seen.size !== 501) addError(errors, `crosswalk must contain exactly 501 unique IDs, found ${seen.size}`);
   const referencedFiles = new Set();
   for (const row of rows ?? []) {
-    for (const ref of [row.sourceTextRef, row.reviewProvenance, row.independentQcRef, ...(row.pdp0EvidenceRefs ?? []), ...(row.pdp0ContextRefs ?? [])]) {
+    for (const ref of [row.sourceTextRef, row.reviewProvenance, row.independentQcRef,
+      row.definitionScopeBinding?.surfaceRegistryRef, row.definitionScopeBinding?.pdp0ScopeRef,
+      ...(row.pdp0EvidenceRefs ?? []), ...(row.pdp0ContextRefs ?? [])]) {
       if (typeof ref === 'string' && ref.includes('#')) referencedFiles.add(ref.slice(0, ref.indexOf('#')));
     }
   }
@@ -276,18 +301,22 @@ export function validatePdp0AuditDispositions({repositoryRoot = root, crosswalk 
   if (rows?.filter(r=>r.sourcePartition==='originalAudit').length !== 428) addError(errors, 'crosswalk must contain exactly 428 originalAudit rows');
   if (rows?.filter(r=>r.sourcePartition==='focusedAudit').length !== 73) addError(errors, 'crosswalk must contain exactly 73 focusedAudit rows');
   const softBody = rows?.find(row => row.auditId === 'AUD-SIM3-009');
-  const specializedSimulationRefs = [
-    '.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.cloth',
-    '.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.soft-body',
-    '.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.rope',
-    '.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.particle',
-    '.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.fluid',
+  const specializedSimulationFamilies = [
+    'rigid-body','soft-body','cloth','rope','particle','fluid','smoke','fire','collision','constraint','vehicle',
+    'crowd','agent','human-motion','procedural-world','camera-experiment','lighting-experiment','educational-demo',
+    'scientific-demo','robotics','kinematics','synthetic-data',
   ];
+  const specializedSimulationRefs = specializedSimulationFamilies.map(name =>
+    `.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.${name}`);
   const specializedSimulationRequirementRefs = [
     '.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION/acceptanceCases/@id=MEDIA-REQ-CAP-SIMULATION-AC-01',
     '.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION/acceptanceCases/@id=MEDIA-REQ-CAP-SIMULATION-AC-02',
   ];
-  if (!softBody || [...specializedSimulationRefs, ...specializedSimulationRequirementRefs].some(ref => !(softBody.pdp0EvidenceRefs ?? []).includes(ref))) addError(errors, 'AUD-SIM3-009 must cite all five exact specialized PDP-0 capability identities and family/fallback acceptance cases');
+  if (!softBody || [...specializedSimulationRefs, ...specializedSimulationRequirementRefs].some(ref => !(softBody.pdp0EvidenceRefs ?? []).includes(ref))
+      || !/other specialized simulation/i.test(softBody.sourceText ?? '')
+      || !specializedSimulationFamilies.every(name => (softBody.phaseLocalRationale ?? '').includes(`media.simulation.${name}`))) {
+    addError(errors, 'AUD-SIM3-009 must enumerate every exact specialized model-family leaf and bind family-specific qualification/fallback boundaries');
+  }
   const agentScope = rows?.find(row => row.auditId === 'AUD-SIM3-010');
   const agentQcRef = 'docs/implementation/observations/pdp0-semantic-audit-slices/meaning-gap-qc.json#records/@sourceAuditId=AUD-SIM3-010';
   const agentEvidenceRefs = [
@@ -385,6 +414,121 @@ export function validatePdp0AuditDispositions({repositoryRoot = root, crosswalk 
     if (row?.decisionRef?.id !== 'PXD-174'
         || row?.decisionRef?.path !== '.product-experience/decision-log.md#PXD-174') {
       addError(errors, `${id} must cite the exact PXD-174 row-level source review reference`);
+    }
+  }
+
+  const exactCaseRef = (family, suffix) => exactRequirementRef(family, `MEDIA-REQ-CAP-${family}-AC-${suffix}`);
+  const requiredAuditCases = {
+    'AUD-SPEC-013': exactRequirementRef('MEDIA-REQ-CAP-DELIVER','MEDIA-REQ-CAP-DELIVER-AC-03'),
+    'AUD-SPEC-019': exactRequirementRef('MEDIA-REQ-CAP-QUALITY','MEDIA-REQ-CAP-QUALITY-AC-09'),
+    'AUD-SPEC-020': '.product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/requirementDefinition/acceptanceCases/@id=MEDIA-REQ-CAP-RULES-AC-01',
+    'AUD-TTS-011': exactRequirementRef('MEDIA-REQ-CAP-SPEECH-SYNTHESIS','MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-06'),
+    'AUD-TTS-013': exactRequirementRef('MEDIA-REQ-CAP-SPEECH-SYNTHESIS','MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-07'),
+    'AUD-DUB-002': exactRequirementRef('MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION','MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-06'),
+  };
+  for (const [id, ref] of Object.entries(requiredAuditCases)) {
+    const row = rows?.find(item => item.auditId === id);
+    if (!row || row.disposition !== 'BOUND_EXISTING' || !hasEvidence(row, ref)) {
+      addError(errors, `${id} must bind its exact feature-specific PDP-0 acceptance case ${ref}`);
+    }
+  }
+  const exactCampaignExtensionRef = anchor => `.product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/${anchor}`;
+  const spec013 = rows?.find(row => row.auditId === 'AUD-SPEC-013');
+  const spec013Handoffs = new Map((spec013?.laterPhaseHandoffs ?? []).map(handoff => [handoff.phase, handoff]));
+  if (!spec013 || !['PDP-2', 'PDP-3'].every(phase => spec013Handoffs.has(phase))
+      || !/variant selection/i.test(spec013Handoffs.get('PDP-2')?.scope ?? '')
+      || !/preview/i.test(spec013Handoffs.get('PDP-2')?.scope ?? '')
+      || !/full|complete/i.test(spec013Handoffs.get('PDP-3')?.scope ?? '')
+      || !/deliver/i.test(spec013Handoffs.get('PDP-3')?.scope ?? '')) {
+    addError(errors, 'AUD-SPEC-013 must hand off explicit PDP-2 variant selection/preview and PDP-3 full variant planning/delivery');
+  }
+  const spec019 = rows?.find(row => row.auditId === 'AUD-SPEC-019');
+  const qualityRankTrustRef = '.product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-quality-rank.v1';
+  const qualityRankCapabilityRef = '.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.rank';
+  const qualityRankTrust = sourceMeaning(qualityRankTrustRef);
+  const qualityAc09 = sourceMeaning(requiredAuditCases['AUD-SPEC-019']);
+  const spec019Handoffs = new Map((spec019?.laterPhaseHandoffs ?? []).map(handoff => [handoff.phase, handoff]));
+  if (!spec019 || !hasEvidence(spec019, qualityRankTrustRef) || !hasEvidence(spec019, qualityRankCapabilityRef)
+      || !hasEvidence(spec019, requiredAuditCases['AUD-SPEC-019'])
+      || qualityRankTrust?.capabilityRef !== 'media.quality.rank'
+      || !/hard resource budget/i.test(qualityAc09?.given ?? '')
+      || !/preserve the user's explicit selection/i.test(qualityAc09?.then ?? '')
+      || !/new explicit selection/i.test(qualityAc09?.then ?? '')
+      || !['PDP-2', 'PDP-3'].every(phase => spec019Handoffs.has(phase))
+      || !/compare and select/i.test(spec019Handoffs.get('PDP-2')?.scope ?? '')
+      || !/compare\/select\/reselect/i.test(spec019Handoffs.get('PDP-3')?.scope ?? '')
+      || !/unknown/i.test(spec019Handoffs.get('PDP-3')?.scope ?? '')) {
+    addError(errors, 'AUD-SPEC-019 must bind the exact media.quality.rank trust record and QUALITY-AC-09 budget/selection semantics with PDP-2/PDP-3 compare-select-reselect-unknown handoffs');
+  }
+  const spec020 = rows?.find(row => row.auditId === 'AUD-SPEC-020');
+  const spec020RequiredRefs = [
+    exactCampaignExtensionRef('capabilityDefinition'),
+    exactCampaignExtensionRef('requirementDefinition'),
+    exactCampaignExtensionRef('requirementDefinition/acceptanceCases/@id=MEDIA-REQ-CAP-RULES-AC-01'),
+    exactCampaignExtensionRef('requirementDefinition/acceptanceCases/@id=MEDIA-REQ-CAP-RULES-AC-02'),
+    exactCampaignExtensionRef('compileAcceptance'),
+    exactCampaignExtensionRef('validationCoverage'),
+    exactCampaignExtensionRef('validationCoverage/compileEquivalenceAndFingerprint'),
+  ];
+  const spec020Handoffs = new Map((spec020?.laterPhaseHandoffs ?? []).map(handoff => [handoff.phase, handoff]));
+  const compileAcceptance = sourceMeaning(exactCampaignExtensionRef('compileAcceptance'));
+  const validationCoverage = sourceMeaning(exactCampaignExtensionRef('validationCoverage'));
+  const coverageDimensions = Object.keys(validationCoverage?.auditValidationDimensions ?? {});
+  const compileCoverage = validationCoverage?.compileEquivalenceAndFingerprint;
+  if (!spec020 || spec020RequiredRefs.some(ref => !hasEvidence(spec020, ref))
+      || spec020.pdp0EvidenceRefs.some(ref => /MEDIA-REQ-CAP-PROFILE-AC-03/.test(ref))
+      || compileAcceptance?.id !== 'AUD-SPEC-020-P0-COMPILE-AC-01'
+      || !/equivalent normalized semantic graph/i.test(compileAcceptance?.criterion ?? '')
+      || !/stable semantic fingerprint/i.test(compileAcceptance?.criterion ?? '')
+      || !/invalid or unauthorized input produces no effects/i.test(compileAcceptance?.criterion ?? '')
+      || !compileAcceptance?.outputs?.normalizedSemanticGraph
+      || !compileAcceptance?.outputs?.semanticFingerprint
+      || !compileAcceptance?.invalidOrUnauthorizedInput?.forbiddenEffects?.includes('operation-execution')
+      || !['positive', 'negative', 'unavailable', 'UNKNOWN_or_explicit_NA', 'rights_license', 'manual_agent_parity_when_applicable', 'source_version_and_provenance'].every(key => coverageDimensions.includes(key))
+      || compileCoverage?.compileAcceptanceId !== compileAcceptance?.id
+      || compileCoverage?.compileAcceptanceRef !== exactCampaignExtensionRef('compileAcceptance')
+      || compileCoverage?.criterionRef !== exactCampaignExtensionRef('compileAcceptance/criterion')
+      || compileCoverage?.boundToNormalizedSemanticGraph !== true
+      || compileCoverage?.boundToStableSemanticFingerprint !== true
+      || !['PDP-1', 'PDP-2', 'PDP-3'].every(phase => spec020Handoffs.has(phase))) {
+    addError(errors, 'AUD-SPEC-020 must bind campaign-extensions proposal, exact compile/equivalence/fingerprint acceptance and validation coverage map, omit PROFILE-AC-03, and hand off PDP-1/2/3');
+  }
+  for (const id of ['AUD-SPEC-013', 'AUD-SPEC-019', 'AUD-SPEC-020', 'AUD-DUB-002']) {
+    const row = rows?.find(item => item.auditId === id);
+    if (row?.decisionRef?.id !== 'PXD-185'
+        || row?.decisionRef?.path !== '.product-experience/decision-log.md#PXD-185'
+        || row?.decisionRef?.ownerApproval !== 'NOT_CLAIMED') {
+      addError(errors, `${id} must cite PXD-185 as a coordinator source review with owner approval unclaimed`);
+    }
+  }
+  const dub002 = rows?.find(row => row.auditId === 'AUD-DUB-002');
+  const dubAc06 = sourceMeaning(requiredAuditCases['AUD-DUB-002']);
+  const dubHandoffs = new Map((dub002?.laterPhaseHandoffs ?? []).map(handoff => [handoff.phase, handoff]));
+  if (!dub002 || !/absent or unknown/i.test(dubAc06?.then ?? '')
+      || !/not applicable only with an explicit reason/i.test(dubAc06?.then ?? '')
+      || !['PDP-2', 'PDP-3'].every(phase => dubHandoffs.has(phase))
+      || !/selection controls/i.test(dubHandoffs.get('PDP-2')?.scope ?? '')
+      || !/complete translation journey/i.test(dubHandoffs.get('PDP-3')?.scope ?? '')) {
+    addError(errors, 'AUD-DUB-002 must preserve strengthened AC-06 absent/unknown evidence and split PDP-2 selection from PDP-3 journey handoffs');
+  }
+  const exactClauseCaseRefs = {
+    'AUD-INTER-005': exactClauseRef('MEDIA-DECL-P0-AC-061'),
+    'AUD-TRUST-016': exactClauseRef('MEDIA-DECL-P0-AC-057'),
+    'AUD-OPS-016': exactClauseRef('MEDIA-DECL-P0-AC-058'),
+    'AUD-OPS-018': exactClauseRef('MEDIA-DECL-P0-AC-057'),
+  };
+  for (const [id, ref] of Object.entries(exactClauseCaseRefs)) {
+    if (!hasEvidence(rows?.find(item => item.auditId === id), ref)) addError(errors, `${id} must bind the exact PDP-0 product boundary ${ref}`);
+  }
+  const exchangePackageRef = '.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.output.output.exchange-package';
+  if (!hasEvidence(rows?.find(item => item.auditId === 'AUD-ANIM3-016'), exchangePackageRef)) {
+    addError(errors, 'AUD-ANIM3-016 must bind the editable exchange-package capability, not composited-video output alone');
+  }
+  for (const id of ['AUD-CROSS3-007','AUD-OPS-020']) {
+    const row = rows?.find(item => item.auditId === id);
+    if (row?.disposition !== 'POST_PDP_IMPLEMENTATION_ONLY' || (row.pdp0EvidenceRefs ?? []).length !== 0
+        || !(row.laterPhaseHandoffs ?? []).some(handoff => /BUILD/.test(handoff.phase ?? ''))) {
+      addError(errors, `${id} is implementation/reproducibility work and must not be represented as a PDP-0 semantic match`);
     }
   }
 

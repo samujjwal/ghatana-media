@@ -32,6 +32,8 @@ const migrationP0CurrentSourceObservations = JSON.parse(readFileSync(resolve(roo
 const migrationOverlayCurrentOwnerObservations = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-overlay-current-owner-observations.json"), "utf8"));
 const migrationPxd153CurrentSourceObservations = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-p0-pxd153-current-source-observations.json"), "utf8"));
 const migrationPxd173Successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd173.json"), "utf8"));
+const migrationPxd183Successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd183.json"), "utf8"));
+const migrationPxd185Successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd185.json"), "utf8"));
 const migration199OwnerCandidate = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json"), "utf8"));
 assert.equal(migrationP0CurrentSourceObservations.decisionRef, ".product-experience/decision-log.md#PXD-130");
 
@@ -130,6 +132,24 @@ function assertOwnerAccountedGap(claim) {
   assert.ok(resolveRef(claim.ownerAuthorityRef) !== undefined, "the owner authority selector resolves");
 }
 
+function assertPdp1CurrentLocatorObservation(claim, observation) {
+  assert.ok(observation, `${claim.claimId} needs an additive PDP-1 current-locator observation`);
+  assert.equal(claim.claimId, "MPSEM-0270-C001");
+  assert.equal(observation.claimId, claim.claimId);
+  assert.equal(observation.ownerPhase, "PDP-1");
+  assert.match(observation.targetRef ?? "", /^\.product-experience\/pdp-1-domain-data\//u,
+    "the observed locator must remain owned by PDP-1");
+  assert.match(observation.handoff ?? "", /PDP-1 owner phase/u,
+    "the record must hand semantic assessment to PDP-1");
+  assert.equal(observation.historicalTargetValueSha256, claim.targetTextSha256,
+    "the historical claim target pin remains unchanged");
+  assert.equal(observation.currentTargetValueSha256, sha(JSON.stringify(resolveRef(observation.targetRef))));
+  assert.equal(observation.currentSourceFileSha256,
+    sha(readFileSync(resolve(root, observation.targetRef.split("#")[0]))));
+  assert.equal(observation.semanticEquivalence, "NOT_ASSERTED");
+  assert.equal(observation.acceptanceEffect, "none");
+}
+
 function assertClaimDisposition(claim) {
   if (claim.disposition === "NON_NORMATIVE_SOURCE_METADATA") {
     if (claim.claimId === "MPSEM-0001-C001") {
@@ -206,6 +226,12 @@ function assertClaimDisposition(claim) {
   assert.ok(claim.targetRef, `${claim.claimId} needs one exact authority selector`);
   if (p0Only && downstreamOwner(claim.targetRef)) {
     assert.equal(claim.acceptanceEffect, "none");
+    if (claim.claimId === "MPSEM-0270-C001") {
+      const overlayObservation = migrationOverlayCurrentOwnerObservations.records.find((record) => record.claimId === claim.claimId);
+      assertPdp1CurrentLocatorObservation(claim, overlayObservation);
+      assert.equal(overlayObservation.targetRef, claim.targetRef,
+        "the PDP-1 handoff observation must match this claim's exact locator");
+    }
     return; // Keep the all-row disposition/source census, but defer downstream owner semantics to that phase.
   }
   const target = resolveRef(claim.targetRef);
@@ -293,6 +319,8 @@ function assertClaimDisposition(claim) {
         } else assert.fail(`${claim.claimId} overlay observation has no recognized review status`);
       } else {
         const pxd173Observations = migrationPxd173Successor.records.filter((record) => record.claimId === claim.claimId);
+        const pxd183Observations = migrationPxd183Successor.records.filter((record) => record.claimId === claim.claimId);
+        const pxd185Observations = migrationPxd185Successor.records.filter((record) => record.claimId === claim.claimId);
         if (pxd173Observations.some(({ observationId }) => observationId === "P0-MIGRATION-CURRENT-029")) {
           assert.equal(claim.semanticReviewStatus, "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY");
           const ownerCandidateRecord = migration199OwnerCandidate.records.find((record) => record.claimId === claim.claimId);
@@ -306,6 +334,11 @@ function assertClaimDisposition(claim) {
             "P0-MIGRATION-CURRENT-029",
             "P0-MIGRATION-CURRENT-030",
           ]);
+          assert.equal(migrationPxd173Successor.decisionRef, ".product-experience/decision-log.md#PXD-173");
+          assert.equal(migrationPxd183Successor.decisionRef, ".product-experience/decision-log.md#PXD-183");
+          assert.equal(migrationPxd185Successor.decisionRef, ".product-experience/decision-log.md#PXD-185");
+          assert.equal(pxd183Observations.length, 2, "PXD-183 adds a current successor for both parent-cancellation source observations");
+          assert.equal(pxd185Observations.length, 2, "PXD-185 preserves a later current successor for both parent-cancellation source observations");
           const currentSourceFileSha256 = sha(readFileSync(resolve(root, claim.targetRef.split("#")[0])));
           const currentThen = resolveRef(claim.targetRef);
           for (const observation of pxd173Observations) {
@@ -313,13 +346,38 @@ function assertClaimDisposition(claim) {
             assert.equal(observation.predecessorCurrentTargetValueSha256, claim.targetTextSha256,
               "successor preserves the immutable historical target digest");
             assert.equal(observation.currentTargetValueSha256, targetDigest, "successor records exact live target bytes");
-            assert.equal(observation.currentSourceFileSha256, currentSourceFileSha256, "successor records exact live source file");
+            assert.equal(observation.currentSourceFileSha256, "af774f4db0a306ac3514475d65170560c345e7a6ecdf17305edb2ac3b9af41fe",
+              "PXD-173 source-file observation remains immutable history");
             assert.equal(observation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
             assert.equal(observation.semanticEquivalence, "NOT_ASSERTED");
             assert.equal(observation.semanticPromotion, false);
             assert.equal(observation.acceptanceEffect, "none");
           }
-          const materialObservation = pxd173Observations.find(({ observationId }) => observationId === "P0-MIGRATION-CURRENT-030");
+          for (const observation of pxd183Observations) {
+            assert.equal(observation.targetRef, claim.targetRef);
+            const prior = pxd173Observations.find((entry) => entry.sourceRecordRef === observation.sourceRecordRef);
+            assert.equal(observation.predecessorCurrentSourceFileSha256, prior?.currentSourceFileSha256);
+            assert.equal(observation.predecessorCurrentTargetValueSha256, prior?.currentTargetValueSha256);
+            const successor = pxd185Observations.find((entry) => entry.sourceRecordRef === observation.sourceRecordRef);
+            assert.equal(successor?.predecessorCurrentSourceFileSha256, observation.currentSourceFileSha256,
+              "PXD-185 preserves the PXD-183 current source file as history");
+            assert.equal(successor?.predecessorCurrentTargetValueSha256, observation.currentTargetValueSha256,
+              "PXD-185 preserves the PXD-183 current target value as history");
+            assert.equal(observation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+            assert.equal(observation.semanticEquivalence, "NOT_ASSERTED");
+            assert.equal(observation.semanticPromotion, false);
+            assert.equal(observation.acceptanceEffect, "none");
+          }
+          for (const observation of pxd185Observations) {
+            assert.equal(observation.targetRef, claim.targetRef);
+            assert.equal(observation.currentSourceFileSha256, currentSourceFileSha256, "PXD-185 successor records exact live source file");
+            assert.equal(observation.currentTargetValueSha256, targetDigest, "PXD-185 successor records exact live target bytes");
+            assert.equal(observation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+            assert.equal(observation.semanticEquivalence, "NOT_ASSERTED");
+            assert.equal(observation.semanticPromotion, false);
+            assert.equal(observation.acceptanceEffect, "none");
+          }
+          const materialObservation = pxd183Observations.find(({ requiredSourcePhrase }) => requiredSourcePhrase !== null);
           assert.equal(materialObservation.requiredSourcePhrase, currentThen,
             "material observation phrase matches the exact current PDP-0 clause");
           assert.equal(pxd173Observations.find(({ observationId }) => observationId === "P0-MIGRATION-CURRENT-029").requiredSourcePhrase, null);
@@ -725,6 +783,27 @@ test("PXD-075 action claims preserve historical pins while later action bytes re
   const provenanceAction = resolveRef(".product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-provenance");
   assert.ok(provenanceAction.capabilityRefs.includes("media.provenance.source-lineage.inspect"));
   assert.ok(actions.some(({ actionDefinitionSemantics }) => actionDefinitionSemantics?.sourceEnvelope?.classificationBasis === "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"));
+});
+
+test("PDP-0 records only an exact PDP-1 locator handoff for MPSEM-0270-C001", () => {
+  const review = readYaml(reviewPath);
+  const claim = review.pdp38ClaimReconciliation.records.flatMap(({ claims }) => claims ?? [])
+    .find(({ claimId }) => claimId === "MPSEM-0270-C001");
+  const observation = migrationOverlayCurrentOwnerObservations.records.find(({ claimId }) => claimId === claim.claimId);
+  assertPdp1CurrentLocatorObservation(claim, observation);
+  assert.equal(observation.targetRef, claim.targetRef);
+
+  assert.throws(() => assertPdp1CurrentLocatorObservation(claim, { ...observation, ownerPhase: undefined }));
+  assert.throws(() => assertPdp1CurrentLocatorObservation(claim, { ...observation, ownerPhase: "PDP-2" }), /PDP-1/u);
+  assert.throws(() => assertPdp1CurrentLocatorObservation(claim, { ...observation, handoff: undefined }));
+  assert.throws(() => assertPdp1CurrentLocatorObservation(claim, {
+    ...observation,
+    handoff: "PDP-2 owner phase: assess target semantics within PDP-2.",
+  }));
+  assert.throws(() => assertPdp1CurrentLocatorObservation(claim, {
+    ...observation,
+    targetRef: ".product-experience/pdp-2-design-system/example.yaml#/field",
+  }), /owned by PDP-1/u);
 });
 
 test("erasure negative boundary maps to the actual metadata-only confirmation rule", () => {

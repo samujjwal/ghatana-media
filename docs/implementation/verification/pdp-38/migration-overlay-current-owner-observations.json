@@ -3,6 +3,30 @@
   "scope": "Additive exact current-owner byte observations supplementing historical migration overlay target pins; no claim-parity or acceptance promotion.",
   "records": [
     {
+      "claimId": "MPSEM-0170-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml#/rules/0",
+      "historicalTargetValueSha256": "40fe21f5f22665a5f4e6cdda536607dae8d43fa082d0d9c81757f53caaedde9e",
+      "previousObservedCurrentTargetValueSha256": "62bc0d1922c890f2cfa35824ee3e610f7994c4eb112098670cbba5e7538b1eaa",
+      "currentTargetValueSha256": "0e83dbb605bad782470412b13e8f4aa132e361fd9679d6e57310036240d139e6",
+      "previousObservedCurrentSourceFileSha256": "3e8a91fcfdf673ed51078ac2e44c868520947fa4c82e04786a867e6a8539e4ba",
+      "currentSourceFileSha256": "481a8cc11205f1a3c5485f5fcc02ee8b3107be434880b78d05a32b649792bba5",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "acceptanceEffect": "none",
+      "observation": "Successor current-source byte observation after PXD-187. The live rule restores explicit stable-leaf wording and retains the one-to-one 462 denominator and separate additive campaign-extension statement. The historical target pin and prior current observation are preserved. MPSEM-0170-C003 remains pending claim-specific semantic parity; this observation does not assert equivalence or acceptance."
+    },
+    {
+      "claimId": "MPSEM-0270-C001",
+      "ownerPhase": "PDP-1",
+      "targetRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/@id=media.value.replay-provenance-definition",
+      "historicalTargetValueSha256": "b8550da2b1500f74f3371128f5b4849e0bbb405965d27a8d4429d6328120fe51",
+      "currentTargetValueSha256": "be781aa5be9ca23ac0603980e9aa25104123579a6d316b0077228bb4f7919b65",
+      "currentSourceFileSha256": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "acceptanceEffect": "none",
+      "handoff": "PDP-1 owner phase: assess target semantics within PDP-1; this PDP-0 record captures current locator bytes only.",
+      "observation": "Additive current-source byte observation for PDP-0 migration locator currentness only. No PDP-1 semantic review or adjudication is performed; parity remains governed by its existing status."
+    },
+    {
       "claimId": "MPSEM-0235-C001",
       "targetRef": ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml#/openDecisions/@id=consent-and-rights-authority/question",
       "historicalTargetValueSha256": "a9c9c301109c2a267241495e9f0b1326ec3e803271a353d6f5002bd5ca8c65c9",

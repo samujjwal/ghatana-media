@@ -48,6 +48,26 @@ function checkWithTransitionMutation(mutate) {
   }
 }
 
+function checkWithCampaignSourceMutation(mutate, relativePath = ".product-experience/pdp-0-product-truth/campaign-extensions.yaml") {
+  const fixture = mkdtempSync(`${tmpdir()}/media-pdp-check-`);
+  try {
+    for (const path of [".product-experience", "apps/media-experience-explorer", "docs", "libs/media-experience-simulation"]) {
+      cpSync(resolve(repositoryRoot, path), resolve(fixture, path), { recursive: true });
+    }
+    const sourcePath = resolve(fixture, relativePath);
+    const source = readFileSync(sourcePath, "utf8");
+    const mutated = mutate(source);
+    assert.notEqual(mutated, source, "test mutation must change the fixture");
+    writeFileSync(sourcePath, mutated);
+    return spawnSync(process.execPath, ["scripts/check-product-experience-local.mjs", `--root=${fixture}`], {
+      cwd: repositoryRoot,
+      encoding: "utf8",
+    });
+  } finally {
+    rmSync(fixture, { recursive: true, force: true });
+  }
+}
+
 test("Product Definition local invariant check covers all phase denominators", () => {
   const output = execFileSync(process.execPath, ["scripts/check-product-experience-local.mjs"], {
     cwd: repositoryRoot,
@@ -55,7 +75,9 @@ test("Product Definition local invariant check covers all phase denominators", (
   });
 
   assert.match(output, /Media Product Definition local check passed/u);
-  assert.match(output, /462 PDP-0 capability leaves/u);
+  assert.match(output, /462 historical PDP-0 capability leaves/u);
+  assert.match(output, /19 intents and 462 owner adjudications remain canonical/u);
+  assert.match(output, /AUD-SPEC-020 is checked as a separate campaign extension/u);
   assert.match(output, /31 PDP-2 components/u);
   assert.match(output, /47 PDP-3 screen contracts/u);
   assert.match(output, /28 baseline plus J-29\/J-30 extensions/u);
@@ -64,6 +86,47 @@ test("Product Definition local invariant check covers all phase denominators", (
   assert.match(output, /21 of 47 screen views have direct action-capability requirement crosswalks/u);
   assert.match(output, /20 of 20 action-bearing journey steps map through direct Action Registry capability refs/u);
   assert.match(output, /Tools Product Definition\/Experience validation and lifecycle currentness outputs are not bound in this checkout/u);
+});
+
+test("AUD-SPEC-020 channel crosswalk is complete, surface-bound, proposal-only, and preserves the 54 identity denominator", () => {
+  const omittedApi = checkWithCampaignSourceMutation((source) => source.replace(
+    /\n            - channelRef: media\.channel\.api\n[\s\S]*?(?=\n            - channelRef: media\.channel\.embedded)/u,
+    "",
+  ));
+  assert.notEqual(omittedApi.status, 0, "omitted API channel must fail");
+  assert.match(omittedApi.stderr, /AUD-SPEC-020 must resolve exactly eight proposed channels and three scoped N\/A channels/u);
+
+  const unknownSurface = checkWithCampaignSourceMutation((source) => source.replace(
+    "physicalSurfaceRefs: [media.physical.libs-audio-video-ui]",
+    "physicalSurfaceRefs: [media.physical.new-rule-engine]",
+  ));
+  assert.notEqual(unknownSurface.status, 0, "invented physical identity must fail");
+  assert.match(unknownSurface.stderr, /AUD-SPEC-020 .*must crosswalk exactly to its current registered surface identities/u);
+
+  const newSurfaceDenominator = checkWithCampaignSourceMutation(
+    (source) => {
+      const topology = JSON.parse(source);
+      topology.manifestCandidates.push({ ...structuredClone(topology.manifestCandidates[0]), surfaceId: "media.physical.new-rule-engine" });
+      return JSON.stringify(topology, null, 2);
+    },
+    ".product-experience/surfaces/media-physical-topology.v1.json",
+  );
+  assert.notEqual(newSurfaceDenominator.status, 0, "new physical identity must not silently change the 54-surface denominator");
+  assert.match(newSurfaceDenominator.stderr, /AUD-SPEC-020 surface crosswalk must preserve the exact 54-identity PDP-0 denominator/u);
+
+  const promoted = checkWithCampaignSourceMutation((source) => source.replace(
+    "disposition: PROPOSED_APPLICABLE",
+    "disposition: OWNER_SELECTED_APPLICABLE",
+  ));
+  assert.notEqual(promoted.status, 0, "owner-selected applicability without receipt must fail");
+  assert.match(promoted.stderr, /AUD-SPEC-020 .*invalid or promoted applicability disposition/u);
+
+  const claimedReceipt = checkWithCampaignSourceMutation((source) => source.replace(
+    "applicabilityState: PROPOSED; owner disposition pending",
+    "applicabilityState: OWNER_ACCEPTED",
+  ));
+  assert.notEqual(claimedReceipt.status, 0, "owner acceptance cannot be inferred or claimed without a receipt");
+  assert.match(claimedReceipt.stderr, /AUD-SPEC-020 channel applicability must remain proposal-only with owner acceptance unclaimed/u);
 });
 
 test("missing required screen refs/shapes fail closed", () => {

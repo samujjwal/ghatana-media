@@ -491,37 +491,41 @@
       "acceptanceBoundary": "Direct source criterion only; original full task ledger, dependencies, qualified independent reviews, runtime qualification and Lifecycle phase receipts remain unchanged.",
       "currentCorrectiveReview": {
         "status": "APPROVED_CURRENT_SOURCE_REVIEW",
-        "decisionRef": ".product-experience/decision-log.md#PXD-178",
-        "reviewKind": "SCOPED_SOURCE_DEFINITION_REVIEW",
+        "decisionRef": ".product-experience/decision-log.md#PXD-191",
+        "reviewKind": "NO_EFFECT_CURRENT_SOURCE_REVIEW",
         "phaseScope": "PDP-0",
-        "scope": "PXD-178 rechecks the exact P0-05 constitutional mapping against the current requirement cut after PXD-174/PXD-177. All 32 constitutional identities retain their twelve required normative fields and full-array acceptance mappings; the job acceptance array bound by MEDIA-CONST-010, MEDIA-CONST-013, and MEDIA-CONST-023 now contains the current parent-child cancellation definition. No constitutional identity, field mapping, statement, or human-review state changed.",
+        "scope": "PXD-191 rebinds the current exact-byte source pins for the existing P0-05 constitutional mapping review after PXD-190. The same 32 constitutional identities retain their twelve normative fields and unchanged full-array requirement mappings. The PXD-188 feature-scoped AUD-SPEC-020 surface mapping changes no PDP-0 constitution source or meaning, identity, field mapping, statement, human-review state, or requirement mapping. PXD-190, PXD-189, PXD-188 and earlier reviews remain historical. Owner acceptance and independent acceptance remain NOT_CLAIMED.",
         "sourceFingerprints": {
+          ".product-experience/artifact-identities.yaml": "2f2b0503b3ccb455e58afc21dca66469e8da2b12974ab0b68df5212113f5573e",
+          ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5",
+          ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
           ".product-experience/pdp-0-product-truth/constitution.yaml": "adde6bb5e9b0b67637e411b557b54e4a9110da7d383436209022f73b38fcd67b",
-          ".product-experience/pdp-0-product-truth/requirements.yaml": "af774f4db0a306ac3514475d65170560c345e7a6ecdf17305edb2ac3b9af41fe",
-          "tests/pdp0-constitution-normative-completeness.test.mjs": "0786dcebb6628f2678bd62b9d454ee69ade94cad9f09b184c999ed91e454a770",
-          "tests/pdp0-requirement-source-boundaries.test.mjs": "664ddb2d034f437a1ada5da478704b066014ba2a4ce11af0be94177a1886fa83",
-          "tests/pdp0-policy-authority-boundary.test.mjs": "0a18c713b2dd84cdbbc9fa6da4a435aac80318ff02a9478a4df6dcb16cb4505c",
-          "tests/pdp0-semantic-corrections.test.mjs": "fbee28f3f659c6053c1ed5c7f7b67bbec23f20ce09bb9edf7a0b5ceff26c3247",
+          ".product-experience/pdp-0-product-truth/requirements.yaml": "49c079d4aff2499bb3c226ac52e3a7101d483392775bd9b05a0a469295329ce2",
+          ".product-experience/source-manifest.yaml": "dc2cc4ff58c3b3bd29f8d11036f0a3640c574cb4abceb0902fcafd3aad2c6cf2",
+          "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "7600e41751cee0817c796b7543b14427594cc0f75ece017ecd4adaf90057e661",
+          "tests/media-pdp-readiness.test.mjs": "aeb48bc06ff8a598c5e13b6606dc889c5118b7b08d1381fa8da6b054062943f3",
+          "tests/media-pdp0-501-audit-dispositions.test.mjs": "751f44a7d44815aa5a95828c3297fb1565add053626da395e6764b525bfc1deb",
           "tests/media-pdp0-acceptance-actor-binding.test.mjs": "eef062735274b2799029622d5f2f80e9764e12eca73ed8a229aae8278355cef9",
-          "tests/media-pdp0-501-audit-dispositions.test.mjs": "28ff0c45d313b89938c95421308fea531a586ce8a4baab11553d1b230f12828c"
+          "tests/pdp0-constitution-normative-completeness.test.mjs": "0786dcebb6628f2678bd62b9d454ee69ade94cad9f09b184c999ed91e454a770",
+          "tests/pdp0-policy-authority-boundary.test.mjs": "0a18c713b2dd84cdbbc9fa6da4a435aac80318ff02a9478a4df6dcb16cb4505c",
+          "tests/pdp0-requirement-source-boundaries.test.mjs": "7bd70068db731664e6805a8824b38de0d63c850ea07bac807e23690d14003748",
+          "tests/pdp0-semantic-corrections.test.mjs": "fbee28f3f659c6053c1ed5c7f7b67bbec23f20ce09bb9edf7a0b5ceff26c3247"
         },
+        "supersedesReviewRef": ".product-experience/decision-log.md#PXD-190",
         "verification": {
           "status": "PASS",
-          "tests": 38,
-          "passed": 38,
+          "tests": 1,
+          "passed": 1,
           "failed": 0,
-          "command": "node --test tests/pdp0-constitution-normative-completeness.test.mjs tests/pdp0-requirement-source-boundaries.test.mjs tests/pdp0-policy-authority-boundary.test.mjs tests/pdp0-semantic-corrections.test.mjs tests/media-pdp0-acceptance-actor-binding.test.mjs tests/media-pdp0-501-audit-dispositions.test.mjs",
+          "command": "PDP_DEV_PHASE=PDP-0 node --test --test-name-pattern=\"PXD-191 rebinds P0-05/P0-07 source pins while preserving PXD-190/PXD-189/PXD-188 history\" tests/media-pdp-readiness.test.mjs",
           "evidenceRefs": [
-            "tests/pdp0-constitution-normative-completeness.test.mjs",
-            "tests/pdp0-requirement-source-boundaries.test.mjs",
-            "tests/pdp0-policy-authority-boundary.test.mjs",
-            "tests/pdp0-semantic-corrections.test.mjs",
-            "tests/media-pdp0-acceptance-actor-binding.test.mjs",
-            "tests/media-pdp0-501-audit-dispositions.test.mjs"
-          ]
+            "tests/media-pdp-readiness.test.mjs"
+          ],
+          "acceptanceBoundary": "No-effect PDP-0 source-currentness review only; no owner approval, independent acceptance, runtime admission, qualification, closure, or Delivery readiness is claimed."
         },
-        "acceptanceBoundary": "Current PDP-0 direct-definition source review only; constitutional human acceptance remains pending. No owner approval, independent acceptance, downstream phase acceptance, qualification, runtime admission, or Lifecycle receipt is claimed.",
-        "currentSourceCutNote": "Exactly 32 unique MEDIA-CONST-001 through MEDIA-CONST-032 records resolve all 12 normative fields. Each outcome and acceptanceCriteria binding references the full acceptanceCases array across 13 requirement families. MEDIA-REQ-CAP-JOB-AC-03 is included through MEDIA-CONST-010, MEDIA-CONST-013, and MEDIA-CONST-023. MEDIA-DECL-P0-AC-061 and MEDIA-DECL-P0-AC-040 remain in their PDP-0 definition/audit scope and do not replace constitutional field targets."
+        "acceptanceBoundary": "No-effect current PDP-0 source review under delegated coordinator authority only; owner approval and independent acceptance remain NOT_CLAIMED.",
+        "currentSourceCutNote": "PXD-190, PXD-189, PXD-188 and earlier reviews remain preserved as history. PXD-191 only refreshes exact current-source fingerprints for the existing P0-05 review; the 32 constitutional identities, twelve normative fields, and full-array requirement mappings remain unchanged. No owner or independent acceptance is claimed.",
+        "ownerApproval": "NOT_CLAIMED"
       },
       "historicalCorrectiveReviews": [
         {
@@ -623,6 +627,194 @@
           "decisionRef": ".product-experience/decision-log.md#PXD-173",
           "status": "APPROVED_CURRENT_SOURCE_REVIEW",
           "phaseScope": "PDP-0"
+        },
+        {
+          "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+          "decisionRef": ".product-experience/decision-log.md#PXD-178",
+          "reviewKind": "SCOPED_SOURCE_DEFINITION_REVIEW",
+          "phaseScope": "PDP-0",
+          "scope": "PXD-178 rechecks the exact P0-05 constitutional mapping against the current requirement cut after PXD-174/PXD-177. All 32 constitutional identities retain their twelve required normative fields and full-array acceptance mappings; the job acceptance array bound by MEDIA-CONST-010, MEDIA-CONST-013, and MEDIA-CONST-023 now contains the current parent-child cancellation definition. No constitutional identity, field mapping, statement, or human-review state changed.",
+          "sourceFingerprints": {
+            ".product-experience/pdp-0-product-truth/constitution.yaml": "adde6bb5e9b0b67637e411b557b54e4a9110da7d383436209022f73b38fcd67b",
+            ".product-experience/pdp-0-product-truth/requirements.yaml": "af774f4db0a306ac3514475d65170560c345e7a6ecdf17305edb2ac3b9af41fe",
+            "tests/pdp0-constitution-normative-completeness.test.mjs": "0786dcebb6628f2678bd62b9d454ee69ade94cad9f09b184c999ed91e454a770",
+            "tests/pdp0-requirement-source-boundaries.test.mjs": "664ddb2d034f437a1ada5da478704b066014ba2a4ce11af0be94177a1886fa83",
+            "tests/pdp0-policy-authority-boundary.test.mjs": "0a18c713b2dd84cdbbc9fa6da4a435aac80318ff02a9478a4df6dcb16cb4505c",
+            "tests/pdp0-semantic-corrections.test.mjs": "fbee28f3f659c6053c1ed5c7f7b67bbec23f20ce09bb9edf7a0b5ceff26c3247",
+            "tests/media-pdp0-acceptance-actor-binding.test.mjs": "eef062735274b2799029622d5f2f80e9764e12eca73ed8a229aae8278355cef9",
+            "tests/media-pdp0-501-audit-dispositions.test.mjs": "28ff0c45d313b89938c95421308fea531a586ce8a4baab11553d1b230f12828c"
+          },
+          "verification": {
+            "status": "PASS",
+            "tests": 38,
+            "passed": 38,
+            "failed": 0,
+            "command": "node --test tests/pdp0-constitution-normative-completeness.test.mjs tests/pdp0-requirement-source-boundaries.test.mjs tests/pdp0-policy-authority-boundary.test.mjs tests/pdp0-semantic-corrections.test.mjs tests/media-pdp0-acceptance-actor-binding.test.mjs tests/media-pdp0-501-audit-dispositions.test.mjs",
+            "evidenceRefs": [
+              "tests/pdp0-constitution-normative-completeness.test.mjs",
+              "tests/pdp0-requirement-source-boundaries.test.mjs",
+              "tests/pdp0-policy-authority-boundary.test.mjs",
+              "tests/pdp0-semantic-corrections.test.mjs",
+              "tests/media-pdp0-acceptance-actor-binding.test.mjs",
+              "tests/media-pdp0-501-audit-dispositions.test.mjs"
+            ]
+          },
+          "acceptanceBoundary": "Current PDP-0 direct-definition source review only; constitutional human acceptance remains pending. No owner approval, independent acceptance, downstream phase acceptance, qualification, runtime admission, or Lifecycle receipt is claimed.",
+          "currentSourceCutNote": "Exactly 32 unique MEDIA-CONST-001 through MEDIA-CONST-032 records resolve all 12 normative fields. Each outcome and acceptanceCriteria binding references the full acceptanceCases array across 13 requirement families. MEDIA-REQ-CAP-JOB-AC-03 is included through MEDIA-CONST-010, MEDIA-CONST-013, and MEDIA-CONST-023. MEDIA-DECL-P0-AC-061 and MEDIA-DECL-P0-AC-040 remain in their PDP-0 definition/audit scope and do not replace constitutional field targets."
+        },
+        {
+          "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+          "decisionRef": ".product-experience/decision-log.md#PXD-182",
+          "reviewKind": "SCOPED_SOURCE_DEFINITION_REVIEW",
+          "phaseScope": "PDP-0",
+          "scope": "PXD-182 rechecks the exact PDP-0 constitutional mapping and full 501-row feature-audit reconciliation against the current requirements source. All 32 constitutional identities retain their twelve normative fields and current acceptance mappings; the six feature-specific PDP-0 cases are additive and do not change any constitutional identity, field mapping, statement, or human-review state. The crosswalk preserves all source IDs/text and maps all 501 proposed owner scopes to current registered logical PDP-0 scopes only.",
+          "sourceFingerprints": {
+            ".product-experience/pdp-0-product-truth/constitution.yaml": "adde6bb5e9b0b67637e411b557b54e4a9110da7d383436209022f73b38fcd67b",
+            ".product-experience/pdp-0-product-truth/requirements.yaml": "4fe7fa39a380c8209741301b5488739db204a89444c150adba39f4ec3d2ff3a8",
+            "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "842116aa6fa1d1c406945741979646eb439ab332a7173ccb59deeced2297136b",
+            "tests/pdp0-constitution-normative-completeness.test.mjs": "0786dcebb6628f2678bd62b9d454ee69ade94cad9f09b184c999ed91e454a770",
+            "tests/pdp0-requirement-source-boundaries.test.mjs": "664ddb2d034f437a1ada5da478704b066014ba2a4ce11af0be94177a1886fa83",
+            "tests/pdp0-policy-authority-boundary.test.mjs": "0a18c713b2dd84cdbbc9fa6da4a435aac80318ff02a9478a4df6dcb16cb4505c",
+            "tests/pdp0-semantic-corrections.test.mjs": "fbee28f3f659c6053c1ed5c7f7b67bbec23f20ce09bb9edf7a0b5ceff26c3247",
+            "tests/media-pdp0-acceptance-actor-binding.test.mjs": "eef062735274b2799029622d5f2f80e9764e12eca73ed8a229aae8278355cef9",
+            "tests/media-pdp0-501-audit-dispositions.test.mjs": "28ff0c45d313b89938c95421308fea531a586ce8a4baab11553d1b230f12828c"
+          },
+          "supersedesReviewRef": ".product-experience/decision-log.md#PXD-178",
+          "verification": {
+            "status": "NOT_RUN",
+            "tests": 0,
+            "passed": 0,
+            "failed": 0,
+            "command": "node --test tests/pdp0-constitution-normative-completeness.test.mjs tests/pdp0-requirement-source-boundaries.test.mjs tests/pdp0-policy-authority-boundary.test.mjs tests/pdp0-semantic-corrections.test.mjs tests/media-pdp0-acceptance-actor-binding.test.mjs tests/media-pdp0-501-audit-dispositions.test.mjs",
+            "evidenceRefs": [
+              "tests/pdp0-constitution-normative-completeness.test.mjs",
+              "tests/pdp0-requirement-source-boundaries.test.mjs",
+              "tests/pdp0-policy-authority-boundary.test.mjs",
+              "tests/pdp0-semantic-corrections.test.mjs",
+              "tests/media-pdp0-acceptance-actor-binding.test.mjs",
+              "tests/media-pdp0-501-audit-dispositions.test.mjs"
+            ]
+          },
+          "acceptanceBoundary": "Current PDP-0 direct-definition source review only; constitutional human acceptance remains pending. No owner approval, independent acceptance, downstream phase acceptance, qualification, runtime admission, or Lifecycle receipt is claimed.",
+          "currentSourceCutNote": "Exactly 32 unique MEDIA-CONST-001 through MEDIA-CONST-032 records resolve all 12 normative fields. Each outcome and acceptanceCriteria binding references the full acceptanceCases array across 13 requirement families. MEDIA-REQ-CAP-JOB-AC-03 is included through MEDIA-CONST-010, MEDIA-CONST-013, and MEDIA-CONST-023. MEDIA-DECL-P0-AC-061 and MEDIA-DECL-P0-AC-040 remain in their PDP-0 definition/audit scope and do not replace constitutional field targets."
+        },
+        {
+          "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+          "decisionRef": ".product-experience/decision-log.md#PXD-186",
+          "reviewKind": "SCOPED_SOURCE_DEFINITION_REVIEW",
+          "phaseScope": "PDP-0",
+          "scope": "PXD-186 rechecks the current PDP-0 constitutional mapping against the refreshed requirements, 501-row crosswalk, and separate campaign extension. The same 32 constitutional identities retain their twelve normative fields and unchanged full-array requirement mappings. Newly added PDP-0 source cases remain additive within those mapped arrays; the separate AUD-SPEC-020 media.rules.manage proposal remains in campaign-extensions.yaml with owner acceptance and independent acceptance NOT_CLAIMED. No constitutional identity, field mapping, statement, human-review state, or owner-acceptance state changes.",
+          "sourceFingerprints": {
+            ".product-experience/pdp-0-product-truth/constitution.yaml": "adde6bb5e9b0b67637e411b557b54e4a9110da7d383436209022f73b38fcd67b",
+            ".product-experience/pdp-0-product-truth/requirements.yaml": "49c079d4aff2499bb3c226ac52e3a7101d483392775bd9b05a0a469295329ce2",
+            ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "0f6e5d39245a8128f3ed8942962f9493bef2b5046ba5fd4a2d16e619cf1e51f5",
+            ".product-experience/source-manifest.yaml": "d9eeeb66c79a33f954aefe2f2faf74f9896c83f9c93edf55aacdc8f1eccb645e",
+            ".product-experience/artifact-identities.yaml": "90fc854dee7dde54ad24880cc064d8e93558fc512410c7681e417a85560a00d5",
+            "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "4353be781da7d59a3992230f85e500ee1f969c50710f9fe291ac8210903062e7",
+            "tests/pdp0-constitution-normative-completeness.test.mjs": "0786dcebb6628f2678bd62b9d454ee69ade94cad9f09b184c999ed91e454a770",
+            "tests/pdp0-requirement-source-boundaries.test.mjs": "7bd70068db731664e6805a8824b38de0d63c850ea07bac807e23690d14003748",
+            "tests/pdp0-policy-authority-boundary.test.mjs": "0a18c713b2dd84cdbbc9fa6da4a435aac80318ff02a9478a4df6dcb16cb4505c",
+            "tests/pdp0-semantic-corrections.test.mjs": "fbee28f3f659c6053c1ed5c7f7b67bbec23f20ce09bb9edf7a0b5ceff26c3247",
+            "tests/media-pdp0-acceptance-actor-binding.test.mjs": "eef062735274b2799029622d5f2f80e9764e12eca73ed8a229aae8278355cef9",
+            "tests/media-pdp0-501-audit-dispositions.test.mjs": "7fd7d29df86cfa753289d1ede74c3385a67764a37eba72884573273e5a7e9b80",
+            "tests/media-pdp-readiness.test.mjs": "52cbce4aae8cb710794b45fd020ff7ea80b89e36e611fb57681999938b54bee9"
+          },
+          "supersedesReviewRef": ".product-experience/decision-log.md#PXD-182",
+          "verification": {
+            "status": "PASS",
+            "tests": 43,
+            "passed": 43,
+            "failed": 0,
+            "command": "node --test --test-reporter=tap tests/pdp0-constitution-normative-completeness.test.mjs tests/pdp0-requirement-source-boundaries.test.mjs tests/pdp0-policy-authority-boundary.test.mjs tests/pdp0-semantic-corrections.test.mjs tests/media-pdp0-acceptance-actor-binding.test.mjs tests/media-pdp0-501-audit-dispositions.test.mjs",
+            "evidenceRefs": [
+              "tests/pdp0-constitution-normative-completeness.test.mjs",
+              "tests/pdp0-requirement-source-boundaries.test.mjs",
+              "tests/pdp0-policy-authority-boundary.test.mjs",
+              "tests/pdp0-semantic-corrections.test.mjs",
+              "tests/media-pdp0-acceptance-actor-binding.test.mjs",
+              "tests/media-pdp0-501-audit-dispositions.test.mjs"
+            ],
+            "acceptanceBoundary": "Current PDP-0 direct-definition source review only; constitutional human acceptance remains pending. No owner approval, independent acceptance, downstream phase acceptance, qualification, runtime admission, or Lifecycle receipt is claimed."
+          },
+          "acceptanceBoundary": "Current PDP-0 source review under delegated coordinator authority only; owner approval and independent acceptance remain NOT_CLAIMED.",
+          "currentSourceCutNote": "The 32 constitutional records and full-array requirement mapping references remain unchanged. Current requirement cases are additive; the separate campaign extension has no canonical capability, requirement-family, intent, or owner-adjudication count effect and claims no owner or independent acceptance.",
+          "ownerApproval": "NOT_CLAIMED"
+        },
+        {
+          "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "reviewKind": "NO_EFFECT_CURRENT_SOURCE_REVIEW",
+          "phaseScope": "PDP-0",
+          "scope": "PXD-188 rechecks the current PDP-0 constitutional mapping and confirms the same 32 constitutional identities retain their twelve normative fields and unchanged full-array requirement mappings. The feature-scoped AUD-SPEC-020 surface mapping in campaign-extensions.yaml changes no PDP-0 constitution source or meaning, identity, field mapping, statement, human-review state, or requirement mapping. The current requirements and campaign-extension sources remain bound by exact fingerprints; owner acceptance and independent acceptance remain NOT_CLAIMED.",
+          "sourceFingerprints": {
+            ".product-experience/pdp-0-product-truth/constitution.yaml": "adde6bb5e9b0b67637e411b557b54e4a9110da7d383436209022f73b38fcd67b",
+            ".product-experience/pdp-0-product-truth/requirements.yaml": "49c079d4aff2499bb3c226ac52e3a7101d483392775bd9b05a0a469295329ce2",
+            ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+            ".product-experience/source-manifest.yaml": "dc2cc4ff58c3b3bd29f8d11036f0a3640c574cb4abceb0902fcafd3aad2c6cf2",
+            ".product-experience/artifact-identities.yaml": "90fc854dee7dde54ad24880cc064d8e93558fc512410c7681e417a85560a00d5",
+            "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "c0c1784801d649ef7c2b708570f633cd20729b186b9a00d0849ad5c88aaccaf3",
+            "tests/pdp0-constitution-normative-completeness.test.mjs": "0786dcebb6628f2678bd62b9d454ee69ade94cad9f09b184c999ed91e454a770",
+            "tests/pdp0-requirement-source-boundaries.test.mjs": "7bd70068db731664e6805a8824b38de0d63c850ea07bac807e23690d14003748",
+            "tests/pdp0-policy-authority-boundary.test.mjs": "0a18c713b2dd84cdbbc9fa6da4a435aac80318ff02a9478a4df6dcb16cb4505c",
+            "tests/pdp0-semantic-corrections.test.mjs": "fbee28f3f659c6053c1ed5c7f7b67bbec23f20ce09bb9edf7a0b5ceff26c3247",
+            "tests/media-pdp0-acceptance-actor-binding.test.mjs": "eef062735274b2799029622d5f2f80e9764e12eca73ed8a229aae8278355cef9",
+            "tests/media-pdp0-501-audit-dispositions.test.mjs": "7fd7d29df86cfa753289d1ede74c3385a67764a37eba72884573273e5a7e9b80",
+            "tests/media-pdp-readiness.test.mjs": "e2e2600019f37c49354642e628dba062a055be8ff4a03d49e874b0d723acb3aa",
+            ".product-experience/decision-log.md": "7553a5002c6de27fe160ae584996c7fd983422399703999409e75960485f547e"
+          },
+          "supersedesReviewRef": ".product-experience/decision-log.md#PXD-186",
+          "verification": {
+            "status": "PASS",
+            "tests": 1,
+            "passed": 1,
+            "failed": 0,
+            "command": "PDP_DEV_PHASE=PDP-0 node --test --test-name-pattern=\"PXD-188 keeps the AUD-SPEC-020 surface resolution source-current and prior reviews historical\" tests/media-pdp-readiness.test.mjs",
+            "evidenceRefs": [
+              "tests/media-pdp-readiness.test.mjs"
+            ],
+            "acceptanceBoundary": "No-effect PDP-0 source-currentness review only; no owner approval, independent acceptance, runtime admission, qualification, closure, or Delivery readiness is claimed."
+          },
+          "acceptanceBoundary": "No-effect current PDP-0 source review under delegated coordinator authority only; owner approval and independent acceptance remain NOT_CLAIMED.",
+          "currentSourceCutNote": "PXD-186 and earlier reviews remain preserved as history. The feature-scoped surface mapping changes no constitutional source meaning: all 32 identities, twelve normative fields, and full-array requirement mappings remain unchanged. The campaign extension applicability proposals remain unaccepted; owner and independent acceptance remain NOT_CLAIMED.",
+          "ownerApproval": "NOT_CLAIMED"
+        },
+        {
+          "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+          "decisionRef": ".product-experience/decision-log.md#PXD-189",
+          "reviewKind": "NO_EFFECT_CURRENT_SOURCE_REVIEW",
+          "phaseScope": "PDP-0",
+          "scope": "PXD-189 rebinds the current exact-byte source pins for the existing P0-05 constitutional mapping review. The same 32 constitutional identities retain their twelve normative fields and unchanged full-array requirement mappings. The PXD-188 feature-scoped AUD-SPEC-020 surface mapping changes no PDP-0 constitution source or meaning, identity, field mapping, statement, human-review state, or requirement mapping. Owner acceptance and independent acceptance remain NOT_CLAIMED.",
+          "sourceFingerprints": {
+            ".product-experience/artifact-identities.yaml": "2f2b0503b3ccb455e58afc21dca66469e8da2b12974ab0b68df5212113f5573e",
+            ".product-experience/decision-log.md": "e8a6d47c92400f18cf6732dbb789b323968fec7ca2929d5a9e2cbf79eaa2dfb4",
+            ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+            ".product-experience/pdp-0-product-truth/constitution.yaml": "adde6bb5e9b0b67637e411b557b54e4a9110da7d383436209022f73b38fcd67b",
+            ".product-experience/pdp-0-product-truth/requirements.yaml": "49c079d4aff2499bb3c226ac52e3a7101d483392775bd9b05a0a469295329ce2",
+            ".product-experience/source-manifest.yaml": "dc2cc4ff58c3b3bd29f8d11036f0a3640c574cb4abceb0902fcafd3aad2c6cf2",
+            "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "b0f86a343dcb76016b6f620eb4f3477ab2ee34bb234068024a38f9b80d0ab119",
+            "tests/media-pdp-readiness.test.mjs": "4eff342391563a212e198ecdbbfee87d8ac6a5b15a94a0f6fd9ace7b431ab2d3",
+            "tests/media-pdp0-501-audit-dispositions.test.mjs": "7fd7d29df86cfa753289d1ede74c3385a67764a37eba72884573273e5a7e9b80",
+            "tests/media-pdp0-acceptance-actor-binding.test.mjs": "eef062735274b2799029622d5f2f80e9764e12eca73ed8a229aae8278355cef9",
+            "tests/pdp0-constitution-normative-completeness.test.mjs": "0786dcebb6628f2678bd62b9d454ee69ade94cad9f09b184c999ed91e454a770",
+            "tests/pdp0-policy-authority-boundary.test.mjs": "0a18c713b2dd84cdbbc9fa6da4a435aac80318ff02a9478a4df6dcb16cb4505c",
+            "tests/pdp0-requirement-source-boundaries.test.mjs": "7bd70068db731664e6805a8824b38de0d63c850ea07bac807e23690d14003748",
+            "tests/pdp0-semantic-corrections.test.mjs": "fbee28f3f659c6053c1ed5c7f7b67bbec23f20ce09bb9edf7a0b5ceff26c3247"
+          },
+          "supersedesReviewRef": ".product-experience/decision-log.md#PXD-188",
+          "verification": {
+            "status": "PASS",
+            "tests": 1,
+            "passed": 1,
+            "failed": 0,
+            "command": "PDP_DEV_PHASE=PDP-0 node --test --test-name-pattern=\"PXD-189 refreshes P0-05/P0-07 source pins while preserving PXD-188 as historical\" tests/media-pdp-readiness.test.mjs",
+            "evidenceRefs": [
+              "tests/media-pdp-readiness.test.mjs"
+            ],
+            "acceptanceBoundary": "No-effect PDP-0 source-currentness review only; no owner approval, independent acceptance, runtime admission, qualification, closure, or Delivery readiness is claimed."
+          },
+          "acceptanceBoundary": "No-effect current PDP-0 source review under delegated coordinator authority only; owner approval and independent acceptance remain NOT_CLAIMED.",
+          "currentSourceCutNote": "PXD-188 remains preserved as history. PXD-189 only refreshes exact current-source fingerprints for the existing P0-05 review; the 32 constitutional identities, twelve normative fields, and full-array requirement mappings remain unchanged. No owner or independent acceptance is claimed.",
+          "ownerApproval": "NOT_CLAIMED"
         }
       ]
     },
@@ -1048,45 +1240,317 @@
           },
           "acceptanceBoundary": "PDP-0 source-scope review only. No owner acceptance, channel or runtime admission, PDP-1/PDP-2/PDP-3 acceptance, independent acceptance, qualification, or Lifecycle closure is claimed.",
           "currentSourceCutNote": "Twenty of twenty active logical consumer scopes resolve; total consumer identities are 21 including one archived. Generic Web remains 77 applicable plus 385 non-applicable leaves. Studio retains twenty Recorder-profile leaves with fifteen source-backed consumer-specific additions. Surface denominator remains 26 physical candidates, 7 compositions, 21 logical consumers, 54 identities; physical split is 15 PDP-0 applicable, 8 explicit support-N/A, and 3 implementation-not-admitted."
+        },
+        {
+          "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+          "decisionRef": ".product-experience/decision-log.md#PXD-180",
+          "reviewKind": "NO_EFFECT_CURRENT_SOURCE_REVIEW",
+          "phaseScope": "PDP-0",
+          "scope": "No-effect current-source review of PDP-2/PDP-1 validator wiring changes. P0-07 feature, requirement, consumer, and channel/profile applicability meanings and its native acceptance predicate are unchanged.",
+          "sourceFingerprints": {
+            ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+            ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
+            ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+            ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
+            ".product-experience/pdp-0-product-truth/requirements.yaml": "af774f4db0a306ac3514475d65170560c345e7a6ecdf17305edb2ac3b9af41fe",
+            ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+            ".product-experience/surfaces/media-physical-topology.v1.json": "53f3e1073c11876d3675543bfe170e32b31bae7725a3ed3bd2712f13954e2017",
+            "scripts/check-media-pdp0-surface-denominator.mjs": "1295bd0233b596af179d3fd8fd0f3f00882a4c2a3fc8a2ceaa640660697e70b3",
+            "scripts/report-media-pdp-readiness.mjs": "322a89439ac03200aefd39202b5f7a2af9c5f698d921622cc82a77e873265c82",
+            "tests/media-pdp0-surface-denominator.test.mjs": "85d9055fd79361034d5d757c5f15cdf5cadcbc79a5a4543fdc490deb61ae0c9b",
+            "tests/media-p0-07-feature-channel-review.test.mjs": "4d03829dee1d9db0ca38497f60ef7e70e46768ef90075d8540f08b0dc1d04ee9",
+            "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "072f003e76288d2f3aa04c340c5d87fc9913a963130e4e32c333fdb736b73f31",
+            "tests/pdp-truth-domain.test.mjs": "8ef1a6d5e11dc2e10ca32c3e6813fc8671c22a6c7f7038d48300d52f8feae578",
+            "tests/pdp0-feature-review-current-source-observation.test.mjs": "d1591a9d28a1e60c7d266174be826c0d75bf3ff4b438ac199f221d2c51a3a071",
+            "scripts/lib/pdp0-feature-review-applicability.mjs": "33d02a362f9187cbe8146f660769c7e2e897dc9d9afcdda682a1db627af319cc",
+            "tests/media-pdp-readiness.test.mjs": "eadd6e6840fa866df7fe78d63b910572bdea3f079192a40051e5dce40dbbe25e"
+          },
+          "supersedesReviewRef": ".product-experience/decision-log.md#PXD-178",
+          "verification": {
+            "status": "PASS",
+            "tests": 8,
+            "passed": 8,
+            "failed": 0,
+            "command": "node scripts/report-media-pdp-readiness.mjs --verify --phase-dev-status=PDP-0 --write",
+            "evidenceRefs": [
+              "docs/implementation/verification/pdp-38/P0-07.log"
+            ],
+            "acceptanceBoundary": "No-effect source-currentness review only; no owner approval, independent acceptance, runtime admission, qualification, or downstream acceptance is claimed."
+          },
+          "currentSourceCutNote": "PXD-178 remains preserved in historicalCorrectiveReviews. All of its P0-07 source pins remain unchanged except the readiness reporter hash, which is refreshed to the exact current bytes reviewed under PXD-180."
+        },
+        {
+          "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+          "decisionRef": ".product-experience/decision-log.md#PXD-181",
+          "reviewKind": "NO_EFFECT_CURRENT_SOURCE_REVIEW",
+          "phaseScope": "PDP-0",
+          "scope": "Current-source review retains the exact logical-consumer scope: all 20 active logical consumers resolve to their current PDP-0 capability and requirement identities; the generic Web partition remains 77 applicable and 385 non-applicable leaves, and Studio retains its exact 20 Recorder-profile leaves with 15 source-backed consumer-specific additions. The only topology change is the mapped Explorer physical leaf PDP-2 disposition. Its PDP-0 disposition remains NO_IMPLEMENTATION_ADMITTED, with no direct capability, requirement, or intent references. The 54-identity denominator and 15/8/3 physical applicability split are unchanged; no P0 feature, requirement, consumer, channel/profile meaning, or native acceptance predicate changes.",
+          "sourceFingerprints": {
+            ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+            ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
+            ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+            ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
+            ".product-experience/pdp-0-product-truth/requirements.yaml": "af774f4db0a306ac3514475d65170560c345e7a6ecdf17305edb2ac3b9af41fe",
+            ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+            ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
+            "scripts/check-media-pdp0-surface-denominator.mjs": "1295bd0233b596af179d3fd8fd0f3f00882a4c2a3fc8a2ceaa640660697e70b3",
+            "scripts/report-media-pdp-readiness.mjs": "4f34063e50f737c678ea0ce7cc3c8dca27f8bef8df5d762d8d592673c5dcd272",
+            "tests/media-pdp0-surface-denominator.test.mjs": "85d9055fd79361034d5d757c5f15cdf5cadcbc79a5a4543fdc490deb61ae0c9b",
+            "tests/media-p0-07-feature-channel-review.test.mjs": "4d03829dee1d9db0ca38497f60ef7e70e46768ef90075d8540f08b0dc1d04ee9",
+            "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "072f003e76288d2f3aa04c340c5d87fc9913a963130e4e32c333fdb736b73f31",
+            "tests/pdp-truth-domain.test.mjs": "8ef1a6d5e11dc2e10ca32c3e6813fc8671c22a6c7f7038d48300d52f8feae578",
+            "tests/pdp0-feature-review-current-source-observation.test.mjs": "d1591a9d28a1e60c7d266174be826c0d75bf3ff4b438ac199f221d2c51a3a071",
+            "scripts/lib/pdp0-feature-review-applicability.mjs": "33d02a362f9187cbe8146f660769c7e2e897dc9d9afcdda682a1db627af319cc",
+            "tests/media-pdp-readiness.test.mjs": "3120a5e374b3dc3168953a7cb88b5817197c0730eebc439a32dcda3999f2875f"
+          },
+          "supersedesReviewRef": ".product-experience/decision-log.md#PXD-180",
+          "verification": {
+            "status": "PASS",
+            "tests": 8,
+            "passed": 8,
+            "failed": 0,
+            "command": "node scripts/report-media-pdp-readiness.mjs --verify --phase-dev-status=PDP-0 --write",
+            "evidenceRefs": [
+              "docs/implementation/verification/pdp-38/P0-07.log"
+            ],
+            "acceptanceBoundary": "No-effect source-currentness review only; no human owner approval, independent acceptance, runtime admission, qualification, closure, or Delivery readiness is claimed."
+          },
+          "currentSourceCutNote": "PXD-180 and earlier source reviews remain preserved in historicalCorrectiveReviews. This refresh binds the P0-07 review to the exact current topology, readiness reporter, PDP-0 authorities, and focused test inputs. The topology delta is limited to PDP-2 Explorer applicability; P0 meaning and applicability remain unchanged.",
+          "ownerApproval": "NOT_CLAIMED"
+        },
+        {
+          "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+          "decisionRef": ".product-experience/decision-log.md#PXD-182",
+          "reviewKind": "NO_EFFECT_CURRENT_SOURCE_REVIEW",
+          "phaseScope": "PDP-0",
+          "scope": "PXD-182 rechecks the exact logical-consumer scope and all 501 source-proposed owner scopes: every proposal resolves to one existing registry surface and its exact current logicalConsumerPdp0Scope record. All 20 active logical consumers remain in scope; the generic Web partition remains 77 applicable and 385 non-applicable leaves; Studio retains its 20 Recorder-profile leaves with 15 source-backed additions. The 54-identity denominator and 15/8/3 physical applicability split are unchanged. PXD-182 adds exact feature-specific PDP-0 evidence and narrows later-phase handoffs, but does not change a channel, consumer scope, or physical disposition. The mapped Explorer physical leaf remains NO_IMPLEMENTATION_ADMITTED for PDP-0 and retains its recorded PDP-2 disposition; this review makes no PDP-2 decision and does not change the native P0-07 acceptance predicate.",
+          "sourceFingerprints": {
+            ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+            ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
+            ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+            ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
+            ".product-experience/pdp-0-product-truth/requirements.yaml": "4fe7fa39a380c8209741301b5488739db204a89444c150adba39f4ec3d2ff3a8",
+            ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262c30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+            ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
+            "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "842116aa6fa1d1c406945741979646eb439ab332a7173ccb59deeced2297136b",
+            "scripts/check-media-pdp0-surface-denominator.mjs": "1295bd0233b596af179d3fd8fd0f3f00882a4c2a3fc8a2ceaa640660697e70b3",
+            "scripts/report-media-pdp-readiness.mjs": "5d03172d08c6f592ae71b9dedce9925c89699b8141827585751ad2b863731458",
+            "scripts/lib/pdp0-feature-review-applicability.mjs": "33d02a362f9187cbe8146f660769c7e2e897dc9d9afcdda682a1db627af319cc",
+            "tests/media-pdp0-surface-denominator.test.mjs": "85d9055fd79361034d5d757c5f15cdf5cadcbc79a5a4543fdc490deb61ae0c9b",
+            "tests/media-p0-07-feature-channel-review.test.mjs": "4d03829dee1d9db0ca38497f60ef7e70e46768ef90075d8540f08b0dc1d04ee9",
+            "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "072f003e76288d2f3aa04c340c5d87fc9913a963130e4e32c333fdb736b73f31",
+            "tests/pdp-truth-domain.test.mjs": "8ef1a6d5e11dc2e10ca32c3e6813fc8671c22a6c7f7038d48300d52f8feae578",
+            "tests/pdp0-feature-review-current-source-observation.test.mjs": "d1591a9d28a1e60c7d266174be826c0d75bf3ff4b438ac199f221d2c51a3a071"
+          },
+          "supersedesReviewRef": ".product-experience/decision-log.md#PXD-181",
+          "verification": {
+            "status": "NOT_RUN",
+            "tests": 0,
+            "passed": 0,
+            "failed": 0,
+            "command": "node scripts/report-media-pdp-readiness.mjs --verify --phase-dev-status=PDP-0 --write",
+            "evidenceRefs": [
+              "docs/implementation/verification/pdp-38/P0-07.log"
+            ],
+            "acceptanceBoundary": "No-effect source-currentness review for the PDP-0 applicability criterion only; no owner approval, independent acceptance, runtime admission, qualification, closure, or Delivery readiness is claimed."
+          },
+          "currentSourceCutNote": "PXD-181 and earlier reviews are preserved in historicalCorrectiveReviews. The current scope still resolves 20 active logical consumers and 54 identities; the 501 row owner bindings add source traceability only. Native P0 verification is pending this exact source cut.",
+          "ownerApproval": "NOT_CLAIMED"
+        },
+        {
+          "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+          "decisionRef": ".product-experience/decision-log.md#PXD-186",
+          "reviewKind": "NO_EFFECT_CURRENT_SOURCE_REVIEW",
+          "phaseScope": "PDP-0",
+          "scope": "PXD-186 rechecks the exact logical-consumer scope and PDP-0 leaf applicability against the refreshed application, capability, surface, source-manifest, artifact-identity, Explorer projection, and 501-row crosswalk sources. The same 20 active logical consumers remain in scope; the generic Web partition remains 77 applicable and 385 non-applicable leaves; Studio retains its 20 Recorder-profile leaves with 15 source-backed additions. The 462-leaf applicability set and dispositions, 54 registered identities, and 15/8/3 physical applicability split remain unchanged. All 501 source-proposed owner scopes remain traceable; the AUD-SPEC-020 crosswalk ownerSurfaceProposal maps to media.surface.recorder-orchestrator as DEFINITION_SCOPE_ONLY with owner approval NOT_CLAIMED. The separate campaign-extension channel proposals remain proposal-only and are not mapped to concrete consumers or an owner applicability decision. The mapped Explorer physical leaf remains NO_IMPLEMENTATION_ADMITTED for PDP-0 and retains its recorded PDP-2 disposition; this review makes no PDP-2 decision. recorder-studio-extension.yaml is source-pinned and unchanged, with no Recorder Studio extension edit.",
+          "sourceFingerprints": {
+            ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+            ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
+            ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+            ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
+            ".product-experience/pdp-0-product-truth/requirements.yaml": "49c079d4aff2499bb3c226ac52e3a7101d483392775bd9b05a0a469295329ce2",
+            ".product-experience/pdp-0-product-truth/quality-policy.yaml": "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770",
+            ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "0f6e5d39245a8128f3ed8942962f9493bef2b5046ba5fd4a2d16e619cf1e51f5",
+            ".product-experience/source-manifest.yaml": "d9eeeb66c79a33f954aefe2f2faf74f9896c83f9c93edf55aacdc8f1eccb645e",
+            ".product-experience/artifact-identities.yaml": "90fc854dee7dde54ad24880cc064d8e93558fc512410c7681e417a85560a00d5",
+            ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+            ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
+            "apps/media-experience-explorer/specification-artifacts.json": "7e89c5b026a1fb0327a99d0952d335d34ccb158205bdca4f23c8354baf7850b6",
+            "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "4353be781da7d59a3992230f85e500ee1f969c50710f9fe291ac8210903062e7",
+            "scripts/check-media-pdp0-surface-denominator.mjs": "1295bd0233b596af179d3fd8fd0f3f00882a4c2a3fc8a2ceaa640660697e70b3",
+            "scripts/report-media-pdp-readiness.mjs": "d8cbc9eee4989933951fe2152f998d4336e1ab0915f75c7b64d3ea1154fb5938",
+            "tests/media-pdp0-surface-denominator.test.mjs": "85d9055fd79361034d5d757c5f15cdf5cadcbc79a5a4543fdc490deb61ae0c9b",
+            "tests/media-p0-07-feature-channel-review.test.mjs": "4d03829dee1d9db0ca38497f60ef7e70e46768ef90075d8540f08b0dc1d04ee9",
+            "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "072f003e76288d2f3aa04c340c5d87fc9913a963130e4e32c333fdb736b73f31",
+            "tests/pdp-truth-domain.test.mjs": "8ef1a6d5e11dc2e10ca32c3e6813fc8671c22a6c7f7038d48300d52f8feae578",
+            "tests/pdp0-feature-review-current-source-observation.test.mjs": "d1591a9d28a1e60c7d266174be826c0d75bf3ff4b438ac199f221d2c51a3a071",
+            "tests/media-pdp0-501-audit-dispositions.test.mjs": "7fd7d29df86cfa753289d1ede74c3385a67764a37eba72884573273e5a7e9b80",
+            "tests/media-pdp-readiness.test.mjs": "52cbce4aae8cb710794b45fd020ff7ea80b89e36e611fb57681999938b54bee9"
+          },
+          "supersedesReviewRef": ".product-experience/decision-log.md#PXD-182",
+          "verification": {
+            "status": "PASS",
+            "tests": 63,
+            "passed": 63,
+            "failed": 0,
+            "command": "node --test --test-reporter=tap tests/media-pdp0-surface-denominator.test.mjs tests/media-p0-07-feature-channel-review.test.mjs tests/pdp-truth-domain-channel-profile-applicability.test.mjs tests/pdp-truth-domain.test.mjs tests/pdp0-feature-review-current-source-observation.test.mjs tests/media-pdp0-501-audit-dispositions.test.mjs",
+            "evidenceRefs": [
+              "tests/media-pdp0-surface-denominator.test.mjs",
+              "tests/media-p0-07-feature-channel-review.test.mjs",
+              "tests/pdp-truth-domain-channel-profile-applicability.test.mjs",
+              "tests/pdp-truth-domain.test.mjs",
+              "tests/pdp0-feature-review-current-source-observation.test.mjs",
+              "tests/media-pdp0-501-audit-dispositions.test.mjs"
+            ],
+            "acceptanceBoundary": "No-effect PDP-0 source-currentness review for the applicability criterion only; no owner approval, independent acceptance, runtime admission, qualification, closure, or Delivery readiness is claimed."
+          },
+          "currentSourceCutNote": "The extension remains outside the canonical 462 leaf applicability denominator and does not bind an extra owner leaf or concrete consumer surface. Existing 462-leaf applicability and Recorder Studio source remain unchanged; owner and independent acceptance are NOT_CLAIMED.",
+          "ownerApproval": "NOT_CLAIMED"
+        },
+        {
+          "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+          "decisionRef": ".product-experience/decision-log.md#PXD-188",
+          "reviewKind": "NO_EFFECT_CURRENT_SOURCE_REVIEW",
+          "phaseScope": "PDP-0",
+          "scope": "PXD-188 rechecks the exact logical-consumer scope and PDP-0 leaf applicability against current channel, surface, topology, campaign-extension, validator, test, and 501-row crosswalk sources. The same 20 active logical consumers remain in scope; the generic Web partition remains 77 applicable and 385 non-applicable leaves; Studio retains 20 Recorder-profile leaves with 15 source-backed additions. The 462-leaf applicability set and dispositions, 54 identities remain unchanged; no new surface IDs, and the 15/8/3 physical applicability split remain unchanged. All 501 source-proposed owner scopes remain traceable as DEFINITION_SCOPE_ONLY with owner approval NOT_CLAIMED; the AUD-SPEC-020 ownerSurfaceProposal still points to media.surface.recorder-orchestrator and remains separate from its channel applicability crosswalk and does not change the canonical 462-leaf denominator. AUD-SPEC-020 maps all eight proposed channels and three scoped N/A proposals to exact existing logical consumer, physical candidate, and composite IDs; protocol-neutral API is an umbrella over the exact HTTP and gRPC consumer refs. The scoped N/A proposals identify archived desktop and feature-local absence of agent/event invocation semantics. No surface identity is added. Applicability remains proposed; owner acceptance and independent acceptance NOT_CLAIMED, and implementation/runtime, qualification, and execution admission remain UNKNOWN, NOT_EVALUATED, and NOT_ADMITTED. PXD-186 remains historical and is superseded for this current surface resolution. The mapped Explorer physical leaf remains NO_IMPLEMENTATION_ADMITTED for PDP-0 and retains its recorded PDP-2 disposition; this review makes no PDP-2 decision.",
+          "sourceFingerprints": {
+            ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+            ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
+            ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+            ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
+            ".product-experience/pdp-0-product-truth/requirements.yaml": "49c079d4aff2499bb3c226ac52e3a7101d483392775bd9b05a0a469295329ce2",
+            ".product-experience/pdp-0-product-truth/quality-policy.yaml": "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770",
+            ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+            ".product-experience/source-manifest.yaml": "d9eeeb66c79a33f954aefe2f2faf74f9896c83f9c93edf55aacdc8f1eccb645e",
+            ".product-experience/artifact-identities.yaml": "90fc854dee7dde54ad24880cc064d8e93558fc512410c7681e417a85560a00d5",
+            ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+            ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
+            "apps/media-experience-explorer/specification-artifacts.json": "7e89c5b026a1fb0327a99d0952d335d34ccb158205bdca4f23c8354baf7850b6",
+            "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "4353be781da7d59a3992230f85e500ee1f969c50710f9fe291ac8210903062e7",
+            "scripts/check-media-pdp0-surface-denominator.mjs": "1295bd0233b596af179d3fd8fd0f3f00882a4c2a3fc8a2ceaa640660697e70b3",
+            "scripts/report-media-pdp-readiness.mjs": "d8cbc9eee4989933951fe2152f998d4336e1ab0915f75c7b64d3ea1154fb5938",
+            "tests/media-pdp0-surface-denominator.test.mjs": "85d9055fd79361034d5d757c5f15cdf5cadcbc79a5a4543fdc490deb61ae0c9b",
+            "tests/media-p0-07-feature-channel-review.test.mjs": "4d03829dee1d9db0ca38497f60ef7e70e46768ef90075d8540f08b0dc1d04ee9",
+            "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "072f003e76288d2f3aa04c340c5d87fc9913a963130e4e32c333fdb736b73f31",
+            "tests/pdp-truth-domain.test.mjs": "8ef1a6d5e11dc2e10ca32c3e6813fc8671c22a6c7f7038d48300d52f8feae578",
+            "tests/pdp0-feature-review-current-source-observation.test.mjs": "d1591a9d28a1e60c7d266174be826c0d75bf3ff4b438ac199f221d2c51a3a071",
+            "tests/media-pdp0-501-audit-dispositions.test.mjs": "7fd7d29df86cfa753289d1ede74c3385a67764a37eba72884573273e5a7e9b80",
+            "tests/media-pdp-readiness.test.mjs": "8c0b2c67e8d553f4d3eaa256b58eab985b1c535097c09ab7b46ab3ee716a97df",
+            ".product-experience/decision-log.md": "b8e6b42a48d61e37acc5e5a5bcb7b6521b511db631f16fe299090e916e61aad1",
+            "scripts/check-product-experience-local.mjs": "223bf88b3d7554b4e654ea312aaccb334d1be0dc75ce103c6d92582bc66d08be",
+            "tests/product-experience-local.test.mjs": "b7aa89c69d34ad6c528c895b28b9087c45a8d28d6e15b7cbd163d6256e9ce4ee"
+          },
+          "supersedesReviewRef": ".product-experience/decision-log.md#PXD-186",
+          "verification": {
+            "status": "PASS",
+            "tests": 1,
+            "passed": 1,
+            "failed": 0,
+            "command": "PDP_DEV_PHASE=PDP-0 node --test --test-name-pattern=\"PXD-188 keeps the AUD-SPEC-020 surface resolution source-current and prior reviews historical\" tests/media-pdp-readiness.test.mjs",
+            "evidenceRefs": [
+              "tests/media-pdp-readiness.test.mjs"
+            ],
+            "acceptanceBoundary": "No-effect PDP-0 source-currentness review for the AUD-SPEC-020 surface applicability definition only; no owner approval, independent acceptance, runtime admission, qualification, closure, or Delivery readiness is claimed."
+          },
+          "currentSourceCutNote": "PXD-186 and earlier reviews remain preserved in historicalCorrectiveReviews. PXD-188 supersedes PXD-186 only for the current AUD-SPEC-020 surface crosswalk. The extension stays outside the canonical 462-leaf applicability denominator; all eight channel proposals and three scoped N/A proposals are mapped to existing topology identities, with API inheriting HTTP+gRPC refs. Owner approval and independent acceptance remain NOT_CLAIMED; no runtime admission, qualification, or new surface ID is claimed.",
+          "ownerApproval": "NOT_CLAIMED"
+        },
+        {
+          "status": "APPROVED_CURRENT_SOURCE_REVIEW",
+          "decisionRef": ".product-experience/decision-log.md#PXD-189",
+          "reviewKind": "NO_EFFECT_CURRENT_SOURCE_REVIEW",
+          "phaseScope": "PDP-0",
+          "scope": "PXD-189 is a no-effect current-source pin rebind of the PXD-188 P0-07 source review. The exact logical-consumer scope remains 20 active logical consumers; the generic Web partition remains 77 applicable and 385 non-applicable leaves; Studio retains 20 Recorder-profile leaves with 15 source-backed additions. The 462-leaf applicability set and dispositions, 54 identities and no new surface IDs, and the 15/8/3 physical applicability split remain unchanged. All 501 source-proposed owner scopes remain traceable as DEFINITION_SCOPE_ONLY with owner approval NOT_CLAIMED. AUD-SPEC-020 maps all eight proposed channels and three scoped N/A proposals to exact existing logical consumer, physical candidate, and composite IDs; protocol-neutral API is an umbrella over the exact HTTP and gRPC consumer refs. Applicability remains proposed; owner acceptance and independent acceptance NOT_CLAIMED; implementation/runtime, qualification, and execution admission remain UNKNOWN, NOT_EVALUATED, and NOT_ADMITTED. PXD-188 remains historical for the surface mapping. The mapped Explorer physical leaf remains NO_IMPLEMENTATION_ADMITTED for PDP-0 and retains its recorded PDP-2 disposition; this review makes no PDP-2 decision. No product meaning changes.",
+          "sourceFingerprints": {
+            ".product-experience/artifact-identities.yaml": "2f2b0503b3ccb455e58afc21dca66469e8da2b12974ab0b68df5212113f5573e",
+            ".product-experience/decision-log.md": "e8a6d47c92400f18cf6732dbb789b323968fec7ca2929d5a9e2cbf79eaa2dfb4",
+            ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+            ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+            ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+            ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
+            ".product-experience/pdp-0-product-truth/quality-policy.yaml": "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770",
+            ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
+            ".product-experience/pdp-0-product-truth/requirements.yaml": "49c079d4aff2499bb3c226ac52e3a7101d483392775bd9b05a0a469295329ce2",
+            ".product-experience/source-manifest.yaml": "dc2cc4ff58c3b3bd29f8d11036f0a3640c574cb4abceb0902fcafd3aad2c6cf2",
+            ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+            ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
+            "apps/media-experience-explorer/specification-artifacts.json": "7e89c5b026a1fb0327a99d0952d335d34ccb158205bdca4f23c8354baf7850b6",
+            "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "b0f86a343dcb76016b6f620eb4f3477ab2ee34bb234068024a38f9b80d0ab119",
+            "scripts/check-media-pdp0-surface-denominator.mjs": "1295bd0233b596af179d3fd8fd0f3f00882a4c2a3fc8a2ceaa640660697e70b3",
+            "scripts/check-product-experience-local.mjs": "223bf88b3d7554b4e654ea312aaccb334d1be0dc75ce103c6d92582bc66d08be",
+            "scripts/report-media-pdp-readiness.mjs": "77a21830b9cef830284c54f6e32e4f02b145c73a4e5a4a20bd33afd4c2e4c8c9",
+            "tests/media-p0-07-feature-channel-review.test.mjs": "4d03829dee1d9db0ca38497f60ef7e70e46768ef90075d8540f08b0dc1d04ee9",
+            "tests/media-pdp-readiness.test.mjs": "4eff342391563a212e198ecdbbfee87d8ac6a5b15a94a0f6fd9ace7b431ab2d3",
+            "tests/media-pdp0-501-audit-dispositions.test.mjs": "7fd7d29df86cfa753289d1ede74c3385a67764a37eba72884573273e5a7e9b80",
+            "tests/media-pdp0-surface-denominator.test.mjs": "85d9055fd79361034d5d757c5f15cdf5cadcbc79a5a4543fdc490deb61ae0c9b",
+            "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "072f003e76288d2f3aa04c340c5d87fc9913a963130e4e32c333fdb736b73f31",
+            "tests/pdp-truth-domain.test.mjs": "8ef1a6d5e11dc2e10ca32c3e6813fc8671c22a6c7f7038d48300d52f8feae578",
+            "tests/pdp0-feature-review-current-source-observation.test.mjs": "d1591a9d28a1e60c7d266174be826c0d75bf3ff4b438ac199f221d2c51a3a071",
+            "tests/product-experience-local.test.mjs": "b7aa89c69d34ad6c528c895b28b9087c45a8d28d6e15b7cbd163d6256e9ce4ee"
+          },
+          "supersedesReviewRef": ".product-experience/decision-log.md#PXD-188",
+          "verification": {
+            "status": "PASS",
+            "tests": 1,
+            "passed": 1,
+            "failed": 0,
+            "command": "PDP_DEV_PHASE=PDP-0 node --test --test-name-pattern=\"PXD-189 refreshes P0-05/P0-07 source pins while preserving PXD-188 as historical\" tests/media-pdp-readiness.test.mjs",
+            "evidenceRefs": [
+              "tests/media-pdp-readiness.test.mjs"
+            ],
+            "acceptanceBoundary": "No-effect PDP-0 source-currentness review only; no owner approval, independent acceptance, runtime admission, qualification, closure, or Delivery readiness is claimed."
+          },
+          "currentSourceCutNote": "PXD-188 and earlier reviews remain preserved as history. PXD-189 only refreshes exact current-source fingerprints for the existing P0-07 review. The AUD-SPEC-020 surface mapping and all existing PDP-0 scope, applicability, denominator, and owner-acceptance states remain unchanged.",
+          "ownerApproval": "NOT_CLAIMED"
         }
       ],
       "currentCorrectiveReview": {
         "status": "APPROVED_CURRENT_SOURCE_REVIEW",
-        "decisionRef": ".product-experience/decision-log.md#PXD-180",
+        "decisionRef": ".product-experience/decision-log.md#PXD-191",
         "reviewKind": "NO_EFFECT_CURRENT_SOURCE_REVIEW",
         "phaseScope": "PDP-0",
-        "scope": "No-effect current-source review of PDP-2/PDP-1 validator wiring changes. P0-07 feature, requirement, consumer, and channel/profile applicability meanings and its native acceptance predicate are unchanged.",
+        "scope": "PXD-191 rebinds the current exact-byte source pins for the existing P0-07 feature/channel applicability review after PXD-190. The exact logical-consumer scope remains 20 active logical consumers; the generic Web partition remains 77 applicable and 385 non-applicable leaves; Studio retains 20 Recorder-profile leaves with 15 source-backed additions. The 462-leaf applicability set and dispositions, 54 identities and no new surface IDs, and the 15/8/3 physical applicability split remain unchanged. All 501 source-proposed owner scopes remain traceable as DEFINITION_SCOPE_ONLY with owner approval NOT_CLAIMED. AUD-SPEC-020 maps all eight proposed channels and three scoped N/A proposals to exact existing logical consumer, physical candidate, and composite IDs; protocol-neutral API is an umbrella over the exact HTTP and gRPC consumer refs. Applicability remains proposed; owner acceptance and independent acceptance NOT_CLAIMED; implementation/runtime, qualification, and execution admission remain UNKNOWN, NOT_EVALUATED, and NOT_ADMITTED. PXD-190, PXD-189, and PXD-188 remain historical. The mapped Explorer physical leaf remains NO_IMPLEMENTATION_ADMITTED for PDP-0 and retains its recorded PDP-2 disposition; this review makes no PDP-2 decision. No product meaning changes.",
         "sourceFingerprints": {
+          ".product-experience/artifact-identities.yaml": "2f2b0503b3ccb455e58afc21dca66469e8da2b12974ab0b68df5212113f5573e",
+          ".product-experience/decision-log.md": "007b3692e47bc76ed224e268b8cc804a60ff1707c367a3de818ab5da27813bf5",
           ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
-          ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
+          ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
           ".product-experience/pdp-0-product-truth/capabilities.yaml": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+          ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
+          ".product-experience/pdp-0-product-truth/quality-policy.yaml": "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770",
           ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
-          ".product-experience/pdp-0-product-truth/requirements.yaml": "af774f4db0a306ac3514475d65170560c345e7a6ecdf17305edb2ac3b9af41fe",
+          ".product-experience/pdp-0-product-truth/requirements.yaml": "49c079d4aff2499bb3c226ac52e3a7101d483392775bd9b05a0a469295329ce2",
+          ".product-experience/source-manifest.yaml": "dc2cc4ff58c3b3bd29f8d11036f0a3640c574cb4abceb0902fcafd3aad2c6cf2",
           ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
-          ".product-experience/surfaces/media-physical-topology.v1.json": "53f3e1073c11876d3675543bfe170e32b31bae7725a3ed3bd2712f13954e2017",
+          ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
+          "apps/media-experience-explorer/specification-artifacts.json": "7e89c5b026a1fb0327a99d0952d335d34ccb158205bdca4f23c8354baf7850b6",
+          "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "7600e41751cee0817c796b7543b14427594cc0f75ece017ecd4adaf90057e661",
           "scripts/check-media-pdp0-surface-denominator.mjs": "1295bd0233b596af179d3fd8fd0f3f00882a4c2a3fc8a2ceaa640660697e70b3",
-          "scripts/report-media-pdp-readiness.mjs": "322a89439ac03200aefd39202b5f7a2af9c5f698d921622cc82a77e873265c82",
-          "tests/media-pdp0-surface-denominator.test.mjs": "85d9055fd79361034d5d757c5f15cdf5cadcbc79a5a4543fdc490deb61ae0c9b",
+          "scripts/check-product-experience-local.mjs": "223bf88b3d7554b4e654ea312aaccb334d1be0dc75ce103c6d92582bc66d08be",
+          "scripts/report-media-pdp-readiness.mjs": "77a21830b9cef830284c54f6e32e4f02b145c73a4e5a4a20bd33afd4c2e4c8c9",
           "tests/media-p0-07-feature-channel-review.test.mjs": "4d03829dee1d9db0ca38497f60ef7e70e46768ef90075d8540f08b0dc1d04ee9",
+          "tests/media-pdp-readiness.test.mjs": "aeb48bc06ff8a598c5e13b6606dc889c5118b7b08d1381fa8da6b054062943f3",
+          "tests/media-pdp0-501-audit-dispositions.test.mjs": "751f44a7d44815aa5a95828c3297fb1565add053626da395e6764b525bfc1deb",
+          "tests/media-pdp0-surface-denominator.test.mjs": "85d9055fd79361034d5d757c5f15cdf5cadcbc79a5a4543fdc490deb61ae0c9b",
           "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "072f003e76288d2f3aa04c340c5d87fc9913a963130e4e32c333fdb736b73f31",
           "tests/pdp-truth-domain.test.mjs": "8ef1a6d5e11dc2e10ca32c3e6813fc8671c22a6c7f7038d48300d52f8feae578",
           "tests/pdp0-feature-review-current-source-observation.test.mjs": "d1591a9d28a1e60c7d266174be826c0d75bf3ff4b438ac199f221d2c51a3a071",
-          "scripts/lib/pdp0-feature-review-applicability.mjs": "33d02a362f9187cbe8146f660769c7e2e897dc9d9afcdda682a1db627af319cc",
-          "tests/media-pdp-readiness.test.mjs": "eadd6e6840fa866df7fe78d63b910572bdea3f079192a40051e5dce40dbbe25e"
+          "tests/product-experience-local.test.mjs": "b7aa89c69d34ad6c528c895b28b9087c45a8d28d6e15b7cbd163d6256e9ce4ee"
         },
-        "supersedesReviewRef": ".product-experience/decision-log.md#PXD-178",
+        "supersedesReviewRef": ".product-experience/decision-log.md#PXD-190",
         "verification": {
           "status": "PASS",
-          "tests": 8,
-          "passed": 8,
+          "tests": 1,
+          "passed": 1,
           "failed": 0,
-          "command": "node scripts/report-media-pdp-readiness.mjs --verify --phase-dev-status=PDP-0 --write",
+          "command": "PDP_DEV_PHASE=PDP-0 node --test --test-name-pattern=\"PXD-191 rebinds P0-05/P0-07 source pins while preserving PXD-190/PXD-189/PXD-188 history\" tests/media-pdp-readiness.test.mjs",
           "evidenceRefs": [
-            "docs/implementation/verification/pdp-38/P0-07.log"
+            "tests/media-pdp-readiness.test.mjs"
           ],
-          "acceptanceBoundary": "No-effect source-currentness review only; no owner approval, independent acceptance, runtime admission, qualification, or downstream acceptance is claimed."
+          "acceptanceBoundary": "No-effect PDP-0 source-currentness review only; no owner approval, independent acceptance, runtime admission, qualification, closure, or Delivery readiness is claimed."
         },
-        "currentSourceCutNote": "PXD-178 remains preserved in historicalCorrectiveReviews. All of its P0-07 source pins remain unchanged except the readiness reporter hash, which is refreshed to the exact current bytes reviewed under PXD-180."
+        "currentSourceCutNote": "PXD-190, PXD-189, PXD-188 and earlier reviews remain preserved as history. PXD-191 only refreshes exact current-source fingerprints for the existing P0-07 review. The AUD-SPEC-020 surface mapping and all existing PDP-0 scope, applicability, denominator, and owner-acceptance states remain unchanged.",
+        "ownerApproval": "NOT_CLAIMED"
       }
     }
   ],

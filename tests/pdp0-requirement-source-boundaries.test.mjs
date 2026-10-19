@@ -8,10 +8,30 @@ const root = resolve(new URL("..", import.meta.url).pathname);
 const require = createRequire(resolve(root, "../ghatana-tools/package.json"));
 const { parse } = require("yaml");
 const readYaml = (path) => parse(readFileSync(resolve(root, path), "utf8"));
+const campaignExtensionPath = ".product-experience/pdp-0-product-truth/campaign-extensions.yaml";
+function resolveCampaignAnchor(anchor) {
+  const prefix = `${campaignExtensionPath}#`;
+  if (typeof anchor !== "string" || !anchor.startsWith(prefix)) return undefined;
+  let value = campaignExtensions;
+  for (const segment of anchor.slice(prefix.length).split("/").filter(Boolean)) {
+    if (segment.startsWith("@id=")) {
+      if (!Array.isArray(value)) return undefined;
+      value = value.find((record) => record?.id === segment.slice(4));
+    } else {
+      if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+      value = value[segment];
+    }
+    if (value === undefined || value === null) return undefined;
+  }
+  return value;
+}
 
 const requirements = readYaml(".product-experience/pdp-0-product-truth/requirements.yaml");
 const capabilities = readYaml(".product-experience/pdp-0-product-truth/capabilities.yaml");
+const goals = readYaml(".product-experience/pdp-0-product-truth/goals-jtbd.yaml");
 const leafReview = readYaml(".product-experience/pdp-0-product-truth/capability-leaf-review.yaml");
+const campaignExtensions = readYaml(".product-experience/pdp-0-product-truth/campaign-extensions.yaml");
+const artifactIdentities = readYaml(".product-experience/artifact-identities.yaml");
 const journeyCatalog = readYaml(".product-experience/pdp-0-product-truth/journey-catalog.yaml");
 const profileSemantics = readYaml(".product-experience/pdp-0-product-truth/profile-semantics.yaml");
 const migration = readYaml(".product-experience/pdp-0-product-truth/migration-semantics-review.yaml");
@@ -78,12 +98,16 @@ test("P0 requirement families resolve every leaf to exact request, profile, boun
   assert.match(rule.status, /runtime enforcement, qualification, implementation, license admission, availability/u);
 
   assert.equal(requirements.requirements.length, 38);
+  assert.equal(capabilities.families.length, 38);
   assert.equal(capabilities.capabilities.length, 462);
   const requirementLeafIds = requirements.requirements.flatMap(({ capabilityIds }) => capabilityIds);
   assert.equal(requirementLeafIds.length, 462);
   assert.equal(new Set(requirementLeafIds).size, 462, "requirement groups must not overlap or duplicate leaf identities");
   assert.deepEqual([...requirementLeafIds].sort(), capabilities.capabilities.map(({ id }) => id).sort(),
-    "all 462 capability leaves must be covered by the 38 exact requirement families");
+    "the 462 historical capability leaves must be covered by the 38 historical requirement families");
+  assert.equal(requirements.requirements.some(({ id }) => id === "MEDIA-REQ-CAP-RULES"), false);
+  assert.equal(capabilities.capabilities.some(({ id }) => id === "media.rules.manage"), false);
+  assert.equal(goals.intents.length, 19, "the canonical intent denominator remains 19");
   assert.match(rule.boundsAndUnits, /boundedInvocationAdmission/u);
   assert.match(profileSemantics.boundedInvocationAdmission.rules.join(" "), /UNKNOWN applicability[\s\S]*NOT_ADMITTED/u);
 });
@@ -91,9 +115,40 @@ test("P0 requirement families resolve every leaf to exact request, profile, boun
 test("requirement groups expose current leaf-channel scope while keeping exact views downstream", () => {
   const reviewByCapability = new Map(leafReview.ownerCapabilityLeafAdjudication.records
     .map((row) => [row.capabilityRef, row]));
-  assert.equal(reviewByCapability.size, capabilities.capabilities.length);
+  const rulesExtension = campaignExtensions.records.find(({ id }) => id === "AUD-SPEC-020");
+  const proposalByCapability = new Map(rulesExtension.channelApplicability.records
+    .map((row) => [row.capabilityRef, row]));
+  assert.equal(reviewByCapability.size, 462, "the existing owner adjudication denominator remains unchanged");
+  assert.equal(proposalByCapability.size, 1, "only the additive rules leaf has proposal-only applicability");
+  assert.ok(!reviewByCapability.has("media.rules.manage"), "proposal-only applicability must not enter the owner ledger");
+  const rulesProposal = proposalByCapability.get("media.rules.manage");
+  assert.ok(rulesProposal);
+  assert.equal(rulesProposal.ownerApproval, "NOT_CLAIMED");
+  assert.equal(rulesProposal.independentAcceptance, "NOT_CLAIMED");
+  assert.equal(rulesProposal.applicabilityState, "PROPOSED; owner disposition pending");
+  assert.equal(rulesProposal.channelApplicability.length, 11);
+  assert.deepEqual(new Set(rulesProposal.channelApplicability.map(({ channelRef }) => channelRef)), new Set([
+    "media.channel.web", "media.channel.api", "media.channel.embedded", "media.channel.http-api",
+    "media.channel.grpc-api", "media.channel.sdk", "media.channel.cli", "media.channel.product-integration",
+    "media.channel.legacy-desktop", "media.channel.agent", "media.channel.event",
+  ]));
+  assert.equal(rulesProposal.channelApplicability.filter(({ disposition }) => disposition === "PROPOSED_APPLICABLE").length, 8);
+  for (const channelRef of ["media.channel.legacy-desktop", "media.channel.agent", "media.channel.event"]) {
+    assert.match(rulesProposal.channelApplicability.find(({ channelRef: ref }) => ref === channelRef).disposition, /^NOT_APPLICABLE_/u);
+    assert.ok(rulesProposal.channelApplicability.find(({ channelRef: ref }) => ref === channelRef).rationale);
+  }
+  assert.equal(rulesProposal.implementationState, "UNKNOWN");
+  assert.equal(rulesProposal.qualificationState, "NOT_EVALUATED");
+  assert.equal(rulesProposal.runtimeAvailability, "UNKNOWN");
+  assert.equal(rulesProposal.executionAdmission, "NOT_ADMITTED");
+  assert.match(rulesExtension.channelApplicability.status, /cannot satisfy owner acceptance, independent acceptance, closure/u);
 
   for (const requirement of requirements.requirements) {
+    if (requirement.id === "MEDIA-REQ-CAP-RULES") {
+      assert.match(requirement.downstreamMappings.viewsAndChannels,
+        /proposed-applicability-in-applications-channels\.yaml#proposalCapabilityApplicability/u);
+      continue;
+    }
     assert.match(requirement.downstreamMappings.viewsAndChannels,
       /exact-leaf-channel-applicability-bound-in-capability-leaf-review\.yaml/u,
       `${requirement.id} must reference the resolved exact-leaf channel decision`);
@@ -108,6 +163,76 @@ test("requirement groups expose current leaf-channel scope while keeping exact v
         `${capabilityRef} has no duplicate channel dispositions`);
     }
   }
+});
+
+test("AUD-SPEC-020 has a separate candidate-only capability proposal and transcription provenance stays explicit", () => {
+  const extension = campaignExtensions.records.find(({ id }) => id === "AUD-SPEC-020");
+  assert.ok(artifactIdentities.records.some(({ path, artifactId }) =>
+    path === ".product-experience/pdp-0-product-truth/campaign-extensions.yaml" && artifactId === "ART-P0-CAMPAIGN-EXTENSIONS"));
+  const rules = extension?.capabilityDefinition;
+  const rulesRequirement = extension?.requirementDefinition;
+  const rulesIntent = extension?.intentDefinition;
+  const profileRequirement = requirements.requirements.find(({ id }) => id === "MEDIA-REQ-CAP-PROFILE");
+  assert.ok(extension && rules && rulesRequirement && rulesIntent && profileRequirement);
+  assert.equal(extension.stableFeatureId, "media.rules.manage");
+  assert.equal(extension.coordinatorScopeDecision.disposition, "INCLUDED_IN_PDP0_CAMPAIGN");
+  assert.equal(extension.coordinatorScopeDecision.ownerApproval, "NOT_CLAIMED");
+  assert.equal(extension.coordinatorScopeDecision.independentAcceptance, "NOT_CLAIMED");
+  assert.equal(extension.coordinatorScopeDecision.implementationState, "UNKNOWN");
+  assert.equal(extension.coordinatorScopeDecision.qualificationState, "NOT_EVALUATED");
+  assert.equal(extension.coordinatorScopeDecision.runtimeAvailability, "UNKNOWN");
+  assert.equal(extension.coordinatorScopeDecision.executionAdmission, "NOT_ADMITTED");
+  assert.equal(rules.familyId, "media.rules");
+  assert.equal(rulesRequirement.capabilityIds[0], "media.rules.manage");
+  assert.equal(rulesIntent.id, "media.intent.manage-reusable-rules");
+  assert.ok(rulesRequirement.acceptanceCases.some(({ id }) => id === "MEDIA-REQ-CAP-RULES-AC-01"));
+  assert.ok(rulesRequirement.acceptanceCases.some(({ id }) => id === "MEDIA-REQ-CAP-RULES-AC-02"));
+  assert.ok(rules.acceptanceCases.every(({ id }) => id?.startsWith("AUD-SPEC-020-CAP-AC-")));
+  const rightsCase = rulesRequirement.acceptanceCases.find(({ id }) => id === "AUD-SPEC-020-REQ-AC-RIGHTS-LICENSE-01");
+  assert.ok(rightsCase);
+  assert.match(rightsCase.given, /rights, consent, privacy, egress, security, or applicable license evidence/u);
+  assert.match(rightsCase.then, /no rule, preserve the prior rule-set version, and perform no affected media operation/u);
+  assert.ok(!profileRequirement.acceptanceCases.some(({ id }) => id === "MEDIA-REQ-CAP-PROFILE-AC-03"));
+  assert.match(rules.ownerDefinition.semanticOutcomeContract.result, /candidate operation plan only[\s\S]*None approves or executes/u);
+  assert.match(rules.ownerDefinition.semanticOutcomeContract.unknownDisposition, /UNKNOWN[\s\S]*do not reuse a different version/u);
+  assert.equal(rules.coverageDecisionRef, "NOT_CLAIMED");
+  assert.match(rules.channelDispositionState, /owner review pending; no runtime admission/u);
+  assert.equal(rules.ownerDefinition.availability.executionAdmission, "NOT_ADMITTED");
+  assert.ok(rules.ownerDefinition.semanticOutcomeContract.sourceRefs.some((ref) => ref.endsWith("@audit_id=AUD-SPEC-020")));
+  assert.deepEqual(rules.proposedApplicableChannels, ["web", "api", "embedded", "http-api", "grpc-api", "sdk", "cli", "product-integration"]);
+  assert.match(rules.channelDispositionState, /no runtime admission/u);
+  assert.equal(extension.compileAcceptance.outputs.normalizedSemanticGraph, "media.rules.normalized-semantic-graph");
+  assert.equal(extension.compileAcceptance.outputs.semanticFingerprint, "media.rules.semantic-fingerprint");
+  assert.match(extension.compileAcceptance.criterion, /equivalent normalized semantic graph[\s\S]*same stable semantic fingerprint/u);
+  assert.match(extension.compileAcceptance.criterion, /Invalid or unauthorized input produces no effects/u);
+  assert.equal(extension.compileAcceptance.algorithmAndVersionFormat, "PDP-1-owned; not defined by this PDP-0 proposal");
+  assert.deepEqual(Object.keys(extension.validationCoverage.auditValidationDimensions).sort(), [
+    "UNKNOWN_or_explicit_NA", "manual_agent_parity_when_applicable", "negative", "positive",
+    "rights_license", "source_version_and_provenance", "unavailable",
+  ].sort());
+  for (const dimension of Object.values(extension.validationCoverage.auditValidationDimensions)) {
+    assert.ok(dimension.caseRefs.length > 0);
+    assert.ok(dimension.criterion);
+    for (const anchor of dimension.caseRefs) {
+      assert.match(anchor, /^\.product-experience\/pdp-0-product-truth\/campaign-extensions\.yaml#records\/@id=AUD-SPEC-020\//u);
+      assert.doesNotMatch(anchor, /\[[0-9.]+\]/u, "validation anchors use stable selectors, not array indexes");
+      assert.notEqual(resolveCampaignAnchor(anchor), undefined, `stale validation anchor: ${anchor}`);
+    }
+  }
+  assert.equal(extension.validationCoverage.auditValidationDimensions.manual_agent_parity_when_applicable.disposition, "JUSTIFIED_NA");
+  assert.equal(extension.validationCoverage.compileEquivalenceAndFingerprint.boundToNormalizedSemanticGraph, true);
+  assert.equal(extension.validationCoverage.compileEquivalenceAndFingerprint.boundToStableSemanticFingerprint, true);
+  assert.equal(resolveCampaignAnchor(extension.validationCoverage.compileEquivalenceAndFingerprint.compileAcceptanceRef), extension.compileAcceptance);
+  assert.equal(resolveCampaignAnchor(extension.validationCoverage.compileEquivalenceAndFingerprint.criterionRef), extension.compileAcceptance.criterion);
+  assert.equal(extension.validationCoverage.compileEquivalenceAndFingerprint.compileAcceptanceId, extension.compileAcceptance.id);
+
+  const transcription = requirements.requirements
+    .flatMap(({ acceptanceCases }) => acceptanceCases)
+    .find(({ id }) => id === "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-06");
+  assert.ok(transcription);
+  assert.match(transcription.then, /every supplied per-segment speaker, locale, source-timing, and translation-provenance field/u);
+  assert.match(transcription.then, /absent or unknown rather than silently omitting or fabricating/u);
+  assert.match(transcription.then, /audio\/video export synchronization, which remains a separate requirement/u);
 });
 
 test("P0-H intent-fit review binds exact family intents and closes project review meaning", () => {

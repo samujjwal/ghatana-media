@@ -1,6 +1,6 @@
 schemaVersion: media.capability-preservation-crosswalk.v1
 productId: media
-status: P0-003-source-crosswalk-reconciled-to-462-capability-leaves; semantic-detail-and-Product-Truth-acceptance-pending
+status: 462-master-plan-capability-leaves; AUD-SPEC-020 is separately recorded in campaign-extensions.yaml
 masterPlanSource: docs/migration/expert-reviewed-master-plan.md §§6, 9, 11, 18
 supplementalOwnershipDecision: docs/migration/decisions/MDI-001-document-intelligence-ownership.md
 productDefinitionContract:
@@ -19,8 +19,9 @@ productDefinitionContract:
     fidelity, cancellation/recovery, dependencies, acceptance and qualification details. The generic schema is not extended
     with those fields.
 rules:
-- Every §6 family/operation is represented by one leaf or an explicit semantic alias; the current family crosswalk maps all
-  462 canonical capability leaf IDs exactly once, without reducing the denominator.
+- Every §6 family/operation is represented by one stable leaf record or an explicit semantic alias; the current family
+  crosswalk maps all 462 canonical capability leaf IDs exactly once, without reducing the master-plan denominator. The
+  separately sourced AUD-SPEC-020 campaign extension is additive and does not rewrite that historical source denominator.
 - Source observations remain attributed to their source scope and evidence class; they never promote implementation/license/qualification/runtime
   axes.
 - General document intelligence is platform-owned; only Media scene/time/region semantics are retained as Media capabilities.
@@ -118,6 +119,7 @@ familyCrosswalk:
   - media.profile.discover
   - media.profile.validate
   disposition: retained-as-Media-semantic-leaves
+
 - masterPlanSection: §6.2
   sourcePhrase: Capability/provider diagnostics, execution compatibility
   familyId: media.capability

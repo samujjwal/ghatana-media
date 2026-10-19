@@ -1,0 +1,577 @@
+schemaVersion: media.pdp0-campaign-extensions.v1
+productId: media
+canonicalDenominator:
+  capabilityLeaves: 462
+  requirementFamilies: 38
+  intents: 19
+  ownerAdjudications: 462
+records:
+  - id: AUD-SPEC-020
+    stableFeatureId: media.rules.manage
+    campaignId: media.pdp0.501-campaign
+    sourceRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-020
+    coordinatorScopeDecision:
+      disposition: INCLUDED_IN_PDP0_CAMPAIGN
+      authority: user's direct delegation for PDP-0 definition coordination
+      effect: Source definition proposal only; it does not change the historical canonical denominator or claim
+        owner approval.
+      ownerApproval: NOT_CLAIMED
+      independentAcceptance: NOT_CLAIMED
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      runtimeAvailability: UNKNOWN
+      executionAdmission: NOT_ADMITTED
+    capabilityFamily:
+      familyId: media.rules
+      masterPlanSection: §6.2
+      requirementId: MEDIA-REQ-CAP-RULES
+    capabilityDefinition:
+      id: media.rules.manage
+      scopeStatus: TARGET
+      familyId: media.rules
+      operation: manage
+      label: Manage reusable action and quality rules
+      definitionState: COORDINATOR_AUTHORED_PDP0_PROPOSAL; owner acceptance pending
+      outcome: Author or inspect a scoped action/quality rule-set candidate, assign a stable version identity
+        without replacing its prior version, and return a validation observation or candidate operation plan
+        only when explicitly requested. A candidate or validation result does not approve or execute the
+        rules; every affected media operation requires its own explicit request and separate admission.
+      sourceScope:
+        masterPlanSection: §6.2
+        sourcePhrase: Reusable user-configurable action/quality rules (AUD-SPEC-020)
+      relatedMasterPlanSections:
+        - §6.1
+        - §11.1–11.6
+        - §18.2–18.3
+      actorRoles:
+        - creator
+        - editor
+        - developer-integrator
+        - operator
+      actorBindingState: proposed-canonical-actor-refs; owner acceptance pending
+      inputArtifactTypes:
+        - action-quality-rule-set-draft
+        - declared-media-operation-reference
+        - declared-input-and-constraint-set
+        - optional-prior-rule-set-version-reference
+      outputArtifactTypes:
+        - versioned-action-quality-rule-set-candidate
+        - rule-set-validation-observation
+        - candidate-operation-plan
+      preconditions:
+        - The caller identifies the rule-set scope and has authority to author or inspect it; authorization
+          does not admit affected operations.
+        - Validation and reuse name the exact rule-set version and target media operation.
+        - Any affected operation is separately admitted before its execution.
+      supportedParameters: P0 defines the typed draft, prior-version reference, target operation, inputs, and
+        constraints as operation inputs. No execution parameters or product defaults are implied.
+      constraints:
+        - A new rule-set candidate has a stable version identity and preserves the referenced prior version
+          unchanged.
+        - Validation is observational; reuse returns a candidate plan and does not execute a rule or
+          consequential media operation.
+        - Invalid, unsupported, denied, unavailable, stale, or unknown rule-set evidence is explicit; invalid
+          or unauthorized sets are never partially applied.
+        - Reuse requires an explicit request for the exact version and a separate admission decision for every
+          affected operation.
+        - A candidate, saved rule set, or validation observation is not human approval, runtime availability,
+          or qualification.
+      actionStateReferences:
+        action: author-inspect-validate-or-reuse-exact-rule-set-version
+        stateCoverage:
+          - not-admitted
+          - candidate-returned
+          - validation-returned
+          - blocked
+          - outcome-unknown
+        stateModelBindingState: no-persistent-lifecycle-model-is-asserted-by-this-proposal
+        stateModelRefs: []
+      requiredAuthority:
+        - identity-and-tenant-context
+        - rule-set-scope-read-or-write-permission-as-applicable
+        - operation-specific-policy-and-rights-for-each-affected-operation
+      rightsPrivacyImplications:
+        - Rule-set scope, source references, and tenant ownership must remain explicit; a reusable rule does
+          not transfer rights or consent.
+        - Inputs and rule contents are subject to the declared operation's privacy, egress, retention, and
+          rights policy.
+      qualityFidelityContract: A validation observation describes only the exact rule-set version, declared target
+        operation, inputs, and constraints. A candidate operation plan is not a measured quality result or
+        evidence that a rule was applied.
+      cancellationRetryReconciliation: Rule authoring and validation produce version-bound candidates or
+        observations. Unknown validation remains UNKNOWN; callers must revalidate the exact version and
+        inputs. No rule execution or retry is implied.
+      executionResourceRequirements: This definition selects no numeric resource limit and authorizes no execution.
+        Any affected operation applies its own current bounded invocation and resource-admission contract.
+      accessibilityRepresentation: Interactive authoring and validation results require a semantic,
+        keyboard-operable representation; concrete interface behavior is a later PDP-2/PDP-3 definition.
+      provenance:
+        - Preserve rule-set identity, version, declared scope, target operation, and source references in
+          every candidate and validation observation.
+        - Do not infer truth, rights, runtime support, or applied effects from a rule's contents or validation
+          result.
+      ghatanaReuseDisposition: No external rule engine or execution dependency is selected by this product
+        definition; any later reuse selection requires its own source decision and qualification.
+      externalDependencies: []
+      requirementIds:
+        - MEDIA-REQ-CAP-RULES
+      acceptanceCases:
+        - given: A caller authors a valid scoped action/quality rule-set draft and optionally names an exact prior
+            version.
+          when: The caller requests authoring or versioning.
+          then: Return a versioned candidate with a stable identity and preserve the prior version unchanged; do not
+            approve or execute its rules.
+          id: AUD-SPEC-020-CAP-AC-01
+        - given: A caller explicitly requests validation or reuse of an exact version for a declared media operation.
+          when: The request is evaluated.
+          then: Return a version-bound validation observation or candidate plan with provenance; every affected
+            operation remains separately admitted and unexecuted.
+          id: AUD-SPEC-020-CAP-AC-02
+        - given: The rule set or any required input is invalid, unsupported, denied, unavailable, stale, or unknown.
+          when: Authoring, validation, or reuse is evaluated.
+          then: Return the explicit non-success state, apply no partial rules, preserve the prior version, and do not
+            execute an affected operation.
+          id: AUD-SPEC-020-CAP-AC-03
+      qualificationDimensions:
+        - operation-and-contract-version
+        - rule-set-version-and-scope
+        - rights/privacy/security-policy
+        - invalid/unsupported/unknown-input-handling
+        - accessibility-of-interactive-authoring
+      proposedApplicableChannels:
+        - web
+        - api
+        - embedded
+        - http-api
+        - grpc-api
+        - sdk
+        - cli
+        - product-integration
+      channelDispositionState: eight-channel-PDP0-proposal; owner review pending; no runtime admission
+      explicitUnsupportedCases:
+        - Silent application of a different, stale, invalid, or unauthorized rule-set version.
+        - Partial execution of an invalid or unauthorized rule set.
+        - Treating validation, saving, or a candidate plan as approval, qualification, runtime availability,
+          or execution.
+      supportDimensions:
+        implementationState: UNKNOWN
+        licenseAdmissionState: UNKNOWN
+        qualificationState: NOT_EVALUATED
+        runtimeAvailability: UNKNOWN
+        observationRule: Definition-only proposal; no source observation promotes support.
+      actorRefs:
+        - media.creator
+        - media.editor
+        - media.developer-integrator
+        - media.operator
+      responsibilityRoleRefs:
+        - media.role.creator
+        - media.role.editor
+        - media.role.developer-integrator
+        - media.role.operator
+      unresolvedActorRoleLabels: []
+      pendingActorRoleAppointments: []
+      intentRefs:
+        - media.intent.manage-reusable-rules
+      outcomeRefs:
+        - media.goal.integrate-repeatably
+      coverageDisposition: PROPOSED_CAPABILITY_INTENT; owner acceptance pending
+      coverageDecisionRef: NOT_CLAIMED
+      coverageRationale: This capability is introduced from the feature-specific PDP-0 audit AUD-SPEC-020. The
+        current proposal does not claim owner or independent acceptance or a completed journey binding.
+      intentBindingState: coordinator-authored-PDP0-proposal; owner acceptance pending
+      stateModelRefs: []
+      stateModelBindingState: no-persistent-lifecycle-model-is-asserted-by-this-proposal
+      requirementTraceState: exact-proposal-trace; owner acceptance pending
+      semanticReferenceScope: media.rules.manage.pdp0-proposal.v1
+      stateModelBindings: []
+      unresolvedStateModelBindings: []
+      journeyRefs: []
+      ownerDefinition:
+        decisionId: PXD-185/AUD-SPEC-020
+        capabilityIntentId: media.rules.manage
+        ownerDisposition: COORDINATOR_AUTHORED_DEFINITION_PROPOSAL
+        decisionAuthority: user-delegated-PDP0-definition-coordination; owner acceptance NOT_CLAIMED
+        typedInputSlots:
+          - slotId: rule-set-draft
+            sourceType: action-quality-rule-set-draft
+            cardinality: EXACTLY_ONE
+            required: true
+          - slotId: target-operation
+            sourceType: declared-media-operation-reference
+            cardinality: ZERO_OR_ONE
+            required: false
+          - slotId: declared-inputs-and-constraints
+            sourceType: declared-input-and-constraint-set
+            cardinality: ZERO_OR_ONE
+            required: false
+          - slotId: prior-version
+            sourceType: optional-prior-rule-set-version-reference
+            cardinality: ZERO_OR_ONE
+            required: false
+        parameterSchema:
+          type: object
+          additionalProperties: false
+          required: []
+          properties: {}
+          emptyDisposition: REQUEST_MEANING_IS_CARRIED_BY_TYPED_INPUT_SLOTS
+        successOutputs:
+          - artifactType: versioned-action-quality-rule-set-candidate
+            requiredOnSuccess: true
+          - artifactType: rule-set-validation-observation
+            requiredOnSuccess: false
+          - artifactType: candidate-operation-plan
+            requiredOnSuccess: false
+        nonSuccessOutputs:
+          REJECTED: []
+          UNKNOWN_OUTCOME: []
+        semanticOutcomeContract:
+          result: Return a versioned action/quality rule-set candidate, exact-version validation observation, or
+            candidate operation plan only for the explicitly requested variant. None approves or executes the
+            rules.
+          outputDistinctions:
+            - Candidate version identity is distinct from an approved or applied rule set.
+            - Validation is distinct from runtime admission and rule execution.
+            - A candidate operation plan is distinct from a produced media result.
+          unknownDisposition: If version, scope, target operation, authority, or validation evidence is incomplete,
+            report UNKNOWN or the applicable denied/unavailable state; do not reuse a different version or
+            partially apply rules.
+          sourceRefs:
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/requirementDefinition
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/intentDefinition
+            - docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-020
+        effect:
+          semanticOutcome: Return a candidate or validation observation for the explicit rule management request; no
+            affected media operation is executed.
+          sourcePreservationRequired: true
+          noSilentFallback: true
+          effectIntentScope: RULE_SET_CANDIDATE_OR_READ_ONLY_VALIDATION
+        guards:
+          preconditions:
+            - Caller authority is scoped to the rule set and requested action.
+            - Reuse or validation names the exact rule-set version and target operation.
+            - Affected operations require separate admission before execution.
+          authorityRefs:
+            - identity-and-tenant-context
+            - rule-set-scope-read-or-write-permission-as-applicable
+            - operation-specific-policy-and-rights-for-each-affected-operation
+          stateModelRefs: []
+        errors:
+          - INVALID_REQUEST
+          - ACCESS_DENIED
+          - UNSUPPORTED_RULE
+          - STALE_VERSION
+          - CONFLICT
+          - UNAVAILABLE
+          - UNKNOWN_OUTCOME
+        idempotency: Candidate version creation is bound to its explicit request identity; conflicting edits must
+          remain distinguishable and prior versions remain unchanged.
+        recovery: Revalidate the exact rule-set version and inputs after an unknown result; never infer execution or
+          retry eligibility for an affected operation.
+        availability:
+          implementationState: UNKNOWN
+          licenseAdmissionState: UNKNOWN
+          qualificationState: NOT_EVALUATED
+          runtimeAvailability: UNKNOWN
+          executionAdmission: NOT_ADMITTED
+    requirementDefinition:
+      id: MEDIA-REQ-CAP-RULES
+      scopeStatus: COORDINATOR_AUTHORED_PDP0_PROPOSAL; owner acceptance pending
+      statement: The product definition distinguishes user-authored, scoped action/quality rule-set candidates and
+        their exact versions from validation observations, candidate operation plans, approval, and execution.
+        Every affected media operation remains separately requested and admitted.
+      rationale: AUD-SPEC-020 identifies reusable user-configurable action/quality rules. This requirement gives
+        those rules a distinct semantic owner and does not broaden delivery-profile validation.
+      source:
+        auditFeature: Reusable user-configurable action/quality rules
+        sourceRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-020
+        sourceTextRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-020
+      capabilityIds:
+        - media.rules.manage
+      kind: functional
+      priority: must
+      traceToIntentIds:
+        - media.intent.manage-reusable-rules
+      relatedOutcomeRefs:
+        - media.goal.integrate-repeatably
+      intentTraceState: coordinator-authored-exact-PDP0-proposal; owner acceptance pending
+      actorRoles:
+        - creator
+        - editor
+        - developer-integrator
+        - operator
+      actorBindingState: references-canonical-actor-and-responsibility-role-IDs; owner acceptance pending
+      preconditions:
+        - The caller identifies the rule-set scope and is authorized for the requested authoring or inspection
+          action.
+        - Validation or reuse names the exact rule-set version and target media operation.
+        - Admission of each affected operation is separate from rule-set validation or reuse planning.
+      expectedBehavior: Authoring returns a stable, version-bound rule-set candidate without replacing its prior
+        version. Explicit validation returns a version-bound observation; explicit reuse may return only a
+        provenance-bearing candidate operation plan. Neither validation nor reuse executes the rules, approves
+        them, or establishes runtime qualification.
+      importantStates:
+        - candidate
+        - validated
+        - invalid
+        - denied
+        - unsupported
+        - unavailable
+        - unknown
+      stateModelBindingState: explicit-operation-result-states; no persistent lifecycle model is claimed
+      consequences:
+        - Invalid, unauthorized, stale, or incomplete rule sets are never partially applied.
+        - The prior rule-set version remains unchanged when a new candidate is authored.
+        - A candidate plan cannot silently trigger any affected media operation.
+      failureDegradationRecovery:
+        - Report invalid, denied, unsupported, unavailable, stale, and unknown rule or input states explicitly.
+        - Preserve UNKNOWN when version, target operation, authority, or validation evidence is incomplete.
+        - Require a new explicit request and separate admission for every affected operation.
+      nonfunctionalRequirements:
+        - tenant isolation and least privilege
+        - privacy/data minimization and governed egress
+        - durable audit/effect intent for consequential effects
+        - bounded time/memory/storage/compute/cost
+        - accessible semantic representation and keyboard operation where interactive
+        - provenance, reproducibility class, and recovery truth
+      acceptanceCases:
+        - id: MEDIA-REQ-CAP-RULES-AC-01
+          given: A user authors a scoped action/quality rule set with explicit inputs and constraints, then requests a
+            stable new version, exact-version validation, or reuse against a declared media operation.
+          when: Media evaluates the explicit rule-management request.
+          then: Return a versioned candidate, version-bound validation observation, or provenance-bearing candidate
+            operation plan for the requested variant; preserve the prior version and require separate
+            admission of each affected operation; do not approve or execute the rules.
+          rejection: Reject a changed or stale version, silent fallback, partial application, hidden execution, or a
+            candidate/result represented as human-approved or runtime-qualified.
+        - id: MEDIA-REQ-CAP-RULES-AC-02
+          given: A rule set, required input, target operation, or authority is invalid, unsupported, denied,
+            unavailable, stale, incomplete, or unknown.
+          when: Authoring, validation, or reuse is evaluated.
+          then: Return the applicable explicit failure or UNKNOWN state, apply no partial rules, preserve the prior
+            version, and perform no affected operation.
+          rejection: Reject treating missing or unknown evidence as available, using a different rule-set version, or
+            reporting an affected operation as executed.
+        - id: AUD-SPEC-020-REQ-AC-RIGHTS-LICENSE-01
+          given: The requested rule-set scope or any affected media operation has rights, consent, privacy, egress,
+            security, or applicable license evidence that is denied, unavailable, or unknown.
+          when: The caller requests authoring, validation, or reuse of the rule set.
+          then: Return the applicable DENIED, UNAVAILABLE, or UNKNOWN state; apply no rule, preserve the prior rule-set
+            version, and perform no affected media operation.
+          rejection: Reject treating missing, denied, unavailable, or unknown rights/license evidence as permission or
+            as successful validation.
+      relatedExternalContract: The owning public contract remains a PDP-1 handoff; do not invent an endpoint or operation schema here.
+      downstreamMappings:
+        journeys: pending-PDP-3-experience-definition
+        viewsAndChannels: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability;
+          owner review pending
+        states: explicit-result-states-only; persistent rule-set lifecycle remains a PDP-1 handoff
+        implementation: not-authorized-by-definition
+      ownerAcceptance: NOT_CLAIMED
+    intentDefinition:
+      id: media.intent.manage-reusable-rules
+      outcomeRefs:
+        - media.goal.integrate-repeatably
+      actorRefs:
+        - media.creator
+        - media.editor
+        - media.developer-integrator
+        - media.operator
+      description: Author, inspect, validate, version, or request reuse of a scoped action or quality rule set while
+        keeping candidate plans distinct from approval and execution of every affected media operation.
+    channelApplicability:
+      authority: coordinator-authored-PDP0-proposal; owner review pending
+      status: PROPOSAL_ONLY; cannot satisfy owner acceptance, independent acceptance, closure, admission, or runtime
+        support
+      records:
+        - capabilityRef: media.rules.manage
+          requirementRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/requirementDefinition
+          sourceRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-020
+          ownerApproval: NOT_CLAIMED
+          independentAcceptance: NOT_CLAIMED
+          applicabilityState: PROPOSED; owner disposition pending
+          channelApplicability:
+            - channelRef: media.channel.web
+              disposition: PROPOSED_APPLICABLE
+              rationale: AUD-SPEC-020 describes reusable rule authoring and validation as a product capability; an
+                interactive proposal is included for owner review, with no current consumer or runtime claim.
+              surfaceResolution:
+                kind: DIRECT_DEFINITION_SCOPE
+                logicalConsumerSurfaceRefs: [media.surface.web, media.surface.production-studio]
+                physicalSurfaceRefs: [media.physical.libs-audio-video-ui]
+                compositeSurfaceRefs: [media.composition.creation-composition-and-delivery, media.composition.client-and-machine-interfaces]
+              id: AUD-SPEC-020-CHANNEL-WEB
+            - channelRef: media.channel.api
+              disposition: PROPOSED_APPLICABLE
+              rationale: A protocol-neutral API proposal defines the shared reusable-rule meaning; it is an umbrella
+                over the exact HTTP and gRPC consumer refs below, not an additional transport or runtime surface.
+              surfaceResolution:
+                kind: UMBRELLA_INHERITS_EXACT_TRANSPORT_SURFACES
+                inheritsChannelRefs: [media.channel.http-api, media.channel.grpc-api]
+                logicalConsumerSurfaceRefs: [media.surface.public-http, media.surface.service-grpc, media.surface.grpc.stt, media.surface.grpc.tts, media.surface.grpc.vision, media.surface.grpc.multimodal]
+                physicalSurfaceRefs: [media.physical.launcher, media.physical.runtime-contracts, media.physical.modules-speech-stt-service, media.physical.modules-speech-tts-service, media.physical.modules-vision-vision-service, media.physical.modules-intelligence-multimodal-service]
+                compositeSurfaceRefs: [media.composition.ingestion-and-versioned-artifacts, media.composition.governed-job-execution, media.composition.speech-and-caption-workflows, media.composition.vision-and-multimodal-analysis, media.composition.creation-composition-and-delivery, media.composition.client-and-machine-interfaces]
+              id: AUD-SPEC-020-CHANNEL-API
+            - channelRef: media.channel.embedded
+              disposition: PROPOSED_APPLICABLE
+              rationale: Embedded definition applicability is proposed for review only; no embedded consumer or runtime
+                support is asserted.
+              surfaceResolution:
+                kind: DIRECT_DEFINITION_SCOPE
+                logicalConsumerSurfaceRefs: [media.surface.embedded, media.surface.interactive-demo-player]
+                physicalSurfaceRefs: [media.physical.libs-audio-video-ui]
+                compositeSurfaceRefs: [media.composition.creation-composition-and-delivery, media.composition.client-and-machine-interfaces]
+              id: AUD-SPEC-020-CHANNEL-EMBEDDED
+            - channelRef: media.channel.http-api
+              disposition: PROPOSED_APPLICABLE
+              rationale: HTTP adapter applicability is proposed for review only; no endpoint or HTTP support is asserted.
+              surfaceResolution:
+                kind: DIRECT_DEFINITION_SCOPE
+                logicalConsumerSurfaceRefs: [media.surface.public-http]
+                physicalSurfaceRefs: [media.physical.launcher, media.physical.runtime-contracts]
+                compositeSurfaceRefs: [media.composition.ingestion-and-versioned-artifacts, media.composition.governed-job-execution, media.composition.vision-and-multimodal-analysis, media.composition.creation-composition-and-delivery, media.composition.client-and-machine-interfaces]
+              id: AUD-SPEC-020-CHANNEL-HTTP-API
+            - channelRef: media.channel.grpc-api
+              disposition: PROPOSED_APPLICABLE
+              rationale: gRPC adapter applicability is proposed for review only; no service or gRPC support is asserted.
+              surfaceResolution:
+                kind: DIRECT_DEFINITION_SCOPE
+                logicalConsumerSurfaceRefs: [media.surface.service-grpc, media.surface.grpc.stt, media.surface.grpc.tts, media.surface.grpc.vision, media.surface.grpc.multimodal]
+                physicalSurfaceRefs: [media.physical.runtime-contracts, media.physical.modules-speech-stt-service, media.physical.modules-speech-tts-service, media.physical.modules-vision-vision-service, media.physical.modules-intelligence-multimodal-service]
+                compositeSurfaceRefs: [media.composition.ingestion-and-versioned-artifacts, media.composition.governed-job-execution, media.composition.speech-and-caption-workflows, media.composition.vision-and-multimodal-analysis, media.composition.creation-composition-and-delivery, media.composition.client-and-machine-interfaces]
+              id: AUD-SPEC-020-CHANNEL-GRPC-API
+            - channelRef: media.channel.sdk
+              disposition: PROPOSED_APPLICABLE
+              rationale: SDK definition applicability is proposed for review only; no published package or SDK support is
+                asserted.
+              surfaceResolution:
+                kind: DIRECT_DEFINITION_SCOPE
+                logicalConsumerSurfaceRefs: [media.surface.sdk]
+                physicalSurfaceRefs: [media.physical.libs-audio-video-client, media.physical.libs-audio-video-types]
+                compositeSurfaceRefs: [media.composition.creation-composition-and-delivery, media.composition.client-and-machine-interfaces]
+              id: AUD-SPEC-020-CHANNEL-SDK
+            - channelRef: media.channel.cli
+              disposition: PROPOSED_APPLICABLE
+              rationale: CLI definition applicability is proposed for review only; no command or CLI support is asserted.
+              surfaceResolution:
+                kind: DIRECT_DEFINITION_SCOPE
+                logicalConsumerSurfaceRefs: [media.surface.cli, media.surface.recorder-orchestrator]
+                physicalSurfaceRefs: [media.physical.libs-audio-video-client, media.physical.libs-media-experience-simulation]
+                compositeSurfaceRefs: [media.composition.repository-root, media.composition.creation-composition-and-delivery, media.composition.client-and-machine-interfaces]
+              id: AUD-SPEC-020-CHANNEL-CLI
+            - channelRef: media.channel.product-integration
+              disposition: PROPOSED_APPLICABLE
+              rationale: Product-integration definition applicability is proposed for review only; no active integration or
+                invocation support is asserted.
+              surfaceResolution:
+                kind: DIRECT_DEFINITION_SCOPE
+                logicalConsumerSurfaceRefs: [media.surface.integrations]
+                physicalSurfaceRefs: [media.physical.adapters-ledger, media.physical.providers-aws-postgresql, media.physical.modules-infrastructure-persistence, media.physical.modules-infrastructure-security, media.physical.modules-infrastructure-cache, media.physical.modules-infrastructure-messaging]
+                compositeSurfaceRefs: [media.composition.ingestion-and-versioned-artifacts, media.composition.governed-job-execution, media.composition.creation-composition-and-delivery]
+              id: AUD-SPEC-020-CHANNEL-PRODUCT-INTEGRATION
+            - channelRef: media.channel.legacy-desktop
+              disposition: NOT_APPLICABLE_ARCHIVED
+              rationale: This feature-scoped definition excludes the archived desktop consumer from current scope; the
+                proposal does not assert runtime denial or acceptance by the archive's historical owner.
+              surfaceResolution:
+                kind: COORDINATOR_PROPOSED_SCOPED_NOT_APPLICABLE
+                logicalConsumerSurfaceRefs: [media.surface.desktop-archive]
+                physicalSurfaceRefs: []
+                compositeSurfaceRefs: []
+                ownerApproval: NOT_CLAIMED
+              id: AUD-SPEC-020-CHANNEL-LEGACY-DESKTOP
+            - channelRef: media.channel.agent
+              disposition: NOT_APPLICABLE_NON_INVOCATION
+              rationale: This feature-scoped definition has no agent invocation variant or tool action; no agent support
+                is asserted, and the excluded channel remains a coordinator proposal pending owner review.
+              surfaceResolution:
+                kind: COORDINATOR_PROPOSED_SCOPED_NOT_APPLICABLE
+                logicalConsumerSurfaceRefs: [media.surface.agent-tools]
+                physicalSurfaceRefs: [media.physical.runtime-contracts, media.physical.libs-common]
+                compositeSurfaceRefs: [media.composition.repository-root, media.composition.ingestion-and-versioned-artifacts, media.composition.governed-job-execution, media.composition.vision-and-multimodal-analysis, media.composition.creation-composition-and-delivery, media.composition.client-and-machine-interfaces]
+                ownerApproval: NOT_CLAIMED
+              id: AUD-SPEC-020-CHANNEL-AGENT
+            - channelRef: media.channel.event
+              disposition: NOT_APPLICABLE_NON_INVOCATION
+              rationale: This feature-scoped definition has no event emission or subscription variant; no event support
+                is asserted, and the excluded channel remains a coordinator proposal pending owner review.
+              surfaceResolution:
+                kind: COORDINATOR_PROPOSED_SCOPED_NOT_APPLICABLE
+                logicalConsumerSurfaceRefs: [media.surface.events]
+                physicalSurfaceRefs: [media.physical.modules-infrastructure-messaging, media.physical.runtime-contracts]
+                compositeSurfaceRefs: [media.composition.ingestion-and-versioned-artifacts, media.composition.governed-job-execution, media.composition.vision-and-multimodal-analysis, media.composition.creation-composition-and-delivery, media.composition.client-and-machine-interfaces]
+                ownerApproval: NOT_CLAIMED
+              id: AUD-SPEC-020-CHANNEL-EVENT
+          implementationState: UNKNOWN
+          qualificationState: NOT_EVALUATED
+          runtimeAvailability: UNKNOWN
+          executionAdmission: NOT_ADMITTED
+          id: AUD-SPEC-020-CHANNEL-APPLICABILITY
+    compileAcceptance:
+      id: AUD-SPEC-020-P0-COMPILE-AC-01
+      criterion: Repeated compilation of the same valid, authorized source inputs produces an equivalent normalized
+        semantic graph and the same stable semantic fingerprint. Invalid or unauthorized input produces no
+        effects.
+      outputs:
+        normalizedSemanticGraph: media.rules.normalized-semantic-graph
+        semanticFingerprint: media.rules.semantic-fingerprint
+      invalidOrUnauthorizedInput:
+        disposition: REJECT_WITHOUT_EFFECTS
+        forbiddenEffects:
+          - rule-application
+          - operation-execution
+          - approval
+          - persistent-mutation
+      algorithmAndVersionFormat: PDP-1-owned; not defined by this PDP-0 proposal
+    validationCoverage:
+      sourceValidationRef: docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-020/validations_required
+      auditValidationDimensions:
+        positive:
+          caseRefs:
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/acceptanceCases/@id=AUD-SPEC-020-CAP-AC-01
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/requirementDefinition/acceptanceCases/@id=MEDIA-REQ-CAP-RULES-AC-01
+          criterion: A valid scoped draft returns a stable versioned candidate and preserves its prior version.
+        negative:
+          caseRefs:
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/acceptanceCases/@id=AUD-SPEC-020-CAP-AC-03
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/requirementDefinition/acceptanceCases/@id=MEDIA-REQ-CAP-RULES-AC-02
+          criterion: Invalid or unauthorized rules are rejected without partial application or affected-operation
+            execution.
+        unavailable:
+          caseRefs:
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/acceptanceCases/@id=AUD-SPEC-020-CAP-AC-03
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/requirementDefinition/acceptanceCases/@id=MEDIA-REQ-CAP-RULES-AC-02
+          criterion: Unavailable input or evidence returns explicit UNAVAILABLE or UNKNOWN and causes no effects.
+        UNKNOWN_or_explicit_NA:
+          caseRefs:
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/ownerDefinition/semanticOutcomeContract/unknownDisposition
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-LEGACY-DESKTOP/rationale
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-AGENT/rationale
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-EVENT/rationale
+          criterion: Incomplete evidence remains UNKNOWN; archived legacy desktop and non-invocation agent/event are
+            explicit N/A with rationale.
+        rights_license:
+          caseRefs:
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/requirementDefinition/acceptanceCases/@id=AUD-SPEC-020-REQ-AC-RIGHTS-LICENSE-01
+          criterion: Denied, unavailable, or unknown rights/license evidence returns the applicable non-success state
+            without applying rules or performing affected operations.
+        manual_agent_parity_when_applicable:
+          caseRefs:
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-AGENT/rationale
+          disposition: JUSTIFIED_NA
+          criterion: The proposal has no agent invocation semantics; agent parity is not applicable and no agent tool
+            support is claimed.
+        source_version_and_provenance:
+          caseRefs:
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/acceptanceCases/@id=AUD-SPEC-020-CAP-AC-01
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/acceptanceCases/@id=AUD-SPEC-020-CAP-AC-02
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/requirementDefinition/acceptanceCases/@id=MEDIA-REQ-CAP-RULES-AC-01
+            - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/provenance
+          criterion: Candidates and observations preserve exact rule-set version, declared scope, target operation, and
+            source references; prior versions remain unchanged.
+      compileEquivalenceAndFingerprint:
+        compileAcceptanceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/compileAcceptance
+        compileAcceptanceId: AUD-SPEC-020-P0-COMPILE-AC-01
+        criterionRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/compileAcceptance/criterion
+        boundToNormalizedSemanticGraph: true
+        boundToStableSemanticFingerprint: true

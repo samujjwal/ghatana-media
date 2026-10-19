@@ -12,6 +12,8 @@ const candidate = JSON.parse(readFileSync(resolve(root, "docs/implementation/ver
 const currentReview = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-p0-current-material-review.json"), "utf8"));
 const currentSourceSupplement = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-p0-current-material-source-observations.json"), "utf8"));
 const pxd173Successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd173.json"), "utf8"));
+const pxd183Successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd183.json"), "utf8"));
+const pxd185Successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd185.json"), "utf8"));
 const pxd153SourceCorrection = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json"), "utf8"));
 const sha = (value) => createHash("sha256").update(value).digest("hex");
 const cache = new Map();
@@ -40,17 +42,87 @@ const row = (claimId) => {
   return record;
 };
 
-function assertPxd173Successor(record, targetRef, refreshed) {
-  const successor = pxd173Successor.records.find((item) => item.sourceArtifactRef === "docs/implementation/verification/pdp-38/migration-p0-current-material-source-observations.json"
+test("PXD-183 remains immutable historical source evidence", () => {
+  const requirementsPath = ".product-experience/pdp-0-product-truth/requirements.yaml";
+  const requirementsBytes = readFileSync(resolve(root, requirementsPath));
+  assert.equal(pxd183Successor.sourceFingerprints[requirementsPath], "4fe7fa39a380c8209741301b5488739db204a89444c150adba39f4ec3d2ff3a8");
+  assert.notEqual(pxd183Successor.sourceFingerprints[requirementsPath], sha(requirementsBytes),
+    "PXD-183 remains pinned to its historical source cut");
+
+  const candidatePath = "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json";
+  const materialSourcePath = "docs/implementation/verification/pdp-38/migration-p0-current-material-source-observations.json";
+  const pxd173Path = "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd173.json";
+  assert.equal(currentReview.decisionRef, ".product-experience/decision-log.md#PXD-139");
+  assert.equal(currentSourceSupplement.decisionRef, currentReview.decisionRef);
+  assert.equal(pxd173Successor.decisionRef, ".product-experience/decision-log.md#PXD-173");
+  assert.deepEqual(pxd183Successor.predecessorArtifacts, [
+    {
+      artifactRef: pxd173Path,
+      role: "predecessor current-source successor; retained unchanged as history",
+    },
+    {
+      artifactRef: candidatePath,
+      role: "source artifact with current PDP-0 observation pointers updated to this successor",
+    },
+    {
+      artifactRef: materialSourcePath,
+      role: "source artifact with current PDP-0 observation pointer updated to this successor",
+    },
+  ]);
+  assert.deepEqual(
+    [...new Set(pxd183Successor.records.map(({ sourceArtifactRef }) => sourceArtifactRef))].sort(),
+    [candidatePath, materialSourcePath].sort(),
+    "successor source records are exactly the candidate and PXD-139 material-observation artifacts",
+  );
+  for (const successor of pxd183Successor.records) {
+    assert.equal(successor.targetRef.split("#", 1)[0], requirementsPath,
+      `${successor.observationId} targets only PDP-0 requirements.yaml`);
+  }
+});
+
+test("PXD-185 pins current PDP-0 requirements and preserves PXD-183 as predecessor", () => {
+  const requirementsPath = ".product-experience/pdp-0-product-truth/requirements.yaml";
+  assert.deepEqual(pxd185Successor.sourceFingerprints, {
+    [requirementsPath]: sha(readFileSync(resolve(root, requirementsPath))),
+  });
+  assert.deepEqual(pxd185Successor.predecessorArtifacts, [
+    { artifactRef: "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd183.json", role: "predecessor current-source successor; retained unchanged as history" },
+    { artifactRef: "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json", role: "source artifact with current PDP-0 observation pointers updated to this successor" },
+    { artifactRef: "docs/implementation/verification/pdp-38/migration-p0-current-material-source-observations.json", role: "source artifact with current PDP-0 observation pointer updated to this successor" },
+  ]);
+  assert.equal(pxd185Successor.records.length, 23);
+  assert.equal(pxd185Successor.counts.targetValueDrift, 0);
+  for (let index = 0; index < pxd185Successor.records.length; index++) {
+    const current = pxd185Successor.records[index];
+    const predecessor = pxd183Successor.records[index];
+    assert.equal(current.predecessorCurrentSourceFileSha256, predecessor.currentSourceFileSha256);
+    assert.equal(current.predecessorCurrentTargetValueSha256, predecessor.currentTargetValueSha256);
+    assert.equal(current.semanticEquivalence, "NOT_ASSERTED");
+    assert.equal(current.acceptanceEffect, "none");
+  }
+});
+
+function assertPxd185Successor(record, targetRef, refreshed) {
+  const pxd173Predecessor = pxd173Successor.records.find((item) => item.sourceArtifactRef === "docs/implementation/verification/pdp-38/migration-p0-current-material-source-observations.json"
     && item.claimId === record.claimId && item.targetRef === targetRef);
-  assert.ok(successor, `${record.claimId} ${targetRef} has a PXD-173 source successor`);
-  assert.equal(successor.predecessorCurrentSourceFileSha256, refreshed.supersededCurrentSourceFileSha256);
-  assert.equal(successor.predecessorCurrentTargetValueSha256, refreshed.currentTargetValueSha256);
+  const predecessor = pxd183Successor.records.find((item) => item.sourceArtifactRef === "docs/implementation/verification/pdp-38/migration-p0-current-material-source-observations.json"
+    && item.claimId === record.claimId && item.targetRef === targetRef);
+  const successor = pxd185Successor.records.find((item) => item.sourceArtifactRef === "docs/implementation/verification/pdp-38/migration-p0-current-material-source-observations.json"
+    && item.claimId === record.claimId && item.targetRef === targetRef);
+  assert.ok(pxd173Predecessor, `${record.claimId} ${targetRef} retains its PXD-173 history`);
+  assert.ok(predecessor, `${record.claimId} ${targetRef} retains its PXD-183 history`);
+  assert.ok(successor, `${record.claimId} ${targetRef} has a PXD-185 current source successor`);
+  assert.equal(predecessor.predecessorCurrentSourceFileSha256, pxd173Predecessor.currentSourceFileSha256);
+  assert.equal(predecessor.currentSourceFileSha256, refreshed.currentSourceSuccessorPredecessorFileSha256);
+  assert.equal(successor.predecessorCurrentSourceFileSha256, predecessor.currentSourceFileSha256);
+  assert.equal(successor.predecessorCurrentTargetValueSha256, predecessor.currentTargetValueSha256);
   assert.equal(successor.currentSourceFileSha256, refreshed.currentSourceFileSha256);
   assert.equal(successor.currentTargetValueSha256, refreshed.currentTargetValueSha256);
   assert.equal(successor.semanticEquivalence, "NOT_ASSERTED");
+  assert.equal(successor.semanticPromotion, false);
   assert.equal(successor.acceptanceEffect, "none");
   assert.equal(pxd173Successor.decisionRef, ".product-experience/decision-log.md#PXD-173");
+  assert.equal(pxd185Successor.decisionRef, ".product-experience/decision-log.md#PXD-185");
 }
 
 function assertCurrentMaterial(record) {
@@ -84,11 +156,19 @@ function assertCurrentMaterial(record) {
     }
     assert.equal(refreshed.currentSourceFileSha256, sha(source));
     assert.equal(refreshed.currentTargetValueSha256, sha(serialized));
+    if (refreshed.currentSourceSuccessorRef) {
+      assert.match(refreshed.currentSourceSuccessorRef, /pdp0-migration-current-source-successor-pxd185\.json/u);
+      const successor = pxd185Successor.records.find((item) => item.claimId === record.claimId && item.targetRef === binding.ref
+        && item.sourceArtifactRef === "docs/implementation/verification/pdp-38/migration-p0-current-material-source-observations.json");
+      assert.ok(successor, `${record.claimId} has an additive PXD-185 successor`);
+      assert.equal(successor.currentSourceFileSha256, refreshed.currentSourceFileSha256);
+      assert.equal(successor.currentTargetValueSha256, refreshed.currentTargetValueSha256);
+      assert.equal(successor.acceptanceEffect, "none");
+      assert.equal(successor.semanticPromotion, false);
+    }
     assert.equal(refreshed.semanticEquivalence, "NOT_ASSERTED");
     assert.equal(refreshed.acceptanceEffect, "none");
-    if (refreshed.supersededCurrentSourceFileSha256) {
-      assertPxd173Successor(record, binding.ref, refreshed);
-    }
+    if (refreshed.currentSourceSuccessorRef) assertPxd185Successor(record, binding.ref, refreshed);
   }
 }
 
@@ -169,6 +249,7 @@ function assertCurrentReviewRecord(record) {
     assert.equal(refreshed.historicalCurrentTargetValueSha256, material.currentTargetValueSha256);
     assert.equal(refreshed.currentSourceFileSha256, sha(source));
     assert.equal(refreshed.currentTargetValueSha256, sha(serialized));
+    if (refreshed.currentSourceSuccessorRef) assert.match(refreshed.currentSourceSuccessorRef, /pdp0-migration-current-source-successor-pxd185\.json/u);
     assert.equal(serialized.includes(material.requiredSourcePhrase), true, `${record.claimId} phrase remains present in exact target`);
     assert.match(material.targetRef, /^\.product-experience\/pdp-0-product-truth\//u, `${record.claimId} target remains in PDP-0 owner boundary`);
   }

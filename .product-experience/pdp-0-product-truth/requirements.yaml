@@ -18,7 +18,7 @@ productDefinitionContract:
     priority: requirements[].priority
     capabilityRef: owning family id
     traceToIntentIds: requirements[].traceToIntentIds
-  traceState: The Media owner defines the exact 38 family requirement-to-capability mappings and 462 stable machine capabilityIntentIds with leaf-local outcome semantics in capabilities.yaml. intentRefs and outcomeRefs remain secondary business-intent trace context and do not claim independently reviewed per-leaf business-intent fit. Exact-leaf channel applicability is owner-defined in capability-leaf-review.yaml; exact screen/action bindings remain pending P0-009, while requirement-level actor/state proposals remain pending their owning P0 tasks. P0-010 independent semantic acceptance remains pending; this source statement records development definition, not acceptance.
+  traceState: The Media owner defines the exact 38 historical family requirement-to-capability mappings and 462 stable machine capabilityIntentIds with leaf-local outcome semantics in capabilities.yaml. The separately sourced AUD-SPEC-020 rules capability is a coordinator-authored proposal with applicability pending owner review. intentRefs and outcomeRefs remain secondary business-intent trace context and do not claim independently reviewed per-leaf business-intent fit. Exact-leaf channel applicability is owner-defined in capability-leaf-review.yaml for those 462 records; exact screen/action bindings remain pending P0-009, while requirement-level actor/state proposals remain pending their owning P0 tasks. P0-010 independent semantic acceptance remains pending; this source statement records development definition, not acceptance.
 ownerDefinedProjectionAuthorityRules:
 - id: media.requirement.generated-projection-single-authority.v1
   authority: delegated-Media-product-definition-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
@@ -962,6 +962,7 @@ requirements:
     planSection: §9.5
     binding: Profile axes, values, aliases, fallback rules, and effective-profile semantics are owned by the canonical P0-007
       artifact; they are not capability leaf IDs.
+
 - id: MEDIA-REQ-CAP-CAPABILITY
   scopeStatus: TARGET
   statement: Every operation in media.capability retains the intended semantic outcome in the full product definition and
@@ -1803,6 +1804,24 @@ requirements:
       silence observations.
     rejection: Reject classifying silence alone as a filler or retake, or automatically deleting, trimming, or cutting source
       content from a candidate observation.
+  - id: MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-06
+    given: A user requests translation of a source speech or transcript version to a declared target locale and supplies
+      any translation-memory or brand-glossary references and approved term entries available for that request.
+    when: The translation operation is evaluated and, if admitted, prepares a translated draft.
+    then: Apply only admitted, versioned, approved, unambiguous, applicable source/target term pairs or do-not-translate
+      entries; preserve the memory and glossary versions and identify which protected terms were retained. Present translated
+      content as a draft, not as approved or verified text. For an otherwise admitted translation request with a missing or
+      unavailable memory or glossary, explicitly report that it was not applied; do not silently substitute another entry,
+      glossary, or translation behavior. If a supplied memory or glossary is denied, stale, ambiguous, conflicting, or
+      unknown, report that state; if source authorization or rights are denied or unknown, block the operation under the
+      family admission behavior in MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-02 with no fallback. For any dubbed result, preserve
+      every supplied per-segment speaker, locale, source-timing, and translation-provenance field. If a field is not supplied
+      or cannot be established, identify it as absent or unknown rather than silently omitting or fabricating it; mark a field
+      not applicable only with an explicit reason. This case does not establish audio/video export synchronization, which
+      remains a separate requirement.
+    rejection: Reject changing a term marked do-not-translate, silently omitting an unresolved protected term, applying an
+      unversioned, unapproved, or inapplicable entry, resolving conflicting entries by silent preference, or describing a
+      translated draft as owner-approved or verified.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -3007,6 +3026,16 @@ requirements:
     when: Media concurrently receives live speech input and prepares or returns a generated spoken response for the current conversational turn.
     then: provide a response attributable to the current user-initiated turn, distinguish observed or transcribed input from generated response text and synthesized audio, expose whether the turn is still streaming or complete, and preserve interruption and cancellation as explicit outcomes; do not modify a project or publish a response as a separate effect.
     rejection: reject hidden or background microphone capture, continuing capture after the user ends the session, representing partial or uncertain recognition as confirmed input, or reporting a complete response when the outcome is unknown or unavailable.
+  - id: MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-06
+    given: A creator supplies an authorized narration or text source with ordered chapter and paragraph boundaries and requests an audiobook output in a declared M4B profile.
+    when: Media prepares the requested speech artifact and audiobook package.
+    then: Preserve the supplied chapter and paragraph order and boundaries in the audiobook candidate, bind the requested voice and source provenance to that candidate, and expose the requested M4B package and metadata only as candidate properties. If authorization, source/audio/voice/package rights or license, M4B format support, profile admission, or qualification is denied, absent, or unknown, apply MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-02; never report the requested format as available on unknown evidence or imply completed delivery.
+    rejection: Reject flattening or reordering supplied boundaries, inventing chapter metadata, silently substituting a format or voice, or representing candidate metadata as proof of qualified format support, completed audio, or delivery.
+  - id: MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-07
+    given: A creator supplies an authorized, rights-cleared source, ordered text segments, and an authorized, rights-cleared, admitted voice/personality profile with the exact shared context intended to govern their synthesis.
+    when: Media prepares speech for those segments as one continuous work.
+    then: Represent the declared segment order and shared context/profile as requested candidate properties; report continuity as established only for segments where the admitted operation establishes it, and expose other segments as denied, unsupported, or unknown. Apply MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-02 if source, voice, profile, authorization, rights, or license admission is denied, absent, or unknown; a candidate property does not guarantee audible continuity.
+    rejection: Reject claiming cross-segment continuity from unrelated or missing context, silently changing the declared profile, or treating an unavailable or unknown continuity result as established or guaranteeing audible identity/continuity.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -5880,6 +5909,16 @@ requirements:
     when: the reviewer requests a variant comparison and possible feedback action.
     then: compare only the attributed observations and prepare a feedback proposal for explicit user approval without inferring causal effect.
     rejection: reject implying access to external platform APIs or data, silently importing observations, or claiming a variant caused an outcome.
+  - id: MEDIA-REQ-CAP-QUALITY-AC-09
+    given: A creator declares quality priorities, a hard resource budget, and the low/high or other pipeline choices for a source version.
+    when: The creator requests a budget-aware quality tradeoff and selects a proposed choice.
+    then: Present every declared choice with its quality dimensions, resource estimates, assumptions, and feasible,
+      infeasible, denied, unavailable, or unknown status; preserve the user's explicit selection in a version-bound candidate
+      plan. If the selected choice violates the budget or required quality constraints, mark that selection infeasible and
+      request a new explicit selection even when another choice is feasible. Never auto-switch choices, execute the plan,
+      exceed the budget, silently downgrade quality, or substitute another pipeline.
+    rejection: Reject representing estimates as measured quality or resource use, changing the selected tradeoff without an
+      explicit request, or presenting a candidate plan as authorization, qualification, or completed processing.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -6536,6 +6575,17 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-DELIVER-AC-03
+    given: A creator declares a source version, audience/locale/device dimensions or explicit variant rules, and applicable
+      delivery constraints that bound the intended target set.
+    when: The creator requests preparation of output variants from those declarations.
+    then: Deterministically expand only the declared dimensions or rules into a bounded variant set, preserving each declared
+      target and its source provenance and effective parameters in candidate outputs or plans. Report each unsupported,
+      infeasible, denied, unavailable, or unknown target explicitly and apply MEDIA-REQ-CAP-DELIVER-AC-02 as applicable;
+      do not generate undeclared combinations or extras, silently replace a target, downgrade a declared constraint, publish,
+      or imply qualified delivery.
+    rejection: Reject inferring consent to additional audience/device/locale variants, merging variant identities, or
+      representing a candidate or plan as an exported, published, or runtime-qualified result.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
