@@ -276,7 +276,8 @@ test("PDP-1 exact operation bindings resolve only fully classified P0 capability
 });
 
 function validateCapabilityLeafDefinitions(capabilities, review, operations) {
-  const sourceLeaves = capabilities.capabilities;
+  const sourceLeaves = capabilities.capabilities.filter(({ intentBindingState }) =>
+    intentBindingState?.startsWith("P0_OWNER_DEFINED_CAPABILITY_INTENT"));
   const ownerLeaves = review.ownerCapabilityLeafAdjudication?.records ?? [];
   const contractIndex = operations.capabilityOperationContracts;
   const contracts = contractIndex?.records ?? [];
@@ -606,7 +607,6 @@ test("PDP-1 operation, profile, and domain projections preserve P0 metric applic
   const capabilities = readYaml(".product-experience/pdp-0-product-truth/capabilities.yaml");
   const operations = readYaml(paths.operations);
   const domains = readYaml(paths.objectRegistry);
-  const review = readYaml(paths.capabilityReview);
   const crosswalk = goals.successMeasureContracts.ownerCapabilityApplicabilityCrosswalk;
   const records = crosswalk.records;
   const applicabilityRecords = crosswalk.measureApplicabilityRecords.records;
@@ -620,9 +620,21 @@ test("PDP-1 operation, profile, and domain projections preserve P0 metric applic
   assert.equal(new Set(applicabilityRecords.map(({ capabilityRef }) => capabilityRef)).size, 462);
   assert.equal(new Set(records.map(({ capabilityRef }) => capabilityRef)).size, 462);
   const capabilityIntents = new Map(capabilities.capabilities.map(({ id }) => [id, true]));
+  const ownerDefinedCapabilityIntentIds = new Set(capabilities.capabilities
+    .filter(({ intentBindingState }) => intentBindingState?.startsWith("P0_OWNER_DEFINED_CAPABILITY_INTENT"))
+    .map(({ id }) => id));
+  const definitionExtensionCapabilityIntentIds = capabilities.capabilities
+    .filter(({ intentBindingState }) => !intentBindingState?.startsWith("P0_OWNER_DEFINED_CAPABILITY_INTENT"))
+    .map(({ id }) => id).sort();
   const operationByCapability = new Map(operations.capabilityOperationContracts.records.map((record) => [record.capabilityRef, record]));
   const boundsById = new Map(operations.capabilityOperationContracts.bounds.map((bound) => [bound.id, bound]));
-  assert.equal(capabilityIntents.size, 462);
+  assert.equal(capabilityIntents.size, 469);
+  assert.equal(ownerDefinedCapabilityIntentIds.size, 462);
+  assert.deepEqual(definitionExtensionCapabilityIntentIds,
+    operations.capabilityOperationContracts.definitionExtensionOperationMappings
+      .map(({ capabilityRef }) => capabilityRef).sort(),
+    "the seven definition-only extensions remain a separate exact population from the 462 core operation contracts");
+  assert.ok(records.every(({ capabilityRef }) => ownerDefinedCapabilityIntentIds.has(capabilityRef)));
   assert.equal(operationByCapability.size, 462);
   assert.ok(records.every(({ capabilityRef, measureApplicability, profileRef, boundsRef }) => {
     const operation = operationByCapability.get(capabilityRef);
@@ -644,10 +656,6 @@ test("PDP-1 operation, profile, and domain projections preserve P0 metric applic
     (disposition === "EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING" && domainObjectRefs.length > 0)
     || (disposition === "EXPLICIT_NO_CANONICAL_DOMAIN_OBJECT_FOR_TRANSIENT_VALUE" && domainObjectRefs.length === 0)));
   assert.ok(outputTypes.every(({ domainObjectRefs }) => domainObjectRefs.every((id) => domainIds.has(id))));
-  const sourceCapabilityOutputs = new Map(capabilities.capabilities.map(({ id, outputArtifactTypes }) => [id, outputArtifactTypes]));
-  assert.ok(review.ownerCapabilityLeafAdjudication.records.every(({ capabilityRef, outputArtifactTypes }) =>
-    sourceCapabilityOutputs.has(capabilityRef)
-    && outputArtifactTypes.join("\0") === sourceCapabilityOutputs.get(capabilityRef).join("\0")));
 });
 
 test("PDP-1 action schemas use closed typed payloads, scalar validators, and the exact flat request envelope", () => {

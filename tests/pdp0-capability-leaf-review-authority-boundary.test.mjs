@@ -10,6 +10,10 @@ const review = require("yaml").parse(readFileSync(resolve(
   root,
   ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
 ), "utf8"));
+const capabilities = require("yaml").parse(readFileSync(resolve(
+  root,
+  ".product-experience/pdp-0-product-truth/capabilities.yaml",
+), "utf8"));
 
 const activeSections = ["ownerCapabilityLeafAdjudication", "ownerTrustReconstructionDispositions"];
 const p0Prefix = ".product-experience/pdp-0-product-truth/";
@@ -49,7 +53,8 @@ test("capability leaf review distinguishes active P0 authority from retained his
   const classified = new Set([
     ...boundary.activePdp0Authority.sections,
     ...historical.sections,
-    boundary.downstreamConsumerCompatibility.section,
+    ...(boundary.downstreamConsumerCompatibility.relatedSections
+      ?? [boundary.downstreamConsumerCompatibility.section]),
   ]);
   for (const section of Object.keys(review)) {
     if (!["schemaVersion", "artifactId", "productId", "status", "purpose", "authorityBoundary"].includes(section)) {
@@ -85,4 +90,30 @@ test("capability leaf review distinguishes active P0 authority from retained his
   }
   const activeText = JSON.stringify({ capabilityAuthority, trustAuthority });
   assert.doesNotMatch(activeText, /\.product-experience\/pdp-[13]-/u);
+});
+
+test("active P0 owner adjudications match current outputs except exact PXD-212 source successors", () => {
+  const sourceById = new Map(capabilities.capabilities.map((record) => [record.id, record]));
+  const records = review.ownerCapabilityLeafAdjudication.records;
+  assert.equal(records.length, 462);
+  const ownerReviewSourceSuccessors = new Set([
+    "media.edit.inpaint",
+    "media.edit.matte",
+    "media.edit.retime-slow-motion-speed-ramp",
+  ]);
+  const mismatches = [];
+  for (const record of records) {
+    const source = sourceById.get(record.capabilityRef);
+    assert.ok(source, `${record.capabilityRef} resolves to a current P0 capability`);
+    assert.deepEqual(
+      source.outputArtifactTypes,
+      source.ownerDefinition.successOutputs.map(({ artifactType }) => artifactType),
+      `${record.capabilityRef} current P0 source agrees with its owner-defined success outputs`,
+    );
+    if (JSON.stringify(record.outputArtifactTypes) !== JSON.stringify(source.outputArtifactTypes)) {
+      mismatches.push(record.capabilityRef);
+    }
+  }
+  assert.deepEqual(mismatches.sort(), [...ownerReviewSourceSuccessors].sort(),
+    "only the three PXD-212 current-source meaning successors remain separate from the original owner adjudication records");
 });

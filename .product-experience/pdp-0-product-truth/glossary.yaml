@@ -261,23 +261,34 @@ terms:
       - A generative model is not the authority for exact text.
     forbiddenConflations: [generative text rendering, cross-platform bitwise determinism]
   - id: media.term.media-time
-    term: Media presentation time
-    definition: Rational or integer-indexed time associated with media frames, samples, or presentation intervals under an explicit source mapping.
-    aliases: [media time, presentation time]
-    distinctions: [It is distinct from wall-clock deadlines, simulation time, story time, and source timestamps.]
-    forbiddenConflations: [floating-point milliseconds as universal clock, frame count divided by guessed rate]
+    term: Media clock-domain time
+    definition: >-
+      An exact time value expressed in one of the five declared Media clock domains. Every
+      value identifies its domain and applicable time base or rate. Editorial and output
+      presentation positions use story/explanation time; source-video timestamps remain in
+      source/video presentation time and are never silently equated with output position.
+      A conversion identifies both domains, its origin, mapping uncertainty, and interval or
+      rounding policy.
+    aliases: [media time, clock-domain time]
+    distinctions:
+      - The applicable domains are source/video presentation, audio sample, story/explanation, simulation execution, and wall-clock time.
+      - A timestamp identifies a position; it does not by itself define an interval duration.
+      - An unknown or unresolved mapping remains UNKNOWN and is not presented as exact alignment.
+    forbiddenConflations: [source timestamp with story/output position, decode timestamp with presentation position, frame count with duration, floating-point milliseconds as a universal clock]
   - id: media.term.simulation-time
-    term: Simulation time (t_sim)
+    term: Simulation execution time
     definition: The time coordinate advanced by a declared simulation model and solver.
-    aliases: [t_sim]
-    distinctions: [Pausing or scrubbing story time must not implicitly advance simulation time.]
-    forbiddenConflations: [wall-clock time, media presentation time, animation/story time]
+    aliases: [simulation time]
+    distinctions: [Pausing or seeking story/explanation time does not advance simulation state unless an explicit bounded model command does so.]
+    forbiddenConflations: [wall-clock time, source/video presentation time, story/explanation time]
   - id: media.term.story-time
-    term: Story time (t_story)
-    definition: The presentation or explanatory timeline used to stage animation or communicate a narrative.
-    aliases: [t_story, animation time]
-    distinctions: [It may be edited independently from a scientific model's simulation time.]
-    forbiddenConflations: [simulation time, source decode timestamp, wall-clock deadline]
+    term: Story/explanation time
+    definition: >-
+      The narrative, explanatory, animation, editorial, or output presentation position.
+      Source time remains separately identified and explicitly mapped.
+    aliases: [story time, explanation time, animation time, editorial presentation time, output presentation time]
+    distinctions: [It may be edited independently from a simulation model's execution time.]
+    forbiddenConflations: [simulation execution time, source-video timestamp, wall-clock deadline]
   - id: media.term.transcript
     term: Transcript
     definition: A versioned textual observation of spoken content, optionally linked to speakers and source media time.

@@ -1,0 +1,327 @@
+{
+  "schemaVersion": "media.pdp0.current-source-reconciliation.v1",
+  "artifactId": "PDP0-CURRENT-SOURCE-RECONCILIATION-PXD206",
+  "decisionRef": ".product-experience/decision-log.md#PXD-206",
+  "scope": "Current PDP-0 source reconciliation for PXD-200 feature-meaning changes across exact capability, profile, measure, quality, and trust projections. Owner adjudication gaps remain explicit blockers.",
+  "predecessorReviewRefs": [
+    "docs/implementation/verification/pdp-38/p0-capability-corrections-current-source-review-current.json#PXD-171-historical",
+    "docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json#PXD-196-historical"
+  ],
+  "sources": {
+    "capabilities": {
+      "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "sha256": "801e9eab9b6d2936b52254276c940456ae6d98fd9dc95f2364b56bd9e02da527"
+    },
+    "profileSemantics": {
+      "path": ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
+      "sha256": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce"
+    },
+    "goals": {
+      "path": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+      "sha256": "519d266c35931f2738f2f82c0a1d472abe171ef0b731bb371f72e81f83edc9ec"
+    },
+    "quality": {
+      "path": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+      "sha256": "e0aad41a1934e7f5588d8e011740ba661890ab8f0d2c18c85d7e54ce912ad4d6"
+    },
+    "leafReview": {
+      "path": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "sha256": "dfcbc43e98f5f89285f6bc9bad4e56a40235fea5e9e7efd691724bfb8d431af5"
+    },
+    "decisionLog": {
+      "path": ".product-experience/decision-log.md",
+      "sha256": "a9c585dc2779fe6b19887c521c9a3fea2b81a8bdfa5a4c1b059382b84dd7aa28"
+    },
+    "qualityReview": {
+      "path": "docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json",
+      "sha256": "11bd39275df012dc0c1937274858b7aa80fbce204aadc2dd77346adc1ffa27aa"
+    }
+  },
+  "decisionSectionSha256": "7aa2bcd2f241b5eb656cd2acf7ea8fb8e7a68d690048e22c79d7dba9207837aa",
+  "population": {
+    "canonicalOwnerAdjudicatedCapabilityCount": 462,
+    "totalCapabilityDefinitionCount": 468,
+    "separateProposalDefinitionCount": 6,
+    "typedInputSlotCount": 939,
+    "currentDistinctSharedInputShapeCount": 144,
+    "historicalDistinctSharedInputShapeCount": 142,
+    "qualityCrosswalkRowCount": 462,
+    "qualityDimensionCount": 6,
+    "qualityMetricDefinitionCount": 16,
+    "qualityDimensionDispositionCount": 2772,
+    "qualityMetricDispositionCount": 7392,
+    "measureApplicabilityRowCount": 1848
+  },
+  "currentProjectionChanges": [
+    {
+      "capabilityId": "media.compose.multitrack-timeline",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline",
+      "currentInputArtifactTypes": [
+        "versioned-project-and-selected-artifacts",
+        "composition-intent"
+      ],
+      "currentOutputArtifactTypes": [
+        "local-versioned-composition-candidate"
+      ],
+      "ownerAdjudicatedInputArtifactTypes": [
+        "versioned-project-and-selected-artifacts",
+        "composition-intent"
+      ],
+      "ownerAdjudicatedOutputArtifactTypes": [
+        "versioned-composition-and-render-manifest"
+      ],
+      "trustReconstructionInputArtifactTypes": [
+        "versioned-project-and-selected-artifacts",
+        "composition-intent"
+      ],
+      "trustReconstructionOutputArtifactTypes": [
+        "local-versioned-composition-candidate"
+      ]
+    },
+    {
+      "capabilityId": "media.compose.safe-area",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.safe-area",
+      "currentInputArtifactTypes": [
+        "versioned-project-and-selected-artifacts",
+        "composition-intent"
+      ],
+      "currentOutputArtifactTypes": [
+        "local-versioned-composition-candidate"
+      ],
+      "ownerAdjudicatedInputArtifactTypes": [
+        "versioned-project-and-selected-artifacts",
+        "composition-intent"
+      ],
+      "ownerAdjudicatedOutputArtifactTypes": [
+        "versioned-composition-and-render-manifest"
+      ],
+      "trustReconstructionInputArtifactTypes": [
+        "versioned-project-and-selected-artifacts",
+        "composition-intent"
+      ],
+      "trustReconstructionOutputArtifactTypes": [
+        "local-versioned-composition-candidate"
+      ]
+    },
+    {
+      "capabilityId": "media.compose.reusable-composition",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.reusable-composition",
+      "currentInputArtifactTypes": [
+        "versioned-project-and-selected-artifacts",
+        "composition-intent"
+      ],
+      "currentOutputArtifactTypes": [
+        "local-versioned-composition-candidate"
+      ],
+      "ownerAdjudicatedInputArtifactTypes": [
+        "versioned-project-and-selected-artifacts",
+        "composition-intent"
+      ],
+      "ownerAdjudicatedOutputArtifactTypes": [
+        "versioned-composition-and-render-manifest"
+      ],
+      "trustReconstructionInputArtifactTypes": [
+        "versioned-project-and-selected-artifacts",
+        "composition-intent"
+      ],
+      "trustReconstructionOutputArtifactTypes": [
+        "local-versioned-composition-candidate"
+      ]
+    },
+    {
+      "capabilityId": "media.master.audio.stereo-width",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.master.audio.stereo-width",
+      "currentInputArtifactTypes": [
+        "audio-artifact",
+        "delivery-target-channel-layout-and-loudness-context"
+      ],
+      "currentOutputArtifactTypes": [
+        "mastered-audio-candidate-with-measurements"
+      ],
+      "ownerAdjudicatedInputArtifactTypes": [
+        "audio-artifact",
+        "delivery-and-loudness-context"
+      ],
+      "ownerAdjudicatedOutputArtifactTypes": [
+        "mastered-audio-candidate-with-measurements"
+      ],
+      "trustReconstructionInputArtifactTypes": [
+        "audio-artifact",
+        "delivery-target-channel-layout-and-loudness-context"
+      ],
+      "trustReconstructionOutputArtifactTypes": [
+        "mastered-audio-candidate-with-measurements"
+      ]
+    },
+    {
+      "capabilityId": "media.speech.synthesis.speaker.condition",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speaker.condition",
+      "currentInputArtifactTypes": [
+        "text-or-speech-intent",
+        "authorized-speaker-reference-or-ordered-segment-speaker-map"
+      ],
+      "currentOutputArtifactTypes": [
+        "speech-artifact-with-voice-rights-and-execution-provenance"
+      ],
+      "ownerAdjudicatedInputArtifactTypes": [
+        "text-or-speech-intent",
+        "authorized-speaker-reference"
+      ],
+      "ownerAdjudicatedOutputArtifactTypes": [
+        "speech-artifact-with-voice-rights-and-execution-provenance"
+      ],
+      "trustReconstructionInputArtifactTypes": [
+        "text-or-speech-intent",
+        "authorized-speaker-reference-or-ordered-segment-speaker-map"
+      ],
+      "trustReconstructionOutputArtifactTypes": [
+        "speech-artifact-with-voice-rights-and-execution-provenance"
+      ]
+    }
+  ],
+  "ownerAdjudicationDifferences": [
+    {
+      "capabilityId": "media.speech.synthesis.speaker.condition",
+      "fieldPath": "inputArtifactTypes",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speaker.condition/inputArtifactTypes",
+      "ownerAdjudicationSourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@id=media.capability-adjudication.speech-synthesis-speaker-condition/inputArtifactTypes",
+      "currentValue": [
+        "text-or-speech-intent",
+        "authorized-speaker-reference-or-ordered-segment-speaker-map"
+      ],
+      "ownerRecordedValue": [
+        "text-or-speech-intent",
+        "authorized-speaker-reference"
+      ],
+      "disposition": "PENDING_MEDIA_SEMANTIC_OWNER_ADJUDICATION"
+    },
+    {
+      "capabilityId": "media.compose.multitrack-timeline",
+      "fieldPath": "outputArtifactTypes",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline/outputArtifactTypes",
+      "ownerAdjudicationSourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@id=media.capability-adjudication.compose-multitrack-timeline/outputArtifactTypes",
+      "currentValue": [
+        "local-versioned-composition-candidate"
+      ],
+      "ownerRecordedValue": [
+        "versioned-composition-and-render-manifest"
+      ],
+      "disposition": "PENDING_MEDIA_SEMANTIC_OWNER_ADJUDICATION"
+    },
+    {
+      "capabilityId": "media.compose.safe-area",
+      "fieldPath": "outputArtifactTypes",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.safe-area/outputArtifactTypes",
+      "ownerAdjudicationSourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@id=media.capability-adjudication.compose-safe-area/outputArtifactTypes",
+      "currentValue": [
+        "local-versioned-composition-candidate"
+      ],
+      "ownerRecordedValue": [
+        "versioned-composition-and-render-manifest"
+      ],
+      "disposition": "PENDING_MEDIA_SEMANTIC_OWNER_ADJUDICATION"
+    },
+    {
+      "capabilityId": "media.compose.reusable-composition",
+      "fieldPath": "outputArtifactTypes",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.reusable-composition/outputArtifactTypes",
+      "ownerAdjudicationSourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@id=media.capability-adjudication.compose-reusable-composition/outputArtifactTypes",
+      "currentValue": [
+        "local-versioned-composition-candidate"
+      ],
+      "ownerRecordedValue": [
+        "versioned-composition-and-render-manifest"
+      ],
+      "disposition": "PENDING_MEDIA_SEMANTIC_OWNER_ADJUDICATION"
+    },
+    {
+      "capabilityId": "media.master.audio.stereo-width",
+      "fieldPath": "inputArtifactTypes",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.master.audio.stereo-width/inputArtifactTypes",
+      "ownerAdjudicationSourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@id=media.capability-adjudication.master-audio-stereo-width/inputArtifactTypes",
+      "currentValue": [
+        "audio-artifact",
+        "delivery-target-channel-layout-and-loudness-context"
+      ],
+      "ownerRecordedValue": [
+        "audio-artifact",
+        "delivery-and-loudness-context"
+      ],
+      "disposition": "PENDING_MEDIA_SEMANTIC_OWNER_ADJUDICATION"
+    }
+  ],
+  "measureProjection": {
+    "rowCount": 1848,
+    "projectionSha256": "d33f110f0aed47c6239aad68352c856fc77c53d90c5a99add5eb83f7d94bd098",
+    "distinctDispositionValues": [
+      "APPLICABLE_ASYNCHRONOUS_OPERATION_CANDIDATE",
+      "APPLICABLE_OUTPUT_PRODUCER_CANDIDATE",
+      "APPLICABLE_PROVIDER_PROFILE_CANDIDATE",
+      "NOT_APPLICABLE_NOT_EXECUTION_PROFILE_OPERATION",
+      "NOT_APPLICABLE_READ_ONLY_OR_NO_OUTPUT_OPERATION",
+      "NOT_APPLICABLE_SYNCHRONOUS_OPERATION",
+      "TRACE_ONLY_NOT_A_MEASURE_UNIT"
+    ],
+    "distinctAdmissionValues": [
+      "NOT_ADMITTED"
+    ],
+    "distinctBaselineValues": [
+      "NOT_EVALUATED"
+    ],
+    "distinctTargetValues": [
+      "NOT_SET"
+    ],
+    "distinctQualificationValues": [
+      "NOT_EVALUATED"
+    ],
+    "semanticDispositionChanges": "NONE_ASSERTED"
+  },
+  "qualityProjection": {
+    "rowCount": 462,
+    "changedCapabilityIds": [
+      "media.compose.multitrack-timeline",
+      "media.compose.reusable-composition",
+      "media.compose.safe-area",
+      "media.master.audio.stereo-width",
+      "media.speech.synthesis.speaker.condition"
+    ],
+    "artifactTypeProjectionChanged": true,
+    "qualityDispositionProjectionChanged": false,
+    "measurementStateProjectionChanged": false,
+    "qualificationStateProjectionChanged": false,
+    "dispositionProjectionSha256": "f1b2567cc8e4011140b90a94d4552c07b2dbdceefc92e3b0f3f1715b99d47535",
+    "allMeasurementStates": [
+      "NOT_EVALUATED"
+    ],
+    "allQualificationStates": [
+      "NOT_EVALUATED"
+    ],
+    "currentReviewRef": "docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json",
+    "currentReviewDecisionRef": ".product-experience/decision-log.md#PXD-206"
+  },
+  "trustReconstructionProjection": {
+    "rowCount": 462,
+    "refreshedComposeCapabilityIds": [
+      "media.compose.multitrack-timeline",
+      "media.compose.safe-area",
+      "media.compose.reusable-composition"
+    ],
+    "expectedCandidateOutputType": "local-versioned-composition-candidate",
+    "expectedEpistemicRole": "DEFINITION_NOT_MEDIA_CONTENT",
+    "expectedDisposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+    "reviewableCandidateIsRenderedMedia": false,
+    "impliesProjectCommit": false,
+    "impliesCompletedRender": false,
+    "sourceEffect": "none"
+  },
+  "reviewBoundary": {
+    "semanticEquivalence": "NOT_ASSERTED",
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED; P0-010 remains open",
+    "measurement": "NOT_EVALUATED",
+    "qualification": "NOT_EVALUATED",
+    "implementation": "NOT_CLAIMED",
+    "acceptanceEffect": "none",
+    "ownerBlockerCount": 5
+  }
+}

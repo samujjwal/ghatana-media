@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
-import { buildReadiness, buildPdp0DevStatus, writePdp0DevStatus, validateTaskPopulation, taskIds, verificationCutChanged, resolveCriterionReviewSourceCut, selectApprovedMediaDecisions, assessCurrentTaskDependencies } from '../scripts/report-media-pdp-readiness.mjs';
+import { buildReadiness, buildPdp0DevStatus, writePdp0DevStatus, validateTaskPopulation, taskIds, verificationCutChanged, resolveCriterionReviewSourceCut, selectApprovedMediaDecisions, assessCurrentTaskDependencies, pdp0PhaseScopedSourcePins, createSourceOwnerPhaseResolver, sourceOwnerPhase } from '../scripts/report-media-pdp-readiness.mjs';
 import path from 'node:path';
 import os from 'node:os';
 import {createRequire} from 'node:module';
@@ -38,140 +38,106 @@ test('current PDP-0 corrective source fingerprints exclude generated verificatio
   }
  }
 });
-test('PXD-192 rebinds P0-05/P0-07 source pins while preserving PXD-191/PXD-190/PXD-189/PXD-188 history',()=>{
+test('PXD-216 and PXD-196 bind current PDP-0 reviews while older P0-01 pins remain historical',()=>{
  const artifact=JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/direct-definition-criteria-review.json','utf8'));
  const sha=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
- const byId=new Map(artifact.records.map(record=>[record.taskId,record]));
- for(const id of ['P0-01','P0-02','P0-06','P0-07']){
+ const sourcePin=file=>pdp0PhaseScopedSourcePins()[file]??sha(file);
+  const byId=new Map(artifact.records.map(record=>[record.taskId,record]));
+ const pxd216=JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json','utf8'));
+  for(const id of ['P0-01','P0-02','P0-05','P0-06','P0-07']){
   const record=byId.get(id);
-  const historical=record.historicalCorrectiveReviews.find(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-142');
-  assert.ok(historical,`${id} retains the PXD-142 review`);
-  assert.equal(historical.sourceFingerprints['.product-experience/pdp-0-product-truth/capabilities.yaml'],'d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf');
-  assert.equal(historical.sourceFingerprints['tests/pdp0-existing-operation-semantic-corrections.test.mjs'],'bf28351e12327accacbda1b61cfd7a7aa2b587de9f485af11ae8af313fdd9df2');
-  assert.match(historical.scope,/exact three capability typed-input corrections and five conditional-success output families/u);
   const current=record.currentCorrectiveReview;
-  const expectedDecision=id==='P0-07'?'.product-experience/decision-log.md#PXD-192':id==='P0-06'?'.product-experience/decision-log.md#PXD-170':'.product-experience/decision-log.md#PXD-171';
-  assert.equal(current.decisionRef,expectedDecision);
-  assert.equal(current.status,'APPROVED_CURRENT_SOURCE_REVIEW');
-  assert.equal(current.phaseScope,'PDP-0',`${id} current source review names the owning phase`);
-  if(id==='P0-07'){
-   assert.match(current.scope,/20 active logical consumers/u);
-   assert.match(current.scope,/generic Web partition remains 77 applicable and 385 non-applicable/u);
-   assert.match(current.scope,/PDP-2 disposition/u);
-   assert.match(current.scope,/mapped Explorer physical leaf remains NO_IMPLEMENTATION_ADMITTED.*retains its recorded PDP-2 disposition/u);
-   assert.match(current.scope,/501 source-proposed owner scopes/u);
-   assert.match(current.scope,/501 source-proposed owner scopes.*DEFINITION_SCOPE_ONLY.*owner approval NOT_CLAIMED/u);
-   assert.match(current.scope,/AUD-SPEC-020 maps all eight proposed channels and three scoped N\/A proposals to exact existing logical consumer, physical candidate, and composite IDs/u);
-   assert.match(current.scope,/protocol-neutral API is an umbrella over the exact HTTP and gRPC consumer refs/u);
-   assert.match(current.scope,/54 identities.*no new surface IDs/u);
-   assert.match(current.scope,/owner acceptance and independent acceptance NOT_CLAIMED/u);
-    assert.equal(current.supersedesReviewRef,'.product-experience/decision-log.md#PXD-191');
-   assert.equal(current.ownerApproval,'NOT_CLAIMED');
-   assert.equal(current.reviewKind,'NO_EFFECT_CURRENT_SOURCE_REVIEW');
-   assert.ok(record.historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-153'));
-   assert.equal(current.sourceFingerprints['.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml'],sha('.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml'));
-   assert.equal(current.sourceFingerprints['.product-experience/surface-registry.yaml'],sha('.product-experience/surface-registry.yaml'));
-   assert.equal(current.sourceFingerprints['.product-experience/surfaces/media-physical-topology.v1.json'],sha('.product-experience/surfaces/media-physical-topology.v1.json'));
-    for(const file of ['.product-experience/decision-log.md','.product-experience/pdp-0-product-truth/campaign-extensions.yaml','.product-experience/artifact-identities.yaml','docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json','scripts/report-media-pdp-readiness.mjs','scripts/check-product-experience-local.mjs','tests/product-experience-local.test.mjs','tests/media-pdp-readiness.test.mjs']){
-    assert.equal(current.sourceFingerprints[file],sha(file),`P0-07 PXD-192 exact current pin ${file}`);
-   }
-  } else if(id==='P0-06'){
-   assert.match(current.scope,/quality applicability crosswalk/u);
-   assert.match(current.scope,/462/u);
-   assert.equal(current.reviewKind,'SCOPED_SOURCE_DEFINITION_REVIEW');
+  const currentDecisionRef=id==='P0-01'
+   ?'.product-experience/decision-log.md#PXD-216'
+   :'.product-experience/decision-log.md#PXD-196';
+  const reviewEvidence=id==='P0-01'?pxd216:current;
+  assert.equal(reviewEvidence.decisionRef,currentDecisionRef);
+  assert.equal(reviewEvidence.phaseScope,'PDP-0');
+  assert.equal(reviewEvidence.ownerApproval,'NOT_CLAIMED');
+  if(id==='P0-01') {
+   assert.equal(reviewEvidence.reviewKind,'COORDINATOR_AUTHORED_CURRENT_SOURCE_SEMANTIC_REVIEW');
+   assert.equal(reviewEvidence.result.status,'PASS');
+   assert.equal(reviewEvidence.independentAcceptance,'NOT_CLAIMED');
+   assert.equal(reviewEvidence.acceptanceEffect,'none');
+   assert.ok(record.historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-209'),
+    'PXD-209 remains preserved as its historical correction record');
+   for(const [file,digest] of Object.entries(reviewEvidence.sourceFingerprints))assert.equal(digest,sourcePin(file),`P0-01 current PXD-216 source pin ${file}`);
+   assert.equal(resolveCriterionReviewSourceCut(record,sourcePin,sourceOwnerPhase).sourceCutCurrent,true,
+    'the current PXD-216 review establishes P0-01 source currentness');
+   const historicalOnly={...record,currentCorrectiveReview:undefined,currentSourceReview:undefined,currentSourcePinRefresh:undefined};
+   assert.equal(resolveCriterionReviewSourceCut(historicalOnly,sourcePin,sourceOwnerPhase).sourceCutCurrent,false,
+    'historical PXD-209 pins do not establish current P0-01 source currentness');
   } else {
-   assert.match(current.scope,/declaredByteLength\.minimum/u);
-   assert.match(current.scope,/three typed-input corrections/u);
-   assert.match(current.scope,/five optional success-output corrections/u);
-   assert.equal(current.reviewKind,'EXACT_FIELD_CURRENT_SOURCE_RECHECK');
-  }
-  assert.equal(current.sourceFingerprints['.product-experience/pdp-0-product-truth/capabilities.yaml'],sha('.product-experience/pdp-0-product-truth/capabilities.yaml'));
-  assert.equal(resolveCriterionReviewSourceCut(record,sha).sourceCutCurrent,true,`${id} has a current scoped corrective review`);
- }
- for(const id of ['P0-06','P0-07']){
- const current=byId.get(id).currentCorrectiveReview;
-  if(id==='P0-07'){
-   assert.match(current.scope,/exact logical-consumer scope/u);
-   assert.match(current.scope,/no-effect|unchanged/iu);
-  } else {
-   assert.match(current.scope,/no-effect/iu);
-   assert.match(current.scope,/unchanged/u);
-  }
   assert.equal(current.status,'APPROVED_CURRENT_SOURCE_REVIEW');
-  assert.ok(byId.get(id).historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-142'));
- }
- const constitutionalRecord=byId.get('P0-05');
- const constitutionalReview=constitutionalRecord.currentCorrectiveReview;
- assert.equal(constitutionalReview.decisionRef,'.product-experience/decision-log.md#PXD-192');
- assert.equal(constitutionalReview.supersedesReviewRef,'.product-experience/decision-log.md#PXD-191');
- assert.ok(constitutionalRecord.historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-191'));
- assert.ok(constitutionalRecord.historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-189'));
- assert.ok(constitutionalRecord.historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-188'));
- assert.match(constitutionalReview.scope,/32 constitutional identities retain their twelve normative fields/u);
- assert.match(constitutionalReview.scope,/full-array requirement mappings/u);
- assert.match(constitutionalReview.scope,/AUD-SPEC-020.*no PDP-0 constitution source or meaning/u);
- assert.match(constitutionalReview.scope,/owner acceptance and independent acceptance remain NOT_CLAIMED/iu);
- assert.equal(constitutionalReview.ownerApproval,'NOT_CLAIMED');
- assert.equal(constitutionalReview.reviewKind,'NO_EFFECT_CURRENT_SOURCE_REVIEW');
- for(const file of Object.keys(constitutionalReview.sourceFingerprints)){
-  assert.equal(constitutionalReview.sourceFingerprints[file],sha(file),`P0-05 PXD-192 exact current pin ${file}`);
- }
- assert.equal(resolveCriterionReviewSourceCut(constitutionalRecord,sha).sourceCutCurrent,true,'P0-05 current source review resolves current');
- for(const file of ['.product-experience/pdp-0-product-truth/constitution.yaml','.product-experience/pdp-0-product-truth/requirements.yaml','.product-experience/pdp-0-product-truth/campaign-extensions.yaml','.product-experience/source-manifest.yaml','.product-experience/artifact-identities.yaml','docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json']){
-  assert.equal(constitutionalReview.sourceFingerprints[file],createHash('sha256').update(fs.readFileSync(file)).digest('hex'),`P0-05 exact current pin ${file}`);
+  assert.match(current.acceptanceBoundary,/Coordinator-authored PDP-0 source review only/u);
+  assert.match(current.acceptanceBoundary,/independent acceptance/iu);
+  assert.match(current.acceptanceBoundary,/(?:NOT_CLAIMED|not claimed|not asserted)/iu,
+   `${id} boundary keeps owner/acceptance effect explicitly unclaimed`);
+  for(const term of ['runtime admission','qualification','closure','Delivery readiness'])
+   assert.match(current.acceptanceBoundary,new RegExp(term,'iu'),`${id} boundary retains the ${term} limit`);
+  if(current.acceptanceEffect!==undefined)assert.equal(current.acceptanceEffect,'none');
+  assert.equal(current.verification.status,'PASS');
+  assert.equal(resolveCriterionReviewSourceCut(record,sourcePin,sourceOwnerPhase).sourceCutCurrent,true,`${id} has current exact or phase-scoped source pins`);
+  const currentPins=record.currentProjectionRefresh?.sourceFingerprints
+   ??record.currentSourcePinRefresh?.currentSourceFingerprints
+   ??current.sourceFingerprints;
+  for(const [file,digest] of Object.entries(currentPins))assert.equal(digest,sourcePin(file),`${id} current source pin ${file}`);
+  }
+  if(['P0-01','P0-02'].includes(id))assert.ok(record.historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-171'),`${id} retains PXD-171 as history`);
+  if(id==='P0-06')assert.ok(record.historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-170'),`${id} retains PXD-170 as history`);
+  if(['P0-05','P0-07'].includes(id))for(const prior of ['PXD-194','PXD-193','PXD-192','PXD-191'])assert.ok(record.historicalCorrectiveReviews.some(review=>review.decisionRef===`.product-experience/decision-log.md#${prior}`),`${id} retains ${prior} as history`);
  }
  const crosswalk=JSON.parse(fs.readFileSync('docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json','utf8'));
- assert.equal(crosswalk.coordinatorReview.decisionRef,'PXD-192','P0-08 consumes the current crosswalk source review');
- assert.equal(crosswalk.coordinatorReview.priorDecisionRef,'PXD-191');
+ assert.ok(crosswalk.coordinatorReview.reviewHistory.some(review=>review.decisionRef==='PXD-190'),'PXD-190 remains in its authentic audit-crosswalk history');
+ const productTruth=byId.get('P0-01').currentCorrectiveReview;
+ assert.equal(productTruth.decisionRef,'.product-experience/decision-log.md#PXD-216');
+ assert.equal(productTruth.reviewKind,'CURRENT_SOURCE_DEFINITION_REVIEW');
+ assert.match(productTruth.scope,/20 capability leaves with materially changed PDP-0 meaning fields/u);
+ assert.match(productTruth.scope,/all 462 canonical lane records/u);
+ const rightsReview=byId.get('P0-01').historicalCorrectiveReviews.find(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-209');
+ assert.ok(rightsReview,'PXD-209 rights and import review remains in its source-cut history');
+ assert.match(rightsReview.scope,/media\.artifact\.search/u);
+ assert.match(rightsReview.scope,/exact immutable asset versions/u);
+ assert.match(rightsReview.scope,/declared intended-use scope/u);
+ assert.match(rightsReview.scope,/current authoritative per-version rights\/license evidence/u);
+ assert.match(rightsReview.scope,/501 audit identities/u);
+ const bounds=byId.get('P0-02').currentCorrectiveReview;
+ assert.equal(bounds.reviewKind,'EXACT_FIELD_CURRENT_SOURCE_RECHECK');
+ assert.match(bounds.scope,/462 capability.*profile.*bound/u);
+ assert.match(bounds.scope,/no numeric resource bound.*changed/u);
+ const policy=byId.get('P0-05').currentCorrectiveReview;
+ assert.equal(policy.reviewKind,'SCOPED_SOURCE_DEFINITION_REVIEW');
+ assert.match(policy.scope,/MEDIA-REQ-CAP-GENERATE-AUDIO-AC-05/u);
+ assert.match(policy.scope,/checkpoint identity and version.*license.*use-scope.*declared purpose/u);
+ assert.match(policy.scope,/noncommercial.*commercial/u);
+ assert.match(policy.scope,/similarity observation is not rights clearance/u);
+ const quality=byId.get('P0-06').currentCorrectiveReview;
+ assert.equal(quality.reviewKind,'SCOPED_SOURCE_DEFINITION_REVIEW');
+ assert.match(quality.scope,/462 capability identities.*quality applicability crosswalk/u);
+ assert.match(quality.scope,/2,772 dimension dispositions.*7,392 metric dispositions/u);
+ assert.match(quality.scope,/NOT_EVALUATED/u);
+ const applicability=byId.get('P0-07').currentCorrectiveReview;
+ assert.equal(applicability.reviewKind,'CURRENT_CONSUMER_SCOPE_CORRECTION');
+ assert.match(applicability.scope,/61 exact declarative acceptance-case bindings/u);
+ assert.match(applicability.scope,/48 previously unresolved case pairs/u);
+ assert.match(applicability.scope,/Studio.*37.*20.*17/u);
+ assert.match(applicability.scope,/Interactive Demo Player.*8.*3.*5/u);
+ assert.match(applicability.scope,/Recorder Orchestrator.*25.*13.*12/u);
+ assert.match(applicability.scope,/generic Web partition remains 77 applicable and 385 non-applicable/u);
+ assert.match(applicability.scope,/CLI runtime admission remains NOT_ADMITTED/u);
+ assert.match(applicability.scope,/54 registered identities/u);
+ assert.match(applicability.scope,/owner approval and independent acceptance remain NOT_CLAIMED/u);
+ assert.equal(crosswalk.coordinatorReview.decisionRef,'PXD-216');
+ assert.equal(crosswalk.coordinatorReview.priorDecisionRef,'PXD-215');
+ assert.equal(crosswalk.coordinatorReview.ownerApproval,'NOT_CLAIMED');
+ assert.ok(!crosswalk.coordinatorReview.reviewHistory.some(review=>review.decisionRef==='PXD-195'));
+ assert.ok(crosswalk.coordinatorReview.reviewHistory.some(review=>review.decisionRef==='PXD-194'));
  assert.equal(crosswalk.denominator.surfaceDenominator.registeredIdentities,54);
  assert.equal(crosswalk.denominator.surfaceDenominator.logicalConsumers,21);
  assert.equal(crosswalk.denominator.surfaceDenominator.physicalCandidates,26);
  assert.equal(crosswalk.denominator.surfaceDenominator.compositionsIncludingRoot,7);
- const extension=parseYaml(fs.readFileSync('.product-experience/pdp-0-product-truth/campaign-extensions.yaml','utf8'));
- assert.equal(extension.canonicalDenominator.capabilityLeaves,462);
- assert.equal(extension.canonicalDenominator.requirementFamilies,38);
- assert.equal(extension.canonicalDenominator.intents,19);
- assert.equal(extension.canonicalDenominator.ownerAdjudications,462);
- const ruleExtension=extension.records.find(record=>record.id==='AUD-SPEC-020');
- assert.equal(ruleExtension.coordinatorScopeDecision.ownerApproval,'NOT_CLAIMED');
- assert.equal(ruleExtension.coordinatorScopeDecision.independentAcceptance,'NOT_CLAIMED');
- assert.match(ruleExtension.channelApplicability.status,/PROPOSAL_ONLY/u);
- assert.equal(ruleExtension.channelApplicability.records[0].ownerApproval,'NOT_CLAIMED');
- const channelRows=ruleExtension.channelApplicability.records[0].channelApplicability;
- assert.equal(channelRows[0].surfaceResolution.kind,'DIRECT_DEFINITION_SCOPE');
- assert.deepEqual(channelRows.find(row=>row.channelRef==='media.channel.api').surfaceResolution.inheritsChannelRefs,['media.channel.http-api','media.channel.grpc-api']);
- assert.equal(channelRows.find(row=>row.channelRef==='media.channel.api').disposition,'PROPOSED_APPLICABLE');
- assert.ok(channelRows.slice(8).every(row=>row.surfaceResolution.kind==='COORDINATOR_PROPOSED_SCOPED_NOT_APPLICABLE'&&row.surfaceResolution.ownerApproval==='NOT_CLAIMED'));
- assert.ok(!Object.hasOwn(extension,'ownerCapabilityLeafAdjudication'),'extension does not alter the canonical leaf adjudications');
- assert.ok(!Object.hasOwn(extension,'capabilityLeaves'),'extension does not alter the 462 canonical leaf list');
- assert.equal(constitutionalReview.verification.status,'PASS');
- const applicabilityReview=byId.get('P0-07').currentCorrectiveReview;
-  assert.equal(applicabilityReview.decisionRef,'.product-experience/decision-log.md#PXD-192');
-  assert.equal(applicabilityReview.supersedesReviewRef,'.product-experience/decision-log.md#PXD-191');
-  assert.ok(byId.get('P0-07').historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-191'));
-  assert.ok(byId.get('P0-07').historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-189'));
-  assert.ok(byId.get('P0-07').historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-188'));
- assert.match(applicabilityReview.scope,/462-leaf applicability set and dispositions.*remain unchanged/u);
- assert.match(applicabilityReview.scope,/AUD-SPEC-020 maps all eight proposed channels and three scoped N\/A proposals to exact existing logical consumer, physical candidate, and composite IDs/u);
- assert.match(applicabilityReview.scope,/protocol-neutral API is an umbrella over the exact HTTP and gRPC consumer refs/u);
-  assert.match(applicabilityReview.scope,/PXD-191, PXD-190, PXD-189, and PXD-188 remain historical/u);
- assert.equal(applicabilityReview.ownerApproval,'NOT_CLAIMED');
- const spec020Crosswalk=crosswalk.rows.find(row=>row.auditId==='AUD-SPEC-020');
- assert.equal(spec020Crosswalk.ownerSurfaceProposal,'media.surface.recorder-orchestrator');
- assert.equal(spec020Crosswalk.definitionScopeBinding.status,'DEFINITION_SCOPE_ONLY');
- assert.equal(spec020Crosswalk.definitionScopeBinding.ownerApproval,'NOT_CLAIMED');
- for(const file of ['.product-experience/pdp-0-product-truth/campaign-extensions.yaml','.product-experience/source-manifest.yaml','.product-experience/artifact-identities.yaml','.product-experience/surface-registry.yaml','.product-experience/surfaces/media-physical-topology.v1.json','docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json','scripts/report-media-pdp-readiness.mjs']){
-  assert.equal(applicabilityReview.sourceFingerprints[file],createHash('sha256').update(fs.readFileSync(file)).digest('hex'),`P0-07 exact current pin ${file}`);
- }
- assert.equal(applicabilityReview.verification.status,'PASS');
- assert.ok(byId.get('P0-05').historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-166'));
- assert.ok(byId.get('P0-05').historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-138'));
- assert.ok(byId.get('P0-05').historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-182'));
- assert.ok(byId.get('P0-05').historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-186'));
- assert.ok(byId.get('P0-07').historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-182'));
- assert.ok(byId.get('P0-07').historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-186'));
- assert.equal(byId.get('P0-05').currentSourceReview,undefined);
 });
+
 broadTest('a corrective approval uses its own reviewed source cut and preserves historical pins',()=>{
  const historical={sourceFingerprints:{source:'old'}};
  const current=file=>file==='source'?'new':null;
@@ -186,6 +152,88 @@ broadTest('a corrective approval uses its own reviewed source cut and preserves 
  }
  const old=file=>file==='source'?'old':null;
  assert.equal(resolveCriterionReviewSourceCut({...historical,currentCorrectiveReview:{status:'APPROVED_CURRENT_CORRECTION'}},old).sourceCutCurrent,false,'an old matching cut cannot substitute for corrective evidence');
+});
+broadTest('a PDP-0 criterion cannot use a downstream-scoped current review',()=>{
+ const record={taskId:'P0-01',sourceFingerprints:{p0:'live'},currentCorrectiveReview:{
+  status:'APPROVED_CURRENT_SOURCE_REVIEW',phaseScope:'PDP-1',decisionRef:'wrong-phase',sourceFingerprints:{p0:'live'},
+ }};
+ assert.equal(resolveCriterionReviewSourceCut(record,file=>file==='p0'?'live':null,()=> 'PDP-0').sourceCutCurrent,false);
+});
+broadTest('a PDP-0 source review remains current when only downstream phase inputs change',()=>{
+ const pins={
+  '.product-experience/pdp-0-product-truth/capabilities.yaml':'current-p0',
+  '.product-experience/pdp-1-domain-data/operations.yaml':'previous-p1',
+  'tests/pdp2-interface-contracts.test.mjs':'previous-p2',
+  'tests/pdp3-journey-bindings.test.mjs':'previous-p3',
+ };
+ const record={taskId:'P0-01',sourceFingerprints:{...pins},currentCorrectiveReview:{
+  status:'APPROVED_CURRENT_SOURCE_REVIEW',phaseScope:'PDP-0',decisionRef:'p0-current-review',sourceFingerprints:pins,
+ }};
+ const owner=file=>file==='.product-experience/pdp-1-domain-data/operations.yaml'?'PDP-1'
+  :file==='tests/pdp2-interface-contracts.test.mjs'?'PDP-2'
+  :file==='tests/pdp3-journey-bindings.test.mjs'?'PDP-3':'PDP-0';
+ const downstreamOnlyChanged=file=>file.includes('pdp-0-product-truth/capabilities.yaml')?'current-p0':'changed-downstream';
+ assert.equal(resolveCriterionReviewSourceCut(record,downstreamOnlyChanged,owner).sourceCutCurrent,true,
+  'downstream PDP-1/PDP-2/PDP-3 references cannot reopen PDP-0 currentness');
+ const p0MeaningChanged=file=>file.includes('pdp-0-product-truth/capabilities.yaml')?'changed-p0':'changed-downstream';
+ assert.equal(resolveCriterionReviewSourceCut(record,p0MeaningChanged,owner).sourceCutCurrent,false,
+  'a changed PDP-0 source still makes the PDP-0 review stale');
+});
+broadTest('phase ownership is explicit and ambiguous or unknown paths fail closed',()=>{
+ const owner=createSourceOwnerPhaseResolver({productArtifactIndex:{records:[
+  {path:'definitions/pdp-1-named-p0.yaml',owningPhase:'PDP-0'},
+  {path:'definitions/p1.yaml',owningPhase:'PDP-1'},
+  {path:'definitions/shared.yaml',owningPhase:'CROSS_PHASE'},
+  {path:'definitions/conflict.yaml',owningPhase:'PDP-1'},
+  {path:'definitions/conflict.yaml',owningPhase:'PDP-2'},
+ ]}},{
+  'P0-01':['tests/shared-pdp-1-name.test.mjs','tests/p0-only.test.mjs'],
+  'P1-01':['tests/shared-pdp-1-name.test.mjs','tests/p1-only.test.mjs'],
+  'P2-01':['tests/p2-only.test.mjs'],
+ });
+ assert.equal(owner('definitions/p1.yaml'),'PDP-1');
+ assert.equal(owner('definitions/pdp-1-named-p0.yaml'),'PDP-0');
+ assert.equal(owner('definitions/shared.yaml'),'CROSS_PHASE');
+ assert.equal(owner('definitions/conflict.yaml'),undefined);
+ assert.equal(owner('tests/p1-only.test.mjs'),'PDP-1');
+ assert.equal(owner('tests/shared-pdp-1-name.test.mjs'),undefined);
+ assert.equal(owner('tests/pdp-2-unknown.test.mjs'),undefined);
+});
+broadTest('PDP-0 current-source refreshes drive currentness while retaining historical review pins',()=>{
+ const files={p0:'live',p1:'prior',decision:'context'};
+ const current=file=>files[file]??null;
+ const owner=file=>file==='p1'?'PDP-1':'PDP-0';
+ const pinRefresh={status:'CURRENT_SOURCE_PIN_REFRESH_ONLY',phaseScope:'PDP-0',preservesReviewRef:'.product-experience/decision-log.md#PXD-196',
+   semanticReview:'NOT_PERFORMED',ownerApproval:'NOT_CLAIMED',acceptanceEffect:'none',currentSourceFingerprints:{p0:'live',p1:'prior'},
+   decisionContextFingerprint:{sourceRef:'decision',sha256:'context'}};
+ const record={taskId:'P0-02',sourceFingerprints:{source:'old'},currentCorrectiveReview:{status:'APPROVED_CURRENT_SOURCE_REVIEW',sourceFingerprints:{source:'old'}},currentSourcePinRefresh:pinRefresh};
+ const resolved=resolveCriterionReviewSourceCut(record,current,owner);
+ assert.equal(resolved.historicalSourceCutCurrent,false);
+ assert.equal(resolved.currentSourcePinRefreshCurrent,true);
+ assert.equal(resolved.sourceCutCurrent,true);
+ assert.deepEqual(resolved.currentCorrectiveReview.sourceFingerprints,{source:'old'});
+ files.p1='changed-downstream';
+ assert.equal(resolveCriterionReviewSourceCut(record,current,owner).sourceCutCurrent,true,'a downstream-only pin change does not reopen the PDP-0 pin refresh');
+ files.p0='changed-p0';
+ assert.equal(resolveCriterionReviewSourceCut(record,current,owner).sourceCutCurrent,false,'a PDP-0 source change stales the pin refresh');
+ files.p0='live';
+ files.decision='changed';
+ assert.equal(resolveCriterionReviewSourceCut(record,current,owner).sourceCutCurrent,false,'stale decision context cannot support currentness');
+ const qualityRefresh={status:'CURRENT_PDP0_QUALITY_PROJECTION_REFRESH',phaseScope:'PDP-0',preservesReviewRef:'.product-experience/decision-log.md#PXD-196',
+   semanticDecision:'NOT_MADE',ownerApproval:'NOT_CLAIMED',acceptanceEffect:'none',sourceFingerprints:{p0:'live',p1:'prior'},
+   projectionArtifactRef:'quality.json',projectionArtifactSha256:'artifact',decisionContextFingerprints:{decision:'context'}};
+ files['quality.json']='artifact';
+ files.decision='context';
+ files.p1='prior';
+ const projectionRecord={taskId:'P0-06',sourceFingerprints:{source:'old'},currentProjectionRefresh:qualityRefresh};
+ const projection=resolveCriterionReviewSourceCut(projectionRecord,current,owner);
+ assert.equal(projection.historicalSourceCutCurrent,false);
+ assert.equal(projection.currentProjectionRefreshCurrent,true);
+ assert.equal(projection.sourceCutCurrent,true);
+ files.p1='changed-downstream';
+ assert.equal(resolveCriterionReviewSourceCut(projectionRecord,current,owner).sourceCutCurrent,true,'a downstream-only pin change does not reopen the PDP-0 quality projection');
+ files.p0='changed-p0';
+ assert.equal(resolveCriterionReviewSourceCut(projectionRecord,current,owner).sourceCutCurrent,false,'a PDP-0 source change stales the quality projection');
 });
 broadTest('fixed 38-task scope rejects extras, duplicates and missing tasks',()=>{
   const rows=taskIds.map(id=>({id}));
@@ -280,7 +328,7 @@ broadTest('PDP-0 development status stays separate from the historical 38-task a
 
 test('PDP-0 development status can close only with the exact full source inventory and no outstanding meaning', () => {
  const criteria=['P0-01','P0-02','P0-03','P0-04','P0-05','P0-06','P0-07','P0-08'];
- const verification=Object.fromEntries(criteria.map(id=>[id,{status:'PASS',command:`node --test ${id}`,testCount:id==='P0-03'?11:1,passedTestCount:1,skippedTestCount:id==='P0-03'?10:0,outputSha256:'observed',testSourceFingerprints:{'tests/p0.test.mjs':'abc'},sourceCut:{fingerprints:{'tests/p0.test.mjs':'abc'},changedDuringVerification:[],changedBeforeReport:[]}}]));
+ const verification=Object.fromEntries(criteria.map(id=>[id,{status:'PASS',command:`node --test ${id}`,testCount:id==='P0-03'?30:1,passedTestCount:1,skippedTestCount:id==='P0-03'?29:0,outputSha256:'observed',testSourceFingerprints:{'tests/p0.test.mjs':'abc'},sourceCut:{fingerprints:{'tests/p0.test.mjs':'abc'},changedDuringVerification:[],changedBeforeReport:[]}}]));
  const counts={capabilityLeafAdjudications:462,requirementGroups:38,intents:19,journeys:30,profileBoundCapabilityLeaves:462,qualityDimensions:6,qualityMetricDefinitions:16,qualityApplicabilityLeaves:462,channelApplicabilityLeaves:462,featureReviewDimensions:15,featureReviewCapabilityLeaves:462,masterPlanClaims:129,constitutionalRequirements:32};
  const integrityChecks={capabilities:true,profiles:true,quality:true,features:true,claims:true,requirements:true,constitution:true,handoff:true,pdp0SurfaceDenominatorComplete:true,pdp0AuditDispositionsComplete:true};
  const p0ScopeReviews=Object.fromEntries(['P0-01','P0-02','P0-05','P0-06','P0-07'].map(id=>[id,{
@@ -298,7 +346,7 @@ test('PDP-0 development status can close only with the exact full source invento
  assert.deepEqual(dev.outstandingMeaningIds,[]);
  assert.equal(Object.keys(dev.directDevelopmentCriteria).length,8);
  assert.equal(dev.testsActuallyRun['P0-01'].testCount,1);
- assert.equal(dev.testsActuallyRun['P0-03'].skippedTestCount,10);
+ assert.equal(dev.testsActuallyRun['P0-03'].skippedTestCount,29);
  assert.equal(dev.testsActuallyRun['P0-01'].outputSha256,'observed');
  assert.deepEqual(dev.sourceReconciliations,[{id:'legacy-summary',status:'HISTORICAL_SOURCE_ONLY',currentOwnerRef:'current-owner.yaml#/records'}]);
  assert.deepEqual(dev.exportedHandoffIds,handoffs.sort());
@@ -310,7 +358,7 @@ test('PDP-0 development status can close only with the exact full source invento
  };
  expectOpen(({verification:v})=>{v['P0-01'].testCount=2;},'partial test pass cannot establish completion');
  expectOpen(({verification:v})=>{v['P0-08'].skippedTestCount=1;},'unexpected skips cannot establish completion');
- expectOpen(({verification:v})=>{v['P0-03'].skippedTestCount=9;},'missing phase-gated skips cannot establish completion');
+ expectOpen(({verification:v})=>{v['P0-03'].skippedTestCount=13;},'missing phase-gated skips cannot establish completion');
  expectOpen(({verification:v})=>{delete v['P0-01'].outputSha256;},'missing output evidence cannot establish completion');
  expectOpen(({verification:v})=>{v['P0-01'].sourceCut.changedDuringVerification=['capabilities.yaml'];},'test-time source change cannot establish completion');
  expectOpen(({inventory})=>{inventory.sourceRecordCount.qualityMetricDefinitions--;},'denominator mismatch cannot establish completion');

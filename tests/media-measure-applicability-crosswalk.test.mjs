@@ -34,13 +34,17 @@ test('source applicability validates the exact Cartesian population without admi
 test('actual PDP-0 owner applicability source closes all pairs and exact binding projections', () => {
   const goals = readSourceYaml('.product-experience/pdp-0-product-truth/goals-jtbd.yaml');
   const caps = readSourceYaml('.product-experience/pdp-0-product-truth/capabilities.yaml').capabilities;
+  const ownerLeaves = readSourceYaml('.product-experience/pdp-0-product-truth/capability-leaf-review.yaml').ownerCapabilityLeafAdjudication.records;
+  const canonicalCapabilityIds = ownerLeaves.map(({ capabilityRef }) => capabilityRef);
   const crosswalk = goals.successMeasureContracts.ownerCapabilityApplicabilityCrosswalk;
   const measureIds = goals.successMeasureContracts.records.map(({ id }) => id);
   const sourceDocuments = Object.fromEntries([
     '.product-experience/pdp-0-product-truth/capabilities.yaml',
     '.product-experience/pdp-0-product-truth/goals-jtbd.yaml',
+    '.product-experience/pdp-0-product-truth/capability-leaf-review.yaml',
+    '.product-experience/pdp-0-product-truth/campaign-extensions.yaml',
   ].map((path) => [path, readSourceYaml(path)]));
-  const rows = validate(crosswalk, caps.map(({ id }) => id), measureIds, sourceDocuments);
+  const rows = validate(crosswalk, canonicalCapabilityIds, measureIds, sourceDocuments);
   const counts = Object.fromEntries(measureIds.map((id) => [id, rows.filter((row) => row.measureRef === id
     && (row.disposition.startsWith('APPLICABLE_') || row.disposition === 'TRACE_ONLY_NOT_A_MEASURE_UNIT')).length]));
 
@@ -63,13 +67,17 @@ test('actual PDP-0 owner applicability source closes all pairs and exact binding
 test('actual measure source bindings resolve exact owner rows and reject valid foreign targets', () => {
   const goals = readSourceYaml('.product-experience/pdp-0-product-truth/goals-jtbd.yaml');
   const caps = readSourceYaml('.product-experience/pdp-0-product-truth/capabilities.yaml').capabilities;
+  const ownerLeaves = readSourceYaml('.product-experience/pdp-0-product-truth/capability-leaf-review.yaml').ownerCapabilityLeafAdjudication.records;
+  const canonicalCapabilityIds = ownerLeaves.map(({ capabilityRef }) => capabilityRef);
   const sourceDocuments = Object.fromEntries([
     '.product-experience/pdp-0-product-truth/capabilities.yaml',
     '.product-experience/pdp-0-product-truth/goals-jtbd.yaml',
+    '.product-experience/pdp-0-product-truth/capability-leaf-review.yaml',
+    '.product-experience/pdp-0-product-truth/campaign-extensions.yaml',
   ].map((path) => [path, readSourceYaml(path)]));
   const crosswalk = goals.successMeasureContracts.ownerCapabilityApplicabilityCrosswalk;
   const measureIds = goals.successMeasureContracts.records.map(({ id }) => id);
-  const validateActual = (value) => validate(value, caps.map(({ id }) => id), measureIds, sourceDocuments);
+  const validateActual = (value) => validate(value, canonicalCapabilityIds, measureIds, sourceDocuments);
   assert.equal(validateActual(crosswalk).length, 1848);
   for (const [index, mutate] of [
     (value) => { value.measureApplicabilityRecords.records[0].sourceRefs[0] = '.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.inspect'; },
@@ -88,17 +96,24 @@ test('actual measure source bindings resolve exact owner rows and reject valid f
 test('P0 applicability needs exact capability intent and rejects operation or wire schemas as substitutes', () => {
   const goals = readSourceYaml('.product-experience/pdp-0-product-truth/goals-jtbd.yaml');
   const caps = readSourceYaml('.product-experience/pdp-0-product-truth/capabilities.yaml').capabilities;
-  const docs = Object.fromEntries(['.product-experience/pdp-0-product-truth/capabilities.yaml', '.product-experience/pdp-0-product-truth/goals-jtbd.yaml'].map(path => [path, readSourceYaml(path)]));
+  const ownerLeaves = readSourceYaml('.product-experience/pdp-0-product-truth/capability-leaf-review.yaml').ownerCapabilityLeafAdjudication.records;
+  const canonicalCapabilityIds = ownerLeaves.map(({ capabilityRef }) => capabilityRef);
+  const docs = Object.fromEntries([
+    '.product-experience/pdp-0-product-truth/capabilities.yaml',
+    '.product-experience/pdp-0-product-truth/goals-jtbd.yaml',
+    '.product-experience/pdp-0-product-truth/capability-leaf-review.yaml',
+    '.product-experience/pdp-0-product-truth/campaign-extensions.yaml',
+  ].map(path => [path, readSourceYaml(path)]));
   const cw = goals.successMeasureContracts.ownerCapabilityApplicabilityCrosswalk;
   assert.equal(cw.records.length, 462);
   assert.equal(new Set(cw.records.map(row => row.capabilityIntentId)).size, 462);
   assert.ok(cw.records.every(row => row.capabilityIntentRef.endsWith(`#capabilities/@id=${row.capabilityIntentId}`) && row.outputSemanticShapeRef === `${row.capabilityIntentRef}/outputArtifactTypes`));
   assert.ok(cw.measureApplicabilityRecords.records.every(row => row.capabilityIntentId === row.capabilityRef));
-  assert.equal(validate(cw, caps.map(row => row.id), goals.successMeasureContracts.records.map(row => row.id), docs).length, 1848);
+  assert.equal(validate(cw, canonicalCapabilityIds, goals.successMeasureContracts.records.map(row => row.id), docs).length, 1848);
   for (const field of ['operationId', 'operationContractRef', 'requestSchemaRef', 'wireSchemaRef']) {
     const altered = structuredClone(cw);
     altered.measureApplicabilityRecords.records[0][field] = 'media.operation.fake';
-    assert.throws(() => validate(altered, caps.map(row => row.id), goals.successMeasureContracts.records.map(row => row.id), docs), /PDP-1 operation identity or schemas/u);
+    assert.throws(() => validate(altered, canonicalCapabilityIds, goals.successMeasureContracts.records.map(row => row.id), docs), /PDP-1 operation identity or schemas/u);
   }
 });
 

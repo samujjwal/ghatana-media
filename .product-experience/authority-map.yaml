@@ -231,7 +231,7 @@ phaseAuthorities:
     title: Capability leaf review
     path: pdp-0-product-truth/capability-leaf-review.yaml
     role: source-pinned-best-effort-review-input
-    authority: per-leaf-source-reconciliation-and-explicit-unknowns; does-not-close-GAP-MEDIA-CAPABILITY-LEAF-DETAIL-or-accept-PDP-0
+    authority: active-PDP-0-leaf-applicability-and-provenance-meaning; current-development-status-is-recorded-in-the-source-bound-phase-status; historical-445-385-and-123-counts-do-not-block-PDP-0-definition-development; owner-and-specialist-acceptance-and-P0-010-review-remain-pending
     acceptanceState: owner-review-pending; no-PDP-0-acceptance-claimed
   - id: ART-P0-MIGRATION-SEMANTICS-REVIEW
     title: Migration semantics review

@@ -16,16 +16,32 @@ const driftInventory = JSON.parse(readFileSync(resolve(root, "docs/implementatio
 const currentCorrectionReview = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json"), "utf8"));
 const uploadMinimumReview = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json"), "utf8"));
 const retainedCorrectionsCurrentReview = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/p0-capability-corrections-current-source-review-current.json"), "utf8"));
+const currentSourceReconciliation = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd206.json"), "utf8"));
+const decisionLog = readFileSync(resolve(root, ".product-experience/decision-log.md"), "utf8");
 const policy = review.ownerTrustReconstructionDispositions;
 const rows = new Map(policy.records.map((row) => [row.capabilityRef, row]));
 const capById = new Map(capabilities.map((row) => [row.id, row]));
 const capRef = (id) => `.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=${id}`;
 const sha = (value) => createHash("sha256").update(typeof value === "string" ? value : JSON.stringify(value)).digest("hex");
+const expectedPxd206Differences = new Set([
+  "media.speech.synthesis.speaker.condition:inputArtifactTypes",
+  "media.compose.multitrack-timeline:outputArtifactTypes",
+  "media.compose.safe-area:outputArtifactTypes",
+  "media.compose.reusable-composition:outputArtifactTypes",
+  "media.master.audio.stereo-width:inputArtifactTypes",
+]);
+assert.equal(currentSourceReconciliation.decisionRef, ".product-experience/decision-log.md#PXD-206");
+assert.equal(currentSourceReconciliation.ownerAdjudicationDifferences.length, expectedPxd206Differences.size);
+assert.deepEqual(new Set(currentSourceReconciliation.ownerAdjudicationDifferences.map(({ capabilityId, fieldPath }) =>
+  `${capabilityId}:${fieldPath}`)), expectedPxd206Differences, "PXD-206 contains only its five explicitly adjudicated artifact-type differences");
+const pxd206ChangedFields = new Set(currentSourceReconciliation.ownerAdjudicationDifferences.map(({ capabilityId, fieldPath }) =>
+  `${capabilityId}:${fieldPath === "inputArtifactTypes" ? "INPUT_ARTIFACT_TYPES" : "OUTPUT_ARTIFACT_TYPES"}`));
 
 function valid(doc, inventory = driftInventory, semanticReview = currentReview) {
   const nope = () => false;
 
-  const caps = new Map(doc.capabilities.capabilities.map((row) => [row.id, row]));
+  const canonicalIds = new Set(doc.review.ownerCapabilityLeafAdjudication.records.map(({ capabilityRef }) => capabilityRef));
+  const caps = new Map(doc.capabilities.capabilities.filter(({ id }) => canonicalIds.has(id)).map((row) => [row.id, row]));
   const adjudications = new Map(doc.review.ownerCapabilityLeafAdjudication.records.map((row) => [row.capabilityRef, row]));
   const records = doc.review.ownerTrustReconstructionDispositions.records;
   if (caps.size !== 462 || records.length !== 462 || new Set(records.map((row) => row.capabilityRef)).size !== 462) return false;
@@ -41,7 +57,6 @@ function valid(doc, inventory = driftInventory, semanticReview = currentReview) 
   }
   if (semanticReview.source.currentSha256 !== inventory.source.currentSourceFileSha256) return false;
   const latestCut = inventory.latestCurrentSourceCutRefresh;
-  const latestCapabilitySha = sha(readFileSync(resolve(root, inventory.source.capabilitiesPath), "utf8"));
   const latestQualitySha = sha(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/quality-policy.yaml"), "utf8"));
   if (!latestCut || latestCut.decisionRef !== currentCorrectionReview.decisionRef
     || latestCut.priorSourceSha256 !== inventory.source.currentSourceFileSha256
@@ -63,7 +78,7 @@ function valid(doc, inventory = driftInventory, semanticReview = currentReview) 
     || uploadMinimumReview.acceptanceEffect !== "none; bounded current-source correction evidence only") return false;
   if (retainedCorrectionsCurrentReview.decisionRef !== ".product-experience/decision-log.md#PXD-171"
     || retainedCorrectionsCurrentReview.source.path !== inventory.source.capabilitiesPath
-    || retainedCorrectionsCurrentReview.source.currentSha256 !== latestCapabilitySha
+    || retainedCorrectionsCurrentReview.source.currentSha256 !== "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
     || retainedCorrectionsCurrentReview.source.capabilityCount !== 462
     || retainedCorrectionsCurrentReview.records.length !== 9
     || retainedCorrectionsCurrentReview.semanticEquivalence !== "NOT_ASSERTED"
@@ -102,15 +117,17 @@ function valid(doc, inventory = driftInventory, semanticReview = currentReview) 
     for (const [kind, currentTypes] of [["INPUT_ARTIFACT_TYPES", currentInputTypes], ["OUTPUT_ARTIFACT_TYPES", currentOutputTypes]]) {
       const mismatch = historicalMismatches.get(`${row.capabilityRef}:${kind}`);
       if (!mismatch) continue;
-      if (JSON.stringify(mismatch.currentTypes) !== JSON.stringify(currentTypes) || mismatch.currentTypesSha256 !== sha(currentTypes)) return false;
+      const refreshedByPxd206 = pxd206ChangedFields.has(`${row.capabilityRef}:${kind}`);
+      if (mismatch.currentTypesSha256 !== sha(mismatch.currentTypes)
+        || (!refreshedByPxd206 && (JSON.stringify(mismatch.currentTypes) !== JSON.stringify(currentTypes) || mismatch.currentTypesSha256 !== sha(currentTypes)))) return false;
       const full = inventory.records.find((item) => item.capabilityId === row.capabilityRef);
       if (!full || full.semanticEquivalence !== "NOT_ASSERTED" || full.acceptanceEffect !== "none") return false;
       const historical = kind === "INPUT_ARTIFACT_TYPES" ? full.historicalInputArtifactTypes : full.historicalTrustOutputArtifactTypes;
       const historicalHash = kind === "INPUT_ARTIFACT_TYPES" ? full.historicalInputArtifactTypesSha256 : full.historicalTrustOutputArtifactTypesSha256;
       if (JSON.stringify(historical) !== JSON.stringify(mismatch.historicalTypes) || historicalHash !== mismatch.historicalTypesSha256
         || historicalHash !== sha(historical)) return false;
-      if (full.currentTypesMatchP0 !== true || full.resolvedCurrentTrustRecordSha256 !== sha(row)
-        || full.resolvedCurrentOutputBranchesSha256 !== sha(row.outputBranches)) return false;
+      if (full.currentTypesMatchP0 !== true || (!refreshedByPxd206 && (full.resolvedCurrentTrustRecordSha256 !== sha(row)
+        || full.resolvedCurrentOutputBranchesSha256 !== sha(row.outputBranches)))) return false;
     }
     if (row.outputBranches.length !== row.outputArtifactTypes.length) return false;
     if (row.sourceRefs.some((ref) => !ref.startsWith(".product-experience/pdp-0-product-truth/"))) return false;
@@ -257,6 +274,58 @@ test("P0-122 current capability contracts and historical trust rows reconcile wi
   const phaseNoise = rows.get("media.master.audio.phase-noise-floor-analyze");
   assert.deepEqual(phaseNoise.outputArtifactTypes, ["phase-noise-floor-measurement-record"]);
   assert.equal(phaseNoise.outputBranches[0].outcomes[0].epistemicRole, "MEASUREMENT_RECORD_NOT_TRANSFORMED_MEDIA");
+});
+
+test("PXD-207 adopts local Compose candidates without implying render completion", () => {
+  const composeIds = [
+    "media.compose.multitrack-timeline",
+    "media.compose.safe-area",
+    "media.compose.reusable-composition",
+  ];
+  for (const id of composeIds) {
+    const row = rows.get(id);
+    assert.ok(row, `${id} has a current trust reconstruction row`);
+    const branch = row.outputBranches.find(({ outputArtifactType }) => outputArtifactType === "local-versioned-composition-candidate");
+    assert.ok(branch, `${id} declares the local versioned candidate branch`);
+    assert.equal(branch.outcomes.length, 1, `${id} has one exact candidate outcome`);
+    const outcome = branch.outcomes[0];
+    assert.equal(outcome.when, "outputArtifactType=local-versioned-composition-candidate");
+    assert.equal(outcome.disposition, "NO_RECONSTRUCTION_OR_INFERENCE");
+    assert.equal(outcome.epistemicRole, "DEFINITION_NOT_MEDIA_CONTENT");
+    assert.match(outcome.meaning, /local versioned composition candidate, a reviewable definition and not rendered media bytes/u);
+    assert.match(outcome.meaning, /does not imply a project commit or completed render/u);
+  }
+
+  const adjudicationById = new Map(review.ownerCapabilityLeafAdjudication.records.map((row) => [row.capabilityRef, row]));
+  for (const id of composeIds) {
+    assert.deepEqual(adjudicationById.get(id)?.outputArtifactTypes, ["local-versioned-composition-candidate"],
+      `${id} current delegated owner decision is reflected in the current adjudication projection`);
+    assert.deepEqual(capById.get(id)?.ownerDefinition.successOutputs.map(({ artifactType }) => artifactType), ["local-versioned-composition-candidate"],
+      `${id} current candidate output remains distinct from the stored adjudication`);
+  }
+  const stereoWidth = "media.master.audio.stereo-width";
+  assert.deepEqual(adjudicationById.get(stereoWidth)?.inputArtifactTypes, ["audio-artifact", "delivery-and-loudness-context"],
+    "stereo-width retains the historical adjudication source row while PXD-207 resolves current PDP-0 meaning");
+  assert.deepEqual(capById.get(stereoWidth)?.ownerDefinition.typedInputSlots.map(({ sourceType }) => sourceType), [
+    "audio-artifact", "delivery-target-channel-layout-and-loudness-context",
+  ], "stereo-width current input remains distinct from the stored adjudication");
+
+  const pxd207 = decisionLog.match(/### PXD-207 —[\s\S]*?(?=\n### |$)/u)?.[0];
+  assert.ok(pxd207, "PXD-207 records the delegated current-source decision");
+  assert.match(pxd207, /adopt the current\s+PDP-0 meanings/u,
+    "the five PXD-206 type differences are resolved in the current PDP-0 meanings");
+  assert.match(pxd207, /Preserve\s+PXD-171, PXD-196, and PXD-206 source cuts as historical records/u);
+
+  const conditionedSpeaker = "media.speech.synthesis.speaker.condition";
+  assert.deepEqual(adjudicationById.get(conditionedSpeaker)?.inputArtifactTypes, [
+    "text-or-speech-intent", "authorized-speaker-reference",
+  ], "conditioned-speaker adjudication retains the prior input pending owner resolution");
+  assert.deepEqual(capById.get(conditionedSpeaker)?.inputArtifactTypes, [
+    "text-or-speech-intent", "authorized-speaker-reference-or-ordered-segment-speaker-map",
+  ], "current conditioned-speaker source retains the ordered segment alternative");
+  const speakerSlot = capById.get(conditionedSpeaker)?.ownerDefinition.typedInputSlots[1];
+  assert.equal(speakerSlot?.cardinality, "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES");
+  assert.deepEqual(speakerSlot?.alternatives, ["authorized-speaker-reference", "ordered-segment-speaker-map"]);
 });
 
 test("rights result variants select one exact active trust outcome", () => {

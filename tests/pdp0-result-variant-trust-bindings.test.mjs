@@ -53,6 +53,11 @@ for (const id of rights) expectedResultKinds.set(id, ["POLICY_DECISION_REFERENCE
 for (const [id, resultKind] of spatial) expectedResultKinds.set(id, [resultKind]);
 for (const id of simulation) expectedResultKinds.set(id, ["SIMULATION_PASS_OUTPUT"]);
 for (const id of editing) expectedResultKinds.set(id, ["EDITED_ARTIFACT", "PROJECT_CHANGE"]);
+expectedResultKinds.set("media.edit.inpaint", ["INPAINT_CANDIDATE"]);
+expectedResultKinds.set("media.edit.matte", ["MATTE_CANDIDATE"]);
+expectedResultKinds.set("media.edit.retime-slow-motion-speed-ramp", [
+  "RETIME_CANDIDATE", "FREEZE_FRAME_HOLD_CANDIDATE", "REVERSE_PLAYBACK_CANDIDATE",
+]);
 for (const id of quality) expectedResultKinds.set(id, ["QUALITY_OBSERVATION", "BOUNDED_REPAIR_PLAN"]);
 for (const id of delivery) expectedResultKinds.set(id, ["DELIVERY_PACKAGE", "EXPLICIT_DELIVERY_OUTCOME"]);
 expectedResultKinds.set("media.deliver.export", ["DELIVERY_PACKAGE", "EXPORT_OUTCOME"]);
@@ -130,6 +135,25 @@ function validateVariantBindings(capRows, trustRows) {
 test("PXD-128 result variants cover every audited leaf and bind to one exact trust outcome", () => {
   assert.equal(expectedIds.size, 68);
   assert.equal(validateVariantBindings(capabilities, trust), true);
+});
+
+test("local edit candidates keep distinct output identities and do not imply an artifact or project change", () => {
+  const expected = new Map([
+    ["media.edit.inpaint", ["local-inpaint-candidate-or-draft", ["INPAINT_CANDIDATE"]]],
+    ["media.edit.matte", ["local-matte-candidate-or-draft", ["MATTE_CANDIDATE"]]],
+    ["media.edit.retime-slow-motion-speed-ramp", [
+      "local-timing-edit-candidate-with-explicit-source-time-mapping",
+      ["RETIME_CANDIDATE", "FREEZE_FRAME_HOLD_CANDIDATE", "REVERSE_PLAYBACK_CANDIDATE"],
+    ]],
+  ]);
+  for (const [id, [artifactType, resultKinds]] of expected) {
+    const capability = capById.get(id);
+    assert.deepEqual(capability.outputArtifactTypes, [artifactType], `${id} has an exact local candidate output`);
+    const variants = capability.ownerDefinition.successOutputs.flatMap((output) => output.resultVariants ?? []);
+    assert.deepEqual(variants.map(({ resultKind }) => resultKind), resultKinds, `${id} exposes only its declared local candidate variants`);
+    assert.ok(variants.every((variant) => variant.selector && variant.disposition), `${id} variants bind to explicit trust outcomes`);
+    assert.ok(!resultKinds.includes("EDITED_ARTIFACT") && !resultKinds.includes("PROJECT_CHANGE"));
+  }
 });
 
 test("PXD-128 rejects missing, duplicate, mismatched, and unsafe result selectors", () => {

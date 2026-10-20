@@ -1,0 +1,1416 @@
+{
+  "schemaVersion": "1.0.0",
+  "recordKind": "PDP0_AQ_CLUSTER_MEMBERSHIP_REVIEW_RECOMMENDATION",
+  "reviewStatus": "COORDINATOR_MAPPING_RECOMMENDATION",
+  "campaignScope": "Media PDP-0 A–Q cluster-to-source-audit mapping recommendation for original audit rows 215–428 only.",
+  "sourceSlice": {
+    "path": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-215-428.json",
+    "firstRow1Based": 215,
+    "lastRow1Based": 428,
+    "rowCount": 214
+  },
+  "sourceAudit": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory[214:428]",
+  "blueprintSource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#section-2",
+  "dispositionContext": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+  "authorityNote": "Recommendation only. This record does not assert Media owner acceptance, change P0 meaning or disposition, or modify the canonical 501-row crosswalk.",
+  "mappingMethod": "Each primary cluster is selected by the source feature’s closest primary user-visible intent in the blueprint §2 cluster target description. Related clusters preserve material secondary fit where relevant.",
+  "rows": [
+    {
+      "auditId": "AUD-MUSIC-005",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster I targets multitrack audio work, effects, stems, music and mixdown; this is the closest primary intent for the exact source feature “AI text-to-music creation where weights permit”."
+    },
+    {
+      "auditId": "AUD-MUSIC-006",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster I targets multitrack audio work, effects, stems, music and mixdown; this is the closest primary intent for the exact source feature “Text-to-sound-effect and Foley generation where permitted”."
+    },
+    {
+      "auditId": "AUD-MUSIC-007",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster I targets multitrack audio work, effects, stems, music and mixdown; this is the closest primary intent for the exact source feature “Music remix and style variants”."
+    },
+    {
+      "auditId": "AUD-MUSIC-008",
+      "primaryCluster": "I",
+      "relatedClusters": [
+        "H"
+      ],
+      "rationale": "Blueprint §2 Cluster I targets multitrack audio work, effects, stems, music and mixdown; this is the closest primary intent for the exact source feature “Localized lyrics repainting and music-inpainting from exact source region”."
+    },
+    {
+      "auditId": "AUD-MUSIC-009",
+      "primaryCluster": "D",
+      "relatedClusters": [
+        "I"
+      ],
+      "rationale": "Blueprint §2 Cluster D targets timeline editing operations and presentation treatments; this is the closest primary intent for the exact source feature “Loopable soundtracks with intro/outro edits”."
+    },
+    {
+      "auditId": "AUD-MUSIC-010",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster I targets multitrack audio work, effects, stems, music and mixdown; this is the closest primary intent for the exact source feature “Music stem separation and replacement”."
+    },
+    {
+      "auditId": "AUD-MUSIC-011",
+      "primaryCluster": "I",
+      "relatedClusters": [
+        "F"
+      ],
+      "rationale": "Blueprint §2 Cluster I targets multitrack audio work, effects, stems, music and mixdown; this is the closest primary intent for the exact source feature “Singing voice synthesis and melody-conditioned vocal generation when admitted”."
+    },
+    {
+      "auditId": "AUD-MUSIC-012",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster I targets multitrack audio work, effects, stems, music and mixdown; this is the closest primary intent for the exact source feature “Reference-audio conditioned music cover generation with rights/reuse checks”."
+    },
+    {
+      "auditId": "AUD-MUSIC-013",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "I"
+      ],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Adaptive soundtrack duration/energy from scene structure”."
+    },
+    {
+      "auditId": "AUD-MUSIC-014",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Copyright fingerprint / potentially infringing similarity review”."
+    },
+    {
+      "auditId": "AUD-MUSIC-015",
+      "primaryCluster": "D",
+      "relatedClusters": [
+        "I"
+      ],
+      "rationale": "Blueprint §2 Cluster D targets timeline editing operations and presentation treatments; this is the closest primary intent for the exact source feature “Background music speech ducking”."
+    },
+    {
+      "auditId": "AUD-GEN-001",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Text-to-image and image-to-image generation”."
+    },
+    {
+      "auditId": "AUD-GEN-002",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Image edit, inpaint, outpaint and generative fill”."
+    },
+    {
+      "auditId": "AUD-GEN-003",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Background removal, replacement and subject isolate”."
+    },
+    {
+      "auditId": "AUD-GEN-004",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Image super-resolution and restoration”."
+    },
+    {
+      "auditId": "AUD-GEN-005",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Text-to-video generation from approved model”."
+    },
+    {
+      "auditId": "AUD-GEN-006",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Image-to-video animation from frame reference”."
+    },
+    {
+      "auditId": "AUD-GEN-007",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Video-to-video stylization and transformation”."
+    },
+    {
+      "auditId": "AUD-GEN-008",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Multi-image reference conditioning with order/weight”."
+    },
+    {
+      "auditId": "AUD-GEN-009",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “First/last-frame video interpolation and editing”."
+    },
+    {
+      "auditId": "AUD-GEN-010",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Video extension and scene continuation”."
+    },
+    {
+      "auditId": "AUD-GEN-011",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Video masked-object replacement and targeted retake”."
+    },
+    {
+      "auditId": "AUD-GEN-012",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Temporal/character/brand consistency constraints”."
+    },
+    {
+      "auditId": "AUD-GEN-013",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Camera/lens/focal length/motion direction controls”."
+    },
+    {
+      "auditId": "AUD-GEN-014",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Synchronized audio-video joint generation where licensed”."
+    },
+    {
+      "auditId": "AUD-GEN-015",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Native dialogue and sound effects generation aligned to lip motion”."
+    },
+    {
+      "auditId": "AUD-GEN-016",
+      "primaryCluster": "K",
+      "relatedClusters": [
+        "M"
+      ],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Audio-driven video/character animation”."
+    },
+    {
+      "auditId": "AUD-GEN-017",
+      "primaryCluster": "K",
+      "relatedClusters": [
+        "M"
+      ],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Performance/motion reference conditioning”."
+    },
+    {
+      "auditId": "AUD-GEN-018",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Multiple candidate generations and ranking”."
+    },
+    {
+      "auditId": "AUD-GEN-019",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Seed, sampler, aspect/resolution and model parameters”."
+    },
+    {
+      "auditId": "AUD-GEN-020",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "K"
+      ],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “Text-to-motion and reference style recreation”."
+    },
+    {
+      "auditId": "AUD-GEN-021",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Photorealistic and stylized render presets”."
+    },
+    {
+      "auditId": "AUD-GEN-022",
+      "primaryCluster": "Q",
+      "relatedClusters": [
+        "K"
+      ],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Cost-aware provider capability routing and fallback”."
+    },
+    {
+      "auditId": "AUD-GEN-023",
+      "primaryCluster": "Q",
+      "relatedClusters": [
+        "K"
+      ],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Model-local offline generation and GPU memory warnings”."
+    },
+    {
+      "auditId": "AUD-GEN-024",
+      "primaryCluster": "Q",
+      "relatedClusters": [
+        "K"
+      ],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Permissive and hosted provider separation”."
+    },
+    {
+      "auditId": "AUD-GEN-025",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Generation history and reusable parameter settings”."
+    },
+    {
+      "auditId": "AUD-GEN-026",
+      "primaryCluster": "K",
+      "relatedClusters": [
+        "G"
+      ],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Persona/appearance recast only with subject authorization”."
+    },
+    {
+      "auditId": "AUD-GEN-027",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Prompts/masks per shot and timeline keyframe anchors”."
+    },
+    {
+      "auditId": "AUD-GEN-028",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "K"
+      ],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “Motion brush and region-trajectory conditioning for video motion”."
+    },
+    {
+      "auditId": "AUD-VISION-001",
+      "primaryCluster": "L",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster L targets scene/subject analysis, tracking, reframing and visual checks; this is the closest primary intent for the exact source feature “Shot/scene and transition detection”."
+    },
+    {
+      "auditId": "AUD-VISION-002",
+      "primaryCluster": "L",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster L targets scene/subject analysis, tracking, reframing and visual checks; this is the closest primary intent for the exact source feature “Object/person/face and region detection”."
+    },
+    {
+      "auditId": "AUD-VISION-003",
+      "primaryCluster": "L",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster L targets scene/subject analysis, tracking, reframing and visual checks; this is the closest primary intent for the exact source feature “Multiframe subject tracking and re-identification”."
+    },
+    {
+      "auditId": "AUD-VISION-004",
+      "primaryCluster": "L",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster L targets scene/subject analysis, tracking, reframing and visual checks; this is the closest primary intent for the exact source feature “Video segmentation with SAM2-like mask persistence”."
+    },
+    {
+      "auditId": "AUD-VISION-005",
+      "primaryCluster": "L",
+      "relatedClusters": [
+        "O"
+      ],
+      "rationale": "Blueprint §2 Cluster L targets scene/subject analysis, tracking, reframing and visual checks; this is the closest primary intent for the exact source feature “Face-safe caption region planning and safe zones”."
+    },
+    {
+      "auditId": "AUD-VISION-006",
+      "primaryCluster": "D",
+      "relatedClusters": [
+        "L"
+      ],
+      "rationale": "Blueprint §2 Cluster D targets timeline editing operations and presentation treatments; this is the closest primary intent for the exact source feature “Automatic free-space overlay placement”."
+    },
+    {
+      "auditId": "AUD-VISION-007",
+      "primaryCluster": "L",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster L targets scene/subject analysis, tracking, reframing and visual checks; this is the closest primary intent for the exact source feature “Smart portrait/landscape reframe with temporal tracking”."
+    },
+    {
+      "auditId": "AUD-VISION-008",
+      "primaryCluster": "L",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster L targets scene/subject analysis, tracking, reframing and visual checks; this is the closest primary intent for the exact source feature “Text/logo/UI protected crop and placement”."
+    },
+    {
+      "auditId": "AUD-VISION-009",
+      "primaryCluster": "L",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster L targets scene/subject analysis, tracking, reframing and visual checks; this is the closest primary intent for the exact source feature “Camera stabilization and motion analysis”."
+    },
+    {
+      "auditId": "AUD-VISION-010",
+      "primaryCluster": "L",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster L targets scene/subject analysis, tracking, reframing and visual checks; this is the closest primary intent for the exact source feature “Human pose/hand/keypoint and depth control maps”."
+    },
+    {
+      "auditId": "AUD-VISION-011",
+      "primaryCluster": "L",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster L targets scene/subject analysis, tracking, reframing and visual checks; this is the closest primary intent for the exact source feature “OCR source text via admitted Document Intelligence”."
+    },
+    {
+      "auditId": "AUD-VISION-012",
+      "primaryCluster": "L",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster L targets scene/subject analysis, tracking, reframing and visual checks; this is the closest primary intent for the exact source feature “Source-aware matching of soundtrack to visible action”."
+    },
+    {
+      "auditId": "AUD-VISION-013",
+      "primaryCluster": "L",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster L targets scene/subject analysis, tracking, reframing and visual checks; this is the closest primary intent for the exact source feature “Visual content search by embedding and metadata”."
+    },
+    {
+      "auditId": "AUD-VISION-014",
+      "primaryCluster": "L",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster L targets scene/subject analysis, tracking, reframing and visual checks; this is the closest primary intent for the exact source feature “Video continuity/scene consistency check”."
+    },
+    {
+      "auditId": "AUD-VISION-015",
+      "primaryCluster": "L",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster L targets scene/subject analysis, tracking, reframing and visual checks; this is the closest primary intent for the exact source feature “Quality degradation/blur/black-tail detection”."
+    },
+    {
+      "auditId": "AUD-VISION-016",
+      "primaryCluster": "L",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster L targets scene/subject analysis, tracking, reframing and visual checks; this is the closest primary intent for the exact source feature “Copyright/identity/PII-sensitive face detection guard”."
+    },
+    {
+      "auditId": "AUD-VISION-017",
+      "primaryCluster": "L",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster L targets scene/subject analysis, tracking, reframing and visual checks; this is the closest primary intent for the exact source feature “Auto highlight and memorable clip scoring”."
+    },
+    {
+      "auditId": "AUD-VISION-018",
+      "primaryCluster": "L",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster L targets scene/subject analysis, tracking, reframing and visual checks; this is the closest primary intent for the exact source feature “Eye-contact/gaze correction as disclosed non-source-grounded visual effect”."
+    },
+    {
+      "auditId": "AUD-MOTION-001",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “2D vector shapes, masks, gradients and filters”."
+    },
+    {
+      "auditId": "AUD-MOTION-002",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “Animated titles, lower thirds and end credits”."
+    },
+    {
+      "auditId": "AUD-MOTION-003",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “Keyframes with cubic easing, motion paths”."
+    },
+    {
+      "auditId": "AUD-MOTION-004",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “3D scene graph/camera/lighting and glTF asset”."
+    },
+    {
+      "auditId": "AUD-MOTION-005",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “Scene rigs, characters, pose and animation tracks”."
+    },
+    {
+      "auditId": "AUD-MOTION-006",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “2D/3D transition library and user presets”."
+    },
+    {
+      "auditId": "AUD-MOTION-007",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “Editable branded motion graphic templates”."
+    },
+    {
+      "auditId": "AUD-MOTION-008",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “Custom WebGL/WebGPU shader effects in sandbox”."
+    },
+    {
+      "auditId": "AUD-MOTION-009",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “Node-based compositing and transform graph”."
+    },
+    {
+      "auditId": "AUD-MOTION-010",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “Real-time 3D animation preview and render”."
+    },
+    {
+      "auditId": "AUD-MOTION-011",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “Frame-to-frame generative transition inserts”."
+    },
+    {
+      "auditId": "AUD-MOTION-012",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “Charts and animated data visualization from exact data”."
+    },
+    {
+      "auditId": "AUD-MOTION-013",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “Infographics/slides to video with source references”."
+    },
+    {
+      "auditId": "AUD-MOTION-014",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “Text animation synced to speech/beat timing”."
+    },
+    {
+      "auditId": "AUD-MOTION-015",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “Procedural background animation and particles”."
+    },
+    {
+      "auditId": "AUD-MOTION-016",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “AR/360/stereoscopic views when hardware/profile admitted”."
+    },
+    {
+      "auditId": "AUD-DIRECT-001",
+      "primaryCluster": "J",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Intent/purpose/audience to scene-by-scene storyboard”."
+    },
+    {
+      "auditId": "AUD-DIRECT-002",
+      "primaryCluster": "J",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Script and narration generation from source facts”."
+    },
+    {
+      "auditId": "AUD-DIRECT-003",
+      "primaryCluster": "J",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Shot selection and B-roll recommendation”."
+    },
+    {
+      "auditId": "AUD-DIRECT-004",
+      "primaryCluster": "J",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Automatic rough cut and repeat/filler silence cleanup”."
+    },
+    {
+      "auditId": "AUD-DIRECT-005",
+      "primaryCluster": "J",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Highlights/clips extraction from long videos”."
+    },
+    {
+      "auditId": "AUD-DIRECT-006",
+      "primaryCluster": "J",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Automatic transitions and pacing recommendations”."
+    },
+    {
+      "auditId": "AUD-DIRECT-007",
+      "primaryCluster": "J",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Style Skills and creative recipes applied across projects”."
+    },
+    {
+      "auditId": "AUD-DIRECT-008",
+      "primaryCluster": "J",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Conversational re-edit of existing project not one-shot output”."
+    },
+    {
+      "auditId": "AUD-DIRECT-009",
+      "primaryCluster": "Q",
+      "relatedClusters": [
+        "J"
+      ],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Full typed editing tool coverage for internal/MCP agents”."
+    },
+    {
+      "auditId": "AUD-DIRECT-010",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "Q",
+        "D"
+      ],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Dry-run, semantic diff, scope guard and undo support”."
+    },
+    {
+      "auditId": "AUD-DIRECT-011",
+      "primaryCluster": "J",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Multi-turn planning with long-running outcome watches”."
+    },
+    {
+      "auditId": "AUD-DIRECT-012",
+      "primaryCluster": "J",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Targeted agent correction to selected timeline region”."
+    },
+    {
+      "auditId": "AUD-DIRECT-013",
+      "primaryCluster": "J",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Source-grounded verified citations for narration claims”."
+    },
+    {
+      "auditId": "AUD-DIRECT-014",
+      "primaryCluster": "J",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Agent distinguishes illustration vs actual product activity”."
+    },
+    {
+      "auditId": "AUD-DIRECT-015",
+      "primaryCluster": "J",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Natural language -> explicit structured edit proposal”."
+    },
+    {
+      "auditId": "AUD-DIRECT-016",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "J"
+      ],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “Agent-generated motion graphics with editable source”."
+    },
+    {
+      "auditId": "AUD-DIRECT-017",
+      "primaryCluster": "J",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Creative variant generation ranked by audience/channel”."
+    },
+    {
+      "auditId": "AUD-DIRECT-018",
+      "primaryCluster": "J",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Cost, latency, asset provenance displayed before execution”."
+    },
+    {
+      "auditId": "AUD-DIRECT-019",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "J"
+      ],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Auto-quality critique, proposed repairs and human approval”."
+    },
+    {
+      "auditId": "AUD-DIRECT-020",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Automatic acceptance test/coverage list from production spec”."
+    },
+    {
+      "auditId": "AUD-DIRECT-021",
+      "primaryCluster": "Q",
+      "relatedClusters": [
+        "J"
+      ],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Policy enforcement prevents untrusted media prompt injection”."
+    },
+    {
+      "auditId": "AUD-SOCIAL-001",
+      "primaryCluster": "C",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Blueprint §2 Cluster C targets MediaProject libraries, assets, metadata and reusable kits; this is the closest primary intent for the exact source feature “Brand kit/logo typography templates”."
+    },
+    {
+      "auditId": "AUD-SOCIAL-002",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "B"
+      ],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Storyboard-backed product explainer ads”."
+    },
+    {
+      "auditId": "AUD-SOCIAL-003",
+      "primaryCluster": "D",
+      "relatedClusters": [
+        "P"
+      ],
+      "rationale": "Blueprint §2 Cluster D targets timeline editing operations and presentation treatments; this is the closest primary intent for the exact source feature “One-to-many portrait square landscape edits”."
+    },
+    {
+      "auditId": "AUD-SOCIAL-004",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster D targets timeline editing operations and presentation treatments; this is the closest primary intent for the exact source feature “Social hooks, intros and end cards”."
+    },
+    {
+      "auditId": "AUD-SOCIAL-005",
+      "primaryCluster": "D",
+      "relatedClusters": [
+        "E"
+      ],
+      "rationale": "Blueprint §2 Cluster D targets timeline editing operations and presentation treatments; this is the closest primary intent for the exact source feature “Automatic captions and stylized karaoke/text animations”."
+    },
+    {
+      "auditId": "AUD-SOCIAL-006",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "L"
+      ],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Auto highlight short-form clip selection”."
+    },
+    {
+      "auditId": "AUD-SOCIAL-007",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Marketing campaign variant experiments from same source”."
+    },
+    {
+      "auditId": "AUD-SOCIAL-008",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Creator thumbnail/poster generation”."
+    },
+    {
+      "auditId": "AUD-SOCIAL-009",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "P"
+      ],
+      "rationale": "Blueprint §2 Cluster J targets audience-directed plans, scripts, shot selection and bounded edits; this is the closest primary intent for the exact source feature “Video title, chapters, description generation”."
+    },
+    {
+      "auditId": "AUD-SOCIAL-010",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster D targets timeline editing operations and presentation treatments; this is the closest primary intent for the exact source feature “Platform safe-area and crop profile definitions”."
+    },
+    {
+      "auditId": "AUD-SOCIAL-011",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “Animated charts/metrics with source values”."
+    },
+    {
+      "auditId": "AUD-SOCIAL-012",
+      "primaryCluster": "K",
+      "relatedClusters": [
+        "G",
+        "O"
+      ],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Brand-safe generative talking presenter with verified synthetic disclosure”."
+    },
+    {
+      "auditId": "AUD-SOCIAL-013",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “A/B variant performance metadata and approved feedback loop”."
+    },
+    {
+      "auditId": "AUD-SOCIAL-014",
+      "primaryCluster": "Q",
+      "relatedClusters": [
+        "J"
+      ],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Bulk personalization without identity/claim invention”."
+    },
+    {
+      "auditId": "AUD-INTER-001",
+      "primaryCluster": "N",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster N targets interactive scene navigation and embedded player behavior; this is the closest primary intent for the exact source feature “Interactive hotspot and branch navigation”."
+    },
+    {
+      "auditId": "AUD-INTER-002",
+      "primaryCluster": "N",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster N targets interactive scene navigation and embedded player behavior; this is the closest primary intent for the exact source feature “Chapter/scene overview and transcript search”."
+    },
+    {
+      "auditId": "AUD-INTER-003",
+      "primaryCluster": "N",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster N targets interactive scene navigation and embedded player behavior; this is the closest primary intent for the exact source feature “Keyboard and screen-reader navigation”."
+    },
+    {
+      "auditId": "AUD-INTER-004",
+      "primaryCluster": "N",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster N targets interactive scene navigation and embedded player behavior; this is the closest primary intent for the exact source feature “Offline signed bundled player”."
+    },
+    {
+      "auditId": "AUD-INTER-005",
+      "primaryCluster": "N",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster N targets interactive scene navigation and embedded player behavior; this is the closest primary intent for the exact source feature “Safe embedded iframe sandbox / CSP”."
+    },
+    {
+      "auditId": "AUD-INTER-006",
+      "primaryCluster": "N",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster N targets interactive scene navigation and embedded player behavior; this is the closest primary intent for the exact source feature “Quiz and learning reflection without privileged mutations”."
+    },
+    {
+      "auditId": "AUD-INTER-007",
+      "primaryCluster": "N",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster N targets interactive scene navigation and embedded player behavior; this is the closest primary intent for the exact source feature “Variable-language captions and audio track selection”."
+    },
+    {
+      "auditId": "AUD-INTER-008",
+      "primaryCluster": "N",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster N targets interactive scene navigation and embedded player behavior; this is the closest primary intent for the exact source feature “Accessible nonvideo transcripts and scene summaries”."
+    },
+    {
+      "auditId": "AUD-INTER-009",
+      "primaryCluster": "N",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster N targets interactive scene navigation and embedded player behavior; this is the closest primary intent for the exact source feature “Interactive product annotations linked to source readback”."
+    },
+    {
+      "auditId": "AUD-INTER-010",
+      "primaryCluster": "N",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster N targets interactive scene navigation and embedded player behavior; this is the closest primary intent for the exact source feature “Viewer analytics only with consent and redaction”."
+    },
+    {
+      "auditId": "AUD-INTER-011",
+      "primaryCluster": "N",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster N targets interactive scene navigation and embedded player behavior; this is the closest primary intent for the exact source feature “A/B optional branching without identity scope leakage”."
+    },
+    {
+      "auditId": "AUD-COLLAB-001",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Timeline/region/timecode anchored comments”."
+    },
+    {
+      "auditId": "AUD-COLLAB-002",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Review checklist and quality signoff workflow”."
+    },
+    {
+      "auditId": "AUD-COLLAB-003",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Frame comparison and annotated markup”."
+    },
+    {
+      "auditId": "AUD-COLLAB-004",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Version diff and before-after alternative preview”."
+    },
+    {
+      "auditId": "AUD-COLLAB-005",
+      "primaryCluster": "Q",
+      "relatedClusters": [
+        "O"
+      ],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Per-actor project role and audit trail”."
+    },
+    {
+      "auditId": "AUD-COLLAB-006",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Reviewer-only read views and nonprivileged shares”."
+    },
+    {
+      "auditId": "AUD-COLLAB-007",
+      "primaryCluster": "Q",
+      "relatedClusters": [
+        "O"
+      ],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Share review links or packages with token expiry”."
+    },
+    {
+      "auditId": "AUD-COLLAB-008",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Project change request, proposal and approval”."
+    },
+    {
+      "auditId": "AUD-COLLAB-009",
+      "primaryCluster": "Q",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Concurrent editing revision conflict and merge UI”."
+    },
+    {
+      "auditId": "AUD-COLLAB-010",
+      "primaryCluster": "D",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Blueprint §2 Cluster D targets timeline editing operations and presentation treatments; this is the closest primary intent for the exact source feature “Track/scene locks and temporary editing claims”."
+    },
+    {
+      "auditId": "AUD-COLLAB-011",
+      "primaryCluster": "C",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Blueprint §2 Cluster C targets MediaProject libraries, assets, metadata and reusable kits; this is the closest primary intent for the exact source feature “Reusable team brand/voice/style libraries”."
+    },
+    {
+      "auditId": "AUD-COLLAB-012",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Variant review and winner decision provenance”."
+    },
+    {
+      "auditId": "AUD-COLLAB-013",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "P"
+      ],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Export review summary linked to output hash”."
+    },
+    {
+      "auditId": "AUD-DELIV-001",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “Source-time rational-frame render graph”."
+    },
+    {
+      "auditId": "AUD-DELIV-002",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “Fast proxy preview and final quality render”."
+    },
+    {
+      "auditId": "AUD-DELIV-003",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “Local CPU-only composition pathway”."
+    },
+    {
+      "auditId": "AUD-DELIV-004",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “GPU accelerated available codecs with fallback”."
+    },
+    {
+      "auditId": "AUD-DELIV-005",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “Browser WebCodecs capability negotiation”."
+    },
+    {
+      "auditId": "AUD-DELIV-006",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “Native software VP9/AV1 + Opus/WebM where admitted”."
+    },
+    {
+      "auditId": "AUD-DELIV-007",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “OS H264/HEVC hardware encoding with legal review”."
+    },
+    {
+      "auditId": "AUD-DELIV-008",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “MP4/WebM codecs and muxer compliance”."
+    },
+    {
+      "auditId": "AUD-DELIV-009",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “WAV/FLAC/Opus and multichannel audio variants”."
+    },
+    {
+      "auditId": "AUD-DELIV-010",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “4K export and portrait/landscape/square presets”."
+    },
+    {
+      "auditId": "AUD-DELIV-011",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “8/10-bit HDR and color tagged formats as capability”."
+    },
+    {
+      "auditId": "AUD-DELIV-012",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “Alpha channel and ProRes/DNx-style intermediates when admitted”."
+    },
+    {
+      "auditId": "AUD-DELIV-013",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “Subtitle SRT/VTT/TTML and burned captions”."
+    },
+    {
+      "auditId": "AUD-DELIV-014",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “IMSC1/CEA broadcast caption packaging when qualified”."
+    },
+    {
+      "auditId": "AUD-DELIV-015",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "P"
+      ],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Audio/video sync and sample/timecode verification”."
+    },
+    {
+      "auditId": "AUD-DELIV-016",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “OpenTimelineIO import/export for project interchange”."
+    },
+    {
+      "auditId": "AUD-DELIV-017",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “FCPXML/EDL/AAF via separately admitted adapters”."
+    },
+    {
+      "auditId": "AUD-DELIV-018",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “HLS/DASH adaptive packaging when admitted”."
+    },
+    {
+      "auditId": "AUD-DELIV-019",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “Live streaming output WebRTC/RTMP optional providers”."
+    },
+    {
+      "auditId": "AUD-DELIV-020",
+      "primaryCluster": "P",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “Resumable export with accurate job attempt receipts”."
+    },
+    {
+      "auditId": "AUD-DELIV-021",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “Content credentials C2PA packaging and preservation”."
+    },
+    {
+      "auditId": "AUD-DELIV-022",
+      "primaryCluster": "P",
+      "relatedClusters": [
+        "O"
+      ],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “Watermark and accessible caption delivery sidecars”."
+    },
+    {
+      "auditId": "AUD-DELIV-023",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “Portable project manifest and editable layered export”."
+    },
+    {
+      "auditId": "AUD-DELIV-024",
+      "primaryCluster": "P",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “Export destination plugin with remote ACK reconciliation”."
+    },
+    {
+      "auditId": "AUD-QA-001",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Decode and media integrity pass on final output”."
+    },
+    {
+      "auditId": "AUD-QA-002",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Source/action business-state readback in product demos”."
+    },
+    {
+      "auditId": "AUD-QA-003",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Frame black/silent tail and clipped audio detection”."
+    },
+    {
+      "auditId": "AUD-QA-004",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “A/V clock and word-to-frame sync offsets”."
+    },
+    {
+      "auditId": "AUD-QA-005",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Transcript WER/CER and word alignment quality”."
+    },
+    {
+      "auditId": "AUD-QA-006",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Speaker diarization DER and voice-match review”."
+    },
+    {
+      "auditId": "AUD-QA-007",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Voice loudness/true peak and intelligibility scores”."
+    },
+    {
+      "auditId": "AUD-QA-008",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Voice cloning consent and speaker identity evidence”."
+    },
+    {
+      "auditId": "AUD-QA-009",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Lip sync accuracy and face/identity temporal coherence”."
+    },
+    {
+      "auditId": "AUD-QA-010",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Image/video motion flicker/subject consistency checks”."
+    },
+    {
+      "auditId": "AUD-QA-011",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Caption contrast/readability and face-safe placement”."
+    },
+    {
+      "auditId": "AUD-QA-012",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Protected OCR text/logo/brand legality validation”."
+    },
+    {
+      "auditId": "AUD-QA-013",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “HDR/color tag pixel fidelity and scopes”."
+    },
+    {
+      "auditId": "AUD-QA-014",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Per-scene quality threshold and independent review”."
+    },
+    {
+      "auditId": "AUD-QA-015",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Comparison visual/audio AB and model-version rank”."
+    },
+    {
+      "auditId": "AUD-QA-016",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Correct unresolved outcomes as denied/UNKNOWN/not run”."
+    },
+    {
+      "auditId": "AUD-QA-017",
+      "primaryCluster": "O",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Quality variation across OS codec/browser hardware”."
+    },
+    {
+      "auditId": "AUD-TRUST-001",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Tenant identity/role and project source authorization”."
+    },
+    {
+      "auditId": "AUD-TRUST-002",
+      "primaryCluster": "A",
+      "relatedClusters": [
+        "G"
+      ],
+      "rationale": "Blueprint §2 Cluster A targets capture sources and import media; this is the closest primary intent for the exact source feature “Purpose-limited consent for capture and voice enrollment”."
+    },
+    {
+      "auditId": "AUD-TRUST-003",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “No unapproved external model/file egress by default”."
+    },
+    {
+      "auditId": "AUD-TRUST-004",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "I",
+        "K",
+        "Q"
+      ],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Per-asset, voice, model and font license provenance”."
+    },
+    {
+      "auditId": "AUD-TRUST-005",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Revocation/retention/legal hold/erasure state machine”."
+    },
+    {
+      "auditId": "AUD-TRUST-006",
+      "primaryCluster": "P",
+      "relatedClusters": [
+        "O"
+      ],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “C2PA signatures and verified content credentials”."
+    },
+    {
+      "auditId": "AUD-TRUST-007",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "K"
+      ],
+      "rationale": "Blueprint §2 Cluster O targets output quality, compliance review and approval evidence; this is the closest primary intent for the exact source feature “Synthetic-source disclosure and invisible watermark review”."
+    },
+    {
+      "auditId": "AUD-TRUST-008",
+      "primaryCluster": "B",
+      "relatedClusters": [
+        "J"
+      ],
+      "rationale": "Blueprint §2 Cluster B targets scripted software-demo capture and presentation actions; this is the closest primary intent for the exact source feature “No fabricated product feature/outcome in demonstration”."
+    },
+    {
+      "auditId": "AUD-TRUST-009",
+      "primaryCluster": "A",
+      "relatedClusters": [
+        "K",
+        "M"
+      ],
+      "rationale": "Blueprint §2 Cluster A targets capture sources and import media; this is the closest primary intent for the exact source feature “Separate actual capture, simulation, generated illustration”."
+    },
+    {
+      "auditId": "AUD-TRUST-010",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Secure model provenance, signed cache and hash verification”."
+    },
+    {
+      "auditId": "AUD-TRUST-011",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Prompt injection defense from captions/assets/sources”."
+    },
+    {
+      "auditId": "AUD-TRUST-012",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Malicious archive/media/path traversal and SSRF rejection”."
+    },
+    {
+      "auditId": "AUD-TRUST-013",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Blueprint §2 Cluster M targets graphics, keyframes, rigs, 3D and motion rendering; this is the closest primary intent for the exact source feature “Sandboxed shader/plugin/editor action permissions”."
+    },
+    {
+      "auditId": "AUD-TRUST-014",
+      "primaryCluster": "K",
+      "relatedClusters": [
+        "G"
+      ],
+      "rationale": "Blueprint §2 Cluster K targets image/video generation and generation conditioning; this is the closest primary intent for the exact source feature “Consent-aware faces, likeness and appearance recast”."
+    },
+    {
+      "auditId": "AUD-TRUST-015",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Cross-tenant derivative/cache isolation”."
+    },
+    {
+      "auditId": "AUD-TRUST-016",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Redacted logs and trace IDs with no raw secrets”."
+    },
+    {
+      "auditId": "AUD-TRUST-017",
+      "primaryCluster": "P",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Blueprint §2 Cluster P targets render profiles, export packaging and distribution; this is the closest primary intent for the exact source feature “Publication request ACK versus destination completion”."
+    },
+    {
+      "auditId": "AUD-TRUST-018",
+      "primaryCluster": "Q",
+      "relatedClusters": [
+        "O"
+      ],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Deletion confirmation distinct from access restriction”."
+    },
+    {
+      "auditId": "AUD-TRUST-019",
+      "primaryCluster": "G",
+      "relatedClusters": [
+        "K"
+      ],
+      "rationale": "Blueprint §2 Cluster G targets voice enrollment, cloning and voice design with rights controls; this is the closest primary intent for the exact source feature “Media impersonation and unauthorized synthesis review”."
+    },
+    {
+      "auditId": "AUD-OPS-001",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “One model/provider capability registry and effective-choice receipt”."
+    },
+    {
+      "auditId": "AUD-OPS-002",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Per-engine model/license/weight/tokenizer pinning”."
+    },
+    {
+      "auditId": "AUD-OPS-003",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “CPU, CUDA, Metal/MPS, ROCm, Intel resource detection”."
+    },
+    {
+      "auditId": "AUD-OPS-004",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “GPU VRAM/RAM scheduling and admission limits”."
+    },
+    {
+      "auditId": "AUD-OPS-005",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Local model download with SHA, resume and review”."
+    },
+    {
+      "auditId": "AUD-OPS-006",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “External/remote worker enrollment and isolation”."
+    },
+    {
+      "auditId": "AUD-OPS-007",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Offline execution and explicit local-first routing”."
+    },
+    {
+      "auditId": "AUD-OPS-008",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Provider cost, time, throughput and quality scoring”."
+    },
+    {
+      "auditId": "AUD-OPS-009",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Multi-model candidate benchmarking under same fixtures”."
+    },
+    {
+      "auditId": "AUD-OPS-010",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Transactional durable job attempts with bounded retry”."
+    },
+    {
+      "auditId": "AUD-OPS-011",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Cancellation vs completed effect and late provider receipts”."
+    },
+    {
+      "auditId": "AUD-OPS-012",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Crash-resilient outbox and consumer deduplication”."
+    },
+    {
+      "auditId": "AUD-OPS-013",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Watch folders and recurring/batch media jobs”."
+    },
+    {
+      "auditId": "AUD-OPS-014",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Versioned API, CLI, SDK, agent MCP and event parity”."
+    },
+    {
+      "auditId": "AUD-OPS-015",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Streaming generation progress and event updates”."
+    },
+    {
+      "auditId": "AUD-OPS-016",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Resource quotas and interruption/storage recovery”."
+    },
+    {
+      "auditId": "AUD-OPS-017",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Content-addressed output cache scoped to rights/tenant”."
+    },
+    {
+      "auditId": "AUD-OPS-018",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “OpenTelemetry metrics traces and redacted logs”."
+    },
+    {
+      "auditId": "AUD-OPS-019",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Export/capture compatibility capability matrix per OS”."
+    },
+    {
+      "auditId": "AUD-OPS-020",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Deterministic source/test/fixture build snapshots”."
+    },
+    {
+      "auditId": "AUD-OPS-021",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “Safe install/upgrade/migration and model removal”."
+    },
+    {
+      "auditId": "AUD-OPS-022",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster Q targets headless interfaces, workers, model/resource and job operations; this is the closest primary intent for the exact source feature “On-device performance profile explanations to user”."
+    }
+  ]
+}

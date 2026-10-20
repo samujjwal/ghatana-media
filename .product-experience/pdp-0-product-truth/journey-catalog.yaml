@@ -310,10 +310,10 @@ journeys:
   conditionalHandoffRefs: [ai-inference-execution]
   handoffCondition: Only when the admitted controlled-generation capability calls the generic inference service.
   preconditions: Reference/control uses are rights-checked; protected identity and geometry constraints are explicit.
-  completion: Candidate sequence is reviewed for continuity with uncertainty/provenance exposed.
+  completion: Each continuity observation is bound to the exact generated candidate artifact/version it reviews; expose uncertainty/provenance, and keep the result UNKNOWN when candidate identity/version is missing, stale, ambiguous, or mismatched. Never transfer a continuity result to another candidate.
   criticalNonhappy: Identity/geometry drift, unsupported control, AI unavailable, or inferred identity treated as proof.
   recovery: Preserve valid source frames/controls; revise or stop under budget and disclose unsupported fidelity.
-  contextAndReturn: Retain reference versions, controls, candidate ordering, review notes, and selected continuity regions.
+  contextAndReturn: Retain exact reference versions, controls, candidate ordering, each candidate's exact artifact/version identity, the candidate-to-continuity-result join, review notes, and selected continuity regions.
   accessibility: media.a11y.baseline
 - id: J-11
   scopeStatus: TARGET

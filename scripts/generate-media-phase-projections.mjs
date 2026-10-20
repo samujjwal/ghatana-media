@@ -16,6 +16,7 @@ import { resolve, dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateBusinessMeasureDefinitions, resolvePdp05DomainRuleProjection, resolvePdp05InvariantTrustOwnershipProjection } from "./lib/product-definition-domain-rule-mapping.mjs";
 import { resolvePdp0FeatureReviewApplicability } from "./lib/pdp0-feature-review-applicability.mjs";
+import { fingerprintPxdDecisionSection } from "./lib/pdp0-phase-scoped-source-fingerprints.mjs";
 
 import { resolveExperienceDefinitionSemantics } from "./lib/media-experience-definition-mapping.mjs";
 import { isPdp3ReferenceInStepScope, projectPdp3JourneyStepSemantics, resolvePdp1StateReference } from "./lib/pdp3-experience-journey-step-projection.mjs";
@@ -90,17 +91,28 @@ const definitions = [
       ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
       ".product-experience/pdp-0-product-truth/capabilities.yaml",
       ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
       ".product-experience/pdp-1-domain-data/domain-objects.yaml",
       ".product-experience/pdp-0-product-truth/requirements.yaml",
       ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
       ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
       ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
       ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+      ".product-experience/pdp-0-product-truth/reuse-decisions.yaml",
+      ".product-experience/source-manifest.yaml",
       ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
       ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
       ".product-experience/pdp-0-product-truth/applications-channels.yaml",
       ".product-experience/pdp-0-product-truth/domain-model.yaml",
       ".product-experience/pdp-0-product-truth/qualification-policy.yaml",
+      ".product-experience/decision-log.md",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
+      "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd209.json",
+      "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd212.json",
+      "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd212.json",
+      "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd213.json",
+      "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd213.json",
       ".product-experience/pdp-1-domain-data/decisions.yaml",
       ".product-experience/pdp-1-domain-data/events.yaml",
       ".product-experience/pdp-1-domain-data/evidence.yaml",
@@ -181,6 +193,44 @@ const definitions = [
       const qualityPolicySourceText = textSource("quality-policy.yaml");
       const qualityCurrentSourceReviewText = textSource("p0-quality-current-source-review-current.json");
       const qualityCurrentSourceReview = JSON.parse(qualityCurrentSourceReviewText);
+      const captionImportCurrentSourceReviewText = textSource("p0-caption-import-current-source-review-pxd209.json");
+      const captionImportCurrentSourceReview = JSON.parse(captionImportCurrentSourceReviewText);
+      const pxd213QualityCurrentSourceReviewText = textSource("p0-quality-current-source-review-pxd213.json");
+      const pxd213QualityCurrentSourceReview = JSON.parse(pxd213QualityCurrentSourceReviewText);
+      const pxd213CaptionImportCurrentSourceReviewText = textSource("p0-caption-import-current-source-review-pxd213.json");
+      const pxd213CaptionImportCurrentSourceReview = JSON.parse(pxd213CaptionImportCurrentSourceReviewText);
+      const qualityCurrentSourceFingerprintPaths = [
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+        "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
+        "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd209.json",
+      ];
+      const qualityCurrentSourceFingerprints = qualityCurrentSourceFingerprintPaths.map((sourceRef) => [sourceRef,
+        createHash("sha256").update(textSource(sourceRef.split("/").at(-1)), "utf8").digest("hex")]);
+      const decisionLogText = textSource("decision-log.md");
+      for (const decisionId of ["PXD-207", "PXD-208", "PXD-209"]) qualityCurrentSourceFingerprints.push([
+        `.product-experience/decision-log.md#${decisionId}-section`, fingerprintPxdDecisionSection(decisionLogText, decisionId).sha256,
+      ]);
+      const pxd213CurrentSourcePaths = [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
+        "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd213.json",
+        "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd212.json",
+      ];
+      const pxd213CurrentSourceTexts = Object.fromEntries(pxd213CurrentSourcePaths.map((sourceRef) => [sourceRef, textSource(sourceRef.split("/").at(-1))]));
+      pxd213CurrentSourceTexts[".product-experience/source-manifest.yaml"] = textSource("source-manifest.yaml");
+      pxd213CurrentSourceTexts[".product-experience/pdp-0-product-truth/reuse-decisions.yaml"] = textSource("reuse-decisions.yaml");
+      pxd213CurrentSourceTexts[".product-experience/decision-log.md"] = decisionLogText;
       const qualificationPolicyObservationText = textSource("feature-review-qualification-policy-current-source-observation.json");
       const qualificationPolicyObservation = JSON.parse(qualificationPolicyObservationText);
       const qualificationPolicySourceText = textSource("qualification-policy.yaml");
@@ -210,6 +260,7 @@ const definitions = [
         applicability: featureReviewSource.ownerFeatureReviewApplicability,
         requirements,
         capabilities,
+        requirePxd213Currentness: true,
         capabilityCrosswalk: source("capability-leaf-review.yaml").ownerCapabilityLeafAdjudication,
         channels: [...featureReviewSource.channels, ...featureReviewSource.ownerDefinedChannels.records],
         sourceDocuments: Object.fromEntries(sources.filter((entry) => entry.sourceRef.endsWith(".yaml")).map((entry) => [entry.sourceRef, entry.content])),
@@ -230,6 +281,16 @@ const definitions = [
         qualityMetricObservations,
         qualityCurrentSourceReview,
         qualityCurrentSourceReviewText,
+        qualityCurrentSourceFingerprints,
+        captionImportCurrentSourceReview,
+        captionImportCurrentSourceReviewText,
+        pxd213QualityCurrentSourceReview,
+        pxd213QualityCurrentSourceReviewText,
+        pxd213CaptionImportCurrentSourceReview,
+        pxd213CaptionImportCurrentSourceReviewText,
+        pxd213CurrentSourceTexts,
+        requirementsSourceText: textSource("requirements.yaml"),
+        decisionLogSourceText: textSource("decision-log.md"),
         animationRelationshipObservation,
         animationRelationshipObservationText,
         relationshipSourceText,

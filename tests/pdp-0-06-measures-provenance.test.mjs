@@ -233,7 +233,13 @@ test("P0-06 omits authored ProductDefinition timestamps when Media has no timest
 
 test("measurement projection rejects stale identity, guessed scope, empty grammar and forged qualified values", () => {
   const goals = readYaml(paths.goals), capabilities = readYaml(paths.capabilities), profiles = readYaml(paths.profiles);
-  assert.equal(validateBusinessMeasureDefinitions(goals, capabilities, profiles).length, 4);
+  const sourceDocuments = Object.fromEntries([
+    paths.capabilities,
+    paths.goals,
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+    ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+  ].map((path) => [path, readYaml(path)]));
+  assert.equal(validateBusinessMeasureDefinitions(goals, capabilities, profiles, sourceDocuments).length, 4);
   for (const change of [
     (copy) => copy.successMeasureContracts.records.pop(),
     (copy) => { copy.successMeasureContracts.records[1].id = copy.successMeasureContracts.records[0].id; },

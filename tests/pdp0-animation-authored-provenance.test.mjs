@@ -75,7 +75,11 @@ test("source-free animation authoring does not claim a source-derived transforma
 
   const timeline = byTrustCapability.get("media.compose.multitrack-timeline");
   assert.ok(timeline, "multitrack timeline has exact-output trust review");
-  assert.equal(timeline.outputBranches[0].outputArtifactType, "versioned-composition-and-render-manifest");
+  assert.equal(timeline.outputBranches[0].outputArtifactType, "local-versioned-composition-candidate");
   assert.equal(timeline.outputBranches[0].outcomes[0].disposition, "NO_RECONSTRUCTION_OR_INFERENCE");
-  assert.match(timeline.outputBranches[0].outcomes[0].meaning, /not a rendered frame, clip/u);
+  const meaning = timeline.outputBranches[0].outcomes[0].meaning;
+  assert.match(meaning, /local versioned composition candidate/u);
+  assert.match(meaning, /not rendered media bytes/u);
+  assert.match(meaning, /does not imply a project commit or completed render/u);
+  assert.match(meaning, /separately admitted execution plus an exact artifact-version receipt/u);
 });

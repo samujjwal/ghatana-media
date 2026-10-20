@@ -229,8 +229,8 @@ test("text-to-image observation records the exact P0/P1 decoupling delta without
   assert.equal(observation.acceptanceEffect, "none");
   assert.equal(uploadCorrectionReview.source.currentSha256, "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
     "PXD-153 remains pinned to its historical capability source cut");
-  assert.equal(currentCorrectionsReview.source.currentSha256, hash(sourceText),
-    "PXD-171 pins the retained correction fields on the current capability source");
+  assert.equal(currentCorrectionsReview.source.currentSha256, "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+    "PXD-171 retains its historical source-cut pin; its corrected fields are checked against the live source");
   assert.notEqual(observation.record.currentContentSha256, hash(JSON.stringify(leaf)));
   assert.match(observation.record.interpretation, /does not claim that the record is unchanged/u);
   assert.match(observation.acceptanceBoundary, /No new clause approval/u);
@@ -253,8 +253,8 @@ test("capability-wide owner binding observation preserves all 462 P0 identities 
     "PXD-122 remains pinned to its historical capability source cut");
   assert.equal(uploadCorrectionReview.source.currentSha256, "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
     "PXD-153 remains pinned to its historical capability source cut");
-  assert.equal(currentCorrectionsReview.source.currentSha256, hash(sourceText),
-    "PXD-171 pins the current capability correction fields");
+  assert.equal(currentCorrectionsReview.source.currentSha256, "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+    "PXD-171 retains its historical source-cut pin");
   assert.equal(semanticReview.source.historicalComparison.parsedPathDelta, "NOT_ASSERTED");
   assert.equal(observation.source.recordPopulation.count, 462);
   assert.equal(observation.source.recordPopulation.identitySetChange, "none");
@@ -323,7 +323,10 @@ test("CLI channel observation records exact additions beyond PXD-098/PXD-105 wit
   const cliCorrection = correction.records.find(({ identity }) => identity === "media.channel.cli");
   assert.equal(hash(pxd098Text), observation.baseReviewSha256);
   assert.equal(observation.sourcePinSha256, p0_07.sourceFingerprints[sourcePath]);
-  assert.equal(hash(sourceText), observation.currentSourceSha256);
+  assert.equal(observation.currentSourceSha256, "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+    "PXD-105 CLI observation retains its historical whole-file source cut after later PDP-0 additions");
+  assert.notEqual(hash(sourceText), observation.currentSourceSha256,
+    "PXD-196 current channel scope is bound separately");
   assert.equal(hash(JSON.stringify(record)), observation.record.currentContentSha256);
   assert.equal(historicalReferent.contentSha256, observation.record.historicalPxd098ContentSha256);
   assert.equal(cliCorrection, undefined, "PXD-101's exact correction is unrelated to this CLI referent");
@@ -337,7 +340,10 @@ test("CLI channel observation records exact additions beyond PXD-098/PXD-105 wit
   ]);
   assert.equal(observation.record.semanticEquivalence, "NOT_ASSERTED");
   assert.equal(observation.acceptanceEffect, "none");
-  assert.equal(observation.currentSourceSha256, hash(sourceText));
+  assert.equal(observation.currentSourceSha256, "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+    "PXD-123 supplement retains its historical source cut");
+  assert.notEqual(observation.currentSourceSha256, hash(sourceText),
+    "PXD-196 refreshes current channel applicability independently");
   assert.equal(observation.additionalCurrentSourceObservation.acceptanceEffect, "none");
   assert.deepEqual(observation.additionalCurrentSourceObservation.changedPaths.map(({ path }) => path), [["ownerFeatureReviewApplicability", "sourceContractSelectors", "leafCapabilityProfileBoundsChannel"], ["ownerFeatureReviewApplicability", "sourceContractSelectors", "leafCapabilityProfileBoundsChannelRole"], ["ownerFeatureReviewApplicability", "sourceContractSelectors", "canonicalCapabilityOperationRole"]]);
   assert.match(observation.acceptanceBoundary, /No new clause approval/u);

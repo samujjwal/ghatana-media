@@ -81,6 +81,10 @@ test("ProductDefinition mapping coverage is explicit, source-pinned, and rejects
     assert.notEqual(createHash("sha256").update(driftFixture).digest("hex"), source.sha256,
       `${source.sourceRef} source drift fixture must invalidate the pinned projection fingerprint`);
   }
+  const extensionSource = ".product-experience/pdp-0-product-truth/campaign-extensions.yaml";
+  const extensionAuthority = projection.sourceAuthorities.find(({ sourceRef }) => sourceRef === extensionSource);
+  assert.ok(extensionAuthority, "the 462 historical plus seven additive definitions are source-pinned in the product-definition projection");
+  assert.equal(extensionAuthority.sha256, createHash("sha256").update(readFileSync(resolve(root, extensionSource))).digest("hex"));
 
   const valid = projection.candidateModel;
   const rejected = (mutate, label) => {

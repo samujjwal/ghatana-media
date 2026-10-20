@@ -315,7 +315,34 @@ export function validateBusinessMeasureDefinitions(goals, capabilities, profiles
   const intents = goals.businessIntents.filter((record) => record.measuredBy);
   if (!Array.isArray(records) || records.length !== 4 || intents.length !== 4) throw new Error('Business measure population changed or incomplete');
   const ids = new Set();
-  const populations = { outcomeRefs: new Set(goals.outcomes.map(({ id }) => id)), capabilityRefs: new Set(capabilities.capabilities.map(({ id }) => id)), profileAxisRefs: new Set(profiles.profileAxes.map(({ id }) => id)) };
+  const capabilityDefinitions = capabilities.capabilities ?? [];
+  const ownerLeafRows = sourceDocuments?.[".product-experience/pdp-0-product-truth/capability-leaf-review.yaml"]?.ownerCapabilityLeafAdjudication?.records;
+  const extensionPopulation = sourceDocuments?.[".product-experience/pdp-0-product-truth/campaign-extensions.yaml"]?.currentDefinitionPopulation;
+  let capabilityRefs;
+  if (Array.isArray(ownerLeafRows)) {
+    const canonicalIds = ownerLeafRows.map(({ capabilityRef }) => capabilityRef);
+    const extensionRows = extensionPopulation?.records;
+    const extensionIds = Array.isArray(extensionRows) ? extensionRows.map(({ capabilityId }) => capabilityId) : [];
+    const allIds = capabilityDefinitions.map(({ id }) => id);
+    if (canonicalIds.length !== 462 || new Set(canonicalIds).size !== canonicalIds.length
+        || extensionIds.length !== 7 || new Set(extensionIds).size !== extensionIds.length
+        || extensionPopulation?.historicalCapabilityLeavesPreserved !== 462
+        || extensionPopulation?.currentCapabilityDefinitions !== allIds.length
+        || extensionPopulation?.definitionExtensionCapabilityLeaves !== extensionIds.length
+        || extensionPopulation?.ownerAdjudications !== canonicalIds.length
+        || extensionPopulation?.extensionDisposition !== "SIX_COORDINATOR_AUTHORED_MEANING_PROPOSALS_WITH_DELEGATED_PDP0_APPLICABILITY_DECISIONS; ONE_USER_DELEGATED_CREATIVE_EFFECT_DEFINITION; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED"
+        || extensionPopulation?.ownerApproval !== "NOT_CLAIMED"
+        || extensionPopulation?.independentAcceptance !== "NOT_CLAIMED"
+        || allIds.length !== canonicalIds.length + extensionIds.length
+        || [...extensionIds].some((id) => canonicalIds.includes(id) || !allIds.includes(id))
+        || allIds.some((id) => !canonicalIds.includes(id) && !extensionIds.includes(id))) {
+      throw new Error("Invalid source split between canonical PDP-0 leaves and pending campaign extension proposals");
+    }
+    capabilityRefs = new Set(canonicalIds);
+  } else {
+    capabilityRefs = new Set(capabilityDefinitions.map(({ id }) => id));
+  }
+  const populations = { outcomeRefs: new Set(goals.outcomes.map(({ id }) => id)), capabilityRefs, profileAxisRefs: new Set(profiles.profileAxes.map(({ id }) => id)) };
   const crosswalkDecision = '.product-experience/decision-log.md#PXD-081';
   const currentCrosswalk = review.ownerApplicabilityDecisionRef === crosswalkDecision;
   let applicabilityRows;

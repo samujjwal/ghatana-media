@@ -1,0 +1,2073 @@
+{
+  "schemaVersion": "media.pdp0.aq-capability-review-slice.v1",
+  "review": {
+    "campaignScope": "Independent PDP-0 coordinator mapping recommendation for blueprint A–Q feature clusters against canonical capability leaves 309–462 in YAML source order; no product expansion or owner disposition.",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "surfaceScope": "Canonical Media PDP-0 capability records 309–462 only; isolated observation, not a canonical meaning edit.",
+    "permittedWork": "Recommendation-only cluster mapping with exact source references and provenance; no acceptance, closure, implementation, or source edit claimed.",
+    "baselineCommit": "79329cc4ec49ce546bc1097f53f3c2ff125bad2c",
+    "statusContext": {
+      "recordedPhase": "PDP-0",
+      "recordedStatus": "DEV_COMPLETE",
+      "recordedStatusMainSha": "79329cc4ec49ce546bc1097f53f3c2ff125bad2c",
+      "requirementsPinMatchesLive": false,
+      "capabilitiesPinMatchesLive": true,
+      "currentnessDisposition": "SOURCE_PIN_MISMATCH; recommendation does not establish currentness"
+    },
+    "materialInputs": {
+      ".product-experience/pdp-0-product-truth/requirements.yaml": {
+        "sha256": "b5b0bca96a6ba0ba26661976ea309021a20cb1192956fa69198b8c81427426bd",
+        "recordedPdp0Pin": "ad3f569668f817a1536741ae105d729911c42e6fb801c01d7022ba19168b7c33",
+        "matchesRecordedPin": false
+      },
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": {
+        "sha256": "bc1d9c389afc3445015679aa9bbf63dae310b5a91b34dbf7046a8de92f52dbba",
+        "recordedPdp0Pin": "bc1d9c389afc3445015679aa9bbf63dae310b5a91b34dbf7046a8de92f52dbba",
+        "matchesRecordedPin": true
+      },
+      "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md": {
+        "sha256": "055d797770cbd4c0c9ec2c20ef10b5e437831f8309b6e813fef234ad9827c947"
+      }
+    },
+    "taxonomySource": {
+      "path": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+      "section": "§2 Capability completeness ledger",
+      "clusterIds": "A–Q"
+    },
+    "sourceSlice": {
+      "sourcePath": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "collection": "capabilities",
+      "startIndex": 309,
+      "endIndex": 462,
+      "count": 154,
+      "sourceTotalCount": 462,
+      "indexing": "1-based YAML list order"
+    },
+    "requirementParentRule": "Parent requirement ID is the source family requirementId for the capability record; requirements.yaml is checked for that exact ID.",
+    "sourceCurrentnessNote": "The live requirements.yaml fingerprint differs from its PDP-0 status record pin; this recommendation is bound to the live fingerprint and is not source-current PDP-0 evidence."
+  },
+  "summary": {
+    "mappedCount": 154,
+    "uniqueCapabilityCount": 154,
+    "ownerAcceptance": "NOT_CLAIMED",
+    "acceptanceClaim": false
+  },
+  "mappings": [
+    {
+      "sourceOrderIndex": 309,
+      "capabilityId": "media.enhance.video.stabilize",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "L"
+      ],
+      "semanticRationale": "Stabilize video changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.video.stabilize",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 310,
+      "capabilityId": "media.enhance.video.rolling-shutter",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "L"
+      ],
+      "semanticRationale": "Correct rolling shutter changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.video.rolling-shutter",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 311,
+      "capabilityId": "media.enhance.video.frame-repair",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "L"
+      ],
+      "semanticRationale": "Repair frame changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.video.frame-repair",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 312,
+      "capabilityId": "media.enhance.video.frame-rate-conversion",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "L"
+      ],
+      "semanticRationale": "Convert frame rate changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.video.frame-rate-conversion",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 313,
+      "capabilityId": "media.enhance.video.motion-blur-synthesis",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "L"
+      ],
+      "semanticRationale": "Synthesize motion blur changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.video.motion-blur-synthesis",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 314,
+      "capabilityId": "media.enhance.video.grain.adjust",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "L"
+      ],
+      "semanticRationale": "Adjust video grain changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.video.grain.adjust",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 315,
+      "capabilityId": "media.enhance.video.deinterlace",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "L"
+      ],
+      "semanticRationale": "Deinterlace video changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.video.deinterlace",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 316,
+      "capabilityId": "media.enhance.video.inverse-telecine-cadence",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "L"
+      ],
+      "semanticRationale": "Apply inverse telecine/cadence repair changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.video.inverse-telecine-cadence",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 317,
+      "capabilityId": "media.enhance.audio.noise-suppression",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Suppress audio noise processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.noise-suppression",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 318,
+      "capabilityId": "media.enhance.audio.speech-enhancement",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "E",
+        "O"
+      ],
+      "semanticRationale": "Enhance speech processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.speech-enhancement",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 319,
+      "capabilityId": "media.enhance.audio.dereverberation",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Reduce reverberation processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.dereverberation",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 320,
+      "capabilityId": "media.enhance.audio.deecho",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Remove echo processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.deecho",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 321,
+      "capabilityId": "media.enhance.audio.acoustic-echo-cancellation",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Cancel acoustic echo processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.acoustic-echo-cancellation",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 322,
+      "capabilityId": "media.enhance.audio.dehum",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Remove hum processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.dehum",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 323,
+      "capabilityId": "media.enhance.audio.declick",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Remove clicks processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.declick",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 324,
+      "capabilityId": "media.enhance.audio.decrackle",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Remove crackle processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.decrackle",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 325,
+      "capabilityId": "media.enhance.audio.declip",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Repair clipping processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.declip",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 326,
+      "capabilityId": "media.enhance.audio.wind-reduction",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Reduce wind noise processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.wind-reduction",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 327,
+      "capabilityId": "media.enhance.audio.plosive-reduction",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Reduce plosives processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.plosive-reduction",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 328,
+      "capabilityId": "media.enhance.audio.deessing",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "De-ess processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.deessing",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 329,
+      "capabilityId": "media.enhance.audio.source-separation",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Separate audio sources processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.source-separation",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 330,
+      "capabilityId": "media.enhance.audio.speaker-separation",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "E",
+        "O"
+      ],
+      "semanticRationale": "Separate speakers in audio processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.speaker-separation",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 331,
+      "capabilityId": "media.enhance.audio.music-vocal-separation",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Separate music/vocals processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.music-vocal-separation",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 332,
+      "capabilityId": "media.enhance.audio.stem-separation",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Separate stems processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.stem-separation",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 333,
+      "capabilityId": "media.enhance.audio.background-removal",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Remove background audio processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.background-removal",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 334,
+      "capabilityId": "media.enhance.audio.speech-separation",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "E",
+        "O"
+      ],
+      "semanticRationale": "Separate speech processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.speech-separation",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 335,
+      "capabilityId": "media.enhance.audio.audio-super-resolution",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Apply audio super-resolution processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.audio-super-resolution",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 336,
+      "capabilityId": "media.enhance.audio.bandwidth-extension",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Extend audio bandwidth processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.bandwidth-extension",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 337,
+      "capabilityId": "media.enhance.audio.sample-rate-conversion",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "P"
+      ],
+      "semanticRationale": "Convert sample rate processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.sample-rate-conversion",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 338,
+      "capabilityId": "media.enhance.audio.phase-repair",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Repair phase processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.phase-repair",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 339,
+      "capabilityId": "media.enhance.audio.channel-repair",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Repair channels processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.audio.channel-repair",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 340,
+      "capabilityId": "media.edit.inpaint",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "K"
+      ],
+      "semanticRationale": "Inpaint image/video changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.edit.inpaint",
+      "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 341,
+      "capabilityId": "media.edit.outpaint",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "K"
+      ],
+      "semanticRationale": "Outpaint image/video changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.edit.outpaint",
+      "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 342,
+      "capabilityId": "media.edit.object-remove",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "K",
+        "L"
+      ],
+      "semanticRationale": "Remove object changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.edit.object-remove",
+      "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 343,
+      "capabilityId": "media.edit.object-replace",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "K"
+      ],
+      "semanticRationale": "Replace object changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.edit.object-replace",
+      "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 344,
+      "capabilityId": "media.edit.background-remove",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "K"
+      ],
+      "semanticRationale": "Remove background changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.edit.background-remove",
+      "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 345,
+      "capabilityId": "media.edit.background-replace",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "K"
+      ],
+      "semanticRationale": "Replace background changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.edit.background-replace",
+      "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 346,
+      "capabilityId": "media.edit.matte",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "K"
+      ],
+      "semanticRationale": "Edit matte changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.edit.matte",
+      "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 347,
+      "capabilityId": "media.edit.relight",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "K"
+      ],
+      "semanticRationale": "Relight media changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.edit.relight",
+      "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 348,
+      "capabilityId": "media.edit.recolor",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "K"
+      ],
+      "semanticRationale": "Recolor media changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.edit.recolor",
+      "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 349,
+      "capabilityId": "media.edit.colorize",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "K"
+      ],
+      "semanticRationale": "Colorize media changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.edit.colorize",
+      "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 350,
+      "capabilityId": "media.edit.style-transfer",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "K"
+      ],
+      "semanticRationale": "Apply style transfer changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.edit.style-transfer",
+      "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 351,
+      "capabilityId": "media.edit.retime-slow-motion-speed-ramp",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "M"
+      ],
+      "semanticRationale": "Retime/slow-motion/speed-ramp changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.edit.retime-slow-motion-speed-ramp",
+      "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 352,
+      "capabilityId": "media.edit.smart-crop-auto-reframe",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "L"
+      ],
+      "semanticRationale": "Smart crop/auto reframe changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.edit.smart-crop-auto-reframe",
+      "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 353,
+      "capabilityId": "media.edit.shot-color-match",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Match shots/colors changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.edit.shot-color-match",
+      "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 354,
+      "capabilityId": "media.edit.region-correction",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "K"
+      ],
+      "semanticRationale": "Correct region changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.edit.region-correction",
+      "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 355,
+      "capabilityId": "media.edit.face-correction",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Correct face changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.edit.face-correction",
+      "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 356,
+      "capabilityId": "media.edit.hand-correction",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Correct hand changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.edit.hand-correction",
+      "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 357,
+      "capabilityId": "media.edit.propagate-keyframe-mask-effect",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "L"
+      ],
+      "semanticRationale": "Propagate keyframe/mask/effect changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.edit.propagate-keyframe-mask-effect",
+      "parentRequirementId": "MEDIA-REQ-CAP-EDIT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 358,
+      "capabilityId": "media.sync.sample-accurate-av-map",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "I"
+      ],
+      "semanticRationale": "Map audio/video sample-accurately changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.sync.sample-accurate-av-map",
+      "parentRequirementId": "MEDIA-REQ-CAP-SYNC",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 359,
+      "capabilityId": "media.sync.lip-synchronize",
+      "primaryClusterId": "H",
+      "relatedClusterIds": [
+        "F"
+      ],
+      "semanticRationale": "Synchronize lips aligns dubbing, subtitles, or speech-related timing across locales/media, matching H’s localization scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.sync.lip-synchronize",
+      "parentRequirementId": "MEDIA-REQ-CAP-SYNC",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 360,
+      "capabilityId": "media.sync.phoneme-viseme-align",
+      "primaryClusterId": "H",
+      "relatedClusterIds": [
+        "E"
+      ],
+      "semanticRationale": "Align phonemes/visemes aligns dubbing, subtitles, or speech-related timing across locales/media, matching H’s localization scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.sync.phoneme-viseme-align",
+      "parentRequirementId": "MEDIA-REQ-CAP-SYNC",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 361,
+      "capabilityId": "media.sync.dub-subtitle-voiceover-time",
+      "primaryClusterId": "H",
+      "relatedClusterIds": [
+        "F",
+        "E"
+      ],
+      "semanticRationale": "Time dubbing/subtitles/voiceover aligns dubbing, subtitles, or speech-related timing across locales/media, matching H’s localization scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.sync.dub-subtitle-voiceover-time",
+      "parentRequirementId": "MEDIA-REQ-CAP-SYNC",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 362,
+      "capabilityId": "media.sync.scene-beat-music-align",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "I",
+        "J"
+      ],
+      "semanticRationale": "Align scene/beat/music edit changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.sync.scene-beat-music-align",
+      "parentRequirementId": "MEDIA-REQ-CAP-SYNC",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 363,
+      "capabilityId": "media.sync.speaker-face-associate",
+      "primaryClusterId": "H",
+      "relatedClusterIds": [
+        "E",
+        "L"
+      ],
+      "semanticRationale": "Align speaker and face timing aligns dubbing, subtitles, or speech-related timing across locales/media, matching H’s localization scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.sync.speaker-face-associate",
+      "parentRequirementId": "MEDIA-REQ-CAP-SYNC",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 364,
+      "capabilityId": "media.sync.drift-detect-correct",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "I"
+      ],
+      "semanticRationale": "Detect/correct drift evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.sync.drift-detect-correct",
+      "parentRequirementId": "MEDIA-REQ-CAP-SYNC",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 365,
+      "capabilityId": "media.compose.multitrack-timeline",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "C"
+      ],
+      "semanticRationale": "Compose multitrack timeline changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.compose.multitrack-timeline",
+      "parentRequirementId": "MEDIA-REQ-CAP-COMPOSE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 366,
+      "capabilityId": "media.compose.scene-storyboard-assemble",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "J",
+        "N"
+      ],
+      "semanticRationale": "Assemble scenes/storyboard changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.compose.scene-storyboard-assemble",
+      "parentRequirementId": "MEDIA-REQ-CAP-COMPOSE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 367,
+      "capabilityId": "media.compose.track.video-audio-caption-overlay",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "P"
+      ],
+      "semanticRationale": "Compose video/audio/caption/overlay tracks changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.compose.track.video-audio-caption-overlay",
+      "parentRequirementId": "MEDIA-REQ-CAP-COMPOSE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 368,
+      "capabilityId": "media.compose.transition",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "J"
+      ],
+      "semanticRationale": "Compose transitions changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.compose.transition",
+      "parentRequirementId": "MEDIA-REQ-CAP-COMPOSE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 369,
+      "capabilityId": "media.compose.titles-credits-lower-thirds",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "P"
+      ],
+      "semanticRationale": "Compose titles/credits/lower thirds changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.compose.titles-credits-lower-thirds",
+      "parentRequirementId": "MEDIA-REQ-CAP-COMPOSE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 370,
+      "capabilityId": "media.compose.exact-typography-logo-brand",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Place exact typography/logos/brand assets changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.compose.exact-typography-logo-brand",
+      "parentRequirementId": "MEDIA-REQ-CAP-COMPOSE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 371,
+      "capabilityId": "media.compose.safe-area",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "P"
+      ],
+      "semanticRationale": "Apply safe areas changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.compose.safe-area",
+      "parentRequirementId": "MEDIA-REQ-CAP-COMPOSE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 372,
+      "capabilityId": "media.compose.reusable-composition",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "C"
+      ],
+      "semanticRationale": "Create reusable composition changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.compose.reusable-composition",
+      "parentRequirementId": "MEDIA-REQ-CAP-COMPOSE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 373,
+      "capabilityId": "media.compose.render-manifest",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "P"
+      ],
+      "semanticRationale": "Create render manifest changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.compose.render-manifest",
+      "parentRequirementId": "MEDIA-REQ-CAP-COMPOSE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 374,
+      "capabilityId": "media.color.white-balance",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Adjust white balance changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.color.white-balance",
+      "parentRequirementId": "MEDIA-REQ-CAP-COLOR",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 375,
+      "capabilityId": "media.color.exposure",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Adjust exposure changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.color.exposure",
+      "parentRequirementId": "MEDIA-REQ-CAP-COLOR",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 376,
+      "capabilityId": "media.color.contrast",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Adjust contrast changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.color.contrast",
+      "parentRequirementId": "MEDIA-REQ-CAP-COLOR",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 377,
+      "capabilityId": "media.color.curves",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Adjust curves changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.color.curves",
+      "parentRequirementId": "MEDIA-REQ-CAP-COLOR",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 378,
+      "capabilityId": "media.color.temperature",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Adjust color temperature changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.color.temperature",
+      "parentRequirementId": "MEDIA-REQ-CAP-COLOR",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 379,
+      "capabilityId": "media.color.tint",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Adjust tint changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.color.tint",
+      "parentRequirementId": "MEDIA-REQ-CAP-COLOR",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 380,
+      "capabilityId": "media.color.selective-color",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Adjust selective color changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.color.selective-color",
+      "parentRequirementId": "MEDIA-REQ-CAP-COLOR",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 381,
+      "capabilityId": "media.color.skin-tone-preserve",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Preserve skin tones changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.color.skin-tone-preserve",
+      "parentRequirementId": "MEDIA-REQ-CAP-COLOR",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 382,
+      "capabilityId": "media.color.shot-match",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Match shots changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.color.shot-match",
+      "parentRequirementId": "MEDIA-REQ-CAP-COLOR",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 383,
+      "capabilityId": "media.color.lut",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Apply LUT changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.color.lut",
+      "parentRequirementId": "MEDIA-REQ-CAP-COLOR",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 384,
+      "capabilityId": "media.color.colorspace-gamut-convert",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "P"
+      ],
+      "semanticRationale": "Convert color space/gamut changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.color.colorspace-gamut-convert",
+      "parentRequirementId": "MEDIA-REQ-CAP-COLOR",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 385,
+      "capabilityId": "media.color.hdr-grade",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Grade HDR changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.color.hdr-grade",
+      "parentRequirementId": "MEDIA-REQ-CAP-COLOR",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 386,
+      "capabilityId": "media.color.sdr-hdr-convert",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "P"
+      ],
+      "semanticRationale": "Convert SDR/HDR changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.color.sdr-hdr-convert",
+      "parentRequirementId": "MEDIA-REQ-CAP-COLOR",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 387,
+      "capabilityId": "media.color.tone-map",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "P"
+      ],
+      "semanticRationale": "Tone map changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.color.tone-map",
+      "parentRequirementId": "MEDIA-REQ-CAP-COLOR",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 388,
+      "capabilityId": "media.color.highlight-shadow-recover",
+      "primaryClusterId": "D",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Recover highlights/shadows changes or assembles media content as an editing operation, matching D’s professional editing scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.color.highlight-shadow-recover",
+      "parentRequirementId": "MEDIA-REQ-CAP-COLOR",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 389,
+      "capabilityId": "media.master.audio.equalize",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Equalize audio processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.master.audio.equalize",
+      "parentRequirementId": "MEDIA-REQ-CAP-MASTER-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 390,
+      "capabilityId": "media.master.audio.dynamic-compression",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Compress dynamic range processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.master.audio.dynamic-compression",
+      "parentRequirementId": "MEDIA-REQ-CAP-MASTER-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 391,
+      "capabilityId": "media.master.audio.multiband-compression",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Apply multiband compression processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.master.audio.multiband-compression",
+      "parentRequirementId": "MEDIA-REQ-CAP-MASTER-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 392,
+      "capabilityId": "media.master.audio.limit",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Limit audio processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.master.audio.limit",
+      "parentRequirementId": "MEDIA-REQ-CAP-MASTER-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 393,
+      "capabilityId": "media.master.audio.true-peak-loudness-control",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Control true peak/loudness processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.master.audio.true-peak-loudness-control",
+      "parentRequirementId": "MEDIA-REQ-CAP-MASTER-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 394,
+      "capabilityId": "media.master.audio.stereo-width",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Control stereo width processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.master.audio.stereo-width",
+      "parentRequirementId": "MEDIA-REQ-CAP-MASTER-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 395,
+      "capabilityId": "media.master.audio.phase-noise-floor-analyze",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Analyze phase/noise floor processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.master.audio.phase-noise-floor-analyze",
+      "parentRequirementId": "MEDIA-REQ-CAP-MASTER-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 396,
+      "capabilityId": "media.master.audio.fade-crossfade",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "D"
+      ],
+      "semanticRationale": "Apply fade/crossfade processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.master.audio.fade-crossfade",
+      "parentRequirementId": "MEDIA-REQ-CAP-MASTER-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 397,
+      "capabilityId": "media.master.audio.duck-sidechain",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Duck/sidechain audio processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.master.audio.duck-sidechain",
+      "parentRequirementId": "MEDIA-REQ-CAP-MASTER-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 398,
+      "capabilityId": "media.master.audio.room-match",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Match room acoustics processes or masters audio signal content, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.master.audio.room-match",
+      "parentRequirementId": "MEDIA-REQ-CAP-MASTER-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 399,
+      "capabilityId": "media.quality.inspect",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "P"
+      ],
+      "semanticRationale": "Inspect quality evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.inspect",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 400,
+      "capabilityId": "media.quality.compare",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "P"
+      ],
+      "semanticRationale": "Compare candidates evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.compare",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 401,
+      "capabilityId": "media.quality.diagnose",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "P"
+      ],
+      "semanticRationale": "Diagnose defects evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.diagnose",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 402,
+      "capabilityId": "media.quality.rank",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "J"
+      ],
+      "semanticRationale": "Rank candidates evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.rank",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 403,
+      "capabilityId": "media.quality.recommend",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "J"
+      ],
+      "semanticRationale": "Recommend action evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.recommend",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 404,
+      "capabilityId": "media.quality.repair-plan",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "D",
+        "P"
+      ],
+      "semanticRationale": "Create repair plan evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.repair-plan",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 405,
+      "capabilityId": "media.quality.bounded-optimize",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "D"
+      ],
+      "semanticRationale": "Optimize within declared bounds evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.bounded-optimize",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 406,
+      "capabilityId": "media.quality.image.image.assess-noise",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "I"
+      ],
+      "semanticRationale": "Assess image noise evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.image.image.assess-noise",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 407,
+      "capabilityId": "media.quality.image.image.assess-blur",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "D"
+      ],
+      "semanticRationale": "Assess image blur evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.image.image.assess-blur",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 408,
+      "capabilityId": "media.quality.image.image.assess-compression",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "P"
+      ],
+      "semanticRationale": "Assess image compression evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.image.image.assess-compression",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 409,
+      "capabilityId": "media.quality.image.image.assess-exposure",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "D"
+      ],
+      "semanticRationale": "Assess image exposure evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.image.image.assess-exposure",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 410,
+      "capabilityId": "media.quality.image.image.assess-color",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "D"
+      ],
+      "semanticRationale": "Assess image color evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.image.image.assess-color",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 411,
+      "capabilityId": "media.quality.image.image.assess-structural-reference-fidelity",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "K"
+      ],
+      "semanticRationale": "Assess structural/reference fidelity evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.image.image.assess-structural-reference-fidelity",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 412,
+      "capabilityId": "media.quality.image.image.assess-identity-consistency",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "G"
+      ],
+      "semanticRationale": "Assess identity consistency with authorization evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.image.image.assess-identity-consistency",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 413,
+      "capabilityId": "media.quality.image.image.assess-perceptual-quality",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "P"
+      ],
+      "semanticRationale": "Assess perceptual image quality evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.image.image.assess-perceptual-quality",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 414,
+      "capabilityId": "media.quality.video.video.assess-temporal-consistency",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "L"
+      ],
+      "semanticRationale": "Assess temporal consistency evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.video.video.assess-temporal-consistency",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 415,
+      "capabilityId": "media.quality.video.video.assess-flicker",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "L"
+      ],
+      "semanticRationale": "Assess flicker evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.video.video.assess-flicker",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 416,
+      "capabilityId": "media.quality.video.video.assess-frame-artifacts",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "L"
+      ],
+      "semanticRationale": "Assess frame artifacts evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.video.video.assess-frame-artifacts",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 417,
+      "capabilityId": "media.quality.video.video.assess-motion",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "L"
+      ],
+      "semanticRationale": "Assess motion evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.video.video.assess-motion",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 418,
+      "capabilityId": "media.quality.video.video.assess-identity-consistency",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "L",
+        "G"
+      ],
+      "semanticRationale": "Assess identity continuity evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.video.video.assess-identity-consistency",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 419,
+      "capabilityId": "media.quality.video.video.assess-object-continuity",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "L"
+      ],
+      "semanticRationale": "Assess object continuity evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.video.video.assess-object-continuity",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 420,
+      "capabilityId": "media.quality.video.video.assess-geometry-continuity",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "M"
+      ],
+      "semanticRationale": "Assess geometry continuity evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.video.video.assess-geometry-continuity",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 421,
+      "capabilityId": "media.quality.video.video.assess-camera-continuity",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "L"
+      ],
+      "semanticRationale": "Assess camera continuity evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.video.video.assess-camera-continuity",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 422,
+      "capabilityId": "media.quality.video.video.assess-qualified-physical-plausibility",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "M"
+      ],
+      "semanticRationale": "Assess physical plausibility only under domain qualification evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.video.video.assess-qualified-physical-plausibility",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 423,
+      "capabilityId": "media.quality.video.video.assess-lip-sync",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "H"
+      ],
+      "semanticRationale": "Assess lip synchronization evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.video.video.assess-lip-sync",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 424,
+      "capabilityId": "media.quality.video.video.assess-av-sync",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "H"
+      ],
+      "semanticRationale": "Assess audio/video synchronization evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.video.video.assess-av-sync",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 425,
+      "capabilityId": "media.quality.video.video.assess-encoding",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "P"
+      ],
+      "semanticRationale": "Assess encoding quality evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.video.video.assess-encoding",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 426,
+      "capabilityId": "media.quality.audio.audio.assess-noise",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "I"
+      ],
+      "semanticRationale": "Assess audio noise evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.audio.audio.assess-noise",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 427,
+      "capabilityId": "media.quality.audio.audio.assess-clipping",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "I"
+      ],
+      "semanticRationale": "Assess audio clipping evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.audio.audio.assess-clipping",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 428,
+      "capabilityId": "media.quality.audio.audio.assess-distortion",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "I"
+      ],
+      "semanticRationale": "Assess audio distortion evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.audio.audio.assess-distortion",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 429,
+      "capabilityId": "media.quality.audio.audio.assess-intelligibility",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "E"
+      ],
+      "semanticRationale": "Evaluate candidate intelligibility evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.audio.audio.assess-intelligibility",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 430,
+      "capabilityId": "media.quality.audio.audio.assess-separation-leakage",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "I"
+      ],
+      "semanticRationale": "Assess separation leakage evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.audio.audio.assess-separation-leakage",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 431,
+      "capabilityId": "media.quality.audio.audio.assess-spectral",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "I"
+      ],
+      "semanticRationale": "Assess spectral quality evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.audio.audio.assess-spectral",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 432,
+      "capabilityId": "media.quality.audio.audio.assess-phase",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "I"
+      ],
+      "semanticRationale": "Assess phase quality evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.audio.audio.assess-phase",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 433,
+      "capabilityId": "media.quality.audio.audio.assess-loudness",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "I"
+      ],
+      "semanticRationale": "Assess loudness evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.audio.audio.assess-loudness",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 434,
+      "capabilityId": "media.quality.audio.audio.assess-true-peak",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "I"
+      ],
+      "semanticRationale": "Assess true peak evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.audio.audio.assess-true-peak",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 435,
+      "capabilityId": "media.quality.audio.audio.assess-naturalness",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "F"
+      ],
+      "semanticRationale": "Assess naturalness evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.audio.audio.assess-naturalness",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 436,
+      "capabilityId": "media.quality.audio.audio.assess-authorized-speaker-similarity",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "G",
+        "F"
+      ],
+      "semanticRationale": "Assess speaker similarity only when authorized evaluates quality, rights, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.audio.audio.assess-authorized-speaker-similarity",
+      "parentRequirementId": "MEDIA-REQ-CAP-QUALITY-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 437,
+      "capabilityId": "media.deliver.encode",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "Q"
+      ],
+      "semanticRationale": "Encode media prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.encode",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 438,
+      "capabilityId": "media.deliver.transcode",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "D"
+      ],
+      "semanticRationale": "Transcode media prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.transcode",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 439,
+      "capabilityId": "media.deliver.master",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "I",
+        "O"
+      ],
+      "semanticRationale": "Master deliverable prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.master",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 440,
+      "capabilityId": "media.deliver.package",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Package deliverable prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.package",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 441,
+      "capabilityId": "media.deliver.stream",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "N"
+      ],
+      "semanticRationale": "Stream deliverable prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.stream",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 442,
+      "capabilityId": "media.deliver.download",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "C"
+      ],
+      "semanticRationale": "Download deliverable prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.download",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 443,
+      "capabilityId": "media.deliver.export",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "C"
+      ],
+      "semanticRationale": "Export deliverable prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.export",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 444,
+      "capabilityId": "media.deliver.publish-governed",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Publish under governance prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.publish-governed",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 445,
+      "capabilityId": "media.deliver.renditions.aspect-ratio",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "D"
+      ],
+      "semanticRationale": "Create aspect-ratio renditions prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.renditions.aspect-ratio",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 446,
+      "capabilityId": "media.deliver.renditions.resolution",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "D"
+      ],
+      "semanticRationale": "Create resolution renditions prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.renditions.resolution",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 447,
+      "capabilityId": "media.deliver.renditions.adaptive-bitrate",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "Q"
+      ],
+      "semanticRationale": "Create adaptive-bitrate renditions prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.renditions.adaptive-bitrate",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 448,
+      "capabilityId": "media.deliver.profile.web",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "N"
+      ],
+      "semanticRationale": "Deliver media for web playback prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.profile.web",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 449,
+      "capabilityId": "media.deliver.profile.social",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "N"
+      ],
+      "semanticRationale": "Deliver media for social publishing prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.profile.social",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 450,
+      "capabilityId": "media.deliver.profile.podcast",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "F"
+      ],
+      "semanticRationale": "Deliver media for podcast distribution prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.profile.podcast",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 451,
+      "capabilityId": "media.deliver.profile.broadcast",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Deliver media for broadcast prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.profile.broadcast",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 452,
+      "capabilityId": "media.deliver.profile.cinematic",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "D"
+      ],
+      "semanticRationale": "Deliver media for cinematic presentation prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.profile.cinematic",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 453,
+      "capabilityId": "media.deliver.profile.archival",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Deliver media for archival storage prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.profile.archival",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 454,
+      "capabilityId": "media.deliver.profile.interactive",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "N"
+      ],
+      "semanticRationale": "Deliver an interactive scene bundle prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.profile.interactive",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 455,
+      "capabilityId": "media.deliver.profile.named",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "Q"
+      ],
+      "semanticRationale": "Deliver media using a named delivery target prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.profile.named",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 456,
+      "capabilityId": "media.deliver.subtitles",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "H",
+        "E"
+      ],
+      "semanticRationale": "Deliver subtitles prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.subtitles",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 457,
+      "capabilityId": "media.deliver.transcripts",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "E"
+      ],
+      "semanticRationale": "Deliver transcripts prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.transcripts",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 458,
+      "capabilityId": "media.deliver.thumbnails",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "K"
+      ],
+      "semanticRationale": "Deliver thumbnails prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.thumbnails",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 459,
+      "capabilityId": "media.deliver.posters",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "K"
+      ],
+      "semanticRationale": "Deliver posters prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.posters",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 460,
+      "capabilityId": "media.deliver.interactive-scene-bundle",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "N"
+      ],
+      "semanticRationale": "Deliver interactive scene bundle prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.interactive-scene-bundle",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 461,
+      "capabilityId": "media.deliver.provenance-manifest",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Deliver provenance manifest prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.provenance-manifest",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrderIndex": 462,
+      "capabilityId": "media.deliver.compatibility-fallback",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "Q"
+      ],
+      "semanticRationale": "Resolve codec/container/player compatibility and allowed fallback prepares or delivers a media output, matching P’s render/publish/distribute scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.deliver.compatibility-fallback",
+      "parentRequirementId": "MEDIA-REQ-CAP-DELIVER",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    }
+  ]
+}

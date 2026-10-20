@@ -12,12 +12,14 @@ const quality = source("quality-policy");
 const capabilitySource = source("capabilities");
 const review = source("capability-leaf-review").ownerCapabilityLeafAdjudication;
 const crosswalk = quality.ownerQualityApplicabilityCrosswalk;
-const capabilities = new Map(capabilitySource.capabilities.map((row) => [row.id, row]));
+const canonicalCapabilityIds = new Set(review.records.map(({ capabilityRef }) => capabilityRef));
+const capabilities = new Map(capabilitySource.capabilities.filter(({ id }) => canonicalCapabilityIds.has(id)).map((row) => [row.id, row]));
 const rows = new Map(crosswalk.records.map((row) => [row.capabilityRef, row]));
 const p1Ref = /pdp-1-domain-data|operationContractRef|typed(Input|Output)SchemaIds|domainObjectRef/i;
 
 test("P0 quality applicability is complete from capability intent and semantic artifact types alone", () => {
   assert.equal(capabilities.size, 462);
+  assert.equal(capabilitySource.capabilities.length, 469, "seven separate PDP-0 proposals do not expand the quality owner-adjudication denominator");
   assert.equal(review.records.length, 462);
   assert.equal(crosswalk.records.length, 462);
   assert.equal(rows.size, 462);
@@ -59,7 +61,7 @@ test("P0 quality applicability is complete from capability intent and semantic a
 
 test("quality crosswalk semantic input and output types exactly match the frozen P0 capability intents", () => {
   assert.equal(crosswalk.records.length, 462);
-  for (const capability of capabilitySource.capabilities) {
+  for (const capability of capabilitySource.capabilities.filter(({ id }) => canonicalCapabilityIds.has(id))) {
     const row = rows.get(capability.id);
     assert.ok(row, capability.id);
     assert.deepEqual(row.inputArtifactTypes, capability.inputArtifactTypes, `${capability.id} input artifact types`);

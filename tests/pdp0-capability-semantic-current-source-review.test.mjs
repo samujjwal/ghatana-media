@@ -24,37 +24,129 @@ test("P0 capability semantic review pins current source checks without claiming 
   const catalog = parse(bytes.toString("utf8"));
   const leaves = catalog.capabilities;
   const leafReview = parse(read(leafReviewPath).toString("utf8"));
+  const campaignExtensions = parse(read(".product-experience/pdp-0-product-truth/campaign-extensions.yaml").toString("utf8"));
+  const qualityPolicy = parse(read(".product-experience/pdp-0-product-truth/quality-policy.yaml").toString("utf8"));
+  const goals = parse(read(".product-experience/pdp-0-product-truth/goals-jtbd.yaml").toString("utf8"));
+  const pxd206Review = JSON.parse(read("docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd206.json").toString("utf8"));
+  const pxd212QualityReview = JSON.parse(read("docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd212.json").toString("utf8"));
+  const pxd213QualityCurrentness = JSON.parse(read("docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd213.json").toString("utf8"));
+  const pxd216Review = JSON.parse(read("docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json").toString("utf8"));
   const adjudications = leafReview.ownerCapabilityLeafAdjudication.records;
   const byId = new Map(leaves.map((leaf) => [leaf.id, leaf]));
-  const ids = leaves.map(({ id }) => id).sort();
-  const dispositionRows = leaves.map(({ id, ownerDefinition }) => [id, ownerDefinition?.ownerDisposition]);
+  const adjudicationIdSet = new Set(adjudications.map(({ capabilityRef }) => capabilityRef));
+  const canonicalLeaves = leaves.filter(({ id }) => adjudicationIdSet.has(id));
+  const ids = canonicalLeaves.map(({ id }) => id).sort();
+  const extensionRows = campaignExtensions.currentDefinitionPopulation.records;
+  const extensionIds = extensionRows.map(({ capabilityId }) => capabilityId).sort();
+  const dispositionRows = canonicalLeaves.map(({ id, ownerDefinition }) => [id, ownerDefinition?.ownerDisposition]);
   const dispositionCounts = Object.fromEntries([...new Set(dispositionRows.map(([, value]) => value))]
     .sort().map((value) => [value, dispositionRows.filter(([, current]) => current === value).length]));
-  const effectIntentScopeCounts = Object.fromEntries([...new Set(leaves.map(({ ownerDefinition }) => ownerDefinition?.effect?.effectIntentScope))]
-    .sort().map((value) => [value, leaves.filter(({ ownerDefinition }) => ownerDefinition?.effect?.effectIntentScope === value).length]));
+  const effectIntentScopeCounts = Object.fromEntries([...new Set(canonicalLeaves.map(({ ownerDefinition }) => ownerDefinition?.effect?.effectIntentScope))]
+    .sort().map((value) => [value, canonicalLeaves.filter(({ ownerDefinition }) => ownerDefinition?.effect?.effectIntentScope === value).length]));
+  const pxd206ChangedIds = [
+    "media.compose.multitrack-timeline", "media.compose.safe-area", "media.compose.reusable-composition",
+    "media.master.audio.stereo-width", "media.speech.synthesis.speaker.condition",
+  ];
+  const pxd206CurrentById = new Map(pxd206Review.currentProjectionChanges.map((record) => [record.capabilityId, record]));
+  const currentCandidateTypeById = new Map([
+    ["media.edit.inpaint", "local-inpaint-candidate-or-draft"],
+    ["media.edit.matte", "local-matte-candidate-or-draft"],
+    ["media.edit.retime-slow-motion-speed-ramp", "local-timing-edit-candidate-with-explicit-source-time-mapping"],
+  ]);
+  const pxd212JoinById = new Map(pxd212QualityReview.latestCurrentnessRefresh.changedTypeJoins.map((record) => [record.capabilityId, record]));
+  const pxd213JoinById = new Map(pxd213QualityCurrentness.latestCurrentnessRefresh.changedTypeJoins.map((record) => [record.capabilityId, record]));
+
+  assert.equal(pxd216Review.decisionRef, ".product-experience/decision-log.md#PXD-216");
+  assert.equal(pxd216Review.result.status, "PASS");
+  assert.equal(pxd216Review.ownerApproval, "NOT_CLAIMED");
+  assert.equal(pxd216Review.independentAcceptance, "NOT_CLAIMED");
+  assert.equal(pxd216Review.acceptanceEffect, "none");
+  for (const [path, digest] of Object.entries(pxd216Review.sourceFingerprints)) {
+    assert.equal(sha(read(path)), digest, `${path} PXD-216 current source pin`);
+  }
+  assert.equal(pxd213QualityCurrentness.latestCurrentnessRefresh.decisionRef, ".product-experience/decision-log.md#PXD-213");
+  assert.equal(pxd213QualityCurrentness.latestCurrentnessRefresh.status, "CURRENTNESS_REFRESH_ONLY");
+  assert.equal(pxd213QualityCurrentness.latestCurrentnessRefresh.semanticReview,
+    "PXD-212_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW",
+    "PXD-213 remains an immutable historical currentness observation, not the live meaning authority");
 
   assert.equal(observation.source.currentSha256, correctionReview.historicalPins.find(({ decisionRef }) => decisionRef.endsWith("#PXD-122")).capabilitySha256,
     "the PXD-122 capability source fingerprint remains an immutable historical pin");
   assert.equal(uploadCorrectionReview.source.currentSha256, "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
     "PXD-153 remains pinned to its historical capability source cut");
-  assert.equal(currentCorrectionsReview.source.currentSha256, sha(bytes),
-    "the PXD-171 successor review pins the exact current correction fields");
+  assert.equal(currentCorrectionsReview.source.currentSha256, "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+    "PXD-171 retains its historical source-cut pin; the scoped fields are compared against the live source below");
   assert.equal(observation.source.path, sourcePath);
   assert.equal(observation.source.historicalComparison.availability, "UNAVAILABLE_PRIOR_BYTES_NOT_RETAINED");
   assert.equal(observation.source.historicalComparison.parsedPathDelta, "NOT_ASSERTED");
   assert.equal(observation.source.historicalComparison.priorSha256, "8e036751e35623a972668757082e1cc6f6c519d23d7f829a73cae1d117568b25");
-  assert.equal(leaves.length, 462);
+  assert.equal(leaves.length, 469);
+  assert.equal(new Set(leaves.map(({ id }) => id)).size, 469);
+  assert.equal(campaignExtensions.currentDefinitionPopulation.historicalCapabilityLeavesPreserved, 462);
+  assert.equal(campaignExtensions.currentDefinitionPopulation.currentCapabilityDefinitions, 469);
+  assert.equal(campaignExtensions.currentDefinitionPopulation.definitionExtensionCapabilityLeaves, 7);
+  assert.equal(campaignExtensions.currentDefinitionPopulation.ownerAdjudications, 462);
+  assert.equal(extensionRows.length, 7);
+  assert.deepEqual(extensionIds.filter((id) => id !== "media.master.audio.creative-effect.apply"), [
+    "media.generate.video.preset.manage", "media.generate.video.shot-condition", "media.job.schedule.manage",
+    "media.project.scene.patch-merge", "media.quality.audio.content-similarity.assess", "media.recipe.specification.compile",
+  ]);
+  assert.equal(extensionIds.filter((id) => id === "media.master.audio.creative-effect.apply").length, 1);
+  assert.equal(campaignExtensions.currentDefinitionPopulation.ownerApproval, "NOT_CLAIMED");
+  assert.equal(campaignExtensions.currentDefinitionPopulation.independentAcceptance, "NOT_CLAIMED");
+  assert.equal(canonicalLeaves.length, 462);
   assert.equal(new Set(ids).size, 462);
   const adjudicationIds = adjudications.map(({ capabilityRef }) => capabilityRef).sort();
   assert.equal(adjudications.length, 462);
   assert.equal(new Set(adjudicationIds).size, 462, "each P0 capability has exactly one leaf adjudication");
   assert.deepEqual(adjudicationIds, ids, "leaf adjudications contain exactly the stable P0 capability IDs");
   const adjudicationById = new Map(adjudications.map((row) => [row.capabilityRef, row]));
-  for (const leaf of leaves) {
+  assert.deepEqual([...pxd206CurrentById.keys()].sort(), pxd206ChangedIds.slice().sort(),
+    "PXD-206 bounds the five superseding current-source type differences");
+  for (const leaf of canonicalLeaves) {
     const adjudication = adjudicationById.get(leaf.id);
     assert.ok(adjudication, `${leaf.id} has a leaf adjudication`);
-    assert.deepEqual(adjudication.inputArtifactTypes, leaf.inputArtifactTypes, `${leaf.id} adjudication inputs mirror P0`);
-    assert.deepEqual(adjudication.outputArtifactTypes, leaf.outputArtifactTypes, `${leaf.id} adjudication outputs mirror P0`);
+    const currentProjection = pxd206CurrentById.get(leaf.id);
+    if (currentProjection) {
+      assert.deepEqual(currentProjection.currentInputArtifactTypes, leaf.inputArtifactTypes, `${leaf.id} PXD-206 current inputs`);
+      assert.deepEqual(currentProjection.currentOutputArtifactTypes, leaf.outputArtifactTypes, `${leaf.id} PXD-206 current outputs`);
+    } else if (currentCandidateTypeById.has(leaf.id)) {
+      assert.deepEqual(adjudication.inputArtifactTypes, leaf.inputArtifactTypes, `${leaf.id} historical owner-adjudication inputs remain aligned`);
+      assert.deepEqual(adjudication.outputArtifactTypes, ["versioned-edited-artifact-or-project-change"],
+        `${leaf.id} owner adjudication remains unchanged as a separate source record`);
+      assert.equal(adjudication.independentAcceptance, "P0-010-independent-review-open",
+        `${leaf.id} owner adjudication still awaits its independent review`);
+
+      const qualityOutputTypes = qualityPolicy.ownerQualityApplicabilityCrosswalk.records
+        .find(({ capabilityRef }) => capabilityRef === leaf.id)?.outputArtifactTypes;
+      const trustRecord = leafReview.ownerTrustReconstructionDispositions.records
+        .find(({ capabilityRef }) => capabilityRef === leaf.id);
+      const goalRecord = goals.successMeasureContracts.ownerCapabilityApplicabilityCrosswalk.records
+        .find(({ capabilityIntentId }) => capabilityIntentId === leaf.id);
+      assert.deepEqual(leaf.outputArtifactTypes, [currentCandidateTypeById.get(leaf.id)],
+        `${leaf.id} current capability source defines its exact local candidate output`);
+      assert.deepEqual(qualityOutputTypes, leaf.outputArtifactTypes,
+        `${leaf.id} current quality applicability uses the current capability output`);
+      assert.ok(trustRecord.outputBranches.some(({ outputArtifactType }) => outputArtifactType === leaf.outputArtifactTypes[0]),
+        `${leaf.id} current trust source has the exact candidate branch`);
+      assert.ok(goalRecord, `${leaf.id} current goal applicability record exists`);
+      const pxd212Join = pxd212JoinById.get(leaf.id);
+      const pxd213Join = pxd213JoinById.get(leaf.id);
+      assert.ok(pxd212Join, `${leaf.id} has a PXD-212 current semantic-join review`);
+      assert.ok(pxd213Join, `${leaf.id} has a PXD-213 currentness record`);
+      assert.equal(pxd212Join.reviewStatus, "SEMANTIC_JOIN_REVIEWED");
+      assert.equal(pxd212Join.capabilityOutputTypesSha256, sha(JSON.stringify(leaf.outputArtifactTypes)));
+      assert.equal(pxd212Join.qualityOutputTypesSha256, sha(JSON.stringify(qualityOutputTypes)));
+      assert.match(pxd213Join.capabilityOutputTypesSha256, /^[a-f0-9]{64}$/u);
+      assert.match(pxd213Join.qualityOutputTypesSha256, /^[a-f0-9]{64}$/u);
+      assert.match(pxd213Join.trustDispositionSha256, /^[a-f0-9]{64}$/u);
+      assert.match(pxd213Join.goalApplicabilitySha256, /^[a-f0-9]{64}$/u);
+      assert.equal(pxd213QualityCurrentness.latestCurrentnessRefresh.ownerApproval, "NOT_CLAIMED");
+      assert.equal(pxd213QualityCurrentness.latestCurrentnessRefresh.independentAcceptance, "NOT_CLAIMED");
+    } else {
+      assert.deepEqual(adjudication.inputArtifactTypes, leaf.inputArtifactTypes, `${leaf.id} adjudication inputs mirror current P0`);
+      assert.deepEqual(adjudication.outputArtifactTypes, leaf.outputArtifactTypes, `${leaf.id} adjudication outputs mirror current P0`);
+    }
   }
   assert.equal(sha(`${ids.join("\n")}\n`), observation.source.recordPopulation.sortedIdentitySetSha256);
   assert.equal(sha(JSON.stringify(dispositionRows)), observation.source.recordPopulation.ownerDispositionSnapshotSha256);
@@ -62,7 +154,7 @@ test("P0 capability semantic review pins current source checks without claiming 
   assert.deepEqual(effectIntentScopeCounts, observation.source.effectIntentScopeCounts);
 
   const allowedScopes = new Set(catalog.ownerDefinedP0EffectIntentRule.scopes);
-  for (const leaf of leaves) {
+  for (const leaf of canonicalLeaves) {
     assert.equal(leaf.ownerDefinition.capabilityIntentId, leaf.id);
     assert.ok(leaf.ownerDefinition.ownerDisposition);
     assert.deepEqual(leaf.inputArtifactTypes, leaf.ownerDefinition.typedInputSlots.map(({ sourceType }) => sourceType), leaf.id);

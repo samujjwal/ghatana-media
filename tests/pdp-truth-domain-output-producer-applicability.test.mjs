@@ -17,14 +17,17 @@ const excluded = "NOT_APPLICABLE_READ_ONLY_OR_NO_OUTPUT_OPERATION";
 
 test("trustworthy-output applicability follows output-producer role and preserves incomplete candidates", () => {
   const goals = read(goalsPath);
-  const capabilities = read(capPath).capabilities;
+  const capabilitySource = read(capPath);
+  const ownerLeafIds = new Set(read(".product-experience/pdp-0-product-truth/capability-leaf-review.yaml")
+    .ownerCapabilityLeafAdjudication.records.map(({ capabilityRef }) => capabilityRef));
+  const capabilities = capabilitySource.capabilities.filter(({ id }) => ownerLeafIds.has(id));
   const contract = goals.successMeasureContracts.records.find(({ id }) => id === measureId);
   const crosswalk = goals.successMeasureContracts.ownerCapabilityApplicabilityCrosswalk;
   const dispositions = new Map(crosswalk.records.map(({ capabilityRef, measureApplicability }) => [capabilityRef, measureApplicability[measureId]]));
   const producerRefs = [...dispositions].filter(([, row]) => row.disposition === candidate).map(([id]) => id).sort();
   const metricRefs = [...contract.capabilityRefs].sort();
 
-  assert.equal(capabilities.length, 462);
+  assert.equal(capabilities.length, 462, "measure applicability remains bounded to owner-adjudicated canonical leaves");
   assert.equal(producerRefs.length, 430);
   assert.deepEqual(metricRefs, producerRefs, "metric candidate set is exactly the output-producer disposition set");
   assert.equal(contract.ownerApplicabilityDefinition.sourceCandidateCount, producerRefs.length);

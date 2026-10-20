@@ -22983,7 +22983,7 @@ successMeasureContracts:
         capabilityIntentRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.inpaint
         outputSemanticShapeRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.inpaint/outputArtifactTypes
         outputSemanticShape:
-          - versioned-edited-artifact-or-project-change
+          - local-inpaint-candidate-or-draft
       - capabilityRef: media.edit.outpaint
         familyRef: media.edit
         profileRef: media.capability-profile.media-edit
@@ -23343,7 +23343,7 @@ successMeasureContracts:
         capabilityIntentRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.matte
         outputSemanticShapeRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.matte/outputArtifactTypes
         outputSemanticShape:
-          - versioned-edited-artifact-or-project-change
+          - local-matte-candidate-or-draft
       - capabilityRef: media.edit.relight
         familyRef: media.edit
         profileRef: media.capability-profile.media-edit
@@ -23643,7 +23643,7 @@ successMeasureContracts:
         capabilityIntentRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.retime-slow-motion-speed-ramp
         outputSemanticShapeRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.retime-slow-motion-speed-ramp/outputArtifactTypes
         outputSemanticShape:
-          - versioned-edited-artifact-or-project-change
+          - local-timing-edit-candidate-with-explicit-source-time-mapping
       - capabilityRef: media.edit.smart-crop-auto-reframe
         familyRef: media.edit
         profileRef: media.capability-profile.media-edit
@@ -24483,7 +24483,7 @@ successMeasureContracts:
         capabilityIntentRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline
         outputSemanticShapeRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline/outputArtifactTypes
         outputSemanticShape:
-          - versioned-composition-and-render-manifest
+          - local-versioned-composition-candidate
       - capabilityRef: media.compose.scene-storyboard-assemble
         familyRef: media.compose
         profileRef: media.capability-profile.media-compose
@@ -24844,7 +24844,7 @@ successMeasureContracts:
         capabilityIntentRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.safe-area
         outputSemanticShapeRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.safe-area/outputArtifactTypes
         outputSemanticShape:
-          - versioned-composition-and-render-manifest
+          - local-versioned-composition-candidate
       - capabilityRef: media.compose.reusable-composition
         familyRef: media.compose
         profileRef: media.capability-profile.media-compose
@@ -24904,7 +24904,7 @@ successMeasureContracts:
         capabilityIntentRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.reusable-composition
         outputSemanticShapeRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.reusable-composition/outputArtifactTypes
         outputSemanticShape:
-          - versioned-composition-and-render-manifest
+          - local-versioned-composition-candidate
       - capabilityRef: media.compose.render-manifest
         familyRef: media.compose
         profileRef: media.capability-profile.media-compose

@@ -7,8 +7,11 @@ import {createRequire} from 'node:module';
 const parseYaml = createRequire(path.resolve(process.cwd(), '../ghatana-tools/package.json'))('yaml').parse;
 const requirementsPath = '.product-experience/pdp-0-product-truth/requirements.yaml';
 const capabilitiesPath = '.product-experience/pdp-0-product-truth/capabilities.yaml';
-const requirements = parseYaml(fs.readFileSync(requirementsPath, 'utf8')).requirements;
+const p0Definition = parseYaml(fs.readFileSync(requirementsPath, 'utf8'));
+const requirements = p0Definition.requirements;
 const capabilities = parseYaml(fs.readFileSync(capabilitiesPath, 'utf8')).capabilities;
+const capabilityLeafReview = parseYaml(fs.readFileSync('.product-experience/pdp-0-product-truth/capability-leaf-review.yaml', 'utf8'));
+const campaignExtensions = parseYaml(fs.readFileSync('.product-experience/pdp-0-product-truth/campaign-extensions.yaml', 'utf8'));
 
 const corrections = [
   {
@@ -16,14 +19,14 @@ const corrections = [
     caseId: 'MEDIA-REQ-CAP-ARTIFACT-AC-03',
     capabilityId: 'media.artifact.search',
     required: ['semantic transcript search', 'exact source version', 'transcript time range', 'unavailable', 'denied', 'unknown', 'empty', 'complete', 'rights-and-retention'],
-    capabilityRequired: ['semantic transcript search returns candidate matches', 'exact source versions', 'transcript time ranges', 'matching uncertainty', 'completeness are not guaranteed'],
+    capabilityRequired: ['transcript, duplicate, rights-eligible, timeline/person/scene/speaker-facet, or visual/metadata search', 'exact version and applicable time scope', 'matching uncertainty', 'unindexed or unknown coverage is distinct from an empty result', 'ranking, completeness, identity, legal clearance, and external-catalog search are not implied'],
   },
   {
     requirementId: 'MEDIA-REQ-CAP-ARTIFACT',
     caseId: 'MEDIA-REQ-CAP-ARTIFACT-AC-04',
     capabilityId: 'media.artifact.search',
     required: ['duplicate', 'near-duplicate', 'candidate groups', 'source artifact identity', 'uncertainty', 'merging', 'replacing', 'deleting'],
-    capabilityRequired: ['duplicate or near-duplicate search', 'candidate groups', 'source identities', 'matching uncertainty', 'merge, replacement, or deletion'],
+    capabilityRequired: ['duplicate candidate group versus confirmed identity', 'opaque candidate-group identity', 'source artifact/version identities in the group', 'matching uncertainty', 'permission to merge, replace, or delete source artifacts'],
   },
   {
     requirementId: 'MEDIA-REQ-CAP-STREAM',
@@ -51,13 +54,34 @@ const corrections = [
     caseId: 'MEDIA-REQ-CAP-COMPOSE-AC-03',
     capabilityId: 'media.compose.multitrack-timeline',
     required: ['active-speaker-aware multicamera cut proposal', 'speaker-turn', 'camera-source', 'reviewable local candidate', 'uncertainty', 'inferring', 'committing', 'separate approval'],
-    capabilityRequired: ['reviewable active-speaker multicamera cut proposal', 'speaker-turn and camera-source evidence', 'uncertainty', 'does not commit a project edit'],
+    capabilityRequired: ['a multicamera cut proposal is a reviewable local candidate', 'each proposed cut requires linked speaker-turn and camera-source evidence', 'uncertain links remain explicit', 'does not commit a project edit'],
   },
 ];
 
-test('six semantic corrections are owned by existing PDP-0 requirement and capability identities', () => {
-  assert.equal(capabilities.length, 462, 'the exact existing capability leaf denominator is preserved');
-  assert.equal(new Set(capabilities.map(item => item.id)).size, 462, 'capability IDs remain unique');
+test('semantic corrections preserve historical owner adjudications and all current definition identities', () => {
+  const historicalIds = capabilityLeafReview.ownerCapabilityLeafAdjudication.records.map(({ capabilityRef }) => capabilityRef).sort();
+  const extensionIds = campaignExtensions.currentDefinitionPopulation.records.map(({ capabilityId }) => capabilityId).sort();
+  const proposalIds = [
+    'media.recipe.specification.compile', 'media.project.scene.patch-merge',
+    'media.quality.audio.content-similarity.assess', 'media.generate.video.preset.manage',
+    'media.generate.video.shot-condition', 'media.job.schedule.manage',
+  ].sort();
+  assert.equal(capabilities.length, 469, 'the 462 historical leaves, six proposals, and one delegated definition remain present');
+  assert.equal(campaignExtensions.currentDefinitionPopulation.historicalCapabilityLeavesPreserved, 462);
+  assert.equal(campaignExtensions.currentDefinitionPopulation.currentCapabilityDefinitions, 469);
+  assert.equal(campaignExtensions.currentDefinitionPopulation.definitionExtensionCapabilityLeaves, 7);
+  assert.equal(campaignExtensions.currentDefinitionPopulation.ownerAdjudications, 462,
+    'extensions do not inflate the historical owner-adjudication denominator');
+  assert.equal(historicalIds.length, 462);
+  assert.equal(new Set(historicalIds).size, 462);
+  assert.equal(new Set(capabilities.map(item => item.id)).size, 469, 'all current capability IDs remain unique');
+  assert.equal(extensionIds.length, 7);
+  assert.deepEqual(extensionIds.filter(id => proposalIds.includes(id)), proposalIds);
+  assert.deepEqual(extensionIds.filter(id => !proposalIds.includes(id)), ['media.master.audio.creative-effect.apply']);
+  assert.ok(extensionIds.every(id => !historicalIds.includes(id)), 'all seven extensions remain outside historical adjudications');
+  assert.equal(campaignExtensions.currentDefinitionPopulation.ownerApproval, 'NOT_CLAIMED');
+  assert.equal(campaignExtensions.currentDefinitionPopulation.independentAcceptance, 'NOT_CLAIMED');
+  assert.match(campaignExtensions.currentDefinitionPopulation.meaning, /six coordinator-authored capability proposals[\s\S]*one creative-effect capability[\s\S]*independent acceptance is not claimed/iu);
   const allCaseIds = requirements.flatMap(requirement => (requirement.acceptanceCases ?? []).map(item => item.id));
   assert.equal(new Set(allCaseIds).size, allCaseIds.length, 'acceptance case IDs remain unique');
 
@@ -78,6 +102,7 @@ test('six semantic corrections are owned by existing PDP-0 requirement and capab
     const capabilityText = [capability.outcome, capability.ownerDefinition.semanticOutcomeContract?.result,
       ...(capability.ownerDefinition.semanticOutcomeContract?.outputDistinctions ?? []),
       capability.ownerDefinition.semanticOutcomeContract?.unknownDisposition,
+      JSON.stringify(capability.ownerDefinition.successOutputs ?? []),
       capability.ownerDefinition.effect?.semanticOutcome].join(' ').toLowerCase();
     for (const phrase of correction.capabilityRequired) {
       assert.ok(capabilityText.includes(phrase.toLowerCase()), `${correction.capabilityId} outcome preserves “${phrase}”`);
@@ -89,12 +114,14 @@ test('corrections are explicit P0 candidates and preserve uncertain or unavailab
   const findCapability = id => capabilities.find(item => item.id === id);
   const search = findCapability('media.artifact.search').ownerDefinition.semanticOutcomeContract;
   const searchCapability = findCapability('media.artifact.search');
-  assert.deepEqual(Object.keys(searchCapability.ownerDefinition.parameterSchema.properties).sort(), ['pageSize', 'pageToken', 'searchIntent', 'transcriptQuery']);
+  assert.deepEqual(Object.keys(searchCapability.ownerDefinition.parameterSchema.properties).sort(), ['declaredIntendedUseScope', 'facetQuery', 'pageSize', 'pageToken', 'searchIntent', 'sourceTimeRange', 'transcriptQuery', 'visualMetadataQuery']);
   assert.ok(searchCapability.ownerDefinition.parameterSchema.conditionalSemantics.some(({ when, requires }) => when === 'searchIntent=SEMANTIC_TRANSCRIPT_CANDIDATES' && requires === 'transcriptQuery'));
   assert.deepEqual(searchCapability.ownerDefinition.successOutputs.map(({ artifactType }) => artifactType), ['bounded-governed-artifact-result-page-and-opaque-continuation']);
-  assert.deepEqual(searchCapability.ownerDefinition.successOutputs[0].optionalSemanticObservations.map(({ id }) => id), ['transcriptSearchCandidates', 'duplicateCandidateGroups']);
+  assert.deepEqual(searchCapability.ownerDefinition.successOutputs[0].optionalSemanticObservations.map(({ id }) => id), [
+    'transcriptSearchCandidates', 'duplicateCandidateGroups', 'timelineFacetCandidates', 'visualMetadataCandidates', 'licenseEligibleAssetCandidates',
+  ]);
   assert.match(search.unknownDisposition, /do not present uncertainty as an empty or complete result/u);
-  assert.match(search.unknownDisposition, /never establishes transcript correctness or authorizes merge, replacement, or deletion/u);
+  assert.match(search.unknownDisposition, /never establishes transcript correctness, legal clearance, or permission to merge, replace, or delete source artifacts/u);
 
   const transcription = findCapability('media.speech.transcription.file').ownerDefinition.semanticOutcomeContract;
   const transcriptionCapability = findCapability('media.speech.transcription.file');
@@ -128,7 +155,7 @@ test('corrections are explicit P0 candidates and preserve uncertain or unavailab
   assert.deepEqual(stream.inputArtifactTypes, ['stream-session-request', 'consent-and-capability-context']);
 
   const compose = findCapability('media.compose.multitrack-timeline').ownerDefinition.semanticOutcomeContract;
-  assert.match(compose.result, /missing links and uncertainty explicit/u);
+  assert.match(compose.result, /keep exact source references, timebase, and uncertainty/iu);
   assert.match(compose.result, /does not commit a project edit/u);
   assert.match(compose.unknownDisposition, /cannot be inferred/u);
 });
@@ -220,4 +247,90 @@ test('PXD-172 defines keyboard privacy, response authorship, and full-duplex voi
   assert.equal(row('AUD-CAP-020').independentQcDispositionResolution.currentSourceReviewRef, '.product-experience/decision-log.md#PXD-172');
   assert.equal(row('AUD-TTS-017').independentQcDispositionResolution.currentSourceReviewRef, '.product-experience/decision-log.md#PXD-172');
   assert.equal(row('AUD-TTS-018').independentQcDispositionResolution.currentSourceReviewRef, '.product-experience/decision-log.md#PXD-172');
+  assert.equal(row('AUD-TTS-017').decisionRef.id, 'PXD-204');
+  assert.equal(row('AUD-TTS-018').decisionRef.id, 'PXD-204');
+});
+
+test('six production audit rows bind to exact current PDP-0 meanings and preserve negative cases', () => {
+  const crosswalk = JSON.parse(fs.readFileSync('docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json', 'utf8'));
+  const row = id => crosswalk.rows.find(item => item.auditId === id);
+  const expectedEvidence = {
+    'AUD-TTS-017': ['MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-03'],
+    'AUD-TTS-018': ['MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05'],
+    'AUD-DSP-007': ['MEDIA-REQ-CAP-MASTER-AUDIO-AC-03'],
+    'AUD-DSP-019': ['MEDIA-REQ-CAP-MASTER-AUDIO-AC-03', 'MEDIA-REQ-CAP-MASTER-AUDIO-AC-04'],
+    'AUD-MUSIC-008': ['MEDIA-REQ-CAP-RIGHTS-AC-03', 'MEDIA-REQ-CAP-GENERATE-AUDIO-AC-04'],
+    'AUD-MOTION-012': ['MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-10'],
+  };
+  const evidenceRef = caseId => `.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=${caseId.slice(0, caseId.lastIndexOf('-AC-'))}/acceptanceCases/@id=${caseId}`;
+
+  for (const [auditId, caseIds] of Object.entries(expectedEvidence)) {
+    const auditRow = row(auditId);
+    assert.equal(auditRow.disposition, 'BOUND_EXISTING', `${auditId} has an explicit current semantic disposition`);
+    for (const caseId of caseIds) assert.ok(auditRow.pdp0EvidenceRefs.includes(evidenceRef(caseId)), `${auditId} cites ${caseId}`);
+    assert.equal(auditRow.decisionRef.id, auditId === 'AUD-DSP-007' ? 'PXD-207' : 'PXD-204', `${auditId} is reviewed against the current source cut`);
+    assert.equal(auditRow.ownerApproval, 'NOT_CLAIMED', `${auditId} does not invent owner approval`);
+    assert.equal(auditRow.independentAcceptance, 'NOT_CLAIMED', `${auditId} does not invent independent acceptance`);
+  }
+
+  const caseText = (requirementId, caseId) => {
+    const requirement = requirements.find(item => item.id === requirementId);
+    const acceptanceCase = requirement?.acceptanceCases.find(item => item.id === caseId);
+    assert.ok(acceptanceCase, `${caseId} exists under ${requirementId}`);
+    return ['given', 'when', 'then', 'rejection'].map(key => acceptanceCase[key] ?? '').join(' ').toLowerCase();
+  };
+  assert.match(caseText('MEDIA-REQ-CAP-SPEECH-SYNTHESIS', 'MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-03'), /system-authored content distinct from speaker-conditioned audio/u);
+  assert.match(caseText('MEDIA-REQ-CAP-SPEECH-SYNTHESIS', 'MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05'), /hidden or background microphone capture/u);
+  assert.match(caseText('MEDIA-REQ-CAP-MASTER-AUDIO', 'MEDIA-REQ-CAP-MASTER-AUDIO-AC-03'), /creative delay, chorus, flanger, or reverb/u);
+  assert.match(caseText('MEDIA-REQ-CAP-MASTER-AUDIO', 'MEDIA-REQ-CAP-MASTER-AUDIO-AC-04'), /silently applying a master-bus chain to a voice/u);
+  assert.match(caseText('MEDIA-REQ-CAP-RIGHTS', 'MEDIA-REQ-CAP-RIGHTS-AC-03'), /source possession as a permitted-use decision/u);
+  assert.match(caseText('MEDIA-REQ-CAP-GENERATE-AUDIO', 'MEDIA-REQ-CAP-GENERATE-AUDIO-AC-04'), /all non-selected regions as unchanged source material/u);
+  assert.match(caseText('MEDIA-REQ-CAP-RECIPE-TEMPLATE', 'MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-10'), /distinguishing data-bearing marks from decorative imagery/u);
+
+  assert.ok(row('AUD-DSP-007').pdp0ContextRefs.every(ref => !ref.includes('media.master.audio.room-match')),
+    'room matching is not evidence for creative audio effects');
+  assert.deepEqual(row('AUD-DSP-007').pdp0EvidenceRefs, [
+    '.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.master.audio.creative-effect.apply',
+    '.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-MASTER-AUDIO/acceptanceCases/@id=MEDIA-REQ-CAP-MASTER-AUDIO-AC-03',
+  ], 'AUD-DSP-007 is bound to its exact capability and AC-03 evidence');
+  assert.match(row('AUD-DSP-007').phaseLocalRationale, /PXD-207 includes AUD-DSP-007 in PDP-0 product scope/u);
+  assert.match(row('AUD-DSP-007').phaseLocalRationale, /Room matching is not a substitute/u);
+  assert.equal(row('AUD-DSP-007').externalOwnerDecision, undefined);
+  assert.ok(row('AUD-DSP-019').pdp0ContextRefs.every(ref => !ref.includes('media.master.audio.equalize')),
+    'equalization is not evidence for reusable effect chains');
+  assert.match(row('AUD-TTS-017').phaseLocalRationale, /speaker conditioning is a separate downstream audio operation/u);
+  assert.match(row('AUD-MOTION-012').phaseLocalRationale, /source fields, transformation, schema, and exact source version/u);
+});
+
+test('P0-004 clock domains and visual/model fidelity axes are explicit and distinct', () => {
+  const clockIds = [
+    'source_video_presentation_time',
+    'audio_sample_time',
+    'story_explanation_time',
+    'simulation_execution_time',
+    'wall_clock_time',
+  ];
+  const recorderClockCase = p0Definition.recorderStudioProfile.acceptanceClauses
+    .find(item => item.id === 'MEDIA-REC-P0-AC-010');
+  const clockSource = parseYaml(fs.readFileSync('.product-experience/pdp-0-product-truth/time-units-fidelity.yaml', 'utf8'));
+  assert.deepEqual(clockSource.productTruthClockDomains.domainIds, clockIds);
+  assert.deepEqual(clockSource.separateClocks.map(item => item.id), clockIds);
+  const clockText = `${recorderClockCase.then} ${recorderClockCase.rejection}`.toLowerCase();
+  for (const domain of ['source/video presentation time', 'audio sample time', 'story/explanation time', 'simulation execution time', 'wall-clock time']) {
+    assert.ok(clockText.includes(domain), `PDP-0 clock acceptance names ${domain}`);
+  }
+  assert.match(clockText, /decode timestamps such as dts.*not as a sixth product clock/u);
+  assert.match(clockText, /each conversion names its source and destination domain/u);
+  assert.match(clockText, /missing or unresolved mapping remains explicitly unknown or unavailable/u);
+
+  const fidelityCase = p0Definition.declarativeProductionProfile.acceptanceClauses
+    .find(item => item.id === 'MEDIA-DECL-P0-AC-037');
+  const fidelityText = `${fidelityCase.when} ${fidelityCase.then} ${fidelityCase.rejection}`.toLowerCase();
+  for (const axis of ['visual level of detail', 'visual quality/fidelity', 'domain-model fidelity', 'validation tier']) {
+    assert.ok(fidelityText.includes(axis), `PDP-0 fidelity acceptance names ${axis} separately`);
+  }
+  assert.match(fidelityText, /preserve tutorputor f0–f4 identifiers only with their owner-defined meaning/u);
+  assert.match(fidelityText, /reject conflating visual level of detail, visual quality, model fidelity, and validation tier/u);
+  assert.match(clockSource.simulationAndFidelity.domainFidelity.principle,
+    /visual quality, visual level of detail, and validation tier are separate reported axes/u);
 });

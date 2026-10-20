@@ -11,15 +11,19 @@ const profileSemantics = parse(readFileSync(resolve(root, ".product-experience/p
 const capabilities = parse(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/capabilities.yaml"), "utf8"));
 const handoff = parse(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/handoff-contracts.yaml"), "utf8"));
 const capabilityLeafReview = parse(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml"), "utf8"));
+const canonicalCapabilityIds = new Set(capabilityLeafReview.ownerCapabilityLeafAdjudication.records.map(({ capabilityRef }) => capabilityRef));
+const canonicalCapabilities = capabilities.capabilities.filter(({ id }) => canonicalCapabilityIds.has(id));
 const nfr = parse(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml"), "utf8"));
 const qualification = parse(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/qualification-policy.yaml"), "utf8"));
 
 function resolveP0CapabilityBoundsEnvelopes(capabilitySource, crosswalkSource, profileSource) {
-  const leaves = capabilitySource?.capabilities;
+  const definitions = capabilitySource?.capabilities;
   const rows = crosswalkSource?.ownerCapabilityLeafAdjudication?.records;
   const rule = profileSource?.capabilityBoundsEnvelope;
-  if (!Array.isArray(leaves) || leaves.length !== 462 || new Set(leaves.map(({ id }) => id)).size !== 462
-      || !Array.isArray(rows) || rows.length !== 462 || new Set(rows.map(({ capabilityRef }) => capabilityRef)).size !== 462
+  const ids = new Set((rows ?? []).map(({ capabilityRef }) => capabilityRef));
+  const leaves = Array.isArray(definitions) ? definitions.filter(({ id }) => ids.has(id)) : definitions;
+  if (!Array.isArray(definitions) || !Array.isArray(leaves) || leaves.length !== 462 || new Set(leaves.map(({ id }) => id)).size !== 462
+      || !Array.isArray(rows) || rows.length !== 462 || ids.size !== 462
       || rule?.id !== "media.profile.p0-capability-bounds-envelope.v1" || rule.population?.count !== 462) return null;
   const byCapability = new Map(rows.map((row) => [row.capabilityRef, row]));
   const boundsRefs = new Set();
@@ -78,7 +82,8 @@ test("P0 bounded invocation admission distinguishes inapplicable resources from 
   assert.match(profileSemantics.capabilityBoundsEnvelope.parameterRule, /Defaults exist only when explicitly present in that exact schema/u);
   assert.match(profileSemantics.capabilityBoundsEnvelope.inputShapeRule, /sourceType, cardinality, required flag, alternatives, and condition/u);
   assert.match(profileSemantics.capabilityBoundsEnvelope.inputShapeRule, /No family-level optionality, field, default, or cardinality is inherited/u);
-  const inputShapeSlots = capabilities.capabilities.flatMap(({ ownerDefinition }) => ownerDefinition.typedInputSlots);
+  const inputShapeSlots = capabilities.capabilities.filter(({ id }) => canonicalCapabilityIds.has(id))
+    .flatMap(({ ownerDefinition }) => ownerDefinition.typedInputSlots);
   const inputShapeIdentity = (slot) => JSON.stringify({
     sourceType: slot.sourceType,
     cardinality: slot.cardinality,
@@ -160,8 +165,9 @@ test("P0 bounded invocation admission distinguishes inapplicable resources from 
   assert.doesNotMatch(profileSemantics.scopeNote, /pending integration with P0-003/u);
   assert.doesNotMatch(profileSemantics.profileResolutionRecord.capabilityBindingState, /pending-P0-003/u);
 
-  assert.equal(capabilities.capabilities.length, 462);
-  assert.ok(capabilities.capabilities.every(({ executionResourceRequirements }) =>
+  assert.equal(capabilities.capabilities.length, 469);
+  assert.equal(canonicalCapabilities.length, 462);
+  assert.ok(canonicalCapabilities.every(({ executionResourceRequirements }) =>
     /profile-semantics\.yaml#boundedInvocationAdmission/u.test(executionResourceRequirements)
     && /finite bound/u.test(executionResourceRequirements)
     && /blocks before dispatch/u.test(executionResourceRequirements)
@@ -170,7 +176,7 @@ test("P0 bounded invocation admission distinguishes inapplicable resources from 
     && /claims no runtime availability/u.test(executionResourceRequirements)));
   const envelopes = resolveP0CapabilityBoundsEnvelopes(capabilities, capabilityLeafReview, profileSemantics);
   assert.equal(envelopes?.size, 462, "every stable capabilityIntentId resolves one exact unique P0 profile/schema envelope");
-  for (const leaf of capabilities.capabilities) {
+  for (const leaf of canonicalCapabilities) {
     assert.equal(leaf.semanticReferenceScope, capabilities.ownerDefinedCapabilityIntentBinding.id);
     const envelope = envelopes.get(leaf.ownerDefinition.boundsRef);
     assert.equal(envelope.capabilityIntentId, leaf.id);
@@ -195,7 +201,7 @@ test("P0 bounded invocation admission distinguishes inapplicable resources from 
   assert.equal(profileSemantics.capabilityBoundsEnvelope.resourceDimensionRule.unappliedEvidenceState.includes("UNKNOWN applicability"), true);
   assert.equal(profileSemantics.capabilityBoundsEnvelope.resourceDimensionRule.admission.includes("NOT_ADMITTED"), true);
   assert.equal(profileSemantics.capabilityBoundsEnvelope.resourceDimensionRule.admission.includes("block before dispatch"), true);
-  assert.equal(capabilities.capabilities.every(({ supportDimensions }) => supportDimensions.qualificationState === "NOT_EVALUATED"
+  assert.equal(canonicalCapabilities.every(({ supportDimensions }) => supportDimensions.qualificationState === "NOT_EVALUATED"
     && supportDimensions.runtimeAvailability === "UNKNOWN"), true);
   assert.equal(handoff.pdpPhaseHandoffContracts.pdp0ToPdp1CapabilityIntent.requiredMeaning.executionResourceAdmission,
     ".product-experience/pdp-0-product-truth/profile-semantics.yaml#boundedInvocationAdmission");

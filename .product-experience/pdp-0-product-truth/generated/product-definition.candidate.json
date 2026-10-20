@@ -5,8 +5,8 @@
   "sourceAuthorities": [
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-      "sha256": "59699d732188d23787c33a402df9cef5c6006a42fc96eace422197bbd5a08401",
-      "bytes": 20580,
+      "sha256": "630925a0e7ed4026709d9aabf2fa6fcd4e0330062ce826a21efb1a1de126a239",
+      "bytes": 15476,
       "format": "markdown"
     },
     {
@@ -133,8 +133,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/authority.yaml",
-      "sha256": "0f3b6cd8ffdc48f2fbb8adbeaaf8e61d7de93752f45972bcba90e700201cb6c0",
-      "bytes": 19524,
+      "sha256": "433f13db1adde6b7136656491125612a5894cfe8ad6d50e3f4c23d99223102ec",
+      "bytes": 20864,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.authority.v1",
       "authority": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
@@ -157,6 +157,7 @@
         "sourceRefs"
       ],
       "declaredIds": [
+        "media.authority.caller-identity-hint-compare-only.v1",
         "media.authority.job-status-dimension-read.v1",
         "media.authority.resource-locator-not-grant.v1",
         "media.decision.document-intelligence-boundary",
@@ -239,8 +240,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-      "sha256": "87c2e92a36a05bd6b9f34eed7b8e9b4cab2102a0448e9200615f85859526b8cb",
-      "bytes": 4526718,
+      "sha256": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
+      "bytes": 4526700,
       "format": "yaml",
       "schemaVersion": "media.goals-jtbd.v1",
       "authority": null,
@@ -2663,8 +2664,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
-      "sha256": "822767f9562487f5e0d05a984fffaf4a6862f4db67d123c13b7fdc5dbe83ea9a",
-      "bytes": 27371,
+      "sha256": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce",
+      "bytes": 27876,
       "format": "yaml",
       "schemaVersion": "media.profile-semantics.v1",
       "authority": "prospective-Phase-0-semantics; not runtime binding or qualification evidence",
@@ -2867,8 +2868,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-      "sha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
-      "bytes": 7894827,
+      "sha256": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+      "bytes": 7998296,
       "format": "yaml",
       "schemaVersion": "media.capabilities.v1",
       "authority": "prospective-Phase-0-definition; not runtime authority or qualification evidence",
@@ -2900,9 +2901,14 @@
         "AUTHORED_SOURCE_FREE_OUTPUT",
         "CONSUMED_SOURCE_DERIVED_LOCAL_CANDIDATE",
         "CONSUMED_SOURCE_DERIVED_OUTPUT",
+        "clipSourceTimeRange",
         "duplicateCandidateGroups",
+        "editableBrandedMotionTemplate",
+        "editableBrandedMotionTemplateCandidate",
         "fillerRetakeCandidateObservations",
         "glossaryApplication",
+        "importedCaptionTrack",
+        "licenseEligibleAssetCandidates",
         "media.animation",
         "media.animation.2d",
         "media.animation.3d",
@@ -3173,7 +3179,9 @@
         "media.generate.video.keyframe.end",
         "media.generate.video.keyframe.intermediate",
         "media.generate.video.keyframe.start",
+        "media.generate.video.preset.manage",
         "media.generate.video.reference-video",
+        "media.generate.video.shot-condition",
         "media.generate.video.text-image-to-video",
         "media.generate.video.text-to-video",
         "media.generate.video.video-to-video",
@@ -3186,10 +3194,12 @@
         "media.job.list",
         "media.job.outputs.inspect",
         "media.job.retry",
+        "media.job.schedule.manage",
         "media.job.submit",
         "media.job.view-status",
         "media.job.watch",
         "media.master.audio",
+        "media.master.audio.creative-effect.apply",
         "media.master.audio.duck-sidechain",
         "media.master.audio.dynamic-compression",
         "media.master.audio.equalize",
@@ -3223,6 +3233,7 @@
         "media.project.organize",
         "media.project.restore",
         "media.project.review",
+        "media.project.scene.patch-merge",
         "media.project.search",
         "media.project.settings.update",
         "media.project.source-asset.attach",
@@ -3247,6 +3258,7 @@
         "media.quality.audio.audio.assess-separation-leakage",
         "media.quality.audio.audio.assess-spectral",
         "media.quality.audio.audio.assess-true-peak",
+        "media.quality.audio.content-similarity.assess",
         "media.quality.bounded-optimize",
         "media.quality.compare",
         "media.quality.diagnose",
@@ -3276,6 +3288,7 @@
         "media.quality.video.video.assess-object-continuity",
         "media.quality.video.video.assess-qualified-physical-plausibility",
         "media.quality.video.video.assess-temporal-consistency",
+        "media.recipe.specification.compile",
         "media.recipe.template",
         "media.recipe.template.architectural-scene",
         "media.recipe.template.character-gesture-animation",
@@ -3410,15 +3423,22 @@
         "media.vision.segment.video",
         "media.vision.track.object",
         "media.vision.track.point",
+        "organizationRequest",
         "presenterCueBinding",
         "presenterPromptObservation",
-        "transcriptSearchCandidates"
+        "reusableAudioEffectsChain",
+        "reusableAudioEffectsChainCandidate",
+        "subtitleTrackDelivery",
+        "targetChannelLayout",
+        "timelineFacetCandidates",
+        "transcriptSearchCandidates",
+        "visualMetadataCandidates"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
-      "sha256": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
-      "bytes": 7592295,
+      "sha256": "53afdf91fd0fceb65e3058fb8dd2b7a384f2cfe4923609dbc5706d8859c7c8c3",
+      "bytes": 7689678,
       "format": "yaml",
       "schemaVersion": "media.capability-leaf-review.v1",
       "authority": null,
@@ -3434,6 +3454,7 @@
         "definitionOnlySourceReconciliations",
         "denominatorReconciliation",
         "experienceDefinitionSourceReconciliation",
+        "extensionImplementationLaneDispositions",
         "intents",
         "leaves",
         "ownerCapabilityLeafAdjudication",
@@ -4913,6 +4934,83 @@
       ]
     },
     {
+      "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+      "sha256": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
+      "bytes": 110363,
+      "format": "yaml",
+      "schemaVersion": "media.pdp0-campaign-extensions.v1",
+      "authority": null,
+      "status": null,
+      "topLevelFields": [
+        "canonicalDenominator",
+        "currentDefinitionPopulation",
+        "productId",
+        "records",
+        "schemaVersion"
+      ],
+      "declaredIds": [
+        "AUD-CLONE-006",
+        "AUD-CLONE-006-CAP-AC-01",
+        "AUD-CLONE-006-CAP-AC-02",
+        "AUD-CLONE-006-CAP-AC-03",
+        "AUD-CLONE-006-CAP-AC-04",
+        "AUD-CLONE-006-CAP-AC-05",
+        "AUD-CLONE-006-CAP-AC-06",
+        "AUD-CLONE-006-CAP-AC-07",
+        "AUD-CLONE-006-CHANNEL-APPLICABILITY",
+        "AUD-CLONE-006-CHANNEL-WEB",
+        "AUD-GEN-014",
+        "AUD-GEN-015",
+        "AUD-OPS-021",
+        "AUD-OPS-021-CAP-AC-01",
+        "AUD-OPS-021-CAP-AC-02",
+        "AUD-OPS-021-CAP-AC-03",
+        "AUD-OPS-021-CAP-AC-04",
+        "AUD-OPS-021-CAP-AC-05",
+        "AUD-OPS-021-CHANNEL-APPLICABILITY",
+        "AUD-OPS-021-CHANNEL-CLI",
+        "AUD-SPEC-020",
+        "AUD-SPEC-020-CAP-AC-01",
+        "AUD-SPEC-020-CAP-AC-02",
+        "AUD-SPEC-020-CAP-AC-03",
+        "AUD-SPEC-020-CHANNEL-AGENT",
+        "AUD-SPEC-020-CHANNEL-API",
+        "AUD-SPEC-020-CHANNEL-APPLICABILITY",
+        "AUD-SPEC-020-CHANNEL-CLI",
+        "AUD-SPEC-020-CHANNEL-EMBEDDED",
+        "AUD-SPEC-020-CHANNEL-EVENT",
+        "AUD-SPEC-020-CHANNEL-GRPC-API",
+        "AUD-SPEC-020-CHANNEL-HTTP-API",
+        "AUD-SPEC-020-CHANNEL-LEGACY-DESKTOP",
+        "AUD-SPEC-020-CHANNEL-PRODUCT-INTEGRATION",
+        "AUD-SPEC-020-CHANNEL-SDK",
+        "AUD-SPEC-020-CHANNEL-WEB",
+        "AUD-SPEC-020-P0-COMPILE-AC-01",
+        "AUD-SPEC-020-REQ-AC-RIGHTS-LICENSE-01",
+        "MEDIA-REQ-AUD-CLONE-006-SOURCE-FREE-VOICE-STYLE-PROFILE-DESIGN",
+        "MEDIA-REQ-AUD-CLONE-006-SOURCE-FREE-VOICE-STYLE-PROFILE-DESIGN-AC-01",
+        "MEDIA-REQ-AUD-CLONE-006-SOURCE-FREE-VOICE-STYLE-PROFILE-DESIGN-AC-02",
+        "MEDIA-REQ-AUD-CLONE-006-SOURCE-FREE-VOICE-STYLE-PROFILE-DESIGN-AC-03",
+        "MEDIA-REQ-AUD-CLONE-006-SOURCE-FREE-VOICE-STYLE-PROFILE-DESIGN-AC-04",
+        "MEDIA-REQ-AUD-CLONE-006-SOURCE-FREE-VOICE-STYLE-PROFILE-DESIGN-AC-05",
+        "MEDIA-REQ-AUD-CLONE-006-SOURCE-FREE-VOICE-STYLE-PROFILE-DESIGN-AC-06",
+        "MEDIA-REQ-AUD-OPS-021-MODEL-PACKAGE-MANAGE",
+        "MEDIA-REQ-AUD-OPS-021-MODEL-PACKAGE-MANAGE-AC-01",
+        "MEDIA-REQ-AUD-OPS-021-MODEL-PACKAGE-MANAGE-AC-02",
+        "MEDIA-REQ-AUD-OPS-021-MODEL-PACKAGE-MANAGE-AC-03",
+        "MEDIA-REQ-AUD-OPS-021-MODEL-PACKAGE-MANAGE-AC-04",
+        "MEDIA-REQ-CAP-RULES",
+        "MEDIA-REQ-CAP-RULES-AC-01",
+        "MEDIA-REQ-CAP-RULES-AC-02",
+        "media.capability.model-package.manage",
+        "media.intent.audit-clone-006-source-free-voice-design",
+        "media.intent.audit-ops-021-model-package-manage",
+        "media.intent.manage-reusable-rules",
+        "media.rules.manage",
+        "media.speech.synthesis.voice-style-profile.design-source-free"
+      ]
+    },
+    {
       "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
       "sha256": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
       "bytes": 220814,
@@ -5106,8 +5204,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
-      "sha256": "af774f4db0a306ac3514475d65170560c345e7a6ecdf17305edb2ac3b9af41fe",
-      "bytes": 436288,
+      "sha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "bytes": 492555,
       "format": "yaml",
       "schemaVersion": "media.requirements.v1",
       "authority": "prospective-Phase-0-definition; not accepted Product Truth",
@@ -5303,20 +5401,30 @@
         "MEDIA-REQ-CAP-ANIMATION-AC-01",
         "MEDIA-REQ-CAP-ANIMATION-AC-02",
         "MEDIA-REQ-CAP-ANIMATION-AC-03",
+        "MEDIA-REQ-CAP-ANIMATION-AC-04",
         "MEDIA-REQ-CAP-ANIMATION-EDITING",
         "MEDIA-REQ-CAP-ANIMATION-EDITING-AC-01",
         "MEDIA-REQ-CAP-ANIMATION-EDITING-AC-02",
         "MEDIA-REQ-CAP-ANIMATION-OUTPUT",
         "MEDIA-REQ-CAP-ANIMATION-OUTPUT-AC-01",
         "MEDIA-REQ-CAP-ANIMATION-OUTPUT-AC-02",
+        "MEDIA-REQ-CAP-ANIMATION-OUTPUT-AC-03",
         "MEDIA-REQ-CAP-ARTIFACT",
         "MEDIA-REQ-CAP-ARTIFACT-AC-01",
         "MEDIA-REQ-CAP-ARTIFACT-AC-02",
         "MEDIA-REQ-CAP-ARTIFACT-AC-03",
         "MEDIA-REQ-CAP-ARTIFACT-AC-04",
+        "MEDIA-REQ-CAP-ARTIFACT-AC-05",
+        "MEDIA-REQ-CAP-ARTIFACT-AC-06",
+        "MEDIA-REQ-CAP-ARTIFACT-AC-07",
+        "MEDIA-REQ-CAP-ARTIFACT-AC-08",
+        "MEDIA-REQ-CAP-ARTIFACT-AC-09",
+        "MEDIA-REQ-CAP-ARTIFACT-AC-10",
+        "MEDIA-REQ-CAP-ARTIFACT-AC-11",
         "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
         "MEDIA-REQ-CAP-AUDIO-ANALYSIS-AC-01",
         "MEDIA-REQ-CAP-AUDIO-ANALYSIS-AC-02",
+        "MEDIA-REQ-CAP-AUDIO-ANALYSIS-AC-03",
         "MEDIA-REQ-CAP-CAPABILITY",
         "MEDIA-REQ-CAP-CAPABILITY-AC-01",
         "MEDIA-REQ-CAP-CAPABILITY-AC-02",
@@ -5327,12 +5435,24 @@
         "MEDIA-REQ-CAP-COMPOSE-AC-01",
         "MEDIA-REQ-CAP-COMPOSE-AC-02",
         "MEDIA-REQ-CAP-COMPOSE-AC-03",
+        "MEDIA-REQ-CAP-COMPOSE-AC-04",
+        "MEDIA-REQ-CAP-COMPOSE-AC-05",
+        "MEDIA-REQ-CAP-COMPOSE-AC-06",
+        "MEDIA-REQ-CAP-COMPOSE-AC-07",
+        "MEDIA-REQ-CAP-COMPOSE-AC-08",
+        "MEDIA-REQ-CAP-COMPOSE-AC-09",
+        "MEDIA-REQ-CAP-COMPOSE-AC-10",
+        "MEDIA-REQ-CAP-COMPOSE-AC-11",
         "MEDIA-REQ-CAP-DELIVER",
         "MEDIA-REQ-CAP-DELIVER-AC-01",
         "MEDIA-REQ-CAP-DELIVER-AC-02",
+        "MEDIA-REQ-CAP-DELIVER-AC-03",
+        "MEDIA-REQ-CAP-DELIVER-AC-04",
+        "MEDIA-REQ-CAP-DELIVER-AC-05",
         "MEDIA-REQ-CAP-EDIT",
         "MEDIA-REQ-CAP-EDIT-AC-01",
         "MEDIA-REQ-CAP-EDIT-AC-02",
+        "MEDIA-REQ-CAP-EDIT-AC-03",
         "MEDIA-REQ-CAP-ENHANCE-AUDIO",
         "MEDIA-REQ-CAP-ENHANCE-AUDIO-AC-01",
         "MEDIA-REQ-CAP-ENHANCE-AUDIO-AC-02",
@@ -5347,6 +5467,7 @@
         "MEDIA-REQ-CAP-GENERATE-AUDIO-AC-02",
         "MEDIA-REQ-CAP-GENERATE-AUDIO-AC-03",
         "MEDIA-REQ-CAP-GENERATE-AUDIO-AC-04",
+        "MEDIA-REQ-CAP-GENERATE-AUDIO-AC-05",
         "MEDIA-REQ-CAP-GENERATE-IMAGE",
         "MEDIA-REQ-CAP-GENERATE-IMAGE-AC-01",
         "MEDIA-REQ-CAP-GENERATE-IMAGE-AC-02",
@@ -5357,6 +5478,12 @@
         "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-01",
         "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-02",
         "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-03",
+        "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-04",
+        "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-05",
+        "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-06",
+        "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-07",
+        "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-08",
+        "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-09",
         "MEDIA-REQ-CAP-HEALTH",
         "MEDIA-REQ-CAP-HEALTH-AC-01",
         "MEDIA-REQ-CAP-HEALTH-AC-02",
@@ -5364,13 +5491,17 @@
         "MEDIA-REQ-CAP-JOB-AC-01",
         "MEDIA-REQ-CAP-JOB-AC-02",
         "MEDIA-REQ-CAP-JOB-AC-03",
+        "MEDIA-REQ-CAP-JOB-AC-04",
         "MEDIA-REQ-CAP-MASTER-AUDIO",
         "MEDIA-REQ-CAP-MASTER-AUDIO-AC-01",
         "MEDIA-REQ-CAP-MASTER-AUDIO-AC-02",
         "MEDIA-REQ-CAP-MASTER-AUDIO-AC-03",
+        "MEDIA-REQ-CAP-MASTER-AUDIO-AC-04",
+        "MEDIA-REQ-CAP-MASTER-AUDIO-AC-05",
         "MEDIA-REQ-CAP-MULTIMODAL",
         "MEDIA-REQ-CAP-MULTIMODAL-AC-01",
         "MEDIA-REQ-CAP-MULTIMODAL-AC-02",
+        "MEDIA-REQ-CAP-MULTIMODAL-AC-03",
         "MEDIA-REQ-CAP-PROFILE",
         "MEDIA-REQ-CAP-PROFILE-AC-01",
         "MEDIA-REQ-CAP-PROFILE-AC-02",
@@ -5379,10 +5510,17 @@
         "MEDIA-REQ-CAP-PROJECT-AC-02",
         "MEDIA-REQ-CAP-PROJECT-AC-03",
         "MEDIA-REQ-CAP-PROJECT-AC-04",
+        "MEDIA-REQ-CAP-PROJECT-AC-05",
+        "MEDIA-REQ-CAP-PROJECT-AC-06",
+        "MEDIA-REQ-CAP-PROJECT-AC-07",
+        "MEDIA-REQ-CAP-PROJECT-AC-08",
         "MEDIA-REQ-CAP-PROVENANCE",
         "MEDIA-REQ-CAP-PROVENANCE-AC-01",
         "MEDIA-REQ-CAP-PROVENANCE-AC-02",
         "MEDIA-REQ-CAP-PROVENANCE-AC-03",
+        "MEDIA-REQ-CAP-PROVENANCE-AC-04",
+        "MEDIA-REQ-CAP-PROVENANCE-AC-05",
+        "MEDIA-REQ-CAP-PROVENANCE-AC-06",
         "MEDIA-REQ-CAP-QUALITY",
         "MEDIA-REQ-CAP-QUALITY-AC-01",
         "MEDIA-REQ-CAP-QUALITY-AC-02",
@@ -5392,6 +5530,12 @@
         "MEDIA-REQ-CAP-QUALITY-AC-06",
         "MEDIA-REQ-CAP-QUALITY-AC-07",
         "MEDIA-REQ-CAP-QUALITY-AC-08",
+        "MEDIA-REQ-CAP-QUALITY-AC-09",
+        "MEDIA-REQ-CAP-QUALITY-AC-10",
+        "MEDIA-REQ-CAP-QUALITY-AC-11",
+        "MEDIA-REQ-CAP-QUALITY-AC-12",
+        "MEDIA-REQ-CAP-QUALITY-AC-13",
+        "MEDIA-REQ-CAP-QUALITY-AC-14",
         "MEDIA-REQ-CAP-QUALITY-AUDIO",
         "MEDIA-REQ-CAP-QUALITY-AUDIO-AC-01",
         "MEDIA-REQ-CAP-QUALITY-AUDIO-AC-02",
@@ -5408,16 +5552,32 @@
         "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-04",
         "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-05",
         "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-06",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-07",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-08",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-09",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-10",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-11",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-12",
         "MEDIA-REQ-CAP-RIGHTS",
         "MEDIA-REQ-CAP-RIGHTS-AC-01",
         "MEDIA-REQ-CAP-RIGHTS-AC-02",
         "MEDIA-REQ-CAP-RIGHTS-AC-03",
         "MEDIA-REQ-CAP-RIGHTS-AC-04",
         "MEDIA-REQ-CAP-RIGHTS-AC-05",
+        "MEDIA-REQ-CAP-RIGHTS-AC-06",
+        "MEDIA-REQ-CAP-RIGHTS-AC-07",
+        "MEDIA-REQ-CAP-RIGHTS-AC-08",
+        "MEDIA-REQ-CAP-RIGHTS-AC-09",
+        "MEDIA-REQ-CAP-RIGHTS-AC-10",
+        "MEDIA-REQ-CAP-RIGHTS-AC-11",
+        "MEDIA-REQ-CAP-RIGHTS-AC-12",
+        "MEDIA-REQ-CAP-RIGHTS-AC-13",
         "MEDIA-REQ-CAP-SIMULATION",
         "MEDIA-REQ-CAP-SIMULATION-AC-01",
         "MEDIA-REQ-CAP-SIMULATION-AC-02",
         "MEDIA-REQ-CAP-SIMULATION-AC-03",
+        "MEDIA-REQ-CAP-SIMULATION-AC-04",
+        "MEDIA-REQ-CAP-SIMULATION-AC-05",
         "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
         "MEDIA-REQ-CAP-SIMULATION-OUTPUT-AC-01",
         "MEDIA-REQ-CAP-SIMULATION-OUTPUT-AC-02",
@@ -5427,16 +5587,26 @@
         "MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-03",
         "MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-04",
         "MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05",
+        "MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-06",
+        "MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-07",
+        "MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-08",
+        "MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-09",
         "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
         "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-01",
         "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-02",
         "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-03",
         "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-04",
         "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-05",
+        "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-06",
+        "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-07",
         "MEDIA-REQ-CAP-STREAM",
         "MEDIA-REQ-CAP-STREAM-AC-01",
         "MEDIA-REQ-CAP-STREAM-AC-02",
         "MEDIA-REQ-CAP-STREAM-AC-03",
+        "MEDIA-REQ-CAP-STREAM-AC-04",
+        "MEDIA-REQ-CAP-STREAM-AC-05",
+        "MEDIA-REQ-CAP-STREAM-AC-06",
+        "MEDIA-REQ-CAP-STREAM-AC-07",
         "MEDIA-REQ-CAP-SYNC",
         "MEDIA-REQ-CAP-SYNC-AC-01",
         "MEDIA-REQ-CAP-SYNC-AC-02",
@@ -5503,8 +5673,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-      "sha256": "0b30f351633d5d0209ea5f20a8a1b89d8641b086b3c554119014c22cf4e7d7ad",
-      "bytes": 96739,
+      "sha256": "db98413dfc314d85528d87515e8e7b100afe12276bfc8a73ca5401bbc92355eb",
+      "bytes": 97045,
       "format": "yaml",
       "schemaVersion": null,
       "authority": null,
@@ -5642,8 +5812,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-      "sha256": "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770",
-      "bytes": 3569882,
+      "sha256": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+      "bytes": 3569917,
       "format": "yaml",
       "schemaVersion": "media.quality-policy.v1",
       "authority": "prospective-Phase-0-policy; does not establish measurements, calibration, qualification, or runtime support",
@@ -6201,6 +6371,121 @@
       ]
     },
     {
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml",
+      "sha256": "22319bb51b947ca105f99c8c970c6ae2efdf30ed53b34a91ce2981451278effa",
+      "bytes": 64574,
+      "format": "yaml",
+      "schemaVersion": "media.reuse-decisions.v1",
+      "authority": null,
+      "status": "P0-008-owner-boundary-and-candidate-disposition-draft; publication-isolation-and-owner-acceptance-pending",
+      "topLevelFields": [
+        "decisions",
+        "externalMechanics",
+        "mediaArchitectureRules",
+        "notAdmittedByThisRecord",
+        "ownerDefinedDistributionSourceOfferRule",
+        "ownerDefinedPackagePublicationEvidenceRule",
+        "ownerDefinedTutorPutorReuseReviewRule",
+        "ownerRequests",
+        "productId",
+        "schemaVersion",
+        "selectionOrder",
+        "selectionRegister",
+        "selectionSequenceRule",
+        "status"
+      ],
+      "declaredIds": [
+        "EXCEPTION-SHARED-AXE-CORE",
+        "REUSE-AI-INFERENCE",
+        "REUSE-DATA-CLOUD",
+        "REUSE-DATA-CLOUD-MEDIA-READ-MODEL",
+        "REUSE-DOCUMENT-INTELLIGENCE",
+        "REUSE-EVENT-AND-ACTION-PLANE",
+        "REUSE-EXTERNAL-ENGINES-AND-MODELS",
+        "REUSE-LIFECYCLE-CLOSURE-AND-EVIDENCE",
+        "REUSE-SHARED-AUDIT-OBSERVABILITY",
+        "REUSE-SHARED-DOCUMENT-CONTRACTS",
+        "REUSE-SHARED-OUTBOX",
+        "REUSE-SHARED-WORKFLOW",
+        "REUSE-TOOLS-EXPERIENCE-LANGUAGE",
+        "REUSE-TOOLS-EXPERIENCE-PACKAGE-AND-EXPLORER",
+        "REUSE-TOOLS-EXPERIENCE-SPECIFICATION",
+        "REUSE-TOOLS-PRODUCT-DEFINITION",
+        "REUSE-TUTORPUTOR-SIMULATION",
+        "TECH-C2PA-RS",
+        "TECH-DAV1D",
+        "TECH-DIFFUSERS",
+        "TECH-FFMPEG",
+        "TECH-GHATANA-AI-INFERENCE",
+        "TECH-GHATANA-CONTRACT-MOCK-SERVER",
+        "TECH-GHATANA-DATA-CLOUD",
+        "TECH-GHATANA-DESIGN-SYSTEM",
+        "TECH-GHATANA-DOCUMENT-INTELLIGENCE",
+        "TECH-GHATANA-EVENT-ACTION-PLANE",
+        "TECH-GHATANA-EXPERIENCE-ASSURANCE",
+        "TECH-GHATANA-EXPERIENCE-CONTRACTS",
+        "TECH-GHATANA-EXPLORER",
+        "TECH-GHATANA-LIFECYCLE-CLOSURE",
+        "TECH-GHATANA-PRODUCT-DEFINITION",
+        "TECH-GHATANA-SHARED-FOUNDATIONS",
+        "TECH-GHATANA-TRACEABILITY",
+        "TECH-GHATANA-VERIFICATION-PLANNER",
+        "TECH-GLTF-TRANSFORM",
+        "TECH-LIBEBUR128",
+        "TECH-LIBOPUS",
+        "TECH-LIBVPX",
+        "TECH-LIVEKIT-SERVER",
+        "TECH-ONNX-RUNTIME",
+        "TECH-OPENCOLORIO",
+        "TECH-OPENCV",
+        "TECH-OPENIMAGEIO",
+        "TECH-OPENTIMELINEIO",
+        "TECH-RAPIER",
+        "TECH-SHAKA-PACKAGER",
+        "TECH-SHAKA-PLAYER",
+        "TECH-SHERPA-ONNX",
+        "TECH-SVT-AV1",
+        "TECH-THREEJS",
+        "TECH-TUTORPUTOR-SIMULATION",
+        "TECH-VMAF",
+        "TECH-WAVESURFER",
+        "TECH-WHISPER-CPP",
+        "media.reuse.additional-implementation-justification.v1",
+        "media.reuse.component-license-boundary",
+        "media.reuse.dependency-block-scope-rule",
+        "media.reuse.dependency-update-policy",
+        "media.reuse.distribution-source-offer-material.v1",
+        "media.reuse.enabled-codec-build-evidence.v1",
+        "media.reuse.external-stack-selection-rule",
+        "media.reuse.generic-mechanics-boundary",
+        "media.reuse.historical-appendix-b-candidate-inventory.v1",
+        "media.reuse.package-publication-evidence.v1",
+        "media.reuse.process-isolation-does-not-waive-component-terms.v1",
+        "media.reuse.selection-sequence",
+        "media.reuse.shared-tools-are-not-gpu-scheduler.v1",
+        "media.reuse.tutorputor-concrete-path-review.v1"
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/source-manifest.yaml",
+      "sha256": "87d2ce2cfa1d7e0130fcc7d11dc0b79e00fdc15950749afd20ea5d9f28731b14",
+      "bytes": 725739,
+      "format": "yaml",
+      "schemaVersion": "media.source-manifest.v2",
+      "authority": null,
+      "status": null,
+      "topLevelFields": [
+        "authorityModel",
+        "externalOwnerObservations",
+        "migrationReference",
+        "productArtifactIndex",
+        "productId",
+        "schemaVersion",
+        "supplementalDecisionReference"
+      ],
+      "declaredIds": []
+    },
+    {
       "sourceRef": ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
       "sha256": "798c44a29479c21917f14e5041b61ad6e85f1b8a5401a0184f8a9011fee72f38",
       "bytes": 40142,
@@ -6295,8 +6580,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
-      "sha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
-      "bytes": 1109534,
+      "sha256": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+      "bytes": 1329758,
       "format": "yaml",
       "schemaVersion": null,
       "authority": null,
@@ -6308,6 +6593,7 @@
         "channelIdentityPrecedence",
         "channelInvariants",
         "channels",
+        "coordinatorDefinitionExtensionApplicability",
         "dependencies",
         "devicesAndResponsiveViewports",
         "localeAdmission",
@@ -7084,6 +7370,182 @@
         "qualificationState",
         "runtimeAvailability"
       ]
+    },
+    {
+      "sourceRef": ".product-experience/decision-log.md",
+      "sha256": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
+      "bytes": 379439,
+      "format": "markdown"
+    },
+    {
+      "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "sha256": "969d94b291d279a238ae8b19e3982ef2294d1e77d4e4d86f5a376c86188c8807",
+      "bytes": 1801532,
+      "format": "yaml",
+      "schemaVersion": "ghatana.media.pdp0-disposition-crosswalk.v1",
+      "authority": null,
+      "status": null,
+      "topLevelFields": [
+        "acceptanceCaseAudit",
+        "campaignScope",
+        "conditionalScopeTopics",
+        "coordinatorReview",
+        "decision",
+        "decisionReference",
+        "decisionRules",
+        "denominator",
+        "dispositionCounts",
+        "externalOwnerBlockers",
+        "laterPhaseHandoffs",
+        "macroStage",
+        "phase",
+        "recordKind",
+        "resolvedCandidateMappings",
+        "rows",
+        "schemaVersion",
+        "sourceBaseline",
+        "unresolvedPdp0Ids"
+      ],
+      "declaredIds": [
+        "PXD-165",
+        "PXD-167",
+        "PXD-169",
+        "PXD-172",
+        "PXD-174",
+        "PXD-185",
+        "PXD-196",
+        "PXD-204",
+        "PXD-205",
+        "PXD-207",
+        "PXD-209",
+        "PXD-214"
+      ]
+    },
+    {
+      "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
+      "sha256": "1306cf6c0ccbdeab776307f3a69732db62bbce5eb5a4d2be0062526685a35244",
+      "bytes": 5445663,
+      "format": "yaml",
+      "schemaVersion": "ghatana.media.pdp0-audit-aq-traceability.v1",
+      "authority": null,
+      "status": null,
+      "topLevelFields": [
+        "blockerSummary",
+        "campaignScope",
+        "capabilityMappings",
+        "clusters",
+        "definitionExtensions",
+        "denominators",
+        "joinPolicy",
+        "macroStage",
+        "nonClaims",
+        "phase",
+        "recordKind",
+        "rows",
+        "schemaVersion",
+        "sourceBaseline"
+      ],
+      "declaredIds": []
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd209.json",
+      "sha256": "af80730aebc6a557b983752df726b1ed869abf83e386ec1c97b95f446c0e2693",
+      "bytes": 4901,
+      "format": "yaml",
+      "schemaVersion": "media.pdp0.caption-import-current-source-review.v1",
+      "authority": null,
+      "status": null,
+      "topLevelFields": [
+        "artifactId",
+        "decisionRef",
+        "decisionSection",
+        "definitionPopulation",
+        "predecessorReviewRef",
+        "requirementBinding",
+        "reviewBoundary",
+        "reviewedField",
+        "schemaVersion",
+        "scope",
+        "source"
+      ],
+      "declaredIds": [
+        "importedCaptionTrack"
+      ]
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd212.json",
+      "sha256": "db03b1594f86518a699892ae2652ab5efea1d5547b2d5feced137ea9bdb36337",
+      "bytes": 6907,
+      "format": "yaml",
+      "schemaVersion": "media.pdp0.quality-currentness-successor.v1",
+      "authority": null,
+      "status": null,
+      "topLevelFields": [
+        "artifactId",
+        "latestCurrentnessRefresh",
+        "schemaVersion"
+      ],
+      "declaredIds": []
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd212.json",
+      "sha256": "a1175c3990fc37c8a322f2411c3b1515204cd3aebe5ec2126503536e76761913",
+      "bytes": 1800,
+      "format": "yaml",
+      "schemaVersion": "media.pdp0.caption-import-current-source-review.v1",
+      "authority": null,
+      "status": null,
+      "topLevelFields": [
+        "artifactId",
+        "changeAssessment",
+        "decisionRef",
+        "predecessorReviewRef",
+        "requirementBinding",
+        "reviewBoundary",
+        "reviewedField",
+        "schemaVersion",
+        "scope",
+        "sourceFingerprints"
+      ],
+      "declaredIds": []
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd213.json",
+      "sha256": "a106e759888a1bc8aa81888832f6532afdb7ba4ab190697ee178cab172124e6d",
+      "bytes": 7520,
+      "format": "yaml",
+      "schemaVersion": "media.pdp0.quality-currentness-successor.v1",
+      "authority": null,
+      "status": null,
+      "topLevelFields": [
+        "artifactId",
+        "latestCurrentnessRefresh",
+        "predecessorReviewRef",
+        "schemaVersion"
+      ],
+      "declaredIds": []
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd213.json",
+      "sha256": "9bd0f2fe837f11c638c9f425a9ec4e1cb55c7438f10e23376f471de2c81d989d",
+      "bytes": 1809,
+      "format": "yaml",
+      "schemaVersion": "media.pdp0.caption-import-current-source-review.v1",
+      "authority": null,
+      "status": null,
+      "topLevelFields": [
+        "artifactId",
+        "changeAssessment",
+        "decisionRef",
+        "predecessorReviewRef",
+        "requirementBinding",
+        "reviewBoundary",
+        "reviewedField",
+        "schemaVersion",
+        "scope",
+        "sourceFingerprints"
+      ],
+      "declaredIds": []
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/decisions.yaml",
@@ -8269,8 +8731,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/versioning.yaml",
-      "sha256": "59554ec8e83719fc66ac118fc26fd024ac1aa855f8b71d01f02fd6c14c1c5f3c",
-      "bytes": 14892,
+      "sha256": "f2bb21787e984b997b7fe08800bf9eda5340e8121c8a9c0d9202c66ee0e6c1a3",
+      "bytes": 15327,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.versioning.v1",
       "authority": ".product-experience/pdp-0-product-truth/domain-model.yaml",
@@ -8288,7 +8750,8 @@
         "schemaVersion",
         "scopeStatus",
         "semanticOwner",
-        "sourceRefs"
+        "sourceRefs",
+        "statusSemantics"
       ],
       "declaredIds": [
         "authored-specification-versioning",
@@ -8304,8 +8767,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
-      "sha256": "27e01c343a96029393f0b710bebb75a59fdc11680ffc71eb73803b56cb3ae105",
-      "bytes": 10362,
+      "sha256": "8fc0705fad95959ab2b078e8bfd35810aebb10f474eb5580b203777fd5a11226",
+      "bytes": 14266,
       "format": "yaml",
       "schemaVersion": "media.accessibility-language.v1",
       "authority": "Media-specific accessibility contracts over Shared primitives",
@@ -8317,6 +8780,7 @@
         "mediaOwnerDefinitionDecision",
         "normativeRuleRecords",
         "ownerDefinedCaptionAndAudioDescriptionOutputUse",
+        "ownerDefinedRuleManagementProposalControls",
         "productId",
         "requirements",
         "reviewTarget",
@@ -8333,14 +8797,16 @@
         "media.a11y.noncolor",
         "media.a11y.programmatic-state",
         "media.a11y.readability-reflow",
+        "media.a11y.rule-management-proposal-controls.v1",
         "media.a11y.text-spacing-and-target-size",
-        "media.p2.rule.caption-and-audio-description-output-use.v1"
+        "media.p2.rule.caption-and-audio-description-output-use.v1",
+        "media.p2.rule.rule-management-proposal-controls-accessibility.v1"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml",
-      "sha256": "c9c44eb9b1fcd3df5ae8b7e2980e2ee0ac1c643d6bf834d2abcb440777189ecf",
-      "bytes": 73552,
+      "sha256": "fdc44eb07cfd2e17300ab6acbf44b67f987361e86cec7266ad4424512d12e7e0",
+      "bytes": 73513,
       "format": "yaml",
       "schemaVersion": "media.animation-simulation-grammar.v1",
       "authority": "Media presentation grammar for animation and simulation; PDP-0 owns domain/time/fidelity meaning",
@@ -8880,8 +9346,8 @@
     },
     {
       "sourceRef": "docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json",
-      "sha256": "bbf7de083ea84bcedabbd83b1f9272e40be3fe401b7a14a90600058353f3f5b7",
-      "bytes": 13300,
+      "sha256": "86566d4415ebf84c54a51a7572d24fd10022cd70de9ddcb0992c446beb0f7e6b",
+      "bytes": 35306,
       "format": "yaml",
       "schemaVersion": "media.pdp0.quality-current-source-review.v1",
       "authority": null,
@@ -8893,7 +9359,11 @@
         "currentSourceChecks",
         "currentSourceRefresh",
         "historicalBoundary",
+        "historicalSourceDeltas",
+        "historicalSourceRefreshes",
         "historicalSourceSnapshots",
+        "latestCurrentnessRefresh",
+        "postReviewCurrentnessRefresh",
         "predecessorReviewRef",
         "reviewBoundary",
         "reviewedDimensions",
@@ -9449,7 +9919,7 @@
       {
         "id": "media.project.organize",
         "name": "Organize projects",
-        "description": "The project is organized according to the declared user intent, with the resulting project state returned. The definition does not specify organizational fields or a hierarchy.",
+        "description": "Organize the exact versioned project according to declared user intent, including user-authored project/library hierarchy and smart-bin membership. A smart bin is explicitly either a live query or a snapshot; membership facts retain observed, inferred, or unknown status and are not silently converted. The returned state distinguishes the requested arrangement from confirmed state and preserves unknown outcome; this definition does not imply any particular folder taxonomy, automatic classification, or runtime commit.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-PROJECT"
         ]
@@ -9569,7 +10039,7 @@
       {
         "id": "media.artifact.import",
         "name": "Import artifact",
-        "description": "The result represents resolution of an admitted source reference or staged upload and creation of a governed Media artifact version only after source-authority and integrity requirements are satisfied.",
+        "description": "Resolve an admitted source reference or staged upload and report a governed import observation. When an authorized sidecar or embedded caption track is explicitly requested and observed for the exact immutable source version, the result may include its track identity, source timebase and any explicit mapping, language and format when known, conversion or alignment uncertainty, and provenance; this does not alter source media or register a caption as an artifact. Create a governed artifact version only after source authority, integrity, and owner-confirmed registration requirements are satisfied. Unknown source, mapping, or registration remains unknown.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-ARTIFACT"
         ]
@@ -9585,7 +10055,7 @@
       {
         "id": "media.artifact.search",
         "name": "Search artifacts",
-        "description": "The result is a bounded page of governed artifact records for exactly one supplied source-media or project reference under rights-and-retention context. Requested semantic transcript search returns candidate matches anchored to exact source versions and transcript time ranges; requested duplicate or near-duplicate search may organize records into candidate groups that retain source identities and matching uncertainty. Matching algorithms, ranking, and completeness are not guaranteed.",
+        "description": "Return a bounded page of authorized governed records within the supplied exact immutable source-media or project version and any declared source-time range. The actor may request transcript, duplicate, rights-eligible, timeline/person/scene/speaker-facet, or visual/metadata search. Candidate matches retain exact version and applicable time scope, matching uncertainty, and whether evidence was observed or inferred. Unindexed or unknown coverage is distinct from an empty result; ranking, completeness, identity, legal clearance, and external-catalog search are not implied. Rights eligibility remains limited to affirmative current authoritative evidence for the exact declared use scope.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-ARTIFACT"
         ]
@@ -9609,7 +10079,7 @@
       {
         "id": "media.artifact.derive",
         "name": "Derive artifact",
-        "description": "The P0 meaning of a derivation result is bound to exact source-version references, a selected transformation-profile identity/version/configuration digest, requested output artifact type/media type/byte budget, purpose, and rights decision. Distinguish a queued-job observation from derived content and derived content from a registered artifact-version identity; exact source lineage is required and an identified profile is not an assumed default. Unknown source, authority, or result remains UNKNOWN. This P0 meaning does not establish dispatch, job creation, persistence, derived content, registration, or completion.",
+        "description": "Bind a derivation candidate to exact immutable source-version references and, when deriving a clip, an explicit source-time range; also bind the selected transformation-profile identity/version/configuration digest, requested output artifact type/media type/byte budget, purpose, and rights decision. Distinguish queued-job observation, derived content, and registered artifact version. An identified profile is not a default, and the definition does not establish dispatch, persistence, or completion.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-ARTIFACT"
         ]
@@ -10305,7 +10775,7 @@
       {
         "id": "media.multimodal.describe",
         "name": "Describe media",
-        "description": "Describe requested media description as a source-grounded result expressing supported content observations from declared authorized media. The result remains a reviewable analysis candidate or observation, and any source-derived relation or lineage is asserted only when actual source consumption and linkage are established.",
+        "description": "Describe requested media as a source-grounded, reviewable candidate or observation. When requested, the result may include title and description candidates tied to the exact authorized source/version and supporting observations. Unresolved claims remain unknown with uncertainty; do not assert source consumption or lineage unless actual consumption and linkage are established.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-MULTIMODAL"
         ]
@@ -10313,7 +10783,7 @@
       {
         "id": "media.multimodal.summarize",
         "name": "Summarize media",
-        "description": "Describe requested media summarization as a source-grounded condensed account of declared authorized media content. The result remains a reviewable analysis candidate or observation, and any source-derived relation or lineage is asserted only when actual source consumption and linkage are established.",
+        "description": "Summarize declared authorized media as a source-grounded, reviewable candidate or observation. When requested, the result may include ordered chapter candidates with source-version references and bounded source-time ranges, plus title or description candidates grounded in supporting observations. Unresolved claims and time boundaries remain unknown or uncertain; no source lineage is asserted without actual consumption and linkage.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-MULTIMODAL"
         ]
@@ -10417,7 +10887,7 @@
       {
         "id": "media.audio.analysis.detect.beat-onset",
         "name": "Detect beats and onsets",
-        "description": "The P0 result meaning is a set of candidate beat and onset detection observations in audio.",
+        "description": "Return candidate beat and onset observations in the supplied audio. When evidence supports them, observations may additionally include downbeat positions, a beat grid, and tempo with source timebase, method, and uncertainty. Unsupported or ambiguous estimates remain unknown or abstained; no beat-grid or tempo correctness, musical interpretation, or downstream synchronization is guaranteed.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-AUDIO-ANALYSIS"
         ]
@@ -10809,7 +11279,7 @@
       {
         "id": "media.speech.synthesis.speaker.condition",
         "name": "Condition on speaker",
-        "description": "The P0 result meaning is synthesis conditioned on an explicitly supplied authorized speaker reference.",
+        "description": "Synthesize only from the supplied speech intent and explicitly authorized speaker reference(s). A request may bind an ordered segment-to-speaker map; each segment retains its exact authorized speaker identity and order. Missing, unauthorized, or unavailable speaker bindings remain explicit and block or abstain for affected segments. Preserve voice-use rights and generated-audio provenance; do not infer identity, consent, or permission from a voice match.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-SPEECH-SYNTHESIS"
         ]
@@ -10953,7 +11423,7 @@
       {
         "id": "media.generate.spatial.create.spatial-audio",
         "name": "Create spatial audio",
-        "description": "A candidate spatial-audio media pass with coordinate/fidelity metadata expresses spatial intent, optionally guided by authorized image or multiview references.",
+        "description": "Produce a candidate spatial-audio media pass with coordinate/fidelity metadata and an explicitly declared target channel layout. Preserve the requested and effective layout and any mapping evidence; if a requested layout such as 5.1 is unsupported or unresolved, disclose that outcome and do not silently fall back to stereo. Spatial intent and metadata do not establish spatial accuracy, rendering, or delivery.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-GENERATE-SPATIAL"
         ]
@@ -11057,7 +11527,7 @@
       {
         "id": "media.animation.material",
         "name": "Animate materials",
-        "description": "Define material-property animation in a versioned scene/edit.",
+        "description": "Define material-property animation in a versioned scene/edit. Arbitrary user-authored shader source and shader execution are outside the current product scope and unsupported; return an explicit unsupported outcome for such requests. This scope decision makes no claim of shader sandbox safety. Supported material-property animation remains subject to declared typed inputs and separate implementation, qualification, and runtime decisions.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-ANIMATION"
         ]
@@ -12217,7 +12687,7 @@
       {
         "id": "media.edit.retime-slow-motion-speed-ramp",
         "name": "Retime/slow-motion/speed-ramp",
-        "description": "P0 defines the retime/slow-motion/speed-ramp result as a local candidate or draft whose intended operation is to change source-media timing, including slow motion or a speed ramp; it does not define a canonical artifact or project change.",
+        "description": "P0 defines source-timing edits as a local candidate or draft, including retime/speed changes, a freeze-frame hold over a declared output-time interval, and reverse playback whose output-time interval maps to an explicitly reversed source-time interval. Freeze and reverse are distinct operations from ordinary retiming. Bind each candidate to the exact source version, timebase, source/output intervals, and preservation policy; unresolved mappings remain UNKNOWN or CONFLICT. No canonical artifact, project change, or universal playback/quality guarantee is implied.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-EDIT"
         ]
@@ -12329,7 +12799,7 @@
       {
         "id": "media.compose.multitrack-timeline",
         "name": "Compose multitrack timeline",
-        "description": "The multitrack-timeline result is a local composition candidate or draft for arranging selected media. It may include a reviewable active-speaker multicamera cut proposal linked to speaker-turn and camera-source evidence, with missing links and uncertainty explicit; the proposal does not commit a project edit or create a rendered delivery.",
+        "description": "Produce a local reviewable composition candidate or draft for selected versioned media. Declared composition intent may include gain, pan, and time-varying automation, sample-time speech-region edits with boundary and crossfade intent, ADR or room-tone placement, and explicit distinction between captured and generated audio. Keep exact source references, timebase, and uncertainty. This does not commit a project edit, create a rendered delivery, or assert the candidate is feasible.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-COMPOSE"
         ]
@@ -12377,7 +12847,7 @@
       {
         "id": "media.compose.safe-area",
         "name": "Apply safe areas",
-        "description": "P0 defines the apply safe areas result as a local composition candidate or draft whose intended operation is to apply declared safe-area constraints to composition elements; it does not define a committed project change or rendered delivery.",
+        "description": "Produce a local reviewable overlay-placement candidate based on declared safe areas and any supplied visual free-space observations. Each proposed placement is tied to exact source/version, time/context, and evidence; uncertain or inferred free space remains labeled with uncertainty. A declared safe area is not proof that a location is visually free. No project commit or rendered delivery is implied.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-COMPOSE"
         ]
@@ -12385,7 +12855,7 @@
       {
         "id": "media.compose.reusable-composition",
         "name": "Create reusable composition",
-        "description": "P0 defines the create reusable composition result as a local composition candidate or draft whose intended operation is to define a reusable composition structure from selected project assets; it does not define a committed project change or rendered delivery.",
+        "description": "Produce a local reviewable reusable composition candidate from selected project assets. The candidate may include editable branded motion-template bindings whose brand assets and motion parameters are typed and traceable to exact selected sources, or a versioned reusable audio-effects-chain candidate scoped to an exact voice track. An audio chain binds selected existing master-audio effects and exact chain version/provenance to that track; it does not infer speaker identity or imply speech enhancement. Preserve unsupported or unresolved bindings explicitly; a candidate does not establish preview/render parity, project commit, or rendered delivery.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-COMPOSE"
         ]
@@ -12561,7 +13031,7 @@
       {
         "id": "media.master.audio.stereo-width",
         "name": "Control stereo width",
-        "description": "The supplied audio receives stereo width processing under its delivery and loudness context, producing a mastered-audio candidate with measurements.",
+        "description": "The supplied audio receives stereo-width processing under its declared delivery, target channel-layout, and loudness context, producing a local mastered-audio candidate with measurements. The target layout is explicit in the request and returned candidate; this stereo-width leaf does not define 5.1 processing, and unsupported or unresolved layouts remain explicit with no silent stereo fallback.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-MASTER-AUDIO"
         ]
@@ -12625,7 +13095,7 @@
       {
         "id": "media.quality.rank",
         "name": "Rank candidates",
-        "description": "Return a candidate ordering only when the request declares the eligible dimensions, calibrated scope, objective or weights, missing-value behavior, and uncertainty handling required by quality policy; otherwise return only supported quality observations or an explicit unresolved ranking disposition. No default total score or tie-break rule is implied.",
+        "description": "Return candidate ordering only when the request declares eligible dimensions, calibrated scope, objective or weights, missing-value behavior, and uncertainty handling; otherwise return supported observations or an unresolved ranking disposition. This includes highlight candidates bound to exact source-time spans and a user-declared defensible ranking objective, and candidate variants bound to exact source candidate, declared audience/channel, and ranking objective. No default memorable score, total score, or tie-break rule is implied; ranking never establishes eligibility or approval.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-QUALITY"
         ]
@@ -13057,7 +13527,7 @@
       {
         "id": "media.deliver.subtitles",
         "name": "Deliver subtitles",
-        "description": "Carry the requested subtitle-delivery dimension for the selected accepted artifact or composition into the requested profile and destination result; the output distinguishes a produced package from an explicit outcome.",
+        "description": "Carry the requested subtitle-delivery dimension for the selected accepted artifact or composition into the requested profile and destination result. A produced package may export an authorized subtitle track as a declared sidecar or embedded form with source/version and timing provenance; distinguish that package from an explicit no-package outcome, and do not imply subtitle correctness, supported container compatibility, or successful delivery absent evidence.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-DELIVER"
         ]
@@ -13108,6 +13578,62 @@
         "description": "Resolve known codec, container, and player compatibility for the requested profile and destination; use and disclose a fallback only when the exact fallback is explicitly permitted, otherwise return an explicit outcome.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-DELIVER"
+        ]
+      },
+      {
+        "id": "media.recipe.specification.compile",
+        "name": "Compile declarative production specification",
+        "description": "Prepare a normalized semantic graph and reviewable project-plan candidate from the exact versioned declarative specification, schema, compiler-contract version, and optional exact project revision. Bind a stable semantic fingerprint to those exact inputs and preserve each declared deterministic or generative step kind. This is local candidate preparation only; it creates no project revision, job, external effect, or published output.",
+        "requirementRefs": [
+          "MEDIA-REQ-CAP-RECIPE-TEMPLATE"
+        ]
+      },
+      {
+        "id": "media.project.scene.patch-merge",
+        "name": "Prepare scene patch merge proposal",
+        "description": "Prepare a local scene-patch merge proposal against an exact base project/scene revision and exact left/right revisions. The proposal identifies the base, both changed revisions, and explicit field/operation conflicts; it never silently merges or commits a revision.",
+        "requirementRefs": [
+          "MEDIA-REQ-CAP-PROJECT"
+        ]
+      },
+      {
+        "id": "media.quality.audio.content-similarity.assess",
+        "name": "Assess bounded audio content similarity",
+        "description": "Return a bounded, method-identified similarity observation for exact supplied audio versions and declared scope. This is not an ownership, copying, infringement, licensing, authorization, or clearance determination.",
+        "requirementRefs": [
+          "MEDIA-REQ-CAP-QUALITY"
+        ]
+      },
+      {
+        "id": "media.generate.video.preset.manage",
+        "name": "Manage versioned video generation presets",
+        "description": "Save exact effective video-generation settings as a versioned preset or prepare a candidate binding to a new request. Reuse never replays an old job or mutates an existing output; any new invocation requires fresh authorization and admission.",
+        "requirementRefs": [
+          "MEDIA-REQ-CAP-GENERATE-VIDEO"
+        ]
+      },
+      {
+        "id": "media.generate.video.shot-condition",
+        "name": "Bind video generation conditions to shots",
+        "description": "Prepare a reviewable source-bound candidate binding each prompt, mask, region trajectory or motion-brush condition, and time/keyframe anchor to an exact declared shot/segment and source version; conditions never silently expand to the whole clip. Preserve region identity, timebase, and anchor mapping. Unsupported controls or unknown region/time mappings remain UNKNOWN or blocked; this is video-generation conditioning, not scene/path animation and not a generation dispatch.",
+        "requirementRefs": [
+          "MEDIA-REQ-CAP-GENERATE-VIDEO"
+        ]
+      },
+      {
+        "id": "media.job.schedule.manage",
+        "name": "Manage versioned watch and recurrence schedules",
+        "description": "Create, revise or pause a versioned watch/recurrence configuration. Each occurrence is only a distinct proposed job request and needs fresh current admission; a schedule never pre-authorizes future work.",
+        "requirementRefs": [
+          "MEDIA-REQ-CAP-JOB"
+        ]
+      },
+      {
+        "id": "media.master.audio.creative-effect.apply",
+        "name": "Prepare a creative audio effect candidate",
+        "description": "Prepare only a local, source-preserving derived-audio candidate for the explicitly selected delay, chorus, flanger, or reverb effect, with exact versioned parameters and ordered effect-chain provenance where applicable; do not imply rendered/committed audio, quality approval, or room-match substitution.",
+        "requirementRefs": [
+          "MEDIA-REQ-CAP-MASTER-AUDIO"
         ]
       }
     ],
@@ -13852,7 +14378,7 @@
         ],
         "steps": [
           "Reference/control uses are rights-checked; protected identity and geometry constraints are explicit.",
-          "Candidate sequence is reviewed for continuity with uncertainty/provenance exposed."
+          "Each continuity observation is bound to the exact generated candidate artifact/version it reviews; expose uncertainty/provenance, and keep the result UNKNOWN when candidate identity/version is missing, stale, ambiguous, or mismatched. Never transfer a continuity result to another candidate."
         ]
       },
       {

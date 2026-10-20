@@ -1,0 +1,2418 @@
+{
+  "schemaVersion": "media.pdp0.independent-semantic-review.v1",
+  "recordKind": "INDEPENDENT_READ_ONLY_PDP0_SEMANTIC_REVIEW",
+  "campaignScope": "Ghatana Media original-audit subset B: 80 assigned A1 feature rows absent from prior 267-row semantic-fit pass",
+  "macroStage": "DISCOVERY",
+  "phase": "PDP-0 Product Truth",
+  "sourceBaseline": {
+    "head": "79329cc4ec49ce546bc1097f53f3c2ff125bad2c",
+    "sha256Pins": {
+      "originalCatalog": {
+        "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
+        "sha256": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2"
+      },
+      "requirements": {
+        "path": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "sha256": "ee0a1ea0df038bc1682719f9035f5bca2dd1d5d1239c0aa8df4a55db0101fba7"
+      },
+      "capabilities": {
+        "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "sha256": "ebc60f3031bc0cec62defae4beae0aba90b9ee580feede17267fd63db5d5e747"
+      },
+      "crosswalk": {
+        "path": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+        "sha256": "443aa333cf82849eb052907e6ccc9826d4aad5f7c4b99fa2ce23984d5c0a8b08"
+      }
+    }
+  },
+  "denominator": {
+    "assignedRows": 80,
+    "reviewedRows": 80,
+    "uniqueAuditIds": 80
+  },
+  "reviewMethod": "Compared each original source phrase and acceptance family against current capability intent/outcome, feature-specific current acceptance cases, actor/rights/guard/source-version/unknown semantics, and crosswalk. Broad parent AC-01/02 and lexical mappings are not counted as exact cases.",
+  "independenceCaveat": "Read-only independent source review; not owner approval, regulated/specialist review, native phase acceptance, or closure.",
+  "outcomeCounts": {
+    "exact": 30,
+    "partial": 35,
+    "gap": 6,
+    "later-phase detail": 8,
+    "BUILD-only": 1
+  },
+  "rows": [
+    {
+      "auditId": "AUD-DSP-001",
+      "sourceText": "Waveform and phrase-based audio editor",
+      "sourceAcceptanceText": "Effect parameters are versioned; audio exports meet profile-dependent measured loudness and true-peak targets without clipping, channel drift or silent substitution.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DSP-001",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-05"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Sample-time edit behavior is covered by compose AC-05; phrase-based editing and waveform interaction are not separately specified.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DSP-002",
+      "sourceText": "Multitrack mix bus, send and per-track controls",
+      "sourceAcceptanceText": "Effect parameters are versioned; audio exports meet profile-dependent measured loudness and true-peak targets without clipping, channel drift or silent substitution.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DSP-002",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "PDP0_MEANING_CHANGE_REQUIRED",
+      "pdp0SemanticFitOutcome": "gap",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-04"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Compose AC-04 defines gain/pan automation, but the current source does not define bus routing, sends, or their per-track semantics.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-0",
+          "scope": "PDP-0"
+        },
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DSP-007",
+      "sourceText": "Delay, chorus, flanger and reverb effects",
+      "sourceAcceptanceText": "Effect parameters are versioned; audio exports meet profile-dependent measured loudness and true-peak targets without clipping, channel drift or silent substitution.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DSP-007",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.master.audio.room-match"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-MASTER-AUDIO/acceptanceCases/@id=MEDIA-REQ-CAP-MASTER-AUDIO-AC-03"
+      ],
+      "historicalCrosswalkCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-MASTER-AUDIO/acceptanceCases/@id=MEDIA-REQ-CAP-MASTER-AUDIO-AC-03"
+      ],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Master-audio AC-03 explicitly defines admitted creative effects and reusable effect chains, with source-preserving derived output.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DSP-008",
+      "sourceText": "Noise reduction with model and residual QA",
+      "sourceAcceptanceText": "Effect parameters are versioned; audio exports meet profile-dependent measured loudness and true-peak targets without clipping, channel drift or silent substitution.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DSP-008",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.audio.noise-suppression"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Noise-suppression intent and source-preserving derived audio are defined; exact residual-QA result and interpretation are not separately accepted.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DSP-019",
+      "sourceText": "Preset and user-defined effect chains",
+      "sourceAcceptanceText": "Effect parameters are versioned; audio exports meet profile-dependent measured loudness and true-peak targets without clipping, channel drift or silent substitution.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DSP-019",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.master.audio.equalize"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-MASTER-AUDIO/acceptanceCases/@id=MEDIA-REQ-CAP-MASTER-AUDIO-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-MASTER-AUDIO/acceptanceCases/@id=MEDIA-REQ-CAP-MASTER-AUDIO-AC-04"
+      ],
+      "historicalCrosswalkCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-MASTER-AUDIO/acceptanceCases/@id=MEDIA-REQ-CAP-MASTER-AUDIO-AC-03"
+      ],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Master-audio AC-03/04 define effect chains, exact voice-track and chain versions, order, provenance, and no source mutation.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-MUSIC-002",
+      "sourceText": "Royalty/territory/provenance audit per track",
+      "sourceAcceptanceText": "Only licensed music/SFX sources enter the project and every generated track records checkpoint rights; noncommercial weights fail commercial admission.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-MUSIC-002",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-08"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Rights AC-08 binds evidence per exact component, but territory/use interpretation and the per-track audit result are not a feature-specific acceptance.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-MUSIC-008",
+      "sourceText": "Localized lyrics repainting and music-inpainting from exact source region",
+      "sourceAcceptanceText": "Only licensed music/SFX sources enter the project and every generated track records checkpoint rights; noncommercial weights fail commercial admission.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-MUSIC-008",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-AUDIO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-AUDIO-AC-04"
+      ],
+      "historicalCrosswalkCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-AUDIO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-AUDIO-AC-04"
+      ],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Rights AC-03 and generate-audio AC-04 define source-derived localized transformation, immutable nonselected source regions, and fail-closed rights.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-MUSIC-011",
+      "sourceText": "Singing voice synthesis and melody-conditioned vocal generation when admitted",
+      "sourceAcceptanceText": "Only licensed music/SFX sources enter the project and every generated track records checkpoint rights; noncommercial weights fail commercial admission.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-MUSIC-011",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-04"
+      ],
+      "historicalCrosswalkCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS/acceptanceCases/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-04"
+      ],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Rights AC-05 and synthesis AC-04 bind identifiable voice/source/model authorization and provenance.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-MUSIC-012",
+      "sourceText": "Reference-audio conditioned music cover generation with rights/reuse checks",
+      "sourceAcceptanceText": "Only licensed music/SFX sources enter the project and every generated track records checkpoint rights; noncommercial weights fail commercial admission.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-MUSIC-012",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-AUDIO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-AUDIO-AC-03"
+      ],
+      "historicalCrosswalkCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-AUDIO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-AUDIO-AC-03"
+      ],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Generate-audio AC-03 distinguishes source-conditioned cover/variation from source-free generation and requires permitted use.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-MUSIC-014",
+      "sourceText": "Copyright fingerprint / potentially infringing similarity review",
+      "sourceAcceptanceText": "Only licensed music/SFX sources enter the project and every generated track records checkpoint rights; noncommercial weights fail commercial admission.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-MUSIC-014",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "PDP0_MEANING_CHANGE_REQUIRED",
+      "pdp0SemanticFitOutcome": "gap",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.compare",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.audio.audio.assess-authorized-speaker-similarity"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY/acceptanceCases/@id=MEDIA-REQ-CAP-QUALITY-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-AUDIO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-AUDIO-AC-05"
+      ],
+      "historicalCrosswalkCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-AUDIO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-AUDIO-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-AUDIO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-AUDIO-AC-02",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-02"
+      ],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Quality AC-05 limits similarity claims, but the mapped speaker-similarity capability is not copyright/content similarity; no exact copyright-similarity observation contract is defined.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-0",
+          "scope": "PDP-0"
+        },
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-GEN-013",
+      "sourceText": "Camera/lens/focal length/motion direction controls",
+      "sourceAcceptanceText": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-013",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "PDP0_MEANING_CHANGE_REQUIRED",
+      "pdp0SemanticFitOutcome": "gap",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.text-to-video",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.camera"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Animation.camera is an authored scene camera; generation leaves do not define camera/lens/focal-length/motion-direction controls.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-0",
+          "scope": "PDP-0"
+        },
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-GEN-025",
+      "sourceText": "Generation history and reusable parameter settings",
+      "sourceAcceptanceText": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-025",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "PDP0_MEANING_CHANGE_REQUIRED",
+      "pdp0SemanticFitOutcome": "gap",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.execution-lineage.inspect",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.version"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Project versioning and execution lineage do not define generation-history entries or reusable generation settings bound to exact prompt/reference/checkpoint/seed.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-0",
+          "scope": "PDP-0"
+        },
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-GEN-027",
+      "sourceText": "Prompts/masks per shot and timeline keyframe anchors",
+      "sourceAcceptanceText": "Each generated asset stores prompt, references, guidance, checkpoint and seed if applicable, costs, safety/rights checks, and labels as synthetic (not product action proof).",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-027",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "PDP0_MEANING_CHANGE_REQUIRED",
+      "pdp0SemanticFitOutcome": "gap",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.keyframe",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.text-to-video"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Keyframe animation exists, but per-shot generation prompts/masks linked to timeline anchors are not defined.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-0",
+          "scope": "PDP-0"
+        },
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-VISION-007",
+      "sourceText": "Smart portrait/landscape reframe with temporal tracking",
+      "sourceAcceptanceText": "Segmentation and tracking return versioned time/geometry and uncertainty; face-safe caption and protected crop are verified over every selected frame span.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-VISION-007",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.smart-crop-auto-reframe"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases/@id=MEDIA-REQ-CAP-COMPOSE-AC-10"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Smart reframe capability plus compose AC-10 defines source-time subject-aware framing candidates, target shape, and uncertainty.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-VISION-016",
+      "sourceText": "Copyright/identity/PII-sensitive face detection guard",
+      "sourceAcceptanceText": "Segmentation and tracking return versioned time/geometry and uncertainty; face-safe caption and protected crop are verified over every selected frame span.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-VISION-016",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-06"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Rights AC-06 binds face/PII analysis to purpose, exact source/time/region and owner policy; detection does not imply identity, consent, or clearance.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-VISION-018",
+      "sourceText": "Eye-contact/gaze correction as disclosed non-source-grounded visual effect",
+      "sourceAcceptanceText": "Segmentation and tracking return versioned time/geometry and uncertainty; face-safe caption and protected crop are verified over every selected frame span.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-VISION-018",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION/acceptanceCases/@id=MEDIA-REQ-CAP-ANIMATION-AC-03"
+      ],
+      "historicalCrosswalkCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION/acceptanceCases/@id=MEDIA-REQ-CAP-ANIMATION-AC-03"
+      ],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Animation AC-03 distinguishes observed gaze from authored correction and requires disclosure and rights/consent eligibility.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-MOTION-001",
+      "sourceText": "2D vector shapes, masks, gradients and filters",
+      "sourceAcceptanceText": "All generated motion graphics remain editable through typed parameters, preview identically after reopening, and export through an admitted renderer.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-MOTION-001",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.vector"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Vector animation leaf defines editable vector shapes; masks/gradients/filter parameter semantics lack a matching feature-specific acceptance case.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-MOTION-003",
+      "sourceText": "Keyframes with cubic easing, motion paths",
+      "sourceAcceptanceText": "All generated motion graphics remain editable through typed parameters, preview identically after reopening, and export through an admitted renderer.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-MOTION-003",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.interpolation-easing"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Interpolation/easing leaf covers keyframe interpolation; cubic curves and path authoring detail have no matching case.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-MOTION-004",
+      "sourceText": "3D scene graph/camera/lighting and glTF asset",
+      "sourceAcceptanceText": "All generated motion graphics remain editable through typed parameters, preview identically after reopening, and export through an admitted renderer.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-MOTION-004",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.3d"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "3D animation leaf covers scene intent; glTF identity, asset admission, and transfer details require downstream contract.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-MOTION-005",
+      "sourceText": "Scene rigs, characters, pose and animation tracks",
+      "sourceAcceptanceText": "All generated motion graphics remain editable through typed parameters, preview identically after reopening, and export through an admitted renderer.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-MOTION-005",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.skeletal"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Skeletal animation leaf covers rig/pose/track intent; detailed rig constraints and character asset semantics are not case-bound.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-MOTION-010",
+      "sourceText": "Real-time 3D animation preview and render",
+      "sourceAcceptanceText": "All generated motion graphics remain editable through typed parameters, preview identically after reopening, and export through an admitted renderer.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-MOTION-010",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "later-phase detail",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.3d"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "3D animation intent exists; real-time preview performance and renderer qualification are PDP-2/3 and BUILD.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-MOTION-012",
+      "sourceText": "Charts and animated data visualization from exact data",
+      "sourceAcceptanceText": "All generated motion graphics remain editable through typed parameters, preview identically after reopening, and export through an admitted renderer.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-MOTION-012",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.template.infographic"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-10"
+      ],
+      "historicalCrosswalkCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-002"
+      ],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Recipe AC-10 binds plotted values to exact source fields, transformation and version, distinguishing data marks from decoration.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-MOTION-013",
+      "sourceText": "Infographics/slides to video with source references",
+      "sourceAcceptanceText": "All generated motion graphics remain editable through typed parameters, preview identically after reopening, and export through an admitted renderer.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-MOTION-013",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.2d"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Animation/recipe leaves cover infographic media; slide/source-reference lineage is not independently accepted for this scenario.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-MOTION-014",
+      "sourceText": "Text animation synced to speech/beat timing",
+      "sourceAcceptanceText": "All generated motion graphics remain editable through typed parameters, preview identically after reopening, and export through an admitted renderer.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-MOTION-014",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.drive.speech"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Speech-driven animation leaf covers the intent, but joined beat/speech timing evidence and uncertainty are not case-bound.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-MOTION-015",
+      "sourceText": "Procedural background animation and particles",
+      "sourceAcceptanceText": "All generated motion graphics remain editable through typed parameters, preview identically after reopening, and export through an admitted renderer.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-MOTION-015",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.procedural"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Procedural animation leaf covers backgrounds/particles; scope, parameter bounds, and output limitation lack a specific case.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DIRECT-001",
+      "sourceText": "Intent/purpose/audience to scene-by-scene storyboard",
+      "sourceAcceptanceText": "Agent yields a semantic diff/plan and executes only authorized typed operations at exact revisions; denied, stale, and ambiguous effects cannot be hidden or retried blindly.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DIRECT-001",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.scene-storyboard-assemble"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Storyboard assembly capability covers scene planning, but purpose/audience constraints and scene-by-scene trace are not acceptance-bound.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DIRECT-002",
+      "sourceText": "Script and narration generation from source facts",
+      "sourceAcceptanceText": "Agent yields a semantic diff/plan and executes only authorized typed operations at exact revisions; denied, stale, and ambiguous effects cannot be hidden or retried blindly.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DIRECT-002",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-05"
+      ],
+      "historicalCrosswalkCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-05"
+      ],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Recipe AC-05 distinguishes source-supported claims from connective language and retains claim source basis.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DIRECT-003",
+      "sourceText": "Shot selection and B-roll recommendation",
+      "sourceAcceptanceText": "Agent yields a semantic diff/plan and executes only authorized typed operations at exact revisions; denied, stale, and ambiguous effects cannot be hidden or retried blindly.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DIRECT-003",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.recommend",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.source-asset.attach",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY/acceptanceCases/@id=MEDIA-REQ-CAP-QUALITY-AC-12"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Quality AC-12 specifies B-roll candidate source/time/evidence/uncertainty/rights and prohibits project attachment.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DIRECT-004",
+      "sourceText": "Automatic rough cut and repeat/filler silence cleanup",
+      "sourceAcceptanceText": "Agent yields a semantic diff/plan and executes only authorized typed operations at exact revisions; denied, stale, and ambiguous effects cannot be hidden or retried blindly.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DIRECT-004",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.scene-storyboard-assemble"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Storyboard composition supports a rough-cut candidate, but repeat/filler-silence detection and safe edit boundaries are not defined in a case.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DIRECT-006",
+      "sourceText": "Automatic transitions and pacing recommendations",
+      "sourceAcceptanceText": "Agent yields a semantic diff/plan and executes only authorized typed operations at exact revisions; denied, stale, and ambiguous effects cannot be hidden or retried blindly.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DIRECT-006",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.recommend"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Quality recommendation supports candidate advice; transition/pacing dimensions and objective are not specific in the acceptance cases.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DIRECT-007",
+      "sourceText": "Style Skills and creative recipes applied across projects",
+      "sourceAcceptanceText": "Agent yields a semantic diff/plan and executes only authorized typed operations at exact revisions; denied, stale, and ambiguous effects cannot be hidden or retried blindly.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DIRECT-007",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.template.product-demonstration"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Recipe AC-03 makes reusable package version/dependencies reviewable; cross-project style application remains underspecified.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DIRECT-008",
+      "sourceText": "Conversational re-edit of existing project not one-shot output",
+      "sourceAcceptanceText": "Agent yields a semantic diff/plan and executes only authorized typed operations at exact revisions; denied, stale, and ambiguous effects cannot be hidden or retried blindly.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DIRECT-008",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.composition.update"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Project proposal-before-commit exists; conversational multi-turn re-edit context is an experience detail.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DIRECT-009",
+      "sourceText": "Full typed editing tool coverage for internal/MCP agents",
+      "sourceAcceptanceText": "Agent yields a semantic diff/plan and executes only authorized typed operations at exact revisions; denied, stale, and ambiguous effects cannot be hidden or retried blindly.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DIRECT-009",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "later-phase detail",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.composition.update"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Stable typed capability identities exist; MCP/internal operation exposure and parity are PDP-1 interface and BUILD verification.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DIRECT-011",
+      "sourceText": "Multi-turn planning with long-running outcome watches",
+      "sourceAcceptanceText": "Agent yields a semantic diff/plan and executes only authorized typed operations at exact revisions; denied, stale, and ambiguous effects cannot be hidden or retried blindly.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DIRECT-011",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "later-phase detail",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.watch"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Job watch semantics exist; multi-turn planning/reconnect presentation belongs to operation and experience contracts.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DIRECT-012",
+      "sourceText": "Targeted agent correction to selected timeline region",
+      "sourceAcceptanceText": "Agent yields a semantic diff/plan and executes only authorized typed operations at exact revisions; denied, stale, and ambiguous effects cannot be hidden or retried blindly.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DIRECT-012",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.composition.update"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Project patch and merge semantics exist; selected timeline-region target binding needs the operation contract.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DIRECT-013",
+      "sourceText": "Source-grounded verified citations for narration claims",
+      "sourceAcceptanceText": "Agent yields a semantic diff/plan and executes only authorized typed operations at exact revisions; denied, stale, and ambiguous effects cannot be hidden or retried blindly.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DIRECT-013",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-03"
+      ],
+      "historicalCrosswalkCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-03"
+      ],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Provenance AC-03 binds each factual narration citation to its claim and preserves unresolved links as unknown.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DIRECT-014",
+      "sourceText": "Agent distinguishes illustration vs actual product activity",
+      "sourceAcceptanceText": "Agent yields a semantic diff/plan and executes only authorized typed operations at exact revisions; denied, stale, and ambiguous effects cannot be hidden or retried blindly.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DIRECT-014",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.origin.disclose"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-053"
+      ],
+      "historicalCrosswalkCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-053"
+      ],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Declarative AC-053 separates actual product activity from illustrative/generated content; no real action is inferred.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DIRECT-015",
+      "sourceText": "Natural language -> explicit structured edit proposal",
+      "sourceAcceptanceText": "Agent yields a semantic diff/plan and executes only authorized typed operations at exact revisions; denied, stale, and ambiguous effects cannot be hidden or retried blindly.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DIRECT-015",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-03"
+      ],
+      "historicalCrosswalkCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-03"
+      ],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Project AC-03 requires reviewable proposal before a consequential change and rejects silent commit.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DIRECT-016",
+      "sourceText": "Agent-generated motion graphics with editable source",
+      "sourceAcceptanceText": "Agent yields a semantic diff/plan and executes only authorized typed operations at exact revisions; denied, stale, and ambiguous effects cannot be hidden or retried blindly.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DIRECT-016",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.procedural"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Procedural animation supports editable motion intent; agent-generated motion source is not independently bounded as a candidate.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DIRECT-019",
+      "sourceText": "Auto-quality critique, proposed repairs and human approval",
+      "sourceAcceptanceText": "Agent yields a semantic diff/plan and executes only authorized typed operations at exact revisions; denied, stale, and ambiguous effects cannot be hidden or retried blindly.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DIRECT-019",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.recommend"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Quality recommendation supports critique/repair candidates; approval actor and effect scope need operation/experience contracts.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DIRECT-020",
+      "sourceText": "Automatic acceptance test/coverage list from production spec",
+      "sourceAcceptanceText": "Agent yields a semantic diff/plan and executes only authorized typed operations at exact revisions; denied, stale, and ambiguous effects cannot be hidden or retried blindly.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DIRECT-020",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.inspect"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Quality inspection can evaluate a production, but generated coverage-list identity/completeness is not a specific product outcome.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DIRECT-021",
+      "sourceText": "Policy enforcement prevents untrusted media prompt injection",
+      "sourceAcceptanceText": "Agent yields a semantic diff/plan and executes only authorized typed operations at exact revisions; denied, stale, and ambiguous effects cannot be hidden or retried blindly.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DIRECT-021",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-09"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Rights AC-09 explicitly treats untrusted media text as data and blocks privileged invocation or mutation.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-SOCIAL-001",
+      "sourceText": "Brand kit/logo typography templates",
+      "sourceAcceptanceText": "A single approved source revision generates aspect- and locale-specific variants with safe zones and exact voice/caption/provenance lineage.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SOCIAL-001",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.exact-typography-logo-brand"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Brand composition and recipe binding exist; brand kit import/version/template management is not completely acceptance-bound.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-SOCIAL-002",
+      "sourceText": "Storyboard-backed product explainer ads",
+      "sourceAcceptanceText": "A single approved source revision generates aspect- and locale-specific variants with safe zones and exact voice/caption/provenance lineage.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SOCIAL-002",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.template.product-demonstration"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Product-demonstration recipe and reference-priority capability cover the intent; ad-specific source claims/audience constraints remain downstream.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-SOCIAL-012",
+      "sourceText": "Brand-safe generative talking presenter with verified synthetic disclosure",
+      "sourceAcceptanceText": "A single approved source revision generates aspect- and locale-specific variants with safe zones and exact voice/caption/provenance lineage.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SOCIAL-012",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-VIDEO-AC-03"
+      ],
+      "historicalCrosswalkCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-VIDEO-AC-03"
+      ],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Rights AC-04 plus video AC-03 require person/voice/model authorization and synthetic/altered presenter disclosure.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-SOCIAL-013",
+      "sourceText": "A/B variant performance metadata and approved feedback loop",
+      "sourceAcceptanceText": "A single approved source revision generates aspect- and locale-specific variants with safe zones and exact voice/caption/provenance lineage.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SOCIAL-013",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY/acceptanceCases/@id=MEDIA-REQ-CAP-QUALITY-AC-08"
+      ],
+      "historicalCrosswalkCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY/acceptanceCases/@id=MEDIA-REQ-CAP-QUALITY-AC-08"
+      ],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Quality AC-08 compares attributed performance observations and requires explicit approval for feedback; no external API or causal claim is implied.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-SOCIAL-014",
+      "sourceText": "Bulk personalization without identity/claim invention",
+      "sourceAcceptanceText": "A single approved source revision generates aspect- and locale-specific variants with safe zones and exact voice/caption/provenance lineage.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SOCIAL-014",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-06"
+      ],
+      "historicalCrosswalkCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-06"
+      ],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Recipe AC-06 restricts personalization to authorized supplied facts and preserves attribution.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-INTER-001",
+      "sourceText": "Interactive hotspot and branch navigation",
+      "sourceAcceptanceText": "Player never gains delegated product mutation authority; all branches are keyboard-accessible, rights-scoped, and offline-safe.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-INTER-001",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.output.output.interactive-scene"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Interactive-scene capability defines scene/control representation; hotspot branch graph and navigation outcome details are not fully acceptance-bound.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-INTER-003",
+      "sourceText": "Keyboard and screen-reader navigation",
+      "sourceAcceptanceText": "Player never gains delegated product mutation authority; all branches are keyboard-accessible, rights-scoped, and offline-safe.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-INTER-003",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.output.accessibility.semantic-timeline"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Semantic-timeline capability states accessibility intent; keyboard and screen-reader conformance criteria belong to PDP-2/3.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-INTER-004",
+      "sourceText": "Offline signed bundled player",
+      "sourceAcceptanceText": "Player never gains delegated product mutation authority; all branches are keyboard-accessible, rights-scoped, and offline-safe.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-INTER-004",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.interactive-scene-bundle"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Interactive bundle output is defined; offline signing verification and runtime player qualification are downstream.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        },
+        {
+          "ownerPhase": "DELIVER",
+          "scope": "DELIVER"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-INTER-005",
+      "sourceText": "Safe embedded iframe sandbox / CSP",
+      "sourceAcceptanceText": "Player never gains delegated product mutation authority; all branches are keyboard-accessible, rights-scoped, and offline-safe.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-INTER-005",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "later-phase detail",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.interactive-scene-bundle"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-061"
+      ],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "P0 security clause states sandbox/privilege boundary; exact CSP/iframe policy and browser verification are implementation/security detail.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-INTER-006",
+      "sourceText": "Quiz and learning reflection without privileged mutations",
+      "sourceAcceptanceText": "Player never gains delegated product mutation authority; all branches are keyboard-accessible, rights-scoped, and offline-safe.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-INTER-006",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.template.interactive-lesson"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-11"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Recipe AC-11 keeps quiz/reflection within lesson/session scope and rejects privileged learner/product mutation or unowned grading.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-INTER-009",
+      "sourceText": "Interactive product annotations linked to source readback",
+      "sourceAcceptanceText": "Player never gains delegated product mutation authority; all branches are keyboard-accessible, rights-scoped, and offline-safe.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-INTER-009",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.execution-lineage.inspect"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM/acceptanceCases/@id=MEDIA-REQ-CAP-STREAM-AC-07"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Provenance AC-06 and stream AC-07 require owner-system readback bound to exact source/revision/time; absent or stale remains unknown.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-INTER-010",
+      "sourceText": "Viewer analytics only with consent and redaction",
+      "sourceAcceptanceText": "Player never gains delegated product mutation authority; all branches are keyboard-accessible, rights-scoped, and offline-safe.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-INTER-010",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-13"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Rights AC-13 requires session consent, purpose-bounded analytics and redaction; no collection on missing/revoked/unknown consent.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-INTER-011",
+      "sourceText": "A/B optional branching without identity scope leakage",
+      "sourceAcceptanceText": "Player never gains delegated product mutation authority; all branches are keyboard-accessible, rights-scoped, and offline-safe.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-INTER-011",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.output.output.interactive-scene"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Interactive scene output is defined; A/B branching identity-scope isolation has no feature-specific case.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-COLLAB-004",
+      "sourceText": "Version diff and before-after alternative preview",
+      "sourceAcceptanceText": "Version-locked review threads survive revisions with rebase/resolve policies; a comment or approval cannot authorize an unrelated rights/publication effect.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-004",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.version"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Versioned project/merge proposal supports revision alternatives; before-after rendered preview and review-thread behavior are downstream.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-2",
+          "scope": "PDP-2"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-COLLAB-009",
+      "sourceText": "Concurrent editing revision conflict and merge UI",
+      "sourceAcceptanceText": "Version-locked review threads survive revisions with rebase/resolve policies; a comment or approval cannot authorize an unrelated rights/publication effect.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-009",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.version"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Project AC-07 defines conflict proposals and explicit resolution; concurrent transport/merge UI remains downstream.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DELIV-008",
+      "sourceText": "MP4/WebM codecs and muxer compliance",
+      "sourceAcceptanceText": "Every export profile is negotiated against the actual encoder/container/OS; output is decoded and checked before completion claims, and unsupported codecs stay unavailable.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-008",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "later-phase detail",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.package"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Package/profile purpose exists; codec/muxer negotiation and output decode qualification belong to BUILD/DELIVER.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        },
+        {
+          "ownerPhase": "DELIVER",
+          "scope": "DELIVER"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-DELIV-024",
+      "sourceText": "Export destination plugin with remote ACK reconciliation",
+      "sourceAcceptanceText": "Every export profile is negotiated against the actual encoder/container/OS; output is decoded and checked before completion claims, and unsupported codecs stay unavailable.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-024",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.publish-governed"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Deliver AC-05 distinguishes request acceptance, remote acknowledgment, confirmed delivery and audience access.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        },
+        {
+          "ownerPhase": "DELIVER",
+          "scope": "DELIVER"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-QA-001",
+      "sourceText": "Decode and media integrity pass on final output",
+      "sourceAcceptanceText": "Actual decoded media, not job ACK alone, is checked for A/V sync, black/silent tails, voices, text, rights, protected crop and target profile thresholds.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-QA-001",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "later-phase detail",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.inspect"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Quality inspection intent is defined; actual decode/integrity pass and thresholds are BUILD verification and profile qualification.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        },
+        {
+          "ownerPhase": "DELIVER",
+          "scope": "DELIVER"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-QA-002",
+      "sourceText": "Source/action business-state readback in product demos",
+      "sourceAcceptanceText": "Actual decoded media, not job ACK alone, is checked for A/V sync, black/silent tails, voices, text, rights, protected crop and target profile thresholds.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-QA-002",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.inspect",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.execution-lineage.inspect"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY/acceptanceCases/@id=MEDIA-REQ-CAP-QUALITY-AC-13",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-06",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-STREAM/acceptanceCases/@id=MEDIA-REQ-CAP-STREAM-AC-07"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Quality AC-13 and provenance AC-06 require owner readback and keep media measurements separate from business truth.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-QA-005",
+      "sourceText": "Transcript WER/CER and word alignment quality",
+      "sourceAcceptanceText": "Actual decoded media, not job ACK alone, is checked for A/V sync, black/silent tails, voices, text, rights, protected crop and target profile thresholds.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-QA-005",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.inspect"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Transcript/alignment capabilities exist; WER/CER methodology, reference corpus and thresholds lack an exact acceptance case.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-QA-014",
+      "sourceText": "Per-scene quality threshold and independent review",
+      "sourceAcceptanceText": "Actual decoded media, not job ACK alone, is checked for A/V sync, black/silent tails, voices, text, rights, protected crop and target profile thresholds.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-QA-014",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "later-phase detail",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.inspect"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Per-scene inspection intent exists; independent review credentials/qualification are separate acceptance and verification work.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP closure",
+          "scope": "PDP closure"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-TRUST-001",
+      "sourceText": "Tenant identity/role and project source authorization",
+      "sourceAcceptanceText": "No unapproved privacy egress, cloning, face/appearance substitution, model-license assumption, viewer privilege or false real-world demo claim can result from any operation.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-001",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Capability guards require verified actor/workspace authority; role matrix and external identity source are operation/security contracts.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-TRUST-003",
+      "sourceText": "No unapproved external model/file egress by default",
+      "sourceAcceptanceText": "No unapproved privacy egress, cloning, face/appearance substitution, model-license assumption, viewer privilege or false real-world demo claim can result from any operation.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-003",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-07"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Rights AC-07 names exact inputs/model/destination/purpose and explicit egress permission; unknown blocks and fallback is forbidden.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-TRUST-004",
+      "sourceText": "Per-asset, voice, model and font license provenance",
+      "sourceAcceptanceText": "No unapproved privacy egress, cloning, face/appearance substitution, model-license assumption, viewer privilege or false real-world demo claim can result from any operation.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-004",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-08"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Rights AC-08 binds each component version to its own evidence/authority/scope/decision and blocks missing or incompatible evidence.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-TRUST-007",
+      "sourceText": "Synthetic-source disclosure and invisible watermark review",
+      "sourceAcceptanceText": "No unapproved privacy egress, cloning, face/appearance substitution, model-license assumption, viewer privilege or false real-world demo claim can result from any operation.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-007",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.origin.disclose"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-QUALITY/acceptanceCases/@id=MEDIA-REQ-CAP-QUALITY-AC-06"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Provenance AC-04 and quality AC-06 bound watermark status/robustness observation; watermark method implementation remains BUILD.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-TRUST-008",
+      "sourceText": "No fabricated product feature/outcome in demonstration",
+      "sourceAcceptanceText": "No unapproved privacy egress, cloning, face/appearance substitution, model-license assumption, viewer privilege or false real-world demo claim can result from any operation.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-008",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.execution-lineage.inspect"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-053"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Declarative AC-053 distinguishes illustrative/generated content from actual product activity and rejects fabricated outcomes.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-TRUST-009",
+      "sourceText": "Separate actual capture, simulation, generated illustration",
+      "sourceAcceptanceText": "No unapproved privacy egress, cloning, face/appearance substitution, model-license assumption, viewer privilege or false real-world demo claim can result from any operation.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-009",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.origin.disclose"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION/acceptanceCases/@id=MEDIA-REQ-CAP-SIMULATION-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases/@id=MEDIA-REQ-CAP-PROVENANCE-AC-04"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Simulation/provenance cases distinguish origins; complete source-origin taxonomy and UI labeling remain downstream.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "PDP-3",
+          "scope": "PDP-3"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-TRUST-011",
+      "sourceText": "Prompt injection defense from captions/assets/sources",
+      "sourceAcceptanceText": "No unapproved privacy egress, cloning, face/appearance substitution, model-license assumption, viewer privilege or false real-world demo claim can result from any operation.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-011",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.composition.update"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-09"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Rights AC-09 treats supplied media text as untrusted data and blocks embedded privileged instruction or mutation.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-TRUST-013",
+      "sourceText": "Sandboxed shader/plugin/editor action permissions",
+      "sourceAcceptanceText": "No unapproved privacy egress, cloning, face/appearance substitution, model-license assumption, viewer privilege or false real-world demo claim can result from any operation.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-013",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.material"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-10",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION/acceptanceCases/@id=MEDIA-REQ-CAP-ANIMATION-AC-04"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Rights AC-10 requires scoped revocable permission; animation AC-04 explicitly keeps arbitrary shader execution unsupported.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-TRUST-016",
+      "sourceText": "Redacted logs and trace IDs with no raw secrets",
+      "sourceAcceptanceText": "No unapproved privacy egress, cloning, face/appearance substitution, model-license assumption, viewer privilege or false real-world demo claim can result from any operation.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-016",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.execution-lineage.inspect"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-057"
+      ],
+      "historicalCrosswalkCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-057"
+      ],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Declarative AC-057 defines redaction and raw-secret exclusion; OTel collector/metric/span implementation is BUILD/OPERATE.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        },
+        {
+          "ownerPhase": "OPERATE",
+          "scope": "OPERATE"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-TRUST-017",
+      "sourceText": "Publication request ACK versus destination completion",
+      "sourceAcceptanceText": "No unapproved privacy egress, cloning, face/appearance substitution, model-license assumption, viewer privilege or false real-world demo claim can result from any operation.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-017",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.publish-governed"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER/acceptanceCases/@id=MEDIA-REQ-CAP-DELIVER-AC-05"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Deliver AC-05 separates Media request acceptance from destination acknowledgment, delivery and audience access.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        },
+        {
+          "ownerPhase": "DELIVER",
+          "scope": "DELIVER"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-TRUST-019",
+      "sourceText": "Media impersonation and unauthorized synthesis review",
+      "sourceAcceptanceText": "No unapproved privacy egress, cloning, face/appearance substitution, model-license assumption, viewer privilege or false real-world demo claim can result from any operation.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-TRUST-019",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "exact",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.rights.permitted-use.evaluate"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-04",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-05",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-11",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases/@id=MEDIA-REQ-CAP-RIGHTS-AC-12"
+      ],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Rights AC-04/05/11/12 preserve voice/source/model provenance and block unknown/disputed consent without asserting legal tests.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-OPS-010",
+      "sourceText": "Transactional durable job attempts with bounded retry",
+      "sourceAcceptanceText": "Every provider/capability is qualified per machine, checkpoint and license; a failed or missing model does not become synthetic success or unauthorized cloud fallback.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-010",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.submit"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Job submit meaning separates request acceptance from execution/output; durability and bounded retry are contract/implementation detail.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-OPS-013",
+      "sourceText": "Watch folders and recurring/batch media jobs",
+      "sourceAcceptanceText": "Every provider/capability is qualified per machine, checkpoint and license; a failed or missing model does not become synthetic success or unauthorized cloud fallback.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-013",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "PDP0_MEANING_CHANGE_REQUIRED",
+      "pdp0SemanticFitOutcome": "gap",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.submit"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "No current P0 intent or case defines watch-folder triggers, recurrence, schedule, or batch membership.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-0",
+          "scope": "PDP-0"
+        },
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-OPS-015",
+      "sourceText": "Streaming generation progress and event updates",
+      "sourceAcceptanceText": "Every provider/capability is qualified per machine, checkpoint and license; a failed or missing model does not become synthetic success or unauthorized cloud fallback.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-015",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.watch"
+      ],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Job-watch observation is defined; streaming progress transport and reconnect semantics are interface/runtime contracts.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-OPS-016",
+      "sourceText": "Resource quotas and interruption/storage recovery",
+      "sourceAcceptanceText": "Every provider/capability is qualified per machine, checkpoint and license; a failed or missing model does not become synthetic success or unauthorized cloud fallback.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-016",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "partial",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.cancel"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-JOB/acceptanceCases/@id=MEDIA-REQ-CAP-JOB-AC-03",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-058"
+      ],
+      "historicalCrosswalkCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-058",
+        ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-JOB/acceptanceCases/@id=MEDIA-REQ-CAP-JOB-AC-03"
+      ],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Job AC-03/declarative AC-058 define bounds/cancellation distinctions; numeric quota and persisted recovery guarantees are not selected.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "PDP-1",
+          "scope": "PDP-1"
+        },
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-OPS-018",
+      "sourceText": "OpenTelemetry metrics traces and redacted logs",
+      "sourceAcceptanceText": "Every provider/capability is qualified per machine, checkpoint and license; a failed or missing model does not become synthetic success or unauthorized cloud fallback.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-018",
+      "currentCrosswalkDisposition": "BOUND_EXISTING",
+      "recommendedDisposition": "BOUND_EXISTING",
+      "pdp0SemanticFitOutcome": "later-phase detail",
+      "capabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.execution-lineage.inspect"
+      ],
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-057"
+      ],
+      "historicalCrosswalkCaseRefs": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-057"
+      ],
+      "exactAcceptanceCaseFound": true,
+      "rationale": "Declarative AC-057 defines privacy-safe telemetry; OTel metrics/traces/dashboards are BUILD/OPERATE.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        },
+        {
+          "ownerPhase": "OPERATE",
+          "scope": "OPERATE"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-OPS-020",
+      "sourceText": "Deterministic source/test/fixture build snapshots",
+      "sourceAcceptanceText": "Every provider/capability is qualified per machine, checkpoint and license; a failed or missing model does not become synthetic success or unauthorized cloud fallback.",
+      "sourceTextRef": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-020",
+      "currentCrosswalkDisposition": "POST_PDP_IMPLEMENTATION_ONLY",
+      "recommendedDisposition": "POST_PDP_IMPLEMENTATION_ONLY",
+      "pdp0SemanticFitOutcome": "BUILD-only",
+      "capabilityRefs": [],
+      "acceptanceCaseRefs": [],
+      "historicalCrosswalkCaseRefs": [],
+      "exactAcceptanceCaseFound": false,
+      "rationale": "Deterministic source/test/fixture snapshots are build-system reproducibility, not PDP-0 product semantics.",
+      "downstreamHandoffs": [
+        {
+          "ownerPhase": "BUILD",
+          "scope": "BUILD"
+        }
+      ],
+      "ownerApproval": "NOT_CLAIMED"
+    }
+  ]
+}

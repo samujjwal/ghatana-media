@@ -10,17 +10,6 @@ const { parse } = require("yaml");
 const read = (path) => readFileSync(resolve(root, path), "utf8");
 const readYaml = (path) => parse(read(path));
 
-function requiredReviewRows(markdown) {
-  const start = markdown.indexOf("## Capability review matrix");
-  const end = markdown.indexOf("## Honest remaining coverage gaps", start);
-  assert.notEqual(start, -1, "the product definition review matrix remains present");
-  assert.notEqual(end, -1, "the matrix has an explicit end before the open gaps section");
-  return markdown.slice(start, end).split(/\r?\n/u)
-    .filter((line) => line.startsWith("| ") && !line.startsWith("| ---"))
-    .map((line) => line.split("|").slice(1, -1).map((cell) => cell.trim()))
-    .filter((cells) => cells[0] && cells[0] !== "Review dimension");
-}
-
 function normalizedChannelRefs(capability, aliases) {
   return [...new Set((capability.supportedChannels ?? []).map((alias) => {
     assert.ok(aliases[alias], `${capability.id} channel alias ${alias} has a canonical mapping`);
@@ -39,49 +28,73 @@ function resolveOwnerWebContext(capabilityId, familyRef, mappingByFamily) {
   return { applicable: false, disposition: "OWNER_SELECTED_NOT_APPLICABLE_TO_THIS_LEAF", viewRefs: [] };
 }
 
-test("the complete product feature review matrix resolves to canonical sources and the cross-phase denominator", () => {
-  const rows = requiredReviewRows(read("docs/PRODUCT-DEFINITION-COVERAGE.md"));
-  assert.equal(rows.length, 15, "all documented mandatory feature review dimensions remain visible");
-  assert.equal(new Set(rows.map(([dimension]) => dimension)).size, rows.length, "review dimensions are unique");
+test("the native P0 feature review source defines all 15 review dimensions", () => {
+  const channels = readYaml(".product-experience/pdp-0-product-truth/applications-channels.yaml");
+  const review = channels.ownerFeatureReviewApplicability;
+  const dimensions = review.dimensions;
+  const expectedDimensionIds = [
+    "ingestion-source-preservation", "time-synchronization", "audio-workflows",
+    "speech-workflows", "video-image", "animation-spatial", "generative-media",
+    "quality-scientific-truth", "rights-safety-audit", "review-collaboration",
+    "asynchronous-jobs-streaming", "offline-reconnect", "api-sdk-cli-events-tools",
+    "accessibility-internationalization", "security-operations",
+  ].map((id) => `media.feature-review-dimension.${id}`);
+  assert.equal(review.id, "media.feature-review-applicability.v1");
+  assert.equal(review.coverageDimensions, 15, "the canonical source declares 15 feature review dimensions");
+  assert.deepEqual(dimensions.map(({ id }) => id), expectedDimensionIds,
+    "all expected review dimensions are present once in canonical order");
+  assert.equal(new Set(dimensions.map(({ id }) => id)).size, dimensions.length,
+    "review dimension identities are unique");
 
-  const sourcePaths = new Set();
-  const phaseRoots = [0, 1, 2, 3].map((phase) => `.product-experience/pdp-${phase}-${[
-    "product-truth", "domain-data", "design-interface-system", "product-experience",
-  ][phase]}`);
-  for (const [dimension, sourceCell] of rows) {
-    const references = [...sourceCell.matchAll(/`([^`]+)`/gu)].map((match) => match[1]);
-    assert.ok(references.length > 0, `${dimension} names canonical source evidence`);
-    for (const reference of references) {
-      if (!/^(?:pdp-[0-3]-|explorer\/)/u.test(reference) && !reference.includes("/") && !reference.endsWith(".yaml")) continue;
-      const directPath = reference.startsWith("pdp-") ? `.product-experience/${reference}` : reference;
-      let path = directPath;
-      if (!existsSync(resolve(root, path))) {
-        if (["api/", "grpc/", "sdk/", "cli/", "agent-tools/"].includes(reference)) {
-          path = `.product-experience/pdp-3-product-experience/${reference}`;
-        }
+  const p0Requirements = readYaml(".product-experience/pdp-0-product-truth/requirements.yaml").requirements;
+  const p0Capabilities = readYaml(".product-experience/pdp-0-product-truth/capabilities.yaml").capabilities;
+  const requirementIds = new Set(p0Requirements.map(({ id }) => id));
+  const capabilityIds = new Set(p0Capabilities.map(({ id }) => id));
+  const allBoundRequirements = new Set();
+  for (const dimension of dimensions) {
+    assert.equal(dimension.scopeStatus, "OWNER_DEFINED_APPLICABILITY_ONLY");
+    assert.ok(dimension.scopeRationale?.trim(), `${dimension.id} explains its review scope`);
+    assert.ok(dimension.dimensionEvidenceRefs.length > 0, `${dimension.id} has source evidence`);
+    assert.equal(dimension.reviewClauseContracts.length, 3, `${dimension.id} has three exact review criteria`);
+    assert.deepEqual(dimension.reviewClauseRefs,
+      dimension.reviewClauseContracts.map(({ id }) => id), `${dimension.id} exposes its clause identities`);
+    for (const clause of dimension.reviewClauseContracts) {
+      assert.ok(clause.criterion?.trim(), `${clause.id} states the semantic review criterion`);
+      assert.ok(clause.reviewRule?.trim(), `${clause.id} defines how to apply the criterion`);
+      assert.ok(clause.sourceRefs.length > 0, `${clause.id} cites source evidence`);
+    }
+    for (const binding of dimension.applicableRequirementBindings) {
+      assert.ok(requirementIds.has(binding.requirementRef), `${dimension.id} binds a current requirement`);
+      allBoundRequirements.add(binding.requirementRef);
+      assert.ok(binding.capabilityRefs.length > 0, `${binding.id} identifies exact capability leaves`);
+      for (const capabilityId of binding.capabilityRefs) {
+        assert.ok(capabilityIds.has(capabilityId), `${binding.id} resolves ${capabilityId} to a current P0 leaf`);
       }
-      if (!existsSync(resolve(root, path))) {
-        const contextualPaths = phaseRoots.map((phaseRoot) => `${phaseRoot}/${reference}`)
-          .filter((candidate) => existsSync(resolve(root, candidate)));
-        assert.equal(contextualPaths.length, 1, `${dimension} source ${reference} resolves in exactly one phase authority`);
-        [path] = contextualPaths;
-      }
-      assert.ok(existsSync(resolve(root, path)), `${dimension} source ${reference} resolves at ${path}`);
-      sourcePaths.add(path);
+    }
+    for (const sourceRef of dimension.sourceRefs) {
+      const path = sourceRef.split("#", 1)[0];
+      assert.ok(existsSync(resolve(root, path)), `${dimension.id} source ${sourceRef} resolves`);
     }
   }
-  assert.ok(sourcePaths.has(".product-experience/pdp-0-product-truth/capabilities.yaml"));
-  assert.ok(sourcePaths.has(".product-experience/pdp-0-product-truth/requirements.yaml"));
-  assert.ok(sourcePaths.has(".product-experience/pdp-0-product-truth/quality-policy.yaml"));
+  assert.equal(allBoundRequirements.size, p0Requirements.length,
+    "the review dimension bindings cover the complete P0 requirement denominator");
 
   const coverage = readYaml(".product-experience/vision-requirements-coverage.yaml");
   const capabilities = readYaml(".product-experience/pdp-0-product-truth/capabilities.yaml");
   const requirements = readYaml(".product-experience/pdp-0-product-truth/requirements.yaml");
   const journeys = readYaml(".product-experience/pdp-0-product-truth/journey-catalog.yaml");
-  assert.equal(coverage.coverageChecks.capabilities.expected, capabilities.capabilities.length);
+  const capabilityReview = readYaml(".product-experience/pdp-0-product-truth/capability-leaf-review.yaml");
+  const campaignExtensions = readYaml(".product-experience/pdp-0-product-truth/campaign-extensions.yaml");
+  const canonicalCapabilityIds = new Set(capabilityReview.ownerCapabilityLeafAdjudication.records.map(({ capabilityRef }) => capabilityRef));
+  const extensionIds = new Set(campaignExtensions.currentDefinitionPopulation.records.map(({ capabilityId }) => capabilityId));
+  assert.equal(coverage.coverageChecks.capabilities.expected, canonicalCapabilityIds.size);
   assert.equal(coverage.coverageChecks.requirements.expected, requirements.requirements.length);
   assert.equal(coverage.coverageChecks.journeys.expected, journeys.journeys.length);
-  assert.equal(capabilities.capabilities.length, 462);
+  assert.equal(canonicalCapabilityIds.size, 462, "the canonical coverage denominator remains the owner-adjudicated leaf population");
+  assert.equal(extensionIds.size, 7, "seven coordinator proposals remain separately pending owner review");
+  assert.equal(capabilities.capabilities.length, 469, "the current definition catalog includes the separate seven proposals");
+  assert.equal(campaignExtensions.currentDefinitionPopulation.currentCapabilityDefinitions, capabilities.capabilities.length);
+  assert.ok([...extensionIds].every((id) => !canonicalCapabilityIds.has(id)), "proposals do not alter the canonical owner-adjudicated population");
   assert.equal(requirements.requirements.length, 38);
   assert.equal(journeys.journeys.length, 30);
   const currentApplicability = journeys.capabilityApplicabilityDecision;
@@ -100,6 +113,10 @@ test("every active P0 capability adjudication has an exact channel disposition, 
   const requirements = readYaml(".product-experience/pdp-0-product-truth/requirements.yaml").requirements;
   const channels = readYaml(".product-experience/pdp-0-product-truth/applications-channels.yaml");
   const review = readYaml(".product-experience/pdp-0-product-truth/capability-leaf-review.yaml");
+  const campaignExtensions = readYaml(".product-experience/pdp-0-product-truth/campaign-extensions.yaml");
+  const extensionIds = new Set(campaignExtensions.currentDefinitionPopulation.records.map(({ capabilityId }) => capabilityId));
+  const canonicalCapabilityIds = new Set(review.ownerCapabilityLeafAdjudication.records.map(({ capabilityRef }) => capabilityRef));
+  const canonicalCapabilities = capabilities.filter(({ id }) => canonicalCapabilityIds.has(id));
   const channelIds = new Set(channels.channels.map(({ id }) => id));
   const aliases = channels.capabilityChannelAliases.mapping;
   const capabilityById = new Map(capabilities.map((capability) => [capability.id, capability]));
@@ -110,7 +127,9 @@ test("every active P0 capability adjudication has an exact channel disposition, 
       familyByCapability.set(capabilityId, family.id);
     }
   }
-  assert.equal(familyByCapability.size, capabilities.length, "all 462 leaves join exactly one family");
+  assert.equal(familyByCapability.size, capabilities.length, "all 469 current definitions join exactly one family");
+  assert.equal(canonicalCapabilities.length, 462, "exact owner applicability remains bounded to 462 canonical leaves");
+  assert.deepEqual([...extensionIds].filter((id) => canonicalCapabilityIds.has(id)), [], "proposal leaves remain outside owner adjudication");
   const web = channels.channels.find(({ id }) => id === "media.channel.web");
   const webContract = web.ownerDefinitionApplicability;
   assert.equal(webContract.status, "OWNER_DEFINED_LEAF_WEB_JOURNEY_CONTEXT; DEFINITION_ONLY");
@@ -145,7 +164,7 @@ test("every active P0 capability adjudication has an exact channel disposition, 
     assert.ok(entry, `${familyRef} has an explicit Web consumer context or reasoned exclusion`);
     const family = capabilitySource.families.find(({ id }) => id === familyRef);
     assert.deepEqual([...entry.webApplicableCapabilityRefs, ...entry.webNonApplicableCapabilityRefs].sort(),
-      [...family.capabilityIds].sort(), `${familyRef} partitions every exact leaf once`);
+      family.capabilityIds.filter((id) => canonicalCapabilityIds.has(id)).sort(), `${familyRef} partitions every canonical owner-adjudicated leaf once`);
     assert.equal(new Set(entry.webApplicableCapabilityRefs).size, entry.webApplicableCapabilityRefs.length,
       `${familyRef} has no duplicate Web-applicable leaves`);
     assert.equal(new Set(entry.webNonApplicableCapabilityRefs).size, entry.webNonApplicableCapabilityRefs.length,
@@ -193,7 +212,7 @@ test("every active P0 capability adjudication has an exact channel disposition, 
   }
   assert.equal(webApplicableIds.size, 77, "only the 77 exact leaves with owner-linked Web journeys are applicable");
   assert.equal(webNonApplicableIds.size, 385, "all remaining leaves have explicit current Web non-applicability");
-  assert.equal(webApplicableIds.size + webNonApplicableIds.size, capabilities.length, "all 462 leaves are partitioned");
+  assert.equal(webApplicableIds.size + webNonApplicableIds.size, canonicalCapabilities.length, "all 462 owner-adjudicated leaves are partitioned");
   for (const entry of familyConsumers) {
     if (entry.webApplicableCapabilityRefs.length === 0) {
       assert.deepEqual(entry.viewRefs, [], `${entry.familyRef} has no source-supported Web consumer view`);
@@ -217,13 +236,13 @@ test("every active P0 capability adjudication has an exact channel disposition, 
   }
   assert.equal(requirementRefs.size, capabilities.length, "no feature leaf is hidden outside the requirement denominator");
   const activeRows = review.ownerCapabilityLeafAdjudication.records;
-  assert.equal(activeRows.length, capabilities.length, "every feature leaf has an active owner adjudication");
+  assert.equal(activeRows.length, canonicalCapabilities.length, "every canonical feature leaf has an active owner adjudication");
   const reviewById = new Map(activeRows.map((leaf) => [leaf.capabilityRef, leaf]));
-  assert.equal(reviewById.size, capabilities.length, "active P0 adjudications contain no duplicate or omitted feature leaves");
+  assert.equal(reviewById.size, canonicalCapabilities.length, "active P0 adjudications contain no duplicate or omitted canonical feature leaves");
   const channelMatrixIds = activeRows[0].channelApplicability.map(({ channelRef }) => channelRef).sort();
   assert.equal(channelMatrixIds.length, 11, "the P0 applicability matrix retains all 11 channel identities");
 
-  for (const capability of capabilities) {
+  for (const capability of canonicalCapabilities) {
     const row = reviewById.get(capability.id);
     assert.ok(row, `${capability.id} has a visible scope/channel review row`);
     assert.ok(row, `${capability.id} has an active owner adjudication`);

@@ -1,9 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { resolvePdp0FeatureReviewApplicability } from "../scripts/lib/pdp0-feature-review-applicability.mjs";
+import { fingerprintPxdDecisionSection } from "../scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const parse = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml").parse;
@@ -25,6 +27,32 @@ const qualityPolicySourceText = readFileSync(resolve(root, ".product-experience/
 const qualityCurrentSourceReviewPath = "docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json";
 const qualityCurrentSourceReviewText = readFileSync(resolve(root, qualityCurrentSourceReviewPath), "utf8");
 const qualityCurrentSourceReview = JSON.parse(qualityCurrentSourceReviewText);
+const captionImportCurrentSourceReviewPath = "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd209.json";
+const captionImportCurrentSourceReviewText = readFileSync(resolve(root, captionImportCurrentSourceReviewPath), "utf8");
+const captionImportCurrentSourceReview = JSON.parse(captionImportCurrentSourceReviewText);
+const requirementsSourceText = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/requirements.yaml"), "utf8");
+const qualitySourceFingerprintPaths = [
+  ".product-experience/pdp-0-product-truth/requirements.yaml",
+  ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+  ".product-experience/pdp-0-product-truth/capabilities.yaml",
+  ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+  ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+  ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+  "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+  "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
+];
+const qualitySourceFingerprintBytes = Object.fromEntries(qualitySourceFingerprintPaths.map((path) => [
+  path, createHash("sha256").update(readFileSync(resolve(root, path))).digest("hex"),
+]));
+const decisionLogText = readFileSync(resolve(root, ".product-experience/decision-log.md"), "utf8");
+const qualityCurrentSourceFingerprints = [
+  ...Object.entries(qualitySourceFingerprintBytes),
+  [".product-experience/decision-log.md#PXD-207-section", fingerprintPxdDecisionSection(decisionLogText, "PXD-207").sha256],
+  [".product-experience/decision-log.md#PXD-208-section", fingerprintPxdDecisionSection(decisionLogText, "PXD-208").sha256],
+  [".product-experience/decision-log.md#PXD-209-section", fingerprintPxdDecisionSection(decisionLogText, "PXD-209").sha256],
+  ["docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd209.json",
+    createHash("sha256").update(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd209.json"))).digest("hex")],
+].sort(([a], [b]) => a.localeCompare(b));
 const qualificationPolicyObservationPath = "docs/implementation/verification/pdp-38/feature-review-qualification-policy-current-source-observation.json";
 const qualificationPolicyObservationText = readFileSync(resolve(root, qualificationPolicyObservationPath), "utf8");
 const qualificationPolicyObservation = JSON.parse(qualificationPolicyObservationText);
@@ -62,6 +90,8 @@ const applicationsChannelsSourceText = readFileSync(resolve(root, ".product-expe
 const resolveWithReviewedArtifact = (args) => resolvePdp0FeatureReviewApplicability({
   reviewedMaterialArtifact, reviewedMaterialArtifactText, reviewedReferenceCorrectionArtifact, reviewedReferenceCorrectionArtifactText,
   qualityMetricObservations, qualityPolicySourceText, qualityCurrentSourceReview, qualityCurrentSourceReviewText,
+  qualityCurrentSourceFingerprints,
+  captionImportCurrentSourceReview, captionImportCurrentSourceReviewText, requirementsSourceText, decisionLogSourceText: decisionLogText,
   qualificationPolicyObservation, qualificationPolicyObservationText, qualificationPolicySourceText,
   animationRelationshipObservation,
   animationRelationshipObservationText,
@@ -199,6 +229,7 @@ test("15 review dimensions resolve every requirement type and all 462 exact leaf
   const requirementById = new Map(requirements.requirements.map((requirement) => [requirement.id, requirement]));
   const familyByRequirement = new Map(capabilities.families.map((family) => [family.requirementId, family]));
   const leaves = review.ownerCapabilityLeafAdjudication.records;
+  const historicalLeafIds = new Set(leaves.map(({ capabilityRef }) => capabilityRef));
   const evidencePaths = [...new Set(dimensionRows.flatMap(({ dimensionEvidenceRefs }) => dimensionEvidenceRefs.map((ref) => ref.split("#")[0])))].filter((path) =>
     path.startsWith(".product-experience/pdp-0-product-truth/"));
   const sourceDocuments = Object.fromEntries(evidencePaths.map((path) => [path, read(path)]));
@@ -206,6 +237,7 @@ test("15 review dimensions resolve every requirement type and all 462 exact leaf
     ".product-experience/pdp-0-product-truth/requirements.yaml": requirements,
     ".product-experience/pdp-0-product-truth/capabilities.yaml": capabilities,
     ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": review,
+    ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": read(".product-experience/pdp-0-product-truth/campaign-extensions.yaml"),
     ".product-experience/pdp-0-product-truth/journey-catalog.yaml": read(".product-experience/pdp-0-product-truth/journey-catalog.yaml"),
   });
 
@@ -215,6 +247,14 @@ test("15 review dimensions resolve every requirement type and all 462 exact leaf
   assert.equal(applicability.coverageDimensions, 15);
   assert.equal(applicability.requirementTypeCount, 38);
   assert.equal(applicability.leafCount, 462);
+  const extensionPopulation = sourceDocuments[".product-experience/pdp-0-product-truth/campaign-extensions.yaml"].currentDefinitionPopulation;
+  assert.equal(extensionPopulation.currentCapabilityDefinitions, 469);
+  assert.equal(extensionPopulation.historicalCapabilityLeavesPreserved, 462);
+  assert.equal(extensionPopulation.definitionExtensionCapabilityLeaves, 7);
+  assert.equal(extensionPopulation.extensionDisposition,
+    "SIX_COORDINATOR_AUTHORED_MEANING_PROPOSALS_WITH_DELEGATED_PDP0_APPLICABILITY_DECISIONS; ONE_USER_DELEGATED_CREATIVE_EFFECT_DEFINITION; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED");
+  assert.equal(extensionPopulation.ownerApproval, "NOT_CLAIMED");
+  assert.equal(extensionPopulation.independentAcceptance, "NOT_CLAIMED");
   assert.equal(dimensionRows.length, 15);
   assert.equal(new Set(dimensionRows.map(({ id }) => id)).size, 15);
   assert.equal(new Set(requirementIds).size, 38);
@@ -357,7 +397,8 @@ test("15 review dimensions resolve every requirement type and all 462 exact leaf
     assert.equal(dimensionDecisions.length, 15, `${leaf.capabilityRef} resolves all 15 review dimensions`);
   }
   for (const [requirementRef, count] of requirementDimensionCounts) {
-    assert.equal(count, requirementById.get(requirementRef).capabilityIds.length, `${requirementRef} accounts for every family leaf`);
+    const historicalRequirementLeafCount = requirementById.get(requirementRef).capabilityIds.filter((id) => historicalLeafIds.has(id)).length;
+    assert.equal(count, historicalRequirementLeafCount, `${requirementRef} accounts for every historical owner-adjudicated family leaf; delegated extensions remain outside the 462-leaf join`);
   }
 
   const alteredDimension = structuredClone(dimensionRows[0]);
@@ -398,6 +439,8 @@ test("15 review dimensions resolve every requirement type and all 462 exact leaf
     reviewedMaterialArtifact, reviewedMaterialArtifactText: alteredReviewArtifactText,
     reviewedReferenceCorrectionArtifact, reviewedReferenceCorrectionArtifactText,
     qualityMetricObservations, qualityPolicySourceText, qualityCurrentSourceReview, qualityCurrentSourceReviewText,
+    qualityCurrentSourceFingerprints,
+    captionImportCurrentSourceReview, captionImportCurrentSourceReviewText, requirementsSourceText, decisionLogSourceText: decisionLogText,
     qualificationPolicyObservation, qualificationPolicyObservationText, qualificationPolicySourceText,
     animationRelationshipObservation,
     animationRelationshipObservationText,
@@ -415,6 +458,8 @@ test("15 review dimensions resolve every requirement type and all 462 exact leaf
     reviewedMaterialArtifact, reviewedMaterialArtifactText, reviewedReferenceCorrectionArtifact,
     reviewedReferenceCorrectionArtifactText: reviewedReferenceCorrectionArtifactText.replace("PXD-101", "PXD-099"),
     qualityMetricObservations, qualityPolicySourceText, qualityCurrentSourceReview, qualityCurrentSourceReviewText,
+    qualityCurrentSourceFingerprints,
+    captionImportCurrentSourceReview, captionImportCurrentSourceReviewText, requirementsSourceText, decisionLogSourceText: decisionLogText,
     qualificationPolicyObservation, qualificationPolicyObservationText, qualificationPolicySourceText,
     animationRelationshipObservation,
     animationRelationshipObservationText,
@@ -488,7 +533,8 @@ test("PXD-098 qualification-policy observation is exact and rejects stale or for
     .map((path) => [path, read(path)]));
   Object.assign(sourceDocuments, { ".product-experience/pdp-0-product-truth/requirements.yaml": requirements,
     ".product-experience/pdp-0-product-truth/capabilities.yaml": capabilities,
-    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": review });
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": review,
+    ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": read(".product-experience/pdp-0-product-truth/campaign-extensions.yaml") });
   const args = { applicability: channelSource.ownerFeatureReviewApplicability, requirements, capabilities,
     capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, sourceDocuments };
   const staleText = qualificationPolicyObservationText.replace("e6ac071ed2fc0a1ee8e3906fd831516bd71fb9aadbb14ff58f7139bcff26eb48", "c71df52fa9ef472a9ba1353fc97ae5b4762f3d772c3f140ebc7e3feef563b791");

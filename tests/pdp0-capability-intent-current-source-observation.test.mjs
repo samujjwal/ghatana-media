@@ -24,7 +24,11 @@ test("P0 owner intent binding observation pins the exact 462-leaf source delta w
   const currentCorrectionsReview = JSON.parse(read(currentCorrectionsReviewPath).toString("utf8"));
   const bytes = read(sourcePath);
   const capabilities = parse(bytes.toString("utf8"));
-  const leaves = capabilities.capabilities;
+  const ownerLeafReview = parse(read(".product-experience/pdp-0-product-truth/capability-leaf-review.yaml").toString("utf8"));
+  const campaignExtensions = parse(read(".product-experience/pdp-0-product-truth/campaign-extensions.yaml").toString("utf8"));
+  const canonicalIds = new Set(ownerLeafReview.ownerCapabilityLeafAdjudication.records.map(({ capabilityRef }) => capabilityRef));
+  const extensionIds = new Set(campaignExtensions.currentDefinitionPopulation.records.map(({ capabilityId }) => capabilityId));
+  const leaves = capabilities.capabilities.filter(({ id }) => canonicalIds.has(id));
   const sha = (value) => createHash("sha256").update(value).digest("hex");
   const ids = leaves.map(({ id }) => id).sort();
   const dispositionRows = leaves.map(({ id, ownerDefinition }) => [id, ownerDefinition?.ownerDisposition]);
@@ -36,11 +40,16 @@ test("P0 owner intent binding observation pins the exact 462-leaf source delta w
     "PXD-122 remains pinned to its historical capability source cut");
   assert.equal(uploadCorrectionReview.source.currentSha256, "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
     "PXD-153 remains pinned to its historical capability source cut");
-  assert.equal(currentCorrectionsReview.source.currentSha256, sha(bytes),
-    "PXD-171 pins the exact correction fields on the current capability source");
+  assert.equal(currentCorrectionsReview.source.currentSha256, "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+    "PXD-171 retains its historical source-cut pin");
   assert.equal(semanticReview.source.historicalComparison.parsedPathDelta, "NOT_ASSERTED");
   assert.equal(observation.source.path, sourcePath);
   assert.equal(observation.source.recordPopulation.count, 462);
+  assert.equal(capabilities.capabilities.length, 469, "seven proposals remain separate from the historical owner-adjudicated set");
+  assert.equal(extensionIds.size, 7);
+  assert.ok([...extensionIds].every((id) => !canonicalIds.has(id)), "proposal IDs are not represented as owner adjudications");
+  assert.equal(new Set([...canonicalIds, ...extensionIds]).size, capabilities.capabilities.length,
+    "the canonical and proposal populations exactly cover the current definition catalog");
   assert.equal(ids.length, 462);
   assert.equal(new Set(ids).size, 462);
   assert.equal(sha(`${ids.join("\n")}\n`), observation.source.recordPopulation.sortedIdentitySetSha256);

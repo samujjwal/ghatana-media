@@ -96,7 +96,8 @@ test("all current master-plan source claims have one exact, non-accepting owner 
       assert.equal(sha(ownerText), record.ownerValueSha256, `${record.claimId} exact current owner digest`);
     }
     if (["execution-only", "superseded"].includes(record.classification)) {
-      assert.match(record.ownerRef, /^docs\/implementation\/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN\.md#L\d+$/u);
+      assert.ok(record.ownerRef.startsWith(".product-experience/") || /^docs\/implementation\/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN\.md#L\d+$/u.test(record.ownerRef),
+        `${record.claimId} resolves to a current phase source or its plan-owned execution procedure`);
     } else {
       assert.ok(record.ownerRef.startsWith('.product-experience/'), `${record.claimId} resolves to one current product owner`);
     }
@@ -122,6 +123,88 @@ test("all current master-plan source claims have one exact, non-accepting owner 
   assert.match(schemaBindings.canonicalPhases[1].acceptanceState, /domain-owner-adjudication-pending/u);
   const proposal = readYaml(".product-experience/pdp-0-product-truth/time-units-fidelity.yaml").unitAndCoordinateProposal;
   assert.match(proposal.status, /validation-against-admitted-scene-model-contracts-pending/u);
+});
+
+test("all non-whitespace changed-text residuals have exactly one source-bound disposition", () => {
+  const audit = JSON.parse(read(artifactPath));
+  const ledger = readYaml(ledgerPath);
+  const dispositions = audit.hunkResidualDispositions;
+  const sourceLines = read(sourcePath).split("\n");
+  assert.ok(Array.isArray(dispositions), "hunk residual dispositions are explicit");
+  const expectedHunks = new Set();
+  for (const hunk of ledger.hunkReconciliation.records) {
+    let exactResidual = (hunk.exactCurrentChangedText ?? []).join("\n");
+    for (const claim of audit.records.filter(({ hunkId }) => hunkId === hunk.hunkId)) {
+      assert.ok(exactResidual.includes(claim.exactClaim), `${claim.claimId} is an exact span in ${hunk.hunkId}`);
+      exactResidual = exactResidual.replace(claim.exactClaim, "");
+    }
+    if (exactResidual.trim().replace(/\s/gu, "").length > 0) expectedHunks.add(hunk.hunkId);
+  }
+  assert.equal(dispositions.length, expectedHunks.size, "one disposition exists for each ledger-derived non-whitespace residual");
+  assert.equal(new Set(dispositions.map(({ residualId }) => residualId)).size, dispositions.length, "residual IDs are unique");
+  assert.equal(new Set(dispositions.map(({ hunkId }) => hunkId)).size, dispositions.length, "no hunk residual is duplicated");
+  assert.deepEqual(new Set(dispositions.map(({ hunkId }) => hunkId)), expectedHunks);
+  const allowedClasses = new Set([...classes, "source-structure"]);
+
+  for (const disposition of dispositions) {
+    const hunk = ledger.hunkReconciliation.records.find(({ hunkId }) => hunkId === disposition.hunkId);
+    assert.ok(hunk, `${disposition.hunkId} resolves in the source hunk register`);
+    let exactResidual = (hunk.exactCurrentChangedText ?? []).join("\n");
+    for (const claim of audit.records.filter(({ hunkId }) => hunkId === disposition.hunkId)) {
+      assert.ok(exactResidual.includes(claim.exactClaim), `${claim.claimId} is an exact span in ${disposition.hunkId}`);
+      exactResidual = exactResidual.replace(claim.exactClaim, "");
+    }
+    exactResidual = exactResidual.trim();
+    assert.ok(exactResidual.replace(/\s/gu, "").length > 0, `${disposition.hunkId} has a non-whitespace residual`);
+    assert.equal(disposition.exactResidual, exactResidual, `${disposition.hunkId} residual text is exact`);
+    assert.equal(disposition.residualTextSha256, sha(exactResidual), `${disposition.hunkId} residual digest matches`);
+    assert.ok(disposition.currentSourceLines[0] >= hunk.currentLines[0] && disposition.currentSourceLines[1] <= hunk.currentLines[1], `${disposition.hunkId} residual coordinates fall within the changed hunk`);
+    let sourceResidual = sourceLines.slice(disposition.currentSourceLines[0] - 1, disposition.currentSourceLines[1]).join("\n");
+    for (const claim of audit.records.filter(({ hunkId }) => hunkId === disposition.hunkId)) {
+      sourceResidual = sourceResidual.replace(claim.exactClaim, "");
+    }
+    const normalizeWhitespace = (value) => value.replace(/\s+/gu, " ").trim();
+    assert.equal(normalizeWhitespace(sourceResidual), normalizeWhitespace(exactResidual),
+      `${disposition.hunkId} source coordinates resolve to the exact residual after claim spans are removed`);
+    assert.equal(disposition.clusterId, hunk.clusterId);
+    assert.ok(allowedClasses.has(disposition.classification), `${disposition.residualId} has a valid routing classification`);
+    assert.ok(disposition.reason.length > 30);
+    assert.equal(disposition.acceptanceEffect, "none");
+    assert.ok(disposition.ownerRole?.trim());
+    assert.equal(disposition.validationRef, disposition.ownerRef, "validation route names the same current authority target");
+    const ownerValue = resolveOwner(disposition.ownerRef);
+    const ownerText = typeof ownerValue === "string" ? ownerValue : JSON.stringify(ownerValue);
+    assert.equal(sha(ownerText), disposition.ownerValueSha256, `${disposition.residualId} current authority digest matches`);
+  }
+
+  const requiredP0Residual = dispositions.find(({ hunkId }) => hunkId === "MSD-014");
+  assert.match(requiredP0Residual.exactResidual, /required product-definition scope/u);
+  assert.match(requiredP0Residual.exactResidual, /stable leaf record/u);
+  assert.equal(requiredP0Residual.ownerRef, ".product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml#/rules/0");
+  const criteria = dispositions.find(({ hunkId }) => hunkId === "MSD-024");
+  assert.match(criteria.exactResidual, /Tests validate reference closure and semantic invariants/u);
+  assert.equal(criteria.classification, "clarified");
+  const routedRef = (id) => dispositions.find(({ hunkId }) => hunkId === id)?.ownerRef;
+  for (const [id, ref] of [
+    ["MSD-014", ".product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml#/rules/0"],
+    ["MSD-015", ".product-experience/pdp-1-domain-data/value-objects.yaml"],
+    ["MSD-016", ".product-experience/pdp-1-domain-data/states.yaml"],
+    ["MSD-019", ".product-experience/pdp-2-design-interface-system/localization-content.yaml"],
+    ["MSD-027", ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md#L1"],
+    ["MSD-029", ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml"],
+    ["MSD-030", ".product-experience/pdp-2-design-interface-system/accessibility.yaml"],
+    ["MSD-031", ".product-experience/pdp-2-design-interface-system/design-governance.json"],
+    ["MSD-033", ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml"],
+    ["MSD-034", ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml"],
+    ["MSD-035", ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml"],
+    ["MSD-097", ".product-experience/explorer/tools-binding.yaml"],
+    ["MSD-119", "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6"],
+    ["MSD-120", ".product-experience/pdp-0-product-truth/goals-jtbd.yaml"],
+    ["MSD-121", "docs/migration/master-plan-source-change-claims.yaml#/hunkReconciliation/method"],
+  ]) assert.equal(routedRef(id), ref, `${id} routes to its concrete current owner`);
+  for (const disposition of dispositions.filter(({ classification }) => classification === "source-structure")) {
+    assert.match(disposition.ownerRef, /authority-map\.yaml|pdp-[0-3]-|explorer\//u, `${disposition.hunkId} source structure uses the canonical phase or projection map`);
+  }
 });
 
 test("high-risk migration claims resolve to their semantically correct phase owners", () => {
@@ -196,8 +279,8 @@ test("high-risk migration claims resolve to their semantically correct phase own
   for (const id of ["MSC-10-MSD-110-L2458-C01", "MSC-14-MSD-117-L2680-C01"]) {
     const summary = record(id);
     assert.equal(summary.classification, "execution-only");
-    assert.equal(summary.ownerRef, "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6");
+    assert.equal(summary.ownerRef, ".product-experience/authority-map.yaml#/phaseAuthorities/4");
     assert.match(summary.reason, /not product meaning/u);
-    assert.match(owner(id, summary.ownerRef), /Explorer is a consumer\/projection, not a phase/u);
+    assert.match(owner(id, summary.ownerRef).scope, /projected outside the PDP phases/u);
   }
 });

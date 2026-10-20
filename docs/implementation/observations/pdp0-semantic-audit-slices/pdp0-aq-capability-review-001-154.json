@@ -1,0 +1,2085 @@
+{
+  "schemaVersion": "media.pdp0.aq-capability-review-slice.v1",
+  "review": {
+    "campaignScope": "Independent PDP-0 coordinator mapping recommendation for blueprint A–Q feature clusters against the first 154 canonical capability leaves in YAML source order; no product expansion or owner disposition.",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-0 Product Truth",
+    "surfaceScope": "Canonical Media PDP-0 capability records 001–154 only; this file is an isolated observation and does not alter canonical meaning.",
+    "permittedWork": "Recommendation-only A–Q cluster mapping with exact source references and provenance; no acceptance, closure, implementation, or source edit claimed.",
+    "baselineCommit": "79329cc4ec49ce546bc1097f53f3c2ff125bad2c",
+    "statusContext": {
+      "recordedPhase": "PDP-0",
+      "recordedStatus": "DEV_COMPLETE",
+      "recordedStatusMainSha": "79329cc4ec49ce546bc1097f53f3c2ff125bad2c",
+      "requirementsPinMatchesLive": false,
+      "capabilitiesPinMatchesLive": true,
+      "currentnessDisposition": "SOURCE_PIN_MISMATCH; recommendation does not establish currentness"
+    },
+    "materialInputs": {
+      ".product-experience/pdp-0-product-truth/requirements.yaml": {
+        "sha256": "b5b0bca96a6ba0ba26661976ea309021a20cb1192956fa69198b8c81427426bd",
+        "recordedPdp0Pin": "ad3f569668f817a1536741ae105d729911c42e6fb801c01d7022ba19168b7c33",
+        "matchesRecordedPin": false
+      },
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": {
+        "sha256": "bc1d9c389afc3445015679aa9bbf63dae310b5a91b34dbf7046a8de92f52dbba",
+        "recordedPdp0Pin": "bc1d9c389afc3445015679aa9bbf63dae310b5a91b34dbf7046a8de92f52dbba",
+        "matchesRecordedPin": true
+      },
+      "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md": {
+        "sha256": "055d797770cbd4c0c9ec2c20ef10b5e437831f8309b6e813fef234ad9827c947"
+      }
+    },
+    "taxonomySource": {
+      "path": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md",
+      "section": "§2 Capability completeness ledger",
+      "clusterIds": "A–Q"
+    },
+    "sourceSlice": {
+      "sourcePath": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "collection": "capabilities",
+      "startIndex": 1,
+      "endIndex": 154,
+      "count": 154,
+      "sourceTotalCount": 462,
+      "indexing": "1-based YAML list order"
+    },
+    "requirementParentRule": "Parent requirement ID is the source family requirementId for the capability record; requirements.yaml is checked for that exact ID.",
+    "sourceCurrentnessNote": "The live requirements.yaml fingerprint differs from its PDP-0 status record pin; this recommendation is bound to the live fingerprint and must not be treated as source-current PDP-0 evidence."
+  },
+  "summary": {
+    "mappedCount": 154,
+    "uniqueCapabilityCount": 154,
+    "ownerAcceptance": "NOT_CLAIMED",
+    "acceptanceClaim": false
+  },
+  "mappings": [
+    {
+      "sourceOrderIndex": 1,
+      "capabilityId": "media.project.create",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [],
+      "semanticRationale": "Create project manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.project.create",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROJECT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 2,
+      "capabilityId": "media.project.inspect",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [],
+      "semanticRationale": "Inspect project manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.project.inspect",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROJECT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 3,
+      "capabilityId": "media.project.update",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [],
+      "semanticRationale": "Update project manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.project.update",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROJECT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 4,
+      "capabilityId": "media.project.search",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [],
+      "semanticRationale": "Search projects manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.project.search",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROJECT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 5,
+      "capabilityId": "media.project.organize",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [],
+      "semanticRationale": "Organize projects manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.project.organize",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROJECT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 6,
+      "capabilityId": "media.project.archive",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [],
+      "semanticRationale": "Archive project manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.project.archive",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROJECT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 7,
+      "capabilityId": "media.project.version",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [],
+      "semanticRationale": "Version project manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.project.version",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROJECT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 8,
+      "capabilityId": "media.project.duplicate",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [],
+      "semanticRationale": "Duplicate project manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.project.duplicate",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROJECT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 9,
+      "capabilityId": "media.project.branch",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [],
+      "semanticRationale": "Branch project manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.project.branch",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROJECT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 10,
+      "capabilityId": "media.project.collaborate",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [],
+      "semanticRationale": "Collaborate on project manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.project.collaborate",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROJECT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 11,
+      "capabilityId": "media.project.review",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [],
+      "semanticRationale": "Review project manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.project.review",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROJECT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 12,
+      "capabilityId": "media.project.restore",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [],
+      "semanticRationale": "Restore project manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.project.restore",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROJECT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 13,
+      "capabilityId": "media.project.source-asset.attach",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [
+        "A"
+      ],
+      "semanticRationale": "Attach source asset manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.project.source-asset.attach",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROJECT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 14,
+      "capabilityId": "media.project.derived-asset.attach",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [
+        "A"
+      ],
+      "semanticRationale": "Attach derived asset manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.project.derived-asset.attach",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROJECT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 15,
+      "capabilityId": "media.project.composition.update",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [
+        "D"
+      ],
+      "semanticRationale": "Update project composition manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.project.composition.update",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROJECT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 16,
+      "capabilityId": "media.project.settings.update",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [
+        "Q"
+      ],
+      "semanticRationale": "Update project settings manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.project.settings.update",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROJECT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 17,
+      "capabilityId": "media.artifact.ingest",
+      "primaryClusterId": "A",
+      "relatedClusterIds": [
+        "C"
+      ],
+      "semanticRationale": "Ingest artifact acquires or handles a source/stream input, aligning with A’s capture and ingest scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.artifact.ingest",
+      "parentRequirementId": "MEDIA-REQ-CAP-ARTIFACT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 18,
+      "capabilityId": "media.artifact.upload",
+      "primaryClusterId": "A",
+      "relatedClusterIds": [
+        "C"
+      ],
+      "semanticRationale": "Upload artifact acquires or handles a source/stream input, aligning with A’s capture and ingest scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.artifact.upload",
+      "parentRequirementId": "MEDIA-REQ-CAP-ARTIFACT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 19,
+      "capabilityId": "media.artifact.upload.resume",
+      "primaryClusterId": "A",
+      "relatedClusterIds": [
+        "C"
+      ],
+      "semanticRationale": "Resume upload acquires or handles a source/stream input, aligning with A’s capture and ingest scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.artifact.upload.resume",
+      "parentRequirementId": "MEDIA-REQ-CAP-ARTIFACT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 20,
+      "capabilityId": "media.artifact.import",
+      "primaryClusterId": "A",
+      "relatedClusterIds": [
+        "C"
+      ],
+      "semanticRationale": "Import artifact acquires or handles a source/stream input, aligning with A’s capture and ingest scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.artifact.import",
+      "parentRequirementId": "MEDIA-REQ-CAP-ARTIFACT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 21,
+      "capabilityId": "media.artifact.inspect",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [],
+      "semanticRationale": "Inspect artifact manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.artifact.inspect",
+      "parentRequirementId": "MEDIA-REQ-CAP-ARTIFACT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 22,
+      "capabilityId": "media.artifact.search",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [],
+      "semanticRationale": "Search artifacts manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.artifact.search",
+      "parentRequirementId": "MEDIA-REQ-CAP-ARTIFACT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 23,
+      "capabilityId": "media.artifact.list",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [],
+      "semanticRationale": "List artifacts manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.artifact.list",
+      "parentRequirementId": "MEDIA-REQ-CAP-ARTIFACT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 24,
+      "capabilityId": "media.artifact.download",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "C"
+      ],
+      "semanticRationale": "Download artifact transfers, packages, or publishes media output, matching P’s render/distribution scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.artifact.download",
+      "parentRequirementId": "MEDIA-REQ-CAP-ARTIFACT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 25,
+      "capabilityId": "media.artifact.derive",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [
+        "P"
+      ],
+      "semanticRationale": "Derive artifact manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.artifact.derive",
+      "parentRequirementId": "MEDIA-REQ-CAP-ARTIFACT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 26,
+      "capabilityId": "media.artifact.output.register",
+      "primaryClusterId": "C",
+      "relatedClusterIds": [
+        "P"
+      ],
+      "semanticRationale": "Register output manages a project or governed media asset in the library/version lifecycle covered by C.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.artifact.output.register",
+      "parentRequirementId": "MEDIA-REQ-CAP-ARTIFACT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 27,
+      "capabilityId": "media.artifact.share",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "C"
+      ],
+      "semanticRationale": "Share artifact governs rights, quality, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.artifact.share",
+      "parentRequirementId": "MEDIA-REQ-CAP-ARTIFACT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 28,
+      "capabilityId": "media.artifact.share.revoke",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "C"
+      ],
+      "semanticRationale": "Revoke artifact sharing governs rights, quality, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.artifact.share.revoke",
+      "parentRequirementId": "MEDIA-REQ-CAP-ARTIFACT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 29,
+      "capabilityId": "media.artifact.delete",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "C"
+      ],
+      "semanticRationale": "Delete artifact governs rights, quality, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.artifact.delete",
+      "parentRequirementId": "MEDIA-REQ-CAP-ARTIFACT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 30,
+      "capabilityId": "media.artifact.retain",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "C"
+      ],
+      "semanticRationale": "Retain artifact governs rights, quality, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.artifact.retain",
+      "parentRequirementId": "MEDIA-REQ-CAP-ARTIFACT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 31,
+      "capabilityId": "media.artifact.provenance.export",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Export provenance transfers, packages, or publishes media output, matching P’s render/distribution scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.artifact.provenance.export",
+      "parentRequirementId": "MEDIA-REQ-CAP-ARTIFACT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 32,
+      "capabilityId": "media.artifact.source-reference.resolve",
+      "primaryClusterId": "A",
+      "relatedClusterIds": [
+        "C"
+      ],
+      "semanticRationale": "Resolve source reference acquires or handles a source/stream input, aligning with A’s capture and ingest scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.artifact.source-reference.resolve",
+      "parentRequirementId": "MEDIA-REQ-CAP-ARTIFACT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 33,
+      "capabilityId": "media.job.submit",
+      "primaryClusterId": "Q",
+      "relatedClusterIds": [],
+      "semanticRationale": "Submit job is an operational, capability-discovery, job, or headless orchestration function, matching Q’s operations/API scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.job.submit",
+      "parentRequirementId": "MEDIA-REQ-CAP-JOB",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 34,
+      "capabilityId": "media.job.view-status",
+      "primaryClusterId": "Q",
+      "relatedClusterIds": [],
+      "semanticRationale": "View job status is an operational, capability-discovery, job, or headless orchestration function, matching Q’s operations/API scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.job.view-status",
+      "parentRequirementId": "MEDIA-REQ-CAP-JOB",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 35,
+      "capabilityId": "media.job.list",
+      "primaryClusterId": "Q",
+      "relatedClusterIds": [],
+      "semanticRationale": "List jobs is an operational, capability-discovery, job, or headless orchestration function, matching Q’s operations/API scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.job.list",
+      "parentRequirementId": "MEDIA-REQ-CAP-JOB",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 36,
+      "capabilityId": "media.job.watch",
+      "primaryClusterId": "Q",
+      "relatedClusterIds": [],
+      "semanticRationale": "Watch job is an operational, capability-discovery, job, or headless orchestration function, matching Q’s operations/API scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.job.watch",
+      "parentRequirementId": "MEDIA-REQ-CAP-JOB",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 37,
+      "capabilityId": "media.job.cancel",
+      "primaryClusterId": "Q",
+      "relatedClusterIds": [],
+      "semanticRationale": "Cancel job is an operational, capability-discovery, job, or headless orchestration function, matching Q’s operations/API scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.job.cancel",
+      "parentRequirementId": "MEDIA-REQ-CAP-JOB",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 38,
+      "capabilityId": "media.job.retry",
+      "primaryClusterId": "Q",
+      "relatedClusterIds": [],
+      "semanticRationale": "Retry job is an operational, capability-discovery, job, or headless orchestration function, matching Q’s operations/API scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.job.retry",
+      "parentRequirementId": "MEDIA-REQ-CAP-JOB",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 39,
+      "capabilityId": "media.job.check-outcome",
+      "primaryClusterId": "Q",
+      "relatedClusterIds": [],
+      "semanticRationale": "Check job outcome is an operational, capability-discovery, job, or headless orchestration function, matching Q’s operations/API scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.job.check-outcome",
+      "parentRequirementId": "MEDIA-REQ-CAP-JOB",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 40,
+      "capabilityId": "media.job.outputs.inspect",
+      "primaryClusterId": "Q",
+      "relatedClusterIds": [],
+      "semanticRationale": "Inspect job outputs is an operational, capability-discovery, job, or headless orchestration function, matching Q’s operations/API scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.job.outputs.inspect",
+      "parentRequirementId": "MEDIA-REQ-CAP-JOB",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 41,
+      "capabilityId": "media.job.history.inspect",
+      "primaryClusterId": "Q",
+      "relatedClusterIds": [],
+      "semanticRationale": "Inspect bounded execution history is an operational, capability-discovery, job, or headless orchestration function, matching Q’s operations/API scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.job.history.inspect",
+      "parentRequirementId": "MEDIA-REQ-CAP-JOB",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 42,
+      "capabilityId": "media.stream.session.open",
+      "primaryClusterId": "A",
+      "relatedClusterIds": [
+        "Q"
+      ],
+      "semanticRationale": "Open stream session acquires or handles a source/stream input, aligning with A’s capture and ingest scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.stream.session.open",
+      "parentRequirementId": "MEDIA-REQ-CAP-STREAM",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 43,
+      "capabilityId": "media.stream.session.connect",
+      "primaryClusterId": "A",
+      "relatedClusterIds": [
+        "Q"
+      ],
+      "semanticRationale": "Connect stream session acquires or handles a source/stream input, aligning with A’s capture and ingest scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.stream.session.connect",
+      "parentRequirementId": "MEDIA-REQ-CAP-STREAM",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 44,
+      "capabilityId": "media.stream.frame.submit",
+      "primaryClusterId": "A",
+      "relatedClusterIds": [
+        "Q"
+      ],
+      "semanticRationale": "Submit stream frame acquires or handles a source/stream input, aligning with A’s capture and ingest scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.stream.frame.submit",
+      "parentRequirementId": "MEDIA-REQ-CAP-STREAM",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 45,
+      "capabilityId": "media.stream.frame.acknowledge",
+      "primaryClusterId": "A",
+      "relatedClusterIds": [
+        "Q"
+      ],
+      "semanticRationale": "Acknowledge stream frame acquires or handles a source/stream input, aligning with A’s capture and ingest scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.stream.frame.acknowledge",
+      "parentRequirementId": "MEDIA-REQ-CAP-STREAM",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 46,
+      "capabilityId": "media.stream.session.close",
+      "primaryClusterId": "A",
+      "relatedClusterIds": [
+        "Q"
+      ],
+      "semanticRationale": "Close stream session acquires or handles a source/stream input, aligning with A’s capture and ingest scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.stream.session.close",
+      "parentRequirementId": "MEDIA-REQ-CAP-STREAM",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 47,
+      "capabilityId": "media.stream.session.reconnect",
+      "primaryClusterId": "A",
+      "relatedClusterIds": [
+        "Q"
+      ],
+      "semanticRationale": "Reconnect stream session acquires or handles a source/stream input, aligning with A’s capture and ingest scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.stream.session.reconnect",
+      "parentRequirementId": "MEDIA-REQ-CAP-STREAM",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 48,
+      "capabilityId": "media.stream.ordering.enforce",
+      "primaryClusterId": "A",
+      "relatedClusterIds": [
+        "Q"
+      ],
+      "semanticRationale": "Enforce stream ordering acquires or handles a source/stream input, aligning with A’s capture and ingest scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.stream.ordering.enforce",
+      "parentRequirementId": "MEDIA-REQ-CAP-STREAM",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 49,
+      "capabilityId": "media.stream.lease.renew",
+      "primaryClusterId": "A",
+      "relatedClusterIds": [
+        "Q"
+      ],
+      "semanticRationale": "Renew a stream connection lease acquires or handles a source/stream input, aligning with A’s capture and ingest scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.stream.lease.renew",
+      "parentRequirementId": "MEDIA-REQ-CAP-STREAM",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 50,
+      "capabilityId": "media.stream.buffer.bound",
+      "primaryClusterId": "A",
+      "relatedClusterIds": [
+        "Q"
+      ],
+      "semanticRationale": "Bound stream buffers acquires or handles a source/stream input, aligning with A’s capture and ingest scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.stream.buffer.bound",
+      "parentRequirementId": "MEDIA-REQ-CAP-STREAM",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 51,
+      "capabilityId": "media.stream.backpressure.apply",
+      "primaryClusterId": "A",
+      "relatedClusterIds": [
+        "Q"
+      ],
+      "semanticRationale": "Apply bounded backpressure to a stream acquires or handles a source/stream input, aligning with A’s capture and ingest scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.stream.backpressure.apply",
+      "parentRequirementId": "MEDIA-REQ-CAP-STREAM",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 52,
+      "capabilityId": "media.stream.recording.integrate",
+      "primaryClusterId": "B",
+      "relatedClusterIds": [
+        "A"
+      ],
+      "semanticRationale": "Integrate stream recording connects captured screen/session evidence to a scripted recording, aligning with B’s software-demo capture workflow.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.stream.recording.integrate",
+      "parentRequirementId": "MEDIA-REQ-CAP-STREAM",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 53,
+      "capabilityId": "media.stream.live-processing.integrate",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [
+        "Q"
+      ],
+      "semanticRationale": "Integrate live processing yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.stream.live-processing.integrate",
+      "parentRequirementId": "MEDIA-REQ-CAP-STREAM",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 54,
+      "capabilityId": "media.stream.transport.webrtc",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "A"
+      ],
+      "semanticRationale": "Deliver live media over WebRTC transfers, packages, or publishes media output, matching P’s render/distribution scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.stream.transport.webrtc",
+      "parentRequirementId": "MEDIA-REQ-CAP-STREAM",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 55,
+      "capabilityId": "media.stream.transport.adaptive-http",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "A"
+      ],
+      "semanticRationale": "Deliver live media with adaptive HTTP streaming transfers, packages, or publishes media output, matching P’s render/distribution scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.stream.transport.adaptive-http",
+      "parentRequirementId": "MEDIA-REQ-CAP-STREAM",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 56,
+      "capabilityId": "media.stream.transport.hls",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "A"
+      ],
+      "semanticRationale": "Deliver live media over HLS transfers, packages, or publishes media output, matching P’s render/distribution scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.stream.transport.hls",
+      "parentRequirementId": "MEDIA-REQ-CAP-STREAM",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 57,
+      "capabilityId": "media.stream.transport.dash",
+      "primaryClusterId": "P",
+      "relatedClusterIds": [
+        "A"
+      ],
+      "semanticRationale": "Deliver live media over DASH transfers, packages, or publishes media output, matching P’s render/distribution scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.stream.transport.dash",
+      "parentRequirementId": "MEDIA-REQ-CAP-STREAM",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 58,
+      "capabilityId": "media.stream.caption.live",
+      "primaryClusterId": "E",
+      "relatedClusterIds": [
+        "H"
+      ],
+      "semanticRationale": "Enable live captions produces or refines speech/transcript information, matching E’s ASR and transcript scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.stream.caption.live",
+      "parentRequirementId": "MEDIA-REQ-CAP-STREAM",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 59,
+      "capabilityId": "media.profile.discover",
+      "primaryClusterId": "Q",
+      "relatedClusterIds": [
+        "P",
+        "O"
+      ],
+      "semanticRationale": "The taxonomy has no dedicated processing-profile discovery cluster; Q is the closest operational fit because this is an eligibility/selection operation, not proof that a profile is admitted.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.profile.discover",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROFILE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": true
+    },
+    {
+      "sourceOrderIndex": 60,
+      "capabilityId": "media.profile.validate",
+      "primaryClusterId": "Q",
+      "relatedClusterIds": [
+        "P"
+      ],
+      "semanticRationale": "The taxonomy has no dedicated profile-validation cluster; Q is the closest operational fit because compatibility is checked as an execution option, not a publishing guarantee.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.profile.validate",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROFILE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": true
+    },
+    {
+      "sourceOrderIndex": 61,
+      "capabilityId": "media.capability.discover",
+      "primaryClusterId": "Q",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "The taxonomy has no standalone capability-registry cluster; Q is the closest fit for capability discovery as an operational/API concern.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.capability.discover",
+      "parentRequirementId": "MEDIA-REQ-CAP-CAPABILITY",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": true
+    },
+    {
+      "sourceOrderIndex": 62,
+      "capabilityId": "media.capability.check-declared-options",
+      "primaryClusterId": "Q",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "The taxonomy has no standalone option-registry cluster; Q is the closest fit for checking declared operational options.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.capability.check-declared-options",
+      "parentRequirementId": "MEDIA-REQ-CAP-CAPABILITY",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": true
+    },
+    {
+      "sourceOrderIndex": 63,
+      "capabilityId": "media.capability.execution.compatibility",
+      "primaryClusterId": "Q",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "The taxonomy has no standalone execution-compatibility cluster; Q is the closest fit for a bounded orchestration preflight.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.capability.execution.compatibility",
+      "parentRequirementId": "MEDIA-REQ-CAP-CAPABILITY",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": true
+    },
+    {
+      "sourceOrderIndex": 64,
+      "capabilityId": "media.health.readiness.inspect",
+      "primaryClusterId": "Q",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Readiness is not a promised capability in any single A–Q feature cluster; Q is the closest operational fit for reporting capability-scoped readiness.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.health.readiness.inspect",
+      "parentRequirementId": "MEDIA-REQ-CAP-HEALTH",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": true
+    },
+    {
+      "sourceOrderIndex": 65,
+      "capabilityId": "media.rights.consent.reference",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "G"
+      ],
+      "semanticRationale": "Resolve consent reference governs rights, quality, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.rights.consent.reference",
+      "parentRequirementId": "MEDIA-REQ-CAP-RIGHTS",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 66,
+      "capabilityId": "media.rights.permitted-use.evaluate",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "G"
+      ],
+      "semanticRationale": "Evaluate permitted use governs rights, quality, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.rights.permitted-use.evaluate",
+      "parentRequirementId": "MEDIA-REQ-CAP-RIGHTS",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 67,
+      "capabilityId": "media.rights.attestation.record",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "G"
+      ],
+      "semanticRationale": "Record rights attestation governs rights, quality, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.rights.attestation.record",
+      "parentRequirementId": "MEDIA-REQ-CAP-RIGHTS",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 68,
+      "capabilityId": "media.provenance.source-lineage.inspect",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "C"
+      ],
+      "semanticRationale": "Inspect source lineage governs rights, quality, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.provenance.source-lineage.inspect",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROVENANCE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 69,
+      "capabilityId": "media.provenance.execution-lineage.inspect",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "Q"
+      ],
+      "semanticRationale": "Inspect execution lineage governs rights, quality, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.provenance.execution-lineage.inspect",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROVENANCE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 70,
+      "capabilityId": "media.provenance.origin.disclose",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [],
+      "semanticRationale": "Disclose origin governs rights, quality, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.provenance.origin.disclose",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROVENANCE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 71,
+      "capabilityId": "media.provenance.retention.effect.record",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "C"
+      ],
+      "semanticRationale": "Record retention effect governs rights, quality, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.provenance.retention.effect.record",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROVENANCE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 72,
+      "capabilityId": "media.provenance.erasure.effect.record",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "C"
+      ],
+      "semanticRationale": "Record erasure effect governs rights, quality, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.provenance.erasure.effect.record",
+      "parentRequirementId": "MEDIA-REQ-CAP-PROVENANCE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 73,
+      "capabilityId": "media.vision.scene-text.region.track",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [
+        "K"
+      ],
+      "semanticRationale": "Track public-DI text regions across frames yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.scene-text.region.track",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION-SCENE-TEXT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 74,
+      "capabilityId": "media.vision.scene-text.observation.create",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Create timestamped scene-text observation from public-DI results yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.scene-text.observation.create",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION-SCENE-TEXT",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 75,
+      "capabilityId": "media.speech.transcription.file",
+      "primaryClusterId": "E",
+      "relatedClusterIds": [],
+      "semanticRationale": "Transcribe audio file produces or refines speech/transcript information, matching E’s ASR and transcript scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.speech.transcription.file",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 76,
+      "capabilityId": "media.speech.transcription.stream",
+      "primaryClusterId": "E",
+      "relatedClusterIds": [],
+      "semanticRationale": "Transcribe audio stream produces or refines speech/transcript information, matching E’s ASR and transcript scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.speech.transcription.stream",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 77,
+      "capabilityId": "media.speech.transcription.language.detect",
+      "primaryClusterId": "E",
+      "relatedClusterIds": [],
+      "semanticRationale": "Detect language produces or refines speech/transcript information, matching E’s ASR and transcript scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.speech.transcription.language.detect",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 78,
+      "capabilityId": "media.speech.transcription.voice-activity.detect",
+      "primaryClusterId": "E",
+      "relatedClusterIds": [],
+      "semanticRationale": "Detect voice activity produces or refines speech/transcript information, matching E’s ASR and transcript scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.speech.transcription.voice-activity.detect",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 79,
+      "capabilityId": "media.speech.transcription.speaker.diarize",
+      "primaryClusterId": "E",
+      "relatedClusterIds": [],
+      "semanticRationale": "Diarize speakers produces or refines speech/transcript information, matching E’s ASR and transcript scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.speech.transcription.speaker.diarize",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 80,
+      "capabilityId": "media.speech.transcription.speaker.segment",
+      "primaryClusterId": "E",
+      "relatedClusterIds": [],
+      "semanticRationale": "Segment speakers produces or refines speech/transcript information, matching E’s ASR and transcript scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.speech.transcription.speaker.segment",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 81,
+      "capabilityId": "media.speech.transcription.speaker.separate",
+      "primaryClusterId": "E",
+      "relatedClusterIds": [],
+      "semanticRationale": "Separate speakers in a transcript produces or refines speech/transcript information, matching E’s ASR and transcript scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.speech.transcription.speaker.separate",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 82,
+      "capabilityId": "media.speech.transcription.speaker.identify-authorized",
+      "primaryClusterId": "E",
+      "relatedClusterIds": [],
+      "semanticRationale": "Identify authorized speaker produces or refines speech/transcript information, matching E’s ASR and transcript scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.speech.transcription.speaker.identify-authorized",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 83,
+      "capabilityId": "media.speech.transcription.word-timestamp.create",
+      "primaryClusterId": "E",
+      "relatedClusterIds": [],
+      "semanticRationale": "Create word timestamps produces or refines speech/transcript information, matching E’s ASR and transcript scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.speech.transcription.word-timestamp.create",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 84,
+      "capabilityId": "media.speech.transcription.phoneme-timestamp.create",
+      "primaryClusterId": "E",
+      "relatedClusterIds": [],
+      "semanticRationale": "Create phoneme timestamps produces or refines speech/transcript information, matching E’s ASR and transcript scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.speech.transcription.phoneme-timestamp.create",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 85,
+      "capabilityId": "media.speech.transcription.forced-align",
+      "primaryClusterId": "E",
+      "relatedClusterIds": [],
+      "semanticRationale": "Match transcript timing to audio produces or refines speech/transcript information, matching E’s ASR and transcript scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.speech.transcription.forced-align",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 86,
+      "capabilityId": "media.speech.transcription.punctuate-capitalize",
+      "primaryClusterId": "E",
+      "relatedClusterIds": [],
+      "semanticRationale": "Punctuate and capitalize transcript produces or refines speech/transcript information, matching E’s ASR and transcript scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.speech.transcription.punctuate-capitalize",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 87,
+      "capabilityId": "media.speech.transcription.alternatives.provide",
+      "primaryClusterId": "E",
+      "relatedClusterIds": [],
+      "semanticRationale": "Provide transcription alternatives produces or refines speech/transcript information, matching E’s ASR and transcript scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.speech.transcription.alternatives.provide",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 88,
+      "capabilityId": "media.speech.transcription.confidence.provide",
+      "primaryClusterId": "E",
+      "relatedClusterIds": [],
+      "semanticRationale": "Provide confidence information produces or refines speech/transcript information, matching E’s ASR and transcript scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.speech.transcription.confidence.provide",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 89,
+      "capabilityId": "media.speech.transcription.translate",
+      "primaryClusterId": "H",
+      "relatedClusterIds": [
+        "F"
+      ],
+      "semanticRationale": "Translate speech supports translation, timed localization, or subtitle adaptation, matching H’s dubbing/localization scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.speech.transcription.translate",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 90,
+      "capabilityId": "media.speech.transcription.subtitle.generate",
+      "primaryClusterId": "H",
+      "relatedClusterIds": [
+        "E"
+      ],
+      "semanticRationale": "Generate subtitles supports translation, timed localization, or subtitle adaptation, matching H’s dubbing/localization scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.speech.transcription.subtitle.generate",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 91,
+      "capabilityId": "media.vision.detect",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [],
+      "semanticRationale": "Detect visual entities yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.detect",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 92,
+      "capabilityId": "media.vision.classify",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [],
+      "semanticRationale": "Classify visual entities yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.classify",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 93,
+      "capabilityId": "media.vision.segment.image",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [],
+      "semanticRationale": "Segment image yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.segment.image",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 94,
+      "capabilityId": "media.vision.segment.video",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [],
+      "semanticRationale": "Segment video yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.segment.video",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 95,
+      "capabilityId": "media.vision.track.object",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [],
+      "semanticRationale": "Track objects yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.track.object",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 96,
+      "capabilityId": "media.vision.track.point",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [],
+      "semanticRationale": "Track points yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.track.point",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 97,
+      "capabilityId": "media.vision.estimate.optical-flow",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [],
+      "semanticRationale": "Estimate optical flow yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.estimate.optical-flow",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 98,
+      "capabilityId": "media.vision.estimate.depth",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [
+        "K",
+        "M"
+      ],
+      "semanticRationale": "Estimate depth yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.estimate.depth",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 99,
+      "capabilityId": "media.vision.estimate.surface-normals",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [
+        "M"
+      ],
+      "semanticRationale": "Estimate surface normals yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.estimate.surface-normals",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 100,
+      "capabilityId": "media.vision.estimate.human-pose",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [
+        "M",
+        "K"
+      ],
+      "semanticRationale": "Estimate human pose yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.estimate.human-pose",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 101,
+      "capabilityId": "media.vision.estimate.hand-pose",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [
+        "M",
+        "K"
+      ],
+      "semanticRationale": "Estimate hand pose yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.estimate.hand-pose",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 102,
+      "capabilityId": "media.vision.estimate.face-landmarks",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [],
+      "semanticRationale": "Estimate face landmarks yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.estimate.face-landmarks",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 103,
+      "capabilityId": "media.vision.analyze.expression",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Analyze expression as uncertain inference yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.analyze.expression",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 104,
+      "capabilityId": "media.vision.analyze.gaze",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Analyze gaze as uncertain inference yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.analyze.gaze",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 105,
+      "capabilityId": "media.vision.matte.foreground-background",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [],
+      "semanticRationale": "Matte foreground/background yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.matte.foreground-background",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 106,
+      "capabilityId": "media.vision.segment.motion",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [],
+      "semanticRationale": "Segment motion yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.segment.motion",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 107,
+      "capabilityId": "media.vision.estimate.saliency",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [],
+      "semanticRationale": "Estimate saliency yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.estimate.saliency",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 108,
+      "capabilityId": "media.vision.classify.scene",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [],
+      "semanticRationale": "Classify scene yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.classify.scene",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 109,
+      "capabilityId": "media.vision.detect.shot-boundary",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [],
+      "semanticRationale": "Detect shot boundary yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.detect.shot-boundary",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 110,
+      "capabilityId": "media.vision.estimate.camera-motion",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [],
+      "semanticRationale": "Estimate camera motion yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.vision.estimate.camera-motion",
+      "parentRequirementId": "MEDIA-REQ-CAP-VISION",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 111,
+      "capabilityId": "media.multimodal.analyze.cross-modal",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [
+        "E",
+        "I"
+      ],
+      "semanticRationale": "Analyze across modalities yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.multimodal.analyze.cross-modal",
+      "parentRequirementId": "MEDIA-REQ-CAP-MULTIMODAL",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 112,
+      "capabilityId": "media.multimodal.describe",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [
+        "J"
+      ],
+      "semanticRationale": "Describe media yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.multimodal.describe",
+      "parentRequirementId": "MEDIA-REQ-CAP-MULTIMODAL",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 113,
+      "capabilityId": "media.multimodal.summarize",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [
+        "J"
+      ],
+      "semanticRationale": "Summarize media yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.multimodal.summarize",
+      "parentRequirementId": "MEDIA-REQ-CAP-MULTIMODAL",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 114,
+      "capabilityId": "media.multimodal.extract.structured",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Extract structured information yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.multimodal.extract.structured",
+      "parentRequirementId": "MEDIA-REQ-CAP-MULTIMODAL",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 115,
+      "capabilityId": "media.multimodal.associate.speaker-face",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [
+        "E"
+      ],
+      "semanticRationale": "Associate speech speakers with visible faces yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.multimodal.associate.speaker-face",
+      "parentRequirementId": "MEDIA-REQ-CAP-MULTIMODAL",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 116,
+      "capabilityId": "media.multimodal.relate.scene-audio",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [
+        "I"
+      ],
+      "semanticRationale": "Relate scene and audio yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.multimodal.relate.scene-audio",
+      "parentRequirementId": "MEDIA-REQ-CAP-MULTIMODAL",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 117,
+      "capabilityId": "media.multimodal.observe.source-grounded",
+      "primaryClusterId": "L",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Create source-grounded observation yields visual or cross-modal observations about media, matching L’s vision and smart-video scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.multimodal.observe.source-grounded",
+      "parentRequirementId": "MEDIA-REQ-CAP-MULTIMODAL",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 118,
+      "capabilityId": "media.audio.analysis.segment.content-kind",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Segment speech/music/non-speech analyzes or processes audio signal properties, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.audio.analysis.segment.content-kind",
+      "parentRequirementId": "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 119,
+      "capabilityId": "media.audio.analysis.measure.loudness",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Measure loudness analyzes or processes audio signal properties, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.audio.analysis.measure.loudness",
+      "parentRequirementId": "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 120,
+      "capabilityId": "media.audio.analysis.measure.peaks",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Measure peaks analyzes or processes audio signal properties, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.audio.analysis.measure.peaks",
+      "parentRequirementId": "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 121,
+      "capabilityId": "media.audio.analysis.detect.clipping",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Detect clipping analyzes or processes audio signal properties, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.audio.analysis.detect.clipping",
+      "parentRequirementId": "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 122,
+      "capabilityId": "media.audio.analysis.measure.noise",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Measure noise analyzes or processes audio signal properties, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.audio.analysis.measure.noise",
+      "parentRequirementId": "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 123,
+      "capabilityId": "media.audio.analysis.analyze.spectral",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Analyze spectrum analyzes or processes audio signal properties, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.audio.analysis.analyze.spectral",
+      "parentRequirementId": "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 124,
+      "capabilityId": "media.audio.analysis.analyze.phase",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Analyze phase analyzes or processes audio signal properties, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.audio.analysis.analyze.phase",
+      "parentRequirementId": "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 125,
+      "capabilityId": "media.audio.analysis.analyze.channels",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Analyze channels analyzes or processes audio signal properties, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.audio.analysis.analyze.channels",
+      "parentRequirementId": "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 126,
+      "capabilityId": "media.audio.analysis.detect.beat-onset",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "J"
+      ],
+      "semanticRationale": "Detect beats and onsets analyzes or processes audio signal properties, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.audio.analysis.detect.beat-onset",
+      "parentRequirementId": "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 127,
+      "capabilityId": "media.audio.analysis.detect.silence",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Detect silence analyzes or processes audio signal properties, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.audio.analysis.detect.silence",
+      "parentRequirementId": "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 128,
+      "capabilityId": "media.audio.analysis.diagnose.source-separation",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Diagnose source separation analyzes or processes audio signal properties, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.audio.analysis.diagnose.source-separation",
+      "parentRequirementId": "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 129,
+      "capabilityId": "media.audio.analysis.assess.timing",
+      "primaryClusterId": "I",
+      "relatedClusterIds": [
+        "O"
+      ],
+      "semanticRationale": "Assess timing analyzes or processes audio signal properties, matching I’s audio engineering scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.audio.analysis.assess.timing",
+      "parentRequirementId": "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 130,
+      "capabilityId": "media.audio.analysis.assess.intelligibility",
+      "primaryClusterId": "O",
+      "relatedClusterIds": [
+        "E"
+      ],
+      "semanticRationale": "Measure speech intelligibility governs rights, quality, provenance, or review evidence, matching O’s quality/compliance scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.audio.analysis.assess.intelligibility",
+      "parentRequirementId": "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 131,
+      "capabilityId": "media.generate.image.text-to-image",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [],
+      "semanticRationale": "Generate image from text creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.image.text-to-image",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 132,
+      "capabilityId": "media.generate.image.image-to-image",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [],
+      "semanticRationale": "Transform image to image creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.image.image-to-image",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 133,
+      "capabilityId": "media.generate.image.reference",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [],
+      "semanticRationale": "Generate with reference creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.image.reference",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 134,
+      "capabilityId": "media.generate.image.multi-reference",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [],
+      "semanticRationale": "Generate with multiple references creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.image.multi-reference",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 135,
+      "capabilityId": "media.generate.image.sketch-to-image",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [],
+      "semanticRationale": "Generate from sketch creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.image.sketch-to-image",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 136,
+      "capabilityId": "media.generate.image.layout-to-image",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [],
+      "semanticRationale": "Generate from layout creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.image.layout-to-image",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 137,
+      "capabilityId": "media.generate.image.condition.pose",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [],
+      "semanticRationale": "Generate with pose conditioning creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.image.condition.pose",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 138,
+      "capabilityId": "media.generate.image.condition.depth",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [],
+      "semanticRationale": "Generate with depth conditioning creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.image.condition.depth",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 139,
+      "capabilityId": "media.generate.image.condition.edge",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [],
+      "semanticRationale": "Generate with edge conditioning creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.image.condition.edge",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 140,
+      "capabilityId": "media.generate.image.condition.segmentation",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [],
+      "semanticRationale": "Generate with segmentation conditioning creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.image.condition.segmentation",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 141,
+      "capabilityId": "media.generate.image.control.palette",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [],
+      "semanticRationale": "Control palette creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.image.control.palette",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 142,
+      "capabilityId": "media.generate.image.control.style",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [],
+      "semanticRationale": "Control style creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.image.control.style",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 143,
+      "capabilityId": "media.generate.image.control.reference",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [],
+      "semanticRationale": "Control reference creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.image.control.reference",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-IMAGE",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 144,
+      "capabilityId": "media.generate.video.text-to-video",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [
+        "F"
+      ],
+      "semanticRationale": "Generate video from text creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.video.text-to-video",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 145,
+      "capabilityId": "media.generate.video.image-to-video",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [],
+      "semanticRationale": "Generate video from image creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.video.image-to-video",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 146,
+      "capabilityId": "media.generate.video.video-to-video",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [
+        "C"
+      ],
+      "semanticRationale": "Transform video to video creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.video.video-to-video",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 147,
+      "capabilityId": "media.generate.video.text-image-to-video",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [
+        "F"
+      ],
+      "semanticRationale": "Generate text-to-image then image-to-video creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.video.text-image-to-video",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 148,
+      "capabilityId": "media.generate.video.keyframe.start",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [
+        "M"
+      ],
+      "semanticRationale": "Generate start keyframe creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.video.keyframe.start",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 149,
+      "capabilityId": "media.generate.video.keyframe.end",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [
+        "M"
+      ],
+      "semanticRationale": "Generate end keyframe creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.video.keyframe.end",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 150,
+      "capabilityId": "media.generate.video.keyframe.intermediate",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [
+        "M"
+      ],
+      "semanticRationale": "Generate intermediate keyframes creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.video.keyframe.intermediate",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 151,
+      "capabilityId": "media.generate.video.reference-video",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [
+        "L"
+      ],
+      "semanticRationale": "Generate from reference video creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.video.reference-video",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 152,
+      "capabilityId": "media.generate.video.drive.audio",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [
+        "F"
+      ],
+      "semanticRationale": "Drive video from audio creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.video.drive.audio",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 153,
+      "capabilityId": "media.generate.video.drive.speech",
+      "primaryClusterId": "K",
+      "relatedClusterIds": [
+        "F"
+      ],
+      "semanticRationale": "Drive video from speech creates or conditions visual media, matching K’s image/video generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.video.drive.speech",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    },
+    {
+      "sourceOrderIndex": 154,
+      "capabilityId": "media.generate.audio.text-to-audio",
+      "primaryClusterId": "F",
+      "relatedClusterIds": [
+        "I"
+      ],
+      "semanticRationale": "Generate audio from text produces synthesized audio or voice output, matching F’s speech-generation scope.",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.audio.text-to-audio",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-AUDIO",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED",
+      "mappingUncertainty": false
+    }
+  ]
+}

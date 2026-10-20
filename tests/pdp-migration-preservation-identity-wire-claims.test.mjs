@@ -110,6 +110,8 @@ test("PXD-108 and PXD-100 person-inference observations stay historical while PX
   const impactRecord = impact.records.find((row) => row.claimId === claim.claimId);
   const p0Observation = JSON.parse(readFileSync(resolve(root, currentP0ObservationPath), "utf8"))
     .records.find((row) => row.claimId === claim.claimId);
+  const pxd213QualityReview = JSON.parse(readFileSync(resolve(root,
+    "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd213.json"), "utf8"));
   const current = resolveRef(targets.get(claim.claimId));
   const historical = historicalQuality.personAndIdentityInferenceRule;
 
@@ -131,12 +133,18 @@ test("PXD-108 and PXD-100 person-inference observations stay historical while PX
   assert.equal(p0Observation.previousObservedTargetValueSha256, observed.currentHash,
     "PXD-130 preserves the PXD-108 current-target digest as history");
   assert.equal(p0Observation.currentTargetValueSha256, targetDigest(current),
-    "PXD-130 records the exact current target value separately");
+    "the exact selector and selected value remain unchanged; this does not promote claim parity");
   assert.equal(p0Observation.historicalPxd108ObservationArtifactSha256, createHash("sha256").update(readFileSync(resolve(root, currentObservationPath))).digest("hex"));
   assert.equal(p0Observation.historicalPxd108CurrentTargetSha256, observed.currentHash);
   assert.equal(p0Observation.historicalPxd108SourceFileSha256, observed.sourceFileSha256);
   assert.equal(p0Observation.currentSourceFileSha256,
-    createHash("sha256").update(readFileSync(resolve(root, qualityPath))).digest("hex"));
+    "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770",
+    "PXD-130 retains its historical whole-file source pin");
+  assert.equal(pxd213QualityReview.latestCurrentnessRefresh.sourceFingerprints[qualityPath],
+    createHash("sha256").update(readFileSync(resolve(root, qualityPath))).digest("hex"),
+    "PXD-213 supplies the exact current quality-policy whole-file pin");
+  assert.equal(pxd213QualityReview.latestCurrentnessRefresh.ownerApproval, "NOT_CLAIMED");
+  assert.equal(pxd213QualityReview.latestCurrentnessRefresh.independentAcceptance, "NOT_CLAIMED");
   assert.equal(p0Observation.semanticEquivalence, "NOT_ASSERTED");
   assert.equal(p0Observation.semanticPromotion, false);
   assert.equal(p0Observation.acceptanceEffect, "none");

@@ -168,6 +168,7 @@ requirements:
   - media.project.derived-asset.attach
   - media.project.composition.update
   - media.project.settings.update
+  - media.project.scene.patch-merge
   kind: functional
   priority: must
   traceToIntentIds:
@@ -237,6 +238,26 @@ requirements:
     when: the product checkpoints and later recovers project state after interruption.
     then: preserve the last confirmed revision and state which unsaved changes may be absent or lost before recovery is accepted.
     rejection: reject silently overwriting the confirmed revision or implying a durability or recovery-point guarantee not defined for the product.
+  - id: MEDIA-REQ-CAP-PROJECT-AC-05
+    given: An authorized creator organizes a project containing immutable source-asset versions and requests library bins or nested collections.
+    when: The creator proposes a hierarchy and assigns exact asset-version references to its bins.
+    then: Return a reviewable, version-bound organization proposal that preserves each source identity and version and makes no project or asset mutation until explicitly confirmed.
+    rejection: Reject replacing source assets, changing their versions, or applying ambiguous membership or hierarchy changes without confirmation.
+  - id: MEDIA-REQ-CAP-PROJECT-AC-06
+    given: An authorized creator defines a smart bin using an explicit predicate over project assets and chooses live or snapshot membership.
+    when: Membership is evaluated against the declared project revision and predicate.
+    then: Return exact member-version references and label whether membership is live or a snapshot; distinguish observed attributes, inferred matches with uncertainty, unknown or unindexed attributes, and a known empty result.
+    rejection: Reject treating unknown or unindexed attributes as non-matches, silently changing snapshot membership, or implying that a smart bin mutates its source assets.
+  - id: MEDIA-REQ-CAP-PROJECT-AC-07
+    given: An authorized editor submits a scene patch against an exact project and scene revision, and a later revision contains overlapping changes.
+    when: The product evaluates whether the patch can be reconciled with the current revision.
+    then: Return a local merge proposal bound to the base, left, and right revisions, identifying each overlapping conflict and preserving both source revisions; create a new revision only after explicit review and confirmation.
+    rejection: Reject silently applying a patch to a changed scene, choosing a conflict winner without authorization, or claiming a committed revision while the result is pending, unknown, or unavailable.
+  - id: MEDIA-REQ-CAP-PROJECT-AC-08
+    given: An authorized project owner requests a portable backup of one exact project revision.
+    when: The product prepares its backup manifest and restore proposal.
+    then: Identify the exact project revision, included immutable asset versions, external references, and omitted, unavailable, or rights-restricted content; call the backup complete only when every required item and integrity check is accounted for, and restore as a new revision that preserves the originals.
+    rejection: Reject implying completeness when inclusion or integrity is unknown, silently replacing an external reference, or restoring over the source revision.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -412,6 +433,41 @@ requirements:
     when: the actor requests duplicate detection.
     then: Return bounded candidate groups that retain every source artifact identity and state the matching uncertainty.
     rejection: Reject merging, replacing, or deleting any source artifact as a consequence of candidate detection.
+  - id: MEDIA-REQ-CAP-ARTIFACT-AC-05
+    given: An authorized Studio creator searches the governed Media asset store for candidates for an explicitly declared intended-use scope.
+    when: The product evaluates each immutable asset version for the requested license/use-scope filter.
+    then: Return a candidate as eligible only when current authoritative per-version rights and license evidence explicitly permits the declared scope; preserve the exact asset version and evidence identity. Missing, unknown, denied, expired, revoked, restricted, or incompatible evidence never makes a candidate eligible, and unresolved evidence is reported as UNKNOWN or review-required rather than as an empty eligible result.
+    rejection: Reject inferring permission from searchable metadata, treating this filter as legal clearance, silently substituting a different asset or license, or claiming external-catalog search, ranking, or complete results.
+  - id: MEDIA-REQ-CAP-ARTIFACT-AC-06
+    given: An authorized editor searches an admitted project for timeline, person, scene, or speaker facets with an explicit time range and exact project or source-version scope.
+    when: The product evaluates the requested facet filters against indexed observations.
+    then: Return bounded matches with exact immutable source-version references, matching time ranges, and observed or inferred provenance; report unknown or unindexed fields and partial matching separately from a known empty result.
+    rejection: Reject presenting an unindexed or uncertain facet as absent, claiming complete matches while continuation or indexing is unknown, or widening the search beyond authorized rights and retention scope.
+  - id: MEDIA-REQ-CAP-ARTIFACT-AC-07
+    given: An authorized creator submits a visual or descriptive metadata query for assets within an explicit project and version scope.
+    when: The product searches available visual observations and metadata.
+    then: Return bounded candidate matches with exact source-version provenance, relevant time ranges where available, and match uncertainty; distinguish unavailable or unindexed evidence and unknown matching from a known empty result.
+    rejection: Reject representing similarity as a verified fact, dropping source-version provenance, claiming completeness when indexing or continuation is unknown, or exposing content outside admitted rights and retention scope.
+  - id: MEDIA-REQ-CAP-ARTIFACT-AC-08
+    given: An authorized editor imports a sidecar or embedded caption track for an exact immutable media version and the format and rights are admitted.
+    when: The product parses and validates the caption source and its timebase mapping.
+    then: Return a reviewable caption-import result preserving source-file provenance, source version, language and format when known, caption timing, and any conversion or alignment uncertainty; do not alter the source media.
+    rejection: Reject silently shifting or dropping caption timing, claiming unknown language or alignment as verified, or registering or replacing a canonical artifact without the separately authorized action.
+  - id: MEDIA-REQ-CAP-ARTIFACT-AC-09
+    given: An authorized editor requests a clip derived from an exact immutable source version with an explicit source-time range, output profile, purpose, and applicable rights.
+    when: The product validates the range against the source timebase and prepares the derivation.
+    then: Bind the candidate derivation to the exact source version and requested start and end times, disclose boundary quantization or uncertainty, and return job or candidate state without changing the source.
+    rejection: Reject substituting another source version, silently rounding or extending the requested range, implying a completed or registered artifact before that state is confirmed, or bypassing rights and profile admission.
+  - id: MEDIA-REQ-CAP-ARTIFACT-AC-10
+    given: An authorized user searches the governed Media asset store by declared metadata and an intended-use rights scope.
+    when: The product evaluates exact asset versions against available metadata and authoritative per-version rights evidence.
+    then: Return bounded candidates with exact version and rights-evidence references; distinguish unknown or incomplete indexing from a known empty result. External catalogs are available only when a specific catalog and use are separately admitted.
+    rejection: Reject inferring permission from searchable metadata, calling search legal clearance, or claiming external-catalog, complete, or ranked results when those scopes are not admitted.
+  - id: MEDIA-REQ-CAP-ARTIFACT-AC-11
+    given: An authorized editor supplies a source timecode with its exact source version, declared frame rate or timebase, and drop-frame or non-drop-frame mode.
+    when: The product interprets or converts that timecode.
+    then: Preserve the original label and mode and return an exact source-time mapping only when the declared rate, mode, and mapping are valid.
+    rejection: Reject ambiguous or invalid labels, mismatched rates, unknown mappings, silent drop-frame/non-drop-frame reinterpretation, or rounding across frame boundaries.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -531,6 +587,7 @@ requirements:
   - media.job.check-outcome
   - media.job.outputs.inspect
   - media.job.history.inspect
+  - media.job.schedule.manage
   kind: functional
   priority: must
   traceToIntentIds:
@@ -599,6 +656,11 @@ requirements:
     when: The watcher detaches or is interrupted, then an authorized caller performs the explicit cancel/reconcile/retry operation.
     then: Detaching or interrupting observation changes no job state; a cancellation request or acknowledgement is not terminal cancellation, which requires authoritative confirmation that the job's effects have stopped. For parent cancellation, stop admitting or dispatching new child work and request cancellation of active children; keep the parent pending or UNKNOWN until authoritative evidence resolves each child's effect outcome. Any partial result is explicitly labeled and bounded to its evidenced scope, never represented as full success. Keep the outcome UNKNOWN until exact authorized reconciliation resolves it, and reconcile under the same job identity before any new attempt is allowed.
     rejection: Reject continued child admission or dispatch after parent cancellation; treating a cancellation request or acknowledgement as confirmed terminal cancellation or authoritative child-effect resolution; representing a partial result as full success; retrying before reconciliation under the same job identity; or resolving an unreconciled outcome as anything other than UNKNOWN.
+  - id: MEDIA-REQ-CAP-JOB-AC-04
+    given: An authorized operator identifies an exact accessible folder or bounded input set, one admitted provider, machine, checkpoint/license, operation/profile, applicable rights and resource policy, and a versioned watch-folder, recurrence, or batch trigger configuration.
+    when: Media prepares or updates the scheduled-work definition.
+    then: Return a versioned schedule candidate and define each occurrence or batch item as a separate Media job request with its own stable occurrence identity and fresh admission; schedule acceptance does not imply that any child job has run or produced output.
+    rejection: Reject inaccessible or ambiguous source scope, unbounded or invalid recurrence, duplicate semantic occurrences, implicit child execution, cancellation of active jobs through schedule update, synthetic success, or provider/cloud fallback after the selected machine, checkpoint, license, capability, or profile is unavailable or denied; unknown authority, rights, qualification, or resource admission remains UNKNOWN or blocked.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -776,6 +838,26 @@ requirements:
     then: Present the script prompt synchronized to the declared active cue and retain its script and cue provenance.
     rejection: Reject inferring cue alignment when the map is absent, or treating prompt presentation as a committed recording
       or project edit.
+  - id: MEDIA-REQ-CAP-STREAM-AC-04
+    given: An authorized creator declares a recording-take intent such as ADR or room tone, identifies its session, source context, and intended placement, and starts a governed capture session.
+    when: The product observes the recording session or its terminal capture state.
+    then: Return a typed take-intent and capture-observation record with session, timing, and provenance, distinguishing captured, unavailable, interrupted, and finality-unknown outcomes; this observation alone does not commit a media artifact or project edit.
+    rejection: Reject describing an intent or partial observation as a completed take, silently attaching or registering captured media, or conflating captured ADR with generated narration or generated room tone.
+  - id: MEDIA-REQ-CAP-STREAM-AC-05
+    given: An authorized capture request includes a verified, source-time-bound click or typed-action observation and an eligible framing intent.
+    when: The product proposes an action-linked zoom or focus change.
+    then: Return a local framing candidate tied to the exact action evidence, source version, time interval, and uncertainty; the proposal does not change or render the source.
+    rejection: Reject describing inferred focus as verified, proposing action-linked framing without action evidence, or applying the proposal without separate confirmation.
+  - id: MEDIA-REQ-CAP-STREAM-AC-06
+    given: An authorized capture request declares privacy masking for keyboard or pointer overlays and the applicable policy marks an event sensitive or its classification unknown.
+    when: The product captures or prepares the corresponding event observation.
+    then: Omit or mask sensitive payload and retain only policy-permitted event and timing data; when the masking policy or detector state is unknown, block raw overlay capture or mask the full affected interval.
+    rejection: Reject retaining or displaying unmasked sensitive input by default, inferring that an event is non-sensitive from missing classification, or treating policy absence as consent.
+  - id: MEDIA-REQ-CAP-STREAM-AC-07
+    given: An authorized actor requests a consequential product action and identifies the authoritative system and readback channel for its claimed effect.
+    when: Media observes an action acknowledgment and evaluates the effect readback.
+    then: Report acknowledgment separately from authoritative readback, binding readback to its exact source, version, observation time, and state; absent, conflicting, stale, or unknown readback remains UNKNOWN or UNAVAILABLE.
+    rejection: Reject reporting the product effect as successful from a click, command, local acknowledgment, or Media execution record alone.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -1251,6 +1333,46 @@ requirements:
     when: the product evaluates whether synthesis is permitted for the declared purpose.
     then: preserve voice, source, and model provenance and block use when applicable rights, consent, or license is missing, unknown, denied, restricted, revoked, or expired.
     rejection: reject inferring clearance from voice similarity, source possession, or the act of synthesis.
+  - id: MEDIA-REQ-CAP-RIGHTS-AC-06
+    given: An authorized reviewer declares a face or personally identifying information analysis purpose, exact source version, and the applicable owner policy.
+    when: A face or PII observation is requested as evidence for a dependent use decision.
+    then: Return only the declared detection or analysis observation with source version, time or region, and uncertainty, and keep its policy consequence tied to the named owner decision.
+    rejection: Reject inferring identity, consent, or use clearance from detection; missing or unknown purpose, authority, or policy leaves the dependent use blocked and unresolved.
+  - id: MEDIA-REQ-CAP-RIGHTS-AC-07
+    given: An authorized actor declares exact input versions, model or checkpoint, destination, purpose, and the applicable external-egress permission.
+    when: A requested operation would transmit media or derived data outside the governed local scope.
+    then: Identify the egress target and data class and require the applicable explicit permission before dispatch.
+    rejection: Reject implicit provider, model, or cloud fallback; missing, unknown, or denied egress permission blocks transmission.
+  - id: MEDIA-REQ-CAP-RIGHTS-AC-08
+    given: An authorized caller proposes use of each exact asset, voice, model or checkpoint, and font version and declares its purpose and scope.
+    when: The product evaluates those components for project use or generation.
+    then: Bind each component to its own rights-evidence reference, issuer or authority, scope, version, and decision state.
+    rejection: Reject inferring per-source permission from possession, package presence, a project-wide license, or similarity; absent, stale, revoked, incompatible, or unknown evidence blocks use.
+  - id: MEDIA-REQ-CAP-RIGHTS-AC-09
+    given: An authorized caller supplies captions, transcripts, prompts, or asset metadata from an external or user-supplied source marked as untrusted content.
+    when: The product parses, summarizes, or passes that content to an agent or tool.
+    then: Treat the content only as data; any proposed action remains attributed to an authorized actor and bound to the exact project revision.
+    rejection: Reject embedded content as authority to invoke privileged operations, change rights or egress, or mutate project state; an ambiguous instruction/data boundary blocks consequential action.
+  - id: MEDIA-REQ-CAP-RIGHTS-AC-10
+    given: An authorized editor requests a plugin, shader, or editor action with consequential access or effects and identifies the exact component version, permissions, and target state.
+    when: The product evaluates that action for invocation.
+    then: Require explicit, scoped, revocable authorization and disclose the requested permissions before invocation.
+    rejection: Reject inferring authority from installation, asset presence, or editor context; missing or unknown permission blocks invocation. Arbitrary user-authored shader execution remains unsupported by this product baseline.
+  - id: MEDIA-REQ-CAP-RIGHTS-AC-11
+    given: An authorized reviewer evaluates a voice request involving an identifiable person when required consent, impersonation, age-eligibility, or policy state is missing, unknown, disputed, or denied.
+    when: The product evaluates admission for the requested voice use.
+    then: Block the use and expose the unresolved policy reason for authorized review; the product defines no age threshold or legal eligibility test in this case.
+    rejection: Reject inferring consent or eligibility from similarity, public availability, source possession, or model capability.
+  - id: MEDIA-REQ-CAP-RIGHTS-AC-12
+    given: An authorized requester proposes a voice result that could target an identifiable person, but the applicable protected-person or consent-sensitive policy and review result are absent, unknown, disputed, or denied.
+    when: The product evaluates admission for the requested voice use.
+    then: Block or hold the request for an authorized owner-policy review without asserting a public-figure list or legal test.
+    rejection: Reject inferring eligibility from published recordings, requester assertion, public-figure status, or voice similarity.
+  - id: MEDIA-REQ-CAP-RIGHTS-AC-13
+    given: An authorized publisher declares viewer-analytics purpose, collected fields, retention and deletion scope, and a valid consent state for the exact viewer or session.
+    when: The product collects or discloses viewer analytics.
+    then: Collect only consented, purpose-bounded fields, redact identity or secrets under the declared policy, and preserve consent and purpose provenance.
+    rejection: Reject collection or disclosure when consent is absent, revoked, unknown, or out of scope; viewing or interaction alone is not consent, and no retention duration is inferred.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -1412,6 +1534,21 @@ requirements:
     when: the product presents the claim and its provenance.
     then: associate each citation with the claim it supports and preserve unsupported or unresolved links as unknown.
     rejection: reject a generic artifact link as proof that it supports every claim or filling an unknown claim-source relation with an invented citation.
+  - id: MEDIA-REQ-CAP-PROVENANCE-AC-04
+    given: An authorized synthesis request declares a supported watermark mode and an exact output version.
+    when: The product reports watermark status for the output.
+    then: Disclose whether the watermark or machine-readable content credential was requested, supported, applied, absent, or unknown and bind any application claim to the exact output version and mechanism/version evidence; watermark or credential status does not establish authorship, rights, or authenticity.
+    rejection: Reject claiming an embedded watermark or content credential from a configured request alone or treating presence, absence, or observed robustness as proof of authorship, rights, or authenticity.
+  - id: MEDIA-REQ-CAP-PROVENANCE-AC-05
+    given: An authorized synthesis request pins a remote worker version, model or checkpoint version, profile, and exact input asset versions.
+    when: The product reports its execution lineage.
+    then: Bind requested and observed worker, model, profile, and input/output versions separately; report any mismatch or unobserved identity as UNKNOWN and preserve the source and output relationship.
+    rejection: Reject claiming the pinned execution succeeded when an identity is absent or differs, silently substituting another worker or model, or treating this record as remote security certification.
+  - id: MEDIA-REQ-CAP-PROVENANCE-AC-06
+    given: An authorized annotation or QA claim concerns an exact business activity and names its authoritative owning system.
+    when: Media presents or evaluates the claim.
+    then: Bind an asserted business state only to current owner-provided readback with exact owner reference, revision, and observation time; report Media quality measurements and execution lineage separately.
+    rejection: Reject using playback, generated content, a media score, job acknowledgment, or generic execution logs as proof of business state; missing or stale owner readback remains UNKNOWN.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -1822,6 +1959,11 @@ requirements:
     rejection: Reject changing a term marked do-not-translate, silently omitting an unresolved protected term, applying an
       unversioned, unapproved, or inapplicable entry, resolving conflicting entries by silent preference, or describing a
       translated draft as owner-approved or verified.
+  - id: MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-07
+    given: An authorized microphone recording session and an admitted transcription request refer to the same exact captured source version.
+    when: The product prepares a transcript draft or paired archive candidate.
+    then: Link the transcript to the source version, capture session, and timebase while retaining the recording as an independently identifiable immutable artifact.
+    rejection: Reject implying archive registration, changing either artifact without separate authorization, or claiming a resolved pair when source identity or alignment is unknown.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -2167,6 +2309,11 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-MULTIMODAL-AC-03
+    given: An authorized creator requests title, description, or chapter candidates for an exact immutable source version and an admitted language and use scope.
+    when: The product derives text from available source-grounded observations.
+    then: Return title and description candidates with provenance and uncertainty, and chapter candidates with source-time ranges in the declared timebase; mark unsupported or unverified claims UNKNOWN and retain links to the observations supporting each candidate.
+    rejection: Reject inventing factual claims, presenting inferred content as verified, omitting chapter timing or source-version provenance, or claiming captions or metadata are saved to the source without explicit authorization.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -2338,6 +2485,11 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-AUDIO-ANALYSIS-AC-03
+    given: An authorized editor requests beat analysis for an exact audio version and declares the analysis interval and timebase.
+    when: The product evaluates beat and onset evidence and any supported downbeat, beat-grid, or tempo estimate.
+    then: Return each supported estimate with its interval, timebase, method provenance, and uncertainty, distinguish downbeats from other beats, and abstain or mark UNKNOWN when evidence cannot support a reliable estimate.
+    rejection: Reject reporting a global tempo or beat grid without its scope and timebase, treating onsets as downbeats without evidence, or converting an abstention into a zero or empty result.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -2612,6 +2764,8 @@ requirements:
   - media.generate.video.reference-video
   - media.generate.video.drive.audio
   - media.generate.video.drive.speech
+  - media.generate.video.preset.manage
+  - media.generate.video.shot-condition
   kind: functional
   priority: must
   traceToIntentIds:
@@ -2672,6 +2826,36 @@ requirements:
     when: the product prepares or presents the generated output.
     then: disclose that the presenter is generated or altered and require applicable rights and consent eligibility before use.
     rejection: reject treating disclosure as authorization or permitting use when the required rights or consent status is missing or unknown.
+  - id: MEDIA-REQ-CAP-GENERATE-VIDEO-AC-04
+    given: An authorized creator submits an admitted video-generation request with explicit camera, lens, focal-length, or motion-direction controls and an exact versioned output profile.
+    when: Media prepares a generated-video candidate.
+    then: Bind requested and effective controls to each output or shot with the exact prompt, reference, guidance, checkpoint/model, profile, and seed identities when available; report whether each control was applied, estimated, unsupported, or unknown with method provenance, disclose applicable cost/safety/rights observations, and label the result as synthetic media rather than physical capture or product-action proof.
+    rejection: Reject silently ignoring or substituting a declared control, asserting physical camera behavior from a synthetic candidate, or claiming support when the model/profile binding is unknown.
+  - id: MEDIA-REQ-CAP-GENERATE-VIDEO-AC-05
+    given: An authorized creator saves or reapplies a versioned preset from an exact generation's effective parameter manifest, prompt/reference identities, model/checkpoint, profile, seed, and source job.
+    when: The creator applies that preset to a new generation request.
+    then: Preserve the preset version and source job, show requested-versus-effective parameter differences, and require fresh authority, rights, budget, capability, license, and runtime admission for the new invocation; saving or reapplying does not replay, mutate, or replace the prior output or establish reproducibility.
+    rejection: Reject a missing or inaccessible source manifest, silent parameter substitution, treating reuse as reproducibility or admission, or implying that the prior output was regenerated.
+  - id: MEDIA-REQ-CAP-GENERATE-VIDEO-AC-06
+    given: An authorized creator submits a generation request with explicit shot intervals, per-shot prompt overrides, optional rights-cleared masks, region trajectories or motion-brush conditions, and timeline/keyframe anchors bound to an exact source version and timebase.
+    when: Media prepares the shot-conditioned generation candidate.
+    then: Bind each prompt, mask, region trajectory, motion-brush condition, and anchor to its declared shot/time range, region identity, source version, and timebase; report applied, unsupported, estimated, or unknown constraints per shot and distinguish generated conditions from authored or observed scene facts.
+    rejection: Reject invalid ranges or unresolved conflicting overlaps without an explicit precedence policy, masks without required rights, silently applying shot instructions to the whole clip, or claiming unsupported controls were honored; unknown support, region/time mapping, or rights blocks the affected scope.
+  - id: MEDIA-REQ-CAP-GENERATE-VIDEO-AC-07
+    given: An authorized creator requests a video-to-video appearance transformation involving an identifiable person and declares the exact source version and purpose.
+    when: Media prepares a candidate recast or altered-presenter output.
+    then: Preserve source identity and transformation provenance, identify the result as synthetic or altered, and require the applicable MEDIA-REQ-CAP-RIGHTS-AC-04 rights, consent, and license decision before use; unknown decision or transformation support remains blocked or UNKNOWN.
+    rejection: Reject treating disclosure as authorization, inferring identity or rights from a reference alone, replacing the source silently, or claiming a generated result is product-action proof.
+  - id: MEDIA-REQ-CAP-GENERATE-VIDEO-AC-08
+    given: An authorized creator requests joint audio-video generation and declares exact input identities, intended audio/video relation, source timebase, and output profile.
+    when: Media prepares the generation candidate.
+    then: Bind candidate audio and video identities and their declared relation to the exact request and source versions; record applied, unsupported, estimated, or UNKNOWN relation state and provenance without asserting a universal synchronization or quality threshold.
+    rejection: Reject silently substituting either modality or inferring synchronized output when the relation or observation is absent, unsupported, or unknown.
+  - id: MEDIA-REQ-CAP-GENERATE-VIDEO-AC-09
+    given: An authorized creator requests generated dialogue or sound effects related to lip motion and declares exact source versions, intended time relation, and timebase.
+    when: Media prepares the speech/video generation candidate.
+    then: Bind the candidate speech/audio identity to the declared visual or lip-motion observation and timebase; preserve whether alignment was applied, estimated, unsupported, or UNKNOWN with method provenance, without claiming a universal lip-sync guarantee.
+    rejection: Reject fabricating a lip-motion observation, silently substituting speech or source versions, or claiming alignment absent source-bound evidence.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -2841,6 +3025,11 @@ requirements:
     when: the product applies the requested transformation to that region.
     then: preserve the exact source recording and all non-selected regions as unchanged source material and identify the edited region as derived media.
     rejection: reject changing non-selected regions or replacing the source recording; exact region coordinate and boundary contracts are defined downstream.
+  - id: MEDIA-REQ-CAP-GENERATE-AUDIO-AC-05
+    given: An authorized creator requests music generation from an identified model checkpoint for a declared use scope.
+    when: The product prepares and records the generated track.
+    then: Bind the candidate track provenance to the exact checkpoint identity and version, its applicable license identity and use-scope terms, and the declared purpose; block use when checkpoint rights are absent, unknown, denied, expired, restricted, or incompatible with the declared purpose, including noncommercial checkpoint terms for commercial use.
+    rejection: Reject treating a similarity observation as rights clearance or silently substituting a different checkpoint to bypass an incompatible license.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -3036,6 +3225,16 @@ requirements:
     when: Media prepares speech for those segments as one continuous work.
     then: Represent the declared segment order and shared context/profile as requested candidate properties; report continuity as established only for segments where the admitted operation establishes it, and expose other segments as denied, unsupported, or unknown. Apply MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-02 if source, voice, profile, authorization, rights, or license admission is denied, absent, or unknown; a candidate property does not guarantee audible continuity.
     rejection: Reject claiming cross-segment continuity from unrelated or missing context, silently changing the declared profile, or treating an unavailable or unknown continuity result as established or guaranteeing audible identity/continuity.
+  - id: MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-08
+    given: An authorized creator supplies an ordered story or speech plan with explicit segment boundaries and an authorized speaker assignment for each segment.
+    when: The product prepares or generates speech for the ordered segments.
+    then: Preserve segment order and boundaries, bind each segment to its exact authorized speaker and applicable rights evidence, and return per-segment voice, source, and generated-audio provenance with any unavailable assignment marked explicitly.
+    rejection: Reject using a speaker without current authorization for the segment and purpose, silently substituting a voice or reordering segments, or claiming a generated artifact is committed when it is only a candidate.
+  - id: MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-09
+    given: An authorized synthesis request pins the exact requested speaker or voice, model/checkpoint, profile, worker, and source version for the declared purpose.
+    when: Media returns a generated-audio candidate or execution observation.
+    then: Report requested and observed speaker/voice, model/checkpoint, profile, worker, and source identities separately for the exact output; preserve mismatch or unobserved identity as UNKNOWN and retain the output as synthetic media.
+    rejection: Reject silently substituting a speaker, voice, model, checkpoint, profile, or worker; inferring the effective identity from the request alone; or treating a configured identity as proof of the output's authorship, rights, or authenticity.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -3405,6 +3604,11 @@ requirements:
     when: the effect is applied or represented in the product definition.
     then: retain the distinction between observed gaze and authored correction and disclose that a visual transformation occurred; eligibility remains governed by applicable rights and consent authority.
     rejection: reject representing corrected gaze as an unmodified source observation or treating disclosure as consent or likeness authorization.
+  - id: MEDIA-REQ-CAP-ANIMATION-AC-04
+    given: An authorized creator edits a scene and requests arbitrary custom shader source or execution.
+    when: The product checks the requested animation feature against the declared product scope.
+    then: State explicitly that arbitrary user-authored shader source and execution are deferred and unsupported in this product scope; supported material-property animation remains in scope through declared typed properties, and no shader sandbox or execution safety guarantee is claimed.
+    rejection: Reject executing, evaluating, or silently approximating custom shader code, or treating the deferral as removal of supported material-property animation.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -3719,6 +3923,11 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-ANIMATION-OUTPUT-AC-03
+    given: An authorized editor requests a renderer adapter for an exact scene revision and declared target environment.
+    when: The product prepares an interactive, frame, composited-video, or exchange output candidate.
+    then: Bind the candidate to its declared adapter and scene revision and expose adapter support and qualification as separate states.
+    rejection: Reject inferring adapter support from browser, device, package, or visual preview; an absent, unknown, unsupported, or unqualified adapter remains unavailable without silently substituting another renderer.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -3896,6 +4105,16 @@ requirements:
     when: Media executes or presents the supplied model output.
     then: retain the model identity and declared assumptions, report the PRNG algorithm and version, seed, distribution, sampling conditions, estimates and confidence bounds when available, and label results UNQUALIFIED unless applicable independent scientific validation is present; report the result as NON_REPLAYABLE when the declared execution profile cannot support replay.
     rejection: reject execution when exact model-family applicability is absent or unknown; reject deterministic or replayability claims without the declared PRNG implementation/version and matching execution profile; reject presenting output as causal inference, validated science, or real-world truth based only on execution or visualization.
+  - id: MEDIA-REQ-CAP-SIMULATION-AC-04
+    given: An authorized domain owner supplies a versioned ODE, finite-state, graph, or algorithm-trace model with declared units or state semantics, assumptions, initial conditions, boundaries, and exact model-family scope.
+    when: Media prepares or evaluates the requested simulation candidate.
+    then: Preserve the exact model family, version, solver or execution profile, declared validity domain, and evidence provenance; qualify a result only for the explicitly admitted family and requested dimensions.
+    rejection: Reject treating a discrete-event or rigid-body example as support for another model family, inferring physical validity from a rendered trace, or presenting an unqualified or unknown solver result as validated science.
+  - id: MEDIA-REQ-CAP-SIMULATION-AC-05
+    given: An authorized domain owner proposes a scientific or educational result for reporting on an F0–F4 fidelity axis.
+    when: Media evaluates whether that result can be presented as scientifically validated.
+    then: Preserve the domain owner's exact F0–F4 meaning, keep visual detail, visual quality, model fidelity, and validation tier separate, and bind any validation claim to a named qualified scientific authority and exact evidence scope.
+    rejection: Reject promoting a result when authority, evidence, validity domain, or model provenance is absent or unknown; execution, a visual score, or a self-assigned tier is not independent scientific acceptance.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -4198,6 +4417,7 @@ requirements:
   - media.recipe.template.architectural-scene
   - media.recipe.template.character-gesture-animation
   - media.recipe.template.synthetic-dataset
+  - media.recipe.specification.compile
   kind: functional
   priority: must
   traceToIntentIds:
@@ -4277,6 +4497,36 @@ requirements:
     when: the recipe personalizes the content.
     then: transform only the supplied facts that are authorized for the declared purpose and preserve their source attribution.
     rejection: reject inventing a person identity, personal attribute, or factual claim not present in the admitted inputs.
+  - id: MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-07
+    given: An authorized creator supplies one exact versioned YAML or JSON production specification, its declared schema, and exact content/source references.
+    when: Media normalizes the specification under a named compiler-contract version.
+    then: Return a typed semantic graph with exact specification, schema, and compiler-contract provenance; the same admitted inputs and contract version yield an equivalent normalized graph and stable semantic fingerprint.
+    rejection: Reject invalid or unauthorized fields without project, asset, job, or external effects; unknown normalization or compiler support remains UNKNOWN or UNSUPPORTED rather than a claimed compiled result.
+  - id: MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-08
+    given: An authorized creator binds a valid typed production specification to an exact existing MediaProject revision and its referenced assets.
+    when: Media prepares the specification's interpretation as a project plan.
+    then: Return a reviewable plan candidate bound to that exact revision, schema, and asset versions without applying it to the project.
+    rejection: Reject missing or ambiguous references, stale project revisions, unsupported nodes, or unknown types as an applied or complete plan; compilation alone does not create a project, job, or external effect.
+  - id: MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-09
+    given: An authorized creator supplies a valid specification declaring steps intended to be deterministic or generative.
+    when: Media validates and normalizes the step graph.
+    then: Preserve each declared step kind and its dependency; mark an indistinguishable or unsupported kind UNKNOWN, and keep classification separate from execution.
+    rejection: Reject executing an invalid or unknown step, claiming deterministic output for a generative step, or substituting a step kind implicitly.
+  - id: MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-10
+    given: An authorized creator supplies an exact versioned data source, schema, selected fields or values, transformation, and intended visual encoding for a chart or animated visualization.
+    when: Media prepares a data-bearing recipe candidate.
+    then: Bind each plotted series and value to its source fields, transformation, and source version, distinguishing data-bearing marks from decorative imagery.
+    rejection: Reject presenting generated or decorative values as sourced data; missing schema, field, transformation support, or validation remains UNKNOWN or UNSUPPORTED.
+  - id: MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-11
+    given: An authorized lesson author supplies versioned content and schema for a quiz or reflection interaction.
+    when: Media prepares the learner interaction candidate.
+    then: Keep prompts and responses within the declared lesson and session scope and return a reviewable candidate.
+    rejection: Reject privileged product or learner-record mutation, grading or identity assertions, or state writes without a separately defined authorized owner operation.
+  - id: MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-12
+    given: An authorized creator selects a reusable style skill or branded scene recipe and supplies exact versioned brand assets and typed parameters.
+    when: Media prepares a scene candidate from the selected recipe.
+    then: Bind the editable candidate to the recipe version, each declared style parameter, the exact brand asset versions, and unresolved constraints.
+    rejection: Reject inferring brand identity or permissions from appearance, silently substituting assets or parameters, or presenting an unreviewed candidate as a committed project change.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -5006,6 +5256,11 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-EDIT-AC-03
+    given: An authorized editor selects an exact source version and requests either a freeze-frame hold over an output-time interval or reverse playback over a declared source-time interval and timebase.
+    when: Media prepares the timing-edit candidate.
+    then: Bind the freeze hold to the selected source frame and output interval, or bind reverse playback to the exact reversed source-time mapping; keep the two operation identities distinct from ordinary retime, preserve source lineage, and disclose unresolved mapping or support as UNKNOWN.
+    rejection: Reject implicit frame selection, unspecified timebases or intervals, unsupported reverse/freeze controls, silent substitution, or any claim of committed project change or output artifact without a separate authorized operation.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -5348,6 +5603,46 @@ requirements:
       makes uncertainty explicit.
     rejection: Reject inferring missing speaker/camera evidence or committing the proposal to the project without an explicit
       separate approval.
+  - id: MEDIA-REQ-CAP-COMPOSE-AC-04
+    given: An authorized editor selects exact audio-track versions and declares gain, pan, and time-varying automation points with a timebase and project revision.
+    when: The product prepares the multitrack edit.
+    then: Return a local reviewable candidate that preserves track and source-version identities, records the requested automation points and any validation uncertainty, and leaves project state unchanged until explicit confirmation.
+    rejection: Reject collapsing automation to an undocumented static value, mutating the project or source audio before confirmation, or implying a rendered output from the candidate.
+  - id: MEDIA-REQ-CAP-COMPOSE-AC-05
+    given: An authorized editor selects an exact speech source version and specifies a sample-time region edit, including intended boundaries and any crossfade parameters.
+    when: The product prepares the speech edit against the declared sample rate and timebase.
+    then: Return a reviewable local candidate with exact source-version and sample-boundary references, disclose boundary quantization or crossfade validation uncertainty, and preserve the source and project revision.
+    rejection: Reject silently shifting boundaries, inventing crossfade values, modifying the source, or claiming the candidate has been rendered or committed.
+  - id: MEDIA-REQ-CAP-COMPOSE-AC-06
+    given: An authorized editor requests overlay placement in apparent free space for an exact source version and time interval.
+    when: The product evaluates detected free-space evidence and prepares a placement suggestion.
+    then: Return an uncertain local placement candidate tied to the exact source version, time range, declared overlay, and detection context, preserving the evidence and allowing review before any composition change.
+    rejection: Reject presenting detected free space as guaranteed safe or unobstructed, omitting uncertainty or source-time context, or applying or rendering the placement without explicit authorization.
+  - id: MEDIA-REQ-CAP-COMPOSE-AC-07
+    given: An authorized creator selects a branded motion template and supplies typed editable parameters bound to identified brand assets and a project revision.
+    when: The product instantiates the template as a composition proposal.
+    then: Return an editable local candidate that identifies the template version, each typed parameter and its binding, exact source and brand-asset versions, and unresolved parameter constraints; leave the project unchanged pending review and confirmation.
+    rejection: Reject silently substituting brand assets or parameter values, claiming preview or render parity without evidence, or committing the proposal before confirmation.
+  - id: MEDIA-REQ-CAP-COMPOSE-AC-08
+    given: An authorized editor has a take intent classified as captured ADR, generated narration, or captured or generated room tone, with exact source or session provenance and a declared timeline location.
+    when: The product prepares placement in the multitrack composition.
+    then: Return a reviewable local placement candidate that preserves the content-origin distinction, exact source or generation provenance, intended time range, and any alignment uncertainty without mutating the project.
+    rejection: Reject relabeling generated narration as captured ADR, treating a recording intent as captured content, conflating captured and generated room tone, or committing or rendering the edit without explicit authorization.
+  - id: MEDIA-REQ-CAP-COMPOSE-AC-09
+    given: An authorized editor declares protected text or logo regions on an exact source version, or detection evidence for those regions is uncertain.
+    when: Media prepares an overlay or reframe candidate.
+    then: Preserve declared protected regions or mark the candidate unresolved for review, retaining source-version and time-range evidence.
+    rejection: Reject claiming protected content is preserved when region evidence is absent or uncertain, changing the source, or committing the candidate without confirmation.
+  - id: MEDIA-REQ-CAP-COMPOSE-AC-10
+    given: An authorized editor declares a target aspect ratio, exact source version, time range, and eligible subject evidence for automatic framing.
+    when: Media prepares a subject-aware framing candidate.
+    then: Bind the candidate to the declared target and source-time evidence and disclose uncertainty and any crop or excluded source region.
+    rejection: Reject claiming all subjects or content remain in frame when evidence is uncertain, silently changing aspect ratio, or modifying or rendering the source without confirmation.
+  - id: MEDIA-REQ-CAP-COMPOSE-AC-11
+    given: An authorized editor selects exact track versions and declares track-to-bus assignments, send routing, pre/post-fader position, and any bus or track effect-chain version for one project revision.
+    when: Media prepares the multitrack routing candidate.
+    then: Return a local, reviewable routing graph that preserves the declared assignments, routing, gain/pan/automation, effect-chain identities, and source versions and exposes unresolved compatibility; leave the project and audio unchanged pending explicit confirmation.
+    rejection: Reject inferred routing or effect values, cycles or unsupported graphs, silent track/bus substitution, source mutation, project commit, rendering, export, or qualified loudness/true-peak claims.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -5627,7 +5922,7 @@ requirements:
   source:
     masterPlanSection: §6.8
     sourcePhrase: EQ; dynamic/multiband compression; limiting; true-peak/loudness control; stereo width; phase/noise-floor
-      analysis; fades/crossfades; ducking/sidechain; room matching
+      analysis; fades/crossfades; ducking/sidechain; room matching; creative delay, chorus, flanger, and reverb effects
   capabilityIds:
   - media.master.audio.equalize
   - media.master.audio.dynamic-compression
@@ -5639,6 +5934,7 @@ requirements:
   - media.master.audio.fade-crossfade
   - media.master.audio.duck-sidechain
   - media.master.audio.room-match
+  - media.master.audio.creative-effect.apply
   kind: functional
   priority: must
   traceToIntentIds:
@@ -5654,9 +5950,11 @@ requirements:
   - Inputs, rights, consent, privacy, egress, retention, budget, and policy are admitted for this specific operation.
   - A capability binding and profile are declared; qualification and runtime availability are checked for the requested dimensions.
   expectedBehavior: The system performs only the requested EQ; dynamic/multiband compression; limiting; true-peak/loudness
-    control; stereo width; phase/noise-floor analysis; fades/crossfades; ducking/sidechain; room matching operation using
-    typed inputs and outputs; reports actual effective parameters and provenance; preserves source versions; and does not
-    substitute an unsupported engine, model, format, language, or delivery profile silently.
+    control; stereo width; phase/noise-floor analysis; fades/crossfades; ducking/sidechain; room matching; or explicitly
+    selected delay, chorus, flanger, or reverb operation using typed inputs and outputs; reports actual effective parameters
+    and provenance; preserves source versions; and does not substitute an unsupported engine, model, format, language, or
+    delivery profile silently. Creative effects produce only a local source-preserving derived-audio candidate and never
+    imply rendered or committed audio or quality approval.
   importantStates:
   - not-admitted
   - admitted
@@ -5696,10 +5994,20 @@ requirements:
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
   - id: MEDIA-REQ-CAP-MASTER-AUDIO-AC-03
-    given: An editor applies an admitted creative audio effect or assembles a reusable effect chain.
-    when: the audio transformation is authored for a project revision.
-    then: preserve the source and identify the result as a derived transformation; allow the chain intent to be reused without implying quality approval.
-    rejection: reject treating room matching as a substitute for creative delay, chorus, flanger, or reverb, or treating effect presence as a quality pass.
+    given: An editor selects an admitted delay, chorus, flanger, or reverb effect with exact versioned parameters, or selects an exact reusable effect-chain version.
+    when: The audio transformation is authored for a project revision.
+    then: Preserve the source and return only a local derived-audio candidate with exact effect, parameter-version, and ordered chain provenance; allow chain intent to be reused without implying rendering, commit, or quality approval.
+    rejection: Reject treating room matching as a substitute for creative delay, chorus, flanger, or reverb, silently changing effect/parameter/chain versions, or treating effect presence as a quality pass.
+  - id: MEDIA-REQ-CAP-MASTER-AUDIO-AC-04
+    given: An authorized editor selects an exact voice track and an explicitly selected reusable effect-chain version for a declared mastering purpose.
+    when: The product prepares a per-voice processing candidate.
+    then: Bind the candidate to that voice track and exact chain version, preserve effect order and effective parameter provenance, and identify the derived-audio candidate and its source versions without altering source audio.
+    rejection: Reject silently applying a master-bus chain to a voice, substituting a chain version, omitting derived-audio lineage, or implying rendered or committed audio before that state is established.
+  - id: MEDIA-REQ-CAP-MASTER-AUDIO-AC-05
+    given: An authorized editor requests an output channel layout, including a 5.1 layout, for exact source versions and a declared output profile.
+    when: The product validates available source channels, routing, and target-profile support.
+    then: State the explicit target layout and channel mapping when supported, or return an explicit unavailable, unsupported, or review-required outcome with the relevant reason; preserve the requested layout in any candidate metadata.
+    rejection: Reject silently falling back to stereo, inventing a channel map, or claiming 5.1 fidelity or output qualification without evidence.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -5823,6 +6131,7 @@ requirements:
   - media.quality.recommend
   - media.quality.repair-plan
   - media.quality.bounded-optimize
+  - media.quality.audio.content-similarity.assess
   kind: functional
   priority: must
   traceToIntentIds:
@@ -5919,6 +6228,31 @@ requirements:
       exceed the budget, silently downgrade quality, or substitute another pipeline.
     rejection: Reject representing estimates as measured quality or resource use, changing the selected tradeoff without an
       explicit request, or presenting a candidate plan as authorization, qualification, or completed processing.
+  - id: MEDIA-REQ-CAP-QUALITY-AC-10
+    given: An authorized editor requests highlight candidates from an exact source version and declares the selection objective, eligible source-time interval, and any ranking dimensions and weights.
+    when: The product evaluates source-grounded evidence and ranks candidate spans.
+    then: Return each highlight as an exact source-time candidate with evidence, uncertainty, and the declared objective and ranking inputs; abstain or report unknown when evidence is insufficient and do not assign a default memorable or engagement score.
+    rejection: Reject claiming a highlight is objectively memorable, ranking with an undeclared objective or hidden weights, or omitting the exact source version and time span.
+  - id: MEDIA-REQ-CAP-QUALITY-AC-11
+    given: An authorized creator requests variants for declared audiences and channels from an exact source candidate and supplies the comparison objective and any ranking dimensions and weights.
+    when: The product prepares or compares the audience- and channel-specific variants.
+    then: Bind each variant to the exact source candidate, audience, channel, and applicable profile; expose declared ranking inputs and uncertainty, and return no ranking when the objective or required evidence is absent.
+    rejection: Reject silently changing the source candidate or target audience/channel, inferring a universal preference score, or presenting a ranking produced by undeclared criteria.
+  - id: MEDIA-REQ-CAP-QUALITY-AC-12
+    given: An authorized editor declares a project revision, B-roll purpose, exact eligible source versions, and selection objective.
+    when: Media recommends B-roll candidates for the project.
+    then: Return reviewable candidates with exact source version and source-time span, supporting evidence, uncertainty, and rights decision reference; do not attach a candidate to the project.
+    rejection: Reject treating a recommendation as source acceptance or project mutation; missing or unknown rights or source-time evidence makes the candidate ineligible or unresolved.
+  - id: MEDIA-REQ-CAP-QUALITY-AC-13
+    given: An authorized reviewer evaluates a QA claim that includes a product or business-state assertion.
+    when: Media reports the QA result.
+    then: Separate media-quality observations from authoritative owner-system readback and bind any state assertion to the exact owner reference, revision, and observation time.
+    rejection: Reject substituting a media score, decoded output, execution log, or job acknowledgment for owner readback; absent or stale readback remains UNKNOWN and blocks the business-state claim.
+  - id: MEDIA-REQ-CAP-QUALITY-AC-14
+    given: An authorized reviewer submits exact versioned audio source and candidate references for an admitted, bounded content-similarity observation with a declared method and comparison scope.
+    when: Media performs the requested audio fingerprint or similarity observation.
+    then: Return the observation status, method/version, comparison scope, exact input identities, provenance, uncertainty, and any candidate match as non-authoritative review data; retain a separate rights-policy decision for every proposed use and exact checkpoint/license admission for generated music, including commercial-use incompatibility.
+    rejection: Reject inferring ownership, infringement, license, permission, legal clearance, or definitive identity from similarity; missing or unknown inputs, method, transformation scope, or authority cannot become a positive finding.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -6586,6 +6920,16 @@ requirements:
       or imply qualified delivery.
     rejection: Reject inferring consent to additional audience/device/locale variants, merging variant identities, or
       representing a candidate or plan as an exported, published, or runtime-qualified result.
+  - id: MEDIA-REQ-CAP-DELIVER-AC-04
+    given: An authorized publisher selects an exact caption track and declares sidecar or embedded export, target media version, format, language, timebase, destination, and applicable rights.
+    when: The product validates and prepares the subtitle delivery candidate.
+    then: Preserve caption timing and track provenance, report any required conversion or alignment uncertainty, and expose destination submission, acceptance, and finality as separate states.
+    rejection: Reject silently shifting or dropping captions, changing the target media version or format, claiming destination acceptance before it is observed, or embedding or exporting without authorization.
+  - id: MEDIA-REQ-CAP-DELIVER-AC-05
+    given: An authorized publisher selects an exact source version, profile, destination, and publication scope.
+    when: Media submits a governed publication request and observes any remote result.
+    then: Distinguish Media request acceptance, destination acknowledgment, confirmed delivery, and audience access, binding each observed state to its source and reference.
+    rejection: Reject reporting a local request acknowledgment or unknown remote state as destination completion or audience access.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -7077,8 +7421,20 @@ recorderStudioProfile:
       surfaceId: media.surface.capture-adapters
       given: "A versioned, rights-eligible source has an authorized capture adapter"
       when: "a storyboard includes browser, camera and terminal streams"
-      then: "maintain explicit per-source clocks, synchronization transforms, uncertainty and provenance"
-      rejection: "unmeasured wall-clock alignment cannot be represented as exact media time"
+      then: >-
+        preserve exactly five distinct product clock domains: source/video presentation time (including each source's
+        declared time base, presentation timestamps, discontinuities, and mapping uncertainty); audio sample time (sample
+        index and rate for the identified stream); story/explanation time (including editorial or output presentation);
+        simulation execution time (under the domain model's declared unit); and wall-clock time (absolute lifecycle/deadline
+        instants and monotonic elapsed operational durations). Keep decode timestamps such as DTS as source-stream ordering
+        metadata in the source time base, not as a sixth product clock. Each conversion names its source and destination
+        domain, source/destination time base or rate, origin, uncertainty, and rounding/interval policy. Story pause or
+        seeking does not advance simulation state unless an explicit bounded model command does so; wall-clock deadlines
+        do not silently alter media or simulation time.
+      rejection: >-
+        reject implicit coupling or conversion between any clock domains; reject presenting unmeasured wall-clock alignment
+        as exact media time, treating decode order as presentation order, or silently rounding, truncating, or discarding
+        conversion uncertainty. Missing or unresolved mapping remains explicitly UNKNOWN or unavailable.
       scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
     - id: MEDIA-REC-P0-AC-011
       group: SOURCES
@@ -7831,7 +8187,7 @@ declarativeProductionProfile:
   relatedRecorderAuthority: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile
   producerModes: [REAL_CAPTURE, DECLARATIVE_ANIMATION, MODEL_SIMULATION, GENERATIVE_MEDIA, PDP_SYNTHETIC_FIXTURE]
   taxonomyRule: Each scene has one truthful primary origin and may have derived inputs; rendering is not proof of product effects or scientific correctness.
-  specializationRule: Cases refine the existing 38 family requirements and 462 stable capability leaves; no new family, leaf, operation, physical package, MediaProject writer or runtime is admitted.
+  specializationRule: Cases refine the existing 38 family requirements and the 462 historically owner-adjudicated capability leaves. Six additive proposal leaves retain their coordinator-authored meanings while PXD-207 resolves their exact channel/surface applicability; the seventh, creative-effect leaf is a user-delegated PDP-0 source definition. All seven remain separate from the historical adjudication population and admit no runtime, implementation, physical package, MediaProject writer, or execution.
   phaseGate: No PDP DEV_COMPLETE or Discovery PASS follows from authoring these cases; independently validate, bind, review and refresh affected phase cells.
   existingRecorderCaseCount: 84
   additionalAcceptanceCaseCount: 61
@@ -8264,9 +8620,17 @@ declarativeProductionProfile:
       capabilityLeafId: media.simulation.scientific-demo
       surfaceId: media.surface.production-studio
       given: "A declared source and authorized Media project revision are in scope"
-      when: "a run carries visual fidelity, model fidelity and validation tier as distinct axes"
-      then: "report F0 to F4 only when its documented acceptance evidence is present"
-      rejection: "reject promotion to scientific validation from a render score"
+      when: "a run reports visual level of detail, visual quality/fidelity, domain-model fidelity, and validation tier"
+      then: >-
+        report each axis separately. Visual level of detail describes the selected presentation representation's detail
+        or complexity; visual quality/fidelity describes visual correspondence or quality; domain-model fidelity retains
+        the exact domain owner's tier and meaning; validation tier reports evidence against its named reference cases.
+        Preserve TutorPutor F0–F4 identifiers only with their owner-defined meaning and exact source binding. A Media
+        presentation choice or visual score does not define or transform the domain owner's fidelity tier.
+      rejection: >-
+        reject promotion to scientific validation from a render score, resolution, polygon/detail level, or visual
+        similarity; reject conflating visual level of detail, visual quality, model fidelity, and validation tier or
+        inventing a Media interpretation of TutorPutor F0–F4.
       scope: DEFINITION_REQUIREMENT_NOT_RUNTIME_PROOF
     - id: MEDIA-DECL-P0-AC-038
       group: SIMULATION

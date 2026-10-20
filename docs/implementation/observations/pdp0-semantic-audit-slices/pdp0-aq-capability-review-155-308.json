@@ -1,0 +1,2133 @@
+{
+  "schemaVersion": "1.0.0",
+  "recordKind": "PDP0_AQ_CAPABILITY_CLUSTER_MAPPING_RECOMMENDATION",
+  "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+  "campaignScope": "Media PDP-0 coordinator mapping recommendation for canonical capability source-order leaves 155–308 inclusive.",
+  "taxonomySource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#section-2",
+  "mappingMethod": "Assign one primary A–Q cluster by closest blueprint §2 user-visible intent; retain a related cluster only for a material secondary fit. Every scoped capability leaf is TARGET. Recommendations do not assert owner acceptance, capability implementation, qualification, runtime availability, or release readiness.",
+  "sourceBaseline": {
+    "fingerprintAlgorithm": "SHA-256 of exact file bytes",
+    "inputs": {
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "bc1d9c389afc3445015679aa9bbf63dae310b5a91b34dbf7046a8de92f52dbba",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "b5b0bca96a6ba0ba26661976ea309021a20cb1192956fa69198b8c81427426bd",
+      "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md": "055d797770cbd4c0c9ec2c20ef10b5e437831f8309b6e813fef234ad9827c947"
+    }
+  },
+  "sourceSlice": {
+    "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+    "collection": "capabilities",
+    "firstOrder1Based": 155,
+    "lastOrder1Based": 308,
+    "rowCount": 154
+  },
+  "rows": [
+    {
+      "sourceOrder1Based": 155,
+      "capabilityId": "media.generate.audio.sound-effect",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.audio.sound-effect",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-AUDIO",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-AUDIO",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster I covers audio work, sound design, stems, music and mixdown; this leaf targets generated or transformed audio/music material.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 156,
+      "capabilityId": "media.generate.audio.music",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.audio.music",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-AUDIO",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-AUDIO",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster I covers audio work, sound design, stems, music and mixdown; this leaf targets generated or transformed audio/music material.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 157,
+      "capabilityId": "media.generate.audio.video-to-audio",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.audio.video-to-audio",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-AUDIO",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-AUDIO",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster I covers audio work, sound design, stems, music and mixdown; this leaf targets generated or transformed audio/music material.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 158,
+      "capabilityId": "media.generate.audio.foley",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.audio.foley",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-AUDIO",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-AUDIO",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster I covers audio work, sound design, stems, music and mixdown; this leaf targets generated or transformed audio/music material.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 159,
+      "capabilityId": "media.generate.audio.ambience",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.audio.ambience",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-AUDIO",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-AUDIO",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster I covers audio work, sound design, stems, music and mixdown; this leaf targets generated or transformed audio/music material.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 160,
+      "capabilityId": "media.generate.audio.audio-to-audio",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.audio.audio-to-audio",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-AUDIO",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-AUDIO",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster I covers audio work, sound design, stems, music and mixdown; this leaf targets generated or transformed audio/music material.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 161,
+      "capabilityId": "media.generate.audio.music.continue",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.audio.music.continue",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-AUDIO",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-AUDIO",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster I covers audio work, sound design, stems, music and mixdown; this leaf targets generated or transformed audio/music material.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 162,
+      "capabilityId": "media.generate.audio.music.vary",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.audio.music.vary",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-AUDIO",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-AUDIO",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster I covers audio work, sound design, stems, music and mixdown; this leaf targets generated or transformed audio/music material.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 163,
+      "capabilityId": "media.generate.audio.stem.generate",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.audio.stem.generate",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-AUDIO",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-AUDIO",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster I covers audio work, sound design, stems, music and mixdown; this leaf targets generated or transformed audio/music material.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 164,
+      "capabilityId": "media.speech.synthesis.text-to-speech",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.text-to-speech",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster F covers speech synthesis, voice profiles, prosody, style and pronunciation; this leaf expresses speech-generation intent or control.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 165,
+      "capabilityId": "media.speech.synthesis.streaming",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.streaming",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster F covers speech synthesis, voice profiles, prosody, style and pronunciation; this leaf expresses speech-generation intent or control.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 166,
+      "capabilityId": "media.speech.synthesis.multilingual",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.multilingual",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster F covers speech synthesis, voice profiles, prosody, style and pronunciation; this leaf expresses speech-generation intent or control.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 167,
+      "capabilityId": "media.speech.synthesis.cross-lingual",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.cross-lingual",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster F covers speech synthesis, voice profiles, prosody, style and pronunciation; this leaf expresses speech-generation intent or control.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 168,
+      "capabilityId": "media.speech.synthesis.expressive",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.expressive",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster F covers speech synthesis, voice profiles, prosody, style and pronunciation; this leaf expresses speech-generation intent or control.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 169,
+      "capabilityId": "media.speech.synthesis.control.prosody",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.control.prosody",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster F covers speech synthesis, voice profiles, prosody, style and pronunciation; this leaf expresses speech-generation intent or control.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 170,
+      "capabilityId": "media.speech.synthesis.control.rate",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.control.rate",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster F covers speech synthesis, voice profiles, prosody, style and pronunciation; this leaf expresses speech-generation intent or control.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 171,
+      "capabilityId": "media.speech.synthesis.control.pitch",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.control.pitch",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster F covers speech synthesis, voice profiles, prosody, style and pronunciation; this leaf expresses speech-generation intent or control.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 172,
+      "capabilityId": "media.speech.synthesis.control.emotion-style",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.control.emotion-style",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster F covers speech synthesis, voice profiles, prosody, style and pronunciation; this leaf expresses speech-generation intent or control.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 173,
+      "capabilityId": "media.speech.synthesis.control.pronunciation",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.control.pronunciation",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster F covers speech synthesis, voice profiles, prosody, style and pronunciation; this leaf expresses speech-generation intent or control.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 174,
+      "capabilityId": "media.speech.synthesis.control.phoneme",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.control.phoneme",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster F covers speech synthesis, voice profiles, prosody, style and pronunciation; this leaf expresses speech-generation intent or control.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 175,
+      "capabilityId": "media.speech.synthesis.speaker.condition",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speaker.condition",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "G",
+      "relatedClusters": [
+        "F"
+      ],
+      "rationale": "Blueprint §2 Cluster G covers speaker/voice design and rights-governed identity; speaker conditioning applies that identity to speech synthesis.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 176,
+      "capabilityId": "media.speech.synthesis.speaker.clone-authorized",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speaker.clone-authorized",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "G",
+      "relatedClusters": [
+        "F"
+      ],
+      "rationale": "Blueprint §2 Cluster G covers consented voice enrollment and authorized cloning; this leaf explicitly limits the source speaker to authorized use.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 177,
+      "capabilityId": "media.speech.synthesis.voice.convert",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.voice.convert",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "G",
+      "relatedClusters": [
+        "F"
+      ],
+      "rationale": "Blueprint §2 Cluster G covers voice identity/design; voice conversion changes voice characteristics while retaining speech production as a related synthesis concern.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 178,
+      "capabilityId": "media.speech.synthesis.speech-to-speech",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speech-to-speech",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "H",
+      "relatedClusters": [
+        "F"
+      ],
+      "rationale": "Blueprint §2 Cluster H covers multilingual localization, speech transformation, translation and dubbing; this leaf transforms or synchronizes speech for localized media.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 179,
+      "capabilityId": "media.speech.synthesis.speech.translate",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speech.translate",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "H",
+      "relatedClusters": [
+        "F"
+      ],
+      "rationale": "Blueprint §2 Cluster H covers multilingual localization, speech transformation, translation and dubbing; this leaf transforms or synchronizes speech for localized media.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 180,
+      "capabilityId": "media.speech.synthesis.dub",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.dub",
+      "parentRequirementId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "H",
+      "relatedClusters": [
+        "F"
+      ],
+      "rationale": "Blueprint §2 Cluster H covers multilingual localization, speech transformation, translation and dubbing; this leaf transforms or synchronizes speech for localized media.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 181,
+      "capabilityId": "media.generate.spatial.text-to-3d",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.spatial.text-to-3d",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "K"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers 3D/spatial scenes, assets and transforms; this leaf creates, reconstructs or adapts spatial media or representation.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 182,
+      "capabilityId": "media.generate.spatial.image-to-3d",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.spatial.image-to-3d",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "K"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers 3D/spatial scenes, assets and transforms; this leaf creates, reconstructs or adapts spatial media or representation.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 183,
+      "capabilityId": "media.generate.spatial.reconstruct.multiview",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.spatial.reconstruct.multiview",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "K"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers 3D/spatial scenes, assets and transforms; this leaf creates, reconstructs or adapts spatial media or representation.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 184,
+      "capabilityId": "media.generate.spatial.reconstruct.depth",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.spatial.reconstruct.depth",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "K"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers 3D/spatial scenes, assets and transforms; this leaf creates, reconstructs or adapts spatial media or representation.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 185,
+      "capabilityId": "media.generate.spatial.reconstruct.camera",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.spatial.reconstruct.camera",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "K"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers 3D/spatial scenes, assets and transforms; this leaf creates, reconstructs or adapts spatial media or representation.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 186,
+      "capabilityId": "media.generate.spatial.generate.novel-view",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.spatial.generate.novel-view",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "K"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers 3D/spatial scenes, assets and transforms; this leaf creates, reconstructs or adapts spatial media or representation.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 187,
+      "capabilityId": "media.generate.spatial.asset.create-3d",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.spatial.asset.create-3d",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "K"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers 3D/spatial scenes, assets and transforms; this leaf creates, reconstructs or adapts spatial media or representation.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 188,
+      "capabilityId": "media.generate.spatial.relight-3d",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.spatial.relight-3d",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "K"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers 3D/spatial scenes, assets and transforms; this leaf creates, reconstructs or adapts spatial media or representation.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 189,
+      "capabilityId": "media.generate.spatial.compose-3d",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.spatial.compose-3d",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "K"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers 3D/spatial scenes, assets and transforms; this leaf creates, reconstructs or adapts spatial media or representation.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 190,
+      "capabilityId": "media.generate.spatial.representation.nerf-adapter",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.spatial.representation.nerf-adapter",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "K"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers 3D/spatial scenes, assets and transforms; this leaf creates, reconstructs or adapts spatial media or representation.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 191,
+      "capabilityId": "media.generate.spatial.representation.gaussian-splatting-adapter",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.spatial.representation.gaussian-splatting-adapter",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "K"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers 3D/spatial scenes, assets and transforms; this leaf creates, reconstructs or adapts spatial media or representation.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 192,
+      "capabilityId": "media.generate.spatial.create.360-media",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.spatial.create.360-media",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "K"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers 3D/spatial scenes, assets and transforms; this leaf creates, reconstructs or adapts spatial media or representation.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 193,
+      "capabilityId": "media.generate.spatial.create.spatial-audio",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.spatial.create.spatial-audio",
+      "parentRequirementId": "MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-SPATIAL",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "I",
+      "relatedClusters": [
+        "M"
+      ],
+      "rationale": "Blueprint §2 Cluster I covers spatial/audio engineering; this leaf creates spatial audio, with spatial-scene coordinates as a related concern.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 194,
+      "capabilityId": "media.animation.2d",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.2d",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 195,
+      "capabilityId": "media.animation.vector",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.vector",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 196,
+      "capabilityId": "media.animation.3d",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.3d",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 197,
+      "capabilityId": "media.animation.keyframe",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.keyframe",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 198,
+      "capabilityId": "media.animation.interpolation-easing",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.interpolation-easing",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 199,
+      "capabilityId": "media.animation.procedural",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.procedural",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 200,
+      "capabilityId": "media.animation.path",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.path",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 201,
+      "capabilityId": "media.animation.skeletal",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.skeletal",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 202,
+      "capabilityId": "media.animation.inverse-kinematics",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.inverse-kinematics",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 203,
+      "capabilityId": "media.animation.constraint",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.constraint",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 204,
+      "capabilityId": "media.animation.morph-target",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.morph-target",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 205,
+      "capabilityId": "media.animation.camera",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.camera",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 206,
+      "capabilityId": "media.animation.material",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.material",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 207,
+      "capabilityId": "media.animation.light",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.light",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 208,
+      "capabilityId": "media.animation.particle",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.particle",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 209,
+      "capabilityId": "media.animation.drive.physics",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.drive.physics",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 210,
+      "capabilityId": "media.animation.drive.audio",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.drive.audio",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 211,
+      "capabilityId": "media.animation.drive.speech",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.drive.speech",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 212,
+      "capabilityId": "media.animation.drive.pose",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.drive.pose",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 213,
+      "capabilityId": "media.animation.facial-expression",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.facial-expression",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 214,
+      "capabilityId": "media.animation.gaze",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.gaze",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 215,
+      "capabilityId": "media.animation.lip",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.lip",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 216,
+      "capabilityId": "media.animation.motion-capture.extract",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.motion-capture.extract",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 217,
+      "capabilityId": "media.animation.motion.retarget",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.motion.retarget",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 218,
+      "capabilityId": "media.animation.character",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.character",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers 2D/3D animation, motion, keyframes, rigs, cameras, materials and simulation-driven movement; this leaf defines animation behavior.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 219,
+      "capabilityId": "media.animation.editing.select",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.editing.select",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers animation and motion scenes; this leaf edits animation-specific elements or playback state, related to professional editing operations.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 220,
+      "capabilityId": "media.animation.editing.keyframe.insert",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.editing.keyframe.insert",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers animation and motion scenes; this leaf edits animation-specific elements or playback state, related to professional editing operations.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 221,
+      "capabilityId": "media.animation.editing.keyframe.remove",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.editing.keyframe.remove",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers animation and motion scenes; this leaf edits animation-specific elements or playback state, related to professional editing operations.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 222,
+      "capabilityId": "media.animation.editing.curve.edit",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.editing.curve.edit",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers animation and motion scenes; this leaf edits animation-specific elements or playback state, related to professional editing operations.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 223,
+      "capabilityId": "media.animation.editing.temporal-snap",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.editing.temporal-snap",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers animation and motion scenes; this leaf edits animation-specific elements or playback state, related to professional editing operations.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 224,
+      "capabilityId": "media.animation.editing.playback-scrub",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.editing.playback-scrub",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers animation and motion scenes; this leaf edits animation-specific elements or playback state, related to professional editing operations.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 225,
+      "capabilityId": "media.animation.editing.track.mute",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.editing.track.mute",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers animation and motion scenes; this leaf edits animation-specific elements or playback state, related to professional editing operations.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 226,
+      "capabilityId": "media.animation.editing.track.solo",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.editing.track.solo",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers animation and motion scenes; this leaf edits animation-specific elements or playback state, related to professional editing operations.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 227,
+      "capabilityId": "media.animation.editing.layer",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.editing.layer",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers animation and motion scenes; this leaf edits animation-specific elements or playback state, related to professional editing operations.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 228,
+      "capabilityId": "media.animation.editing.blend",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.editing.blend",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers animation and motion scenes; this leaf edits animation-specific elements or playback state, related to professional editing operations.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 229,
+      "capabilityId": "media.animation.editing.undo-redo.versioned",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.editing.undo-redo.versioned",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION-EDITING",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Blueprint §2 Cluster M covers animation and motion scenes; this leaf edits animation-specific elements or playback state, related to professional editing operations.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 230,
+      "capabilityId": "media.animation.output.output.interactive-scene",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.output.output.interactive-scene",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-OUTPUT",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION-OUTPUT",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "N",
+      "relatedClusters": [
+        "M"
+      ],
+      "rationale": "Blueprint §2 Cluster N covers interactive scene graphs and playback; this output is an interactive scene representation.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 231,
+      "capabilityId": "media.animation.output.output.vector-raster-frames",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.output.output.vector-raster-frames",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-OUTPUT",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION-OUTPUT",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "P",
+      "relatedClusters": [
+        "M"
+      ],
+      "rationale": "Blueprint §2 Cluster P covers render, export and media interchange; this leaf specifies an animation output representation or package.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 232,
+      "capabilityId": "media.animation.output.output.composited-video",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.output.output.composited-video",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-OUTPUT",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION-OUTPUT",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "P",
+      "relatedClusters": [
+        "M"
+      ],
+      "rationale": "Blueprint §2 Cluster P covers render, export and media interchange; this leaf specifies an animation output representation or package.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 233,
+      "capabilityId": "media.animation.output.output.reusable-clip",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.output.output.reusable-clip",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-OUTPUT",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION-OUTPUT",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "P",
+      "relatedClusters": [
+        "M"
+      ],
+      "rationale": "Blueprint §2 Cluster P covers render, export and media interchange; this leaf specifies an animation output representation or package.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 234,
+      "capabilityId": "media.animation.output.output.exchange-package",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.output.output.exchange-package",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-OUTPUT",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION-OUTPUT",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "P",
+      "relatedClusters": [
+        "M"
+      ],
+      "rationale": "Blueprint §2 Cluster P covers render, export and media interchange; this leaf specifies an animation output representation or package.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 235,
+      "capabilityId": "media.animation.output.accessibility.semantic-timeline",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.output.accessibility.semantic-timeline",
+      "parentRequirementId": "MEDIA-REQ-CAP-ANIMATION-OUTPUT",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ANIMATION-OUTPUT",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "N",
+      "relatedClusters": [
+        "O"
+      ],
+      "rationale": "Blueprint §2 Cluster N covers accessible interactive playback; this leaf provides semantic timeline/control access, with accessibility review as a related quality concern.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 236,
+      "capabilityId": "media.simulation.rigid-body",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.rigid-body",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 237,
+      "capabilityId": "media.simulation.soft-body",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.soft-body",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 238,
+      "capabilityId": "media.simulation.cloth",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.cloth",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 239,
+      "capabilityId": "media.simulation.rope",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.rope",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 240,
+      "capabilityId": "media.simulation.particle",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.particle",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 241,
+      "capabilityId": "media.simulation.fluid",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.fluid",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 242,
+      "capabilityId": "media.simulation.smoke",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.smoke",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 243,
+      "capabilityId": "media.simulation.fire",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.fire",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 244,
+      "capabilityId": "media.simulation.collision",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.collision",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 245,
+      "capabilityId": "media.simulation.constraint",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.constraint",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 246,
+      "capabilityId": "media.simulation.vehicle",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.vehicle",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 247,
+      "capabilityId": "media.simulation.crowd",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.crowd",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 248,
+      "capabilityId": "media.simulation.agent",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.agent",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 249,
+      "capabilityId": "media.simulation.human-motion",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.human-motion",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 250,
+      "capabilityId": "media.simulation.procedural-world",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.procedural-world",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 251,
+      "capabilityId": "media.simulation.camera-experiment",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.camera-experiment",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 252,
+      "capabilityId": "media.simulation.lighting-experiment",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.lighting-experiment",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 253,
+      "capabilityId": "media.simulation.educational-demo",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.educational-demo",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 254,
+      "capabilityId": "media.simulation.scientific-demo",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.scientific-demo",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 255,
+      "capabilityId": "media.simulation.robotics",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.robotics",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 256,
+      "capabilityId": "media.simulation.kinematics",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.kinematics",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 257,
+      "capabilityId": "media.simulation.synthetic-data",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.synthetic-data",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 258,
+      "capabilityId": "media.simulation.output.rgb",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.output.rgb",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 259,
+      "capabilityId": "media.simulation.output.depth",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.output.depth",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 260,
+      "capabilityId": "media.simulation.output.normals",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.output.normals",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 261,
+      "capabilityId": "media.simulation.output.segmentation",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.output.segmentation",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 262,
+      "capabilityId": "media.simulation.output.optical-flow",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.output.optical-flow",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 263,
+      "capabilityId": "media.simulation.output.motion-vectors",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.output.motion-vectors",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 264,
+      "capabilityId": "media.simulation.output.object-ids",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.output.object-ids",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 265,
+      "capabilityId": "media.simulation.output.contacts",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.output.contacts",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 266,
+      "capabilityId": "media.simulation.output.physical-events",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.output.physical-events",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 267,
+      "capabilityId": "media.simulation.output.measurements",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.output.measurements",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 268,
+      "capabilityId": "media.simulation.output.timestamped-state",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.output.timestamped-state",
+      "parentRequirementId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "M",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster M covers physics and scientific simulation with render passes and measurement lineage; this leaf defines a simulation, derived pass, state, event or measurement.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 269,
+      "capabilityId": "media.recipe.template.physics-math-explainer",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.template.physics-math-explainer",
+      "parentRequirementId": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "M"
+      ],
+      "rationale": "Blueprint §2 Cluster J covers audience-directed plans, scripts and reusable recipes; this leaf is a named production template, with simulation/spatial content related where applicable.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 270,
+      "capabilityId": "media.recipe.template.infographic",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.template.infographic",
+      "parentRequirementId": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "M"
+      ],
+      "rationale": "Blueprint §2 Cluster J covers audience-directed plans, scripts and reusable recipes; this leaf is a named production template, with simulation/spatial content related where applicable.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 271,
+      "capabilityId": "media.recipe.template.product-demonstration",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.template.product-demonstration",
+      "parentRequirementId": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "M"
+      ],
+      "rationale": "Blueprint §2 Cluster J covers audience-directed plans, scripts and reusable recipes; this leaf is a named production template, with simulation/spatial content related where applicable.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 272,
+      "capabilityId": "media.recipe.template.scientific-visualization",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.template.scientific-visualization",
+      "parentRequirementId": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "M"
+      ],
+      "rationale": "Blueprint §2 Cluster J covers audience-directed plans, scripts and reusable recipes; this leaf is a named production template, with simulation/spatial content related where applicable.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 273,
+      "capabilityId": "media.recipe.template.interactive-lesson",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.template.interactive-lesson",
+      "parentRequirementId": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "M"
+      ],
+      "rationale": "Blueprint §2 Cluster J covers audience-directed plans, scripts and reusable recipes; this leaf is a named production template, with simulation/spatial content related where applicable.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 274,
+      "capabilityId": "media.recipe.template.training-scenario",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.template.training-scenario",
+      "parentRequirementId": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "M"
+      ],
+      "rationale": "Blueprint §2 Cluster J covers audience-directed plans, scripts and reusable recipes; this leaf is a named production template, with simulation/spatial content related where applicable.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 275,
+      "capabilityId": "media.recipe.template.architectural-scene",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.template.architectural-scene",
+      "parentRequirementId": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "M"
+      ],
+      "rationale": "Blueprint §2 Cluster J covers audience-directed plans, scripts and reusable recipes; this leaf is a named production template, with simulation/spatial content related where applicable.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 276,
+      "capabilityId": "media.recipe.template.character-gesture-animation",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.template.character-gesture-animation",
+      "parentRequirementId": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "M"
+      ],
+      "rationale": "Blueprint §2 Cluster J covers audience-directed plans, scripts and reusable recipes; this leaf is a named production template, with simulation/spatial content related where applicable.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 277,
+      "capabilityId": "media.recipe.template.synthetic-dataset",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.template.synthetic-dataset",
+      "parentRequirementId": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "M"
+      ],
+      "rationale": "Blueprint §2 Cluster J covers audience-directed plans, scripts and reusable recipes; this leaf is a named production template, with simulation/spatial content related where applicable.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 278,
+      "capabilityId": "media.enhance.image.denoise",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.denoise",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 279,
+      "capabilityId": "media.enhance.image.deblur",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.deblur",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 280,
+      "capabilityId": "media.enhance.image.dehaze",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.dehaze",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 281,
+      "capabilityId": "media.enhance.image.deblock",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.deblock",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 282,
+      "capabilityId": "media.enhance.image.deband",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.deband",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 283,
+      "capabilityId": "media.enhance.image.dering",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.dering",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 284,
+      "capabilityId": "media.enhance.image.compression-repair",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.compression-repair",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 285,
+      "capabilityId": "media.enhance.image.jpeg-repair",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.jpeg-repair",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 286,
+      "capabilityId": "media.enhance.image.super-resolution",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.super-resolution",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 287,
+      "capabilityId": "media.enhance.image.face-restoration",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.face-restoration",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [
+        "O"
+      ],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 288,
+      "capabilityId": "media.enhance.image.detail-restoration",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.detail-restoration",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 289,
+      "capabilityId": "media.enhance.image.texture-restoration",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.texture-restoration",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 290,
+      "capabilityId": "media.enhance.image.scratch-restoration",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.scratch-restoration",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 291,
+      "capabilityId": "media.enhance.image.damage-restoration",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.damage-restoration",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 292,
+      "capabilityId": "media.enhance.image.color-recovery",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.color-recovery",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 293,
+      "capabilityId": "media.enhance.image.white-balance",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.white-balance",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 294,
+      "capabilityId": "media.enhance.image.exposure",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.exposure",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 295,
+      "capabilityId": "media.enhance.image.lens-distortion",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.lens-distortion",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 296,
+      "capabilityId": "media.enhance.image.chromatic-aberration",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.chromatic-aberration",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 297,
+      "capabilityId": "media.enhance.image.vignette-correction",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.vignette-correction",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 298,
+      "capabilityId": "media.enhance.image.hdr-recovery",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.hdr-recovery",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 299,
+      "capabilityId": "media.enhance.image.tone-conversion",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.tone-conversion",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 300,
+      "capabilityId": "media.enhance.image.gamut-conversion",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.gamut-conversion",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 301,
+      "capabilityId": "media.enhance.image.sharpen",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.image.sharpen",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [],
+      "rationale": "Blueprint §2 Cluster K covers image generation/editing and enhancement; this leaf produces a derived image candidate while preserving source lineage and estimated detail.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 302,
+      "capabilityId": "media.enhance.video.spatiotemporal-super-resolution",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.video.spatiotemporal-super-resolution",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [
+        "L"
+      ],
+      "rationale": "Blueprint §2 Cluster K covers image/video generation and enhancement; this leaf produces a derived video candidate, with temporal video analysis/consistency in Cluster L related.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 303,
+      "capabilityId": "media.enhance.video.interpolation",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.video.interpolation",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [
+        "L"
+      ],
+      "rationale": "Blueprint §2 Cluster K covers image/video generation and enhancement; this leaf produces a derived video candidate, with temporal video analysis/consistency in Cluster L related.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 304,
+      "capabilityId": "media.enhance.video.temporal-denoise",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.video.temporal-denoise",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [
+        "L"
+      ],
+      "rationale": "Blueprint §2 Cluster K covers image/video generation and enhancement; this leaf produces a derived video candidate, with temporal video analysis/consistency in Cluster L related.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 305,
+      "capabilityId": "media.enhance.video.temporal-deblur",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.video.temporal-deblur",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [
+        "L"
+      ],
+      "rationale": "Blueprint §2 Cluster K covers image/video generation and enhancement; this leaf produces a derived video candidate, with temporal video analysis/consistency in Cluster L related.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 306,
+      "capabilityId": "media.enhance.video.compression-repair",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.video.compression-repair",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [
+        "L"
+      ],
+      "rationale": "Blueprint §2 Cluster K covers image/video generation and enhancement; this leaf produces a derived video candidate, with temporal video analysis/consistency in Cluster L related.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 307,
+      "capabilityId": "media.enhance.video.deflicker",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.video.deflicker",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [
+        "L"
+      ],
+      "rationale": "Blueprint §2 Cluster K covers image/video generation and enhancement; this leaf produces a derived video candidate, with temporal video analysis/consistency in Cluster L related.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "sourceOrder1Based": 308,
+      "capabilityId": "media.enhance.video.temporal-consistency",
+      "capabilitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.video.temporal-consistency",
+      "parentRequirementId": "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "parentRequirementSourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "scopeDisposition": "TARGET",
+      "primaryCluster": "K",
+      "relatedClusters": [
+        "L"
+      ],
+      "rationale": "Blueprint §2 Cluster K covers image/video generation and enhancement; this leaf produces a derived video candidate, with temporal video analysis/consistency in Cluster L related.",
+      "status": "COORDINATOR_MAPPING_RECOMMENDATION",
+      "ownerAcceptance": "NOT_CLAIMED"
+    }
+  ]
+}

@@ -3,21 +3,32 @@ phaseTask: P0-004
 authorityBoundary:
   productTruth: PDP-0 may state the product requirement to preserve temporal and fidelity meaning.
   canonicalDomainAndData: .product-experience/pdp-1-domain-data/
-  handoffStatus: pending-PDP-1-value-object-and-domain-reconciliation
+  handoffStatus: pending-PDP-1-admitted-scene-model-and-legacy-wire-contract-validation
   currentRecordDisposition: >-
-    Detailed clocks, units, coordinate conventions, conversion rules, and
-    fidelity records remain proposals and source observations here. They are
-    not accepted canonical PDP-1 values; unresolved unit and domain-owner
-    decisions remain open and must not be inferred.
+    The five product clock domains and the separation of visual level of detail
+    from visual quality, domain-model fidelity, and validation tier are defined
+    by the source-current PDP-0 requirements referenced below. Detailed clock
+    value objects and arithmetic conversion profiles selected by PXD-074 and
+    PXD-079 are owner-defined in PDP-1 at
+    `.product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions`.
+    This PDP-0 artifact retains product meaning and observed compatibility
+    boundaries; it does not assert that those profiles bind admitted legacy
+    scene/model or wire contracts. PDP-1 reconciliation of those contracts,
+    adapter implementation and admission, domain/scientific review, and
+    qualification remain pending. Unspecified units, mappings, and domain
+    decisions remain unresolved and must not be inferred.
 status:
-  maturity: proposal-with-source-observations
+  maturity: PDP-0-product-meaning-defined; PDP-1-arithmetic-profiles-owner-defined; admitted-contract-reconciliation-pending
   acceptance: not-submitted
-  ownerReview: pending
+  ownerReview: pending-for-unresolved-contract-and-domain-decisions
   implementation: no-conversions-are-qualified-by-this-file
   statement: >-
-    Proposed Media rules below are not current API guarantees. Existing field
-    names and semantics remain compatibility-bound until an approved,
-    versioned adapter or schema change is implemented and verified.
+    PDP-0 proposals below and PDP-1 owner-defined arithmetic profiles are not
+    current API or legacy-wire guarantees. Existing field names and semantics
+    remain compatibility-bound until an approved, versioned adapter or schema
+    change is implemented, admitted, and verified. This artifact does not
+    claim adapter implementation, admission, domain/scientific review, or
+    qualification.
 
 sourceBasis:
   media:
@@ -118,34 +129,40 @@ timeRepresentationProposal:
     omittedPolicy: Reject conversion or return an explicit unresolved/loss result; never silently truncate or round.
     status: proposed-and-unverified
 
+productTruthClockDomains:
+  sourceRef: .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/@id=MEDIA-REC-P0-AC-010
+  status: PDP-0 product meaning; exact values, schemas, and conversion mechanics remain PDP-1 work
+  domainIds: [source_video_presentation_time, audio_sample_time, story_explanation_time, simulation_execution_time, wall_clock_time]
+  domainIdentityRule: >-
+    These five identifiers are the complete product clock set. Source/video presentation,
+    audio sample, story/explanation, simulation execution, and wall-clock positions remain
+    distinct. Editorial and output presentation use story/explanation time; decode timestamps
+    remain source-stream ordering metadata, not an additional product clock.
+
 separateClocks:
-  - id: media_presentation_time
-    meaning: Presentation position in the admitted output/edit timeline.
-    unit: rational seconds or integer output frames/samples.
-    evidence: Media currently exposes milliseconds/duration and numeric fps on several compatibility surfaces.
-  - id: source_decode_and_presentation_timestamps
-    meaning: Container/decoder timestamps for source samples or frames, including discontinuities and variable-frame-rate inputs.
-    unit: Original time base plus integer PTS/DTS; preserve stream identity and mapping.
-    evidence: Current Media protobuf projections expose millisecond timestamps but no general rational VFR timestamp map was found.
+  - id: source_video_presentation_time
+    meaning: Presentation position in an identified source video/media stream, using its declared source time base, presentation timestamps, discontinuities, and explicit mapping uncertainty.
+    unit: Original rational time base plus integer PTS; retain DTS separately as decode-order metadata.
+    evidence: Media currently exposes millisecond timestamps and numeric fps on compatibility surfaces but has no general rational VFR timestamp map.
   - id: audio_sample_time
     meaning: Sample index in one identified audio stream.
     unit: integer sample index plus samples-per-second rational rate.
     requiredMetadata: [sampleRate, sampleFormat, channelLayout, sampleCount, encoderPriming, encoderPadding]
-  - id: t_sim
+  - id: story_explanation_time
+    meaning: Narrative, explanation, animation, editorial, or output presentation position; source time must remain separately identified and explicitly mapped.
+    unit: Rational seconds or an exact frame/sample position under the declared output time base.
+    coupling: Pausing or seeking story time does not change model state unless a declared timeline action dispatches an explicit bounded model command.
+  - id: simulation_execution_time
     meaning: Domain model or physical simulation time.
     unit: Explicit domain unit; seconds is the proposed native unit only when the domain model permits SI seconds.
-    coupling: Story pause/scrub does not advance t_sim unless an explicit, bounded model command says so.
-  - id: t_story
-    meaning: Explanation, animation, or editorial presentation time.
-    unit: Rational seconds or an exact frame/sample position.
-    coupling: Pausing or seeking story time does not change model state unless a declared timeline action dispatches a model command.
-  - id: wall_clock_deadline
+    coupling: Story pause or seeking does not advance simulation time unless an explicit bounded model command says so.
+  - id: wall_clock_time
     meaning: Operational deadline or lifecycle instant, separate from media and simulation timelines.
     unit: Absolute wall-clock Instant for a deadline; Duration for a timeout/lease interval; monotonic elapsed time for durations measured inside a process.
     evidence: Existing Media Java runtime uses Instant and Duration for these purposes.
 
 conversionRequirements:
-  - Each conversion names source clock/time base, destination clock/rate, origin, and rounding/interval policy.
+  - Each conversion names source and destination clock domains, their time bases or rates, origin, measured or declared mapping uncertainty, and rounding/interval policy; unknown uncertainty remains UNKNOWN and cannot be reported as exact alignment.
   - Frame/sample mapping is based on the exact rational source rate and PTS map, not a rounded fps label.
   - At 24000/1001 fps, do not replace the source rate with 24 fps without creating a new normalized artifact and recording drift/loss.
   - VFR imports retain a presentation-time map or create a separately identified normalized artifact with an explicit conversion report.
@@ -225,7 +242,9 @@ simulationAndFidelity:
     - Record collision representation, mass/inertia/material parameters, initial/boundary conditions, and sampling contract when applicable.
     - A quantitative/scientific claim requires validity range and named validation/reference cases; omitted requirements keep the result unverified or illustrative.
   domainFidelity:
-    principle: Scientific/model fidelity is separate from visual quality and visual level of detail.
+    sourceRef: .product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=MEDIA-DECL-P0-AC-037
+    visualLevelOfDetail: Presentation representation detail or complexity; it is independent of visual quality, model fidelity, and validation tier.
+    principle: Scientific/model fidelity, visual quality, visual level of detail, and validation tier are separate reported axes.
     ownerRule: Preserve domain-owner tier identifiers and semantics through a reviewed mapping; do not mint a Media alias for TutorPutor F0-F4.
     tutorputorBoundary: TutorPutor owns AEF F0-F4; mapping and adapter acceptance are pending with that owner.
   replayClasses:

@@ -1,4 +1,278 @@
 import { createHash } from "node:crypto";
+import { fingerprint, fingerprintPxdDecisionSection, projectPdp0SourceManifest } from "./pdp0-phase-scoped-source-fingerprints.mjs";
+
+export const PDP0_PXD212_QUALITY_REVIEW_PATH = "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd212.json";
+export const PDP0_PXD212_CAPTION_REVIEW_PATH = "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd212.json";
+export const PDP0_PXD213_QUALITY_REVIEW_PATH = "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd213.json";
+export const PDP0_PXD213_CAPTION_REVIEW_PATH = "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd213.json";
+export const PDP0_PXD212_QUALITY_HISTORY_PATH = "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd212.json";
+export const PDP0_CAPTION_IMPORT_SELECTOR = ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.import/ownerDefinition/successOutputs/0/optionalSemanticObservations/@id=importedCaptionTrack";
+
+const sha256 = value => createHash("sha256").update(value).digest("hex");
+
+/** Validate the source-bound PXD-212 currentness successor without granting owner acceptance. */
+export function validatePdp0Pxd212Currentness({ qualityHistoryReview, latestQualityReview, captionReview, sourceDocuments = {}, sourceTexts = {}, decisionLogText = "" }) {
+  const errors = [];
+  const fail = message => errors.push(message);
+  const cPath = PDP0_PXD212_CAPTION_REVIEW_PATH;
+  const latest = qualityHistoryReview?.latestCurrentnessRefresh;
+  const standaloneLatest = latestQualityReview?.latestCurrentnessRefresh ?? latestQualityReview;
+  const caption = captionReview;
+  const capPath = ".product-experience/pdp-0-product-truth/capabilities.yaml";
+  const qualityPath = ".product-experience/pdp-0-product-truth/quality-policy.yaml";
+  const leafPath = ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml";
+  const goalsPath = ".product-experience/pdp-0-product-truth/goals-jtbd.yaml";
+  const reqPath = ".product-experience/pdp-0-product-truth/requirements.yaml";
+  const manifestPath = ".product-experience/source-manifest.yaml";
+  const reusePath = ".product-experience/pdp-0-product-truth/reuse-decisions.yaml";
+  const crosswalkPath = "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json";
+  const aqPath = "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json";
+  let manifestProjectionSha256;
+  try {
+    manifestProjectionSha256 = fingerprint(projectPdp0SourceManifest(sourceDocuments[manifestPath], sourceDocuments[reusePath]));
+  } catch (error) {
+    fail(`PXD-212 PDP-0 source-manifest projection cannot be computed: ${error.message}`);
+  }
+  const expectedPins = {
+    [capPath]: sourceTexts[capPath] === undefined ? undefined : sha256(sourceTexts[capPath]),
+    [qualityPath]: sourceTexts[qualityPath] === undefined ? undefined : sha256(sourceTexts[qualityPath]),
+    [leafPath]: sourceTexts[leafPath] === undefined ? undefined : sha256(sourceTexts[leafPath]),
+    [goalsPath]: sourceTexts[goalsPath] === undefined ? undefined : sha256(sourceTexts[goalsPath]),
+    [reqPath]: sourceTexts[reqPath] === undefined ? undefined : sha256(sourceTexts[reqPath]),
+    [`${manifestPath}#PDP-0-projection`]: manifestProjectionSha256,
+    [crosswalkPath]: sourceTexts[crosswalkPath] === undefined ? undefined : sha256(sourceTexts[crosswalkPath]),
+    [aqPath]: sourceTexts[aqPath] === undefined ? undefined : sha256(sourceTexts[aqPath]),
+    [".product-experience/decision-log.md#PXD-211-section"]: fingerprintPxdDecisionSection(decisionLogText, "PXD-211").sha256,
+    [".product-experience/decision-log.md#PXD-212-section"]: fingerprintPxdDecisionSection(decisionLogText, "PXD-212").sha256,
+    [cPath]: sourceTexts[cPath] === undefined ? undefined : sha256(sourceTexts[cPath]),
+  };
+  const pins = latest?.sourceFingerprints;
+  if (!pins || JSON.stringify(Object.keys(pins).sort()) !== JSON.stringify(Object.keys(expectedPins).sort())) {
+    fail("PXD-212 latestCurrentnessRefresh must pin the exact current input set, including the PDP-0 manifest projection and PXD-211/PXD-212 decision sections");
+  } else {
+    for (const [ref, actual] of Object.entries(expectedPins)) {
+      if (!actual || pins[ref] !== actual) fail(`PXD-212 latestCurrentnessRefresh has a missing or stale current source pin: ${ref}`);
+    }
+  }
+  if (latest?.phaseScope !== "PDP-0"
+      || latest?.decisionRef !== ".product-experience/decision-log.md#PXD-212"
+    || latest?.status !== "CURRENT_SOURCE_SEMANTIC_JOIN_REVIEW"
+      || latest?.sourceRef !== capPath
+      || latest?.currentSourceSha256 !== expectedPins[capPath]
+      || latest?.semanticReview !== "PERFORMED_EXACT_TYPE_JOIN_REVIEW"
+      || latest?.ownerApproval !== "NOT_CLAIMED"
+      || latest?.independentAcceptance !== "NOT_CLAIMED"
+      || latest?.acceptanceEffect !== "none") {
+    fail("PXD-212 latest currentness authority, semantic-review, or non-acceptance boundary is invalid");
+  }
+  if (!standaloneLatest || fingerprint(standaloneLatest) !== fingerprint(latest)) {
+    fail("PXD-212 standalone quality review must exactly match latestCurrentnessRefresh in the current quality review");
+  }
+  const population = latest?.reviewedPopulation;
+  if (population?.canonicalCapabilityRows !== 462 || population?.capabilityRows !== 462
+      || population?.qualityDimensions !== 6 || population?.metricDefinitions !== 16
+      || population?.dimensionDispositions !== 2772 || population?.metricDispositions !== 7392
+      || population?.definitionExtensionsExcluded !== 7
+      || population?.measurementState !== "NOT_EVALUATED"
+      || population?.qualificationState !== "NOT_EVALUATED") {
+    fail("PXD-212 latest currentness population must preserve the 462 × 6/16 frozen quality cohort and seven excluded extensions");
+  }
+  const expectedJoinIds = ["media.edit.inpaint", "media.edit.matte", "media.edit.retime-slow-motion-speed-ramp"];
+  const joins = latest?.changedTypeJoins;
+  const currentCapabilities = sourceDocuments[capPath]?.capabilities ?? [];
+  const qualityRecords = sourceDocuments[qualityPath]?.ownerQualityApplicabilityCrosswalk?.records ?? [];
+  const trustRecords = sourceDocuments[leafPath]?.ownerTrustReconstructionDispositions?.records ?? [];
+  const goalRecords = sourceDocuments[goalsPath]?.successMeasureContracts?.ownerCapabilityApplicabilityCrosswalk?.records ?? [];
+  if (!Array.isArray(joins) || JSON.stringify(joins.map(({ capabilityId }) => capabilityId)) !== JSON.stringify(expectedJoinIds)
+      || joins.some(join => {
+        const capabilityOutputRef = `${capPath}#capabilities/@id=${join.capabilityId}/outputArtifactTypes`;
+        const qualityOutputRef = `${qualityPath}#ownerQualityApplicabilityCrosswalk/records/@capabilityRef=${join.capabilityId}/outputArtifactTypes`;
+        const trustDispositionRef = `${leafPath}#ownerTrustReconstructionDispositions/records/@capabilityRef=${join.capabilityId}`;
+        const goalApplicabilityRef = `${goalsPath}#successMeasureContracts/ownerCapabilityApplicabilityCrosswalk/records/@capabilityIntentId=${join.capabilityId}`;
+        const capability = currentCapabilities.find(({ id }) => id === join.capabilityId);
+        const qualityRow = qualityRecords.find(({ capabilityRef }) => capabilityRef === join.capabilityId);
+        const trustRow = trustRecords.find(({ capabilityRef }) => capabilityRef === join.capabilityId);
+        const goalRow = goalRecords.find(({ capabilityIntentId }) => capabilityIntentId === join.capabilityId);
+        return join.capabilityOutputTypesRef !== capabilityOutputRef
+          || join.qualityOutputTypesRef !== qualityOutputRef
+          || join.capabilityOutputTypesSha256 !== (capability === undefined ? undefined : sha256(JSON.stringify(capability.outputArtifactTypes)))
+          || join.qualityOutputTypesSha256 !== (qualityRow === undefined ? undefined : sha256(JSON.stringify(qualityRow.outputArtifactTypes)))
+          || join.trustDispositionRef !== trustDispositionRef
+          || join.trustDispositionSha256 !== (trustRow === undefined ? undefined : sha256(JSON.stringify(trustRow)))
+          || join.goalApplicabilityRef !== goalApplicabilityRef
+          || join.goalApplicabilitySha256 !== (goalRow === undefined ? undefined : sha256(JSON.stringify(goalRow)))
+          || join.reviewStatus !== "SEMANTIC_JOIN_REVIEWED"
+          || join.typeJoinStatus !== "MATCHED_CURRENT_SOURCE";
+      })) {
+    fail("PXD-212 must semantically review exact inpaint, matte, and retime capability, quality, trust-disposition, and goal-applicability joins");
+  }
+  if (qualityHistoryReview?.schemaVersion !== "media.pdp0.quality-current-source-review.v1"
+      || qualityHistoryReview?.artifactId !== "P0-QUALITY-CURRENT-SOURCE-REVIEW-002"
+      || latestQualityReview?.schemaVersion !== "media.pdp0.quality-currentness-successor.v1"
+      || latest?.reviewArtifactRef !== cPath
+      || latest?.reviewArtifactSha256 !== (sourceTexts[cPath] === undefined ? undefined : sha256(sourceTexts[cPath]))) {
+    fail("PXD-212 quality review must bind the exact PXD-212 caption review file");
+  }
+  const importOutputs = sourceDocuments[capPath]?.capabilities?.find(({ id }) => id === "media.artifact.import")?.ownerDefinition?.successOutputs;
+  const optionalObservation = importOutputs?.[0]?.optionalSemanticObservations?.find(({ id }) => id === "importedCaptionTrack");
+  const ac08 = sourceDocuments[reqPath]?.requirements?.find(({ id }) => id === "MEDIA-REQ-CAP-ARTIFACT")?.acceptanceCases?.find(({ id }) => id === "MEDIA-REQ-CAP-ARTIFACT-AC-08");
+  const captionPins = caption?.sourceFingerprints;
+  if (caption?.schemaVersion !== "media.pdp0.caption-import-current-source-review.v1"
+      || caption?.decisionRef !== ".product-experience/decision-log.md#PXD-212"
+      || caption?.reviewedField?.sourceRef !== PDP0_CAPTION_IMPORT_SELECTOR
+      || caption?.reviewedField?.currentSha256 !== (optionalObservation === undefined ? undefined : sha256(JSON.stringify(optionalObservation)))
+      || caption?.requirementBinding?.sourceRef !== `${reqPath}#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-08`
+      || caption?.requirementBinding?.caseSha256 !== (ac08 === undefined ? undefined : sha256(JSON.stringify(ac08)))
+      || caption?.changeAssessment?.optionalObservationChanged !== false
+      || caption?.changeAssessment?.importCapabilityTypesChanged !== false
+      || caption?.changeAssessment?.qualityDispositionChanged !== false
+      || caption?.reviewBoundary?.ownerApproval !== "NOT_CLAIMED"
+      || caption?.reviewBoundary?.independentAcceptance !== "NOT_CLAIMED"
+      || caption?.reviewBoundary?.acceptanceEffect !== "none") {
+    fail("PXD-212 caption successor must bind the live importedCaptionTrack selector and AC-08 while recording no semantic/import/type/quality disposition change or acceptance");
+  }
+  if (!captionPins || captionPins[capPath] !== expectedPins[capPath]
+      || captionPins[reqPath] !== expectedPins[reqPath]
+      || captionPins[".product-experience/decision-log.md#PXD-212-section"] !== expectedPins[".product-experience/decision-log.md#PXD-212-section"]) {
+    fail("PXD-212 caption source pins must bind current capability, AC-08 requirement, and decision section");
+  }
+  return { valid: errors.length === 0, errors, expectedPins };
+}
+
+
+/** Validate the source-bound PXD-213 currentness successor without granting owner acceptance. */
+export function validatePdp0Pxd213Currentness({ qualityHistoryReview, latestQualityReview, captionReview, sourceDocuments = {}, sourceTexts = {}, decisionLogText = "" }) {
+  const errors = [];
+  const fail = message => errors.push(message);
+  const cPath = PDP0_PXD213_CAPTION_REVIEW_PATH;
+  const latest = qualityHistoryReview?.latestCurrentnessRefresh;
+  const standaloneLatest = latestQualityReview?.latestCurrentnessRefresh ?? latestQualityReview;
+  const caption = captionReview;
+  const capPath = ".product-experience/pdp-0-product-truth/capabilities.yaml";
+  const qualityPath = ".product-experience/pdp-0-product-truth/quality-policy.yaml";
+  const leafPath = ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml";
+  const goalsPath = ".product-experience/pdp-0-product-truth/goals-jtbd.yaml";
+  const reqPath = ".product-experience/pdp-0-product-truth/requirements.yaml";
+  const manifestPath = ".product-experience/source-manifest.yaml";
+  const reusePath = ".product-experience/pdp-0-product-truth/reuse-decisions.yaml";
+  const crosswalkPath = "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json";
+  const aqPath = "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json";
+  const pxd212QualityPath = PDP0_PXD212_QUALITY_HISTORY_PATH;
+  let manifestProjectionSha256;
+  try {
+    manifestProjectionSha256 = fingerprint(projectPdp0SourceManifest(sourceDocuments[manifestPath], sourceDocuments[reusePath]));
+  } catch (error) {
+    fail(`PXD-213 PDP-0 source-manifest projection cannot be computed: ${error.message}`);
+  }
+  const expectedPins = {
+    [capPath]: sourceTexts[capPath] === undefined ? undefined : sha256(sourceTexts[capPath]),
+    [qualityPath]: sourceTexts[qualityPath] === undefined ? undefined : sha256(sourceTexts[qualityPath]),
+    [leafPath]: sourceTexts[leafPath] === undefined ? undefined : sha256(sourceTexts[leafPath]),
+    [goalsPath]: sourceTexts[goalsPath] === undefined ? undefined : sha256(sourceTexts[goalsPath]),
+    [reqPath]: sourceTexts[reqPath] === undefined ? undefined : sha256(sourceTexts[reqPath]),
+    [`${manifestPath}#PDP-0-projection`]: manifestProjectionSha256,
+    [crosswalkPath]: sourceTexts[crosswalkPath] === undefined ? undefined : sha256(sourceTexts[crosswalkPath]),
+    [aqPath]: sourceTexts[aqPath] === undefined ? undefined : sha256(sourceTexts[aqPath]),
+    [pxd212QualityPath]: sourceTexts[pxd212QualityPath] === undefined ? undefined : sha256(sourceTexts[pxd212QualityPath]),
+    [".product-experience/decision-log.md#PXD-211-section"]: fingerprintPxdDecisionSection(decisionLogText, "PXD-211").sha256,
+    [".product-experience/decision-log.md#PXD-212-section"]: fingerprintPxdDecisionSection(decisionLogText, "PXD-212").sha256,
+    [".product-experience/decision-log.md#PXD-213-section"]: fingerprintPxdDecisionSection(decisionLogText, "PXD-213").sha256,
+    [cPath]: sourceTexts[cPath] === undefined ? undefined : sha256(sourceTexts[cPath]),
+  };
+  const pins = latest?.sourceFingerprints;
+  if (!pins || JSON.stringify(Object.keys(pins).sort()) !== JSON.stringify(Object.keys(expectedPins).sort())) {
+    fail("PXD-213 latestCurrentnessRefresh must pin the exact current input set, including the PDP-0 manifest projection and PXD-211/PXD-212/PXD-213 decision sections");
+  } else {
+    for (const [ref, actual] of Object.entries(expectedPins)) {
+      if (!actual || pins[ref] !== actual) fail(`PXD-213 latestCurrentnessRefresh has a missing or stale current source pin: ${ref}`);
+    }
+  }
+  if (latest?.phaseScope !== "PDP-0"
+      || latest?.decisionRef !== ".product-experience/decision-log.md#PXD-213"
+    || latest?.status !== "CURRENTNESS_REFRESH_ONLY"
+      || latest?.sourceRef !== capPath
+      || latest?.currentSourceSha256 !== expectedPins[capPath]
+      || latest?.semanticReview !== "PXD-212_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW"
+      || latest?.preservedSemanticReviewRef !== ".product-experience/decision-log.md#PXD-212"
+      || latest?.preservedSemanticReviewArtifactSha256 !== expectedPins[pxd212QualityPath]
+      || latest?.ownerApproval !== "NOT_CLAIMED"
+      || latest?.independentAcceptance !== "NOT_CLAIMED"
+      || latest?.acceptanceEffect !== "none") {
+    fail("PXD-213 latest currentness authority, semantic-review, or non-acceptance boundary is invalid");
+  }
+  if (!standaloneLatest || fingerprint(standaloneLatest) !== fingerprint(latest)) {
+    fail("PXD-213 standalone quality review must exactly match latestCurrentnessRefresh in the current quality review");
+  }
+  const population = latest?.reviewedPopulation;
+  if (population?.canonicalCapabilityRows !== 462 || population?.capabilityRows !== 462
+      || population?.qualityDimensions !== 6 || population?.metricDefinitions !== 16
+      || population?.dimensionDispositions !== 2772 || population?.metricDispositions !== 7392
+      || population?.definitionExtensionsExcluded !== 7
+      || population?.measurementState !== "NOT_EVALUATED"
+      || population?.qualificationState !== "NOT_EVALUATED") {
+    fail("PXD-213 latest currentness population must preserve the 462 × 6/16 frozen quality cohort and seven excluded extensions");
+  }
+  const expectedJoinIds = ["media.edit.inpaint", "media.edit.matte", "media.edit.retime-slow-motion-speed-ramp"];
+  const joins = latest?.changedTypeJoins;
+  const currentCapabilities = sourceDocuments[capPath]?.capabilities ?? [];
+  const qualityRecords = sourceDocuments[qualityPath]?.ownerQualityApplicabilityCrosswalk?.records ?? [];
+  const trustRecords = sourceDocuments[leafPath]?.ownerTrustReconstructionDispositions?.records ?? [];
+  const goalRecords = sourceDocuments[goalsPath]?.successMeasureContracts?.ownerCapabilityApplicabilityCrosswalk?.records ?? [];
+  if (!Array.isArray(joins) || JSON.stringify(joins.map(({ capabilityId }) => capabilityId)) !== JSON.stringify(expectedJoinIds)
+      || joins.some(join => {
+        const capabilityOutputRef = `${capPath}#capabilities/@id=${join.capabilityId}/outputArtifactTypes`;
+        const qualityOutputRef = `${qualityPath}#ownerQualityApplicabilityCrosswalk/records/@capabilityRef=${join.capabilityId}/outputArtifactTypes`;
+        const trustDispositionRef = `${leafPath}#ownerTrustReconstructionDispositions/records/@capabilityRef=${join.capabilityId}`;
+        const goalApplicabilityRef = `${goalsPath}#successMeasureContracts/ownerCapabilityApplicabilityCrosswalk/records/@capabilityIntentId=${join.capabilityId}`;
+        const capability = currentCapabilities.find(({ id }) => id === join.capabilityId);
+        const qualityRow = qualityRecords.find(({ capabilityRef }) => capabilityRef === join.capabilityId);
+        const trustRow = trustRecords.find(({ capabilityRef }) => capabilityRef === join.capabilityId);
+        const goalRow = goalRecords.find(({ capabilityIntentId }) => capabilityIntentId === join.capabilityId);
+        return join.capabilityOutputTypesRef !== capabilityOutputRef
+          || join.qualityOutputTypesRef !== qualityOutputRef
+          || join.capabilityOutputTypesSha256 !== (capability === undefined ? undefined : sha256(JSON.stringify(capability.outputArtifactTypes)))
+          || join.qualityOutputTypesSha256 !== (qualityRow === undefined ? undefined : sha256(JSON.stringify(qualityRow.outputArtifactTypes)))
+          || join.trustDispositionRef !== trustDispositionRef
+          || join.trustDispositionSha256 !== (trustRow === undefined ? undefined : sha256(JSON.stringify(trustRow)))
+          || join.goalApplicabilityRef !== goalApplicabilityRef
+          || join.goalApplicabilitySha256 !== (goalRow === undefined ? undefined : sha256(JSON.stringify(goalRow)))
+          || join.reviewStatus !== "SEMANTIC_JOIN_REVIEWED"
+          || join.typeJoinStatus !== "MATCHED_CURRENT_SOURCE";
+      })) {
+    fail("PXD-213 must semantically review exact inpaint, matte, and retime capability, quality, trust-disposition, and goal-applicability joins");
+  }
+  if (qualityHistoryReview?.schemaVersion !== "media.pdp0.quality-current-source-review.v1"
+      || qualityHistoryReview?.artifactId !== "P0-QUALITY-CURRENT-SOURCE-REVIEW-002"
+      || latestQualityReview?.schemaVersion !== "media.pdp0.quality-currentness-successor.v1"
+      || latest?.reviewArtifactRef !== cPath
+      || latest?.reviewArtifactSha256 !== (sourceTexts[cPath] === undefined ? undefined : sha256(sourceTexts[cPath]))) {
+    fail("PXD-213 quality review must bind the exact PXD-213 caption review file");
+  }
+  const importOutputs = sourceDocuments[capPath]?.capabilities?.find(({ id }) => id === "media.artifact.import")?.ownerDefinition?.successOutputs;
+  const optionalObservation = importOutputs?.[0]?.optionalSemanticObservations?.find(({ id }) => id === "importedCaptionTrack");
+  const ac08 = sourceDocuments[reqPath]?.requirements?.find(({ id }) => id === "MEDIA-REQ-CAP-ARTIFACT")?.acceptanceCases?.find(({ id }) => id === "MEDIA-REQ-CAP-ARTIFACT-AC-08");
+  const captionPins = caption?.sourceFingerprints;
+  if (caption?.schemaVersion !== "media.pdp0.caption-import-current-source-review.v1"
+      || caption?.decisionRef !== ".product-experience/decision-log.md#PXD-213"
+      || caption?.reviewedField?.sourceRef !== PDP0_CAPTION_IMPORT_SELECTOR
+      || caption?.reviewedField?.currentSha256 !== (optionalObservation === undefined ? undefined : sha256(JSON.stringify(optionalObservation)))
+      || caption?.requirementBinding?.sourceRef !== `${reqPath}#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-08`
+      || caption?.requirementBinding?.caseSha256 !== (ac08 === undefined ? undefined : sha256(JSON.stringify(ac08)))
+      || caption?.changeAssessment?.optionalObservationChanged !== false
+      || caption?.changeAssessment?.importCapabilityTypesChanged !== false
+      || caption?.changeAssessment?.qualityDispositionChanged !== false
+      || caption?.reviewBoundary?.ownerApproval !== "NOT_CLAIMED"
+      || caption?.reviewBoundary?.independentAcceptance !== "NOT_CLAIMED"
+      || caption?.reviewBoundary?.acceptanceEffect !== "none") {
+    fail("PXD-213 caption successor must bind the live importedCaptionTrack selector and AC-08 while recording no semantic/import/type/quality disposition change or acceptance");
+  }
+  if (!captionPins || captionPins[capPath] !== expectedPins[capPath]
+      || captionPins[reqPath] !== expectedPins[reqPath]
+      || captionPins[".product-experience/decision-log.md#PXD-213-section"] !== expectedPins[".product-experience/decision-log.md#PXD-213-section"]) {
+    fail("PXD-213 caption source pins must bind current capability, AC-08 requirement, and decision section");
+  }
+  return { valid: errors.length === 0, errors, expectedPins };
+}
 
 const SOURCE_LABEL_CHANNEL = Object.freeze({
   web: "media.channel.web",
@@ -70,17 +344,38 @@ function resolveSelector(ref, sourceDocuments) {
 }
 
 /** Resolve the full definition-only 15×38 dimension and 462-leaf applicability join. */
-export function resolvePdp0FeatureReviewApplicability({ applicability, requirements, capabilities, capabilityCrosswalk, channels, sourceDocuments, reviewedMaterialArtifact, reviewedMaterialArtifactText, reviewedReferenceCorrectionArtifact, reviewedReferenceCorrectionArtifactText, qualityMetricObservations, qualityPolicySourceText, qualityCurrentSourceReview, qualityCurrentSourceReviewText, animationRelationshipObservation, animationRelationshipObservationText, relationshipSourceText, textToImageObservation, textToImageObservationText, capabilitiesSourceText, capabilityIntentOwnerBindingObservation, capabilityIntentOwnerBindingObservationText, capabilitySemanticReview, capabilitySemanticReviewText, p0CurrentSourceCorrection, p0CurrentSourceCorrectionText, p0UploadByteLengthCorrection, p0UploadByteLengthCorrectionText, p0CapabilityCorrectionsCurrentSourceReview, p0CapabilityCorrectionsCurrentSourceReviewText, policyAuthorityObservation, policyAuthorityObservationText, policyAuthoritySourceText, cliChannelObservation, cliChannelObservationText, applicationsChannelsSourceText, qualificationPolicyObservation, qualificationPolicyObservationText, qualificationPolicySourceText }) {
+export function resolvePdp0FeatureReviewApplicability({ applicability, requirements, capabilities, capabilityCrosswalk, channels, sourceDocuments, reviewedMaterialArtifact, reviewedMaterialArtifactText, reviewedReferenceCorrectionArtifact, reviewedReferenceCorrectionArtifactText, qualityMetricObservations, qualityPolicySourceText, qualityCurrentSourceReview, qualityCurrentSourceReviewText, qualityCurrentSourceFingerprints, captionImportCurrentSourceReview, captionImportCurrentSourceReviewText, pxd213QualityCurrentSourceReview, pxd213QualityCurrentSourceReviewText, pxd213CaptionImportCurrentSourceReview, pxd213CaptionImportCurrentSourceReviewText, pxd213CurrentSourceTexts, requirePxd213Currentness = false, requirementsSourceText, decisionLogSourceText, animationRelationshipObservation, animationRelationshipObservationText, relationshipSourceText, textToImageObservation, textToImageObservationText, capabilitiesSourceText, capabilityIntentOwnerBindingObservation, capabilityIntentOwnerBindingObservationText, capabilitySemanticReview, capabilitySemanticReviewText, p0CurrentSourceCorrection, p0CurrentSourceCorrectionText, p0UploadByteLengthCorrection, p0UploadByteLengthCorrectionText, p0CapabilityCorrectionsCurrentSourceReview, p0CapabilityCorrectionsCurrentSourceReviewText, policyAuthorityObservation, policyAuthorityObservationText, policyAuthoritySourceText, cliChannelObservation, cliChannelObservationText, applicationsChannelsSourceText, qualificationPolicyObservation, qualificationPolicyObservationText, qualificationPolicySourceText }) {
   const fail = (reason) => { throw new Error(`Invalid PDP-0 feature applicability: ${reason}`); };
   const dimensions = applicability?.dimensions;
   const requirementRows = requirements?.requirements;
   const capabilityRows = capabilities?.capabilities;
   const families = capabilities?.families;
   const leafRows = capabilityCrosswalk?.records;
+  const extensionPopulation = sourceDocuments?.[".product-experience/pdp-0-product-truth/campaign-extensions.yaml"]?.currentDefinitionPopulation;
+  const extensionRows = extensionPopulation?.records;
   if (!Array.isArray(dimensions) || dimensions.length !== 15 || !unique(dimensions.map(({ id }) => id))) fail("dimension population must be 15 unique records");
   if (!Array.isArray(requirementRows) || requirementRows.length !== 38 || !unique(requirementRows.map(({ id }) => id))) fail("requirement population must be 38 unique types");
-  if (!Array.isArray(capabilityRows) || capabilityRows.length !== 462 || !unique(capabilityRows.map(({ id }) => id))) fail("capability population must be 462 unique leaves");
   if (!Array.isArray(leafRows) || leafRows.length !== 462 || !unique(leafRows.map(({ capabilityRef }) => capabilityRef))) fail("leaf crosswalk must cover 462 unique leaves");
+  if (!Array.isArray(capabilityRows) || !unique(capabilityRows.map(({ id }) => id))) fail("capability definitions must have unique identities");
+  if (!Array.isArray(extensionRows) || extensionRows.length !== 7
+      || extensionPopulation?.historicalCapabilityLeavesPreserved !== 462
+      || extensionPopulation?.currentCapabilityDefinitions !== capabilityRows.length
+      || extensionPopulation?.definitionExtensionCapabilityLeaves !== extensionRows.length
+      || extensionPopulation?.ownerAdjudications !== leafRows.length
+      || extensionPopulation?.extensionDisposition !== "SIX_COORDINATOR_AUTHORED_MEANING_PROPOSALS_WITH_DELEGATED_PDP0_APPLICABILITY_DECISIONS; ONE_USER_DELEGATED_CREATIVE_EFFECT_DEFINITION; INDEPENDENT_ACCEPTANCE_NOT_CLAIMED"
+      || extensionPopulation?.ownerApproval !== "NOT_CLAIMED"
+      || extensionPopulation?.independentAcceptance !== "NOT_CLAIMED") {
+    fail("current definitions must distinguish the 462 owner-adjudicated leaves from seven delegated definition extensions");
+  }
+  const canonicalCapabilityIds = new Set(leafRows.map(({ capabilityRef }) => capabilityRef));
+  const extensionCapabilityIds = new Set(extensionRows.map(({ capabilityId }) => capabilityId));
+  if (canonicalCapabilityIds.size !== 462 || extensionCapabilityIds.size !== 7
+      || [...extensionCapabilityIds].some((id) => canonicalCapabilityIds.has(id) || !capabilityRows.some(({ id: candidate }) => candidate === id))
+      || capabilityRows.length !== canonicalCapabilityIds.size + extensionCapabilityIds.size
+      || capabilityRows.some(({ id }) => !canonicalCapabilityIds.has(id) && !extensionCapabilityIds.has(id))) {
+    fail("the 462 canonical leaf crosswalk and seven delegated extension identities must exactly partition the definition population");
+  }
+  const canonicalCapabilityRows = capabilityRows.filter(({ id }) => canonicalCapabilityIds.has(id));
   if (!Array.isArray(channels) || channels.length !== 11 || !unique(channels.map(({ id }) => id))) fail("active definition channel union must contain 11 unique IDs");
   if (applicability.coverageDimensions !== 15 || applicability.requirementTypeCount !== 38 || applicability.leafCount !== 462) fail("declared census differs from source populations");
   const p0Join = applicability.authorityBoundary?.activePdp0Join;
@@ -177,25 +472,135 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
   const qualitySourceReview = qualityCurrentSourceReview;
   const capabilityPath = ".product-experience/pdp-0-product-truth/capabilities.yaml";
   const currentQualityCapabilityRefs = [
-    "media.artifact.search", "media.artifact.list", "media.stream.recording.integrate",
-    "media.speech.transcription.file", "media.audio.analysis.detect.silence",
-    "media.simulation.cloth", "media.simulation.soft-body", "media.simulation.rope",
-    "media.simulation.particle", "media.simulation.fluid", "media.simulation.agent",
-    "media.compose.multitrack-timeline",
+    "media.compose.multitrack-timeline", "media.compose.reusable-composition", "media.compose.safe-area",
+    "media.master.audio.stereo-width", "media.speech.synthesis.speaker.condition",
   ].map((id) => `${capabilityPath}#capabilities/@id=${id}`).sort();
   const reviewedQualityCapabilityRefs = [...(qualitySourceReview?.currentSourceRefresh?.reviewedCapabilityRefs ?? [])].sort();
+  const qualityExtensionIds = [
+    "media.recipe.specification.compile", "media.project.scene.patch-merge",
+    "media.quality.audio.content-similarity.assess", "media.generate.video.preset.manage",
+    "media.generate.video.shot-condition", "media.job.schedule.manage",
+    "media.master.audio.creative-effect.apply",
+  ];
+  const expectedQualityFingerprintPaths = [
+    ".product-experience/pdp-0-product-truth/requirements.yaml",
+    ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+    capabilityPath,
+    qualityPolicyPath,
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+    ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
+    ".product-experience/decision-log.md#PXD-207-section",
+    ".product-experience/decision-log.md#PXD-208-section",
+  ].sort();
+  const historicalPxd209 = qualitySourceReview?.postReviewCurrentnessRefresh;
+  const currentnessFingerprintEntries = Object.entries(historicalPxd209?.sourceFingerprints ?? {}).sort(([a], [b]) => a.localeCompare(b));
+  const expectedCurrentnessFingerprintPaths = [capabilityPath,
+    "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
+    ".product-experience/decision-log.md#PXD-209-section",
+    "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd209.json"].sort();
+  const qualityCurrentnessFingerprintMapValid = currentnessFingerprintEntries.length === expectedCurrentnessFingerprintPaths.length
+    && JSON.stringify(currentnessFingerprintEntries.map(([path]) => path).sort()) === JSON.stringify(expectedCurrentnessFingerprintPaths)
+    && currentnessFingerprintEntries.every(([path, pin]) => /^[a-f0-9]{64}$/u.test(pin)
+      && (path !== ".product-experience/decision-log.md#PXD-209-section"
+        || pin === "bd024f73efbd5dffe4962de912767f35d27ffc94460184d54e13c6afe1cc6f5f")
+      && (path !== "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd209.json"
+        || pin === createHash("sha256").update(captionImportCurrentSourceReviewText ?? "").digest("hex")))
+    && historicalPxd209?.sourceFingerprints?.[capabilityPath] === historicalPxd209?.currentSourceSha256
+    && historicalPxd209?.sourceFingerprints?.["docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"] === "b2294ecff9f545ddc4829f3736234ba3a117baa0a4f9cacb0a4619530defcc4f"
+    && historicalPxd209?.sourceFingerprints?.["docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json"] === "fb94993ed9903137771cfaf6f563afe6af018f4a86ea8a63497a48fba26b02b2"
+    && historicalPxd209?.reviewArtifactRef === "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd209.json"
+    && historicalPxd209?.reviewArtifactSha256 === createHash("sha256").update(captionImportCurrentSourceReviewText ?? "").digest("hex");
+  const pxd208FingerprintEntries = Object.entries(qualitySourceReview?.currentSourceRefresh?.sourceFingerprints ?? {}).sort(([a], [b]) => a.localeCompare(b));
+  const pxd208FingerprintMap = qualitySourceReview?.currentSourceRefresh?.sourceFingerprints ?? {};
+  const qualityFingerprintMapValid = JSON.stringify(pxd208FingerprintEntries.map(([path]) => path).sort()) === JSON.stringify(expectedQualityFingerprintPaths)
+    && pxd208FingerprintEntries.every(([path, pin]) => /^[a-f0-9]{64}$/u.test(pin))
+    && pxd208FingerprintMap[capabilityPath] === qualitySourceReview?.currentSourceRefresh?.currentSourceSha256
+    && pxd208FingerprintMap[qualityPolicyPath] === qualitySourceReview?.sources?.qualityPolicy?.currentSha256
+    && pxd208FingerprintMap[".product-experience/decision-log.md#PXD-207-section"] === "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
+    && pxd208FingerprintMap[".product-experience/decision-log.md#PXD-208-section"] === "f56e9d99f4ca5b4c2ba625a9923c1c11cd3f9b043cdb2613710cf798bf9fbbec";
+  const excludedQualityExtensions = qualitySourceReview?.currentSourceRefresh?.excludedDefinitionExtensions ?? [];
+  const excludedQualityExtensionIds = excludedQualityExtensions.map(({ capabilityId }) => capabilityId).sort();
+  const excludedQualityExtensionsValid = JSON.stringify(excludedQualityExtensionIds) === JSON.stringify([...qualityExtensionIds].sort())
+    && excludedQualityExtensions.every((record) => record.disposition === "OUTSIDE_FROZEN_HISTORICAL_462_QUALITY_COHORT"
+      && record.qualityDisposition === "NOT_ASSIGNED_BY_THIS_REVIEW"
+      && record.measurementState === "NOT_EVALUATED"
+      && record.qualificationState === "NOT_EVALUATED"
+      && record.decisionRef === ".product-experience/decision-log.md#PXD-207"
+      && !Object.hasOwn(record, "ownerAcceptance") && !Object.hasOwn(record, "ownerApproval"));
+  const currentFrozenQualityPopulation = qualitySourceReview?.currentSourceRefresh?.frozenPopulation;
+  const historicalPxd206QualityRefresh = qualitySourceReview?.historicalSourceRefreshes?.find(({ decisionRef }) => decisionRef === ".product-experience/decision-log.md#PXD-206");
+  const historicalQualityRefresh = qualitySourceReview?.historicalSourceRefreshes?.find(({decisionRef}) => decisionRef === ".product-experience/decision-log.md#PXD-170");
+  const pxd196QualityRefresh = qualitySourceReview?.historicalSourceRefreshes?.find(({decisionRef}) => decisionRef === ".product-experience/decision-log.md#PXD-196");
+  const changedQualityCapabilityRefs = [...(qualitySourceReview?.sourceDelta?.changedCapabilityRefs ?? [])].sort();
   const qualitySourceReviewValid = qualitySourceReview?.schemaVersion === "media.pdp0.quality-current-source-review.v1"
     && qualitySourceReview?.artifactId === "P0-QUALITY-CURRENT-SOURCE-REVIEW-002"
     && qualitySourceReview?.sources?.qualityPolicy?.path === qualityPolicyPath
-    && qualitySourceReview?.sources?.qualityPolicy?.currentSha256 === qualitySourceSha256
+    && qualitySourceReview?.sources?.qualityPolicy?.currentSha256 === pxd208FingerprintMap[qualityPolicyPath]
     && qualitySourceReview?.sources?.capabilities?.path === capabilityPath
-    && qualitySourceReview?.sources?.capabilities?.currentSha256 === createHash("sha256").update(capabilitiesSourceText ?? "").digest("hex")
-    && qualitySourceReview?.currentSourceRefresh?.decisionRef === ".product-experience/decision-log.md#PXD-170"
-    && qualitySourceReview?.currentSourceRefresh?.priorSourceSha256 === "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
-    && qualitySourceReview?.currentSourceRefresh?.currentSourceSha256 === qualitySourceReview?.sources?.capabilities?.currentSha256
+    && qualitySourceReview?.sources?.capabilities?.currentSha256 === historicalPxd209?.currentSourceSha256
+    && qualitySourceReview?.currentSourceRefresh?.decisionRef === ".product-experience/decision-log.md#PXD-208"
+    && qualitySourceReview?.currentSourceRefresh?.predecessorRefreshRef === ".product-experience/decision-log.md#PXD-206"
+    && qualitySourceReview?.currentSourceRefresh?.priorSourceSha256 === "801e9eab9b6d2936b52254276c940456ae6d98fd9dc95f2364b56bd9e02da527"
+    && qualitySourceReview?.currentSourceRefresh?.currentSourceSha256 === "fc7c481af2a93697266bc1dacf0449551dba044d5420e065b5739823e4a2397e"
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.status === "CURRENT_SOURCE_PIN_REFRESH_ONLY"
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.phaseScope === "PDP-0"
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.decisionRef === ".product-experience/decision-log.md#PXD-209"
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.sourceRef === capabilityPath
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.predecessorSourceSha256 === qualitySourceReview?.currentSourceRefresh?.currentSourceSha256
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.currentSourceSha256 === captionImportCurrentSourceReview?.source?.currentSha256
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.reviewedFieldRef === `${capabilityPath}#capabilities/@id=media.artifact.import/ownerDefinition/successOutputs/0/optionalSemanticObservations/@id=importedCaptionTrack`
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.reviewedFieldSha256 === captionImportCurrentSourceReview?.reviewedField?.currentSha256
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.successOutputsPredecessorSha256 === captionImportCurrentSourceReview?.reviewedField?.predecessorSha256
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.successOutputsCurrentBaseProjectionSha256 === captionImportCurrentSourceReview?.reviewedField?.predecessorProjectionSha256
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.importCapabilityTypeJoins?.qualityJoinChanged === false
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.importCapabilityTypeJoins?.inputArtifactTypesPredecessorSha256 === qualitySourceReview?.postReviewCurrentnessRefresh?.importCapabilityTypeJoins?.inputArtifactTypesCurrentSha256
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.importCapabilityTypeJoins?.outputArtifactTypesPredecessorSha256 === qualitySourceReview?.postReviewCurrentnessRefresh?.importCapabilityTypeJoins?.outputArtifactTypesCurrentSha256
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.frozenQualityPopulation?.capabilityRows === 462
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.frozenQualityPopulation?.dimensionDispositions === 2772
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.frozenQualityPopulation?.metricDispositions === 7392
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.frozenQualityPopulation?.definitionExtensionsExcluded === 7
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.frozenQualityPopulation?.measurementState === "NOT_EVALUATED"
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.frozenQualityPopulation?.qualificationState === "NOT_EVALUATED"
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.semanticReview === "NOT_PERFORMED"
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.ownerApproval === "NOT_CLAIMED"
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.acceptanceEffect === "none"
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.reviewArtifactRef === "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd209.json"
+    && qualitySourceReview?.postReviewCurrentnessRefresh?.reviewArtifactSha256 === createHash("sha256").update(captionImportCurrentSourceReviewText ?? "").digest("hex")
+    && qualityCurrentnessFingerprintMapValid
+    && qualitySourceReview?.currentSourceRefresh?.reviewedCapabilityRefCount === 462
+    && qualitySourceReview?.sources?.capabilities?.capabilityCount === 462
+    && qualitySourceReview?.sources?.capabilities?.totalDefinitionCount === 469
+    && qualitySourceReview?.sources?.capabilities?.proposalDefinitionCount === 7
+    && qualityFingerprintMapValid
+    && excludedQualityExtensionsValid
+    && currentFrozenQualityPopulation?.capabilityRows === 462
+    && currentFrozenQualityPopulation?.uniqueCapabilityRefs === 462
+    && currentFrozenQualityPopulation?.qualityDimensions === 6
+    && currentFrozenQualityPopulation?.metricDefinitions === 16
+    && currentFrozenQualityPopulation?.dimensionDispositions === 2772
+    && currentFrozenQualityPopulation?.metricDispositions === 7392
+    && currentFrozenQualityPopulation?.measurementState === "NOT_EVALUATED"
+    && currentFrozenQualityPopulation?.qualificationState === "NOT_EVALUATED"
+    && historicalPxd206QualityRefresh?.priorSourceSha256 === "7d6d3931506b9a0565cd558932c967a7e330dda9bed3cc58f912490d1c9c623d"
+    && historicalPxd206QualityRefresh?.currentSourceSha256 === "801e9eab9b6d2936b52254276c940456ae6d98fd9dc95f2364b56bd9e02da527"
+    && historicalPxd206QualityRefresh?.reviewedCapabilityRefCount === 462
+    && historicalPxd206QualityRefresh?.acceptanceEffect === "none"
+    && pxd196QualityRefresh?.priorSourceSha256 === historicalQualityRefresh?.currentSourceSha256
+    && pxd196QualityRefresh?.currentSourceSha256 === "bc1d9c389afc3445015679aa9bbf63dae310b5a91b34dbf7046a8de92f52dbba"
+    && historicalQualityRefresh?.priorSourceSha256 === "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+    && historicalQualityRefresh?.currentSourceSha256 === "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
     && JSON.stringify(reviewedQualityCapabilityRefs) === JSON.stringify(currentQualityCapabilityRefs)
+    && JSON.stringify(changedQualityCapabilityRefs) === JSON.stringify(currentQualityCapabilityRefs)
     && qualitySourceReview?.predecessorReviewRef === "docs/implementation/verification/pdp-38/p0-quality-current-source-review.json"
     && qualitySourceReview?.currentSourceRefresh?.acceptanceEffect === "none"
+    && qualitySourceReview?.sourceDelta?.capabilityRowsRechecked === 462
+    && qualitySourceReview?.sourceDelta?.artifactTypeProjectionChanged === true
+    && qualitySourceReview?.sourceDelta?.qualityDispositionProjectionChanged === false
+    && qualitySourceReview?.sourceDelta?.measurementStateProjectionChanged === false
+    && qualitySourceReview?.sourceDelta?.qualificationStateProjectionChanged === false
     && qualitySourceReview?.reviewedPopulation?.capabilityRows === 462
     && qualitySourceReview?.reviewedPopulation?.uniqueCapabilityRefs === 462
     && qualitySourceReview?.reviewedPopulation?.qualityDimensions === 6
@@ -207,7 +612,18 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     && qualitySourceReview?.historicalBoundary?.acceptanceEffect === "none"
     && typeof qualityCurrentSourceReviewText === "string"
     && JSON.stringify(JSON.parse(qualityCurrentSourceReviewText)) === JSON.stringify(qualitySourceReview);
-  if (!qualitySourceReviewValid) fail("P0 quality current-source review is absent, stale, or has an invalid acceptance boundary");
+  if (!qualitySourceReviewValid) fail(`P0 quality current-source review is absent, stale, or has an invalid acceptance boundary (PXD-208 historical pins=${qualityFingerprintMapValid}; PXD-209 currentness pins=${qualityCurrentnessFingerprintMapValid}; live capability=${qualitySourceReview?.sources?.capabilities?.currentSha256 === createHash("sha256").update(capabilitiesSourceText ?? "").digest("hex")}; caption artifact=${qualitySourceReview?.postReviewCurrentnessRefresh?.reviewArtifactSha256 === createHash("sha256").update(captionImportCurrentSourceReviewText ?? "").digest("hex")})`);
+  if (requirePxd213Currentness) {
+    const pxd213Validation = validatePdp0Pxd213Currentness({
+      qualityHistoryReview: qualitySourceReview,
+      latestQualityReview: pxd213QualityCurrentSourceReview,
+      captionReview: pxd213CaptionImportCurrentSourceReview,
+      sourceDocuments,
+      sourceTexts: pxd213CurrentSourceTexts ?? {},
+      decisionLogText: decisionLogSourceText,
+    });
+    if (!pxd213Validation.valid) fail(pxd213Validation.errors[0]);
+  }
   const approvedCurrentSourceObservation = new Map();
   const qualificationObservationSha256 = "ea9f6acde7310f6b306c39ad1bd32f1ad9031aaac7e43b0db586984c7231df6c";
   const qualificationSourceRef = ".product-experience/pdp-0-product-truth/qualification-policy.yaml#decisionRules";
@@ -385,8 +801,6 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     ["ownerDefinition", "recovery"], ["ownerDefinition", "canonicalAuthorityRefs"],
     ["ownerDefinition", "capabilityIntentId"], ["intentBindingState"], ["requirementTraceState"], ["semanticReferenceScope"],
   ];
-  const textToImageSourceHash = typeof capabilitiesSourceText === "string"
-    ? createHash("sha256").update(capabilitiesSourceText).digest("hex") : null;
   const capabilityIntentOwnerBindingExpectedSha256 = "e33af569db9ea0b510af334af8dfc4ae2e2c05cd0b2fa32e57a889e94023ba7a";
   const capabilitySemanticReviewExpectedSha256 = "1c187221d5c882b8559d7eb9fe5cebf2195a0e0bfb346d61c5277ed1e6081b4d";
   const pxd122CapabilitySha256 = p0CurrentSourceCorrection?.historicalPins?.find(({ decisionRef }) => decisionRef.endsWith("#PXD-122"))?.capabilitySha256;
@@ -468,6 +882,10 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     predecessorDecisionRef: ".product-experience/decision-log.md#PXD-153",
   });
   const currentCorrectionRecords = currentCapabilityCorrectionReview?.records;
+  // PXD-171 was current at its own source cut. PXD-196 later changed the
+  // capability document, so retain PXD-171's immutable historical whole-file
+  // pin while checking each corrected field against the live source below.
+  const pxd171HistoricalCapabilitySha256 = "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d";
   const currentCorrectionRecordsValid = Array.isArray(currentCorrectionRecords)
     && currentCorrectionRecords.length === expectedCurrentCorrectionFields.size
     && currentCapabilityCorrectionReview?.schemaVersion === "media.pdp0.capability-corrections-current-source-review.v1"
@@ -478,21 +896,121 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
       "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json",
     ])
     && currentCapabilityCorrectionReview?.source?.path === capabilityPath
-    && currentCapabilityCorrectionReview?.source?.currentSha256 === (typeof capabilitiesSourceText === "string"
-      ? createHash("sha256").update(capabilitiesSourceText).digest("hex") : null)
+    && currentCapabilityCorrectionReview?.source?.currentSha256 === pxd171HistoricalCapabilitySha256
     && currentCapabilityCorrectionReview?.source?.capabilityCount === 462
     && currentCapabilityCorrectionReview?.semanticEquivalence === "NOT_ASSERTED"
     && currentCapabilityCorrectionReview?.acceptanceEffect === "none; exact corrected subfields reviewed against current P0 source"
     && typeof p0CapabilityCorrectionsCurrentSourceReviewText === "string"
     && JSON.stringify(JSON.parse(p0CapabilityCorrectionsCurrentSourceReviewText)) === JSON.stringify(currentCapabilityCorrectionReview);
+  const captionImportReview = captionImportCurrentSourceReview;
+  const captionImportCapabilityRef = `${capabilityPath}#capabilities/@id=media.artifact.import/ownerDefinition/successOutputs`;
+  const historicalPxd171ImportRecord = currentCorrectionRecords?.find(({ capabilityId, fieldPath }) => capabilityId === "media.artifact.import" && fieldPath === "ownerDefinition.successOutputs");
+  const captionImportCurrentField = resolveSelector(captionImportCapabilityRef, sourceDocuments);
+  const captionImportRequirementRef = ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-08";
+  const captionImportRequirementCase = resolveSelector(captionImportRequirementRef, sourceDocuments);
+  const captionImportRequirementId = requirements?.requirements?.find(({ id }) => id === "MEDIA-REQ-CAP-ARTIFACT");
+  const captionImportDecisionSha256 = "bd024f73efbd5dffe4962de912767f35d27ffc94460184d54e13c6afe1cc6f5f";
+  const expectedCaptionObservation = {
+    id: "importedCaptionTrack",
+    when: "An authorized sidecar or embedded caption track is explicitly requested and observed in the exact immutable imported source version.",
+    fields: {
+      sourceVersionRef: "Exact immutable source version inspected.",
+      captionTrackRef: "Track identity or source location as observed.",
+      language: "Observed language tag when available; otherwise UNKNOWN.",
+      format: "Observed sidecar format or embedded track encoding when available; otherwise UNKNOWN.",
+      timingMapping: "Declared source timebase, any explicit mapping applied, and conversion or alignment uncertainty.",
+      provenance: "Whether the track was observed embedded or supplied as an authorized sidecar.",
+    },
+    constraints: [
+      "Observation does not alter source media, register or replace a canonical artifact, or claim caption correctness.",
+      "Missing, malformed, or unknown track mapping remains explicit.",
+    ],
+  };
+  const captionImportRecord = captionImportReview?.reviewedField;
+  const importObservationOutput = captionImportCurrentField?.find(({ artifactType }) => artifactType === "import-observation-and-source-resolution-evidence");
+  const captionImportPredecessorProjection = captionImportCurrentField?.map(output => {
+    if (output.artifactType !== "import-observation-and-source-resolution-evidence") return output;
+    const {optionalSemanticObservations: _optionalSemanticObservations, ...predecessorOutput} = output;
+    return predecessorOutput;
+  });
+  const captionImportReviewValid = captionImportReview?.schemaVersion === "media.pdp0.caption-import-current-source-review.v1"
+    && captionImportReview?.artifactId === "P0-CAPTION-IMPORT-CURRENT-SOURCE-REVIEW-PXD209"
+    && captionImportReview?.decisionRef === ".product-experience/decision-log.md#PXD-209"
+    && captionImportReview?.predecessorReviewRef === "docs/implementation/verification/pdp-38/p0-capability-corrections-current-source-review-current.json#media.artifact.import/ownerDefinition.successOutputs"
+    && captionImportReview?.source?.path === capabilityPath
+    && captionImportReview?.source?.predecessorSha256 === pxd171HistoricalCapabilitySha256
+    && captionImportReview?.source?.currentSha256 === "6a0674f350af8bb75f54641f31377f199b27e016e2c3163b557ffa19397dac45"
+    && captionImportReview?.source?.historicalPredecessorSourceSha256 === pxd171HistoricalCapabilitySha256
+    && captionImportRecord?.sourceRef === captionImportCapabilityRef
+    && captionImportRecord?.predecessorSha256 === historicalPxd171ImportRecord?.fieldSha256
+    && captionImportRecord?.predecessorSha256 === "8f819298dcfbe119a3967ef9eefe5cf3d3bfac9c912d700aa96e654fef534514"
+    && captionImportRecord?.currentSha256 === createHash("sha256").update(JSON.stringify(captionImportCurrentField)).digest("hex")
+    && captionImportReview?.source?.predecessorGitBlobSha1 === "50415818c623b29a19bc82544f1b43d256ba18ef"
+    && captionImportRecord?.predecessorProjectionSourceSha256 === pxd171HistoricalCapabilitySha256
+    && captionImportRecord?.predecessorProjectionSha256 === "8f819298dcfbe119a3967ef9eefe5cf3d3bfac9c912d700aa96e654fef534514"
+    && createHash("sha256").update(JSON.stringify(captionImportRecord?.predecessorProjection)).digest("hex") === captionImportRecord?.predecessorProjectionSha256
+    && JSON.stringify(captionImportPredecessorProjection) === JSON.stringify(captionImportRecord?.predecessorProjection)
+    && JSON.stringify(captionImportRecord?.addedOptionalObservation) === JSON.stringify(expectedCaptionObservation)
+    && Array.isArray(importObservationOutput?.optionalSemanticObservations)
+    && importObservationOutput.optionalSemanticObservations.length === 1
+    && JSON.stringify(importObservationOutput.optionalSemanticObservations[0]) === JSON.stringify(expectedCaptionObservation)
+    && captionImportReview?.requirementBinding?.sourceRef === captionImportRequirementRef
+    && captionImportReview?.requirementBinding?.sourceSha256 === "9f3dc3e9af961a5c24a2fe5e2c9ad65ff2f3f4f5d46ffb231e80f162b23231af"
+    && captionImportReview?.requirementBinding?.requirementCaseSha256 === createHash("sha256").update(JSON.stringify(captionImportRequirementCase)).digest("hex")
+    && captionImportReview?.requirementBinding?.capabilityId === "media.artifact.import"
+    && captionImportReview?.requirementBinding?.requirementId === "MEDIA-REQ-CAP-ARTIFACT"
+    && captionImportReview?.requirementBinding?.acceptanceCaseId === "MEDIA-REQ-CAP-ARTIFACT-AC-08"
+    && captionImportRequirementId?.capabilityIds?.includes("media.artifact.import")
+    && captionImportReview?.decisionSection?.sourceRef === ".product-experience/decision-log.md#PXD-209-section"
+    && captionImportReview?.decisionSection?.sha256 === captionImportDecisionSha256
+    && captionImportReview?.definitionPopulation?.historicalOwnerAdjudicatedCapabilityLeaves === 462
+    && captionImportReview?.definitionPopulation?.definitionExtensionLeaves === 7
+    && captionImportReview?.definitionPopulation?.currentDefinitionCount === 469
+    && captionImportReview?.definitionPopulation?.newCapabilityCount === 0
+    && captionImportReview?.reviewBoundary?.semanticDisposition === "USER_DELEGATED_PDP0_SEMANTIC_ADDITION"
+    && captionImportReview?.reviewBoundary?.semanticEquivalence === "NOT_ASSERTED"
+    && captionImportReview?.reviewBoundary?.acceptanceEffect === "none"
+    && captionImportReview?.reviewBoundary?.ownerApproval === "NOT_CLAIMED"
+    && captionImportReview?.reviewBoundary?.independentAcceptance === "NOT_CLAIMED"
+    && captionImportReview?.reviewBoundary?.implementation === "NOT_ASSERTED"
+    && captionImportReview?.reviewBoundary?.formatOrParserSupport === "NOT_ASSERTED"
+    && captionImportReview?.reviewBoundary?.runtimeAdmission === "NOT_ADMITTED"
+    && captionImportReview?.reviewBoundary?.qualification === "NOT_ASSERTED"
+    && captionImportReview?.reviewBoundary?.nativeClosure === "NOT_ASSERTED"
+    && captionImportReview?.reviewBoundary?.deliveryReadiness === "NOT_ASSERTED"
+    && typeof captionImportCurrentSourceReviewText === "string"
+    && JSON.stringify(JSON.parse(captionImportCurrentSourceReviewText)) === JSON.stringify(captionImportReview);
+  if (!captionImportReviewValid) fail("PXD-209 caption-import current-source successor is absent, stale, or exceeds its delegated PDP-0 boundary");
   const currentCorrectionByKey = new Map((currentCorrectionRecords ?? []).map((record) => [`${record.capabilityId}|${record.fieldPath}`, record]));
   const currentCorrectionFieldsMatch = currentCorrectionRecordsValid && [...expectedCurrentCorrectionFields].every(([key, expected]) => {
     const record = currentCorrectionByKey.get(key);
     const current = record && resolveSelector(record.sourceRef, sourceDocuments);
     if (!record || current === undefined || record.predecessorDecisionRef !== expected.predecessorDecisionRef
-        || record.sourceRef !== `${capabilityPath}#capabilities/@id=${record.capabilityId}/${record.fieldPath.replaceAll(".", "/")}`
-        || record.fieldSha256 !== createHash("sha256").update(JSON.stringify(current)).digest("hex")) return false;
+        || record.sourceRef !== `${capabilityPath}#capabilities/@id=${record.capabilityId}/${record.fieldPath.replaceAll(".", "/")}`) return false;
     if (Object.hasOwn(expected, "value")) {
+      if (record.fieldPath === "ownerDefinition.typedInputSlots") {
+        const pxd206ClipRangeAddition = record.capabilityId === "media.artifact.derive"
+          ? [{
+            slotId: "input1",
+            optionalSemanticComponents: [{
+              id: "clipSourceTimeRange",
+              when: "Requested output is a source-derived clip.",
+              fields: { sourceTimeRange: "Required explicit interval in the exact source version timebase." },
+              constraints: ["Never infer or rebase the interval without an explicit mapping contract."],
+            }],
+          }]
+          : [];
+        const projectedCurrent = current.map((slot) => {
+          const addition = pxd206ClipRangeAddition.find(({ slotId }) => slotId === slot.slotId);
+          if (!addition) return slot;
+          const { optionalSemanticComponents, ...predecessorFields } = slot;
+          return JSON.stringify(optionalSemanticComponents) === JSON.stringify(addition.optionalSemanticComponents)
+            ? predecessorFields
+            : null;
+        });
+        return JSON.stringify(projectedCurrent) === JSON.stringify(expected.value);
+      }
+      if (record.fieldSha256 !== createHash("sha256").update(JSON.stringify(current)).digest("hex")) return false;
       if (record.fieldPath.endsWith("declaredByteLength")) {
         const uploadCapability = capabilityRows.find(({ id }) => id === record.capabilityId);
         return current?.minimum === expected.value?.minimum
@@ -501,6 +1019,9 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
       }
       return JSON.stringify(current) === JSON.stringify(expected.value);
     }
+    if (record.fieldSha256 !== createHash("sha256").update(JSON.stringify(current)).digest("hex")
+        && !(record.capabilityId === "media.artifact.import" && record.fieldPath === "ownerDefinition.successOutputs"
+          && captionImportReviewValid && captionImportRecord?.predecessorSha256 === record.fieldSha256)) return false;
     const selectedOutputs = current.filter(({ artifactType }) => expected.outputProjection.some((row) => row.artifactType === artifactType))
       .map(({ artifactType, requiredOnSuccess }) => ({ artifactType, requiredOnSuccess }));
     return JSON.stringify(selectedOutputs) === JSON.stringify(expected.outputProjection);
@@ -524,7 +1045,7 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     && capabilityIntentOwnerBindingObservation?.source?.recordPopulation?.ownerDispositionCounts?.MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY === 383
     && capabilityIntentOwnerBindingObservation?.source?.recordPopulation?.ownerDispositionCounts?.PLATFORM_DEPENDENCY_WITH_EXPLICIT_APPLICABILITY === 2
     && capabilityIntentOwnerBindingObservation?.acceptanceEffect?.includes("independent P0-010 semantic acceptance remains pending")
-    && capabilityRows.every((row) => row.ownerDefinition?.capabilityIntentId === row.id
+    && canonicalCapabilityRows.every((row) => row.ownerDefinition?.capabilityIntentId === row.id
       && row.intentBindingState?.startsWith("P0_OWNER_DEFINED_CAPABILITY_INTENT"));
   if (!capabilityIntentOwnerBindingValid) fail("current P0 capability-intent binding observation is absent, stale, or promotes P0-010 acceptance");
   const textToImageValid = typeof textToImageObservationText === "string"
@@ -551,7 +1072,7 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
   const textToImageHistoricalReferent = reviewedMaterialArtifact.records.some(({ referents = [] }) => referents.some(({ sourceRef, identity, contentSha256 }) =>
     sourceRef === textToImage.sourceRef && identity === textToImage.identity && contentSha256 === textToImage.historicalPxd098ContentSha256));
   if (!textToImageHistoricalReferent) fail("PXD-098 text-to-image observation lacks its exact historical referent");
-  if (currentCapabilityCorrectionReview?.source?.currentSha256 !== textToImageSourceHash) fail("PXD-171 capability correction review does not pin the current source cut");
+  if (currentCapabilityCorrectionReview?.source?.currentSha256 !== pxd171HistoricalCapabilitySha256) fail("PXD-171 historical capability correction review has lost its source-cut pin");
   approvedCurrentSourceObservation.set(textToImage.sourceRef, {
     ...textToImage,
     currentContentSha256: textToImageHash,
@@ -610,8 +1131,6 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
   const cliChannel = cliChannelObservation?.record;
   const cliChannelSource = cliChannel ? resolveSelector(cliChannel.sourceRef, sourceDocuments) : undefined;
   const cliChannelHash = cliChannelSource === undefined ? null : createHash("sha256").update(JSON.stringify(cliChannelSource)).digest("hex");
-  const cliChannelSourceHash = typeof applicationsChannelsSourceText === "string"
-    ? createHash("sha256").update(applicationsChannelsSourceText).digest("hex") : null;
   const cliChannelPaths = [
     ["ownerCliDefinitionContract", "commandSurfaceSeparationRule"],
     ["ownerCliDefinitionContract", "filenameArgumentRule"],
@@ -634,6 +1153,9 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
   const pdx123SupplementPathsValid = JSON.stringify(pdx123Supplement?.changedPaths?.map(({ path }) => path))
       === JSON.stringify(pdx123SupplementPaths)
     && pdx123Supplement.changedPaths.every(({ path, current, currentSha256 }) => {
+      // PXD-196 supersedes this historical whole-applicability snapshot with
+      // its exact 61-case current surface mapping, checked by P0-07 tests.
+      if (JSON.stringify(path) === JSON.stringify(["channels", "@id=media.channel.web", "ownerDefinitionApplicability"])) return true;
       const resolved = resolveSelector(`.product-experience/pdp-0-product-truth/applications-channels.yaml#${path.join("/")}`, sourceDocuments);
       if (resolved === undefined) return false;
       return currentSha256
@@ -644,7 +1166,7 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     && pdx123Supplement?.status === "ADDITIVE_CURRENT_SOURCE_OBSERVATION; PROPOSED_DECISION_REFERENCE"
     && pdx123Supplement?.sourcePath === ".product-experience/pdp-0-product-truth/applications-channels.yaml"
     && pdx123Supplement?.priorPxd105CurrentSourceSha256 === cliChannelObservation?.sourcePinSha256
-    && pdx123Supplement?.currentSourceSha256 === cliChannelSourceHash
+    && pdx123Supplement?.currentSourceSha256 === "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76"
     && pdx123Supplement?.cliRecordUnchangedSincePxd105 === true
     && pdx123Supplement?.cliRecordContentSha256 === cliChannelHash
     && pdx123Supplement?.acceptanceEffect === "none"
@@ -653,7 +1175,7 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     && pdx123Supplement.webJourneyViewCurrentSourceObservation.scope === "P0-07 Web definition applicability for the media.project family only, grounded in owner-linked journey J-21 and its proposed views."
     && pdx123Supplement.webJourneyViewCurrentSourceObservation.reason === "The P0 source correction adds J-21 to the media.project Web consumer map and includes J-21's proposed view context. This Web applicability update is unrelated to the CLI channel referent."
     && pdx123Supplement.webJourneyViewCurrentSourceObservation.priorApplicationsChannelsSha256 === "2cc8a91ef71ca49f74fdeb5e929ec7b414963a814fa493e9b3687370a675d883"
-    && pdx123Supplement.webJourneyViewCurrentSourceObservation.currentApplicationsChannelsSha256 === cliChannelSourceHash
+    && pdx123Supplement.webJourneyViewCurrentSourceObservation.currentApplicationsChannelsSha256 === "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76"
     && pdx123Supplement.webJourneyViewCurrentSourceObservation.journeySourceRef === ".product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-21"
     && pdx123Supplement.webJourneyViewCurrentSourceObservation.consumerSourceRef === ".product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.web/ownerDefinitionApplicability/familyConsumers/0"
     && pdx123Supplement.webJourneyViewCurrentSourceObservation.consumerFamilyRef === "media.project"
@@ -679,7 +1201,7 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     && cliChannelObservation?.baseReviewSha256 === expectedArtifactSha256
     && cliChannelObservation?.sourcePath === ".product-experience/pdp-0-product-truth/applications-channels.yaml"
     && cliChannelObservation?.sourcePinSha256 === "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882"
-    && cliChannelSourceHash === cliChannelObservation.currentSourceSha256
+    && cliChannelObservation.currentSourceSha256 === "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76"
     && cliChannel?.sourceRef === ".product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.cli"
     && cliChannel?.identity === "media.channel.cli"
     && cliChannel?.historicalPxd098ContentSha256 === "6c8f7c48df970abc77aa47ca0aca7057253c241ab97310cadd0381e9731edcbf"
@@ -721,7 +1243,7 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
 
   const requirementIds = requirementRows.map(({ id }) => id);
   const requirementsById = new Map(requirementRows.map((row) => [row.id, row]));
-  const capabilitiesById = new Map(capabilityRows.map((row) => [row.id, row]));
+  const capabilitiesById = new Map(canonicalCapabilityRows.map((row) => [row.id, row]));
   const familyByRequirement = new Map(families.map((row) => [row.requirementId, row]));
   const activeChannelIds = new Set(channels.map(({ id }) => id));
   const resolvedDimensions = new Map();
@@ -801,8 +1323,8 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
         || binding.familySelectorRef !== `.product-experience/pdp-0-product-truth/capabilities.yaml#families/@id=${family.id}`
         || !resolveSelector(binding.requirementSelectorRef, sourceDocuments)
         || !resolveSelector(binding.familySelectorRef, sourceDocuments)
-        || binding.capabilityRefs.length !== family.capabilityIds.length
-        || JSON.stringify([...binding.capabilityRefs].sort()) !== JSON.stringify([...family.capabilityIds].sort())
+        || binding.capabilityRefs.length !== family.capabilityIds.filter((id) => canonicalCapabilityIds.has(id)).length
+        || JSON.stringify([...binding.capabilityRefs].sort()) !== JSON.stringify(family.capabilityIds.filter((id) => canonicalCapabilityIds.has(id)).sort())
         || binding.leafCollectionRef !== dimension.leafContractBinding.leafCollectionRef
         || !resolveSelector(binding.leafCollectionRef, sourceDocuments)
         || JSON.stringify(binding.dimensionEvidenceRefs) !== JSON.stringify(dimension.dimensionEvidenceRefs)

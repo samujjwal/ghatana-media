@@ -61,7 +61,7 @@ function validateJobSubmitIdempotencyExpiry(leaf) {
   return true;
 }
 const specificMeanings = new Map([
-  ["media.artifact.derive", "The P0 meaning of a derivation result is bound to exact source-version references, a selected transformation-profile identity/version/configuration digest, requested output artifact type/media type/byte budget, purpose, and rights decision. Distinguish a queued-job observation from derived content and derived content from a registered artifact-version identity; exact source lineage is required and an identified profile is not an assumed default. Unknown source, authority, or result remains UNKNOWN. This P0 meaning does not establish dispatch, job creation, persistence, derived content, registration, or completion."],
+  ["media.artifact.derive", "Bind a derivation candidate to exact immutable source-version references and, when deriving a clip, an explicit source-time range; also bind the selected transformation-profile identity/version/configuration digest, requested output artifact type/media type/byte budget, purpose, and rights decision. Distinguish queued-job observation, derived content, and registered artifact version. An identified profile is not a default, and the definition does not establish dispatch, persistence, or completion."],
   ["media.artifact.output.register", "The P0 meaning of output registration distinguishes the supplied candidate from an immutable Media artifact-version identity, an accepted registration result from rejected or unknown outcomes, and registration from project attachment, export, delivery, or publication. Candidate lineage is an explicit set of exact source versions, which may be empty only to identify source-free output generated from the request; source-free registration does not require a source artifact. Content digest, media type, byte length, and policy decision are identity constraints; an authorized target workspace is required. Workspace-only registration may omit the exact project version; project-targeted registration requires it for stale-version checking. A registered version is not inferred from the request. This P0 meaning does not establish mutation, registration, persistence, or finality."],
 ]);
 const paginatedResultTypes = new Map([
@@ -104,7 +104,7 @@ const sourceInputByCapability = new Map([
   ["media.generate.spatial.representation.nerf-adapter", "source-nerf-representation"],
   ["media.generate.spatial.representation.gaussian-splatting-adapter", "source-gaussian-splat-representation"],
   ["media.speech.synthesis.speaker.clone-authorized", "authorized-source-speaker-recording"],
-  ["media.speech.synthesis.speaker.condition", "authorized-speaker-reference"],
+  ["media.speech.synthesis.speaker.condition", "authorized-speaker-reference-or-ordered-segment-speaker-map"],
   ["media.speech.synthesis.voice.convert", "source-speech-artifact"],
   ["media.speech.synthesis.speech-to-speech", "source-speech-artifact"],
   ["media.speech.synthesis.speech.translate", "source-speech-artifact"],
@@ -144,8 +144,13 @@ function resolveSourceRef(ref) {
   return value;
 }
 
+const canonicalCapabilityIds = new Set(resolveSourceRef(".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records")
+  .map(({ capabilityRef }) => capabilityRef));
+const canonicalCapabilities = (catalog) => catalog.capabilities.filter(({ id }) => canonicalCapabilityIds.has(id));
+
 function validateOutcomePopulation(catalog, actorCatalog) {
-  const leaves = catalog?.capabilities;
+  const definitions = catalog?.capabilities;
+  const leaves = Array.isArray(definitions) ? definitions.filter(({ id }) => canonicalCapabilityIds.has(id)) : definitions;
   const rule = catalog?.ownerDefinedP0CapabilityOutcomeRule;
   if (!Array.isArray(leaves) || leaves.length !== 462 || new Set(leaves.map(({ id }) => id)).size !== 462) return false;
   if (rule?.id !== "media.capability-outcome.owner-defined-result.v1" || rule.count !== 462
@@ -237,9 +242,12 @@ test("P0 capability outcomes state exact result meaning without operation claims
   const catalog = readCapabilities();
   const actors = parse(readFileSync(resolve(root, actorPath), "utf8"));
   assert.equal(validateOutcomePopulation(catalog, actors), true);
-  assert.equal(new Set(catalog.capabilities.map(({ outcome }) => outcome)).size, 462);
-  assert.equal(catalog.capabilities.filter(({ outcome }) => outcome.includes(genericOutcome)).length, 0);
-  assert.equal(catalog.capabilities.filter(({ ownerDefinition }) =>
+  const canonicalLeaves = canonicalCapabilities(catalog);
+  assert.equal(canonicalLeaves.length, 462);
+  assert.equal(catalog.capabilities.length, 469, "seven proposals remain outside the owner-adjudicated outcome population");
+  assert.equal(new Set(canonicalLeaves.map(({ outcome }) => outcome)).size, 462);
+  assert.equal(canonicalLeaves.filter(({ outcome }) => outcome.includes(genericOutcome)).length, 0);
+  assert.equal(canonicalLeaves.filter(({ ownerDefinition }) =>
     ownerDefinition.effect.semanticOutcome.includes(genericOutcome)).length, 0);
 });
 
@@ -299,12 +307,17 @@ test("P0 job submit expiry semantics reject unsafe replay and artifact-retention
 
 test("P0 source-derived branches, artifact lifecycle, rights assertions, and metric results retain distinct meanings", () => {
   const catalog = readCapabilities();
-  const leaves = new Map(catalog.capabilities.map((leaf) => [leaf.id, leaf]));
+  const leaves = new Map(canonicalCapabilities(catalog).map((leaf) => [leaf.id, leaf]));
   for (const [id, sourceType] of sourceInputByCapability) {
     const slot = leaves.get(id)?.ownerDefinition?.typedInputSlots?.find(({ slotId }) => slotId === "input2");
     assert.equal(slot?.sourceType, sourceType, `${id} must require its source class`);
     assert.equal(slot?.required, true, `${id} must not treat its source as optional`);
   }
+  const conditionedSpeaker = leaves.get("media.speech.synthesis.speaker.condition").ownerDefinition.typedInputSlots[1];
+  assert.equal(conditionedSpeaker.sourceType, "authorized-speaker-reference-or-ordered-segment-speaker-map");
+  assert.equal(conditionedSpeaker.cardinality, "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES");
+  assert.deepEqual(conditionedSpeaker.alternatives, ["authorized-speaker-reference", "ordered-segment-speaker-map"]);
+  assert.equal(conditionedSpeaker.required, true);
   assert.deepEqual(leaves.get("media.project.create").ownerDefinition.typedInputSlots.map(({ sourceType }) => sourceType), ["user-intent"]);
   assert.deepEqual(leaves.get("media.generate.image.text-to-image").ownerDefinition.typedInputSlots.map(({ sourceType }) => sourceType), ["text-or-visual-intent", "optional-authorized-reference-artifacts"]);
   assert.deepEqual(leaves.get("media.speech.synthesis.text-to-speech").ownerDefinition.typedInputSlots.map(({ sourceType }) => sourceType), ["text-or-speech-intent", "optional-authorized-speaker-reference"]);
@@ -323,13 +336,13 @@ test("P0 source-derived branches, artifact lifecycle, rights assertions, and met
   assert.deepEqual(catalog.ownerDefinedP0ArtifactLifecycleOutcomeContract.states, ["ACCESS_REVOKED", "BLOCKED_BY_HOLD", "ERASURE_REQUESTED", "PHYSICAL_ERASURE_PENDING", "ERASURE_CONFIRMED", "EXTERNAL_ERASURE_UNCONFIRMED"]);
   assert.match(catalog.ownerDefinedP0ArtifactLifecycleOutcomeContract.rule, /not physical erasure/u);
   assert.match(catalog.ownerDefinedP0AudioMeasurementContract.rule, /UNKNOWN/u);
-  assert.ok(catalog.capabilities.every(({ ownerDefinition }) => effectIntentScopes.has(ownerDefinition.effect.effectIntentScope)));
+  assert.ok(canonicalCapabilities(catalog).every(({ ownerDefinition }) => effectIntentScopes.has(ownerDefinition.effect.effectIntentScope)));
   assert.equal(leaves.get("media.project.search").ownerDefinition.effect.effectIntentScope, "OBSERVATION_ONLY");
   assert.equal(leaves.get("media.project.update").ownerDefinition.effect.effectIntentScope, "CANONICAL_PRODUCT_STATE_CHANGE");
   assert.equal(leaves.get("media.generate.image.text-to-image").ownerDefinition.effect.effectIntentScope, "LOCAL_CANDIDATE_OR_DRAFT");
   assert.equal(leaves.get("media.artifact.share").ownerDefinition.effect.effectIntentScope, "GOVERNED_EXTERNAL_REQUEST");
   for (const [id, scope] of exactEffectIntentScopes) assert.equal(leaves.get(id).ownerDefinition.effect.effectIntentScope, scope, id);
-  assert.ok(catalog.capabilities.every((leaf) => JSON.stringify(leaf.inputArtifactTypes)
+  assert.ok(canonicalCapabilities(catalog).every((leaf) => JSON.stringify(leaf.inputArtifactTypes)
     === JSON.stringify(leaf.ownerDefinition.typedInputSlots.map(({ sourceType }) => sourceType))));
 
   const sourceFree = ["media.generate.image.text-to-image", "media.speech.synthesis.text-to-speech", "media.health.readiness.inspect"];
@@ -341,7 +354,7 @@ test("P0 source-derived branches, artifact lifecycle, rights assertions, and met
   assert.equal(leaves.get("media.generate.audio.audio-to-audio").ownerDefinition.effect.sourcePreservationRequired, true);
   assert.equal(catalog.ownerDefinedP0SourcePreservationRule?.id, "media.capability-source-preservation.owner-rule.v1");
   assert.match(catalog.ownerDefinedP0SourcePreservationRule.rule, /Source-free authoring/u);
-  assert.ok(catalog.capabilities.every(({ provenance, constraints }) =>
+  assert.ok(canonicalCapabilities(catalog).every(({ provenance, constraints }) =>
     !provenance.includes("Source artifact/version and rights decision reference.")
       && !constraints.includes("Preserve source and report reconstruction or estimation distinctly from measured/ground-truth output.")));
 });

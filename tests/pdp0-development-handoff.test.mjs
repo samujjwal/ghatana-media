@@ -17,9 +17,13 @@ function validateCapabilityIntentHandoff(capabilities, handoff, trustReview) {
   const isMeaningfulValue = (value) => typeof value === "string"
     && value.trim().length > 0
     && !/^(?:unknown|tbd|todo|unspecified|unresolved)$/iu.test(value.trim());
-  const leaves = capabilities?.capabilities;
+  const definitions = capabilities?.capabilities;
+  const trustReviewRows = trustReview?.ownerCapabilityLeafAdjudication?.records;
+  const canonicalIds = new Set((trustReviewRows ?? []).map(({ capabilityRef }) => capabilityRef));
+  const leaves = Array.isArray(definitions) ? definitions.filter(({ id }) => canonicalIds.has(id)) : definitions;
   const contract = handoff?.pdpPhaseHandoffContracts?.pdp0ToPdp1CapabilityIntent;
-  if (!Array.isArray(leaves) || leaves.length !== 462) return false;
+  if (!Array.isArray(definitions) || !Array.isArray(leaves) || leaves.length !== 462
+      || !Array.isArray(trustReviewRows) || trustReviewRows.length !== 462) return false;
   const ids = leaves.map(({ id }) => id);
   if (ids.some((id) => typeof id !== "string" || !id.trim()) || new Set(ids).size !== 462) return false;
   if (contract?.id !== "media.pdp0-pdp1.capability-intent-handoff.v1"

@@ -80,6 +80,7 @@ families:
       - media.project.derived-asset.attach
       - media.project.composition.update
       - media.project.settings.update
+      - media.project.scene.patch-merge
   - id: media.artifact
     scopeStatus: TARGET
     masterPlanSection: §6.2
@@ -115,6 +116,7 @@ families:
       - media.job.check-outcome
       - media.job.outputs.inspect
       - media.job.history.inspect
+      - media.job.schedule.manage
   - id: media.stream
     scopeStatus: TARGET
     masterPlanSection: §6.2
@@ -285,6 +287,8 @@ families:
       - media.generate.video.text-to-video
       - media.generate.video.image-to-video
       - media.generate.video.video-to-video
+      - media.generate.video.preset.manage
+      - media.generate.video.shot-condition
       - media.generate.video.text-image-to-video
       - media.generate.video.keyframe.start
       - media.generate.video.keyframe.end
@@ -461,6 +465,7 @@ families:
       - media.recipe.template.architectural-scene
       - media.recipe.template.character-gesture-animation
       - media.recipe.template.synthetic-dataset
+      - media.recipe.specification.compile
   - id: media.enhance.image
     scopeStatus: TARGET
     masterPlanSection: §6.7
@@ -622,6 +627,7 @@ families:
       - media.master.audio.fade-crossfade
       - media.master.audio.duck-sidechain
       - media.master.audio.room-match
+      - media.master.audio.creative-effect.apply
   - id: media.quality
     scopeStatus: TARGET
     masterPlanSection: §6.9
@@ -634,6 +640,7 @@ families:
       - media.quality.recommend
       - media.quality.repair-plan
       - media.quality.bounded-optimize
+      - media.quality.audio.content-similarity.assess
   - id: media.quality.image
     scopeStatus: TARGET
     masterPlanSection: §6.9
@@ -1821,7 +1828,7 @@ capabilities:
     operation: organize
     label: Organize projects
     definitionState: IN_SCOPE_DRAFT
-    outcome: "The project is organized according to the declared user intent, with the resulting project state returned. The definition does not specify organizational fields or a hierarchy."
+    outcome: "Organize the exact versioned project according to declared user intent, including user-authored project/library hierarchy and smart-bin membership. A smart bin is explicitly either a live query or a snapshot; membership facts retain observed, inferred, or unknown status and are not silently converted. The returned state distinguishes the requested arrangement from confirmed state and preserves unknown outcome; this definition does not imply any particular folder taxonomy, automatic classification, or runtime commit."
     sourceScope:
       masterPlanSection: §6.2
       sourcePhrase: Create, inspect, update, search, organize, archive, version,
@@ -2011,6 +2018,14 @@ capabilities:
           sourceType: user-intent
           cardinality: EXACTLY_ONE
           required: true
+          optionalSemanticComponents:
+            - id: organizationRequest
+              fields:
+                hierarchyOperations: User-declared project/library parent, collection, and ordering changes.
+                smartBinMode: LIVE_QUERY or SNAPSHOT, explicitly selected per smart bin.
+                membershipEvidenceDisposition: OBSERVED, INFERRED, or UNKNOWN for each membership fact.
+              constraints:
+                - Do not infer a taxonomy or convert inferred/unknown membership into observed membership.
         - slotId: input2
           sourceType: versioned-project
           cardinality: EXACTLY_ONE
@@ -2028,10 +2043,10 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "The project is organized according to the declared user intent, with the resulting project state returned. The definition does not specify organizational fields or a hierarchy."
+        result: "Organize the exact versioned project according to declared user intent, including user-authored project/library hierarchy and smart-bin membership. A smart bin is explicitly either a live query or a snapshot; membership facts retain observed, inferred, or unknown status and are not silently converted. The returned state distinguishes the requested arrangement from confirmed state and preserves unknown outcome; this definition does not imply any particular folder taxonomy, automatic classification, or runtime commit."
         outputDistinctions:
           - "State-changing capability."
-          - "No folder, collection, ordering, or taxonomy semantics are defined."
+          - "User-authored hierarchy and live-or-snapshot smart-bin semantics are defined; automatic taxonomy/classification and specific taxonomy defaults are not implied."
         unknownDisposition: "An uncertain organization change remains UNKNOWN_OUTCOME; do not infer the requested arrangement was applied or retry without reconciliation."
         sourceRefs:
           - ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-project-organize.v1"
@@ -2043,7 +2058,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.edit"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT"
       effect:
-        semanticOutcome: "The project is organized according to the declared user intent, with the resulting project state returned. The definition does not specify organizational fields or a hierarchy."
+        semanticOutcome: "Organize the exact versioned project according to declared user intent, including user-authored project/library hierarchy and smart-bin membership. A smart bin is explicitly either a live query or a snapshot; membership facts retain observed, inferred, or unknown status and are not silently converted. The returned state distinguishes the requested arrangement from confirmed state and preserves unknown outcome; this definition does not imply any particular folder taxonomy, automatic classification, or runtime commit."
         sourcePreservationRequired: false
         noSilentFallback: true
         effectIntentScope: CANONICAL_PRODUCT_STATE_CHANGE
@@ -6013,7 +6028,7 @@ capabilities:
     operation: import
     label: Import artifact
     definitionState: IN_SCOPE_DRAFT
-    outcome: "The result represents resolution of an admitted source reference or staged upload and creation of a governed Media artifact version only after source-authority and integrity requirements are satisfied."
+    outcome: "Resolve an admitted source reference or staged upload and report a governed import observation. When an authorized sidecar or embedded caption track is explicitly requested and observed for the exact immutable source version, the result may include its track identity, source timebase and any explicit mapping, language and format when known, conversion or alignment uncertainty, and provenance; this does not alter source media or register a caption as an artifact. Create a governed artifact version only after source authority, integrity, and owner-confirmed registration requirements are satisfied. Unknown source, mapping, or registration remains unknown."
     sourceScope:
       masterPlanSection: §6.2
       sourcePhrase: Ingest, upload, resume, import, inspect, search/list, download,
@@ -6261,6 +6276,19 @@ capabilities:
       successOutputs:
         - artifactType: import-observation-and-source-resolution-evidence
           requiredOnSuccess: true
+          optionalSemanticObservations:
+            - id: importedCaptionTrack
+              when: An authorized sidecar or embedded caption track is explicitly requested and observed in the exact immutable imported source version.
+              fields:
+                sourceVersionRef: Exact immutable source version inspected.
+                captionTrackRef: Track identity or source location as observed.
+                language: Observed language tag when available; otherwise UNKNOWN.
+                format: Observed sidecar format or embedded track encoding when available; otherwise UNKNOWN.
+                timingMapping: Declared source timebase, any explicit mapping applied, and conversion or alignment uncertainty.
+                provenance: Whether the track was observed embedded or supplied as an authorized sidecar.
+              constraints:
+                - Observation does not alter source media, register or replace a canonical artifact, or claim caption correctness.
+                - Missing, malformed, or unknown track mapping remains explicit.
         - artifactType: artifact-version-reference-only-after-owner-confirmed-registration
           requiredOnSuccess: false
         - artifactType: verification-or-quarantine-state-when-issued
@@ -6269,7 +6297,7 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "The result represents resolution of an admitted source reference or staged upload and creation of a governed Media artifact version only after source-authority and integrity requirements are satisfied."
+        result: "Resolve an admitted source reference or staged upload and report a governed import observation. When an authorized sidecar or embedded caption track is explicitly requested and observed for the exact immutable source version, the result may include its track identity, source timebase and any explicit mapping, language and format when known, conversion or alignment uncertainty, and provenance; this does not alter source media or register a caption as an artifact. Create a governed artifact version only after source authority, integrity, and owner-confirmed registration requirements are satisfied. Unknown source, mapping, or registration remains unknown."
         outputDistinctions:
           - "source resolution/import observation versus registered artifact version"
           - "verified versus quarantined/rejected"
@@ -6287,7 +6315,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.import/constraints"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.import/preconditions"
       effect:
-        semanticOutcome: "The result represents resolution of an admitted source reference or staged upload and creation of a governed Media artifact version only after source-authority and integrity requirements are satisfied."
+        semanticOutcome: "Resolve an admitted source reference or staged upload and report a governed import observation. When an authorized sidecar or embedded caption track is explicitly requested and observed for the exact immutable source version, the result may include its track identity, source timebase and any explicit mapping, language and format when known, conversion or alignment uncertainty, and provenance; this does not alter source media or register a caption as an artifact. Create a governed artifact version only after source authority, integrity, and owner-confirmed registration requirements are satisfied. Unknown source, mapping, or registration remains unknown."
         sourcePreservationRequired: false
         noSilentFallback: true
         effectIntentScope: CANONICAL_PRODUCT_STATE_CHANGE
@@ -6641,7 +6669,7 @@ capabilities:
     operation: search
     label: Search artifacts
     definitionState: IN_SCOPE_DRAFT
-    outcome: "The result is a bounded page of governed artifact records for exactly one supplied source-media or project reference under rights-and-retention context. Requested semantic transcript search returns candidate matches anchored to exact source versions and transcript time ranges; requested duplicate or near-duplicate search may organize records into candidate groups that retain source identities and matching uncertainty. Matching algorithms, ranking, and completeness are not guaranteed."
+    outcome: "Return a bounded page of authorized governed records within the supplied exact immutable source-media or project version and any declared source-time range. The actor may request transcript, duplicate, rights-eligible, timeline/person/scene/speaker-facet, or visual/metadata search. Candidate matches retain exact version and applicable time scope, matching uncertainty, and whether evidence was observed or inferred. Unindexed or unknown coverage is distinct from an empty result; ranking, completeness, identity, legal clearance, and external-catalog search are not implied. Rights eligibility remains limited to affirmative current authoritative evidence for the exact declared use scope."
     sourceScope:
       masterPlanSection: §6.2
       sourcePhrase: Ingest, upload, resume, import, inspect, search/list, download,
@@ -6664,7 +6692,7 @@ capabilities:
         and within declared bounds.
       - Capability, profile, license, policy, resource, and deployment admission
         are checked at the effect boundary.
-    supportedParameters: "P0 defines parameter fields in ownerDefinition.parameterSchema: pageSize, pageToken. This is a typed request-shape definition, not evidence of product support, qualification, or runtime availability; profile-specific defaults and eligibility remain separate owner decisions. Typed input meaning is defined by this leaf's P0 ownerDefinition.typedInputSlots."
+    supportedParameters: "P0 defines parameter fields in ownerDefinition.parameterSchema: pageSize, pageToken, searchIntent, transcriptQuery, declaredIntendedUseScope, sourceTimeRange, facetQuery, visualMetadataQuery. This is a typed request-shape definition, not evidence of product support, qualification, or runtime availability; profile-specific defaults and eligibility remain separate owner decisions. Typed input meaning is defined by this leaf's P0 ownerDefinition.typedInputSlots."
     constraints:
       [ "No product default/model/provider is inferred from names, package presence, tests, or source documentation.", Unsupported combinations remain explicit; no silent substitution., Preserve exact source lineage only for source-derived outputs; source-free authored or generated outputs identify their origin without fabricating a source artifact. Report reconstruction or estimation distinctly from measured/ground-truth output. ]
     actionStateReferences:
@@ -6880,14 +6908,34 @@ capabilities:
             values:
               - SEMANTIC_TRANSCRIPT_CANDIDATES
               - DUPLICATE_OR_NEAR_DUPLICATE_CANDIDATES
+              - LICENSE_ELIGIBLE_ASSET_CANDIDATES
+              - TIMELINE_FACET_CANDIDATES
+              - VISUAL_METADATA_CANDIDATES
           transcriptQuery:
             type: optional-actor-supplied-semantic-transcript-query
+          declaredIntendedUseScope:
+            type: optional-actor-declared-purpose-and-use-scope-reference
+          sourceTimeRange:
+            type: optional-source-time-range-bound-to-exact-immutable-source-version
+          facetQuery:
+            type: optional-timeline-person-scene-speaker-facet-query
+          visualMetadataQuery:
+            type: optional-visual-content-or-metadata-query
         conditionalSemantics:
           - when: searchIntent=SEMANTIC_TRANSCRIPT_CANDIDATES
             requires: transcriptQuery
             meaning: Search only authorized transcript content within the supplied source/project scope; do not infer transcript availability.
           - when: searchIntent=DUPLICATE_OR_NEAR_DUPLICATE_CANDIDATES
             meaning: Group only bounded candidates from the supplied source/project scope; matching policy, ranking, and completeness remain unspecified.
+          - when: searchIntent=LICENSE_ELIGIBLE_ASSET_CANDIDATES
+            requires: declaredIntendedUseScope
+            meaning: Include only exact immutable asset versions whose current authoritative rights/license evidence explicitly permits the declared scope; unresolved evidence is UNKNOWN or review-required, never eligible or equivalent to an empty eligible result. This is not legal clearance and does not imply external-catalog search.
+          - when: searchIntent=TIMELINE_FACET_CANDIDATES
+            requires: facetQuery
+            meaning: Search only authorized indexed facts within the exact supplied version and optional source-time range; preserve whether person, scene, speaker, or timeline facts are observed or inferred and attach uncertainty.
+          - when: searchIntent=VISUAL_METADATA_CANDIDATES
+            requires: visualMetadataQuery
+            meaning: Search only authorized indexed visual-content or metadata evidence within the exact supplied immutable version and optional source-time range; do not treat unindexed, incomplete, or unknown coverage as an empty result.
         emptyDisposition: NOT_EMPTY
       successOutputs:
         - artifactType: bounded-governed-artifact-result-page-and-opaque-continuation
@@ -6909,23 +6957,56 @@ capabilities:
                 matchingUncertainty: Explicit uncertainty for candidate grouping.
               constraints:
                 - Candidate groups do not establish duplicate identity or authorize merge, replacement, or deletion.
+            - id: timelineFacetCandidates
+              when: searchIntent=TIMELINE_FACET_CANDIDATES
+              fields:
+                sourceVersionRef: Exact immutable source/project version searched.
+                sourceTimeRange: Optional declared range in that version source timebase.
+                facetKindAndValue: Requested person, scene, speaker, or timeline facet values.
+                evidenceDisposition: OBSERVED, INFERRED, UNKNOWN, or UNINDEXED as applicable.
+                matchingUncertainty: Explicit uncertainty for each candidate match.
+              constraints:
+                - Candidate facts remain distinguishable from verified identity or complete index coverage.
+            - id: visualMetadataCandidates
+              when: searchIntent=VISUAL_METADATA_CANDIDATES
+              fields:
+                sourceVersionRef: Exact immutable source/project version searched.
+                sourceTimeRange: Optional declared range in that version source timebase.
+                evidenceDisposition: OBSERVED, INFERRED, UNKNOWN, or UNINDEXED as applicable.
+                matchingUncertainty: Explicit uncertainty for each candidate match.
+              constraints:
+                - Unknown or unindexed scope is not represented as an empty result.
+            - id: licenseEligibleAssetCandidates
+              when: searchIntent=LICENSE_ELIGIBLE_ASSET_CANDIDATES
+              fields:
+                sourceArtifactVersionRef: Exact immutable asset version searched and returned.
+                rightsLicenseDispositionRef: Current authoritative per-version rights/license evidence for the declared scope.
+                declaredIntendedUseScopeRef: Exact caller-declared scope used for this eligibility filter.
+              constraints:
+                - Only affirmative, current, scope-compatible rights/license evidence makes a candidate eligible.
+                - Unknown, missing, denied, expired, revoked, restricted, incompatible, or unresolved evidence is not eligible.
+                - Search eligibility is not legal clearance, and candidate ranking or complete catalog coverage is not guaranteed.
       nonSuccessOutputs:
         REJECTED: []
-        UNKNOWN_OUTCOME: []
+        UNKNOWN_OUTCOME:
+          - artifactType: rights-filtered-asset-search-unknown-or-review-required
+            when: searchIntent=LICENSE_ELIGIBLE_ASSET_CANDIDATES and current authoritative rights/license evidence cannot resolve candidate eligibility
       semanticOutcomeContract:
-        result: "The result is a bounded page of governed artifact records for exactly one supplied source-media or project reference under rights-and-retention context. Requested semantic transcript search returns candidate matches anchored to exact source versions and transcript time ranges; requested duplicate or near-duplicate search may organize records into candidate groups that retain source identities and matching uncertainty. Matching algorithms, ranking, and completeness are not guaranteed."
+        result: "Return a bounded page of authorized governed records within the supplied exact immutable source-media or project version and any declared source-time range. The actor may request transcript, duplicate, rights-eligible, timeline/person/scene/speaker-facet, or visual/metadata search. Candidate matches retain exact version and applicable time scope, matching uncertainty, and whether evidence was observed or inferred. Unindexed or unknown coverage is distinct from an empty result; ranking, completeness, identity, legal clearance, and external-catalog search are not implied. Rights eligibility remains limited to affirmative current authoritative evidence for the exact declared use scope."
         outputDistinctions:
           - "search result page versus list enumeration"
           - "empty result versus denied, incomplete, or unknown"
           - "bounded page versus continuation"
           - "transcript match candidate versus verified transcript correctness or complete search"
           - "duplicate candidate group versus confirmed identity or permission to merge, replace, or delete source artifacts"
-        unknownDisposition: "If authorized scope, transcript availability, matching result, duplicate similarity, or continuation status is unresolved, report denied or unknown as applicable; do not present uncertainty as an empty or complete result. Candidate search never establishes transcript correctness or authorizes merge, replacement, or deletion."
+          - "license-eligible asset candidate versus unknown or review-required rights evidence"
+        unknownDisposition: "If authorized scope, transcript availability, matching result, duplicate similarity, index coverage, license eligibility, or continuation status is unresolved, report denied or unknown as applicable; do not present uncertainty as an empty or complete result. Candidate search never establishes transcript correctness, legal clearance, or permission to merge, replace, or delete source artifacts."
         sourceRefs:
           - ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-artifact-search.v1"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-03"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-04"
+          - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-05"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search/sourceScope/sourcePhrase"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search/ownerDefinition/typedInputSlots"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search/ownerDefinition/parameterSchema"
@@ -6934,7 +7015,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search/constraints"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search/preconditions"
       effect:
-        semanticOutcome: "The result is a bounded page of governed artifact records for exactly one supplied source-media or project reference under rights-and-retention context. Requested semantic transcript search returns candidate matches anchored to exact source versions and transcript time ranges; requested duplicate or near-duplicate search may organize records into candidate groups that retain source identities and matching uncertainty. Matching algorithms, ranking, and completeness are not guaranteed."
+        semanticOutcome: "Return a bounded page of authorized governed records within the supplied exact immutable source-media or project version and any declared source-time range. The actor may request transcript, duplicate, rights-eligible, timeline/person/scene/speaker-facet, or visual/metadata search. Candidate matches retain exact version and applicable time scope, matching uncertainty, and whether evidence was observed or inferred. Unindexed or unknown coverage is distinct from an empty result; ranking, completeness, identity, legal clearance, and external-catalog search are not implied. Rights eligibility remains limited to affirmative current authoritative evidence for the exact declared use scope."
         sourcePreservationRequired: false
         noSilentFallback: true
         effectIntentScope: OBSERVATION_ONLY
@@ -7000,7 +7081,7 @@ capabilities:
         and within declared bounds.
       - Capability, profile, license, policy, resource, and deployment admission
         are checked at the effect boundary.
-    supportedParameters: "P0 defines ownerDefinition.parameterSchema fields for bounded pagination and optional semantic-transcript or duplicate/near-duplicate candidate search. Specialized search requires an explicit searchIntent; transcript search also requires an actor-supplied transcriptQuery. This is a typed request-shape definition, not evidence of product support, qualification, algorithm, ranking, completeness, or runtime availability."
+    supportedParameters: "P0 defines parameter fields in ownerDefinition.parameterSchema: pageSize, pageToken. This is a typed request-shape definition, not evidence of product support, qualification, or runtime availability; profile-specific defaults and eligibility remain separate owner decisions. Typed input meaning is defined by this leaf's P0 ownerDefinition.typedInputSlots."
     constraints:
       [ "No product default/model/provider is inferred from names, package presence, tests, or source documentation.", Unsupported combinations remain explicit; no silent substitution., Preserve exact source lineage only for source-derived outputs; source-free authored or generated outputs identify their origin without fabricating a source artifact. Report reconstruction or estimation distinctly from measured/ground-truth output. ]
     actionStateReferences:
@@ -7572,7 +7653,7 @@ capabilities:
     operation: derive
     label: Derive artifact
     definitionState: IN_SCOPE_DRAFT
-    outcome: "The P0 meaning of a derivation result is bound to exact source-version references, a selected transformation-profile identity/version/configuration digest, requested output artifact type/media type/byte budget, purpose, and rights decision. Distinguish a queued-job observation from derived content and derived content from a registered artifact-version identity; exact source lineage is required and an identified profile is not an assumed default. Unknown source, authority, or result remains UNKNOWN. This P0 meaning does not establish dispatch, job creation, persistence, derived content, registration, or completion."
+    outcome: "Bind a derivation candidate to exact immutable source-version references and, when deriving a clip, an explicit source-time range; also bind the selected transformation-profile identity/version/configuration digest, requested output artifact type/media type/byte budget, purpose, and rights decision. Distinguish queued-job observation, derived content, and registered artifact version. An identified profile is not a default, and the definition does not establish dispatch, persistence, or completion."
     sourceScope:
       masterPlanSection: §6.2
       sourcePhrase: Ingest, upload, resume, import, inspect, search/list, download,
@@ -7792,6 +7873,13 @@ capabilities:
           alternatives:
             - source-media
             - project-reference
+          optionalSemanticComponents:
+            - id: clipSourceTimeRange
+              when: Requested output is a source-derived clip.
+              fields:
+                sourceTimeRange: Required explicit interval in the exact source version timebase.
+              constraints:
+                - Never infer or rebase the interval without an explicit mapping contract.
         - slotId: input2
           sourceType: transformation-profile-identity-version-and-digest
           cardinality: EXACTLY_ONE
@@ -7817,7 +7905,7 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "The P0 meaning of a derivation result is bound to exact source-version references, a selected transformation-profile identity/version/configuration digest, requested output artifact type/media type/byte budget, purpose, and rights decision. Distinguish a queued-job observation from derived content and derived content from a registered artifact-version identity; exact source lineage is required and an identified profile is not an assumed default. Unknown source, authority, or result remains UNKNOWN. This P0 meaning does not establish dispatch, job creation, persistence, derived content, registration, or completion."
+        result: "Bind a derivation candidate to exact immutable source-version references and, when deriving a clip, an explicit source-time range; also bind the selected transformation-profile identity/version/configuration digest, requested output artifact type/media type/byte budget, purpose, and rights decision. Distinguish queued-job observation, derived content, and registered artifact version. An identified profile is not a default, and the definition does not establish dispatch, persistence, or completion."
         outputDistinctions:
           - "queued job versus produced derived content"
           - "derived content versus registered artifact version"
@@ -7835,7 +7923,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.derive/constraints"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.derive/preconditions"
       effect:
-        semanticOutcome: "The P0 meaning of a derivation result is bound to exact source-version references, a selected transformation-profile identity/version/configuration digest, requested output artifact type/media type/byte budget, purpose, and rights decision. Distinguish a queued-job observation from derived content and derived content from a registered artifact-version identity; exact source lineage is required and an identified profile is not an assumed default. Unknown source, authority, or result remains UNKNOWN. This P0 meaning does not establish dispatch, job creation, persistence, derived content, registration, or completion."
+        semanticOutcome: "Bind a derivation candidate to exact immutable source-version references and, when deriving a clip, an explicit source-time range; also bind the selected transformation-profile identity/version/configuration digest, requested output artifact type/media type/byte budget, purpose, and rights decision. Distinguish queued-job observation, derived content, and registered artifact version. An identified profile is not a default, and the definition does not establish dispatch, persistence, or completion."
         sourcePreservationRequired: true
         noSilentFallback: true
         effectIntentScope: CANONICAL_PRODUCT_STATE_CHANGE
@@ -32678,7 +32766,7 @@ capabilities:
     operation: describe
     label: Describe media
     definitionState: IN_SCOPE_DRAFT
-    outcome: "Describe requested media description as a source-grounded result expressing supported content observations from declared authorized media. The result remains a reviewable analysis candidate or observation, and any source-derived relation or lineage is asserted only when actual source consumption and linkage are established."
+    outcome: "Describe requested media as a source-grounded, reviewable candidate or observation. When requested, the result may include title and description candidates tied to the exact authorized source/version and supporting observations. Unresolved claims remain unknown with uncertainty; do not assert source consumption or lineage unless actual consumption and linkage are established."
     sourceScope:
       masterPlanSection: §6.3
       sourcePhrase: Cross-modal analysis, description, summarization, structured
@@ -32894,7 +32982,7 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "Describe requested media description as a source-grounded result expressing supported content observations from declared authorized media. The result remains a reviewable analysis candidate or observation, and any source-derived relation or lineage is asserted only when actual source consumption and linkage are established."
+        result: "Describe requested media as a source-grounded, reviewable candidate or observation. When requested, the result may include title and description candidates tied to the exact authorized source/version and supporting observations. Unresolved claims remain unknown with uncertainty; do not assert source consumption or lineage unless actual consumption and linkage are established."
         outputDistinctions:
           - "A description is a concise content account, distinct from a time-ordered summary or schema-bound extraction."
           - "Unstated details remain unknown; description does not establish source consumption beyond recorded provenance."
@@ -32913,7 +33001,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.multimodal.describe/preconditions"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-MULTIMODAL"
       effect:
-        semanticOutcome: "Describe requested media description as a source-grounded result expressing supported content observations from declared authorized media. The result remains a reviewable analysis candidate or observation, and any source-derived relation or lineage is asserted only when actual source consumption and linkage are established."
+        semanticOutcome: "Describe requested media as a source-grounded, reviewable candidate or observation. When requested, the result may include title and description candidates tied to the exact authorized source/version and supporting observations. Unresolved claims remain unknown with uncertainty; do not assert source consumption or lineage unless actual consumption and linkage are established."
         sourcePreservationRequired: true
         noSilentFallback: true
         effectIntentScope: OBSERVATION_ONLY
@@ -32956,7 +33044,7 @@ capabilities:
     operation: summarize
     label: Summarize media
     definitionState: IN_SCOPE_DRAFT
-    outcome: "Describe requested media summarization as a source-grounded condensed account of declared authorized media content. The result remains a reviewable analysis candidate or observation, and any source-derived relation or lineage is asserted only when actual source consumption and linkage are established."
+    outcome: "Summarize declared authorized media as a source-grounded, reviewable candidate or observation. When requested, the result may include ordered chapter candidates with source-version references and bounded source-time ranges, plus title or description candidates grounded in supporting observations. Unresolved claims and time boundaries remain unknown or uncertain; no source lineage is asserted without actual consumption and linkage."
     sourceScope:
       masterPlanSection: §6.3
       sourcePhrase: Cross-modal analysis, description, summarization, structured
@@ -33172,7 +33260,7 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "Describe requested media summarization as a source-grounded condensed account of declared authorized media content. The result remains a reviewable analysis candidate or observation, and any source-derived relation or lineage is asserted only when actual source consumption and linkage are established."
+        result: "Summarize declared authorized media as a source-grounded, reviewable candidate or observation. When requested, the result may include ordered chapter candidates with source-version references and bounded source-time ranges, plus title or description candidates grounded in supporting observations. Unresolved claims and time boundaries remain unknown or uncertain; no source lineage is asserted without actual consumption and linkage."
         outputDistinctions:
           - "A summary prioritizes and condenses content, distinct from a full description or structured field extraction."
           - "Omitted detail is not evidence of absence; retain uncertainty and source attribution."
@@ -33191,7 +33279,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.multimodal.summarize/preconditions"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-MULTIMODAL"
       effect:
-        semanticOutcome: "Describe requested media summarization as a source-grounded condensed account of declared authorized media content. The result remains a reviewable analysis candidate or observation, and any source-derived relation or lineage is asserted only when actual source consumption and linkage are established."
+        semanticOutcome: "Summarize declared authorized media as a source-grounded, reviewable candidate or observation. When requested, the result may include ordered chapter candidates with source-version references and bounded source-time ranges, plus title or description candidates grounded in supporting observations. Unresolved claims and time boundaries remain unknown or uncertain; no source lineage is asserted without actual consumption and linkage."
         sourcePreservationRequired: true
         noSilentFallback: true
         effectIntentScope: OBSERVATION_ONLY
@@ -36643,7 +36731,7 @@ capabilities:
     operation: detect.beat-onset
     label: Detect beats and onsets
     definitionState: IN_SCOPE_DRAFT
-    outcome: "The P0 result meaning is a set of candidate beat and onset detection observations in audio."
+    outcome: "Return candidate beat and onset observations in the supplied audio. When evidence supports them, observations may additionally include downbeat positions, a beat grid, and tempo with source timebase, method, and uncertainty. Unsupported or ambiguous estimates remain unknown or abstained; no beat-grid or tempo correctness, musical interpretation, or downstream synchronization is guaranteed."
     sourceScope:
       masterPlanSection: §6.3
       sourcePhrase: Speech/music/non-speech segmentation; loudness, peaks, clipping,
@@ -36867,10 +36955,10 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "The P0 result meaning is a set of candidate beat and onset detection observations in audio."
+        result: "Return candidate beat and onset observations in the supplied audio. When evidence supports them, observations may additionally include downbeat positions, a beat grid, and tempo with source timebase, method, and uncertainty. Unsupported or ambiguous estimates remain unknown or abstained; no beat-grid or tempo correctness, musical interpretation, or downstream synchronization is guaranteed."
         outputDistinctions:
           - "The result identifies candidate beat and onset events, distinct from silence intervals and continuous measurements."
-          - "Beat/onset semantics and temporal precision are not specified."
+          - "Downbeat, grid, and tempo observations are conditional on supporting evidence; method, source timebase, and uncertainty are retained, while precision and correctness are not guaranteed."
         unknownDisposition: "This P0 meaning does not establish implementation, license admission, qualification, runtime availability, execution, or finality; those remain UNKNOWN. Beat/onset definition, detection method/version, timing precision, confidence, and uncertainty are UNKNOWN."
         sourceRefs:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.detect.beat-onset/sourceScope/sourcePhrase"
@@ -36886,7 +36974,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.detect.beat-onset/preconditions"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-AUDIO-ANALYSIS"
       effect:
-        semanticOutcome: "The P0 result meaning is a set of candidate beat and onset detection observations in audio."
+        semanticOutcome: "Return candidate beat and onset observations in the supplied audio. When evidence supports them, observations may additionally include downbeat positions, a beat grid, and tempo with source timebase, method, and uncertainty. Unsupported or ambiguous estimates remain unknown or abstained; no beat-grid or tempo correctness, musical interpretation, or downstream synchronization is guaranteed."
         sourcePreservationRequired: false
         noSilentFallback: true
         effectIntentScope: OBSERVATION_ONLY
@@ -50899,7 +50987,7 @@ capabilities:
     operation: speaker.condition
     label: Condition on speaker
     definitionState: IN_SCOPE_DRAFT
-    outcome: "The P0 result meaning is synthesis conditioned on an explicitly supplied authorized speaker reference."
+    outcome: "Synthesize only from the supplied speech intent and explicitly authorized speaker reference(s). A request may bind an ordered segment-to-speaker map; each segment retains its exact authorized speaker identity and order. Missing, unauthorized, or unavailable speaker bindings remain explicit and block or abstain for affected segments. Preserve voice-use rights and generated-audio provenance; do not infer identity, consent, or permission from a voice match."
     sourceScope:
       masterPlanSection: §6.4
       sourcePhrase: TTS, streaming/multilingual/cross-lingual/expressive TTS; prosody,
@@ -50915,7 +51003,7 @@ capabilities:
     actorRoles: *id197
     actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs;
       owner-acceptance-pending
-    inputArtifactTypes: [ text-or-speech-intent, authorized-speaker-reference ]
+    inputArtifactTypes: [ text-or-speech-intent, authorized-speaker-reference-or-ordered-segment-speaker-map ]
 
     outputArtifactTypes:
       - speech-artifact-with-voice-rights-and-execution-provenance
@@ -51100,7 +51188,7 @@ capabilities:
       boundsRef: media.capability-bounds.media-speech-synthesis-speaker-condition
       channelApplicabilityRef: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@id=media.capability-adjudication.speech-synthesis-speaker-condition/channelApplicability
       typedInputSlots:
-        [ { slotId: input1, sourceType: text-or-speech-intent, cardinality: EXACTLY_ONE_OF_DECLARED_ALTERNATIVES, required: true, alternatives: [ text, speech-intent ] }, { slotId: input2, sourceType: authorized-speaker-reference, cardinality: EXACTLY_ONE, required: true } ]
+        [ { slotId: input1, sourceType: text-or-speech-intent, cardinality: EXACTLY_ONE_OF_DECLARED_ALTERNATIVES, required: true, alternatives: [ text, speech-intent ] }, { slotId: input2, sourceType: authorized-speaker-reference-or-ordered-segment-speaker-map, cardinality: EXACTLY_ONE_OF_DECLARED_ALTERNATIVES, required: true, alternatives: [ authorized-speaker-reference, ordered-segment-speaker-map ], constraints: [ Every mapped speaker is separately authorized for the declared voice-use scope., Preserve segment order and bind each speaker reference to its exact segment., Missing or unauthorized bindings remain unknown or blocked; identity is not inferred. ] } ]
       parameterSchema:
         type: object
         additionalProperties: false
@@ -51119,9 +51207,9 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "The P0 result meaning is synthesis conditioned on an explicitly supplied authorized speaker reference."
+        result: "Synthesize only from the supplied speech intent and explicitly authorized speaker reference(s). A request may bind an ordered segment-to-speaker map; each segment retains its exact authorized speaker identity and order. Missing, unauthorized, or unavailable speaker bindings remain explicit and block or abstain for affected segments. Preserve voice-use rights and generated-audio provenance; do not infer identity, consent, or permission from a voice match."
         outputDistinctions:
-          - "The required input is an authorized-speaker reference used as conditioning context; this is not voice-profile creation."
+          - "Conditioning uses either an authorized speaker reference or an ordered segment-to-speaker map; this is not voice-profile creation."
           - "The reference does not establish identity, rights validity, or an available voice."
         unknownDisposition: "This P0 meaning does not establish implementation, license admission, qualification, runtime availability, execution, or finality; those remain UNKNOWN. Reference validity, speaker identity, rights scope, available voice, conditioning fidelity, output, and method remain UNKNOWN; reference does not prove authorization or identity."
         sourceRefs:
@@ -51138,7 +51226,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speaker.condition/preconditions"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-SYNTHESIS"
       effect:
-        semanticOutcome: "The P0 result meaning is synthesis conditioned on an explicitly supplied authorized speaker reference."
+        semanticOutcome: "Synthesize only from the supplied speech intent and explicitly authorized speaker reference(s). A request may bind an ordered segment-to-speaker map; each segment retains its exact authorized speaker identity and order. Missing, unauthorized, or unavailable speaker bindings remain explicit and block or abstain for affected segments. Preserve voice-use rights and generated-audio provenance; do not infer identity, consent, or permission from a voice match."
         sourcePreservationRequired: false
         noSilentFallback: true
         effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
@@ -56217,7 +56305,7 @@ capabilities:
     operation: create.spatial-audio
     label: Create spatial audio
     definitionState: IN_SCOPE_DRAFT
-    outcome: "A candidate spatial-audio media pass with coordinate/fidelity metadata expresses spatial intent, optionally guided by authorized image or multiview references."
+    outcome: "Produce a candidate spatial-audio media pass with coordinate/fidelity metadata and an explicitly declared target channel layout. Preserve the requested and effective layout and any mapping evidence; if a requested layout such as 5.1 is unsupported or unresolved, disclose that outcome and do not silently fall back to stereo. Spatial intent and metadata do not establish spatial accuracy, rendering, or delivery."
     sourceScope:
       masterPlanSection: §6.4
       sourcePhrase: Text/image-to-3D, multiview reconstruction, depth/camera
@@ -56460,7 +56548,7 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "A candidate spatial-audio media pass with coordinate/fidelity metadata expresses spatial intent, optionally guided by authorized image or multiview references."
+        result: "Produce a candidate spatial-audio media pass with coordinate/fidelity metadata and an explicitly declared target channel layout. Preserve the requested and effective layout and any mapping evidence; if a requested layout such as 5.1 is unsupported or unresolved, disclose that outcome and do not silently fall back to stereo. Spatial intent and metadata do not establish spatial accuracy, rendering, or delivery."
         outputDistinctions:
           - "Intent-only creation is source-free; references add source lineage only when consumed."
           - "Spatial placement or acoustic realism is not measured or scientifically validated by this definition."
@@ -56485,7 +56573,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.spatial.create.spatial-audio/constraints"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.spatial.create.spatial-audio/preconditions"
       effect:
-        semanticOutcome: "A candidate spatial-audio media pass with coordinate/fidelity metadata expresses spatial intent, optionally guided by authorized image or multiview references."
+        semanticOutcome: "Produce a candidate spatial-audio media pass with coordinate/fidelity metadata and an explicitly declared target channel layout. Preserve the requested and effective layout and any mapping evidence; if a requested layout such as 5.1 is unsupported or unresolved, disclose that outcome and do not silently fall back to stereo. Spatial intent and metadata do not establish spatial accuracy, rendering, or delivery."
         sourcePreservationRequired: false
         noSilentFallback: true
         effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
@@ -60206,7 +60294,7 @@ capabilities:
     operation: material
     label: Animate materials
     definitionState: IN_SCOPE_DRAFT
-    outcome: "Define material-property animation in a versioned scene/edit."
+    outcome: "Define material-property animation in a versioned scene/edit. Arbitrary user-authored shader source and shader execution are outside the current product scope and unsupported; return an explicit unsupported outcome for such requests. This scope decision makes no claim of shader sandbox safety. Supported material-property animation remains subject to declared typed inputs and separate implementation, qualification, and runtime decisions."
     sourceScope:
       masterPlanSection: §6.5
       sourcePhrase: 2D, vector and 3D animation; keyframes; interpolation/easing
@@ -60326,6 +60414,7 @@ capabilities:
         locality, or profile.
       - Any unsupported parameter value or combination; do not substitute
         silently.
+      - Arbitrary user-authored shader source or shader execution; this is outside current product scope and is unsupported. No shader sandbox safety is claimed.
     supportDimensions:
       implementationState: UNKNOWN
       licenseAdmissionState: UNKNOWN
@@ -60441,7 +60530,7 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "Define material-property animation in a versioned scene/edit."
+        result: "Define material-property animation in a versioned scene/edit. Arbitrary user-authored shader source and shader execution are outside the current product scope and unsupported; return an explicit unsupported outcome for such requests. This scope decision makes no claim of shader sandbox safety. Supported material-property animation remains subject to declared typed inputs and separate implementation, qualification, and runtime decisions."
         outputDistinctions:
           - "Material-property curves are definitions, not rendered appearance or a claim of source appearance preservation."
           - "Optional scene/media references do not create source lineage; only actually consumed exact versions do."
@@ -60462,7 +60551,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.material/constraints"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.material/preconditions"
       effect:
-        semanticOutcome: "Define material-property animation in a versioned scene/edit."
+        semanticOutcome: "Define material-property animation in a versioned scene/edit. Arbitrary user-authored shader source and shader execution are outside the current product scope and unsupported; return an explicit unsupported outcome for such requests. This scope decision makes no claim of shader sandbox safety. Supported material-property animation remains subject to declared typed inputs and separate implementation, qualification, and runtime decisions."
         sourcePreservationRequired: false
         noSilentFallback: true
         effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
@@ -100071,7 +100160,7 @@ capabilities:
       - source-artifact
       - edit-intent-and-preservation-policy
     outputArtifactTypes:
-      - versioned-edited-artifact-or-project-change
+      - local-inpaint-candidate-or-draft
     preconditions:
       - Verified actor/workspace and required delegated authority.
       - Inputs and references are available, validated, rights/consent eligible,
@@ -100277,17 +100366,14 @@ capabilities:
         properties: {}
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
-        - artifactType: versioned-edited-artifact-or-project-change
+        - artifactType: local-inpaint-candidate-or-draft
           requiredOnSuccess: true
           resultVariants:
-            - resultKind: EDITED_ARTIFACT
+            - resultKind: INPAINT_CANDIDATE
               originRelation: SOURCE_DERIVED
               epistemicDisposition: ESTIMATED_OR_RECONSTRUCTED
               disposition: ESTIMATED_OR_RECONSTRUCTED
-              selector: "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
-            - resultKind: PROJECT_CHANGE
-              disposition: NO_RECONSTRUCTION_OR_INFERENCE
-              selector: "resultKind=PROJECT_CHANGE"
+              selector: "resultKind=INPAINT_CANDIDATE;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
       nonSuccessOutputs:
         REJECTED: []
         UNKNOWN_OUTCOME: []
@@ -100295,8 +100381,7 @@ capabilities:
         result: "P0 defines the inpaint image/video result as a local candidate or draft whose intended operation is to fill selected regions of the source image or video; it does not define a canonical artifact or project change."
         outputDistinctions:
           - "The operation-specific meaning is fill selected regions of the source image or video; it is bound to the leaf’s declared typed intent and source inputs, not inferred from a provider or profile name."
-          - "EDITED_ARTIFACT is source-derived; its declared epistemic disposition is ESTIMATED_OR_RECONSTRUCTED. Reconstructed or estimated content is not evidence of recovered source truth."
-          - "PROJECT_CHANGE carries disposition NO_RECONSTRUCTION_OR_INFERENCE; this variant does not assert reconstruction or inference."
+          - "INPAINT_CANDIDATE is a local estimated or reconstructed candidate, not a canonical artifact or project change and not evidence of recovered source truth."
           - "The required source-artifact is interpreted together with edit-intent-and-preservation-policy; the edit intent and preservation policy constrain the candidate meaning."
         unknownDisposition: "UNKNOWN: this leaf does not specify exact selection geometry, operation-specific values, target profile, or fidelity bounds; the capability label supplies none of those details. Implementation, license admission, qualification, and runtime availability remain separate unresolved dimensions. The local-candidate/draft scope does not establish commit, registration, dispatch, completion, or external effect; an unknown outcome does not establish success, failure, retry eligibility, or substitution."
         sourceRefs:
@@ -101919,7 +102004,7 @@ capabilities:
     inputArtifactTypes: [ source-artifact, edit-intent-and-preservation-policy ]
 
     outputArtifactTypes:
-      - versioned-edited-artifact-or-project-change
+      - local-matte-candidate-or-draft
     preconditions:
       - Verified actor/workspace and required delegated authority.
       - Inputs and references are available, validated, rights/consent eligible,
@@ -102125,17 +102210,14 @@ capabilities:
         properties: {}
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
-        - artifactType: versioned-edited-artifact-or-project-change
+        - artifactType: local-matte-candidate-or-draft
           requiredOnSuccess: true
           resultVariants:
-            - resultKind: EDITED_ARTIFACT
+            - resultKind: MATTE_CANDIDATE
               originRelation: SOURCE_DERIVED
               epistemicDisposition: SOURCE_DERIVED_TRANSFORMATION
               disposition: SOURCE_DERIVED_TRANSFORMATION
-              selector: "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
-            - resultKind: PROJECT_CHANGE
-              disposition: NO_RECONSTRUCTION_OR_INFERENCE
-              selector: "resultKind=PROJECT_CHANGE"
+              selector: "resultKind=MATTE_CANDIDATE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
       nonSuccessOutputs:
         REJECTED: []
         UNKNOWN_OUTCOME: []
@@ -102143,8 +102225,7 @@ capabilities:
         result: "P0 defines the edit matte result as a local candidate or draft whose intended operation is to produce a matte representation for the source media; it does not define a canonical artifact or project change."
         outputDistinctions:
           - "The operation-specific meaning is produce a matte representation for the source media; it is bound to the leaf’s declared typed intent and source inputs, not inferred from a provider or profile name."
-          - "EDITED_ARTIFACT is source-derived with disposition SOURCE_DERIVED_TRANSFORMATION; that describes the transformation relation, not canonical commitment."
-          - "PROJECT_CHANGE carries disposition NO_RECONSTRUCTION_OR_INFERENCE; this variant does not assert reconstruction or inference."
+          - "MATTE_CANDIDATE is a source-derived matte representation candidate, not a canonical artifact or project change; any inferred or estimated mask detail remains disclosed as such."
           - "The required source-artifact is interpreted together with edit-intent-and-preservation-policy; the edit intent and preservation policy constrain the candidate meaning."
         unknownDisposition: "UNKNOWN: this leaf does not specify exact selection geometry, operation-specific values, target profile, or fidelity bounds; the capability label supplies none of those details. Implementation, license admission, qualification, and runtime availability remain separate unresolved dimensions. The local-candidate/draft scope does not establish commit, registration, dispatch, completion, or external effect; an unknown outcome does not establish success, failure, retry eligibility, or substitution."
         sourceRefs:
@@ -103439,7 +103520,7 @@ capabilities:
     operation: retime-slow-motion-speed-ramp
     label: Retime/slow-motion/speed-ramp
     definitionState: IN_SCOPE_DRAFT
-    outcome: "P0 defines the retime/slow-motion/speed-ramp result as a local candidate or draft whose intended operation is to change source-media timing, including slow motion or a speed ramp; it does not define a canonical artifact or project change."
+    outcome: "P0 defines source-timing edits as a local candidate or draft, including retime/speed changes, a freeze-frame hold over a declared output-time interval, and reverse playback whose output-time interval maps to an explicitly reversed source-time interval. Freeze and reverse are distinct operations from ordinary retiming. Bind each candidate to the exact source version, timebase, source/output intervals, and preservation policy; unresolved mappings remain UNKNOWN or CONFLICT. No canonical artifact, project change, or universal playback/quality guarantee is implied."
     sourceScope:
       masterPlanSection: §6.8
       sourcePhrase: Image/video inpainting/outpainting; object removal/replacement;
@@ -103459,7 +103540,7 @@ capabilities:
     inputArtifactTypes: [ source-artifact, edit-intent-and-preservation-policy ]
 
     outputArtifactTypes:
-      - versioned-edited-artifact-or-project-change
+      - local-timing-edit-candidate-with-explicit-source-time-mapping
     preconditions:
       - Verified actor/workspace and required delegated authority.
       - Inputs and references are available, validated, rights/consent eligible,
@@ -103665,26 +103746,35 @@ capabilities:
         properties: {}
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
-        - artifactType: versioned-edited-artifact-or-project-change
+        - artifactType: local-timing-edit-candidate-with-explicit-source-time-mapping
           requiredOnSuccess: true
           resultVariants:
-            - resultKind: EDITED_ARTIFACT
-              originRelation: SOURCE_DERIVED
-              epistemicDisposition: SOURCE_DERIVED_TRANSFORMATION
-              disposition: SOURCE_DERIVED_TRANSFORMATION
-              selector: "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
-            - resultKind: PROJECT_CHANGE
+            - resultKind: RETIME_CANDIDATE
+              sourceTimeMapping: DECLARED_RETIME_MAPPING
+              effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
               disposition: NO_RECONSTRUCTION_OR_INFERENCE
-              selector: "resultKind=PROJECT_CHANGE"
+              epistemicRole: LOCAL_TIMING_MAPPING_NOT_MEDIA_CONTENT
+              selector: resultKind=RETIME_CANDIDATE
+            - resultKind: FREEZE_FRAME_HOLD_CANDIDATE
+              sourceTimeMapping: SELECTED_SOURCE_FRAME_TO_DECLARED_OUTPUT_INTERVAL
+              effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
+              disposition: NO_RECONSTRUCTION_OR_INFERENCE
+              epistemicRole: LOCAL_TIMING_MAPPING_NOT_MEDIA_CONTENT
+              selector: resultKind=FREEZE_FRAME_HOLD_CANDIDATE
+            - resultKind: REVERSE_PLAYBACK_CANDIDATE
+              sourceTimeMapping: EXPLICIT_REVERSED_SOURCE_INTERVAL_TO_OUTPUT_INTERVAL
+              effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
+              disposition: NO_RECONSTRUCTION_OR_INFERENCE
+              epistemicRole: LOCAL_TIMING_MAPPING_NOT_MEDIA_CONTENT
+              selector: resultKind=REVERSE_PLAYBACK_CANDIDATE
       nonSuccessOutputs:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "P0 defines the retime/slow-motion/speed-ramp result as a local candidate or draft whose intended operation is to change source-media timing, including slow motion or a speed ramp; it does not define a canonical artifact or project change."
+        result: "P0 defines source-timing edits as a local candidate or draft, including retime/speed changes, a freeze-frame hold over a declared output-time interval, and reverse playback whose output-time interval maps to an explicitly reversed source-time interval. Freeze and reverse are distinct operations from ordinary retiming. Bind each candidate to the exact source version, timebase, source/output intervals, and preservation policy; unresolved mappings remain UNKNOWN or CONFLICT. No canonical artifact, project change, or universal playback/quality guarantee is implied."
         outputDistinctions:
-          - "The operation-specific meaning is change source-media timing, including slow motion or a speed ramp; it is bound to the leaf’s declared typed intent and source inputs, not inferred from a provider or profile name."
-          - "EDITED_ARTIFACT is source-derived with disposition SOURCE_DERIVED_TRANSFORMATION; that describes the transformation relation, not canonical commitment."
-          - "PROJECT_CHANGE carries disposition NO_RECONSTRUCTION_OR_INFERENCE; this variant does not assert reconstruction or inference."
+          - "Freeze-frame hold and reverse playback are distinct source-time mappings, bound to exact source frame/interval and declared timebase; neither is inferred from ordinary retime or speed-ramp intent."
+          - "The candidate preserves exact source identity and makes the requested output interval and source-time mapping inspectable; it does not assert a registered artifact or project mutation."
           - "The required source-artifact is interpreted together with edit-intent-and-preservation-policy; the edit intent and preservation policy constrain the candidate meaning."
         unknownDisposition: "UNKNOWN: this leaf does not specify exact selection geometry, operation-specific values, target profile, or fidelity bounds; the capability label supplies none of those details. Implementation, license admission, qualification, and runtime availability remain separate unresolved dimensions. The local-candidate/draft scope does not establish commit, registration, dispatch, completion, or external effect; an unknown outcome does not establish success, failure, retry eligibility, or substitution."
         sourceRefs:
@@ -103702,7 +103792,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.retime-slow-motion-speed-ramp/constraints"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.retime-slow-motion-speed-ramp/preconditions"
       effect:
-        semanticOutcome: "P0 defines the retime/slow-motion/speed-ramp result as a local candidate or draft whose intended operation is to change source-media timing, including slow motion or a speed ramp; it does not define a canonical artifact or project change."
+        semanticOutcome: "P0 defines source-timing edits as a local candidate or draft, including retime/speed changes, a freeze-frame hold over a declared output-time interval, and reverse playback whose output-time interval maps to an explicitly reversed source-time interval. Freeze and reverse are distinct operations from ordinary retiming. Bind each candidate to the exact source version, timebase, source/output intervals, and preservation policy; unresolved mappings remain UNKNOWN or CONFLICT. No canonical artifact, project change, or universal playback/quality guarantee is implied."
         sourcePreservationRequired: true
         noSilentFallback: true
         effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
@@ -107663,7 +107753,7 @@ capabilities:
     operation: multitrack-timeline
     label: Compose multitrack timeline
     definitionState: IN_SCOPE_DRAFT
-    outcome: "The multitrack-timeline result is a local composition candidate or draft for arranging selected media. It may include a reviewable active-speaker multicamera cut proposal linked to speaker-turn and camera-source evidence, with missing links and uncertainty explicit; the proposal does not commit a project edit or create a rendered delivery."
+    outcome: "Produce a local reviewable composition candidate or draft for selected versioned media. Declared composition intent may include gain, pan, and time-varying automation, sample-time speech-region edits with boundary and crossfade intent, ADR or room-tone placement, and explicit distinction between captured and generated audio. Keep exact source references, timebase, and uncertainty. This does not commit a project edit, create a rendered delivery, or assert the candidate is feasible."
     sourceScope:
       masterPlanSection: §6.8
       sourcePhrase: Multitrack timelines; scene/storyboard assembly;
@@ -107685,7 +107775,7 @@ capabilities:
       - versioned-project-and-selected-artifacts
       - composition-intent
     outputArtifactTypes:
-      - versioned-composition-and-render-manifest
+      - local-versioned-composition-candidate
     preconditions:
       - Verified actor/workspace and required delegated authority.
       - Inputs and references are available, validated, rights/consent eligible,
@@ -107891,20 +107981,20 @@ capabilities:
         properties: {}
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
-        - artifactType: versioned-composition-and-render-manifest
+        - artifactType: local-versioned-composition-candidate
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "The multitrack-timeline result is a local composition candidate or draft for arranging selected media. It may include a reviewable active-speaker multicamera cut proposal linked to speaker-turn and camera-source evidence, with missing links and uncertainty explicit; the proposal does not commit a project edit or create a rendered delivery."
+        result: "Produce a local reviewable composition candidate or draft for selected versioned media. Declared composition intent may include gain, pan, and time-varying automation, sample-time speech-region edits with boundary and crossfade intent, ADR or room-tone placement, and explicit distinction between captured and generated audio. Keep exact source references, timebase, and uncertainty. This does not commit a project edit, create a rendered delivery, or assert the candidate is feasible."
         outputDistinctions:
           - "The operation-specific meaning is arrange selected media across a multitrack timeline; it is bound to the leaf’s declared typed intent and source inputs, not inferred from a provider or profile name."
           - "The declared composition result concerns arrange selected media across a multitrack timeline; it remains a composition draft and does not itself assert a render."
           - "The required versioned-project-and-selected-artifacts supplies the composition basis, while composition-intent specifies what arrangement is intended."
           - "a multicamera cut proposal is a reviewable local candidate, distinct from diarization alone and a committed timeline edit"
           - "each proposed cut requires linked speaker-turn and camera-source evidence; uncertain links remain explicit"
-        unknownDisposition: "UNKNOWN: this leaf does not specify concrete timeline positions, compatibility rules, render settings, or validation thresholds beyond its typed inputs and declared intent. Missing or uncertain speaker-turn/camera-source evidence cannot be inferred. Implementation, license admission, qualification, and runtime availability remain separate unresolved dimensions. The local-candidate/draft scope does not establish dispatch, project commit, completed render, or delivery; preserve unknown outcome without inferring success, failure, retry eligibility, or substitution."
+        unknownDisposition: "UNKNOWN: this leaf does not specify numeric timeline positions, edit thresholds, compatibility rules, render settings, or validation thresholds beyond its typed inputs and declared intent. Declared sample-time edit ranges and timebase are preserved as intent; missing or uncertain speaker-turn/camera-source evidence cannot be inferred. Implementation, license admission, qualification, and runtime availability remain separate unresolved dimensions. The local-candidate/draft scope does not establish dispatch, project commit, completed render, or delivery; preserve unknown outcome without inferring success, failure, retry eligibility, or substitution."
         sourceRefs:
           - ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-compose-multitrack-timeline.v1"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline/operation"
@@ -107921,7 +108011,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline/constraints"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline/preconditions"
       effect:
-        semanticOutcome: "The multitrack-timeline result is a local composition candidate or draft for arranging selected media. It may include a reviewable active-speaker multicamera cut proposal linked to speaker-turn and camera-source evidence, with missing links and uncertainty explicit; the proposal does not commit a project edit or create a rendered delivery."
+        semanticOutcome: "Produce a local reviewable composition candidate or draft for selected versioned media. Declared composition intent may include gain, pan, and time-varying automation, sample-time speech-region edits with boundary and crossfade intent, ADR or room-tone placement, and explicit distinction between captured and generated audio. Keep exact source references, timebase, and uncertainty. This does not commit a project edit, create a rendered delivery, or assert the candidate is feasible."
         sourcePreservationRequired: true
         noSilentFallback: true
         effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
@@ -109440,7 +109530,7 @@ capabilities:
     operation: safe-area
     label: Apply safe areas
     definitionState: IN_SCOPE_DRAFT
-    outcome: "P0 defines the apply safe areas result as a local composition candidate or draft whose intended operation is to apply declared safe-area constraints to composition elements; it does not define a committed project change or rendered delivery."
+    outcome: "Produce a local reviewable overlay-placement candidate based on declared safe areas and any supplied visual free-space observations. Each proposed placement is tied to exact source/version, time/context, and evidence; uncertain or inferred free space remains labeled with uncertainty. A declared safe area is not proof that a location is visually free. No project commit or rendered delivery is implied."
     sourceScope:
       masterPlanSection: §6.8
       sourcePhrase: Multitrack timelines; scene/storyboard assembly;
@@ -109458,7 +109548,7 @@ capabilities:
     inputArtifactTypes: [ versioned-project-and-selected-artifacts, composition-intent ]
 
     outputArtifactTypes:
-      - versioned-composition-and-render-manifest
+      - local-versioned-composition-candidate
     preconditions:
       - Verified actor/workspace and required delegated authority.
       - Inputs and references are available, validated, rights/consent eligible,
@@ -109664,18 +109754,18 @@ capabilities:
         properties: {}
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
-        - artifactType: versioned-composition-and-render-manifest
+        - artifactType: local-versioned-composition-candidate
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "P0 defines the apply safe areas result as a local composition candidate or draft whose intended operation is to apply declared safe-area constraints to composition elements; it does not define a committed project change or rendered delivery."
+        result: "Produce a local reviewable overlay-placement candidate based on declared safe areas and any supplied visual free-space observations. Each proposed placement is tied to exact source/version, time/context, and evidence; uncertain or inferred free space remains labeled with uncertainty. A declared safe area is not proof that a location is visually free. No project commit or rendered delivery is implied."
         outputDistinctions:
           - "The operation-specific meaning is apply declared safe-area constraints to composition elements; it is bound to the leaf’s declared typed intent and source inputs, not inferred from a provider or profile name."
           - "The declared composition result concerns apply declared safe-area constraints to composition elements; it remains a composition draft and does not itself assert a render."
           - "The required versioned-project-and-selected-artifacts supplies the composition basis, while composition-intent specifies what arrangement is intended."
-        unknownDisposition: "UNKNOWN: this leaf does not specify concrete timeline positions, compatibility rules, render settings, or validation thresholds beyond its typed inputs and declared intent. Implementation, license admission, qualification, and runtime availability remain separate unresolved dimensions. The local-candidate/draft scope does not establish dispatch, project commit, completed render, or delivery; preserve unknown outcome without inferring success, failure, retry eligibility, or substitution."
+        unknownDisposition: "UNKNOWN: this leaf does not specify a placement algorithm, numeric thresholds, render settings, or validation thresholds beyond its typed inputs and declared intent. Any free-space observation remains evidence with its time/context and uncertainty, not a guarantee. Implementation, license admission, qualification, and runtime availability remain separate unresolved dimensions. The local-candidate/draft scope does not establish dispatch, project commit, completed render, or delivery; preserve unknown outcome without inferring success, failure, retry eligibility, or substitution."
         sourceRefs:
           - ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-compose-safe-area.v1"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.safe-area/operation"
@@ -109691,7 +109781,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.safe-area/constraints"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.safe-area/preconditions"
       effect:
-        semanticOutcome: "P0 defines the apply safe areas result as a local composition candidate or draft whose intended operation is to apply declared safe-area constraints to composition elements; it does not define a committed project change or rendered delivery."
+        semanticOutcome: "Produce a local reviewable overlay-placement candidate based on declared safe areas and any supplied visual free-space observations. Each proposed placement is tied to exact source/version, time/context, and evidence; uncertain or inferred free space remains labeled with uncertainty. A declared safe area is not proof that a location is visually free. No project commit or rendered delivery is implied."
         sourcePreservationRequired: true
         noSilentFallback: true
         effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
@@ -109735,7 +109825,7 @@ capabilities:
     operation: reusable-composition
     label: Create reusable composition
     definitionState: IN_SCOPE_DRAFT
-    outcome: "P0 defines the create reusable composition result as a local composition candidate or draft whose intended operation is to define a reusable composition structure from selected project assets; it does not define a committed project change or rendered delivery."
+    outcome: "Produce a local reviewable reusable composition candidate from selected project assets. The candidate may include editable branded motion-template bindings whose brand assets and motion parameters are typed and traceable to exact selected sources, or a versioned reusable audio-effects-chain candidate scoped to an exact voice track. An audio chain binds selected existing master-audio effects and exact chain version/provenance to that track; it does not infer speaker identity or imply speech enhancement. Preserve unsupported or unresolved bindings explicitly; a candidate does not establish preview/render parity, project commit, or rendered delivery."
     sourceScope:
       masterPlanSection: §6.8
       sourcePhrase: Multitrack timelines; scene/storyboard assembly;
@@ -109753,7 +109843,7 @@ capabilities:
     inputArtifactTypes: [ versioned-project-and-selected-artifacts, composition-intent ]
 
     outputArtifactTypes:
-      - versioned-composition-and-render-manifest
+      - local-versioned-composition-candidate
     preconditions:
       - Verified actor/workspace and required delegated authority.
       - Inputs and references are available, validated, rights/consent eligible,
@@ -109952,6 +110042,23 @@ capabilities:
           sourceType: composition-intent
           cardinality: EXACTLY_ONE
           required: true
+          optionalSemanticComponents:
+            - id: reusableAudioEffectsChain
+              when: Caller requests a reusable audio-effects-chain candidate.
+              fields:
+                exactVoiceTrackRef: Exact selected voice track/version in the project.
+                selectedMasterAudioEffectRefs: Explicitly selected existing master-audio effect leaves and their declared order/parameters.
+                chainVersionIntent: Caller-declared version identity for the local reusable candidate.
+              constraints:
+                - Associate the chain only with the exact selected voice track; do not infer speaker identity.
+                - Preserve source and chain provenance; this candidate does not imply audio processing or speech enhancement.
+            - id: editableBrandedMotionTemplate
+              when: Caller requests an editable branded motion-template candidate.
+              fields:
+                brandAssetRefs: Exact selected, authorized brand asset versions.
+                editableMotionBindings: Typed caller-declared parameters and their editable bindings.
+              constraints:
+                - Unavailable or unresolved bindings remain explicit; preview or render parity is not implied.
       parameterSchema:
         type: object
         additionalProperties: false
@@ -109959,18 +110066,35 @@ capabilities:
         properties: {}
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
-        - artifactType: versioned-composition-and-render-manifest
+        - artifactType: local-versioned-composition-candidate
           requiredOnSuccess: true
+          optionalSemanticObservations:
+            - id: reusableAudioEffectsChainCandidate
+              when: Reusable audio-effects-chain intent was supplied.
+              fields:
+                exactVoiceTrackRef: Exact project voice track/version associated with this chain.
+                selectedMasterAudioEffectRefs: Explicit selected effects and their order.
+                chainCandidateVersionRef: Local candidate/version identity when issued.
+                sourceAndEffectProvenance: Exact source lineage and effect configuration/version evidence.
+              constraints:
+                - This candidate describes a reusable chain and does not assert that the effects were applied or audio was rendered.
+            - id: editableBrandedMotionTemplateCandidate
+              when: Editable branded motion-template intent was supplied.
+              fields:
+                exactBrandAssetVersionRefs: Authorized source brand asset versions.
+                editableMotionBindings: Returned typed editable bindings and unresolved fields.
+              constraints:
+                - Candidate bindings do not establish preview fidelity or render availability.
       nonSuccessOutputs:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "P0 defines the create reusable composition result as a local composition candidate or draft whose intended operation is to define a reusable composition structure from selected project assets; it does not define a committed project change or rendered delivery."
+        result: "Produce a local reviewable reusable composition candidate from selected project assets. The candidate may include editable branded motion-template bindings whose brand assets and motion parameters are typed and traceable to exact selected sources, or a versioned reusable audio-effects-chain candidate scoped to an exact voice track. An audio chain binds selected existing master-audio effects and exact chain version/provenance to that track; it does not infer speaker identity or imply speech enhancement. Preserve unsupported or unresolved bindings explicitly; a candidate does not establish preview/render parity, project commit, or rendered delivery."
         outputDistinctions:
           - "The operation-specific meaning is define a reusable composition structure from selected project assets; it is bound to the leaf’s declared typed intent and source inputs, not inferred from a provider or profile name."
-          - "The result describes reusable composition structure; P0 does not bind it to a particular reusable-template schema or execution profile."
+          - "The candidate may bind editable branded motion parameters or selected existing master-audio effects to exact source assets/voice tracks; a specific reusable-template schema and execution profile remain unspecified."
           - "The required versioned-project-and-selected-artifacts supplies the composition basis, while composition-intent specifies what arrangement is intended."
-        unknownDisposition: "UNKNOWN: this leaf does not specify concrete timeline positions, compatibility rules, render settings, or validation thresholds beyond its typed inputs and declared intent. Implementation, license admission, qualification, and runtime availability remain separate unresolved dimensions. The local-candidate/draft scope does not establish dispatch, project commit, completed render, or delivery; preserve unknown outcome without inferring success, failure, retry eligibility, or substitution."
+        unknownDisposition: "UNKNOWN: this leaf does not specify a concrete template schema, numeric timeline positions, compatibility rules, render settings, or validation thresholds beyond its typed inputs and declared intent. Implementation, license admission, qualification, and runtime availability remain separate unresolved dimensions. The local-candidate/draft scope does not establish dispatch, project commit, completed render, or delivery; preserve unknown outcome without inferring success, failure, retry eligibility, or substitution."
         sourceRefs:
           - ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-compose-reusable-composition.v1"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.reusable-composition/operation"
@@ -109986,7 +110110,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.reusable-composition/constraints"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.reusable-composition/preconditions"
       effect:
-        semanticOutcome: "P0 defines the create reusable composition result as a local composition candidate or draft whose intended operation is to define a reusable composition structure from selected project assets; it does not define a committed project change or rendered delivery."
+        semanticOutcome: "Produce a local reviewable reusable composition candidate from selected project assets. The candidate may include editable branded motion-template bindings whose brand assets and motion parameters are typed and traceable to exact selected sources, or a versioned reusable audio-effects-chain candidate scoped to an exact voice track. An audio chain binds selected existing master-audio effects and exact chain version/provenance to that track; it does not infer speaker identity or imply speech enhancement. Preserve unsupported or unresolved bindings explicitly; a candidate does not establish preview/render parity, project commit, or rendered delivery."
         sourcePreservationRequired: true
         noSilentFallback: true
         effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
@@ -116261,7 +116385,7 @@ capabilities:
     operation: stereo-width
     label: Control stereo width
     definitionState: IN_SCOPE_DRAFT
-    outcome: "The supplied audio receives stereo width processing under its delivery and loudness context, producing a mastered-audio candidate with measurements."
+    outcome: "The supplied audio receives stereo-width processing under its declared delivery, target channel-layout, and loudness context, producing a local mastered-audio candidate with measurements. The target layout is explicit in the request and returned candidate; this stereo-width leaf does not define 5.1 processing, and unsupported or unresolved layouts remain explicit with no silent stereo fallback."
     sourceScope:
       masterPlanSection: §6.8
       sourcePhrase: EQ; dynamic/multiband compression; limiting; true-peak/loudness
@@ -116274,7 +116398,7 @@ capabilities:
     actorRoles: *id452
     actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs;
       owner-acceptance-pending
-    inputArtifactTypes: [ audio-artifact, delivery-and-loudness-context ]
+    inputArtifactTypes: [ audio-artifact, delivery-target-channel-layout-and-loudness-context ]
 
     outputArtifactTypes:
       - mastered-audio-candidate-with-measurements
@@ -116376,6 +116500,7 @@ capabilities:
         locality, or profile.
       - Any unsupported parameter value or combination; do not substitute
         silently.
+      - A requested channel layout requiring multichannel processing such as 5.1; stereo-width processing does not define multichannel conversion or a silent stereo fallback.
     supportDimensions:
       implementationState: UNKNOWN
       licenseAdmissionState: UNKNOWN
@@ -116484,7 +116609,7 @@ capabilities:
           cardinality: EXACTLY_ONE
           required: true
         - slotId: input2
-          sourceType: delivery-and-loudness-context
+          sourceType: delivery-target-channel-layout-and-loudness-context
           cardinality: EXACTLY_ONE
           required: true
       parameterSchema:
@@ -116496,11 +116621,18 @@ capabilities:
       successOutputs:
         - artifactType: mastered-audio-candidate-with-measurements
           requiredOnSuccess: true
+          optionalSemanticObservations:
+            - id: targetChannelLayout
+              fields:
+                requestedLayout: Explicit caller-requested channel layout.
+                effectiveLayout: Layout represented by the returned candidate, or an explicit unsupported/unknown disposition.
+              constraints:
+                - A 5.1 request is unsupported by this stereo-width leaf; do not silently substitute stereo.
       nonSuccessOutputs:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "The supplied audio receives stereo width processing under its delivery and loudness context, producing a mastered-audio candidate with measurements."
+        result: "The supplied audio receives stereo-width processing under its declared delivery, target channel-layout, and loudness context, producing a local mastered-audio candidate with measurements. The target layout is explicit in the request and returned candidate; this stereo-width leaf does not define 5.1 processing, and unsupported or unresolved layouts remain explicit with no silent stereo fallback."
         outputDistinctions:
           - "Stereo width is changed in a local candidate; this does not establish mono compatibility or spatial accuracy unless those dimensions are separately qualified and measured."
           - "For candidate-producing operations, the mastering artifact remains a local candidate/draft and is distinct from canonical publication; attached measurements describe their measured dimensions and do not certify unmeasured targets."
@@ -116523,7 +116655,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.master.audio.stereo-width/constraints"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-MASTER-AUDIO"
       effect:
-        semanticOutcome: "The supplied audio receives stereo width processing under its delivery and loudness context, producing a mastered-audio candidate with measurements."
+        semanticOutcome: "The supplied audio receives stereo-width processing under its declared delivery, target channel-layout, and loudness context, producing a local mastered-audio candidate with measurements. The target layout is explicit in the request and returned candidate; this stereo-width leaf does not define 5.1 processing, and unsupported or unresolved layouts remain explicit with no silent stereo fallback."
         sourcePreservationRequired: true
         noSilentFallback: true
         effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
@@ -118733,7 +118865,7 @@ capabilities:
     operation: rank
     label: Rank candidates
     definitionState: IN_SCOPE_DRAFT
-    outcome: "Return a candidate ordering only when the request declares the eligible dimensions, calibrated scope, objective or weights, missing-value behavior, and uncertainty handling required by quality policy; otherwise return only supported quality observations or an explicit unresolved ranking disposition. No default total score or tie-break rule is implied."
+    outcome: "Return candidate ordering only when the request declares eligible dimensions, calibrated scope, objective or weights, missing-value behavior, and uncertainty handling; otherwise return supported observations or an unresolved ranking disposition. This includes highlight candidates bound to exact source-time spans and a user-declared defensible ranking objective, and candidate variants bound to exact source candidate, declared audience/channel, and ranking objective. No default memorable score, total score, or tie-break rule is implied; ranking never establishes eligibility or approval."
     sourceScope:
       masterPlanSection: §6.9
       sourcePhrase: Inspect, compare, diagnose, rank, recommend, repair-plan and
@@ -118968,7 +119100,7 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "Return a candidate ordering only when the request declares the eligible dimensions, calibrated scope, objective or weights, missing-value behavior, and uncertainty handling required by quality policy; otherwise return only supported quality observations or an explicit unresolved ranking disposition. No default total score or tie-break rule is implied."
+        result: "Return candidate ordering only when the request declares eligible dimensions, calibrated scope, objective or weights, missing-value behavior, and uncertainty handling; otherwise return supported observations or an unresolved ranking disposition. This includes highlight candidates bound to exact source-time spans and a user-declared defensible ranking objective, and candidate variants bound to exact source candidate, declared audience/channel, and ranking objective. No default memorable score, total score, or tie-break rule is implied; ranking never establishes eligibility or approval."
         outputDistinctions:
           - "An ordering is conditional on the declared ranking basis and cannot turn abstention or a hard-gate failure into eligibility."
           - "Without the required basis or comparable evidence, ranking is unresolved; observations remain available without an invented order."
@@ -119002,7 +119134,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.rank/constraints"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.rank/preconditions"
       effect:
-        semanticOutcome: "Return a candidate ordering only when the request declares the eligible dimensions, calibrated scope, objective or weights, missing-value behavior, and uncertainty handling required by quality policy; otherwise return only supported quality observations or an explicit unresolved ranking disposition. No default total score or tie-break rule is implied."
+        semanticOutcome: "Return candidate ordering only when the request declares eligible dimensions, calibrated scope, objective or weights, missing-value behavior, and uncertainty handling; otherwise return supported observations or an unresolved ranking disposition. This includes highlight candidates bound to exact source-time spans and a user-declared defensible ranking objective, and candidate variants bound to exact source candidate, declared audience/channel, and ranking objective. No default memorable score, total score, or tie-break rule is implied; ranking never establishes eligibility or approval."
         sourcePreservationRequired: false
         noSilentFallback: true
         effectIntentScope: OBSERVATION_ONLY
@@ -135959,7 +136091,7 @@ capabilities:
     operation: subtitles
     label: Deliver subtitles
     definitionState: IN_SCOPE_DRAFT
-    outcome: "Carry the requested subtitle-delivery dimension for the selected accepted artifact or composition into the requested profile and destination result; the output distinguishes a produced package from an explicit outcome."
+    outcome: "Carry the requested subtitle-delivery dimension for the selected accepted artifact or composition into the requested profile and destination result. A produced package may export an authorized subtitle track as a declared sidecar or embedded form with source/version and timing provenance; distinguish that package from an explicit no-package outcome, and do not imply subtitle correctness, supported container compatibility, or successful delivery absent evidence."
     sourceScope:
       masterPlanSection: §6.9
       sourcePhrase: Encoding/transcoding, mastering, packaging, streaming,
@@ -136212,6 +136344,16 @@ capabilities:
           resultVariants:
             - resultKind: DELIVERY_PACKAGE
               originRelation: SOURCE_DERIVED
+              optionalSemanticObservations:
+                - id: subtitleTrackDelivery
+                  fields:
+                    subtitleTrackRef: Exact authorized source subtitle track/version.
+                    packagingForm: SIDECAR or EMBEDDED as explicitly requested and supported by the selected profile.
+                    sourceTimebaseAndMapping: Timing source and any explicit mapping represented in the package.
+                    provenance: Exact source/version and transformation profile reference.
+                  constraints:
+                    - Unsupported or unresolved packaging form is explicit; no silent substitute.
+                    - Packaging does not establish subtitle correctness or delivery success.
               epistemicDisposition: SOURCE_DERIVED_TRANSFORMATION
               disposition: SOURCE_DERIVED_TRANSFORMATION
               selector: "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
@@ -136222,7 +136364,7 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "Carry the requested subtitle-delivery dimension for the selected accepted artifact or composition into the requested profile and destination result; the output distinguishes a produced package from an explicit outcome."
+        result: "Carry the requested subtitle-delivery dimension for the selected accepted artifact or composition into the requested profile and destination result. A produced package may export an authorized subtitle track as a declared sidecar or embedded form with source/version and timing provenance; distinguish that package from an explicit no-package outcome, and do not imply subtitle correctness, supported container compatibility, or successful delivery absent evidence."
         outputDistinctions:
           - "A produced delivery package is source-derived and is identified as a transformation (resultKind=DELIVERY_PACKAGE; disposition=SOURCE_DERIVED_TRANSFORMATION)."
           - "An explicit delivery outcome reports that no package was produced and makes no reconstruction or inference (resultKind=EXPLICIT_DELIVERY_OUTCOME; disposition=NO_RECONSTRUCTION_OR_INFERENCE)."
@@ -136275,7 +136417,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-deliver-subtitles.v1"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER"
       effect:
-        semanticOutcome: "Carry the requested subtitle-delivery dimension for the selected accepted artifact or composition into the requested profile and destination result; the output distinguishes a produced package from an explicit outcome."
+        semanticOutcome: "Carry the requested subtitle-delivery dimension for the selected accepted artifact or composition into the requested profile and destination result. A produced package may export an authorized subtitle track as a declared sidecar or embedded form with source/version and timing provenance; distinguish that package from an explicit no-package outcome, and do not imply subtitle correctness, supported container compatibility, or successful delivery absent evidence."
         sourcePreservationRequired: false
         noSilentFallback: true
         effectIntentScope: GOVERNED_EXTERNAL_REQUEST
@@ -138475,6 +138617,1095 @@ capabilities:
         qualificationState: NOT_EVALUATED
         runtimeAvailability: UNKNOWN
         executionAdmission: NOT_ADMITTED
+  - id: media.recipe.specification.compile
+    scopeStatus: TARGET
+    familyId: media.recipe.template
+    operation: specification.compile
+    label: Compile declarative production specification
+    definitionState: IN_SCOPE_DRAFT
+    outcome: Prepare a normalized semantic graph and reviewable project-plan candidate from the exact versioned declarative
+      specification, schema, compiler-contract version, and optional exact project revision. Bind a stable semantic
+      fingerprint to those exact inputs and preserve each declared deterministic or generative step kind. This is local
+      candidate preparation only; it creates no project revision, job, external effect, or published output.
+    sourceScope:
+      masterPlanSection: §6.6
+      sourcePhrase: Versioned declarative production specifications, typed semantic compilation, deterministic versus
+        generative steps, normalized semantic graph and stable fingerprint; invalid or unauthorized inputs create no
+        effects.
+    relatedMasterPlanSections:
+    - §6.1
+    - §11.1–11.6
+    - §18.2–18.3
+    actorRoles:
+    - creator
+    - editor
+    - reviewer
+    actorBindingState: proposed-actor-binding; owner-acceptance-not-claimed
+    inputArtifactTypes:
+    - versioned-production-specification
+    - versioned-production-specification-schema
+    - versioned-compiler-contract
+    - optional-versioned-project-revision
+    outputArtifactTypes:
+    - normalized-semantic-graph-and-reviewable-project-plan-candidate
+    preconditions: &compile_id002
+    - Verified actor/workspace and required delegated authority.
+    - Every required specification, schema, project revision, patch, and source reference is exact, readable, validated,
+      and within declared bounds.
+    - Applicable rights, consent, profile, policy, and resource admission are checked before any effect; unknown required
+      admission facts block the request.
+    supportedParameters: No additional parameters are defined; closed typed input slots carry the exact request references.
+      No defaults are inferred.
+    constraints: &compile_id001
+    - The semantic fingerprint is bound to exact specification, schema, and compiler-contract versions; a changed version
+      yields a separately identified result.
+    - The normalized graph and project-plan candidate retain exact referenced input identities and do not claim execution,
+      output media, or project mutation.
+    - Declared deterministic and generative step kinds remain distinct; an absent or ambiguous kind is UNKNOWN and cannot
+      be inferred from labels or implementation.
+    - The fingerprint describes normalized semantic identity only; it does not promise byte-identical artifacts, deterministic
+      model output, or compiler availability.
+    actionStateReferences:
+      action: operation-and-effect-defined-by-this-record
+      stateCoverage:
+      - not-admitted
+      - admitted
+      - running-or-observing
+      - completed
+      - failed
+      - blocked
+      stateModelBindingState: proposed-state-model-binding; owner-acceptance-not-claimed
+      stateModelRefs:
+      - media-attempt
+      - media-project-version
+    requiredAuthority: &compile_id003
+    - identity-and-tenant-context
+    - operation-specific-policy-and-rights
+    - artifact-read-or-write-permission-as-applicable
+    rightsPrivacyImplications:
+    - Use only exact authorized project/specification inputs and retain source/version provenance for every derived
+      candidate.
+    - Do not perform or imply project mutation, job submission, external call, egress, or publication through this operation.
+    qualityFidelityContract: The result is a semantic candidate only. No execution, rendering, merge application, correctness
+      qualification, or runtime availability is implied.
+    cancellationRetryReconciliation: This is a local candidate operation with no consequential dispatch or commit. If
+      candidate finality is unknown, preserve UNKNOWN_OUTCOME and do not infer a project change or retry side effect.
+    executionResourceRequirements: Resolve this leaf under .product-experience/pdp-0-product-truth/profile-semantics.yaml#boundedInvocationAdmission.
+      Resource applicability and bounds are not evaluated for this proposal; unknown facts block dispatch. This leaf
+      defines no numeric limit or runtime availability.
+    accessibilityRepresentation: The semantic operation can be invoked through an authorized supported channel; exact
+      interface and accessibility interaction are downstream PDP-2/PDP-3 definitions.
+    provenance:
+    - Exact input identity, version, and applicable rights decision are retained only where the referenced input is
+      consumed. Unknown linkage remains UNKNOWN.
+    - No provider, compiler engine, merge engine, runtime, or third-party dependency is selected or admitted by this
+      P0 proposal.
+    ghatanaReuseDisposition: No provider, compiler engine, merge engine, runtime, or third-party dependency is selected
+      or admitted by this P0 proposal.
+    externalDependencies: []
+    requirementIds:
+    - MEDIA-REQ-CAP-RECIPE-TEMPLATE
+    acceptanceCases:
+    - given: An authorized creator/editor supplies exact, readable versioned inputs and required declarations for this
+        capability.
+      when: The actor requests specification.compile.
+      then: Return only the typed, source-bound local candidate defined by this leaf; retain exact input identity and
+        make no project, job, external, or publication effect.
+    - given: A required input, authority, source version, profile, or semantic interpretation is invalid, denied, unsupported,
+        or unknown.
+      when: The actor requests specification.compile.
+      then: Reject or return an explicitly unresolved/UNKNOWN result; do not silently substitute inputs, claim success,
+        or perform an effect.
+    - given: An authorized creator supplies exact immutable specification, schema, and compiler-contract versions and,
+        when planning into an existing project, an exact readable project revision.
+      when: Media prepares the specification graph and project-plan candidate.
+      then: Return a normalized semantic graph and reviewable candidate whose stable fingerprint binds all supplied
+        contract/version identities; preserve declared deterministic and generative step kinds. Invalid, ambiguous,
+        or unknown step kinds produce a rejected/unresolved candidate and no project, job, or external effect.
+    qualificationDimensions:
+    - operation-and-contract-version
+    - input-format-and-size
+    - rights/privacy/security-policy
+    - resource/hardware/execution-location
+    - cancellation/recovery/reproducibility
+    - accessibility/delivery-compatibility
+    supportedChannels:
+      - cli
+    channelDispositionState: PXD-207-delegated-exact-channel-cli; owner approval and independent acceptance are not claimed
+    explicitUnsupportedCases:
+    - No compiler engine, execution, provider, job, project commit, external effect, or published artifact is admitted
+      by this leaf.
+    - No byte-identical media output or deterministic generative result is promised.
+    - Unsupported schema/compiler versions, unknown rights, or ambiguous step classification are rejected or returned
+      unresolved; never silently substituted.
+    supportDimensions:
+      implementationState: UNKNOWN
+      licenseAdmissionState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      runtimeAvailability: UNKNOWN
+      observationRule: This proposed P0 leaf does not promote implementation, license admission, qualification, runtime
+        availability, or execution admission.
+    actorRefs:
+    - media.creator
+    - media.editor
+    - media.reviewer
+    responsibilityRoleRefs:
+    - media.role.creator
+    - media.role.editor
+    - media.role.reviewer
+    unresolvedActorRoleLabels: []
+    pendingActorRoleAppointments: []
+    intentRefs:
+    - media.intent.create
+    - media.intent.edit
+    - media.intent.review-exact-version
+    outcomeRefs:
+    - media.goal.preserve-source
+    - media.goal.resolve-safely
+    intentBindingState: PROPOSED; owner-acceptance-not-claimed
+    stateModelRefs: &compile_id004
+    - media-attempt
+    - media-project-version
+    stateModelBindingState: proposed-state-model-binding; owner-acceptance-not-claimed
+    requirementTraceState: PROPOSED_EXACT_FAMILY_REQUIREMENT_TRACE; owner-acceptance-not-claimed
+    semanticReferenceScope: media.capability-intent.owner-binding.v1
+    stateModelBindings:
+    - modelId: media-project
+      sourceFile: state-models.yaml
+      modeledStateSets:
+        states:
+        - ACTIVE
+        - ARCHIVED
+    - modelId: media-project-membership
+      sourceFile: state-models.yaml
+      modeledStateSets:
+        states:
+        - INVITED
+        - ACTIVE
+        - SUSPENDED
+        - REVOKED
+        - EXPIRED
+    - modelId: media-project-version
+      sourceFile: state-models.yaml
+      modeledStateSets:
+        states:
+        - DRAFT
+        - COMMITTED
+        - SUPERSEDED
+        - CONFLICTED
+        - ABANDONED
+    unresolvedStateModelBindings: []
+    journeyRefs: []
+    ownerDefinition:
+      decisionId: PROPOSED-media.recipe.specification.compile
+      capabilityIntentId: media.recipe.specification.compile
+      ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
+      decisionAuthority: coordinator-authored-proposal-at-user-direction; owner-approval-not-claimed
+      familyProfileRef: media.capability-profile.media-recipe-template
+      boundsRef: media.capability-bounds.media-recipe-specification-compile
+      channelApplicabilityRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.specification.compile/supportedChannels
+      typedInputSlots:
+      - slotId: input1
+        sourceType: versioned-production-specification
+        cardinality: EXACTLY_ONE
+        required: true
+      - slotId: input2
+        sourceType: versioned-production-specification-schema
+        cardinality: EXACTLY_ONE
+        required: true
+      - slotId: input3
+        sourceType: versioned-compiler-contract
+        cardinality: EXACTLY_ONE
+        required: true
+      - slotId: input4
+        sourceType: optional-versioned-project-revision
+        cardinality: ZERO_OR_ONE
+        required: false
+      parameterSchema:
+        type: object
+        additionalProperties: false
+        required: []
+        properties: {}
+        emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
+      successOutputs:
+      - artifactType: normalized-semantic-graph-and-reviewable-project-plan-candidate
+        requiredOnSuccess: true
+      nonSuccessOutputs:
+        REJECTED: []
+        UNKNOWN_OUTCOME: []
+      semanticOutcomeContract:
+        result: Prepare a normalized semantic graph and reviewable project-plan candidate from the exact versioned declarative
+          specification, schema, compiler-contract version, and optional exact project revision. Bind a stable semantic
+          fingerprint to those exact inputs and preserve each declared deterministic or generative step kind. This is
+          local candidate preparation only; it creates no project revision, job, external effect, or published output.
+        outputDistinctions: *compile_id001
+        unknownDisposition: If any required source, version, schema, conflict, authority, or interpretation is unknown,
+          preserve an explicit unresolved/UNKNOWN result. Do not infer success, substitute an input, or apply a project
+          change.
+        sourceRefs:
+        - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.specification.compile/sourceScope
+        - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.specification.compile/ownerDefinition/typedInputSlots
+        - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE
+        - docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-001
+        - docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-003
+        - docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-009
+      effect:
+        semanticOutcome: Prepare a normalized semantic graph and reviewable project-plan candidate from the exact versioned
+          declarative specification, schema, compiler-contract version, and optional exact project revision. Bind a
+          stable semantic fingerprint to those exact inputs and preserve each declared deterministic or generative step
+          kind. This is local candidate preparation only; it creates no project revision, job, external effect, or published
+          output.
+        sourcePreservationRequired: true
+        noSilentFallback: true
+        effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
+      guards:
+        preconditions: *compile_id002
+        authorityRefs: *compile_id003
+        stateModelRefs: *compile_id004
+      errors:
+      - INVALID_REQUEST
+      - ACCESS_DENIED
+      - RIGHTS_OR_CONSENT_DENIED
+      - UNSUPPORTED_PROFILE
+      - BOUNDS_EXCEEDED
+      - CONFLICT
+      - UNAVAILABLE
+      - UNKNOWN_OUTCOME
+      idempotency: Repeated preparation over the same exact inputs and contract versions is intended to return the same
+        semantic fingerprint; it creates no project/job/external effects. Conflicting source revisions remain separately
+        identified.
+      recovery: No commit or dispatch occurs. Re-read exact authoritative inputs before preparing a new candidate after
+        an input revision or unknown outcome.
+      availability:
+        implementationState: UNKNOWN
+        licenseAdmissionState: UNKNOWN
+        qualificationState: NOT_EVALUATED
+        runtimeAvailability: UNKNOWN
+        executionAdmission: NOT_ADMITTED
+    coverageDisposition: PROPOSED_PENDING_OWNER_REVIEW
+    coverageDecisionRef: NOT_CLAIMED
+    coverageRationale: Coordinator-authored source proposal at user direction; owner approval and independent acceptance
+      are not claimed.
+  - id: media.project.scene.patch-merge
+    scopeStatus: TARGET
+    familyId: media.project
+    operation: scene.patch-merge
+    label: Prepare scene patch merge proposal
+    definitionState: IN_SCOPE_DRAFT
+    outcome: Prepare a local scene-patch merge proposal against an exact base project/scene revision and exact left/right
+      revisions. The proposal identifies the base, both changed revisions, and explicit field/operation conflicts; it
+      never silently merges or commits a revision.
+    sourceScope:
+      masterPlanSection: §6.2
+      sourcePhrase: Scene-level version/patch application and merge; preserve source revisions, expose conflicts, and
+        require review before applying changes.
+    relatedMasterPlanSections:
+    - §6.1
+    - §11.1–11.6
+    - §18.2–18.3
+    actorRoles:
+    - creator
+    - editor
+    - reviewer
+    actorBindingState: proposed-actor-binding; owner-acceptance-not-claimed
+    inputArtifactTypes:
+    - authorized-scene-patch
+    - versioned-project-and-scene-revision-set
+    - user-merge-intent
+    outputArtifactTypes:
+    - local-scene-patch-merge-proposal
+    preconditions: &merge_id002
+    - Verified actor/workspace and required delegated authority.
+    - Every required specification, schema, project revision, patch, and source reference is exact, readable, validated,
+      and within declared bounds.
+    - Applicable rights, consent, profile, policy, and resource admission are checked before any effect; unknown required
+      admission facts block the request.
+    supportedParameters: No additional parameters are defined; closed typed input slots carry the exact request references.
+      No defaults are inferred.
+    constraints: &merge_id001
+    - Every patch and candidate is bound to the exact base project/scene revision and exact left/right version identities.
+    - Overlapping or semantically ambiguous changes are returned as explicit conflicts; no side is silently preferred
+      and both source revisions remain unchanged.
+    - The output is a local review proposal only. Applying a patch or committing a merged project revision requires
+      a separate explicit authorized operation.
+    actionStateReferences:
+      action: operation-and-effect-defined-by-this-record
+      stateCoverage:
+      - not-admitted
+      - admitted
+      - running-or-observing
+      - completed
+      - failed
+      - blocked
+      stateModelBindingState: proposed-state-model-binding; owner-acceptance-not-claimed
+      stateModelRefs:
+      - media-project
+      - media-project-version
+    requiredAuthority: &merge_id003
+    - identity-and-tenant-context
+    - operation-specific-policy-and-rights
+    - artifact-read-or-write-permission-as-applicable
+    rightsPrivacyImplications:
+    - Use only exact authorized project/specification inputs and retain source/version provenance for every derived
+      candidate.
+    - Do not perform or imply project mutation, job submission, external call, egress, or publication through this operation.
+    qualityFidelityContract: The result is a semantic candidate only. No execution, rendering, merge application, correctness
+      qualification, or runtime availability is implied.
+    cancellationRetryReconciliation: This is a local candidate operation with no consequential dispatch or commit. If
+      candidate finality is unknown, preserve UNKNOWN_OUTCOME and do not infer a project change or retry side effect.
+    executionResourceRequirements: Resolve this leaf under .product-experience/pdp-0-product-truth/profile-semantics.yaml#boundedInvocationAdmission.
+      Resource applicability and bounds are not evaluated for this proposal; unknown facts block dispatch. This leaf
+      defines no numeric limit or runtime availability.
+    accessibilityRepresentation: The semantic operation can be invoked through an authorized supported channel; exact
+      interface and accessibility interaction are downstream PDP-2/PDP-3 definitions.
+    provenance:
+    - Exact input identity, version, and applicable rights decision are retained only where the referenced input is
+      consumed. Unknown linkage remains UNKNOWN.
+    - No provider, compiler engine, merge engine, runtime, or third-party dependency is selected or admitted by this
+      P0 proposal.
+    ghatanaReuseDisposition: No provider, compiler engine, merge engine, runtime, or third-party dependency is selected
+      or admitted by this P0 proposal.
+    externalDependencies: []
+    requirementIds:
+    - MEDIA-REQ-CAP-PROJECT
+    acceptanceCases:
+    - given: An authorized creator/editor supplies exact, readable versioned inputs and required declarations for this
+        capability.
+      when: The actor requests scene.patch-merge.
+      then: Return only the typed, source-bound local candidate defined by this leaf; retain exact input identity and
+        make no project, job, external, or publication effect.
+    - given: A required input, authority, source version, profile, or semantic interpretation is invalid, denied, unsupported,
+        or unknown.
+      when: The actor requests scene.patch-merge.
+      then: Reject or return an explicitly unresolved/UNKNOWN result; do not silently substitute inputs, claim success,
+        or perform an effect.
+    - given: An authorized editor supplies a patch with an exact base scene/project revision and exact left and right
+        project revisions, with read access to every referenced source.
+      when: Media prepares a scene-patch merge proposal.
+      then: Return a local proposal bound to the base/left/right identities and enumerate overlapping or unresolved
+        conflicts; preserve both revisions. Reject missing/stale base identity or return UNKNOWN when conflict meaning
+        cannot be resolved. Do not silently merge, mutate, or commit.
+    qualificationDimensions:
+    - operation-and-contract-version
+    - input-format-and-size
+    - rights/privacy/security-policy
+    - resource/hardware/execution-location
+    - cancellation/recovery/reproducibility
+    - accessibility/delivery-compatibility
+    supportedChannels:
+      - cli
+    channelDispositionState: PXD-207-delegated-exact-channel-cli; owner approval and independent acceptance are not claimed
+    explicitUnsupportedCases:
+    - No automatic or silent merge; no last-write-wins or preferred-side rule is implied.
+    - No patch application, canonical project mutation, committed revision, job, export, or external effect is admitted.
+    - Unknown or unavailable base, left, right, source, authority, or conflict semantics must remain unresolved and
+      block application.
+    supportDimensions:
+      implementationState: UNKNOWN
+      licenseAdmissionState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      runtimeAvailability: UNKNOWN
+      observationRule: This proposed P0 leaf does not promote implementation, license admission, qualification, runtime
+        availability, or execution admission.
+    actorRefs:
+    - media.creator
+    - media.editor
+    - media.reviewer
+    responsibilityRoleRefs:
+    - media.role.creator
+    - media.role.editor
+    - media.role.reviewer
+    unresolvedActorRoleLabels: []
+    pendingActorRoleAppointments: []
+    intentRefs:
+    - media.intent.edit
+    - media.intent.review-exact-version
+    - media.intent.restore-project
+    outcomeRefs:
+    - media.goal.preserve-source
+    - media.goal.resolve-safely
+    coverageDisposition: PROPOSED_PENDING_OWNER_REVIEW
+    coverageDecisionRef: NOT_CLAIMED
+    coverageRationale: Coordinator-authored source proposal at user direction; owner approval and independent acceptance
+      are not claimed.
+    intentBindingState: PROPOSED; owner-acceptance-not-claimed
+    stateModelRefs: &merge_id004
+    - media-project
+    - media-project-version
+    stateModelBindingState: proposed-state-model-binding; owner-acceptance-not-claimed
+    requirementTraceState: PROPOSED_EXACT_FAMILY_REQUIREMENT_TRACE; owner-acceptance-not-claimed
+    semanticReferenceScope: media.capability-intent.owner-binding.v1
+    stateModelBindings:
+    - modelId: media-project
+      sourceFile: state-models.yaml
+      modeledStateSets:
+        states:
+        - ACTIVE
+        - ARCHIVED
+    - modelId: media-project-membership
+      sourceFile: state-models.yaml
+      modeledStateSets:
+        states:
+        - INVITED
+        - ACTIVE
+        - SUSPENDED
+        - REVOKED
+        - EXPIRED
+    - modelId: media-project-version
+      sourceFile: state-models.yaml
+      modeledStateSets:
+        states:
+        - DRAFT
+        - COMMITTED
+        - SUPERSEDED
+        - CONFLICTED
+        - ABANDONED
+    unresolvedStateModelBindings: []
+    journeyRefs: []
+    ownerDefinition:
+      decisionId: PROPOSED-media.project.scene.patch-merge
+      capabilityIntentId: media.project.scene.patch-merge
+      ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
+      decisionAuthority: coordinator-authored-proposal-at-user-direction; owner-approval-not-claimed
+      familyProfileRef: media.capability-profile.media-project
+      boundsRef: media.capability-bounds.media-project-scene-patch-merge
+      channelApplicabilityRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.scene.patch-merge/supportedChannels
+      typedInputSlots:
+      - slotId: input1
+        sourceType: authorized-scene-patch
+        cardinality: EXACTLY_ONE
+        required: true
+      - slotId: input2
+        sourceType: versioned-project-and-scene-revision-set
+        cardinality: EXACTLY_ONE
+        required: true
+      - slotId: input3
+        sourceType: user-merge-intent
+        cardinality: EXACTLY_ONE
+        required: true
+      parameterSchema:
+        type: object
+        additionalProperties: false
+        required: []
+        properties: {}
+        emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
+      successOutputs:
+      - artifactType: local-scene-patch-merge-proposal
+        requiredOnSuccess: true
+      nonSuccessOutputs:
+        REJECTED: []
+        UNKNOWN_OUTCOME: []
+      semanticOutcomeContract:
+        result: Prepare a local scene-patch merge proposal against an exact base project/scene revision and exact left/right
+          revisions. The proposal identifies the base, both changed revisions, and explicit field/operation conflicts;
+          it never silently merges or commits a revision.
+        outputDistinctions: *merge_id001
+        unknownDisposition: If any required source, version, schema, conflict, authority, or interpretation is unknown,
+          preserve an explicit unresolved/UNKNOWN result. Do not infer success, substitute an input, or apply a project
+          change.
+        sourceRefs:
+        - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.scene.patch-merge/sourceScope
+        - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.scene.patch-merge/ownerDefinition/typedInputSlots
+        - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.version/ownerDefinition/semanticOutcomeContract
+        - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT
+        - .product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/@id=MEDIA-REC-P0-AC-042
+        - docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-SPEC-015
+      effect:
+        semanticOutcome: Prepare a local scene-patch merge proposal against an exact base project/scene revision and
+          exact left/right revisions. The proposal identifies the base, both changed revisions, and explicit field/operation
+          conflicts; it never silently merges or commits a revision.
+        sourcePreservationRequired: true
+        noSilentFallback: true
+        effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
+      guards:
+        preconditions: *merge_id002
+        authorityRefs: *merge_id003
+        stateModelRefs: *merge_id004
+      errors:
+      - INVALID_REQUEST
+      - ACCESS_DENIED
+      - RIGHTS_OR_CONSENT_DENIED
+      - UNSUPPORTED_PROFILE
+      - BOUNDS_EXCEEDED
+      - CONFLICT
+      - UNAVAILABLE
+      - UNKNOWN_OUTCOME
+      idempotency: Repeated preparation over the same exact inputs and contract versions is intended to return the same
+        semantic fingerprint; it creates no project/job/external effects. Conflicting source revisions remain separately
+        identified.
+      recovery: No commit or dispatch occurs. Re-read exact authoritative inputs before preparing a new candidate after
+        an input revision or unknown outcome.
+      availability:
+        implementationState: UNKNOWN
+        licenseAdmissionState: UNKNOWN
+        qualificationState: NOT_EVALUATED
+        runtimeAvailability: UNKNOWN
+        executionAdmission: NOT_ADMITTED
+  - id: media.quality.audio.content-similarity.assess
+    scopeStatus: TARGET
+    familyId: media.quality
+    operation: content-similarity.assess
+    label: Assess bounded audio content similarity
+    definitionState: IN_SCOPE_DRAFT
+    outcome: >-
+      Return a bounded, method-identified similarity observation for exact supplied audio versions and declared scope.
+      This is not an ownership, copying, infringement, licensing, authorization, or clearance determination.
+    sourceScope:
+      masterPlanSection: §6.9
+      sourcePhrase: Copyright fingerprint / potentially infringing similarity review
+      sourceRefs:
+        - docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-MUSIC-014
+    relatedMasterPlanSections: [§6.9, §6.6]
+    actorRoles: [creator, editor, reviewer]
+    actorBindingState: proposed-actor-binding; owner-acceptance-not-claimed
+    inputArtifactTypes: [versioned-audio-artifact, declared-comparison-purpose-and-scope, admitted-similarity-method-version]
+    outputArtifactTypes: [bounded-audio-content-similarity-observation]
+    preconditions:
+      - Caller authority and access to both exact audio versions and declared purpose are verified.
+      - Inputs are readable and bounded; comparison method identity/version and scope are explicit.
+      - Unknown authority, rights, policy, method, or admission facts block evaluation; no runtime is admitted.
+    supportedParameters: Closed typed inputs carry exact request references; no defaults are inferred.
+    constraints:
+      - Bind observation to exact audio identity/version, method/version, scope, uncertainty and abstention.
+      - Never infer a match or non-match from missing evidence or unsupported dimensions.
+      - Similarity is not proof of ownership, copying, infringement, license, authorization, permitted use, or clearance.
+      - Do not mutate source audio or make a legal, rights, or owner determination.
+    actionStateReferences:
+      action: operation-and-effect-defined-by-this-record
+      stateCoverage: [not-admitted, admitted, running-or-observing, completed, failed, blocked]
+      stateModelBindingState: proposed-state-model-binding; owner-acceptance-not-claimed
+      stateModelRefs: [media-attempt, media-project-version]
+    requiredAuthority: [identity-and-tenant-context, operation-specific-policy-and-rights, artifact-read-or-write-permission-as-applicable]
+    rightsPrivacyImplications:
+      - Use only authorized exact-version inputs and retain input, purpose, method and applicable policy provenance.
+      - Similarity cannot grant or deny use or substitute for an authoritative rights decision.
+    qualityFidelityContract: Report a bounded observation with exact input versions, declared scope, method/version, uncertainty and unavailable dimensions; it is not rights evidence.
+    cancellationRetryReconciliation: Read-only observation; preserve UNKNOWN/UNAVAILABLE and do not infer a result when evidence or method finality is unknown.
+    executionResourceRequirements: Resolve under profile-semantics.yaml#boundedInvocationAdmission; bounds are unevaluated and unknown admission blocks dispatch. No numeric limit or runtime availability is defined.
+    accessibilityRepresentation: Semantic result, uncertainty and abstention must be exposed; interaction details remain downstream PDP-2/PDP-3.
+    provenance:
+      - Retain exact input identity/version, purpose/scope, method/version, observation time and uncertainty where available.
+      - No provider, model, engine or third-party dependency is selected or admitted by this proposal.
+    ghatanaReuseDisposition: No provider, model, engine or third-party dependency is selected or admitted by this P0 proposal.
+    externalDependencies: []
+    requirementIds: [MEDIA-REQ-CAP-QUALITY]
+    acceptanceCases:
+      - given: An authorized reviewer supplies two exact readable audio versions, declared purpose/scope and an admitted method/version.
+        when: The actor requests content-similarity.assess.
+        then: Return only the bounded observation bound to input versions, method/version, scope and uncertainty; make no rights or ownership claim.
+      - given: An input, authority, purpose, method, policy or evidence dimension is denied, unsupported, unavailable or unknown.
+        when: The actor requests content-similarity.assess.
+        then: Reject or return explicit UNKNOWN/UNAVAILABLE/abstention; never infer ownership, infringement, license, authorization, clearance or permitted use.
+    qualificationDimensions: [operation-and-contract-version, input-format-and-size, rights/privacy/security-policy, resource/hardware/execution-location, reproducibility, accessibility/delivery-compatibility]
+    supportedChannels:
+      - web
+    channelDispositionState: PXD-207-delegated-exact-channel-web; owner approval and independent acceptance are not claimed
+    explicitUnsupportedCases:
+      - No legal, owner, infringement, copying, authorization, licensing or clearance determination.
+      - Similarity is not rights authorization or a permitted-use decision.
+      - Implementation, runtime availability, qualification, deployment admission and owner acceptance are not established.
+    supportDimensions: {implementationState: UNKNOWN, licenseAdmissionState: UNKNOWN, qualificationState: NOT_EVALUATED, runtimeAvailability: UNKNOWN, executionAdmission: NOT_ADMITTED}
+    actorRefs: [media.creator, media.editor, media.reviewer]
+    responsibilityRoleRefs: [media.role.creator, media.role.editor, media.role.reviewer]
+    unresolvedActorRoleLabels: []
+    pendingActorRoleAppointments: []
+    intentRefs: [media.intent.create, media.intent.edit, media.intent.review-exact-version]
+    outcomeRefs: [media.goal.preserve-source, media.goal.resolve-safely]
+    coverageDisposition: PROPOSED_PENDING_OWNER_REVIEW
+    coverageDecisionRef: NOT_CLAIMED
+    coverageRationale: Coordinator-authored P0 proposal; owner approval and independent acceptance are not claimed.
+    intentBindingState: PROPOSED; owner-acceptance-not-claimed
+    stateModelRefs: [media-attempt, media-project-version]
+    stateModelBindingState: proposed-state-model-binding; owner-acceptance-not-claimed
+    requirementTraceState: PROPOSED_EXACT_FAMILY_REQUIREMENT_TRACE; owner-acceptance-not-claimed
+    semanticReferenceScope: media.capability-intent.owner-binding.v1
+    journeyRefs: []
+    ownerDefinition:
+      decisionId: PROPOSED-media.quality.audio.content-similarity.assess
+      capabilityIntentId: media.quality.audio.content-similarity.assess
+      ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
+      decisionAuthority: coordinator-authored-proposal-at-user-direction; owner-approval-not-claimed
+      familyProfileRef: media.capability-profile.media-quality-audio
+      boundsRef: media.capability-bounds.media-quality-audio-content-similarity-assess
+      channelApplicabilityRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.audio.content-similarity.assess/supportedChannels
+      typedInputSlots:
+        - {slotId: input1, sourceType: versioned-audio-artifact, cardinality: EXACTLY_TWO, required: true}
+        - {slotId: input2, sourceType: declared-comparison-purpose-and-scope, cardinality: EXACTLY_ONE, required: true}
+        - {slotId: input3, sourceType: admitted-similarity-method-version, cardinality: EXACTLY_ONE, required: true}
+      parameterSchema: {type: object, additionalProperties: false, required: [], properties: {}, emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES}
+      successOutputs: [{artifactType: bounded-audio-content-similarity-observation, requiredOnSuccess: true}]
+      nonSuccessOutputs: {REJECTED: [], UNKNOWN_OUTCOME: []}
+      semanticOutcomeContract:
+        result: Return a bounded method-identified similarity observation for the exact supplied audio versions and declared scope; make no rights or ownership determination.
+        outputDistinctions: [Exact input versions, method/version, scope, uncertainty and abstention; no rights conclusion.]
+        unknownDisposition: Unknown input, authority, rights, purpose, method or evidence remains UNKNOWN/UNAVAILABLE; do not infer a legal or permitted-use result.
+        sourceRefs:
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.audio.content-similarity.assess/sourceScope
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.quality.audio.content-similarity.assess/ownerDefinition/typedInputSlots
+          - docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-MUSIC-014
+      effect: {semanticOutcome: Return a bounded similarity observation only; no media or rights state changes., sourcePreservationRequired: true, noSilentFallback: true, effectIntentScope: OBSERVATION_ONLY}
+      guards:
+        preconditions: [Exact authorized versions and explicit purpose, scope and method are required; unknown facts block evaluation.]
+        authorityRefs: [identity-and-tenant-context, operation-specific-policy-and-rights, artifact-read-or-write-permission-as-applicable]
+        stateModelRefs: [media-attempt, media-project-version]
+      errors: [INVALID_REQUEST, ACCESS_DENIED, RIGHTS_OR_CONSENT_DENIED, UNSUPPORTED_PROFILE, BOUNDS_EXCEEDED, CONFLICT, UNAVAILABLE, UNKNOWN_OUTCOME]
+      idempotency: Repeating the same read-only observation over exact versions, method and scope creates no consequential effect.
+      recovery: Re-observe only under current authorized scope; preserve unavailable evidence and make no rights inference.
+      availability: {implementationState: UNKNOWN, licenseAdmissionState: UNKNOWN, qualificationState: NOT_EVALUATED, runtimeAvailability: UNKNOWN, executionAdmission: NOT_ADMITTED}
+  - id: media.generate.video.preset.manage
+    scopeStatus: TARGET
+    familyId: media.generate.video
+    operation: preset.manage
+    label: Manage versioned video generation presets
+    definitionState: IN_SCOPE_DRAFT
+    outcome: Save exact effective video-generation settings as a versioned preset or prepare a candidate binding to a new request. Reuse never replays an old job or mutates an existing output; any new invocation requires fresh authorization and admission.
+    sourceScope:
+      masterPlanSection: §6.4
+      sourcePhrase: Generation history and reusable parameter settings
+      sourceRefs:
+        - docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-025
+    relatedMasterPlanSections: [§6.4]
+    actorRoles: [creator, editor]
+    actorBindingState: proposed-actor-binding; owner-acceptance-not-claimed
+    inputArtifactTypes: [authorized-preset-management-intent, exact-versioned-effective-video-settings, optional-exact-new-generation-intent]
+    outputArtifactTypes: [versioned-video-generation-preset-or-settings-application-candidate]
+    preconditions:
+      - Caller authority for the preset scope is verified.
+      - Source job/version and effective settings are exact, readable and bounded.
+      - Saving requires write authority; applying creates only a candidate; unknown later rights/policy/resource facts block a new invocation.
+    supportedParameters: Closed typed inputs carry exact action, source settings and optional new request; no defaults are inferred.
+    constraints:
+      - Save only exact effective settings bound to source job/version.
+      - Applying prepares a candidate only; no job is submitted and no prior invocation is replayed.
+      - Missing settings are not reconstructed from prior output or defaults; changes are explicit and attributable.
+      - Each new invocation independently revalidates actor, rights, policy, profile, resource and capability admission.
+    actionStateReferences:
+      action: operation-and-effect-defined-by-this-record
+      stateCoverage: [not-admitted, admitted, completed, failed, blocked]
+      stateModelBindingState: proposed-state-model-binding; owner-acceptance-not-claimed
+      stateModelRefs: [media-job, media-attempt, media-project-version]
+    requiredAuthority: [identity-and-tenant-context, operation-specific-policy-and-rights, artifact-read-or-write-permission-as-applicable]
+    rightsPrivacyImplications:
+      - Reuse transfers or extends no rights for source assets, models, voices or prior outputs.
+      - Retain only policy-permitted settings and provenance; sensitive prompt/reference exposure is not implied.
+    qualityFidelityContract: Preserve selected settings/version and report differences from a new request; no reproducibility or identical output is implied.
+    cancellationRetryReconciliation: Candidate preparation has no job dispatch; unknown preset persistence remains UNKNOWN and does not imply a new job ran.
+    executionResourceRequirements: Resolve under profile-semantics.yaml#boundedInvocationAdmission; no numeric limit or runtime availability is defined, and unknown new-invocation admission blocks dispatch.
+    accessibilityRepresentation: Preset identity/version and settings differences are semantic outputs; interaction detail remains downstream PDP-2/PDP-3.
+    provenance: [Exact source job/version, preset version and selected settings; no provider is selected or admitted.]
+    ghatanaReuseDisposition: No provider, model, engine or third-party dependency is selected or admitted by this P0 proposal.
+    externalDependencies: []
+    requirementIds: [MEDIA-REQ-CAP-GENERATE-VIDEO]
+    acceptanceCases:
+      - given: An authorized creator supplies an exact completed generation record and its effective settings.
+        when: The actor requests preset.manage to save or prepare application to a distinct new request.
+        then: Return a source-bound versioned preset or settings candidate; do not submit a job, replay the source invocation or mutate output; a later invocation requires fresh admission.
+      - given: Settings, source version, authority, policy or preset identity is missing, stale, unsupported, denied or unknown.
+        when: The actor requests preset.manage.
+        then: Reject or preserve UNKNOWN/UNAVAILABLE; never infer defaults, reuse source rights, replay a job or claim output equivalence.
+    qualificationDimensions: [operation-and-contract-version, settings-schema-version, rights/privacy/security-policy, resource/hardware/execution-location, cancellation/recovery/reproducibility, accessibility/delivery-compatibility]
+    supportedChannels:
+      - web
+    channelDispositionState: PXD-207-delegated-exact-channel-web; owner approval and independent acceptance are not claimed
+    explicitUnsupportedCases:
+      - No job replay, dispatch, output mutation, rights transfer or identical-result guarantee.
+      - No inference of omitted/effective settings from defaults or artifact appearance.
+      - Implementation, runtime availability, qualification, deployment admission and owner acceptance are not established.
+    supportDimensions: {implementationState: UNKNOWN, licenseAdmissionState: UNKNOWN, qualificationState: NOT_EVALUATED, runtimeAvailability: UNKNOWN, executionAdmission: NOT_ADMITTED}
+    actorRefs: [media.creator, media.editor]
+    responsibilityRoleRefs: [media.role.creator, media.role.editor]
+    unresolvedActorRoleLabels: []
+    pendingActorRoleAppointments: []
+    intentRefs: [media.intent.create, media.intent.edit]
+    outcomeRefs: [media.goal.preserve-source, media.goal.finished-asset]
+    coverageDisposition: PROPOSED_PENDING_OWNER_REVIEW
+    coverageDecisionRef: NOT_CLAIMED
+    coverageRationale: Coordinator-authored P0 proposal; owner approval and independent acceptance are not claimed.
+    intentBindingState: PROPOSED; owner-acceptance-not-claimed
+    stateModelRefs: [media-job, media-attempt, media-project-version]
+    stateModelBindingState: proposed-state-model-binding; owner-acceptance-not-claimed
+    requirementTraceState: PROPOSED_EXACT_FAMILY_REQUIREMENT_TRACE; owner-acceptance-not-claimed
+    semanticReferenceScope: media.capability-intent.owner-binding.v1
+    journeyRefs: []
+    ownerDefinition:
+      decisionId: PROPOSED-media.generate.video.preset.manage
+      capabilityIntentId: media.generate.video.preset.manage
+      ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
+      decisionAuthority: coordinator-authored-proposal-at-user-direction; owner-approval-not-claimed
+      familyProfileRef: media.capability-profile.media-generate-video
+      boundsRef: media.capability-bounds.media-generate-video-preset-manage
+      channelApplicabilityRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.preset.manage/supportedChannels
+      typedInputSlots:
+        - {slotId: input1, sourceType: authorized-preset-management-intent, cardinality: EXACTLY_ONE, required: true}
+        - {slotId: input2, sourceType: exact-versioned-effective-video-settings, cardinality: EXACTLY_ONE, required: true}
+        - {slotId: input3, sourceType: optional-exact-new-generation-intent, cardinality: ZERO_OR_ONE, required: false}
+      parameterSchema: {type: object, additionalProperties: false, required: [], properties: {}, emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES}
+      successOutputs: [{artifactType: versioned-video-generation-preset-or-settings-application-candidate, requiredOnSuccess: true}]
+      nonSuccessOutputs: {REJECTED: [], UNKNOWN_OUTCOME: []}
+      semanticOutcomeContract:
+        result: Save exact settings as a versioned preset or prepare candidate application to a new intent; no replay, dispatch or output mutation occurs.
+        outputDistinctions: [Source job/version, exact settings and preset version; a new invocation requires fresh admission.]
+        unknownDisposition: Missing settings/version/authority/policy remain UNKNOWN/UNAVAILABLE; do not infer defaults, dispatch or imply reproducibility.
+        sourceRefs:
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.preset.manage/sourceScope
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.preset.manage/ownerDefinition/typedInputSlots
+          - docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-025
+      effect: {semanticOutcome: Save or prepare a versioned preset candidate only; no invocation or prior-output mutation., sourcePreservationRequired: true, noSilentFallback: true, effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT}
+      guards:
+        preconditions: [Exact source settings and version are required; new invocation needs fresh authorization and admission.]
+        authorityRefs: [identity-and-tenant-context, operation-specific-policy-and-rights, artifact-read-or-write-permission-as-applicable]
+        stateModelRefs: [media-job, media-attempt, media-project-version]
+      errors: [INVALID_REQUEST, ACCESS_DENIED, RIGHTS_OR_CONSENT_DENIED, UNSUPPORTED_PROFILE, BOUNDS_EXCEEDED, CONFLICT, UNAVAILABLE, UNKNOWN_OUTCOME]
+      idempotency: Repeating an authorized save over the same source/settings version does not create duplicate versions.
+      recovery: Re-read exact source settings after unknown persistence; do not infer job dispatch or output change.
+      availability: {implementationState: UNKNOWN, licenseAdmissionState: UNKNOWN, qualificationState: NOT_EVALUATED, runtimeAvailability: UNKNOWN, executionAdmission: NOT_ADMITTED}
+  - id: media.generate.video.shot-condition
+    scopeStatus: TARGET
+    familyId: media.generate.video
+    operation: shot-condition
+    label: Bind video generation conditions to shots
+    definitionState: IN_SCOPE_DRAFT
+    outcome: Prepare a reviewable source-bound candidate binding each prompt, mask, region trajectory or motion-brush condition, and time/keyframe anchor to an exact declared shot/segment and source version; conditions never silently expand to the whole clip. Preserve region identity, timebase, and anchor mapping. Unsupported controls or unknown region/time mappings remain UNKNOWN or blocked; this is video-generation conditioning, not scene/path animation and not a generation dispatch.
+    sourceScope:
+      masterPlanSection: §6.4
+      sourcePhrase: Prompts/masks per shot and timeline keyframe anchors
+      sourceRefs:
+        - docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-027
+    relatedMasterPlanSections: [§6.4]
+    actorRoles: [creator, editor]
+    actorBindingState: proposed-actor-binding; owner-acceptance-not-claimed
+    inputArtifactTypes: [versioned-video-generation-intent, exact-shot-segment-time-anchor-set, per-shot-prompt-and-mask-conditions]
+    outputArtifactTypes: [per-shot-generation-conditioning-candidate]
+    preconditions:
+      - Caller authority and access to generation intent, shot map, masks and source versions are verified.
+      - Each interval has an explicit bounded timebase; mask use has current purpose-specific rights/policy admission.
+      - Unknown anchor, mask, scope, rights, profile or support remains blocked/UNKNOWN; no generation dispatch occurs.
+    supportedParameters: Closed typed inputs define shot, interval, prompt, mask and anchor references; no whole-clip default is inferred.
+    constraints:
+      - Bind each condition to exact shot/segment identity, source version and declared timebase.
+      - Invalid, overlapping ambiguous or unresolved intervals remain conflicts; never widen or silently choose a mapping.
+      - Distinguish generation constraints from authored or observed scene facts; return a candidate only.
+      - Do not expose unauthorized mask/source data or treat prompts as verified facts or authority.
+    actionStateReferences:
+      action: operation-and-effect-defined-by-this-record
+      stateCoverage: [not-admitted, admitted, completed, failed, blocked]
+      stateModelBindingState: proposed-state-model-binding; owner-acceptance-not-claimed
+      stateModelRefs: [media-job, media-attempt, media-project-version]
+    requiredAuthority: [identity-and-tenant-context, operation-specific-policy-and-rights, artifact-read-or-write-permission-as-applicable]
+    rightsPrivacyImplications:
+      - Mask/reference access is purpose-bound; require current rights, privacy and policy admission for each source.
+      - Do not infer egress consent or authorize provider/model use through a condition.
+    qualityFidelityContract: Return explicit shot/time mapping, applied/unapplied conditions, conflicts and uncertainty; no output quality or generated artifact is claimed.
+    cancellationRetryReconciliation: Candidate preparation has no generation dispatch; unknown persistence remains UNKNOWN and does not imply an output.
+    executionResourceRequirements: Resolve under profile-semantics.yaml#boundedInvocationAdmission; no numeric limit or runtime availability is defined and unknown later execution admission blocks dispatch.
+    accessibilityRepresentation: Shot, timebase, condition mapping, conflict and status are semantic outputs; timeline interaction remains downstream PDP-2/PDP-3.
+    provenance: [Exact intent, source version, shot map/timebase, condition/mask identities and policy context; no provider is selected or admitted.]
+    ghatanaReuseDisposition: No provider, model, engine or third-party dependency is selected or admitted by this P0 proposal.
+    externalDependencies: []
+    requirementIds: [MEDIA-REQ-CAP-GENERATE-VIDEO]
+    acceptanceCases:
+      - given: An authorized creator supplies a versioned intent, exact shot/timebase map, and per-shot prompts/masks with admitted rights.
+        when: The actor requests shot-condition preparation.
+        then: Return a candidate binding each condition to its exact shot, timebase and source version; expose unresolved/unapplied conditions and do not dispatch.
+      - given: An interval overlaps ambiguously, an anchor is unknown, a mask/right is missing, or a condition is unsupported.
+        when: The actor requests shot-condition preparation.
+        then: Reject or preserve explicit CONFLICT/UNKNOWN; never infer a shot, propagate conditions to the whole clip or silently proceed.
+    qualificationDimensions: [operation-and-contract-version, input-format-and-size, rights/privacy/security-policy, resource/hardware/execution-location, cancellation/recovery/reproducibility, accessibility/delivery-compatibility]
+    supportedChannels:
+      - web
+    channelDispositionState: PXD-207-delegated-exact-channel-web; owner approval and independent acceptance are not claimed
+    explicitUnsupportedCases:
+      - No automatic shot detection or silent whole-clip condition propagation.
+      - No generated output, job submission, provider/model admission or scene-fact verification.
+      - Implementation, runtime availability, qualification, deployment admission and owner acceptance are not established.
+    supportDimensions: {implementationState: UNKNOWN, licenseAdmissionState: UNKNOWN, qualificationState: NOT_EVALUATED, runtimeAvailability: UNKNOWN, executionAdmission: NOT_ADMITTED}
+    actorRefs: [media.creator, media.editor]
+    responsibilityRoleRefs: [media.role.creator, media.role.editor]
+    unresolvedActorRoleLabels: []
+    pendingActorRoleAppointments: []
+    intentRefs: [media.intent.create, media.intent.edit]
+    outcomeRefs: [media.goal.finished-asset, media.goal.preserve-source]
+    coverageDisposition: PROPOSED_PENDING_OWNER_REVIEW
+    coverageDecisionRef: NOT_CLAIMED
+    coverageRationale: Coordinator-authored P0 proposal; owner approval and independent acceptance are not claimed.
+    intentBindingState: PROPOSED; owner-acceptance-not-claimed
+    stateModelRefs: [media-job, media-attempt, media-project-version]
+    stateModelBindingState: proposed-state-model-binding; owner-acceptance-not-claimed
+    requirementTraceState: PROPOSED_EXACT_FAMILY_REQUIREMENT_TRACE; owner-acceptance-not-claimed
+    semanticReferenceScope: media.capability-intent.owner-binding.v1
+    journeyRefs: []
+    ownerDefinition:
+      decisionId: PROPOSED-media.generate.video.shot-condition
+      capabilityIntentId: media.generate.video.shot-condition
+      ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
+      decisionAuthority: coordinator-authored-proposal-at-user-direction; owner-approval-not-claimed
+      familyProfileRef: media.capability-profile.media-generate-video
+      boundsRef: media.capability-bounds.media-generate-video-shot-condition
+      channelApplicabilityRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.shot-condition/supportedChannels
+      typedInputSlots:
+        - {slotId: input1, sourceType: versioned-video-generation-intent, cardinality: EXACTLY_ONE, required: true}
+        - {slotId: input2, sourceType: exact-shot-segment-time-anchor-set, cardinality: EXACTLY_ONE, required: true}
+        - {slotId: input3, sourceType: per-shot-prompt-and-mask-conditions, cardinality: ONE_OR_MORE, required: true}
+      parameterSchema: {type: object, additionalProperties: false, required: [], properties: {}, emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES}
+      successOutputs: [{artifactType: per-shot-generation-conditioning-candidate, requiredOnSuccess: true}]
+      nonSuccessOutputs: {REJECTED: [], UNKNOWN_OUTCOME: []}
+      semanticOutcomeContract:
+        result: Prepare a source-bound candidate binding each prompt, mask and anchor to an exact declared shot/time interval; do not dispatch generation.
+        outputDistinctions: [Exact shot/timebase mapping, source version, conflicts, unapplied conditions and uncertainty; no whole-clip widening.]
+        unknownDisposition: Unknown shot mapping, timebase, rights, mask or support remains UNKNOWN/CONFLICT and blocks; do not infer or dispatch.
+        sourceRefs:
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.shot-condition/sourceScope
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.shot-condition/ownerDefinition/typedInputSlots
+          - docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-GEN-027
+      effect: {semanticOutcome: Prepare a local reviewable conditioning candidate only; no generation dispatch or output mutation., sourcePreservationRequired: true, noSilentFallback: true, effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT}
+      guards:
+        preconditions: [Exact authorized source, shot/timebase map, conditions and mask rights are required; unknown facts block use.]
+        authorityRefs: [identity-and-tenant-context, operation-specific-policy-and-rights, artifact-read-or-write-permission-as-applicable]
+        stateModelRefs: [media-job, media-attempt, media-project-version]
+      errors: [INVALID_REQUEST, ACCESS_DENIED, RIGHTS_OR_CONSENT_DENIED, UNSUPPORTED_PROFILE, BOUNDS_EXCEEDED, CONFLICT, UNAVAILABLE, UNKNOWN_OUTCOME]
+      idempotency: Repeating preparation for identical versions and conditions yields the same semantic binding and no generation effect.
+      recovery: Re-read exact shot/timebase and condition versions after unknown persistence; never infer dispatch or output.
+      availability: {implementationState: UNKNOWN, licenseAdmissionState: UNKNOWN, qualificationState: NOT_EVALUATED, runtimeAvailability: UNKNOWN, executionAdmission: NOT_ADMITTED}
+  - id: media.job.schedule.manage
+    scopeStatus: TARGET
+    familyId: media.job
+    operation: schedule.manage
+    label: Manage versioned watch and recurrence schedules
+    definitionState: IN_SCOPE_DRAFT
+    outcome: Create, revise or pause a versioned watch/recurrence configuration. Each occurrence is only a distinct proposed job request and needs fresh current admission; a schedule never pre-authorizes future work.
+    sourceScope:
+      masterPlanSection: §6.2
+      sourcePhrase: Watch folders and recurring/batch media jobs
+      sourceRefs:
+        - docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-013
+    relatedMasterPlanSections: [§6.2]
+    actorRoles: [creator, editor, operator]
+    actorBindingState: proposed-actor-binding; owner-acceptance-not-claimed
+    inputArtifactTypes: [authorized-versioned-watch-source-and-schedule-config, provider-capability-machine-checkpoint-license-context]
+    outputArtifactTypes: [versioned-watch-folder-or-recurrence-configuration]
+    preconditions:
+      - Caller read and schedule-management authority is verified for the exact source/configuration.
+      - Source, schedule, provider/capability, machine, checkpoint/model and license identities are exact and bounded.
+      - Unknown source, authority, egress, policy, provider, capability, machine, checkpoint, license or resource facts block consequential change or dispatch.
+    supportedParameters: Closed typed inputs carry exact source and schedule references; no schedule defaults or runtime support are inferred.
+    constraints:
+      - Every schedule change is versioned and attributable to an authorized actor.
+      - Each occurrence is a distinct candidate request and needs fresh actor, provider/capability, profile, rights, policy, resource, machine, checkpoint and license admission before submission.
+      - A schedule never pre-authorizes future execution; no synthetic success or unauthorized cloud fallback is permitted.
+      - Pausing/changing a schedule does not cancel or roll back already submitted child jobs.
+    actionStateReferences:
+      action: operation-and-effect-defined-by-this-record
+      stateCoverage: [not-admitted, admitted, completed, failed, blocked]
+      stateModelBindingState: proposed-state-model-binding; owner-acceptance-not-claimed
+      stateModelRefs: [media-job, media-attempt, media-project-version]
+    requiredAuthority: [identity-and-tenant-context, operation-specific-policy-and-rights, artifact-read-or-write-permission-as-applicable, governed-egress-or-publishing-authority-when-applicable]
+    rightsPrivacyImplications:
+      - Watched source access, retention, locality and egress are purpose-bound and rechecked per occurrence.
+      - No provider/cloud transfer is implied; exact input/destination requires separate admitted authority.
+    qualityFidelityContract: Report exact schedule/source version; candidate occurrences remain distinct from admitted jobs or completed outputs.
+    cancellationRetryReconciliation: Schedule management does not cancel children; reconcile schedule persistence and child jobs independently.
+    executionResourceRequirements: Resolve under profile-semantics.yaml#boundedInvocationAdmission; no numeric limit or runtime availability is defined, and unknown occurrence admission blocks dispatch.
+    accessibilityRepresentation: Schedule/source/recurrence/pause state and child-candidate status must be semantic; interaction detail remains downstream PDP-2/PDP-3.
+    provenance: [Exact schedule/source revisions and occurrence identities; provider, machine, checkpoint, license and policy decisions remain separately bound.]
+    ghatanaReuseDisposition: No provider, model, engine, machine or third-party dependency is selected or admitted by this P0 proposal.
+    externalDependencies: []
+    requirementIds: [MEDIA-REQ-CAP-JOB]
+    acceptanceCases:
+      - given: An authorized operator supplies an exact readable watch source, schedule config and declared provider/capability context.
+        when: The actor requests schedule.manage.
+        then: Return an attributable versioned configuration; occurrences are candidate requests requiring fresh admission before submission.
+      - given: Source, schedule, authority, rights/egress, provider, machine, checkpoint, license or occurrence admission is denied, unavailable or unknown.
+        when: The actor requests schedule.manage or an occurrence is observed.
+        then: Reject or preserve DENIED/UNAVAILABLE/UNKNOWN; never cloud-fallback, synthesize job/output success or imply child cancellation.
+    qualificationDimensions: [operation-and-contract-version, source-format-and-size, rights/privacy/security-policy, resource/hardware/execution-location, cancellation/recovery/reproducibility, accessibility/delivery-compatibility]
+    supportedChannels:
+      - cli
+    channelDispositionState: PXD-207-delegated-exact-channel-cli; owner approval and independent acceptance are not claimed
+    explicitUnsupportedCases:
+      - Schedules do not authorize future execution or guarantee provider/model availability.
+      - No silent provider/cloud fallback; machine, checkpoint/model and license eligibility are exact per occurrence.
+      - Pausing a schedule does not cancel submitted children; implementation and runtime remain unclaimed.
+    supportDimensions: {implementationState: UNKNOWN, licenseAdmissionState: UNKNOWN, qualificationState: NOT_EVALUATED, runtimeAvailability: UNKNOWN, executionAdmission: NOT_ADMITTED}
+    actorRefs: [media.creator, media.editor, media.operator]
+    responsibilityRoleRefs: [media.role.creator, media.role.editor, media.role.operator]
+    unresolvedActorRoleLabels: []
+    pendingActorRoleAppointments: []
+    intentRefs: [media.intent.create, media.intent.edit]
+    outcomeRefs: [media.goal.preserve-source, media.goal.resolve-safely]
+    coverageDisposition: PROPOSED_PENDING_OWNER_REVIEW
+    coverageDecisionRef: NOT_CLAIMED
+    coverageRationale: Coordinator-authored P0 proposal; owner approval and independent acceptance are not claimed.
+    intentBindingState: PROPOSED; owner-acceptance-not-claimed
+    stateModelRefs: [media-job, media-attempt, media-project-version]
+    stateModelBindingState: proposed-state-model-binding; owner-acceptance-not-claimed
+    requirementTraceState: PROPOSED_EXACT_FAMILY_REQUIREMENT_TRACE; owner-acceptance-not-claimed
+    semanticReferenceScope: media.capability-intent.owner-binding.v1
+    journeyRefs: []
+    ownerDefinition:
+      decisionId: PROPOSED-media.job.schedule.manage
+      capabilityIntentId: media.job.schedule.manage
+      ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
+      decisionAuthority: coordinator-authored-proposal-at-user-direction; owner-approval-not-claimed
+      familyProfileRef: media.capability-profile.media-job
+      boundsRef: media.capability-bounds.media-job-schedule-manage
+      channelApplicabilityRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.schedule.manage/supportedChannels
+      typedInputSlots:
+        - {slotId: input1, sourceType: authorized-versioned-watch-source-and-schedule-config, cardinality: EXACTLY_ONE, required: true}
+        - {slotId: input2, sourceType: provider-capability-machine-checkpoint-license-context, cardinality: EXACTLY_ONE, required: true}
+      parameterSchema: {type: object, additionalProperties: false, required: [], properties: {}, emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES}
+      successOutputs: [{artifactType: versioned-watch-folder-or-recurrence-configuration, requiredOnSuccess: true}]
+      nonSuccessOutputs: {REJECTED: [], UNKNOWN_OUTCOME: []}
+      semanticOutcomeContract:
+        result: Create, revise or pause a versioned schedule; every occurrence remains a distinct request needing fresh admission.
+        outputDistinctions: [Versioned source/schedule identity, candidate occurrence identity, fresh per-occurrence admission, no child cancellation implication.]
+        unknownDisposition: Unknown source, schedule, authority, rights/egress, policy, provider, machine, checkpoint, license or resource remains UNKNOWN/UNAVAILABLE and blocks dispatch.
+        sourceRefs:
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.schedule.manage/sourceScope
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.schedule.manage/ownerDefinition/typedInputSlots
+          - docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-OPS-013
+      effect: {semanticOutcome: Create or revise a versioned schedule only; no occurrence is admitted or executed by schedule state., sourcePreservationRequired: true, noSilentFallback: true, effectIntentScope: CANONICAL_PRODUCT_STATE_CHANGE}
+      guards:
+        preconditions: [Exact authorized source and schedule are required; each occurrence independently passes current admission.]
+        authorityRefs: [identity-and-tenant-context, operation-specific-policy-and-rights, artifact-read-or-write-permission-as-applicable, governed-egress-or-publishing-authority-when-applicable]
+        stateModelRefs: [media-job, media-attempt, media-project-version]
+      errors: [INVALID_REQUEST, ACCESS_DENIED, RIGHTS_OR_CONSENT_DENIED, UNSUPPORTED_PROFILE, BOUNDS_EXCEEDED, CONFLICT, UNAVAILABLE, UNKNOWN_OUTCOME]
+      idempotency: Same schedule intent/source version does not create duplicate versions; conflicting revisions remain distinguishable.
+      recovery: Reconcile schedule version and submitted child jobs independently; pausing never implies child cancellation.
+      availability: {implementationState: UNKNOWN, licenseAdmissionState: UNKNOWN, qualificationState: NOT_EVALUATED, runtimeAvailability: UNKNOWN, executionAdmission: NOT_ADMITTED}
+  - id: media.master.audio.creative-effect.apply
+    scopeStatus: TARGET
+    familyId: media.master.audio
+    operation: creative-effect.apply
+    label: Prepare a creative audio effect candidate
+    definitionState: IN_SCOPE_DRAFT
+    outcome: Prepare only a local, source-preserving derived-audio candidate for the explicitly selected delay, chorus, flanger, or reverb effect, with exact versioned parameters and ordered effect-chain provenance where applicable; do not imply rendered/committed audio, quality approval, or room-match substitution.
+    sourceScope:
+      masterPlanSection: §6.8
+      sourcePhrase: Creative delay, chorus, flanger, reverb, reusable versioned effects, and ordered effect-chain provenance (AUD-DSP-007)
+      sourceRefs:
+        - docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DSP-007
+        - .product-experience/decision-log.md#PXD-207
+    relatedMasterPlanSections: [§6.1, §6.8, §11.1–11.6, §18.2–18.3]
+    actorRoles: [editor]
+    actorBindingState: delegated-PDP0-meaning; independent acceptance not claimed
+    inputArtifactTypes:
+      - exact-authorized-versioned-audio-source
+      - selected-creative-effect-and-versioned-parameters
+      - optional-exact-versioned-effect-chain
+    outputArtifactTypes: [local-source-preserving-derived-audio-candidate]
+    preconditions:
+      - The editor identifies one supported effect type and exact versioned parameter values; unsupported values or effect combinations are rejected explicitly.
+      - Every consumed source, effect definition, parameter set, and optional chain version is exact, readable, authorized, and within declared bounds.
+      - Rights, policy, profile, resource, and any required execution admission facts are checked before consequential work; unknown required facts block it.
+    supportedParameters: Closed typed inputs carry the selected effect, exact parameter version, optional ordered chain version, and source identity. No effect defaults are inferred.
+    constraints:
+      - Preserve source audio and identify the output only as a local derived-audio candidate.
+      - Preserve selected effect order, exact version identities, and effective parameter provenance for a reusable chain.
+      - Do not treat room matching as delay, chorus, flanger, or reverb; do not imply rendered or committed output or a quality pass.
+      - Unsupported effects and parameter combinations remain explicit; never substitute silently.
+    actionStateReferences:
+      action: operation-and-effect-defined-by-this-record
+      stateCoverage: [not-admitted, admitted, completed, failed, blocked]
+      stateModelBindingState: proposed-state-model-binding; owner-acceptance-not-claimed
+      stateModelRefs: [media-attempt, media-project-version, media-quality-disposition, media-upload-and-artifact]
+    requiredAuthority: [identity-and-tenant-context, operation-specific-policy-and-rights, artifact-read-or-write-permission-as-applicable]
+    rightsPrivacyImplications:
+      - Source access and derived-audio use remain subject to exact rights, consent, retention, locality, and egress policy.
+      - No external provider, upload, publication, or secondary use is implied.
+    qualityFidelityContract: This definition identifies a derived transformation candidate and its effect provenance only. It does not claim rendering, measured quality, mastering approval, or delivery qualification.
+    cancellationRetryReconciliation: Candidate preparation has no external dispatch or canonical commit. Preserve UNKNOWN_OUTCOME if candidate persistence is uncertain; reconcile the exact candidate identity before retry.
+    executionResourceRequirements: Resolve under profile-semantics.yaml#boundedInvocationAdmission. No numeric resource bound or runtime availability is selected; unknown required admission facts block dispatch.
+    accessibilityRepresentation: The supported channel must expose selected effect, ordered parameters, and candidate status semantically; interaction details remain downstream PDP-2/PDP-3 definitions.
+    provenance:
+      - Bind the exact source version, selected effect definition/version, ordered parameter values, and optional chain revision consumed by the candidate.
+      - Distinguish candidate preparation from rendering, commit, quality assessment, or publication.
+    ghatanaReuseDisposition: No processor, provider, engine, model, or third-party dependency is selected or admitted by this P0 definition.
+    externalDependencies: []
+    requirementIds: [MEDIA-REQ-CAP-MASTER-AUDIO]
+    acceptanceCases:
+      - given: An authorized editor selects one supported creative effect, exact versioned parameters, and an eligible source version.
+        when: The editor authors the audio transformation for a project revision.
+        then: Return a local source-preserving derived-audio candidate with exact effect and parameter provenance; do not imply rendered or committed audio or quality approval.
+      - given: An effect, parameter value, source, rights decision, or required admission fact is unsupported, denied, or unknown.
+        when: The editor requests creative-effect.apply.
+        then: Reject or preserve the unresolved state explicitly; do not substitute room matching or silently change the selected effect.
+      - given: The editor selects a reusable versioned effect chain.
+        when: The chain is used for a candidate transformation.
+        then: Preserve exact chain identity, effect order, and effective parameter provenance; reuse does not imply a quality pass.
+    qualificationDimensions: [operation-and-contract-version, input-format-and-size, rights/privacy/security-policy, resource/hardware/execution-location, cancellation/recovery/reproducibility, accessibility/delivery-compatibility]
+    supportedChannels:
+      - web
+    channelDispositionState: PXD-207-delegated-exact-channel-web; owner approval and independent acceptance are not claimed
+    explicitUnsupportedCases:
+      - Room matching is not a substitute for delay, chorus, flanger, or reverb.
+      - No processor, parameter value, effect order, or chain version is silently substituted.
+      - No rendered/committed audio, measured quality, quality approval, external dispatch, or delivery qualification is implied.
+    supportDimensions: {implementationState: UNKNOWN, licenseAdmissionState: UNKNOWN, qualificationState: NOT_EVALUATED, runtimeAvailability: UNKNOWN, executionAdmission: NOT_ADMITTED}
+    actorRefs: [media.editor]
+    responsibilityRoleRefs: [media.role.editor]
+    unresolvedActorRoleLabels: []
+    pendingActorRoleAppointments: []
+    intentRefs: [media.intent.edit, media.intent.improve]
+    outcomeRefs: [media.goal.preserve-source, media.goal.improve-with-disclosure]
+    coverageDisposition: DELEGATED_PDP0_DEFINITION; independent acceptance not claimed
+    coverageDecisionRef: PXD-207
+    coverageRationale: The user explicitly delegated source-bound PDP-0 product-definition decisions; this records definition meaning only and claims no independent acceptance, implementation, runtime, or delivery approval.
+    intentBindingState: DELEGATED_PDP0_DEFINITION; independent acceptance not claimed
+    stateModelRefs: [media-attempt, media-project-version, media-quality-disposition, media-upload-and-artifact]
+    stateModelBindingState: proposed-state-model-binding; owner-acceptance-not-claimed
+    requirementTraceState: exact-family-requirement-and-AC-03-bound-by-PXD-207
+    semanticReferenceScope: media.capability-intent.owner-binding.v1
+    journeyRefs: []
+    ownerDefinition:
+      decisionId: PXD-207
+      capabilityIntentId: media.master.audio.creative-effect.apply
+      ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
+      decisionAuthority: explicit-user-delegated-product-definition-decision; no identified human signature or independent acceptance claimed
+      familyProfileRef: media.capability-profile.media-master-audio
+      boundsRef: media.capability-bounds.media-master-audio-creative-effect-apply
+      channelApplicabilityRef: .product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability/records/@capabilityRef=media.master.audio.creative-effect.apply
+      typedInputSlots:
+        - {slotId: input1, sourceType: exact-authorized-versioned-audio-source, cardinality: EXACTLY_ONE, required: true}
+        - {slotId: input2, sourceType: selected-creative-effect-and-versioned-parameters, cardinality: EXACTLY_ONE, required: true}
+        - {slotId: input3, sourceType: exact-versioned-effect-chain, cardinality: ZERO_OR_ONE, required: false}
+      parameterSchema:
+        type: object
+        additionalProperties: false
+        required: [effectType, effectDefinitionVersion, parameterSetRef, parameterSetVersion]
+        properties:
+          effectType: {type: string, enum: [delay, chorus, flanger, reverb]}
+          effectDefinitionVersion: {type: string, minLength: 1}
+          parameterSetRef: {type: string, minLength: 1}
+          parameterSetVersion: {type: string, minLength: 1}
+          effectChainRef: {type: string, minLength: 1}
+          effectChainVersion: {type: string, minLength: 1}
+        emptyDisposition: EXACT_EFFECT_AND_PARAMETER_SET_REFERENCE_AND_VERSION_ARE_REQUIRED; NO_DEFAULTS
+      successOutputs: [{artifactType: local-source-preserving-derived-audio-candidate, requiredOnSuccess: true}]
+      nonSuccessOutputs: {REJECTED: [], UNKNOWN_OUTCOME: []}
+      semanticOutcomeContract:
+        result: Prepare only a local, source-preserving derived-audio candidate for the explicitly selected delay, chorus, flanger, or reverb effect, with exact versioned parameters and ordered effect-chain provenance where applicable; do not imply rendered/committed audio, quality approval, or room-match substitution.
+        outputDistinctions: [Candidate is distinct from rendered or committed audio, source audio remains unchanged, effect-chain reuse does not imply quality approval, room matching is not a substitute for creative effects.]
+        unknownDisposition: Unknown source, effect version, parameters, chain, rights, policy, support, or required admission remains UNKNOWN and blocks consequential work; never substitute silently.
+        sourceRefs:
+          - .product-experience/decision-log.md#PXD-207
+          - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-MASTER-AUDIO/acceptanceCases/@id=MEDIA-REQ-CAP-MASTER-AUDIO-AC-03
+          - docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DSP-007
+      effect:
+        semanticOutcome: >-
+          Prepare only a local, source-preserving derived-audio candidate for the explicitly selected delay, chorus, flanger,
+          or reverb effect, with exact versioned parameters and ordered effect-chain provenance where applicable; do not imply
+          rendered/committed audio, quality approval, or room-match substitution.
+        sourcePreservationRequired: true
+        noSilentFallback: true
+        effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT
+      guards:
+        preconditions: [Exact authorized audio source and supported effect/version/parameters are required; unknown required facts block consequential work.]
+        authorityRefs: [identity-and-tenant-context, operation-specific-policy-and-rights, artifact-read-or-write-permission-as-applicable]
+        stateModelRefs: [media-attempt, media-project-version, media-quality-disposition, media-upload-and-artifact]
+      errors: [INVALID_REQUEST, ACCESS_DENIED, RIGHTS_OR_CONSENT_DENIED, UNSUPPORTED_PROFILE, BOUNDS_EXCEEDED, CONFLICT, UNAVAILABLE, UNKNOWN_OUTCOME]
+      idempotency: Repeated candidate preparation over the same exact source, effect, parameter, and chain versions does not create duplicate consequential effects.
+      recovery: Reconcile exact candidate identity after uncertain persistence; never infer rendering, commit, quality, or external dispatch.
+      availability: {implementationState: UNKNOWN, licenseAdmissionState: UNKNOWN, qualificationState: NOT_EVALUATED, runtimeAvailability: UNKNOWN, executionAdmission: NOT_ADMITTED}
 capabilityAliases: []
 ownerDefinedP0CapabilityOutcomeRule:
   id: media.capability-outcome.owner-defined-result.v1

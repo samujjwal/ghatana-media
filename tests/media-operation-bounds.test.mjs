@@ -10,6 +10,9 @@ const { parse } = require("yaml");
 const readYaml = (path) => parse(readFileSync(resolve(root, path), "utf8"));
 
 const capabilities = readYaml(".product-experience/pdp-0-product-truth/capabilities.yaml");
+const capabilityLeafReview = readYaml(".product-experience/pdp-0-product-truth/capability-leaf-review.yaml");
+const ownerAdjudicatedCapabilityIds = new Set(capabilityLeafReview.ownerCapabilityLeafAdjudication.records.map(({ capabilityRef }) => capabilityRef));
+const ownerAdjudicatedCapabilities = capabilities.capabilities.filter(({ id }) => ownerAdjudicatedCapabilityIds.has(id));
 const requirements = readYaml(".product-experience/pdp-0-product-truth/requirements.yaml");
 const nfr = readYaml(".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml");
 const profiles = readYaml(".product-experience/pdp-0-product-truth/profile-semantics.yaml");
@@ -17,13 +20,6 @@ const qualification = readYaml(".product-experience/pdp-0-product-truth/qualific
 
 const genericBoundsText =
   "Not yet enumerated; the owning profile/public contract must define units, ranges, defaults, and unsupported values before a claim of support.";
-
-function expectedParameterMeaning(leaf) {
-  const properties = Object.keys(leaf.ownerDefinition.parameterSchema.properties ?? {});
-  return properties.length
-    ? `P0 defines parameter fields in ownerDefinition.parameterSchema: ${properties.join(", ")}. This is a typed request-shape definition, not evidence of product support, qualification, or runtime availability; profile-specific defaults and eligibility remain separate owner decisions. Typed input meaning is defined by this leaf's P0 ownerDefinition.typedInputSlots.`
-    : "P0 defines no additional parameter fields in ownerDefinition.parameterSchema; this leaf's P0 ownerDefinition.typedInputSlots carry request meaning. No additional fields are implied; support, qualification, and runtime availability remain separate decisions.";
-}
 
 const deriveTypedSlotMeaning = "The typed input slots carry exact source versions, selected transformation profile/version/configuration digest, requested output artifact type/media type/byte budget, and purpose/rights-decision context. No additional fields are implied; support, qualification, and runtime availability remain separate decisions.";
 
@@ -53,31 +49,58 @@ function validateP0ParameterMeaning(leaf) {
     return condition !== undefined;
   })) return false;
   const detailedProjectReviewMeaning = leaf.id === "media.project.review"
-    && ["reviewPurpose", "reviewScope", "reviewAction"].every((name) => leaf.supportedParameters.includes(name))
+    && propertyNames.every(name => leaf.supportedParameters.includes(name))
     && /quality, rights, provenance, and approval/u.test(leaf.supportedParameters)
     && /comment, approve, reject, or request-changes/u.test(leaf.supportedParameters)
     && /Support, qualification, and runtime availability remain separate decisions/u.test(leaf.supportedParameters);
+  const detailedTranscriptionFileMeaning = leaf.id === "media.speech.transcription.file"
+    && propertyNames.every(name => leaf.supportedParameters.includes(name))
+    && /optional versioned customGlossaryRef/u.test(leaf.supportedParameters)
+    && /optional fillerRetakeCandidates/u.test(leaf.supportedParameters)
+    && /not evidence of product support, qualification, correctness, or runtime availability/u.test(leaf.supportedParameters);
   const sourceAlignedDeriveMeaning = leaf.id === "media.artifact.derive" && leaf.supportedParameters === deriveTypedSlotMeaning;
-  if (leaf.supportedParameters !== expectedParameterMeaning(leaf) && !detailedProjectReviewMeaning && !sourceAlignedDeriveMeaning) return false;
+  const propertySummaryMatches = propertyNames.length === 0
+    ? leaf.supportedParameters.startsWith("P0 defines no additional parameter fields in ownerDefinition.parameterSchema;")
+      || sourceAlignedDeriveMeaning
+    : leaf.supportedParameters.startsWith(`P0 defines parameter fields in ownerDefinition.parameterSchema: ${propertyNames.join(", ")}.`);
+  if (!propertySummaryMatches && !detailedProjectReviewMeaning && !detailedTranscriptionFileMeaning) return false;
   return !/Not yet enumerated|Proposed typed request fields|Proposed fields|Proposed input|Proposed query fields|Proposed observation fields/u.test(leaf.supportedParameters);
 }
 
 test("P0-02 reconciles supportedParameters with each P0 parameter schema and typed inputs", () => {
-  assert.equal(capabilities.capabilities.length, 462);
+  assert.equal(capabilityLeafReview.ownerCapabilityLeafAdjudication.records.length, 462);
+  assert.equal(ownerAdjudicatedCapabilityIds.size, 462, "the P0-02 owner-adjudication denominator is stable and unique");
+  assert.equal(ownerAdjudicatedCapabilities.length, 462, "P0-02 evaluates exactly the owner-adjudicated capability leaves");
 
-  const parameterized = capabilities.capabilities.filter(({ ownerDefinition }) =>
+  const parameterized = ownerAdjudicatedCapabilities.filter(({ ownerDefinition }) =>
     Object.keys(ownerDefinition.parameterSchema.properties ?? {}).length > 0);
-  const slotOnly = capabilities.capabilities.filter(({ ownerDefinition }) =>
+  const slotOnly = ownerAdjudicatedCapabilities.filter(({ ownerDefinition }) =>
     Object.keys(ownerDefinition.parameterSchema.properties ?? {}).length === 0);
   assert.equal(parameterized.length, 130, "P0 parameter schemas define fields for 130 leaves");
   assert.equal(slotOnly.length, 332, "332 leaves carry request meaning only in typed input slots");
-  assert.ok(capabilities.capabilities.every(validateP0ParameterMeaning), "every top-level parameter description matches its P0 schema and slots");
-  const slots = capabilities.capabilities.flatMap(({ ownerDefinition }) => ownerDefinition.typedInputSlots);
+  assert.ok(ownerAdjudicatedCapabilities.every(validateP0ParameterMeaning), "every owner-adjudicated parameter description matches its P0 schema and slots");
+  const slots = ownerAdjudicatedCapabilities.flatMap(({ ownerDefinition }) => ownerDefinition.typedInputSlots);
   const sharedShapeKey = ({ sourceType, cardinality, required, alternatives, condition, emptyDisposition }) =>
     JSON.stringify({ sourceType, cardinality, required, alternatives, condition, emptyDisposition });
   assert.equal(slots.length, 939, "all 462 leaves reconcile through their explicit input slots");
-  assert.equal(new Set(slots.map(sharedShapeKey)).size, 142,
-    "repeated request shapes are reusable only when all semantic slot fields match");
+  assert.equal(new Set(slots.map(sharedShapeKey)).size, 144,
+    "the current 462-leaf source has 144 exact semantic slot shapes");
+  const conditionedSpeaker = ownerAdjudicatedCapabilities.find(({ id }) => id === "media.speech.synthesis.speaker.condition");
+  assert.deepEqual(conditionedSpeaker.ownerDefinition.typedInputSlots.find(({ slotId }) => slotId === "input2"), {
+    slotId: "input2",
+    sourceType: "authorized-speaker-reference-or-ordered-segment-speaker-map",
+    cardinality: "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+    required: true,
+    alternatives: ["authorized-speaker-reference", "ordered-segment-speaker-map"],
+    constraints: [
+      "Every mapped speaker is separately authorized for the declared voice-use scope.",
+      "Preserve segment order and bind each speaker reference to its exact segment.",
+      "Missing or unauthorized bindings remain unknown or blocked; identity is not inferred.",
+    ],
+  });
+  const stereoWidth = ownerAdjudicatedCapabilities.find(({ id }) => id === "media.master.audio.stereo-width");
+  assert.equal(stereoWidth.ownerDefinition.typedInputSlots.find(({ slotId }) => slotId === "input2").sourceType,
+    "delivery-target-channel-layout-and-loudness-context");
   const alternativeLeaf = capabilities.capabilities.find(({ ownerDefinition }) =>
     ownerDefinition.typedInputSlots.some(({ cardinality }) => cardinality === "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES"));
   const brokenAlternative = structuredClone(alternativeLeaf);
@@ -139,8 +162,10 @@ test("P0-02 profile labels and proposed performance budgets do not become produc
 });
 
 test("P0 input and output meaning has no dependency on downstream operation or wire-schema bindings", () => {
-  for (const leaf of capabilities.capabilities) {
+  for (const leaf of ownerAdjudicatedCapabilities) {
     assert.equal(validateP0ParameterMeaning(leaf), true, `${leaf.id} has closed P0 parameter and input-slot meaning`);
+  }
+  for (const leaf of capabilities.capabilities) {
     assert.doesNotMatch(leaf.supportedParameters, /operations\.yaml|PDP-1|operationContractRef|boundsRef/u, `${leaf.id} does not depend on PDP-1`);
     assert.equal(Object.hasOwn(leaf.ownerDefinition, "operationRefs"), false, `${leaf.id} leaves operation selection downstream`);
     assert.equal(Object.hasOwn(leaf.ownerDefinition, "operationKind"), false, `${leaf.id} leaves command/query classification downstream`);

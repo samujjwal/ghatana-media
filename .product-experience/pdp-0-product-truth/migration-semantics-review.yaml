@@ -36379,10 +36379,11 @@ pdp38ClaimReconciliation:
           exactSourceText: "Names describe semantics, not vendors."
           sourceTextSha256: "51036b4b5ec4211768a4d0c632f122c1b3a7be949f1924f6145e2a8bb7bb5714"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.multimodal.describe/outcome"
-          targetTextSha256: "f2ced337b115e2f075a4ba417152a1dfdfc6ca7643bd813c411cb4d52e21c665"
-          rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: A caller can describe media with explicit preconditions, effect, provenance, and recovery semantics."
+          semanticReviewStatus: COORDINATOR_SOURCE_ROUTE_REVIEW
+          targetRef: ".product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedCapabilityNamingRules/@id=media.requirement.capability-identities-name-media-semantics.v1"
+          targetTextSha256: "b4912a59ae4fa3b54017757734f3202dee4229ec5f350a6c6fff90d35f568a39"
+          currentRouteSuccessorRef: ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml#/pdp38ClaimReconciliation/pxd211CurrentRouteSuccessors/records/@claimId=MPSEM-0172-C002"
+          rationale: "PXD-211 selects the current PDP-0 owner rule for semantic identity, provider/model/engine separation, and explicit aliasing. The former multimodal outcome locator and its prior pins remain in the PXD-211 predecessor record as history; this source route does not assert semantic equivalence, runtime admission, qualification, owner approval, independent acceptance, or phase acceptance."
           acceptanceEffect: none
         - claimId: MPSEM-0172-C003
           exactSourceText: "Technical substeps can be implementation details of an operation"
@@ -37683,68 +37684,68 @@ pdp38ClaimReconciliation:
           exactSourceText: "Maintain separate clocks: media presentation time"
           sourceTextSha256: "c1f450323846546dfeaa6124785dc2551461869770b9d7f233992ecce2311eeb"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
-          targetRef: ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=media_presentation_time"
-          targetTextSha256: "079b923eb18320904a59f7ae4c068cb45d5fd7eb88dc276119a4f78086474505"
-          rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Media presentation time"
+          semanticReviewStatus: COORDINATOR_SOURCE_ROUTE_REVIEW
+          targetRef: ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/productTruthClockDomains"
+          targetTextSha256: "080a8469aa06e084af6d6fbcf08d8f7a3da90f9d035737cd28e2ae966abde1d4"
+          rationale: "The current product model assigns editorial and output presentation positions to story/explanation time within exactly five clock domains. This route does not create a separate media-presentation domain or equate source timestamps with output position; it records product meaning only and has no runtime, qualification, owner-approval, or phase-acceptance effect."
           acceptanceEffect: none
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-112.json#/records/@claimId=MPSEM-0256-C001"
-          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
+          coordinatorReviewStatus: COORDINATOR_SOURCE_ROUTE_REVIEW
         - claimId: MPSEM-0256-C002
           exactSourceText: "source decode/presentation timestamps for variable-frame-rate inputs"
           sourceTextSha256: "e727bf9164347593de3dbfc8616aa055f77b813ce01cadf487157052458b4a09"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
-          targetRef: ".product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/@id=media.value.source-frame-sample-mapping"
-          targetTextSha256: "f9b96e47841bad229ea14a27c61bc94c06a200b84a044357efe3329efbd4dc0c"
-          rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: source_decode_and_presentation_timestamps"
+          semanticReviewStatus: COORDINATOR_SOURCE_ROUTE_REVIEW
+          targetRef: ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=source_video_presentation_time"
+          targetTextSha256: "073f376a789e8fcfbf8096549f7847995deb5b815dc35bc79f1d51bd0f3f9a3a"
+          rationale: "PDP-0 defines source/video presentation time as a distinct product clock and keeps decode timestamps as ordering metadata in the declared source time base. PDP-1 owns the exact timestamp and mapping value objects; this route records product meaning only and does not claim implementation or acceptance."
           acceptanceEffect: none
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-112.json#/records/@claimId=MPSEM-0256-C002"
-          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
+          coordinatorReviewStatus: COORDINATOR_SOURCE_ROUTE_REVIEW
         - claimId: MPSEM-0256-C003
           exactSourceText: "audio sample time"
           sourceTextSha256: "eed843b30fbab5d5dc7ce6665858c76dc4aa8e83e1216f5a2a4848c263b0b07c"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
-          targetRef: ".product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/@id=media.value.source-frame-sample-mapping"
-          targetTextSha256: "f9b96e47841bad229ea14a27c61bc94c06a200b84a044357efe3329efbd4dc0c"
-          rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: audio_sample_time"
+          semanticReviewStatus: COORDINATOR_SOURCE_ROUTE_REVIEW
+          targetRef: ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=audio_sample_time"
+          targetTextSha256: "f5ce8a284ab25b626ff151e10af1bf258852e7d7d76e61aaae23dd7684af4aaf"
+          rationale: "PDP-0 defines audio sample time as the sample index and rate for one identified audio stream. PDP-1 owns exact typed sample and rate value objects; this route records product meaning only and does not claim implementation or acceptance."
           acceptanceEffect: none
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-112.json#/records/@claimId=MPSEM-0256-C003"
-          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
+          coordinatorReviewStatus: COORDINATOR_SOURCE_ROUTE_REVIEW
         - claimId: MPSEM-0256-C004
           exactSourceText: "`t_sim` simulation time"
           sourceTextSha256: "85002e9ade7fe1b7d698e855bb631ecf9a0f18c38db246605dea05676aa946c4"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
-          targetRef: ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=t_sim"
-          targetTextSha256: "ff393814628143f672a766f429a68fd4160172cb9fd5e8da2a5012cba240f323"
-          rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Simulation time (t_sim)"
+          semanticReviewStatus: COORDINATOR_SOURCE_ROUTE_REVIEW
+          targetRef: ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=simulation_execution_time"
+          targetTextSha256: "43e0210070e2ae822ae366d5993312a98f168dde8a80f6297bf5ee8dbbb88866"
+          rationale: "PDP-0 defines simulation execution time as the time coordinate advanced by a declared domain model. This route records product meaning only; units, solver behavior, runtime, and acceptance are not implied."
           acceptanceEffect: none
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-112.json#/records/@claimId=MPSEM-0256-C004"
-          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
+          coordinatorReviewStatus: COORDINATOR_SOURCE_ROUTE_REVIEW
         - claimId: MPSEM-0256-C005
           exactSourceText: "`t_story` explanation/animation time"
           sourceTextSha256: "9386ddc9e4ace2b30e301956032c96684002c2df4d8e3b13f24bfb6d0b981b3b"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
-          targetRef: ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=t_story"
-          targetTextSha256: "3b77647e37dfd76322c45a824361c49760f5f442e247602eee2be2541858103e"
-          rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: animation/story time"
+          semanticReviewStatus: COORDINATOR_SOURCE_ROUTE_REVIEW
+          targetRef: ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=story_explanation_time"
+          targetTextSha256: "5a7a30a72bf86be62d58bc5a54ab30c2b16fee89551efd255da041a5ce91693e"
+          rationale: "PDP-0 defines story/explanation time to include narrative, animation, editorial, and output presentation positions while keeping source time separately identified and explicitly mapped. This route records product meaning only and does not claim implementation or acceptance."
           acceptanceEffect: none
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-112.json#/records/@claimId=MPSEM-0256-C005"
-          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
+          coordinatorReviewStatus: COORDINATOR_SOURCE_ROUTE_REVIEW
         - claimId: MPSEM-0256-C006
           exactSourceText: "Scrubbing or pausing story time must not unintentionally advance a scientific model."
           sourceTextSha256: "53d3dffdf441fc426f26e38a39ff1dfa93d6870a4a2534fb1caa9f58493c1f39"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
-          targetRef: ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=t_sim"
-          targetTextSha256: "ff393814628143f672a766f429a68fd4160172cb9fd5e8da2a5012cba240f323"
-          rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Pausing or scrubbing story time must not implicitly advance simulation time."
+          semanticReviewStatus: COORDINATOR_SOURCE_ROUTE_REVIEW
+          targetRef: ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=simulation_execution_time"
+          targetTextSha256: "43e0210070e2ae822ae366d5993312a98f168dde8a80f6297bf5ee8dbbb88866"
+          rationale: "PDP-0 requires story pause or seeking not to advance simulation state unless an explicit bounded model command does so. This route records product meaning only and does not define runtime behavior or acceptance."
           acceptanceEffect: none
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-112.json#/records/@claimId=MPSEM-0256-C006"
-          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
+          coordinatorReviewStatus: COORDINATOR_SOURCE_ROUTE_REVIEW
         - claimId: MPSEM-0256-C007
           exactSourceText: "A recording’s timestamp is not its duration, and `(frameCount - 1) / fps` versus `frameCount / fps` must be interpreted against the model/container contract rather than guessed."
           sourceTextSha256: "e4b1d407bce90f25e5c3839c5a2dc9a73c72c99582280eb1d3511ec37a19bf2d"
@@ -38179,13 +38180,13 @@ pdp38ClaimReconciliation:
           exactSourceText: "Capture source/output and execution provenance"
           sourceTextSha256: "d4b7bb2e352159d01e05810a81918fb17ef23f87c4c13797e22d2c2604ded28c"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
           targetRef: ".product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/@id=media.value.replay-provenance-definition"
           targetTextSha256: "b8550da2b1500f74f3371128f5b4849e0bbb405965d27a8d4429d6328120fe51"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Capture source/output and execution provenance only; do not advertise replay."
           acceptanceEffect: none
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-112.json#/records/@claimId=MPSEM-0270-C001"
-          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
+          coordinatorReviewStatus: PENDING
         - claimId: MPSEM-0270-C002
           exactSourceText: "do not offer unsupported reproduction |"
           sourceTextSha256: "ad15600865f5d6475a61a2b75c5119178157b4319aa88c7c2344d4e17b6ada76"
@@ -42217,10 +42218,11 @@ pdp38ClaimReconciliation:
           exactSourceText: "Do not toast every internal stage."
           sourceTextSha256: "43d529f01652136b5f7ac137ca08284b259a8ca8ebddc481b6b6885ae03ea7aa"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED"
-          targetRef: ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#presentationRules/3"
+          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
+          targetRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/activity-attention.yaml#ownerDefinedAttentionNotificationScope"
           targetTextSha256: "84f80a8cd1ddae2196bbdeb1ac1af86ca63fd23a0f7c5086a9ef2fb8c6eb3fe8"
-          rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: The presentation or explanatory timeline used to stage animation or communicate a narrative."
+          rationale: "The former target selector resolved to an unrelated animation presentation rule. The current PDP-2 notification-scope locator is the relevant owner source, but this exact claim has not been reviewed for semantic parity against its current value. The prior target digest is retained as history; this route records no semantic equivalence, runtime behavior, qualification, independent acceptance, or phase acceptance."
+          coordinatorReviewStatus: PENDING
           acceptanceEffect: none
         - claimId: MPSEM-0450-C003
           exactSourceText: "Batch notifications and respect user preferences except necessary security notices."
@@ -43538,3 +43540,36 @@ pdp38ClaimReconciliation:
   outOfScopeHistoricalRequirementCount: 1
   decomposedAggregateClaimCount: 3
   supersessionAllowlist: [MPSEM-0005-C002, MPSEM-0005-C003, MPSEM-0005-C004, MPSEM-0006-C001, MPSEM-0006-C002, MPSEM-1222-C005]
+  pxd211CurrentRouteSuccessors:
+    decisionRef: .product-experience/decision-log.md#PXD-211
+    records:
+      - claimId: MPSEM-0172-C002
+        status: CURRENT_PDP0_OWNER_ROUTE
+        historicalTargetRef: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.multimodal.describe/outcome
+        historicalTargetValueSha256: d159f0be2106ca2ac8b901ce47b6da94f1b41caf0c3887bd3fb845d0bf4430a8
+        targetRef: .product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedCapabilityNamingRules/@id=media.requirement.capability-identities-name-media-semantics.v1
+        targetValueSha256: b4912a59ae4fa3b54017757734f3202dee4229ec5f350a6c6fff90d35f568a39
+        coveredFields: [semanticIdentity, separation, aliasing]
+        semanticReview: COORDINATOR_SOURCE_ROUTE_REVIEW
+        ownerApproval: NOT_CLAIMED
+        acceptanceEffect: none
+      - claimId: MPSEM-0278-C001
+        status: CURRENT_PDP0_OWNER_ROUTE
+        historicalTargetRef: .product-experience/pdp-0-product-truth/qualification-policy.yaml#/decisionRules/5
+        historicalTargetValueSha256: 4888e05c35c395810aeaf3f74d9b1cab03927793935df53975bd83842a94e797
+        targetRef: .product-experience/pdp-0-product-truth/qualification-policy.yaml#/decisionRules/6
+        targetValueSha256: 1761028bd34799e45da3421f4cdd42f89e85ca51c4daddaaa3fbc6532cf20421
+        ownerApproval: NOT_CLAIMED
+        acceptanceEffect: none
+      - claimId: MPSEM-0311-C004
+        status: CURRENT_PDP0_OWNER_ROUTE_WITH_PDP1_HANDOFF
+        historicalTargetRef: .product-experience/pdp-0-product-truth/state-models.yaml#/models/2/states/@id=EXPIRED/meaning
+        historicalTargetValueSha256: f4b1433634709a61673acc627ff191b68d157b885fb8f9d77a70b1ebd2b0d473
+        targetRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.submit/ownerDefinition/idempotencyExpiryContract
+        targetValueSha256: 84bcd789bf10053c4ac52a9a6698390a2e537a7eadfe43f72a532136b941e6dc
+        pdp0Clauses: [productWideDuration, expiryRule, freshIdentityRule, artifactRetentionRule]
+        pdp1HandoffRef: .product-experience/authority-map.yaml#/phaseAuthorities/1/scope
+        pdp1HandoffRequirement: Exact approved per-operation duration and storage, lookup, and expiry contract; P0 selects no product-wide duration.
+        artifactExpiryMeaningRemainsSeparate: .product-experience/pdp-0-product-truth/state-models.yaml#/models/2/states/@id=EXPIRED/meaning
+        ownerApproval: NOT_CLAIMED
+        acceptanceEffect: none

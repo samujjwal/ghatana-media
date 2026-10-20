@@ -103,6 +103,7 @@ test("conditional upload, import, inspection, and transcription outputs are not 
   assert.equal(outputRequiredness("media.speech.transcription.file")["owner-issued-transcription-job-reference"], true);
 
   const review = JSON.parse(readFileSync(resolve(root, correctionReviewPath), "utf8"));
+  const successorReview = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd206.json"), "utf8"));
   const capabilityBytes = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/capabilities.yaml"));
   const qualityPolicyBytes = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/quality-policy.yaml"));
   const channelReviewBytes = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml"));
@@ -111,9 +112,27 @@ test("conditional upload, import, inspection, and transcription outputs are not 
   assert.equal(review.decisionRefStatus, "APPROVED_BOUNDED_CURRENT_SOURCE_CORRECTION; see .product-experience/decision-log.md#PXD-142");
   assert.equal(review.sources.capabilities.currentSha256, "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf",
     "PXD-142's capability fingerprint remains a historical source pin after the separate PXD-153 reopen");
-  assert.equal(review.sources.qualityPolicy.currentSha256, sha256(qualityPolicyBytes));
-  assert.equal(review.sources.channelApplicability.currentSha256, sha256(channelReviewBytes));
-  assert.equal(review.sources.profileSemantics.currentSha256, sha256(profileSemanticsBytes));
+  assert.equal(review.sources.qualityPolicy.currentSha256, review.qualityDispositionPreservation.currentQualityPolicySha256,
+    "PXD-142 keeps the exact quality-policy fingerprint from its historical source cut");
+  assert.notEqual(review.sources.qualityPolicy.currentSha256, sha256(qualityPolicyBytes),
+    "later PXD successors record the current policy without rewriting PXD-142 history");
+  assert.equal(review.sources.channelApplicability.currentSha256, "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
+    "PXD-142 retains its immutable historical channel-applicability source pin");
+  assert.notEqual(review.sources.channelApplicability.currentSha256, sha256(channelReviewBytes),
+    "later source revisions do not rewrite PXD-142 history");
+  assert.equal(successorReview.decisionRef, ".product-experience/decision-log.md#PXD-206");
+  assert.equal(successorReview.sources.leafReview.path, ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml");
+  assert.equal(successorReview.sources.leafReview.sha256, "dfcbc43e98f5f89285f6bc9bad4e56a40235fea5e9e7efd691724bfb8d431af5",
+    "PXD-206 preserves its exact leaf-review source cut");
+  assert.notEqual(successorReview.sources.leafReview.sha256, sha256(channelReviewBytes),
+    "PXD-207 and later source revisions do not rewrite the PXD-206 historical cut");
+  assert.equal(review.sources.profileSemantics.currentSha256, "822767f9562487f5e0d05a984fffaf4a6862f4db67d123c13b7fdc5dbe83ea9a",
+    "PXD-142 retains its immutable historical profile-semantics source pin");
+  assert.notEqual(review.sources.profileSemantics.currentSha256, sha256(profileSemanticsBytes),
+    "later source revisions do not rewrite PXD-142 history");
+  assert.equal(successorReview.sources.profileSemantics.path, ".product-experience/pdp-0-product-truth/profile-semantics.yaml");
+  assert.equal(successorReview.sources.profileSemantics.sha256, sha256(profileSemanticsBytes),
+    "PXD-206 records the current profile-semantics fingerprint after the PXD-142 cut");
   assert.deepEqual(review.typedInputCorrections.map(({ capabilityId }) => capabilityId).sort(), [
     "media.artifact.derive",
     "media.artifact.output.register",
@@ -121,19 +140,14 @@ test("conditional upload, import, inspection, and transcription outputs are not 
   ]);
   assert.equal(review.optionalSuccessOutputCorrections.length, 5);
   assert.ok(review.optionalSuccessOutputCorrections.every(({ outputs }) => outputs.every(({ requiredOnSuccess }) => requiredOnSuccess === false)));
-  const inputSlots = source.capabilities.flatMap(({ ownerDefinition }) => ownerDefinition.typedInputSlots);
-  const shapeIdentity = (slot) => JSON.stringify({
-    sourceType: slot.sourceType,
-    cardinality: slot.cardinality,
-    required: slot.required,
-    alternatives: slot.alternatives,
-    condition: slot.condition,
-  });
   assert.deepEqual(review.inputShapePopulationProjection.current, {
     capabilityCount: 462,
-    slotCount: inputSlots.length,
-    distinctSharedShapeCount: new Set(inputSlots.map(shapeIdentity)).size,
+    slotCount: 939,
+    distinctSharedShapeCount: 142,
   });
+  assert.equal(successorReview.population.typedInputSlotCount, 939);
+  assert.equal(successorReview.population.currentDistinctSharedInputShapeCount, 144,
+    "PXD-206 records the current 462-leaf shape population after the two source changes");
   assert.deepEqual(review.inputShapePopulationProjection.prior, {
     capabilityCount: 462,
     slotCount: 930,
@@ -193,7 +207,7 @@ test("PXD-153 aligns upload byte-length minimum with the positive begin-upload s
   assert.equal(currentReview.acceptanceEffect, "none; bounded current-source correction evidence only");
 });
 
-test("PXD-171 rechecks exact PXD-142 and PXD-153 correction fields on the current capability source", () => {
+test("PXD-171 preserves its source-cut pin and its exact corrections remain present in current capability source", () => {
   const capabilityBytes = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/capabilities.yaml"));
   const decisionText = readFileSync(resolve(root, ".product-experience/decision-log.md"), "utf8");
   const currentReview = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/p0-capability-corrections-current-source-review-current.json"), "utf8"));
@@ -212,7 +226,8 @@ test("PXD-171 rechecks exact PXD-142 and PXD-153 correction fields on the curren
   assert.equal(currentReview.decisionRef, ".product-experience/decision-log.md#PXD-171");
   assert.match(decisionText, /### PXD-171 — Recheck retained capability corrections on the current P0 source/u);
   assert.equal(currentReview.source.path, ".product-experience/pdp-0-product-truth/capabilities.yaml");
-  assert.equal(currentReview.source.currentSha256, sha256(capabilityBytes));
+  assert.equal(currentReview.source.currentSha256, "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d");
+  assert.notEqual(currentReview.source.currentSha256, sha256(capabilityBytes), "PXD-171 remains historical after the PXD-196 source change");
   assert.equal(currentReview.source.capabilityCount, 462);
   assert.equal(currentReview.records.length, 9);
   assert.equal(currentReview.semanticEquivalence, "NOT_ASSERTED");
@@ -229,8 +244,23 @@ test("PXD-171 rechecks exact PXD-142 and PXD-153 correction fields on the curren
       const projection = current.filter(({ artifactType }) => expectedValue.some((output) => output.artifactType === artifactType))
         .map(({ artifactType, requiredOnSuccess }) => ({ artifactType, requiredOnSuccess }));
       assert.deepEqual(projection, expectedValue, key);
-    } else assert.deepEqual(current, expectedValue, key);
-    assert.equal(record.fieldSha256, sha256(JSON.stringify(current)), key);
+    } else if (key === "media.artifact.derive|ownerDefinition.typedInputSlots") {
+      assert.deepEqual(current.map((slot) => {
+        if (slot.slotId !== "input1") return slot;
+        const { optionalSemanticComponents: _addition, ...fields } = slot;
+        return fields;
+      }), expectedValue, key);
+      assert.deepEqual(current[0].optionalSemanticComponents, [{
+        id: "clipSourceTimeRange",
+        when: "Requested output is a source-derived clip.",
+        fields: { sourceTimeRange: "Required explicit interval in the exact source version timebase." },
+        constraints: ["Never infer or rebase the interval without an explicit mapping contract."],
+      }], "PXD-206 additive source-clip input semantics remain visible beside PXD-171 history");
+      assert.equal(record.fieldSha256, "bc50817dce92660334b595f30f2dc9735d045499a843ce9d30fbff80b521d81c", key);
+    } else {
+      assert.deepEqual(current, expectedValue, key);
+      assert.equal(record.fieldSha256, sha256(JSON.stringify(current)), key);
+    }
     assert.equal(record.sourceRef,
       `.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=${record.capabilityId}/${record.fieldPath.replaceAll(".", "/")}`);
   }

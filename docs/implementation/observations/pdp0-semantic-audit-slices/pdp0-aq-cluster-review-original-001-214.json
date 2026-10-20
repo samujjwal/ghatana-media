@@ -1,0 +1,1441 @@
+{
+  "schemaVersion": "media-pdp0-aq-cluster-review/v1",
+  "recordKind": "PDP0_AQ_CLUSTER_MAPPING_RECOMMENDATION",
+  "campaignScope": "Media Discovery / PDP-0; exact original audit IDs AUD-*-001 through AUD-*-214 from the first original-audit slice.",
+  "sourceBaseline": {
+    "slice": "docs/implementation/observations/pdp0-semantic-audit-slices/original-audit-001-214.json",
+    "sourceCommit": "1c65a033d37fd8c2f9b3951c42c92b88fb725c13",
+    "blueprint": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#section-2-a-q-cluster-targets"
+  },
+  "reviewStatus": "COORDINATOR_MAPPING_RECOMMENDATION",
+  "authorityCaveat": "Recommendation only. It does not establish source-owner mapping, product meaning, acceptance, or closure.",
+  "denominator": {
+    "expectedOriginalSourceIds": 214,
+    "rows": 214,
+    "uniqueAuditIds": 214
+  },
+  "rows": [
+    {
+      "auditId": "AUD-SPEC-001",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Original feature “Versioned YAML and JSON production specifications” maps to blueprint cluster Q because its target covers operations/API/agents: headless plans, CLI/SDK/API/events, scheduling, workers, task graph and retries."
+    },
+    {
+      "auditId": "AUD-SPEC-002",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Original feature “Production-specific schema validation and migrations” maps to blueprint cluster Q because its target covers operations/API/agents: headless plans, CLI/SDK/API/events, scheduling, workers, task graph and retries."
+    },
+    {
+      "auditId": "AUD-SPEC-003",
+      "primaryCluster": "Q",
+      "relatedClusters": [
+        "C"
+      ],
+      "rationale": "Original feature “Typed semantic compilation into existing MediaProject plan” maps to blueprint cluster Q because its target covers operations/API/agents: headless plans, CLI/SDK/API/events, scheduling, workers, task graph and retries. Related cluster C captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-SPEC-004",
+      "primaryCluster": "Q",
+      "relatedClusters": [
+        "C"
+      ],
+      "rationale": "Original feature “One source and scene dependency DAG” maps to blueprint cluster Q because its target covers operations/API/agents: headless plans, CLI/SDK/API/events, scheduling, workers, task graph and retries. Related cluster C captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-SPEC-005",
+      "primaryCluster": "C",
+      "relatedClusters": [
+        "O"
+      ],
+      "rationale": "Original feature “Asset/model/provider pin and rights snapshot” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives. Related cluster O captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-SPEC-006",
+      "primaryCluster": "C",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Original feature “Versioned visual recipe and brand kit” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives. Related cluster D captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-SPEC-007",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Original feature “Versioned voice and pronunciation style recipe” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes."
+    },
+    {
+      "auditId": "AUD-SPEC-008",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Original feature “Preflight preview with predicted cost and render time” maps to blueprint cluster O because its target covers review/quality/compliance: QA, accessibility, consent/license, risk, review, locks and approvals. Related cluster Q captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-SPEC-009",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Original feature “Compile-time deterministic vs generative step typing” maps to blueprint cluster Q because its target covers operations/API/agents: headless plans, CLI/SDK/API/events, scheduling, workers, task graph and retries."
+    },
+    {
+      "auditId": "AUD-SPEC-010",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Original feature “Visual node-based workflow authoring mapped to same DAG” maps to blueprint cluster Q because its target covers operations/API/agents: headless plans, CLI/SDK/API/events, scheduling, workers, task graph and retries."
+    },
+    {
+      "auditId": "AUD-SPEC-011",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Original feature “Reusable agent/director skills with reviewable dependencies” maps to blueprint cluster J because its target covers autonomous director/editor: themes, scripts, plans, asset ranking, first cuts, pacing and retakes. Related cluster Q captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-SPEC-012",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Original feature “Audience/campaign intent to scene graph templates” maps to blueprint cluster J because its target covers autonomous director/editor: themes, scripts, plans, asset ranking, first cuts, pacing and retakes. Related cluster Q captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-SPEC-013",
+      "primaryCluster": "P",
+      "relatedClusters": [],
+      "rationale": "Original feature “Automatic output variants by audience, locale and device” maps to blueprint cluster P because its target covers render/publish/distribute: previews, profiles, exports, packaging and delivery receipts."
+    },
+    {
+      "auditId": "AUD-SPEC-014",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Original feature “Multi-reference production briefs with ranked constraints” maps to blueprint cluster J because its target covers autonomous director/editor: themes, scripts, plans, asset ranking, first cuts, pacing and retakes. Related cluster Q captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-SPEC-015",
+      "primaryCluster": "C",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Original feature “Scene-level version/patch application and merge” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives. Related cluster D captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-SPEC-016",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Original feature “Controlled fallback/abstention policy in recipe” maps to blueprint cluster Q because its target covers operations/API/agents: headless plans, CLI/SDK/API/events, scheduling, workers, task graph and retries."
+    },
+    {
+      "auditId": "AUD-SPEC-017",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Original feature “Fully headless API/CLI product with no fabricated GUI” maps to blueprint cluster Q because its target covers operations/API/agents: headless plans, CLI/SDK/API/events, scheduling, workers, task graph and retries."
+    },
+    {
+      "auditId": "AUD-SPEC-018",
+      "primaryCluster": "C",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Original feature “Structured input-to-output provenance manifest” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives. Related cluster Q captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-SPEC-019",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Original feature “Budget-aware low/high quality pipeline selection” maps to blueprint cluster Q because its target covers operations/API/agents: headless plans, CLI/SDK/API/events, scheduling, workers, task graph and retries."
+    },
+    {
+      "auditId": "AUD-SPEC-020",
+      "primaryCluster": "Q",
+      "relatedClusters": [],
+      "rationale": "Original feature “Reusable user-configurable action/quality rules” maps to blueprint cluster Q because its target covers operations/API/agents: headless plans, CLI/SDK/API/events, scheduling, workers, task graph and retries."
+    },
+    {
+      "auditId": "AUD-CAP-001",
+      "primaryCluster": "A",
+      "relatedClusters": [],
+      "rationale": "Original feature “Browser tab and web page capture” maps to blueprint cluster A because its target covers source ingest: browser, desktop, mobile, camera, microphone, screen, stream and API/CLI capture."
+    },
+    {
+      "auditId": "AUD-CAP-002",
+      "primaryCluster": "A",
+      "relatedClusters": [],
+      "rationale": "Original feature “Desktop window and full-screen capture” maps to blueprint cluster A because its target covers source ingest: browser, desktop, mobile, camera, microphone, screen, stream and API/CLI capture."
+    },
+    {
+      "auditId": "AUD-CAP-003",
+      "primaryCluster": "A",
+      "relatedClusters": [],
+      "rationale": "Original feature “Multimonitor source selection and region capture” maps to blueprint cluster A because its target covers source ingest: browser, desktop, mobile, camera, microphone, screen, stream and API/CLI capture."
+    },
+    {
+      "auditId": "AUD-CAP-004",
+      "primaryCluster": "A",
+      "relatedClusters": [],
+      "rationale": "Original feature “Webcam/presenter camera and microphone input” maps to blueprint cluster A because its target covers source ingest: browser, desktop, mobile, camera, microphone, screen, stream and API/CLI capture."
+    },
+    {
+      "auditId": "AUD-CAP-005",
+      "primaryCluster": "A",
+      "relatedClusters": [],
+      "rationale": "Original feature “System audio and external audio interface recording” maps to blueprint cluster A because its target covers source ingest: browser, desktop, mobile, camera, microphone, screen, stream and API/CLI capture."
+    },
+    {
+      "auditId": "AUD-CAP-006",
+      "primaryCluster": "A",
+      "relatedClusters": [],
+      "rationale": "Original feature “Mobile emulator and physical device capture” maps to blueprint cluster A because its target covers source ingest: browser, desktop, mobile, camera, microphone, screen, stream and API/CLI capture."
+    },
+    {
+      "auditId": "AUD-CAP-007",
+      "primaryCluster": "B",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Original feature “Presenter teleprompter synchronized with scene/narration cue” maps to blueprint cluster B because its target covers software demo capture: screen-action plans, cursor/key/mouse visualization, receipts and recovery. Related cluster D captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CAP-008",
+      "primaryCluster": "B",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Original feature “Camera and screen picture-in-picture recording” maps to blueprint cluster B because its target covers software demo capture: screen-action plans, cursor/key/mouse visualization, receipts and recovery. Related cluster D captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CAP-009",
+      "primaryCluster": "A",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Original feature “Terminal command/CLI-only scenario recording” maps to blueprint cluster A because its target covers source ingest: browser, desktop, mobile, camera, microphone, screen, stream and API/CLI capture. Related cluster Q captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CAP-010",
+      "primaryCluster": "Q",
+      "relatedClusters": [
+        "A"
+      ],
+      "rationale": "Original feature “API/gRPC/event-only experience documentation” maps to blueprint cluster Q because its target covers operations/API/agents: headless plans, CLI/SDK/API/events, scheduling, workers, task graph and retries. Related cluster A captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CAP-011",
+      "primaryCluster": "A",
+      "relatedClusters": [],
+      "rationale": "Original feature “Remote contributor and WebRTC capture paths” maps to blueprint cluster A because its target covers source ingest: browser, desktop, mobile, camera, microphone, screen, stream and API/CLI capture."
+    },
+    {
+      "auditId": "AUD-CAP-012",
+      "primaryCluster": "A",
+      "relatedClusters": [],
+      "rationale": "Original feature “Live stream capture and live caption ingest” maps to blueprint cluster A because its target covers source ingest: browser, desktop, mobile, camera, microphone, screen, stream and API/CLI capture."
+    },
+    {
+      "auditId": "AUD-CAP-013",
+      "primaryCluster": "A",
+      "relatedClusters": [],
+      "rationale": "Original feature “Multicamera clock sync and clapper marker” maps to blueprint cluster A because its target covers source ingest: browser, desktop, mobile, camera, microphone, screen, stream and API/CLI capture."
+    },
+    {
+      "auditId": "AUD-CAP-014",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Original feature “Active-speaker-aware automatic multicam cut proposals” maps to blueprint cluster J because its target covers autonomous director/editor: themes, scripts, plans, asset ranking, first cuts, pacing and retakes. Related cluster D captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CAP-015",
+      "primaryCluster": "A",
+      "relatedClusters": [],
+      "rationale": "Original feature “Source capability probe and codec consent gating” maps to blueprint cluster A because its target covers source ingest: browser, desktop, mobile, camera, microphone, screen, stream and API/CLI capture."
+    },
+    {
+      "auditId": "AUD-CAP-016",
+      "primaryCluster": "B",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Original feature “Pointer trajectories with deterministic interpolation” maps to blueprint cluster B because its target covers software demo capture: screen-action plans, cursor/key/mouse visualization, receipts and recovery. Related cluster D captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CAP-017",
+      "primaryCluster": "B",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Original feature “Auto zoom/focus on verified click/typed action” maps to blueprint cluster B because its target covers software demo capture: screen-action plans, cursor/key/mouse visualization, receipts and recovery. Related cluster D captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CAP-018",
+      "primaryCluster": "B",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Original feature “Smooth cursor movement, scale and idle hiding” maps to blueprint cluster B because its target covers software demo capture: screen-action plans, cursor/key/mouse visualization, receipts and recovery. Related cluster D captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CAP-019",
+      "primaryCluster": "B",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Original feature “Post-capture cursor editing and loopable cursor return” maps to blueprint cluster B because its target covers software demo capture: screen-action plans, cursor/key/mouse visualization, receipts and recovery. Related cluster D captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CAP-020",
+      "primaryCluster": "B",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Original feature “Mouse/keyboard overlay and keystroke privacy masking” maps to blueprint cluster B because its target covers software demo capture: screen-action plans, cursor/key/mouse visualization, receipts and recovery. Related cluster D captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CAP-021",
+      "primaryCluster": "D",
+      "relatedClusters": [
+        "B"
+      ],
+      "rationale": "Original feature “Protected product text/logo UI reframe rules” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview. Related cluster B captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CAP-022",
+      "primaryCluster": "D",
+      "relatedClusters": [
+        "B"
+      ],
+      "rationale": "Original feature “Aspect-safe automatic framing for portrait/landscape” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview. Related cluster B captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CAP-023",
+      "primaryCluster": "D",
+      "relatedClusters": [
+        "B"
+      ],
+      "rationale": "Original feature “Scene-only recapture/retry preserving previous asset” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview. Related cluster B captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CAP-024",
+      "primaryCluster": "B",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Original feature “Seed owner/lease fencing and cleanup” maps to blueprint cluster B because its target covers software demo capture: screen-action plans, cursor/key/mouse visualization, receipts and recovery. Related cluster Q captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CAP-025",
+      "primaryCluster": "B",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Original feature “Action effect readback versus mere click success” maps to blueprint cluster B because its target covers software demo capture: screen-action plans, cursor/key/mouse visualization, receipts and recovery. Related cluster Q captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CAP-026",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "L"
+      ],
+      "rationale": "Original feature “Black-frame/silent-tail and VFR discontinuity detection” maps to blueprint cluster O because its target covers review/quality/compliance: QA, accessibility, consent/license, risk, review, locks and approvals. Related cluster L captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CAP-027",
+      "primaryCluster": "A",
+      "relatedClusters": [
+        "I"
+      ],
+      "rationale": "Original feature “Audio/video clock drift correction with uncertainty” maps to blueprint cluster A because its target covers source ingest: browser, desktop, mobile, camera, microphone, screen, stream and API/CLI capture. Related cluster I captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CAP-028",
+      "primaryCluster": "B",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Original feature “Capture failure safe resume and scene ownership receipts” maps to blueprint cluster B because its target covers software demo capture: screen-action plans, cursor/key/mouse visualization, receipts and recovery. Related cluster Q captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-ASSET-001",
+      "primaryCluster": "C",
+      "relatedClusters": [],
+      "rationale": "Original feature “Drag/drop and batch ingest with MIME sniffs” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives."
+    },
+    {
+      "auditId": "AUD-ASSET-002",
+      "primaryCluster": "C",
+      "relatedClusters": [],
+      "rationale": "Original feature “Immutable source asset hashes and versions” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives."
+    },
+    {
+      "auditId": "AUD-ASSET-003",
+      "primaryCluster": "C",
+      "relatedClusters": [],
+      "rationale": "Original feature “Media library bins and nested source folders” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives."
+    },
+    {
+      "auditId": "AUD-ASSET-004",
+      "primaryCluster": "C",
+      "relatedClusters": [],
+      "rationale": "Original feature “Tag/search by timeline, person, scene, speaker” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives."
+    },
+    {
+      "auditId": "AUD-ASSET-005",
+      "primaryCluster": "C",
+      "relatedClusters": [],
+      "rationale": "Original feature “AI search on authorized semantic transcripts” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives."
+    },
+    {
+      "auditId": "AUD-ASSET-006",
+      "primaryCluster": "C",
+      "relatedClusters": [],
+      "rationale": "Original feature “Smart bins by actor, scene, camera and subject” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives."
+    },
+    {
+      "auditId": "AUD-ASSET-007",
+      "primaryCluster": "P",
+      "relatedClusters": [
+        "C"
+      ],
+      "rationale": "Original feature “Auto-generated thumbnail/contact sheet” maps to blueprint cluster P because its target covers render/publish/distribute: previews, profiles, exports, packaging and delivery receipts. Related cluster C captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-ASSET-008",
+      "primaryCluster": "C",
+      "relatedClusters": [],
+      "rationale": "Original feature “Low-resolution proxy and original linkage” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives."
+    },
+    {
+      "auditId": "AUD-ASSET-009",
+      "primaryCluster": "C",
+      "relatedClusters": [
+        "O"
+      ],
+      "rationale": "Original feature “Metadata and license-filtered online asset search” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives. Related cluster O captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-ASSET-010",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "C"
+      ],
+      "rationale": "Original feature “Source rights, geographic and audience scope” maps to blueprint cluster O because its target covers review/quality/compliance: QA, accessibility, consent/license, risk, review, locks and approvals. Related cluster C captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-ASSET-011",
+      "primaryCluster": "C",
+      "relatedClusters": [],
+      "rationale": "Original feature “Media technical metadata, tracks and color info” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives."
+    },
+    {
+      "auditId": "AUD-ASSET-012",
+      "primaryCluster": "P",
+      "relatedClusters": [
+        "C"
+      ],
+      "rationale": "Original feature “Sidecar and embedded caption import/export” maps to blueprint cluster P because its target covers render/publish/distribute: previews, profiles, exports, packaging and delivery receipts. Related cluster C captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-ASSET-013",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Production-grade SMPTE drop-frame/non-drop-frame timecode handling” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-ASSET-014",
+      "primaryCluster": "C",
+      "relatedClusters": [],
+      "rationale": "Original feature “Linked external/source file relink and integrity check” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives."
+    },
+    {
+      "auditId": "AUD-ASSET-015",
+      "primaryCluster": "C",
+      "relatedClusters": [
+        "G"
+      ],
+      "rationale": "Original feature “Audio take/reference-voice source catalog” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives. Related cluster G captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-ASSET-016",
+      "primaryCluster": "C",
+      "relatedClusters": [],
+      "rationale": "Original feature “Content-addressed bounded derivative cache” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives."
+    },
+    {
+      "auditId": "AUD-ASSET-017",
+      "primaryCluster": "P",
+      "relatedClusters": [
+        "C"
+      ],
+      "rationale": "Original feature “Project snapshot and full backup/portable bundle” maps to blueprint cluster P because its target covers render/publish/distribute: previews, profiles, exports, packaging and delivery receipts. Related cluster C captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-ASSET-018",
+      "primaryCluster": "C",
+      "relatedClusters": [],
+      "rationale": "Original feature “Semantic duplicates and near-duplicate detection” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives."
+    },
+    {
+      "auditId": "AUD-ASSET-019",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "C"
+      ],
+      "rationale": "Original feature “Per-asset QC and quarantined suspicious input” maps to blueprint cluster O because its target covers review/quality/compliance: QA, accessibility, consent/license, risk, review, locks and approvals. Related cluster C captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-EDIT-001",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “All 52 existing PDP-1 edit-kind discriminants” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-002",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Multitrack video/audio/caption/overlay layers” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-003",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Trim roll slip slide ripple and split editing” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-004",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Nested sequences and linked clips” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-005",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Snap, markers, track grouping and frame-level navigation” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-006",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Keyframe animation, easing and curve graph editing” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-007",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Clip/track mute solo lock and effects bypass” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-008",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Nondestructive source originals, per-operation undo/redo” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-009",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Precision timecode entry and media source in/out range” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-010",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Audio waveform, thumbnails and source monitor” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-011",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Live playback JKL transport, shuttle and shortcuts” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-012",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Track height/visibility/workspace layout personalization” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-013",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Freeze frame and reverse playback” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-014",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Optical-flow and motion-compensated slow motion” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-015",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Automatic subject-safe smart reframe” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-016",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Masking and matte compositing” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-017",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Picture-in-picture and synchronized multicamera” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-018",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Adjustment layers and reusable effect stacks” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-019",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Editable titles, captions and motion templates” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-020",
+      "primaryCluster": "D",
+      "relatedClusters": [
+        "O"
+      ],
+      "rationale": "Original feature “Deterministic manual lock preservation on regeneration” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview. Related cluster O captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-EDIT-021",
+      "primaryCluster": "D",
+      "relatedClusters": [
+        "J"
+      ],
+      "rationale": "Original feature “Agent-made changes remain editable project commands” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview. Related cluster J captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-EDIT-022",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "J"
+      ],
+      "rationale": "Original feature “Diff, dry-run, approval and rollback of agent edits” maps to blueprint cluster O because its target covers review/quality/compliance: QA, accessibility, consent/license, risk, review, locks and approvals. Related cluster J captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-EDIT-023",
+      "primaryCluster": "D",
+      "relatedClusters": [
+        "C"
+      ],
+      "rationale": "Original feature “Semantic three-way merge of conflicting revisions” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview. Related cluster C captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-EDIT-024",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Keyboard/text equivalents for graphical controls” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-025",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Batch edits and parameter-copy/paste presets” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-026",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Reusable project sequence templates and styles” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-EDIT-027",
+      "primaryCluster": "C",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Original feature “Timeline auto-backup and crash recovery” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives. Related cluster Q captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-EDIT-028",
+      "primaryCluster": "D",
+      "relatedClusters": [
+        "P"
+      ],
+      "rationale": "Original feature “Proxy/full-quality preview switch at exact positions” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview. Related cluster P captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-COLOR-001",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Exposure, contrast, white balance and saturation” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-COLOR-002",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Lift gamma gain/color wheels and curves” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-COLOR-003",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “HSL secondary corrections and LUT preview” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-COLOR-004",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Shot-to-shot automatic color matching” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-COLOR-005",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “OpenColorIO color-managed scene/display transforms” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-COLOR-006",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Original feature “Scopes: waveform, vectorscope, histogram” maps to blueprint cluster O because its target covers review/quality/compliance: QA, accessibility, consent/license, risk, review, locks and approvals. Related cluster D captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-COLOR-007",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “ACES-compatible config and export transforms” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-COLOR-008",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “10/12-bit internal data path when supported” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-COLOR-009",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “HDR/PQ/HLG explicit profile/capability negotiation” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-COLOR-010",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Color-safe subtitle and skin tone reference” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-COLOR-011",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Chroma key spill suppression and edge cleanup” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-COLOR-012",
+      "primaryCluster": "D",
+      "relatedClusters": [],
+      "rationale": "Original feature “Virtual background/green-screen replacement with explicit subject mask” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview."
+    },
+    {
+      "auditId": "AUD-COLOR-013",
+      "primaryCluster": "L",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Original feature “Lens distortion, rolling-shutter and vignette correction” maps to blueprint cluster L because its target covers vision/smart video: tracking, OCR, alignment, reframing and visual/scene quality. Related cluster D captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-COLOR-014",
+      "primaryCluster": "L",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Original feature “Flicker and temporal noise reduction” maps to blueprint cluster L because its target covers vision/smart video: tracking, OCR, alignment, reframing and visual/scene quality. Related cluster D captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-COLOR-015",
+      "primaryCluster": "L",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Original feature “Stabilization and auto horizon correction” maps to blueprint cluster L because its target covers vision/smart video: tracking, OCR, alignment, reframing and visual/scene quality. Related cluster D captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-COLOR-016",
+      "primaryCluster": "L",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Original feature “AI super-resolution/sharpen with model truth” maps to blueprint cluster L because its target covers vision/smart video: tracking, OCR, alignment, reframing and visual/scene quality. Related cluster D captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-COLOR-017",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Original feature “Human-readable visual comparison view” maps to blueprint cluster O because its target covers review/quality/compliance: QA, accessibility, consent/license, risk, review, locks and approvals. Related cluster D captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-ASR-001",
+      "primaryCluster": "E",
+      "relatedClusters": [],
+      "rationale": "Original feature “Offline ASR transcription and local model routing” maps to blueprint cluster E because its target covers voice input/ASR: recording, transcription, alignment, speaker handling, search and transcript edits."
+    },
+    {
+      "auditId": "AUD-ASR-002",
+      "primaryCluster": "E",
+      "relatedClusters": [],
+      "rationale": "Original feature “Streaming ASR with partial/final update semantics” maps to blueprint cluster E because its target covers voice input/ASR: recording, transcription, alignment, speaker handling, search and transcript edits."
+    },
+    {
+      "auditId": "AUD-ASR-003",
+      "primaryCluster": "E",
+      "relatedClusters": [],
+      "rationale": "Original feature “Voice activity detection and silence segmentation” maps to blueprint cluster E because its target covers voice input/ASR: recording, transcription, alignment, speaker handling, search and transcript edits."
+    },
+    {
+      "auditId": "AUD-ASR-004",
+      "primaryCluster": "E",
+      "relatedClusters": [],
+      "rationale": "Original feature “Language recognition and mixed-language segments” maps to blueprint cluster E because its target covers voice input/ASR: recording, transcription, alignment, speaker handling, search and transcript edits."
+    },
+    {
+      "auditId": "AUD-ASR-005",
+      "primaryCluster": "E",
+      "relatedClusters": [],
+      "rationale": "Original feature “Word-level alignment and correction” maps to blueprint cluster E because its target covers voice input/ASR: recording, transcription, alignment, speaker handling, search and transcript edits."
+    },
+    {
+      "auditId": "AUD-ASR-006",
+      "primaryCluster": "E",
+      "relatedClusters": [],
+      "rationale": "Original feature “Speaker diarization and overlapped speech detection” maps to blueprint cluster E because its target covers voice input/ASR: recording, transcription, alignment, speaker handling, search and transcript edits."
+    },
+    {
+      "auditId": "AUD-ASR-007",
+      "primaryCluster": "E",
+      "relatedClusters": [],
+      "rationale": "Original feature “Speaker labeling and assignment revision” maps to blueprint cluster E because its target covers voice input/ASR: recording, transcription, alignment, speaker handling, search and transcript edits."
+    },
+    {
+      "auditId": "AUD-ASR-008",
+      "primaryCluster": "E",
+      "relatedClusters": [],
+      "rationale": "Original feature “Dictation push-to-talk and persistent toggled mode” maps to blueprint cluster E because its target covers voice input/ASR: recording, transcription, alignment, speaker handling, search and transcript edits."
+    },
+    {
+      "auditId": "AUD-ASR-009",
+      "primaryCluster": "E",
+      "relatedClusters": [],
+      "rationale": "Original feature “OS-wide dictation insertion with accessibility safeguards” maps to blueprint cluster E because its target covers voice input/ASR: recording, transcription, alignment, speaker handling, search and transcript edits."
+    },
+    {
+      "auditId": "AUD-ASR-010",
+      "primaryCluster": "E",
+      "relatedClusters": [],
+      "rationale": "Original feature “ASR-assisted filler word and retake detection” maps to blueprint cluster E because its target covers voice input/ASR: recording, transcription, alignment, speaker handling, search and transcript edits."
+    },
+    {
+      "auditId": "AUD-ASR-011",
+      "primaryCluster": "E",
+      "relatedClusters": [],
+      "rationale": "Original feature “Transcript-based ripple edit and pause shortening” maps to blueprint cluster E because its target covers voice input/ASR: recording, transcription, alignment, speaker handling, search and transcript edits."
+    },
+    {
+      "auditId": "AUD-ASR-012",
+      "primaryCluster": "E",
+      "relatedClusters": [],
+      "rationale": "Original feature “Custom glossary and correction dictionary” maps to blueprint cluster E because its target covers voice input/ASR: recording, transcription, alignment, speaker handling, search and transcript edits."
+    },
+    {
+      "auditId": "AUD-ASR-013",
+      "primaryCluster": "E",
+      "relatedClusters": [],
+      "rationale": "Original feature “Per-word confidence and review queues” maps to blueprint cluster E because its target covers voice input/ASR: recording, transcription, alignment, speaker handling, search and transcript edits."
+    },
+    {
+      "auditId": "AUD-ASR-014",
+      "primaryCluster": "E",
+      "relatedClusters": [],
+      "rationale": "Original feature “Retiming transcripts when video edits change” maps to blueprint cluster E because its target covers voice input/ASR: recording, transcription, alignment, speaker handling, search and transcript edits."
+    },
+    {
+      "auditId": "AUD-ASR-015",
+      "primaryCluster": "C",
+      "relatedClusters": [
+        "E"
+      ],
+      "rationale": "Original feature “Semantic search through recorded material” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives. Related cluster E captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-ASR-016",
+      "primaryCluster": "Q",
+      "relatedClusters": [
+        "E"
+      ],
+      "rationale": "Original feature “Speech-to-text API, MCP and real-time events” maps to blueprint cluster Q because its target covers operations/API/agents: headless plans, CLI/SDK/API/events, scheduling, workers, task graph and retries. Related cluster E captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-ASR-017",
+      "primaryCluster": "A",
+      "relatedClusters": [
+        "E"
+      ],
+      "rationale": "Original feature “Source microphone recording + transcript paired archive” maps to blueprint cluster A because its target covers source ingest: browser, desktop, mobile, camera, microphone, screen, stream and API/CLI capture. Related cluster E captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-ASR-018",
+      "primaryCluster": "H",
+      "relatedClusters": [
+        "E"
+      ],
+      "rationale": "Original feature “Low-latency streaming interpretation with partial translated captions” maps to blueprint cluster H because its target covers dubbing/localization: translation, voice mapping, timed revoice, subtitles and locale variants. Related cluster E captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-ASR-019",
+      "primaryCluster": "E",
+      "relatedClusters": [],
+      "rationale": "Original feature “Punctuation, capitalization and local LLM cleanup” maps to blueprint cluster E because its target covers voice input/ASR: recording, transcription, alignment, speaker handling, search and transcript edits."
+    },
+    {
+      "auditId": "AUD-ASR-020",
+      "primaryCluster": "L",
+      "relatedClusters": [
+        "E"
+      ],
+      "rationale": "Original feature “Non-speech sound segmentation and event detection” maps to blueprint cluster L because its target covers vision/smart video: tracking, OCR, alignment, reframing and visual/scene quality. Related cluster E captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-TTS-001",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Original feature “Preset voice library and search” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes."
+    },
+    {
+      "auditId": "AUD-TTS-002",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Original feature “Multiple approved TTS engines and per-job selection” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes."
+    },
+    {
+      "auditId": "AUD-TTS-003",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Original feature “Voice profile versions and language support” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes."
+    },
+    {
+      "auditId": "AUD-TTS-004",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Original feature “Voice design via descriptive style instructions” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes."
+    },
+    {
+      "auditId": "AUD-TTS-005",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Original feature “Prosody, speaking rate, pitch, emphasis and pauses” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes."
+    },
+    {
+      "auditId": "AUD-TTS-006",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Original feature “Expressive styles and paralinguistic tags per model” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes."
+    },
+    {
+      "auditId": "AUD-TTS-007",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Original feature “Pronunciation lexicon/IPA and name override” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes."
+    },
+    {
+      "auditId": "AUD-TTS-008",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Original feature “SSML-like structured text authoring” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes."
+    },
+    {
+      "auditId": "AUD-TTS-009",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Original feature “Per-sentence and paragraph takes with A/B playback” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes."
+    },
+    {
+      "auditId": "AUD-TTS-010",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Original feature “Long-form sentence chunking and crossfade alignment” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes."
+    },
+    {
+      "auditId": "AUD-TTS-011",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Original feature “Audiobook chapter, paragraph and M4B metadata” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes."
+    },
+    {
+      "auditId": "AUD-TTS-012",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Original feature “Multi-speaker Stories and podcast production” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes."
+    },
+    {
+      "auditId": "AUD-TTS-013",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Original feature “Context continuity between segments” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes."
+    },
+    {
+      "auditId": "AUD-TTS-014",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Original feature “Narrator casting by locale, intended style and rights” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes."
+    },
+    {
+      "auditId": "AUD-TTS-015",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Original feature “Streaming TTS with bounded audio chunk backpressure” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes."
+    },
+    {
+      "auditId": "AUD-TTS-016",
+      "primaryCluster": "F",
+      "relatedClusters": [],
+      "rationale": "Original feature “Source text with inline pronunciation and mood markers” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes."
+    },
+    {
+      "auditId": "AUD-TTS-017",
+      "primaryCluster": "F",
+      "relatedClusters": [
+        "Q"
+      ],
+      "rationale": "Original feature “Per-voice personality compose/rewrite/respond (local LLM)” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes. Related cluster Q captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-TTS-018",
+      "primaryCluster": "Q",
+      "relatedClusters": [
+        "F"
+      ],
+      "rationale": "Original feature “Voice-driven agent response / full duplex voice loop” maps to blueprint cluster Q because its target covers operations/API/agents: headless plans, CLI/SDK/API/events, scheduling, workers, task graph and retries. Related cluster F captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-TTS-019",
+      "primaryCluster": "G",
+      "relatedClusters": [
+        "F"
+      ],
+      "rationale": "Original feature “Realtime consented voice conversion with effective-voice verification” maps to blueprint cluster G because its target covers voice cloning/design: consent, sample QA, speaker rights, profiles, disclosure and watermark. Related cluster F captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-TTS-020",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "F"
+      ],
+      "rationale": "Original feature “Side-by-side voice quality/cost/latency comparisons” maps to blueprint cluster O because its target covers review/quality/compliance: QA, accessibility, consent/license, risk, review, locks and approvals. Related cluster F captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-TTS-021",
+      "primaryCluster": "I",
+      "relatedClusters": [
+        "F"
+      ],
+      "rationale": "Original feature “Per-voice audio effects chain and reusable presets” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown. Related cluster F captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-TTS-022",
+      "primaryCluster": "Q",
+      "relatedClusters": [
+        "F"
+      ],
+      "rationale": "Original feature “Remote worker with pinned model and asset provenance” maps to blueprint cluster Q because its target covers operations/API/agents: headless plans, CLI/SDK/API/events, scheduling, workers, task graph and retries. Related cluster F captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-TTS-023",
+      "primaryCluster": "F",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Original feature “Incremental regeneration of affected phrase only” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes. Related cluster D captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-TTS-024",
+      "primaryCluster": "F",
+      "relatedClusters": [
+        "D"
+      ],
+      "rationale": "Original feature “Prompt/voice controls do not silently change effective model” maps to blueprint cluster F because its target covers voice output/synthesis: voice profiles, narration, prosody, streaming, takes and recipes. Related cluster D captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CLONE-001",
+      "primaryCluster": "G",
+      "relatedClusters": [],
+      "rationale": "Original feature “Consent-backed speaker voice enrollment” maps to blueprint cluster G because its target covers voice cloning/design: consent, sample QA, speaker rights, profiles, disclosure and watermark."
+    },
+    {
+      "auditId": "AUD-CLONE-002",
+      "primaryCluster": "G",
+      "relatedClusters": [],
+      "rationale": "Original feature “Reference sample audio quality and rights QC” maps to blueprint cluster G because its target covers voice cloning/design: consent, sample QA, speaker rights, profiles, disclosure and watermark."
+    },
+    {
+      "auditId": "AUD-CLONE-003",
+      "primaryCluster": "G",
+      "relatedClusters": [],
+      "rationale": "Original feature “Zero-shot voice clone using admitted weights” maps to blueprint cluster G because its target covers voice cloning/design: consent, sample QA, speaker rights, profiles, disclosure and watermark."
+    },
+    {
+      "auditId": "AUD-CLONE-004",
+      "primaryCluster": "G",
+      "relatedClusters": [],
+      "rationale": "Original feature “Optional tuned/fine-tuned voice model” maps to blueprint cluster G because its target covers voice cloning/design: consent, sample QA, speaker rights, profiles, disclosure and watermark."
+    },
+    {
+      "auditId": "AUD-CLONE-005",
+      "primaryCluster": "G",
+      "relatedClusters": [],
+      "rationale": "Original feature “Speaker profile encrypted embedding reference” maps to blueprint cluster G because its target covers voice cloning/design: consent, sample QA, speaker rights, profiles, disclosure and watermark."
+    },
+    {
+      "auditId": "AUD-CLONE-006",
+      "primaryCluster": "G",
+      "relatedClusters": [],
+      "rationale": "Original feature “Synthetic voice design without human reference” maps to blueprint cluster G because its target covers voice cloning/design: consent, sample QA, speaker rights, profiles, disclosure and watermark."
+    },
+    {
+      "auditId": "AUD-CLONE-007",
+      "primaryCluster": "G",
+      "relatedClusters": [],
+      "rationale": "Original feature “Speaker similarity and identity-consistency checks” maps to blueprint cluster G because its target covers voice cloning/design: consent, sample QA, speaker rights, profiles, disclosure and watermark."
+    },
+    {
+      "auditId": "AUD-CLONE-008",
+      "primaryCluster": "G",
+      "relatedClusters": [],
+      "rationale": "Original feature “Cloned voice usage purpose and expiration constraints” maps to blueprint cluster G because its target covers voice cloning/design: consent, sample QA, speaker rights, profiles, disclosure and watermark."
+    },
+    {
+      "auditId": "AUD-CLONE-009",
+      "primaryCluster": "G",
+      "relatedClusters": [],
+      "rationale": "Original feature “Profile deletion and provider erasure request tracking” maps to blueprint cluster G because its target covers voice cloning/design: consent, sample QA, speaker rights, profiles, disclosure and watermark."
+    },
+    {
+      "auditId": "AUD-CLONE-010",
+      "primaryCluster": "G",
+      "relatedClusters": [],
+      "rationale": "Original feature “Voice cloning impersonation/age protections” maps to blueprint cluster G because its target covers voice cloning/design: consent, sample QA, speaker rights, profiles, disclosure and watermark."
+    },
+    {
+      "auditId": "AUD-CLONE-011",
+      "primaryCluster": "G",
+      "relatedClusters": [],
+      "rationale": "Original feature “Embedded synthetic speech watermark when qualified” maps to blueprint cluster G because its target covers voice cloning/design: consent, sample QA, speaker rights, profiles, disclosure and watermark."
+    },
+    {
+      "auditId": "AUD-CLONE-012",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "G"
+      ],
+      "rationale": "Original feature “Watermark recognition, stripping analysis and robustness test” maps to blueprint cluster O because its target covers review/quality/compliance: QA, accessibility, consent/license, risk, review, locks and approvals. Related cluster G captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CLONE-013",
+      "primaryCluster": "G",
+      "relatedClusters": [
+        "O"
+      ],
+      "rationale": "Original feature “Output disclosure and provenance / content credentials” maps to blueprint cluster G because its target covers voice cloning/design: consent, sample QA, speaker rights, profiles, disclosure and watermark. Related cluster O captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-CLONE-014",
+      "primaryCluster": "G",
+      "relatedClusters": [],
+      "rationale": "Original feature “Consent revocation propagates to derived assets policy” maps to blueprint cluster G because its target covers voice cloning/design: consent, sample QA, speaker rights, profiles, disclosure and watermark."
+    },
+    {
+      "auditId": "AUD-CLONE-015",
+      "primaryCluster": "G",
+      "relatedClusters": [],
+      "rationale": "Original feature “Prevent user-supplied model from silently changing identity” maps to blueprint cluster G because its target covers voice cloning/design: consent, sample QA, speaker rights, profiles, disclosure and watermark."
+    },
+    {
+      "auditId": "AUD-CLONE-016",
+      "primaryCluster": "G",
+      "relatedClusters": [],
+      "rationale": "Original feature “Protected public figure and consent-sensitive requests review” maps to blueprint cluster G because its target covers voice cloning/design: consent, sample QA, speaker rights, profiles, disclosure and watermark."
+    },
+    {
+      "auditId": "AUD-CLONE-017",
+      "primaryCluster": "G",
+      "relatedClusters": [],
+      "rationale": "Original feature “Consent-backed talking-avatar persona and likeness enrollment” maps to blueprint cluster G because its target covers voice cloning/design: consent, sample QA, speaker rights, profiles, disclosure and watermark."
+    },
+    {
+      "auditId": "AUD-DUB-001",
+      "primaryCluster": "H",
+      "relatedClusters": [],
+      "rationale": "Original feature “Multilingual transcript translation with reviewed terminology” maps to blueprint cluster H because its target covers dubbing/localization: translation, voice mapping, timed revoice, subtitles and locale variants."
+    },
+    {
+      "auditId": "AUD-DUB-002",
+      "primaryCluster": "H",
+      "relatedClusters": [],
+      "rationale": "Original feature “Translation memory, brand glossary and do-not-translate” maps to blueprint cluster H because its target covers dubbing/localization: translation, voice mapping, timed revoice, subtitles and locale variants."
+    },
+    {
+      "auditId": "AUD-DUB-003",
+      "primaryCluster": "H",
+      "relatedClusters": [],
+      "rationale": "Original feature “Speaker-to-voice correspondence across languages” maps to blueprint cluster H because its target covers dubbing/localization: translation, voice mapping, timed revoice, subtitles and locale variants."
+    },
+    {
+      "auditId": "AUD-DUB-004",
+      "primaryCluster": "H",
+      "relatedClusters": [],
+      "rationale": "Original feature “Timed speech synthesis and segment gap handling” maps to blueprint cluster H because its target covers dubbing/localization: translation, voice mapping, timed revoice, subtitles and locale variants."
+    },
+    {
+      "auditId": "AUD-DUB-005",
+      "primaryCluster": "H",
+      "relatedClusters": [],
+      "rationale": "Original feature “Forced alignment and time-stretch with constraint reporting” maps to blueprint cluster H because its target covers dubbing/localization: translation, voice mapping, timed revoice, subtitles and locale variants."
+    },
+    {
+      "auditId": "AUD-DUB-006",
+      "primaryCluster": "H",
+      "relatedClusters": [],
+      "rationale": "Original feature “Speech-to-speech voice style transfer where licensed” maps to blueprint cluster H because its target covers dubbing/localization: translation, voice mapping, timed revoice, subtitles and locale variants."
+    },
+    {
+      "auditId": "AUD-DUB-007",
+      "primaryCluster": "H",
+      "relatedClusters": [],
+      "rationale": "Original feature “Room tone/music/noise preservation and speech isolation” maps to blueprint cluster H because its target covers dubbing/localization: translation, voice mapping, timed revoice, subtitles and locale variants."
+    },
+    {
+      "auditId": "AUD-DUB-008",
+      "primaryCluster": "H",
+      "relatedClusters": [],
+      "rationale": "Original feature “Lip synchronization of permitted existing video” maps to blueprint cluster H because its target covers dubbing/localization: translation, voice mapping, timed revoice, subtitles and locale variants."
+    },
+    {
+      "auditId": "AUD-DUB-009",
+      "primaryCluster": "K",
+      "relatedClusters": [
+        "H"
+      ],
+      "rationale": "Original feature “Portrait-to-speaking-video from authorized source” maps to blueprint cluster K because its target covers visual generation: image/video generation, transitions, b-roll and stylization. Related cluster H captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-DUB-010",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "H"
+      ],
+      "rationale": "Original feature “Audio/video translation variant QA by locale” maps to blueprint cluster O because its target covers review/quality/compliance: QA, accessibility, consent/license, risk, review, locks and approvals. Related cluster H captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-DUB-011",
+      "primaryCluster": "H",
+      "relatedClusters": [],
+      "rationale": "Original feature “Subtitle/closed caption multilingual rendering” maps to blueprint cluster H because its target covers dubbing/localization: translation, voice mapping, timed revoice, subtitles and locale variants."
+    },
+    {
+      "auditId": "AUD-DUB-012",
+      "primaryCluster": "D",
+      "relatedClusters": [
+        "H"
+      ],
+      "rationale": "Original feature “RTL, Devanagari and CJK typography correctness” maps to blueprint cluster D because its target covers professional editing: timeline operations, tracks, keyframes, effects, reframing, color and preview. Related cluster H captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-DUB-013",
+      "primaryCluster": "H",
+      "relatedClusters": [],
+      "rationale": "Original feature “Voice consistency despite localized text-length changes” maps to blueprint cluster H because its target covers dubbing/localization: translation, voice mapping, timed revoice, subtitles and locale variants."
+    },
+    {
+      "auditId": "AUD-DUB-014",
+      "primaryCluster": "H",
+      "relatedClusters": [],
+      "rationale": "Original feature “Per-scene retake/resynthesis and A/B locale comparisons” maps to blueprint cluster H because its target covers dubbing/localization: translation, voice mapping, timed revoice, subtitles and locale variants."
+    },
+    {
+      "auditId": "AUD-DUB-015",
+      "primaryCluster": "H",
+      "relatedClusters": [],
+      "rationale": "Original feature “Simultaneous translated speech-to-speech conversation when admitted” maps to blueprint cluster H because its target covers dubbing/localization: translation, voice mapping, timed revoice, subtitles and locale variants."
+    },
+    {
+      "auditId": "AUD-DUB-016",
+      "primaryCluster": "H",
+      "relatedClusters": [],
+      "rationale": "Original feature “Burned and sidecar language variant outputs” maps to blueprint cluster H because its target covers dubbing/localization: translation, voice mapping, timed revoice, subtitles and locale variants."
+    },
+    {
+      "auditId": "AUD-DUB-017",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "H"
+      ],
+      "rationale": "Original feature “Foreign media voice replacement origin disclosure” maps to blueprint cluster O because its target covers review/quality/compliance: QA, accessibility, consent/license, risk, review, locks and approvals. Related cluster H captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-DSP-001",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “Waveform and phrase-based audio editor” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-DSP-002",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “Multitrack mix bus, send and per-track controls” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-DSP-003",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “Gain, panning, fade and automation curves” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-DSP-004",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “Parametric EQ and high/low pass filtering” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-DSP-005",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “Dynamic compression, expansion and limiting” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-DSP-006",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “De-esser and dialogue frequency cleanup” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-DSP-007",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “Delay, chorus, flanger and reverb effects” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-DSP-008",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “Noise reduction with model and residual QA” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-DSP-009",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “De-reverberation and hum removal” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-DSP-010",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “Acoustic echo cancellation for microphone recording” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-DSP-011",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “Vocal/music/stem separation and re-mix” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-DSP-012",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “Per-track auto-ducking of music under speech” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-DSP-013",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “Resample, stretch, pitch shift with artifact checks” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-DSP-014",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “Sample-accurate speech edit and crossfade” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-DSP-015",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “EBU R128 / LUFS integrated loudness and true peak” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-DSP-016",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “Stereo and 5.1 surround when admitted” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-DSP-017",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “Immersive/ambisonic audio when admitted” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-DSP-018",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “ADR, Foley and room tone recording/editing” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-DSP-019",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “Preset and user-defined effect chains” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-DSP-020",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “External VST/LV2 plugin host only if permissible and sandboxed” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-MUSIC-001",
+      "primaryCluster": "C",
+      "relatedClusters": [
+        "I"
+      ],
+      "rationale": "Original feature “Licensed music catalog import with attribution” maps to blueprint cluster C because its target covers media projects/ingest: immutable sources, project library, imports, metadata, versioning and derivatives. Related cluster I captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-MUSIC-002",
+      "primaryCluster": "O",
+      "relatedClusters": [
+        "I"
+      ],
+      "rationale": "Original feature “Royalty/territory/provenance audit per track” maps to blueprint cluster O because its target covers review/quality/compliance: QA, accessibility, consent/license, risk, review, locks and approvals. Related cluster I captures an overlapping aspect."
+    },
+    {
+      "auditId": "AUD-MUSIC-003",
+      "primaryCluster": "I",
+      "relatedClusters": [],
+      "rationale": "Original feature “Beat grid, downbeat and tempo detection” maps to blueprint cluster I because its target covers audio engineering: waveform, multitrack, effects, cleanup, loudness, stems, music and mixdown."
+    },
+    {
+      "auditId": "AUD-MUSIC-004",
+      "primaryCluster": "J",
+      "relatedClusters": [
+        "I"
+      ],
+      "rationale": "Original feature “Sync cut points and transitions to music” maps to blueprint cluster J because its target covers autonomous director/editor: themes, scripts, plans, asset ranking, first cuts, pacing and retakes. Related cluster I captures an overlapping aspect."
+    }
+  ]
+}

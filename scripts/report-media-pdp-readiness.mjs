@@ -10,6 +10,13 @@ import { enumerateExpectedMediaObligations } from './lib/media-obligation-denomi
 import { analyzeDesignConformance } from './check-media-design-conformance.mjs';
 import { validatePdp0AuditDispositions, PDP0_AUDIT_DISPOSITION_CROSSWALK_PATH } from './check-media-pdp0-501-audit-dispositions.mjs';
 import { validatePdp0SurfaceDenominator, readSources as readPdp0SurfaceSources } from './check-media-pdp0-surface-denominator.mjs';
+import {
+  fingerprint, fingerprintPxdDecisionSection, pdp0DecisionSectionPinName,
+  pdp0DirectCriteriaProjectionPinName, pdp0OwnerCandidateProjectionPinName,
+  pdp0OwnerTargetObservationsProjectionPinName, pdp0SourceProjectionPinName,
+  projectPdp0DirectCriterionReviews, projectPdp0OwnerCandidates,
+  projectPdp0OwnerTargetObservations, projectPdp0SourceManifest,
+} from './lib/pdp0-phase-scoped-source-fingerprints.mjs';
 
 export const taskIds = [8, 11, 9, 10].flatMap((n, phase) => Array.from({length:n}, (_,i) => `P${phase}-${String(i+1).padStart(2,'0')}`));
 export function validateTaskPopulation(tasks) {
@@ -19,6 +26,43 @@ export function validateTaskPopulation(tasks) {
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const parseYaml=createRequire(path.resolve(root,'../ghatana-tools/package.json'))('yaml').parse;
 const digest = file => crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex');
+export function pdp0PhaseScopedSourcePins() {
+  const read = file => fs.readFileSync(path.join(root, file), 'utf8');
+  const reviewPath = 'docs/implementation/verification/pdp-38/direct-definition-criteria-review.json';
+  const reviewDocument = JSON.parse(read(reviewPath));
+  const reviewProjection = projectPdp0DirectCriterionReviews(reviewDocument, sourceOwnerPhase);
+  const decisionLog = read('.product-experience/decision-log.md');
+  const crosswalk = JSON.parse(read(PDP0_AUDIT_DISPOSITION_CROSSWALK_PATH));
+  const decisionIds = new Set();
+  const addDecisionId = value => {
+    const match = typeof value === 'string' && value.match(/(?:^|#)PXD-(\d{3})$/);
+    if (match) decisionIds.add(`PXD-${match[1]}`);
+  };
+  for (const record of reviewProjection.records) {
+    addDecisionId(record.decisionRef);
+    addDecisionId(record.currentCorrectiveReview?.decisionRef ?? record.currentSourceReview?.decisionRef);
+    addDecisionId(record.currentSourcePinRefresh?.decisionContextRef);
+    for (const decisionRef of record.currentProjectionRefresh?.decisionContextRefs ?? []) addDecisionId(decisionRef);
+  }
+  addDecisionId(crosswalk.coordinatorReview?.decisionRef);
+  const pins = {
+    [pdp0SourceProjectionPinName]: fingerprint(projectPdp0SourceManifest(
+      parseYaml(read('.product-experience/source-manifest.yaml')),
+      parseYaml(read('.product-experience/pdp-0-product-truth/reuse-decisions.yaml')),
+    )),
+    [pdp0DirectCriteriaProjectionPinName]: fingerprint(reviewProjection),
+    [pdp0OwnerCandidateProjectionPinName]: fingerprint(projectPdp0OwnerCandidates(
+      JSON.parse(read('docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json')),
+    )),
+    [pdp0OwnerTargetObservationsProjectionPinName]: fingerprint(projectPdp0OwnerTargetObservations(
+      JSON.parse(read('docs/implementation/verification/pdp-38/migration-current-owner-target-observations.json')),
+    )),
+  };
+  for (const decisionId of decisionIds) {
+    pins[pdp0DecisionSectionPinName(decisionId)] = fingerprintPxdDecisionSection(decisionLog, decisionId).sha256;
+  }
+  return pins;
+}
 export function verificationCutChanged(before, after) {
   return [...new Set([...Object.keys(before), ...Object.keys(after)])]
     .filter(file => before[file] !== after[file]).sort();
@@ -35,16 +79,17 @@ function hasCompleteCurrentP0CriterionScopes(definitionCriterionReviews) {
   });
 }
 const suites = {
-  'P0-01': ['tests/pdp-truth-domain-channel-profile-applicability.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-development-handoff.test.mjs', 'tests/pdp0-animation-authored-provenance.test.mjs', 'tests/pdp0-capability-leaf-review-authority-boundary.test.mjs', 'tests/pdp0-capability-intent-current-source-observation.test.mjs', 'tests/pdp0-capability-outcome-meaning.test.mjs', 'tests/pdp0-capability-source-backed-outcomes.test.mjs', 'tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs', 'tests/pdp0-result-variant-trust-bindings.test.mjs', 'tests/pdp0-existing-operation-semantic-corrections.test.mjs', 'tests/pdp-capability-family-definition.test.mjs'],
-  'P0-02': ['tests/pdp-truth-domain.test.mjs', 'tests/media-operation-bounds.test.mjs', 'tests/media-measure-applicability-crosswalk.test.mjs', 'tests/pdp-truth-domain-output-producer-applicability.test.mjs', 'tests/pdp-truth-domain-nfr-measurement-methods.test.mjs', 'tests/pdp0-bounded-resource-admission.test.mjs'],
-  'P0-03': ['tests/pdp-migration-current-source-claim-dispositions.test.mjs', 'tests/pdp-migration-semantic-reconciliation.test.mjs', 'tests/pdp-migration-capability-material-claims.test.mjs', 'tests/pdp-migration-preservation-identity-wire-claims.test.mjs', 'tests/pdp-migration-pxd120-current-target-observations.test.mjs', 'tests/pdp-migration-constitution-claims.test.mjs', 'tests/pdp-leaf-trust-reconstruction-dispositions.test.mjs', 'tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs', 'tests/pdp-migration-mpsem-0077-c002-persona-parity.test.mjs', 'tests/pdp-migration-p0-current-material-reviews.test.mjs', 'tests/pdp0-result-variant-trust-bindings.test.mjs', 'tests/media-pdp0-501-audit-dispositions.test.mjs'],
+  'P0-01': ['tests/pdp-truth-domain-channel-profile-applicability.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-development-handoff.test.mjs', 'tests/pdp0-animation-authored-provenance.test.mjs', 'tests/pdp0-capability-leaf-review-authority-boundary.test.mjs', 'tests/pdp0-capability-intent-current-source-observation.test.mjs', 'tests/pdp0-capability-outcome-meaning.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd206.test.mjs', 'tests/pdp0-capability-source-backed-outcomes.test.mjs', 'tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs', 'tests/pdp0-result-variant-trust-bindings.test.mjs', 'tests/pdp0-existing-operation-semantic-corrections.test.mjs', 'tests/pdp-capability-family-definition.test.mjs', 'tests/pdp0-artifact-search-rights-scope.test.mjs', 'tests/pdp0-j10-continuity-candidate-identity.test.mjs', 'tests/pdp0-required-family-disposition-coverage.test.mjs', 'tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs'],
+  'P0-02': ['tests/pdp-truth-domain.test.mjs', 'tests/media-operation-bounds.test.mjs', 'tests/media-measure-applicability-crosswalk.test.mjs', 'tests/pdp-truth-domain-output-producer-applicability.test.mjs', 'tests/pdp-truth-domain-nfr-measurement-methods.test.mjs', 'tests/pdp0-bounded-resource-admission.test.mjs', 'tests/pdp0-artifact-search-rights-scope.test.mjs'],
+  'P0-03': ['tests/pdp-migration-current-source-claim-dispositions.test.mjs', 'tests/pdp-migration-semantic-reconciliation.test.mjs', 'tests/pdp-migration-capability-material-claims.test.mjs', 'tests/pdp-migration-preservation-identity-wire-claims.test.mjs', 'tests/pdp-migration-pxd120-current-target-observations.test.mjs', 'tests/pdp-migration-constitution-claims.test.mjs', 'tests/pdp-leaf-trust-reconstruction-dispositions.test.mjs', 'tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs', 'tests/pdp-migration-mpsem-0077-c002-persona-parity.test.mjs', 'tests/pdp-migration-p0-current-material-reviews.test.mjs', 'tests/pdp0-result-variant-trust-bindings.test.mjs', 'tests/media-pdp0-501-audit-dispositions.test.mjs', 'tests/media-pdp0-audit-aq-traceability.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd215.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd216.test.mjs', 'tests/pdp0-constitution-single-source-current-claim.test.mjs', 'tests/pdp0-semantic-corrections.test.mjs'],
   'P0-04': ['tests/pdp-0-final.test.mjs', 'tests/media-product-definition-resolved-intents.test.mjs', 'tests/media-pdp0-acceptance-actor-binding.test.mjs'],
-  'P0-05': ['tests/pdp-truth-domain.test.mjs', 'tests/pdp0-constitution-normative-completeness.test.mjs', 'tests/pdp0-requirement-source-boundaries.test.mjs', 'tests/pdp0-policy-authority-boundary.test.mjs'],
-  'P0-06': ['tests/pdp-0-06-measures-provenance.test.mjs', 'tests/media-measure-applicability-crosswalk.test.mjs', 'tests/pdp-truth-domain-quality-applicability.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-phase-noise-output-semantics.test.mjs', 'tests/pdp0-quality-current-source-review.test.mjs'],
-  'P0-07': ['tests/pdp-truth-domain-channel-profile-applicability.test.mjs', 'tests/media-p0-07-feature-channel-review.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-feature-review-current-source-observation.test.mjs', 'tests/pdp0-campaign-extension-surface-matrix.test.mjs'],
-  'P0-08': ['tests/pdp-0-final.test.mjs', 'tests/media-product-definition-resolved-intents.test.mjs', 'tests/pdp-migration-current-source-claim-dispositions.test.mjs', 'tests/pdp0-development-handoff.test.mjs', 'tests/pdp0-animation-authored-provenance.test.mjs', 'tests/pdp0-phase-noise-output-semantics.test.mjs', 'tests/pdp0-bounded-resource-admission.test.mjs', 'tests/pdp0-requirement-source-boundaries.test.mjs', 'tests/pdp0-capability-leaf-review-authority-boundary.test.mjs', 'tests/pdp0-capability-intent-current-source-observation.test.mjs', 'tests/pdp0-capability-outcome-meaning.test.mjs', 'tests/pdp0-policy-authority-boundary.test.mjs', 'tests/pdp0-existing-operation-semantic-corrections.test.mjs', 'tests/media-pdp-readiness.test.mjs', 'tests/media-pdp0-501-audit-dispositions.test.mjs', 'tests/media-pdp0-acceptance-actor-binding.test.mjs', 'tests/media-pdp0-surface-denominator.test.mjs'],
+  'P0-05': ['tests/pdp-truth-domain.test.mjs', 'tests/pdp0-constitution-normative-completeness.test.mjs', 'tests/pdp0-requirement-source-boundaries.test.mjs', 'tests/pdp0-policy-authority-boundary.test.mjs', 'tests/pdp0-generated-audio-checkpoint-rights.test.mjs'],
+  'P0-06': ['tests/pdp-0-06-measures-provenance.test.mjs', 'tests/media-measure-applicability-crosswalk.test.mjs', 'tests/pdp-truth-domain-quality-applicability.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-phase-noise-output-semantics.test.mjs', 'tests/pdp0-quality-current-source-review.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd206.test.mjs'],
+  'P0-07': ['tests/pdp-truth-domain-channel-profile-applicability.test.mjs', 'tests/media-p0-07-feature-channel-review.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-feature-review-current-source-observation.test.mjs', 'tests/pdp0-campaign-extension-surface-matrix.test.mjs', 'tests/media-pdp0-surface-denominator.test.mjs'],
+  'P0-08': ['tests/pdp-0-final.test.mjs', 'tests/media-product-definition-resolved-intents.test.mjs', 'tests/pdp-migration-current-source-claim-dispositions.test.mjs', 'tests/pdp0-development-handoff.test.mjs', 'tests/pdp0-animation-authored-provenance.test.mjs', 'tests/pdp0-phase-noise-output-semantics.test.mjs', 'tests/pdp0-bounded-resource-admission.test.mjs', 'tests/pdp0-requirement-source-boundaries.test.mjs', 'tests/pdp0-capability-leaf-review-authority-boundary.test.mjs', 'tests/pdp0-capability-intent-current-source-observation.test.mjs', 'tests/pdp0-capability-outcome-meaning.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd206.test.mjs', 'tests/pdp0-policy-authority-boundary.test.mjs', 'tests/pdp0-existing-operation-semantic-corrections.test.mjs', 'tests/media-pdp-readiness.test.mjs', 'tests/media-pdp0-501-audit-dispositions.test.mjs', 'tests/media-pdp0-audit-aq-traceability.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd215.test.mjs', 'tests/media-pdp0-acceptance-actor-binding.test.mjs', 'tests/media-pdp0-surface-denominator.test.mjs', 'tests/pdp0-semantic-corrections.test.mjs'],
+  'P0-08': ['tests/pdp-0-final.test.mjs', 'tests/media-product-definition-resolved-intents.test.mjs', 'tests/pdp-migration-current-source-claim-dispositions.test.mjs', 'tests/pdp0-development-handoff.test.mjs', 'tests/pdp0-animation-authored-provenance.test.mjs', 'tests/pdp0-phase-noise-output-semantics.test.mjs', 'tests/pdp0-bounded-resource-admission.test.mjs', 'tests/pdp0-requirement-source-boundaries.test.mjs', 'tests/pdp0-capability-leaf-review-authority-boundary.test.mjs', 'tests/pdp0-capability-intent-current-source-observation.test.mjs', 'tests/pdp0-capability-outcome-meaning.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd206.test.mjs', 'tests/pdp0-policy-authority-boundary.test.mjs', 'tests/pdp0-existing-operation-semantic-corrections.test.mjs', 'tests/media-pdp-readiness.test.mjs', 'tests/media-pdp0-501-audit-dispositions.test.mjs', 'tests/media-pdp0-audit-aq-traceability.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd215.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd216.test.mjs', 'tests/pdp0-constitution-single-source-current-claim.test.mjs', 'tests/pdp0-required-family-disposition-coverage.test.mjs', 'tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs', 'tests/media-pdp0-acceptance-actor-binding.test.mjs', 'tests/media-pdp0-surface-denominator.test.mjs', 'tests/pdp0-semantic-corrections.test.mjs'],
   'P1-06': ['tests/media-typed-contract-bindings.test.mjs'],
-  'P1-01': ['tests/media-domain-identity-reconciliation.test.mjs', 'tests/pdp-truth-domain-owner-identity-contracts.test.mjs', 'tests/pdp1-lane-a-current-source-review.test.mjs'],
+  'P1-01': ['tests/media-domain-identity-reconciliation.test.mjs', 'tests/pdp-truth-domain-owner-identity-contracts.test.mjs', 'tests/pdp1-lane-a-current-source-review.test.mjs', 'tests/pdp1-versioning-classification.test.mjs'],
   'P1-02': ['tests/media-state-machine-extraction.test.mjs', 'tests/pdp1-transition-guard-definition-evaluator.test.mjs', 'tests/pdp-truth-domain-race-semantics.test.mjs', 'tests/pdp-truth-domain-transition-coverage.test.mjs'],
   'P1-03': ['tests/pdp-truth-domain.test.mjs', 'tests/pdp-job-submit-parameter-contract.test.mjs', 'tests/pdp1-capability-intent-operation-mapping.test.mjs',
     'tests/pdp1-artifact-upload-result-schema.test.mjs', 'tests/pdp1-artifact-wire-byte-ceilings.test.mjs',
@@ -87,9 +132,13 @@ export const p103VerificationSuites = {
     'tests/pdp1-opaque-id-operation-field-bounds.test.mjs',
     'tests/media-declarative-production-p1-definitions.test.mjs',
     'tests/media-recorder-studio-p1-definitions.test.mjs',
+    'tests/media-caption-version-operation-definitions.test.mjs',
+    'tests/media-caption-version-operation-parity.test.mjs',
+    'tests/pdp1-rule-management-contracts.test.mjs',
   ], testNamePattern:null},
   'capability-intent-mapping': {files:[
     'tests/pdp1-capability-intent-operation-mapping.test.mjs',
+    'tests/pdp1-vision-source-scoped-observation-contract.test.mjs',
     'tests/pdp1-artifact-upload-result-schema.test.mjs',
     'tests/pdp1-artifact-wire-byte-ceilings.test.mjs',
     'tests/pdp1-job-submit-typed-input-mapping.test.mjs',
@@ -169,6 +218,7 @@ const p0MigrationBoundedTestNames = [
 suites['P0-08'] = [...new Set([
   ...p0Criteria.filter(id => id !== 'P0-08').flatMap(id => suites[id]),
   'tests/pdp0-capability-semantic-current-source-review.test.mjs',
+  'tests/pdp0-feature-meaning-case-coverage.test.mjs',
   'tests/media-pdp-readiness.test.mjs',
 ])].filter(file => ![
   'tests/pdp-truth-domain.test.mjs',
@@ -179,16 +229,17 @@ suites['P0-08'] = [...new Set([
 // Direct task criteria must not inherit failures from unrelated phase work.
 // Those broader diagnostics remain in the full integration verification.
 const directTestNames = {
-  'P0-01': 'P0 assigns every capability leaf explicit channel applicability|all 462 leaves have exact profile-channel applicability or a source-backed exclusion|15 review dimensions resolve every requirement type and all 462 exact leaf joins|PDP-0 hands off all 462 stable capability intents|PDP-0 handoff rejects missing, duplicate, or weakened capability meaning|P0 owner intent binding observation|P0 capability outcomes state exact result meaning|P0 outcome validation rejects generic|source-backed capability result contracts|PXD-117 phase/noise-floor capability keeps its exact P0 measurement identity|current P0 owner review and trust records preserve measurement semantics and fail closed|current P0 quality joins use the measurement record as the phase metric subject|project creation requires a title|phase analysis declares a measurement record|scientific demo separates visual plausibility|export creates a delivery package|P0 capability semantic review|source-free animation authoring|PXD-128 result variants cover every audited leaf|source-asset attachment names the exact source and project versions|artifact derivation types source version, profile version, output type, purpose, and rights|output registration types candidate lineage, digest, media metadata, policy, and optional project revision|conditional upload, import, inspection, and transcription outputs are not guaranteed on every success|capability families are exact leaf groupings without inherited operations or readiness',
-  'P0-02': 'P0 model acquisition and reuse policy|P0 channel and dependency update semantics|P0 bounded invocation admission|trustworthy-output applicability follows output-producer role|every declared NFR has one complete owner measurement method|performance method binds all six proposed budgets|missing method material and attempted qualification promotion fail validation|SLO and human/specialist methods remain gated|actual PDP-0 owner applicability source closes all pairs|same-count substitution, duplicates and stale binding projections',
+  'P0-01': 'P0 assigns every capability leaf explicit channel applicability|all 462 leaves have exact profile-channel applicability or a source-backed exclusion|15 review dimensions resolve every requirement type and all 462 exact leaf joins|PDP-0 hands off all 462 stable capability intents|PDP-0 handoff rejects missing, duplicate, or weakened capability meaning|P0 owner intent binding observation|P0 capability outcomes state exact result meaning|P0 outcome validation rejects generic|source-backed capability result contracts|PXD-117 phase/noise-floor capability keeps its exact P0 measurement identity|current P0 owner review and trust records preserve measurement semantics and fail closed|current P0 quality joins use the measurement record as the phase metric subject|project creation requires a title|phase analysis declares a measurement record|scientific demo separates visual plausibility|export creates a delivery package|P0 capability semantic review|source-free animation authoring|PXD-128 result variants cover every audited leaf|source-asset attachment names the exact source and project versions|artifact derivation types source version, profile version, output type, purpose, and rights|output registration types candidate lineage, digest, media metadata, policy, and optional project revision|conditional upload, import, inspection, and transcription outputs are not guaranteed on every success|capability families are exact leaf groupings without inherited operations or readiness|P0 asset search filters exact rights-permitted immutable versions and reports unresolved candidates as unknown|J-10 continuity observations stay bound to the exact generated candidate identity and version',
+  'P0-02': 'P0 model acquisition and reuse policy|P0 channel and dependency update semantics|P0 bounded invocation admission|trustworthy-output applicability follows output-producer role|every declared NFR has one complete owner measurement method|performance method binds all six proposed budgets|missing method material and attempted qualification promotion fail validation|SLO and human/specialist methods remain gated|actual PDP-0 owner applicability source closes all pairs|same-count substitution, duplicates and stale binding projections|P0 bounded asset search retains page and continuation limits with the rights filter|P0-02 reconciles supportedParameters with each P0 parameter schema and typed inputs|P0 input and output meaning has no dependency on downstream operation or wire-schema bindings',
   'P0-04': 'P0-04|PDP-0 preserves exact collaborator|PDP-0 requirement trace targets',
-  'P0-05': 'P0 model acquisition and reuse policy|P0 channel and dependency update semantics|P0 input inspection, simulation, trust, and mission rules have no PDP-1 contract prerequisites|historical migration source stays provenance|P0 policy assigns one semantic authority|identity, consent, rights, version and revocation checks fail closed|policy definitions do not claim runtime',
+  'P0-05': 'P0 model acquisition and reuse policy|P0 channel and dependency update semantics|P0 input inspection, simulation, trust, and mission rules have no PDP-1 contract prerequisites|historical migration source stays provenance|P0 policy assigns one semantic authority|identity, consent, rights, version and revocation checks fail closed|policy definitions do not claim runtime|P0 generated-audio checkpoint rights|P0 checkpoint rights block',
   'P0-06': 'P0-06 maps all measures to stable capability meaning|P0 quality applicability is complete from capability intent and semantic artifact types alone|P0 quality checks reject foreign semantic types and missing applicability decisions|actual PDP-0 owner applicability source closes all pairs and exact binding projections|P0 applicability needs exact capability intent and rejects operation or wire schemas as substitutes|same-count substitution, duplicates and stale binding projections are rejected|unknown applicability, missing evidence and invented measurements remain errors',
-  'P0-07': 'P0-07|complete product feature review matrix|every feature leaf has an exact proposal-time channel|channel applicability|P0 channel and dependency|all 462 leaves have exact profile-channel applicability|channel rules keep protocol|15 review dimensions resolve|P0 current-source observation|every active P0 capability adjudication',
+  'P0-07': 'P0-07|complete product feature review matrix|every feature leaf has an exact proposal-time channel|channel applicability|P0 channel and dependency|all 462 leaves have exact profile-channel applicability|channel rules keep protocol|15 review dimensions resolve|P0 current-source observation|every active P0 capability adjudication|exact declarative acceptance-case scope resolves all 61|rejects missing, duplicate, unknown, cross-surface, and channel-inapplicable declarative case bindings',
   'P2-01': 'Tools public ExperienceLanguage|PDP-2 disclosure density|PDP-2 recovery and accessibility|PDP-2 projects exact owner',
 };
+directTestNames['P0-01'] += '|PDP-0 preserves required capability-family scope and explicit dispositions|PXD-216 enumerates and pins the current 20-leaf PDP-0 meaning review|the 20 current meanings retain source, uncertainty, trust, candidate and fallback invariants';
 directTestNames['P0-08'] = [
-  ...p0Criteria.filter(id => id !== 'P0-08' && id !== 'P0-04').map(id => directTestNames[id]).filter(Boolean),
+  ...p0Criteria.filter(id => id !== 'P0-08' && id !== 'P0-04' && id !== 'P0-03').map(id => directTestNames[id]).filter(Boolean),
   'P0-04 owner intent decisions are auditable and preserve collaborative actor references',
   'P0-04 journey actors and requirement intent targets remain source-bound',
   'PDP-0 projects only the exact resolved P0-04 user intent actor and priority decisions',
@@ -198,11 +249,53 @@ directTestNames['P0-08'] = [
   'P0 capability semantic review pins current source checks without claiming historical equivalence or acceptance',
   'approved PDP-0 media decisions include only current direct and scoped corrective approvals',
   'current PDP-0 corrective source fingerprints exclude generated verification logs',
+  'PXD-196 records current P0-01/02/05/06/07 reviews for the rights correction and scope rebinds',
   'PXD-165 is a current PDP-0 surface-scope review and prior reviews remain historical',
   'PXD-186 keeps current PDP-0 criterion scopes explicit and prior reviews historical',
   'PDP-0 development status can close only with the exact full source inventory and no outstanding meaning',
+  'PDP-0 feature acceptance cases have complete, feature-specific meaning',
+  'PDP-0 audit support cases retain governed asset and generated-checkpoint boundaries',
+  'P0-004 clock domains and visual/model fidelity axes are explicit and distinct',
   'persisting phase status writes a separate file and preserves the historical 38-task report',
+  'audit traceability preserves all 501 source IDs and exact existing PDP-0 joins',
+  'capability scoped Recorder and declarative cases require exact capabilityLeafId and parent requirement membership',
+  'missing joins stay blocked while A–Q recommendations retain scope and authority caveats',
+  'PDP-0 preserves required capability-family scope and explicit dispositions',
+  'PXD-216 enumerates and pins the current 20-leaf PDP-0 meaning review',
+  'the 20 current meanings retain source, uncertainty, trust, candidate and fallback invariants',
+  'MSD-008 P0-03 single-register residual resolves to one structured constitution authority',
+  'MSD-008 current P0-03 claim trace retains its exact source and owner route',
+  'context refs and canonical profile capabilityLeafId edges are retained with explicit relation classes',
+  'traceability validator verifies source pins and source disposition ledger',
 ].join('|');
+export function createSourceOwnerPhaseResolver(sourceManifest, phaseSuites) {
+  const ownersByPath = new Map();
+  const addOwner = (file, phase) => {
+    if (typeof file !== 'string' || !file || typeof phase !== 'string' || !phase) {
+      throw new TypeError('source ownership requires non-empty repository paths and phase IDs');
+    }
+    const owners = ownersByPath.get(file) ?? new Set();
+    owners.add(phase);
+    ownersByPath.set(file, owners);
+  };
+  const records = sourceManifest?.productArtifactIndex?.records;
+  if (!Array.isArray(records)) throw new TypeError('source-manifest productArtifactIndex.records must be an array');
+  for (const record of records) addOwner(record.path, record.owningPhase);
+  for (const [taskId, files] of Object.entries(phaseSuites ?? {})) {
+    const match = taskId.match(/^P([0-3])-\d{2}$/u);
+    if (!match || !Array.isArray(files)) throw new TypeError(`invalid declared phase suite ${taskId}`);
+    for (const file of files) addOwner(file, `PDP-${match[1]}`);
+  }
+  return file => {
+    const sourcePath = typeof file === 'string' ? file.split('#', 1)[0] : '';
+    const owners = ownersByPath.get(sourcePath);
+    return owners?.size === 1 ? owners.values().next().value : undefined;
+  };
+}
+export const sourceOwnerPhase = createSourceOwnerPhaseResolver(
+  parseYaml(fs.readFileSync(path.join(root, '.product-experience/source-manifest.yaml'), 'utf8')),
+  suites,
+);
 const implementationScopes = {
   'P1-01': 'Canonical identity and tenant-scoped relationship definitions; source-only observations remain distinguished. Persistence and independent acceptance are not established by these tests.',
   'P1-02': 'Source state meanings and owner-defined guard/transition semantics. Definition checks do not establish runtime crash, delivery, retry or cancellation qualification.',
@@ -216,13 +309,51 @@ const implementationScopes = {
   'P3-03': 'Ordered journey step action/definition semantics; unbound canonical relationships and scenario acceptance remain open.',
   'P3-04': 'All action roles and typed owner-definition source envelopes; classification does not admit unbound consequential effects.',
 };
-export function resolveCriterionReviewSourceCut(record, fileDigest) {
-  const matches = pins => Boolean(pins && Object.keys(pins).length && Object.entries(pins).every(([file, hash]) => fileDigest(file) === hash));
-  const historicalSourceCutCurrent = matches(record.sourceFingerprints);
+export function resolveCriterionReviewSourceCut(record, fileDigest, sourceOwnerPhaseResolver = () => undefined) {
+  const recordPhase = typeof record.taskId === 'string' && /^P0-/u.test(record.taskId) ? 'PDP-0' : undefined;
+  const phaseScopedPins = (pins, phaseScope) => {
+    if (!pins || phaseScope !== 'PDP-0') return pins;
+    return Object.fromEntries(Object.entries(pins).filter(([file]) =>
+      !['PDP-1', 'PDP-2', 'PDP-3'].includes(sourceOwnerPhaseResolver(file))));
+  };
+  const matches = (pins, phaseScope = recordPhase) => {
+    const scopedPins = phaseScopedPins(pins, phaseScope);
+    return Boolean(scopedPins && Object.keys(scopedPins).length
+      && Object.entries(scopedPins).every(([file, hash]) => fileDigest(file) === hash));
+  };
+  const historicalSourceCutCurrent = matches(record.sourceFingerprints, recordPhase);
   const correction = record.currentCorrectiveReview ?? record.currentSourceReview;
   const corrected = ['APPROVED_CURRENT_CORRECTION','APPROVED_CURRENT_SOURCE_REVIEW'].includes(correction?.status);
+  const correctionScopeCurrent = recordPhase !== 'PDP-0' || correction?.phaseScope === 'PDP-0';
+  const pinRefresh = record.currentSourcePinRefresh;
+  const projectionRefresh = record.currentProjectionRefresh;
+  const pinRefreshCurrent = Boolean(pinRefresh
+    && pinRefresh.status === 'CURRENT_SOURCE_PIN_REFRESH_ONLY'
+    && pinRefresh.phaseScope === 'PDP-0'
+    && pinRefresh.preservesReviewRef === '.product-experience/decision-log.md#PXD-196'
+    && pinRefresh.semanticReview === 'NOT_PERFORMED'
+    && pinRefresh.ownerApproval === 'NOT_CLAIMED'
+    && pinRefresh.acceptanceEffect === 'none'
+    && matches(pinRefresh.currentSourceFingerprints, pinRefresh.phaseScope)
+    && fileDigest(pinRefresh.decisionContextFingerprint?.sourceRef) === pinRefresh.decisionContextFingerprint?.sha256);
+  const projectionRefreshCurrent = Boolean(projectionRefresh
+    && projectionRefresh.status === 'CURRENT_PDP0_QUALITY_PROJECTION_REFRESH'
+    && projectionRefresh.phaseScope === 'PDP-0'
+    && projectionRefresh.preservesReviewRef === '.product-experience/decision-log.md#PXD-196'
+    && projectionRefresh.semanticDecision === 'NOT_MADE'
+    && projectionRefresh.ownerApproval === 'NOT_CLAIMED'
+    && projectionRefresh.acceptanceEffect === 'none'
+    && matches(projectionRefresh.sourceFingerprints, projectionRefresh.phaseScope)
+    && fileDigest(projectionRefresh.projectionArtifactRef) === projectionRefresh.projectionArtifactSha256
+    && Object.entries(projectionRefresh.decisionContextFingerprints ?? {}).every(([sourceRef, hash]) => fileDigest(sourceRef) === hash));
+  const refreshedSourceCutCurrent = record.taskId === 'P0-06' ? projectionRefreshCurrent
+    : pinRefresh ? pinRefreshCurrent : undefined;
   return {...record, historicalSourceCutCurrent,
-    sourceCutCurrent: corrected ? matches(correction.sourceFingerprints) : historicalSourceCutCurrent};
+    sourceCutCurrent: refreshedSourceCutCurrent ?? (corrected
+      ? correctionScopeCurrent && matches(correction.sourceFingerprints, correction.phaseScope ?? recordPhase)
+      : historicalSourceCutCurrent),
+    ...(pinRefresh ? {currentSourcePinRefreshCurrent: pinRefreshCurrent} : {}),
+    ...(projectionRefresh ? {currentProjectionRefreshCurrent: projectionRefreshCurrent} : {})};
 }
 
 /** Select decision references that describe current, bounded PDP-0 source reviews. */
@@ -362,7 +493,9 @@ export function buildPdp0DevStatus({mainSha, sourceShaSet, verification = {}, de
   const openIds = [...new Set(outstandingMeaningIds)].sort();
   const completeTestEvidence = p0Criteria.every(id => {
     const result=verification[id];
-    const expectedSkippedTestCount=id==='P0-03'?10:0;
+    // Fourteen existing P0-03 assertions are inapplicable to this phase and
+    // fifteen explicitly phase-gated PDP-1 locator assertions share a test file.
+    const expectedSkippedTestCount=id==='P0-03'?29:0;
     return result?.status==='PASS' && result.command?.trim() && result.outputSha256?.trim()
       && result.testCount>0 && result.passedTestCount>0
       && result.skippedTestCount===expectedSkippedTestCount
@@ -409,6 +542,7 @@ export function buildPdp0DevStatus({mainSha, sourceShaSet, verification = {}, de
   return {
     schemaVersion:'media.phase-dev-status.v1', phase:'PDP-0', mainSha, sourceShaSet,
     sourceRecordCount:sourceInventory.sourceRecordCount, semanticallyResolvedCount:sourceInventory.semanticallyResolvedCount,
+    definitionExtensionApplicability:sourceInventory.definitionExtensionApplicability ?? null,
     outstandingMeaningIds:openIds,
     testsActuallyRun:Object.fromEntries(p0Criteria.map(id => [id, verification[id]?.command ? {
       command:verification[id].command,status:verification[id].status,testCount:verification[id].testCount,
@@ -441,6 +575,11 @@ export const p1SourceRoots = [
   'docs/implementation/pdp-0-phase-dev-status.json',
   'docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json',
   'docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json',
+  // Cross-phase owner-candidate and privacy guard sources explicitly pinned by
+  // the current full-denominator PDP-1 semantic review.
+  'docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json',
+  'tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs',
+  'tests/pdp1-authority-privacy-offline-guards.test.mjs',
   '.product-experience/pdp-0-product-truth/requirements.yaml',
   '.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml',
   '.product-experience/pdp-0-product-truth/time-units-fidelity.yaml',
@@ -538,9 +677,11 @@ export function buildPdp1SourceCensus(repositoryRoot = root) {
   const guards = read('transition-guard-contracts.yaml');
   const actionWire = read('owner-action-wire-contracts.yaml');
   const operations = read('operations.yaml');
+  const p0Capabilities = parseYaml(fs.readFileSync(path.join(repositoryRoot, '.product-experience/pdp-0-product-truth/capabilities.yaml'), 'utf8'));
   const events = read('events.yaml');
   const handoffDocument = read('handoff-contracts.yaml');
   const handoff = handoffDocument.handoffs?.pdp1ToPdp2CanonicalDomain;
+  const ruleManagement = read('rule-management-contracts.yaml');
   const openapi = parseYaml(fs.readFileSync(path.join(repositoryRoot, 'contracts/openapi/media.yaml'), 'utf8'));
   const sdkRegistry = parseYaml(fs.readFileSync(path.join(repositoryRoot, '.product-experience/pdp-3-product-experience/sdk/operation-registry.yaml'), 'utf8'));
   const parity = parseYaml(fs.readFileSync(path.join(repositoryRoot, '.product-experience/interface-parity/operation-parity.yaml'), 'utf8'));
@@ -577,6 +718,7 @@ export function buildPdp1SourceCensus(repositoryRoot = root) {
     uiActions: identityRecords(actionRegistry, ['actions', 'ownerDefinedActions']),
     operations: identityRecords(operations.ownerDefinedOperationContracts, ['records']),
     capabilityOperations: identityRecords(operations.capabilityOperationContracts, ['records']),
+    definitionExtensionOperationMappings: identityRecords(operations.capabilityOperationContracts, ['definitionExtensionOperationMappings']),
     capabilityBounds: identityRecords(operations.capabilityOperationContracts, ['bounds']),
     capabilityInputPayloadSchemas: identityRecords(operations.capabilityOperationContracts, ['inputPayloadSchemas']),
     capabilityOutputPayloadSchemas: identityRecords(operations.capabilityOperationContracts, ['outputPayloadSchemas']),
@@ -609,6 +751,8 @@ export function buildPdp1SourceCensus(repositoryRoot = root) {
       registeredObjectIdentities: domain.canonicalIdentityAdjudication?.registeredObjectIdentityCount ?? counts.registeredObjectIdentities,
       canonicalProductObjectIdentities: domain.canonicalIdentityAdjudication?.canonicalProductObjectCount ?? null,
       capabilityOperationRecordCount: operations.capabilityOperationContracts?.recordCount ?? null,
+      definitionExtensionOperationMappingCount: counts.definitionExtensionOperationMappings,
+      p0CapabilityCount: p0Capabilities.capabilities?.length ?? null,
       canonicalOperationSchemaCount: operations.capabilityOperationContracts?.canonicalOperationCount ?? null,
       existingOperationBindingCount: operations.capabilityOperationContracts?.bindingCount ?? null,
       ownerDefinedOperationRecordCount: operations.ownerDefinedOperationContracts?.records?.length ?? null,
@@ -701,6 +845,45 @@ export function buildPdp1SourceCensus(repositoryRoot = root) {
       || !/development-gate-status-is-recorded-separately/u.test(handoff?.scopeStatus ?? '')) {
     issues.push('pdp1-pdp2-handoff-meaning-or-boundary-incomplete');
   }
+  const ruleManagementHandoff = handoff?.proposalHandoffs?.find(row => row?.id === 'media.rules.manage.pdp1-definition-handoff.v1');
+  const expectedRuleManagementOperations = [
+    ruleManagement.compileContract?.operationRef,
+    ruleManagement.inspectContract?.operationRef,
+    ruleManagement.validationContract?.operationRef,
+    ruleManagement.reuseContract?.operationRef,
+  ];
+  const expectedRuleManagementContracts = {
+    versionedCandidate: '.product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/ruleSetVersion/candidate/schema',
+    normalizedSemanticGraph: '.product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/normalizedSemanticGraph/schema',
+    semanticFingerprint: '.product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/semanticFingerprint/schema',
+    compileRequest: '.product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/compileContract/requestSchema',
+    compileResult: '.product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/compileContract/resultSchema',
+    inspectRequest: '.product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/inspectContract/requestSchema',
+    inspectResult: '.product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/inspectContract/resultSchema',
+    validationRequest: '.product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract/requestSchema',
+    validationResult: '.product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract/resultSchema',
+    reuseRequest: '.product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/requestSchema',
+    reuseResult: '.product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/resultSchema',
+    candidateOperationPlan: '.product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/operationPlanSchema',
+  };
+  if (ruleManagementHandoff?.featureRef !== 'media.rules.manage'
+      || ruleManagementHandoff?.sourceArtifactId !== 'ART-P1-RULE-MANAGEMENT-CONTRACTS'
+      || ruleManagementHandoff?.source !== '.product-experience/pdp-1-domain-data/rule-management-contracts.yaml'
+      || ruleManagementHandoff?.disposition !== 'PROPOSAL_ONLY; PENDING_OWNER_REVIEW; NOT_IN_CANONICAL_OPERATION_DENOMINATOR'
+      || ruleManagementHandoff?.ownerApproval !== 'NOT_CLAIMED'
+      || ruleManagementHandoff?.independentAcceptance !== 'NOT_CLAIMED'
+      || ruleManagementHandoff?.runtimeAdmission !== 'NOT_ADMITTED'
+      || ruleManagementHandoff?.executionAdmission !== 'NOT_ADMITTED'
+      || ruleManagementHandoff?.operationDisposition !== ruleManagement.contractIdentity?.operationDisposition
+      || JSON.stringify(ruleManagementHandoff?.operationRefs ?? []) !== JSON.stringify(expectedRuleManagementOperations)
+      || JSON.stringify(ruleManagementHandoff?.typedContracts ?? {}) !== JSON.stringify(expectedRuleManagementContracts)
+      || (ruleManagementHandoff?.consumerObligations?.length ?? 0) < 4
+      || (ruleManagementHandoff?.negativeCases?.length ?? 0) < 4
+      || !handoff?.deferredDownstreamFindings?.some(row => row?.id === 'PDP3-RULE-MANAGEMENT-AUTHOR-VALIDATE-REUSE-RECOVERY'
+        && row.ownerPhase === 'PDP-3' && row.disposition === 'HANDOFF_TO_PDP3_AFTER_PDP2'
+        && row.candidates?.includes('media.rules.manage'))) {
+    issues.push('pdp1-rule-management-proposal-handoff-incomplete-or-admission-boundary-invalid');
+  }
   const expectedSources = {
     domainObjects: '.product-experience/pdp-1-domain-data/domain-objects.yaml#/objects',
     registeredObjectIdentities: '.product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records',
@@ -730,6 +913,17 @@ export function buildPdp1SourceCensus(repositoryRoot = root) {
   }
   if (!groups.operations.includes('media.operation.stream-session.inspect-execution-recovery.v1')) {
     issues.push('handoff-owner-defined-operation-population-missing-j29-execution-recovery-query');
+  }
+  const extensionMappings = operations.capabilityOperationContracts?.definitionExtensionOperationMappings ?? [];
+  const p0CapabilityIds = new Set((p0Capabilities.capabilities ?? []).map(row => row.id));
+  if (extensionMappings.length !== 7 || extensionMappings.some(row => !p0CapabilityIds.has(row.capabilityRef)
+      || row.sourceCapabilityRef !== `.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=${row.capabilityRef}`
+      || row.decisionRef !== '.product-experience/decision-log.md#PXD-207'
+      || row.recordKind !== 'PDP1_DEFINITION_EXTENSION_OPERATION_MAPPING')) {
+    issues.push('pdp1-definition-extension-operation-mappings-missing-or-unbound');
+  }
+  if (p0Capabilities.capabilities?.length !== operations.capabilityOperationContracts?.recordCount + extensionMappings.length) {
+    issues.push('p0-capability-population-does-not-reconcile-to-core-plus-definition-extensions');
   }
   const uiActionIdentityIds = [...(actionRegistry.actions ?? []), ...(actionRegistry.ownerDefinedActions ?? [])]
     .map(row => row?.id).filter(Boolean);
@@ -1488,12 +1682,53 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const audit=JSON.parse(fs.readFileSync(path.join(root,auditPath),'utf8'));
   // The implementation plan is an execution ledger, not normative phase input;
   // pinning it would make a phase-status update stale when the ledger is corrected.
-  const p0PinnedSources = ['.product-experience/pdp-0-product-truth', '.product-experience/authority-map.yaml', '.product-experience/gaps.yaml', '.product-experience/decision-log.md', '.product-experience/source-manifest.yaml', '.product-experience/artifact-identities.yaml', '.product-experience/surface-registry.yaml', '.product-experience/surfaces/media-physical-topology.v1.json', 'docs/migration/current-master-plan-claim-dispositions.json', 'docs/migration/master-plan-source-change-claims.yaml', 'docs/PRODUCT-DEFINITION-COVERAGE.md', 'docs/implementation/verification/pdp-38/direct-definition-criteria-review.json', 'docs/implementation/verification/pdp-38/migration-current-material-review.json', 'docs/implementation/verification/pdp-38/migration-p0-current-material-review.json', 'docs/implementation/verification/pdp-38/migration-current-owner-target-observations.json', 'docs/implementation/verification/pdp-38/migration-p0-current-source-observations.json', 'docs/implementation/verification/pdp-38/p0-leaf-trust-current-type-drift-inventory.json', 'docs/implementation/verification/pdp-38/policy-input-threats-current-source-observation.json', 'docs/implementation/verification/pdp-38/pending-locator-current-source-observations.json', 'docs/implementation/verification/pdp-38/p0-capability-intent-owner-binding-current-source-observation.json', 'docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json', 'docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json', 'docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json', 'docs/implementation/verification/pdp-38/p0-capability-corrections-current-source-review-current.json', 'docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json', 'docs/implementation/verification/pdp-38/p0-quality-current-source-review.json', 'docs/implementation/verification/pdp-38/feature-review-animation-property-owner-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-audio-defects-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-audio-naturalness-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-cli-channel-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-policy-authority-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-quality-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-qualification-policy-current-source-observation.json', 'docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json', 'docs/implementation/observations/media-unified-production-501-feature-reconciliation-2026-10-18.json', 'docs/implementation/observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json', 'docs/implementation/observations/media-unified-source-task-and-experiment-crosswalk-2026-10-18.json', 'docs/implementation/observations/pdp0-semantic-audit-slices', 'apps/media-experience-explorer/specification-artifacts.json'];
-  const p0DirectScripts = ['scripts/report-media-pdp-readiness.mjs', 'scripts/lib/media-product-definition-residuals.mjs', 'scripts/lib/pdp0-feature-review-applicability.mjs', 'scripts/lib/product-definition-domain-rule-mapping.mjs', 'scripts/generate-media-phase-projections.mjs', 'scripts/generate-media-product-manifest.mjs', 'scripts/check-product-definition-authority.mjs', 'scripts/check-media-pdp0-501-audit-dispositions.mjs', 'scripts/check-media-pdp0-surface-denominator.mjs'];
+  const p0PinnedSources = [
+    '.product-experience/pdp-0-product-truth',
+    '.product-experience/authority-map.yaml',
+    '.product-experience/artifact-identities.yaml',
+    '.product-experience/surface-registry.yaml',
+    '.product-experience/surfaces/media-physical-topology.v1.json',
+    'docs/migration/current-master-plan-claim-dispositions.json',
+    'docs/migration/master-plan-source-change-claims.yaml',
+    'docs/implementation/verification/pdp-38/migration-p0-current-material-review.json',
+    'docs/implementation/verification/pdp-38/migration-p0-current-source-observations.json',
+    'docs/implementation/verification/pdp-38/p0-leaf-trust-current-type-drift-inventory.json',
+    'docs/implementation/verification/pdp-38/policy-input-threats-current-source-observation.json',
+    'docs/implementation/verification/pdp-38/pending-locator-current-source-observations.json',
+    'docs/implementation/verification/pdp-38/p0-capability-intent-owner-binding-current-source-observation.json',
+    'docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json',
+    'docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json',
+    'docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json',
+    'docs/implementation/verification/pdp-38/p0-capability-corrections-current-source-review-current.json',
+    'docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json',
+    'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd206.json',
+    'docs/implementation/verification/pdp-38/p0-quality-current-source-review.json',
+    'docs/implementation/verification/pdp-38/feature-review-animation-property-owner-current-source-observation.json',
+    'docs/implementation/verification/pdp-38/feature-review-audio-defects-current-source-observation.json',
+    'docs/implementation/verification/pdp-38/feature-review-audio-naturalness-current-source-observation.json',
+    'docs/implementation/verification/pdp-38/feature-review-cli-channel-current-source-observation.json',
+    'docs/implementation/verification/pdp-38/feature-review-current-source-observation.json',
+    'docs/implementation/verification/pdp-38/feature-review-policy-authority-current-source-observation.json',
+    'docs/implementation/verification/pdp-38/feature-review-quality-current-source-observation.json',
+    'docs/implementation/verification/pdp-38/feature-review-qualification-policy-current-source-observation.json',
+    'tests/pdp0-current-source-reconciliation-pxd206.test.mjs',
+    'docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json',
+    'docs/implementation/observations/media-unified-production-501-feature-reconciliation-2026-10-18.json',
+    'docs/implementation/observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json',
+    'docs/implementation/observations/media-unified-source-task-and-experiment-crosswalk-2026-10-18.json',
+    'docs/implementation/observations/pdp0-semantic-audit-slices',
+  ];
+  const p0DirectScripts = ['scripts/report-media-pdp-readiness.mjs', 'scripts/lib/media-product-definition-residuals.mjs', 'scripts/lib/pdp0-feature-review-applicability.mjs', 'scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs', 'scripts/lib/product-definition-domain-rule-mapping.mjs', 'scripts/generate-media-phase-projections.mjs', 'scripts/generate-media-product-manifest.mjs', 'scripts/generate-media-pdp0-surface-phase-status-matrix.mjs', 'scripts/check-product-definition-authority.mjs', 'scripts/check-media-pdp0-501-audit-dispositions.mjs', 'scripts/check-media-pdp0-audit-aq-traceability.mjs', 'scripts/check-media-pdp0-surface-denominator.mjs'];
   const sourceRoots=phaseStatus==='PDP-1'?p1SourceRoots:phaseStatus==='PDP-2'?p2SourceRoots:phaseStatus==='PDP-3'?p3SourceRoots:p0PinnedSources;
   const phaseScripts=phaseStatus==='PDP-1'?['scripts/report-media-pdp-readiness.mjs']:phaseStatus==='PDP-2'?p2DirectScripts:phaseStatus==='PDP-3'?p3DirectScripts:p0DirectScripts;
-  const sourceCut = (testFiles) => Object.fromEntries([...new Set([...execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '--', ...(phaseStatus ? sourceRoots : ['.product-experience']), ...(phaseStatus ? phaseScripts : ['scripts', 'config/closure', 'libs/media-experience-simulation'])], {cwd:root,encoding:'utf8'})
-    .trim().split('\n'), ...testFiles])].filter(file => file && fs.existsSync(path.join(root,file)) && fs.statSync(path.join(root,file)).isFile()).map(file => [file,digest(file)]));
+  const sourceCut = (testFiles) => {
+    const files = [...new Set([...execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '--', ...(phaseStatus ? sourceRoots : ['.product-experience']), ...(phaseStatus ? phaseScripts : ['scripts', 'config/closure', 'libs/media-experience-simulation'])], {cwd:root,encoding:'utf8'})
+      .trim().split('\n'), ...testFiles])];
+    const cut = Object.fromEntries(files.filter(file => file && fs.existsSync(path.join(root,file)) && fs.statSync(path.join(root,file)).isFile()).map(file => [file,digest(file)]));
+    if (phaseStatus === 'PDP-0') Object.assign(cut, pdp0PhaseScopedSourcePins());
+    return cut;
+  };
+  const p0ReviewPins = pdp0PhaseScopedSourcePins();
   const phaseSourceFiles=phaseStatus ? [...new Set([...phaseCriteria.flatMap(id=>suites[id]),...(phaseStatus==='PDP-1'?p1DeferredEvidenceFiles:[]),...sourceRoots,...phaseScripts])] : [];
   const phaseSourceCutBefore=phaseStatus ? sourceCut(phaseSourceFiles) : null;
   const criterionReviewPath='docs/implementation/verification/pdp-38/direct-definition-criteria-review.json';
@@ -1503,7 +1738,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     if(artifact.schemaVersion!=='media.pdp38-direct-definition-criteria-review.v1') throw new Error('Unsupported direct criterion review');
     for(const record of artifact.records) {
       if(!taskIds.includes(record.taskId) || definitionCriterionReviews[record.taskId]) throw new Error('Invalid or duplicate criterion review identity');
-      definitionCriterionReviews[record.taskId]={...resolveCriterionReviewSourceCut(record, file => fs.existsSync(path.join(root,file)) ? digest(file) : null),artifactRef:criterionReviewPath};
+      definitionCriterionReviews[record.taskId]={...resolveCriterionReviewSourceCut(record, file => p0ReviewPins[file] ?? (fs.existsSync(path.join(root,file)) ? digest(file) : null), sourceOwnerPhase),artifactRef:criterionReviewPath};
     }
   }
   const verification = {};
@@ -1548,7 +1783,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     const testCount=p103Groups ? Object.values(groupResults).reduce((sum,group)=>sum+group.testCount,0) : Number((result.stdout??'').match(/# tests\s+(\d+)/)?.[1] ?? 0);
     const passedTestCount=p103Groups ? Object.values(groupResults).reduce((sum,group)=>sum+group.passedTestCount,0) : Number((result.stdout??'').match(/# pass\s+(\d+)/)?.[1] ?? 0);
     const skippedTestCount=p103Groups ? Object.values(groupResults).reduce((sum,group)=>sum+group.skippedTestCount,0) : Number((result.stdout??'').match(/# skipped\s+(\d+)/)?.[1] ?? 0);
-    const expectedSkippedTestCount=id==='P0-03'?10:0;
+    // Fourteen existing P0-03 assertions are inapplicable to this phase and
+    // fifteen explicitly phase-gated PDP-1 locator assertions share a test file.
+    const expectedSkippedTestCount=id==='P0-03'?29:0;
     const status=(p103Groups ? Object.values(groupResults).every(group=>group.status==='PASS') : result.status===0 && !result.error) && testCount>0 && passedTestCount>0
       && skippedTestCount===expectedSkippedTestCount
       && passedTestCount+skippedTestCount===testCount?'PASS':'FAIL';
@@ -1659,6 +1896,30 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       && p0AuditDispositions.total===501 && p0AuditDispositions.original===428 && p0AuditDispositions.focused===73
       && p0AuditDispositions.unresolvedPdp0===0;
     const p0SurfaceDenominatorComplete=p0SurfaceValidation.ok===true;
+    const extensionApplicability=p0SurfaceValidation.proposalApplicability;
+    const extensionApplicabilityCounts=extensionApplicability?.counts ?? {};
+    const extensionApplicabilityUnknownCells=extensionApplicabilityCounts.UNKNOWN_PENDING_OWNER_DECISION ?? 0;
+    const definitionExtensionApplicabilityComplete=extensionApplicability?.ok===true
+      && extensionApplicabilityUnknownCells===0;
+    const definitionExtensionApplicability={
+      status:extensionApplicability?.status ?? 'UNKNOWN',
+      extensionCount:6,
+      historicalOwnerAdjudications:462,
+      surfaceIdentityDenominator:54,
+      channelDenominator:extensionApplicability?.channelCount ?? 0,
+      surfaceCellCount:extensionApplicability?.surfaceCellCount ?? 0,
+      channelSurfaceCellCount:extensionApplicability?.records?.length ?? 0,
+      cellCounts:extensionApplicabilityCounts,
+      surfaceCellCounts:extensionApplicability?.surfaceCounts ?? {},
+      unknownCellCount:extensionApplicabilityUnknownCells,
+      sourceRef:'.product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability',
+      decisionRef:'.product-experience/decision-log.md#PXD-203',
+      ownerApproval:'NOT_CLAIMED',
+      independentAcceptance:'NOT_CLAIMED',
+      nextAction:definitionExtensionApplicabilityComplete
+        ? 'No unresolved definition-extension surface cells remain; owner acceptance and independent acceptance remain separate.'
+        : 'PDP-0 owner applicability decision is required for every UNKNOWN_PENDING_OWNER_DECISION cell before the Discovery barrier can pass.',
+    };
     const migrationDisposition=JSON.parse(fs.readFileSync(path.join(root,'docs/migration/current-master-plan-claim-dispositions.json'),'utf8'));
     const migrationClaimSource=parseYaml(fs.readFileSync(path.join(root,'docs/migration/master-plan-source-change-claims.yaml'),'utf8'));
     const currentP0LeafReview=parseYaml(fs.readFileSync(path.join(root,'.product-experience/pdp-0-product-truth/capability-leaf-review.yaml'),'utf8'));
@@ -1721,12 +1982,19 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     const currentClaimIds=new Set(claimRows.map(row=>row.claimId));
     const sourceClaimIds=(migrationClaimSource.claimDecompositions ?? []).map(row=>row.claimId);
     const allowedClaimClasses=new Set(['adopted','clarified','superseded','execution-only','external-owner','out-of-current-product-scope']);
+    const hunkResidualRows=migrationDisposition.hunkResidualDispositions ?? [];
+    const hunkResidualDispositionsComplete=hunkResidualRows.length>0
+      && new Set(hunkResidualRows.map(row=>row.residualId)).size===hunkResidualRows.length
+      && hunkResidualRows.every(row=>row.residualId?.trim()&&row.hunkId?.trim()&&row.exactResidual?.trim()
+        && row.classification?.trim()&&row.reason?.trim()&&row.ownerRef?.trim()&&row.validationRef?.trim()
+        && row.acceptanceEffect==='none');
     const currentClaimsComplete=claimRows.length===129&&migrationDisposition.claimCount===129
       && sourceClaimIds.length===129&&new Set(sourceClaimIds).size===129
       && currentClaimIds.size===claimRows.length
       && sourceClaimIds.every(id=>currentClaimIds.has(id))
       && claimRows.every(row=>allowedClaimClasses.has(row.classification)&&row.reason?.trim()&&row.ownerRef?.trim())
-      && (migrationDisposition.p0MeaningOnlyInOldPlan?.length ?? 0)===0 && testsPass('P0-03');
+      && hunkResidualDispositionsComplete
+      && (migrationDisposition.p0MeaningOnlyInOldPlan?.length ?? 0)===0;
     const constitutionalRows=constitution.requirements ?? [];
     const requiredConstitutionFields=constitution.normativeRecordContract?.requiredFields ?? [];
     const constitutionalMeaningComplete=constitutionalRows.length===32
@@ -1815,6 +2083,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     if(!sourceReconciliationsComplete) outstandingMeaningIds.push('P0-H:source-reconciliation-disposition');
     if(!p0AuditDispositionsComplete) outstandingMeaningIds.push('P0-03:501-audit-disposition-crosswalk');
     if(!p0SurfaceDenominatorComplete) outstandingMeaningIds.push('P0-08:surface-denominator-or-consumer-scope');
+    if(!definitionExtensionApplicabilityComplete) outstandingMeaningIds.push('P0-07:definition-extension-applicability-owner-review');
     const phaseSourceCutAfter=sourceCut(phaseSourceFiles);
     const phaseSourceChanged=verificationCutChanged(phaseSourceCutBefore,phaseSourceCutAfter);
     if(phaseSourceChanged.length) outstandingMeaningIds.push('P0-H:source-cut-changed-during-verification');
@@ -1822,9 +2091,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       sourceShaSet:phaseSourceCutBefore,
       verification,definitionCriterionReviews,
       sourceInventory:{sourceCutStable:phaseSourceChanged.length===0,
-        integrityChecks:{capabilityMeaningComplete,boundedProfileMeaningComplete:boundedProfileMeaningComplete&&uniqueProfileBounds,qualityApplicabilityComplete,channelAndFeatureReviewComplete,currentClaimsComplete,currentRequirementAndJourneyMeaningComplete,constitutionalMeaningComplete,handoffShapeComplete,sourceReconciliationsComplete,currentP0CriterionScopesComplete,pdp0AuditDispositionsComplete:p0AuditDispositionsComplete,pdp0SurfaceDenominatorComplete:p0SurfaceDenominatorComplete},
+        integrityChecks:{capabilityMeaningComplete,boundedProfileMeaningComplete:boundedProfileMeaningComplete&&uniqueProfileBounds,qualityApplicabilityComplete,channelAndFeatureReviewComplete,definitionExtensionApplicabilityComplete,currentClaimsComplete,hunkResidualDispositionsComplete,currentRequirementAndJourneyMeaningComplete,constitutionalMeaningComplete,handoffShapeComplete,sourceReconciliationsComplete,currentP0CriterionScopesComplete,pdp0AuditDispositionsComplete:p0AuditDispositionsComplete,pdp0SurfaceDenominatorComplete:p0SurfaceDenominatorComplete},
         campaignDenominator:p0SurfaceValidation.stats,
         auditDispositions:{...p0AuditDispositions,resolvedPdp0:501-p0AuditDispositions.unresolvedPdp0},
+        definitionExtensionApplicability,
         sourceRecordCount:{capabilityLeafAdjudications:adjudications.length,requirementGroups:requirementCount,intents:intentCount,journeys:journeyCount,profileBoundCapabilityLeaves:adjudications.filter(row=>row.profileRef&&row.boundsRef).length,qualityDimensions:qualityDimensions.length,qualityMetricDefinitions:qualityMetrics.length,qualityApplicabilityLeaves:measureApplicabilityCount,channelApplicabilityLeaves:currentP0LeafReview.ownerCapabilityLeafAdjudication?.records?.filter(row=>row.channelApplicability?.length===11).length ?? 0,featureReviewDimensions:featureReviewDimensionCount,featureReviewCapabilityLeaves:featureReviewLeafCount,masterPlanClaims:migrationDisposition.claimCount,constitutionalRequirements:constitutionalRows.length},
         semanticallyResolvedCount:{capabilityLeafAdjudications:capabilityMeaningComplete?adjudications.length:0,requirementGroups:currentRequirementAndJourneyMeaningComplete?requirementCount:0,intents:currentRequirementAndJourneyMeaningComplete?intentCount:0,journeys:currentRequirementAndJourneyMeaningComplete?journeyCount:0,profileBoundCapabilityLeaves:boundedProfileMeaningComplete&&uniqueProfileBounds?462:0,qualityDimensions:qualityApplicabilityComplete?qualityDimensions.length:0,qualityMetricDefinitions:qualityApplicabilityComplete?qualityMetrics.length:0,qualityApplicabilityLeaves:measureApplicabilityComplete?measureApplicabilityCount:0,channelApplicabilityLeaves:channelAndFeatureReviewComplete?462:0,featureReviewDimensions:channelAndFeatureReviewComplete?featureReviewDimensionCount:0,featureReviewCapabilityLeaves:channelAndFeatureReviewComplete?featureReviewLeafCount:0,masterPlanClaims:currentClaimsComplete?claimRows.length:0,constitutionalRequirements:constitutionalMeaningComplete&&testsPass('P0-05')?constitutionalRows.length:0},
         currentApplicabilityCounts,sourceReconciliations},

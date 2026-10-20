@@ -1,6 +1,6 @@
 # Media Product Truth
 
-**Historical definition state:** PDP-0 Product Truth was `DEV_COMPLETE` at its recorded development source cut, with zero remaining PDP authoring tasks. That historical status does not establish current-source completion. Current PDP-0 `DEV_COMPLETE` is determined only by the native source-bound [`pdp-0-phase-dev-status.json`](../../docs/implementation/pdp-0-phase-dev-status.json) for its exact source cut; this page does not assert or replace that record's current result. Independent P0-010 acceptance and qualified specialist reviews remain separate from definition development. PXD-026 is a bounded product-policy decision, not an independent acceptance or runtime qualification.
+**Definition status:** the native source-bound [`pdp-0-phase-dev-status.json`](../../docs/implementation/pdp-0-phase-dev-status.json) is authoritative for current PDP-0 development status. This page describes product meaning; it does not claim an application release, runtime availability, implementation, qualification, or owner acceptance. Independent P0-010 review and qualified specialist decisions remain separate from definition development.
 **Product:** Media (`media`)  
 **Target repository:** `samujjwal/ghatana-media`  
 **Media product-meaning authority:** `.product-experience` is the single editable authority. `samujjwal/ghatana:services/media` remains a migration/implementation observation and compatibility source until an approved cutover executes; it is not a competing Product Truth authority.
@@ -97,6 +97,16 @@ critical non-happy paths are mapped in [`journey-catalog.yaml`](journey-catalog.
 cross-owner calls and unresolved contracts are recorded in
 [`handoff-contracts.yaml`](handoff-contracts.yaml).
 
+Media retains its local-first, configuration/data-driven production vision
+alongside full manual professional editing. Locality is selected and evidenced
+for the exact operation, profile, policy, and admitted deployment; local
+processing does not itself authorize use. Rights, consent, privacy, and effect
+authorization still apply at their defined boundaries. This reuses the
+[`MEDIA-INV-001` invariant](constitution.yaml) and the existing
+[deployment-availability rule](requirements.yaml).
+This states product intent and policy boundaries, not local runtime availability
+or qualification.
+
 ## Domain, states, authority, and quality
 
 PDP-0 owns product purpose, outcomes, requirements, policy boundaries, and
@@ -114,6 +124,16 @@ crosswalks, extraction, exact mappings, specialist review, and PDP-1 owner
 acceptance remain open. Existing PDP-1 projections still refer to these PDP-0
 sources. No unique semantics are silently discarded or claimed relocated by
 this wave.
+
+The source-current Product Truth requirement fixes five distinct clock domains:
+source/video presentation, audio sample, story/explanation, simulation
+execution, and wall-clock time. Cross-domain conversion and uncertainty remain
+explicit. It also requires separate reporting for visual level of detail,
+visual quality/fidelity, domain-model fidelity, and validation tier. These
+product meanings are bound by [Recorder case AC-010](requirements.yaml) and
+[declarative case AC-037](requirements.yaml); PDP-1 may define their typed
+representations but cannot redefine or collapse these distinctions. TutorPutor
+continues to own the meaning of its F0–F4 fidelity tiers.
 
 [`policy-authority-model.yaml`](policy-authority-model.yaml) records product
 authority and enforcement boundaries. [`dependency-contracts.yaml`](dependency-contracts.yaml)
@@ -227,30 +247,6 @@ Current local proof inputs are the generated candidate, the residual reporter
 `tests/product-definition-authority.test.mjs`. These checks do not generate
 Lifecycle receipts or establish independent acceptance.
 
-## Recorder/Studio PDP successor extension (new affected surfaces)
+## Additional product scope
 
-The source-authored `recorder-studio-extension.yaml` records the new Recorder/Studio surface-specific semantics at this later proposed source cut. Historical `DEV_COMPLETE` remains attributable to its original source cut; the source-bound PDP-0 status record determines the affected definition state for each exact source cut. Runtime admission and affected PDP-3 readmission remain separate and are not implied by PDP-0 definition status. The extension reuses existing Media identities and may not create independent project, job, rights or publishing authorities. Its exact affected obligations require native phase validation before any PDP-0 development status claim.
-
-
-## Declarative production successor (Recorder + Animation + Simulation + TutorPutor)
-
-The original `DEV_COMPLETE` statement above is historical at its recorded source cut and **does not automatically transfer** to the new declarative-production source revision. `.product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile` is the sole canonical owner of 61 additional specialized acceptance cases (17 Animation, 22 Simulation, 12 TutorPutor, 10 unified) across 39 existing capability leaves. The 12 Recorder coverage audit targets reuse its existing 84-case register, yielding **145 nonduplicated scoped acceptance cases**; all 38 family requirements and 462 capability leaves remain unchanged. These source-authored cases require native semantic/currentness verification and affected-surface source-cut readmission before a successor phase `DEV_COMPLETE` receipt can be issued. A visual demo, generated scene, or fixture replay cannot prove scientific validation or a real product effect. Scientific/model/learner authority remains with TutorPutor; Media owns generic production/presentation adapters.
-
----
-
-## Current unified-production successor source / 2026-10-18
-
-The [living unified-production handoff](../../docs/implementation/MEDIA-UNIFIED-PRODUCTION-CURRENT-PLAN.md), [full preserved blueprint](../../docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md), and [501-row PDP-0 disposition crosswalk](../../docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json) supplement this page's historically `DEV_COMPLETE` source cut. The crosswalk records all 501 source IDs individually as `BOUND_EXISTING` (428 original and 73 focused), zero unresolved PDP-0 IDs, and completed coordinator source reconciliation. This is a definition mapping and disposition only: owner approval and independent acceptance remain `NOT_CLAIMED`, and no implementation, runtime availability, scientific qualification, or closure is implied. The 73 focused candidates comprise 12 existing Recorder clauses and 61 source-authored `requirements.yaml#declarativeProductionProfile` clauses (17 animation, 22 model simulation, 12 TutorPutor, 10 unified). They specialize the original 38 requirement families and 462 capability leaves; audit targets and logical Recorder scopes do not create new accepted requirements or deployable packages.
-
-**Successor phase status:** source-authored; current-source PDP-0 `DEV_COMPLETE` is determined only by the native source-bound status record and its exact input fingerprints. This page does not assert or replace that record's result. Preserve the prior-cut status as history. Independent P0-010 review, owner acceptance, and closure remain separate statuses, not development-completion prerequisites. GharBatai's 32 DX tasks are product-owned or public-adapter consumer requirements, not duplicates of the Media requirement register; domain Model IR and learner evidence remain TutorPutor-owned.
-
-
-## October 18 declarative production successor — source status authority
-
-The new Recorder/Animation/Simulation/TutorPutor scope is defined and reconciled through [the unified current-source handoff](../../docs/implementation/MEDIA-UNIFIED-PDP0-3-CURRENT-SOURCE-RECONCILIATION-2026-10-18.md). Its canonical PDP-0 authority is `requirements.yaml#declarativeProductionProfile` (61 additional cases alongside the Recorder's 84); PDP-1 specializes existing typed owner operations in `declarative-production-contracts.yaml`, PDP-2 adds presentation/parity meaning to `animation-simulation-grammar.yaml`, and PDP-3 provides the corresponding `declarative-production-experience.yaml` source overlay. These extensions **do not inherit this page's historical DEV_COMPLETE receipt**. No new accepted phase cell, deployed simulator, native verification result, new physical surface, scientific-model qualification or production film is implied. Preserve the existing accepted earlier-source meaning and re-admit only affected PDP cells in phase order after exact-source checks.
-
-### Source-audit identity and PDP-0 meaning disposition (2026-10-18)
-
-The [exact input combined audit](../../docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json) is preserved unchanged, including 428 original source IDs and 73 additional original third-pass `AUD-REC3/ANIM3/SIM3/EDU3/CROSS3` IDs with their exact feature/acceptance descriptions. The [source-ID/candidate-case crosswalk](../../docs/implementation/observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json) keeps those original identifiers distinct from the 73 normalized `AUD-FOCUS-*` projections and 61 source-authored cases. In the PDP-0 disposition crosswalk, `AUD-SIM3-009` maps to existing simulation family requirements and the cloth, soft-body, rope, particle, and fluid leaves; `AUD-SIM3-010` maps to the existing agent capability and its reproducibility cases. Both are `BOUND_EXISTING`; neither adds a canonical requirement or admits a solver. Scientific qualification and any qualified domain-owner admission remain unclaimed at their owning downstream gates. The predecessor `DEV_COMPLETE` remains historical; the native source-bound PDP-0 status record governs current phase status for its exact inputs.
-
-The unchanged uploaded blueprint also contributes [40 original planned tasks and 46 experiment definitions](../../docs/implementation/observations/media-unified-source-task-and-experiment-crosswalk-2026-10-18.json). Those **86 original source identifiers** are traceable and separately classified as PDP-0..3 source work or later Build/acceptance work; they do **not** create 86 canonical PDP-0 requirements. Any source-task implication missing real product meaning must be resolved at its owning current PDP phase, beginning with PDP-0, with no premature native `DEV_COMPLETE` promotion.
+Recorder/Studio behavior is defined in [`recorder-studio-extension.yaml`](recorder-studio-extension.yaml). Declarative production cases are defined in [`requirements.yaml`](requirements.yaml), with their capability meaning in [`capabilities.yaml`](capabilities.yaml). These records reuse Media's declared product identities and preserve TutorPutor's domain authority. Their inclusion defines product scope; it does not claim implementation, runtime availability, scientific qualification, application release, or acceptance.

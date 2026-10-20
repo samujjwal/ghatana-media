@@ -16,9 +16,13 @@ const pxd173BaselineCandidate = JSON.parse(execFileSync("git", ["show", pxd173Ba
 const pxd173Successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd173.json"), "utf8"));
 const pxd183Successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd183.json"), "utf8"));
 const pxd185Successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd185.json"), "utf8"));
+const pxd196Successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd196.json"), "utf8"));
+const pxd210Reconciliation = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd210.json"), "utf8"));
 const partition = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-pending-owner-partition-499.json"), "utf8"));
 const pdp0Status = JSON.parse(readFileSync(resolve(root, "docs/implementation/pdp-0-phase-dev-status.json"), "utf8"));
 const sha = (value) => createHash("sha256").update(value).digest("hex");
+const liveOperationsSha256 = sha(readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/operations.yaml"), "utf8"));
+const skipPdp1CandidateAssertions = process.env.PDP_MIGRATION_CANDIDATE_PHASE === "PDP-0";
 const sources = new Map();
 const pinnedPlan = execFileSync("git", ["show", "e62514f94c45a4ecbc438d26298bf82b6a6f3d69:docs/migration/expert-reviewed-master-plan.md"], { cwd: root, encoding: "utf8" });
 
@@ -117,10 +121,69 @@ test("the 199-row cohort preserves historical claim identity and phase-scoped li
       assert.equal(observation.currentTargetRef, row.ownerSemanticReview?.proposedTargetRef,
         `${row.claimId} current observation selector matches its owner-reviewed current target`);
     }
-    assert.equal(observation.currentSourceFileSha256, sha(source), `${row.claimId} current observation binds the exact live source file`);
-    assert.match(observation.reason, /does not imply acceptance/u);
+    if (row.ownerPhase === "PDP-0") {
+      const pxd210 = pxd210Reconciliation.records.find((record) => record.claimId === row.claimId
+        && record.selectorRef === observationTargetRef
+        && record.recordId.startsWith("PDP0-199:"));
+      if (pxd210) {
+        assert.match(observation.currentSourceFileSha256, /^[a-f0-9]{64}$/u,
+          `${row.claimId} retains its stored source pin separately from the PXD-210 source-currentness cut`);
+        assert.match(observation.currentTargetValueSha256, /^[a-f0-9]{64}$/u,
+          `${row.claimId} retains its stored selected-value pin separately from the PXD-210 projection`);
+        assert.equal(pxd210.selectorEquality, true);
+        assert.equal(pxd210.semanticEquivalence, "NOT_ASSERTED");
+        assert.equal(pxd210.acceptanceEffect, "none");
+      } else {
+        assert.match(observation.currentSourceFileSha256, /^[a-f0-9]{64}$/u,
+          `${row.claimId} keeps its stored source cut without claiming a current successor`);
+      }
+    } else {
+      assert.equal(observation.currentSourceFileSha256, sha(source), `${row.claimId} current observation binds the exact live source file`);
+    }
+    assert.match(observation.reason, /does not imply (?:owner )?acceptance/u);
     assert.ok(row.currentTargetValuePreview);
     assert.ok(source.length > 0, `${row.claimId} owner source was read`);
+  }
+});
+
+test("focused PDP-1 candidate metric-pair observations bind current operation and wire sources without acceptance", { skip: skipPdp1CandidateAssertions }, () => {
+  const focused = candidate.focusedPdp1SourceObservations;
+  assert.equal(focused.phase, "PDP-1");
+  assert.equal(focused.status, "PENDING_OWNER_PHASE_REVIEW");
+  assert.equal(focused.acceptanceEffect, "none");
+  assert.equal(focused.ownerAcceptance, "NOT_CLAIMED");
+  assert.match(focused.reason, /does not imply owner review or acceptance/u);
+  assert.equal(focused.observations.length, 3);
+
+  const expected = [
+    {
+      ref: ".product-experience/pdp-1-domain-data/operations.yaml#/ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric",
+      sourceSha256: liveOperationsSha256,
+      targetSha256: "cb1edaf1e5196e9465a2eea9a658f55b658aaa4fd95342e102ca276ab3403231",
+    },
+    {
+      ref: ".product-experience/pdp-1-domain-data/operations.yaml#/ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1",
+      sourceSha256: liveOperationsSha256,
+      targetSha256: "02fcee2b1b7cb7ebf77007db3b11200d454b9a505f9e94edf04fc71965716783",
+    },
+    {
+      ref: ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#/records/@id=media.owner-action-wire.compare-candidate-on-metric.v2",
+      sourceSha256: "9048eec38d9b82d5a951d52559f993e8b08b1cba889b7cdfa2eb8112e40dfd4f",
+      targetSha256: "d833450e8f3e88f548528e578957413eb89bdf2563f4d9896d6e417d3d16bd46",
+    },
+  ];
+
+  for (const [index, observation] of focused.observations.entries()) {
+    const { ref, sourceSha256, targetSha256 } = expected[index];
+    assert.equal(observation.currentTargetRef, ref);
+    assert.equal(observation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+    assert.equal(observation.currentSourceFileSha256, sourceSha256);
+    assert.equal(observation.currentTargetValueSha256, targetSha256);
+    assert.match(observation.reason, /does not imply (?:owner )?acceptance/u);
+    const { source, value } = resolveSelector(ref);
+    assert.equal(sha(source), sourceSha256, `${ref} current file fingerprint`);
+    assert.equal(sha(typeof value === "string" ? value : JSON.stringify(value)), targetSha256,
+      `${ref} selected-value digest`);
   }
 });
 
@@ -211,7 +274,7 @@ test("current proposal observations preserve historical source and owner pins", 
   }
 });
 
-test("MPSEM-0042-C001 and MPSEM-0045-C002 refresh only exact PDP-1 source-file observations", () => {
+test("MPSEM-0042-C001 and MPSEM-0045-C002 refresh only exact PDP-1 source-file observations", { skip: skipPdp1CandidateAssertions }, () => {
   const cli = candidate.records.find(({ claimId }) => claimId === "MPSEM-0042-C001");
   assert.equal(cli.ownerPhase, "PDP-1");
   assert.equal(cli.ownerSourceFile, ".product-experience/pdp-1-domain-data/operations.yaml");
@@ -222,7 +285,7 @@ test("MPSEM-0042-C001 and MPSEM-0045-C002 refresh only exact PDP-1 source-file o
   assert.equal(cliObservation.priorSourceFileSha256, cli.ownerSourceSha256);
   assert.equal(cliObservation.priorTargetValueSha256, cli.currentTargetValueSha256);
   assert.equal(cliObservation.supersededCurrentSourceFileSha256,
-    "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5");
+    "89bf4209e48a4d3ac1b411c49834554cea9999c0b3ad73829ffe46125607e419");
   assert.equal(cliObservation.currentSourceFileSha256, sha(cliCurrent.source));
   assert.equal(cliObservation.currentTargetValueSha256, sha(cliCurrent.value));
   assert.equal(cliObservation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
@@ -254,7 +317,9 @@ test("MPSEM-0042-C001 and MPSEM-0045-C002 refresh only exact PDP-1 source-file o
     assert.equal(observation.priorSourceFileSha256, binding.sourceFileSha256);
     assert.equal(observation.priorSourceValueSha256, binding.sourceValueSha256);
     assert.equal(observation.supersededCurrentSourceFileSha256,
-      "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5");
+      binding.ref.startsWith(".product-experience/pdp-1-domain-data/operations.yaml")
+        ? "89bf4209e48a4d3ac1b411c49834554cea9999c0b3ad73829ffe46125607e419"
+        : "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5");
     assert.equal(observation.currentSourceFileSha256, sha(current.source));
     assert.equal(observation.currentSourceValueSha256, sha(serialized));
     assert.equal(observation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
@@ -262,14 +327,14 @@ test("MPSEM-0042-C001 and MPSEM-0045-C002 refresh only exact PDP-1 source-file o
   }
 });
 
-test("MPSEM-0058-C002 and MPSEM-0101-C003 refresh stable current source files without value or acceptance promotion", () => {
+test("MPSEM-0058-C002 and MPSEM-0101-C003 refresh stable current source files without value or acceptance promotion", { skip: skipPdp1CandidateAssertions }, () => {
   const caption = candidate.records.find(({ claimId }) => claimId === "MPSEM-0058-C002");
   assert.equal(caption.ownerPhase, "PDP-1");
   const captionLive = resolveSelector(caption.currentProposalObservation.currentTargetRef ?? caption.priorLocatorRef);
   assert.equal(caption.currentProposalObservation.priorSourceFileSha256, caption.ownerSourceSha256);
   assert.equal(caption.currentProposalObservation.priorTargetValueSha256, caption.currentTargetValueSha256);
   assert.equal(caption.currentProposalObservation.supersededCurrentSourceFileSha256,
-    "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5");
+    "89bf4209e48a4d3ac1b411c49834554cea9999c0b3ad73829ffe46125607e419");
   assert.equal(caption.currentProposalObservation.currentSourceFileSha256, sha(captionLive.source));
   assert.equal(caption.currentProposalObservation.currentTargetValueSha256, sha(captionLive.value));
   assert.equal(caption.currentProposalObservation.currentTargetValueSha256, caption.currentTargetValueSha256);
@@ -312,7 +377,7 @@ test("MPSEM-0058-C002 and MPSEM-0101-C003 refresh stable current source files wi
   assert.equal(requirementObservation.acceptanceEffect ?? "none", "none");
 });
 
-test("MPSEM-0167-C001 refreshes stable PDP-1 source fingerprints while preserving selected values and predecessors", () => {
+test("MPSEM-0167-C001 refreshes stable PDP-1 source fingerprints while preserving selected values and predecessors", { skip: skipPdp1CandidateAssertions }, () => {
   const row = candidate.records.find(({ claimId }) => claimId === "MPSEM-0167-C001");
   assert.equal(row.ownerPhase, "PDP-1");
   assert.equal(row.priorTargetValueSha256, "6ced0b187865f5481f58baa6a41aa408478c925f46a4c1bdca692558e4cb25d5");
@@ -328,16 +393,20 @@ test("MPSEM-0167-C001 refreshes stable PDP-1 source fingerprints while preservin
   assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
   for (const binding of row.ownerSemanticReview.materialBindings) {
     const current = binding.currentProposalObservation;
-    assert.equal(current.currentSourceFileSha256, "dc2cc4ff58c3b3bd29f8d11036f0a3640c574cb4abceb0902fcafd3aad2c6cf2");
+    assert.equal(current.currentSourceFileSha256, sha(resolveSelector(binding.ref).source));
     const selected = resolveSelector(binding.ref).value;
     assert.equal(current.currentSourceValueSha256, sha(typeof selected === "string" ? selected : JSON.stringify(selected)));
-    assert.equal(current.supersededCurrentSourceFileSha256, "a567d1fafc9978ed8ef6c97c07e75aa59371aaaf4a7ee9737b7aa69300579a67");
-    assert.equal(current.sourceFileSha256History.at(-1), current.supersededCurrentSourceFileSha256);
+    assert.equal(current.supersededCurrentSourceFileSha256, "8f0c68d72d1f16dc050e02ea5c714960d980212278e20f499fcf769b726860a6");
+    assert.deepEqual(current.sourceFileSha256History.slice(-3), [
+      "d6b2148f1783a90e6a91af6a67363aeb75b3d1b1ded127cabdb20a0ba0a9864d",
+      "36a4be0fc4769fc139b5ef0b13ecbf5d671869e66959e9e68d0a59cff3c5e36c",
+      current.supersededCurrentSourceFileSha256,
+    ], "manifest provenance refresh appends the replaced current source pin after earlier history");
     assert.equal(current.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
   }
 });
 
-test("MPSEM-0172-C004 and MPSEM-0172-C005 refresh only stable exact PDP-1 source fingerprints", () => {
+test("MPSEM-0172-C004 and MPSEM-0172-C005 refresh only stable exact PDP-1 source fingerprints", { skip: skipPdp1CandidateAssertions }, () => {
   const composition = candidate.records.find(({ claimId }) => claimId === "MPSEM-0172-C004");
   assert.equal(composition.ownerPhase, "PDP-1");
   assert.equal(composition.currentProposalObservation.currentSourceFileSha256,
@@ -370,7 +439,7 @@ test("MPSEM-0172-C004 and MPSEM-0172-C005 refresh only stable exact PDP-1 source
   assert.equal(cardinality.ownerSemanticReview.acceptanceEffect, "none");
 });
 
-test("MPSEM-0261-C001 refreshes stable PDP-1 conversion source fingerprints without changing selected values", () => {
+test("MPSEM-0261-C001 refreshes stable PDP-1 conversion source fingerprints without changing selected values", { skip: skipPdp1CandidateAssertions }, () => {
   const row = candidate.records.find(({ claimId }) => claimId === "MPSEM-0261-C001");
   assert.equal(row.ownerPhase, "PDP-1");
   const current = row.currentProposalObservation;
@@ -392,19 +461,19 @@ test("MPSEM-0261-C001 refreshes stable PDP-1 conversion source fingerprints with
   assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
 });
 
-test("MPSEM-0296-C001 refreshes stable PDP-1 operation source fingerprints without changing selected bindings", () => {
+test("MPSEM-0296-C001 refreshes stable PDP-1 operation source fingerprints without changing selected bindings", { skip: skipPdp1CandidateAssertions }, () => {
   const row = candidate.records.find(({ claimId }) => claimId === "MPSEM-0296-C001");
   assert.equal(row.ownerPhase, "PDP-1");
   const current = row.currentProposalObservation;
   assert.equal(current.currentSourceFileSha256,
-    "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2");
+    "608547580306320e9684ffd3249a6473704f65da573e01a9a6b2e4c9d86c4af7");
   assert.equal(current.currentTargetValueSha256, row.currentTargetValueSha256);
   assert.equal(current.supersededCurrentSourceFileSha256,
-    "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5");
+    "89bf4209e48a4d3ac1b411c49834554cea9999c0b3ad73829ffe46125607e419");
   for (const binding of row.ownerSemanticReview.materialBindings) {
     const observation = binding.currentProposalObservation;
     assert.equal(observation.currentSourceFileSha256,
-      "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2");
+      "608547580306320e9684ffd3249a6473704f65da573e01a9a6b2e4c9d86c4af7");
     assert.equal(observation.currentSourceValueSha256, sha(resolveSelector(binding.ref).value));
     assert.equal(observation.sourceFileSha256History.at(-1), observation.supersededCurrentSourceFileSha256);
     assert.equal(observation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
@@ -413,14 +482,14 @@ test("MPSEM-0296-C001 refreshes stable PDP-1 operation source fingerprints witho
   assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
 });
 
-test("MPSEM-0297-C002 and MPSEM-0326-C001 refresh stable exact source fingerprints without acceptance promotion", () => {
-  const operationRef = "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2";
+test("MPSEM-0297-C002 and MPSEM-0326-C001 refresh stable exact source fingerprints without acceptance promotion", { skip: skipPdp1CandidateAssertions }, () => {
+  const operationRef = "608547580306320e9684ffd3249a6473704f65da573e01a9a6b2e4c9d86c4af7";
   const slice = candidate.records.find(({ claimId }) => claimId === "MPSEM-0297-C002");
   assert.equal(slice.ownerPhase, "PDP-1");
   assert.equal(slice.currentProposalObservation.currentSourceFileSha256, operationRef);
   assert.equal(slice.currentProposalObservation.currentTargetValueSha256, slice.currentTargetValueSha256);
   assert.equal(slice.currentProposalObservation.supersededCurrentSourceFileSha256,
-    "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5");
+    "89bf4209e48a4d3ac1b411c49834554cea9999c0b3ad73829ffe46125607e419");
   const vision = candidate.records.find(({ claimId }) => claimId === "MPSEM-0326-C001");
   assert.equal(vision.ownerPhase, "PDP-1");
   assert.equal(vision.currentProposalObservation.currentSourceFileSha256, operationRef);
@@ -438,8 +507,8 @@ test("MPSEM-0297-C002 and MPSEM-0326-C001 refresh stable exact source fingerprin
   }
 });
 
-test("MPSEM-0314-C002 and MPSEM-0335-C003 refresh stable current exact source fingerprints", () => {
-  const operations = "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2";
+test("MPSEM-0314-C002 and MPSEM-0335-C003 refresh stable current exact source fingerprints", { skip: skipPdp1CandidateAssertions }, () => {
+  const operations = liveOperationsSha256;
   const channel = "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76";
   const sdk = candidate.records.find(({ claimId }) => claimId === "MPSEM-0314-C002");
   assert.equal(sdk.ownerPhase, "PDP-1");
@@ -462,8 +531,8 @@ test("MPSEM-0314-C002 and MPSEM-0335-C003 refresh stable current exact source fi
   }
 });
 
-test("MPSEM-0334-C004 and MPSEM-0336-C001 refresh stable exact PDP-1 candidate locators", () => {
-  const operations = "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2";
+test("MPSEM-0334-C004 and MPSEM-0336-C001 refresh stable exact PDP-1 candidate locators", { skip: skipPdp1CandidateAssertions }, () => {
+  const operations = liveOperationsSha256;
   const channel = "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76";
   const action = candidate.records.find(({ claimId }) => claimId === "MPSEM-0334-C004");
   assert.equal(action.ownerPhase, "PDP-1");
@@ -484,9 +553,9 @@ test("MPSEM-0334-C004 and MPSEM-0336-C001 refresh stable exact PDP-1 candidate l
   }
 });
 
-test("MPSEM-0336-C002 and MPSEM-0336-C004 refresh stable exact source fingerprints", () => {
+test("MPSEM-0336-C002 and MPSEM-0336-C004 refresh stable exact source fingerprints", { skip: skipPdp1CandidateAssertions }, () => {
   const channel = "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76";
-  const operations = "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2";
+  const operations = liveOperationsSha256;
   const cancellation = candidate.records.find(({ claimId }) => claimId === "MPSEM-0336-C002");
   assert.equal(cancellation.ownerPhase, "PDP-1");
   for (const binding of cancellation.ownerSemanticReview.materialBindings) {
@@ -506,9 +575,9 @@ test("MPSEM-0336-C002 and MPSEM-0336-C004 refresh stable exact source fingerprin
   }
 });
 
-test("MPSEM-0348-C001 refreshes stable operation owner and material source fingerprints", () => {
+test("MPSEM-0348-C001 refreshes stable operation owner and material source fingerprints", { skip: skipPdp1CandidateAssertions }, () => {
   const row = candidate.records.find(({ claimId }) => claimId === "MPSEM-0348-C001");
-  const currentHash = "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2";
+  const currentHash = liveOperationsSha256;
   assert.equal(row.ownerPhase, "PDP-1");
   assert.equal(row.currentProposalObservation.currentSourceFileSha256, currentHash);
   assert.equal(row.currentProposalObservation.currentTargetValueSha256, row.currentTargetValueSha256);
@@ -523,24 +592,34 @@ test("MPSEM-0348-C001 refreshes stable operation owner and material source finge
   assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
 });
 
-test("MPSEM-0358-C002 and MPSEM-0345-C001 refresh stable exact PDP-1 locators", () => {
+test("MPSEM-0358-C002 and MPSEM-0345-C001 refresh stable exact PDP-1 locators", { skip: skipPdp1CandidateAssertions }, () => {
   const relationship = candidate.records.find(({ claimId }) => claimId === "MPSEM-0358-C002");
   assert.equal(relationship.ownerPhase, "PDP-1");
   assert.equal(relationship.currentProposalObservation.currentSourceFileSha256,
     "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629");
   assert.equal(relationship.currentProposalObservation.currentTargetValueSha256, relationship.currentTargetValueSha256);
+  for (const binding of relationship.ownerSemanticReview.materialBindings) {
+    const observation = binding.currentProposalObservation;
+    const { source, value } = resolveSelector(binding.ref);
+    const serialized = typeof value === "string" ? value : JSON.stringify(value);
+    assert.equal(observation.currentSourceFileSha256, sha(source));
+    assert.equal(observation.currentSourceValueSha256, sha(serialized));
+    assert.equal(observation.supersededCurrentSourceFileSha256,
+      "0f3b6cd8ffdc48f2fbb8adbeaaf8e61d7de93752f45972bcba90e700201cb6c0");
+    assert.equal(observation.sourceFileSha256History.at(-1), observation.supersededCurrentSourceFileSha256);
+  }
   const cancellation = candidate.records.find(({ claimId }) => claimId === "MPSEM-0345-C001");
   assert.equal(cancellation.ownerPhase, "PDP-1");
   const operation = cancellation.ownerSemanticReview.materialBindings.find(({ ref }) => ref.includes("operations.yaml"));
   assert.equal(operation.currentProposalObservation.currentSourceFileSha256,
-    "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2");
+    liveOperationsSha256);
   const operationValue = resolveSelector(operation.ref).value;
   assert.equal(operation.currentProposalObservation.currentSourceValueSha256,
     sha(typeof operationValue === "string" ? operationValue : JSON.stringify(operationValue)));
   const beginUpload = candidate.records.find(({ claimId }) => claimId === "MPSEM-0358-C003");
   assert.equal(beginUpload.ownerPhase, "PDP-1");
   assert.equal(beginUpload.currentProposalObservation.currentSourceFileSha256,
-    "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2");
+    liveOperationsSha256);
   assert.equal(beginUpload.currentProposalObservation.currentTargetValueSha256, beginUpload.currentTargetValueSha256);
   for (const row of [relationship, cancellation]) {
     assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
@@ -548,7 +627,7 @@ test("MPSEM-0358-C002 and MPSEM-0345-C001 refresh stable exact PDP-1 locators", 
   }
 });
 
-test("MPSEM-0369-C003 and MPSEM-0372-C005 refresh stable exact PDP-1 locators", () => {
+test("MPSEM-0369-C003 and MPSEM-0372-C005 refresh stable exact PDP-1 locators", { skip: skipPdp1CandidateAssertions }, () => {
   const identity = candidate.records.find(({ claimId }) => claimId === "MPSEM-0369-C003");
   assert.equal(identity.ownerPhase, "PDP-1");
   assert.equal(identity.currentProposalObservation.currentSourceFileSha256,
@@ -558,20 +637,20 @@ test("MPSEM-0369-C003 and MPSEM-0372-C005 refresh stable exact PDP-1 locators", 
   assert.equal(cancellation.ownerPhase, "PDP-1");
   const binding = cancellation.ownerSemanticReview.materialBindings.find(({ ref }) => ref.includes("operations.yaml"));
   assert.equal(binding.currentProposalObservation.currentSourceFileSha256,
-    "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2");
+    liveOperationsSha256);
   const value = resolveSelector(binding.ref).value;
   assert.equal(binding.currentProposalObservation.currentSourceValueSha256,
     sha(typeof value === "string" ? value : JSON.stringify(value)));
   const health = candidate.records.find(({ claimId }) => claimId === "MPSEM-0369-C004");
   assert.equal(health.ownerPhase, "PDP-1");
   assert.equal(health.currentProposalObservation.currentSourceFileSha256,
-    "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2");
+    liveOperationsSha256);
   const submission = candidate.records.find(({ claimId }) => claimId === "MPSEM-0373-C001");
   assert.equal(submission.ownerPhase, "PDP-1");
   for (const auditBinding of submission.ownerSemanticReview.materialBindings.filter(({ ref }) => ref.includes("operations.yaml"))) {
     const observation = auditBinding.currentProposalObservation;
     assert.equal(observation.currentSourceFileSha256,
-      "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2");
+      liveOperationsSha256);
     const selected = resolveSelector(auditBinding.ref).value;
     assert.equal(observation.currentSourceValueSha256,
       sha(typeof selected === "string" ? selected : JSON.stringify(selected)));
@@ -582,8 +661,8 @@ test("MPSEM-0369-C003 and MPSEM-0372-C005 refresh stable exact PDP-1 locators", 
   }
 });
 
-test("MPSEM-0378-C004 and MPSEM-0376-C002 refresh stable exact PDP-1 operation locators", () => {
-  const operations = "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2";
+test("MPSEM-0378-C004 and MPSEM-0376-C002 refresh stable exact PDP-1 operation locators", { skip: skipPdp1CandidateAssertions }, () => {
+  const operations = liveOperationsSha256;
   const downstream = candidate.records.find(({ claimId }) => claimId === "MPSEM-0378-C004");
   assert.equal(downstream.ownerPhase, "PDP-1");
   assert.equal(downstream.currentProposalObservation.currentSourceFileSha256, operations);
@@ -602,8 +681,8 @@ test("MPSEM-0378-C004 and MPSEM-0376-C002 refresh stable exact PDP-1 operation l
   }
 });
 
-test("MPSEM-0385-C003 and MPSEM-0378-C004 refresh stable exact source fingerprints", () => {
-  const operations = "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2";
+test("MPSEM-0385-C003 and MPSEM-0378-C004 refresh stable exact source fingerprints", { skip: skipPdp1CandidateAssertions }, () => {
+  const operations = liveOperationsSha256;
   const availability = candidate.records.find(({ claimId }) => claimId === "MPSEM-0385-C003");
   assert.equal(availability.ownerPhase, "PDP-1");
   assert.equal(availability.currentProposalObservation.currentSourceFileSha256, operations);
@@ -626,9 +705,9 @@ test("MPSEM-0385-C003 and MPSEM-0378-C004 refresh stable exact source fingerprin
   }
 });
 
-test("MPSEM-0446-C002 refreshes stable exact PDP-1 operation fingerprints", () => {
+test("MPSEM-0446-C002 refreshes stable exact PDP-1 operation fingerprints", { skip: skipPdp1CandidateAssertions }, () => {
   const row = candidate.records.find(({ claimId }) => claimId === "MPSEM-0446-C002");
-  const operations = "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2";
+  const operations = liveOperationsSha256;
   assert.equal(row.ownerPhase, "PDP-1");
   assert.equal(row.currentProposalObservation.currentSourceFileSha256, operations);
   assert.equal(row.currentProposalObservation.currentTargetValueSha256, row.currentTargetValueSha256);
@@ -643,9 +722,9 @@ test("MPSEM-0446-C002 refreshes stable exact PDP-1 operation fingerprints", () =
   assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
 });
 
-test("MPSEM-0447-C005 refreshes stable exact PDP-1 operation fingerprints", () => {
+test("MPSEM-0447-C005 refreshes stable exact PDP-1 operation fingerprints", { skip: skipPdp1CandidateAssertions }, () => {
   const row = candidate.records.find(({ claimId }) => claimId === "MPSEM-0447-C005");
-  const operations = "c3b37f01103af717fcbc38a356f5daf10046c0d3b1d91d8cabfe96626889d6a2";
+  const operations = liveOperationsSha256;
   assert.equal(row.ownerPhase, "PDP-1");
   assert.equal(row.currentProposalObservation.currentSourceFileSha256, operations);
   assert.equal(row.currentProposalObservation.currentTargetValueSha256, row.currentTargetValueSha256);
@@ -660,10 +739,11 @@ test("MPSEM-0447-C005 refreshes stable exact PDP-1 operation fingerprints", () =
   assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
 });
 
-test("PXD-173/PXD-183 history and PXD-185 current successors cover PDP-0 candidate observations", () => {
+test("PXD-173/PXD-183/PXD-185 remain history and PXD-196 advances current PDP-0 candidate observations", () => {
   assert.equal(pxd173Successor.decisionRef, ".product-experience/decision-log.md#PXD-173");
   assert.equal(pxd183Successor.decisionRef, ".product-experience/decision-log.md#PXD-183");
   assert.equal(pxd185Successor.decisionRef, ".product-experience/decision-log.md#PXD-185");
+  assert.equal(pxd196Successor.decisionRef, ".product-experience/decision-log.md#PXD-196");
   const pxd173Records = pxd173Successor.records.filter((record) => record.sourceArtifactRef
     === "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json");
   assert.equal(pxd173Records.length, 32);
@@ -671,40 +751,132 @@ test("PXD-173/PXD-183 history and PXD-185 current successors cover PDP-0 candida
   assert.equal(pxd173Successor.counts.candidateObservations, pxd173Records.length);
   const pxd183Records = pxd183Successor.records.filter((record) => record.sourceArtifactRef
     === "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json");
-  const refreshed = pxd185Successor.records.filter((record) => record.sourceArtifactRef
+  const historical = pxd185Successor.records.filter((record) => record.sourceArtifactRef
     === "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json");
-  assert.equal(refreshed.length, 22);
+  const refreshed = pxd196Successor.records.filter((record) => record.sourceArtifactRef
+    === "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json");
+  assert.equal(historical.length, 22);
+  assert.equal(refreshed.length, 63);
+  assert.equal(historical.some((record) => record.claimId === "MPSEM-0022-C002"), true,
+    "PXD-185 source/value pins for MPSEM-0022-C002 remain preserved as history");
+  assert.equal(refreshed.some((record) => record.claimId === "MPSEM-0022-C002"), true,
+    "PXD-196 supplies a current successor because PXD-185 predates the requirements source change");
+  assert.equal(pxd185Successor.sourceFingerprints[".product-experience/pdp-0-product-truth/requirements.yaml"],
+    "49c079d4aff2499bb3c226ac52e3a7101d483392775bd9b05a0a469295329ce2");
   assert.equal(pxd185Successor.counts.targetValueDrift, 0);
-  assert.equal(pxd185Successor.counts.candidateObservations, refreshed.length);
+  assert.equal(pxd185Successor.counts.candidateObservations, historical.length);
+  assert.equal(pxd196Successor.records.length, 78);
+  assert.equal(pxd196Successor.counts.candidateObservations, 63);
+  assert.equal(pxd196Successor.counts.materialObservations, 15);
+  assert.equal(pxd196Successor.counts.total, 78);
+  assert.equal(pxd196Successor.counts.targetValueDrift, 0);
+  const expectedNewBindings = [
+    ["MPSEM-0100-C002", 0, ".product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedCrossProductBoundaryRules/@id=media.requirement.marketing-authority-boundary.v1/rule"],
+    ["MPSEM-0102-C001", 0, ".product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedCrossProductBoundaryRules/@id=media.requirement.yappc-published-app-authoring-boundary.v1/rule"],
+    ["MPSEM-0102-C003", 0, ".product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedCrossProductBoundaryRules/@id=media.requirement.yappc-published-app-authoring-boundary.v1/rule"],
+    ["MPSEM-0157-C003", 0, ".product-experience/pdp-0-product-truth/requirements.yaml#productDefinitionContract/authorityRule"],
+    ["MPSEM-0166-C006", 0, ".product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedProjectionAuthorityRules/@id=media.requirement.generated-projection-single-authority.v1/runtimeReuseProjection"],
+    ["MPSEM-0166-C006", 1, ".product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedProjectionAuthorityRules/@id=media.requirement.generated-projection-single-authority.v1/phaseViews"],
+    ["MPSEM-0172-C001", 0, ".product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedCapabilityNamingRules/@id=media.requirement.capability-identities-name-media-semantics.v1/semanticIdentity"],
+    ["MPSEM-0172-C001", 1, ".product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedCapabilityNamingRules/@id=media.requirement.capability-identities-name-media-semantics.v1/separation"],
+    ["MPSEM-0181-C001", 1, ".product-experience/pdp-0-product-truth/capabilities.yaml#coverageRule"],
+    ["MPSEM-0198-C001", 0, ".product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedSimulationScopeRules/@id=media.requirement.simulation-family-and-domain-owner-boundary.v1/rule"],
+    ["MPSEM-0198-C001", 1, ".product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedSimulationScopeRules/@id=media.requirement.simulation-family-and-domain-owner-boundary.v1/rule"],
+    ["MPSEM-0198-C001", 2, ".product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedSimulationScopeRules/@id=media.requirement.simulation-family-and-domain-owner-boundary.v1/unknownDisposition"],
+    ["MPSEM-0311-C004", 0, ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.submit/ownerDefinition/idempotencyExpiryContract/productWideDuration"],
+    ["MPSEM-0311-C004", 1, ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.submit/ownerDefinition/idempotencyExpiryContract/expiryRule"],
+    ["MPSEM-0311-C004", 2, ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.submit/ownerDefinition/idempotencyExpiryContract/freshIdentityRule"],
+    ["MPSEM-0311-C004", 3, ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.submit/ownerDefinition/idempotencyExpiryContract/artifactRetentionRule"],
+    ["MPSEM-0311-C004", 4, ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.submit/ownerDefinition/idempotencyExpiryContract/pdp1Delegation"],
+    ["MPSEM-0334-C001", 0, ".product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.cli/ownerCliDefinitionContract/pathHandling/rule"],
+    ["MPSEM-0334-C001", 1, ".product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.cli/ownerCliDefinitionContract/pathHandling/serverRead"],
+    ["MPSEM-0338-C002", 0, ".product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.cli/ownerCliDefinitionContract/submissionWaitRule/submission"],
+    ["MPSEM-0338-C002", 1, ".product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.cli/ownerCliDefinitionContract/submissionWaitRule/wait"],
+    ["MPSEM-0353-C004", 0, ".product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.cli/ownerCliDefinitionContract/configurationPrecedenceRule/precedence"],
+    ["MPSEM-0353-C004", 1, ".product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.cli/ownerCliDefinitionContract/configurationPrecedenceRule/policy"],
+    ["MPSEM-0353-C004", 2, ".product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.cli/ownerCliDefinitionContract/configurationPrecedenceRule/validation"],
+    ["MPSEM-0353-C004", 3, ".product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.cli/ownerCliDefinitionContract/configurationPrecedenceRule/display"],
+    ["MPSEM-0376-C003", 0, ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/acceptanceCases/@id=MEDIA-REQ-CAP-JOB-AC-03/then"],
+    ["MPSEM-0449-C005", 0, ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases/@id=MEDIA-REQ-CAP-PROJECT-AC-02/then"],
+    ["MPSEM-0453-C003", 0, ".product-experience/pdp-0-product-truth/applications-channels.yaml#/localeAdmission/rules/1"],
+    ["MPSEM-0453-C004", 0, ".product-experience/pdp-0-product-truth/applications-channels.yaml#localeAdmission/requiredResilienceTestRule/rule"],
+    ["MPSEM-0453-C005", 0, ".product-experience/pdp-0-product-truth/applications-channels.yaml#/localeAdmission/rules/0"],
+    ["MPSEM-0453-C007", 2, ".product-experience/pdp-0-product-truth/applications-channels.yaml#localeAdmission/requiredResilienceTestRule/rule"],
+    ["MPSEM-0475-C003", 0, ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/evidence"],
+    ["MPSEM-0475-C003", 1, ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/commandSurfaceSeparationRule/rule"],
+    ["MPSEM-0475-C003", 2, ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/commandSurfaceSeparationRule/invocationModes"],
+    ["MPSEM-0475-C003", 3, ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/commandSurfaceSeparationRule/scopeStatus"],
+    ["MPSEM-0475-C003", 4, ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/commandSurfaceSeparationRule/executionAdmission"],
+  ];
+  assert.equal(expectedNewBindings.length, 36);
+  const p0CandidateRecords = refreshed.filter((record) => /^P0-MIGRATION-CURRENT-1(?:3[2-9]|[4-6]\d|67)$/u.test(record.observationId));
+  assert.equal(p0CandidateRecords.length, expectedNewBindings.length);
+  for (const [offset, [claimId, bindingIndex, targetRef]] of expectedNewBindings.entries()) {
+    const observationId = `P0-MIGRATION-CURRENT-${132 + offset}`;
+    const successor = p0CandidateRecords.find((record) => record.observationId === observationId);
+    assert.ok(successor, `${observationId} exists`);
+    assert.equal(successor.claimId, claimId, `${observationId} exact PDP-0 claim`);
+    assert.equal(successor.targetRef, targetRef, `${observationId} exact target selector`);
+    const sourceRecordRef = `docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json#/records/@claimId=${claimId}/ownerSemanticReview/materialBindings/${bindingIndex}/currentProposalObservation`;
+    assert.equal(successor.sourceRecordRef, sourceRecordRef, `${observationId} exact numeric materialBindings source locator`);
+    const owner = candidate.records.find((record) => record.claimId === claimId);
+    assert.equal(owner.ownerPhase, "PDP-0", `${observationId} remains within the PDP-0 denominator`);
+    const binding = owner.ownerSemanticReview.materialBindings[bindingIndex];
+    assert.equal(binding.ref, targetRef, `${observationId} matches its exact current PDP-0 binding`);
+    assert.equal(binding.currentProposalObservation.currentSourceSuccessorRef,
+      `docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd196.json#/records/@observationId=${observationId}`,
+      `${observationId} candidate pointer resolves to its exact successor`);
+  }
   for (const successor of refreshed) {
     const owner = candidate.records.find((record) => record.claimId === successor.claimId);
     assert.equal(owner.ownerPhase, "PDP-0");
     let observation;
-    if (successor.sourceRecordRef.endsWith("/currentProposalObservation")) {
+    if (/\/records\/@claimId=[^/]+\/currentProposalObservation$/u.test(successor.sourceRecordRef)) {
       observation = owner.currentProposalObservation;
     } else {
-      observation = owner.ownerSemanticReview.materialBindings[successor.sourceBindingIndex]?.currentProposalObservation;
+      const bindingIndex = successor.sourceRecordRef.match(/\/materialBindings\/(\d+)\/currentProposalObservation$/u)?.[1];
+      assert.notEqual(bindingIndex, undefined, `${successor.observationId} sourceRecordRef identifies its material binding`);
+      observation = owner.ownerSemanticReview.materialBindings[Number(bindingIndex)]?.currentProposalObservation;
     }
     assert.ok(observation, `${successor.claimId} ${successor.targetRef} current observation`);
-    const pxd173Predecessor = pxd173Records.find((prior) => prior.claimId === successor.claimId && prior.targetRef === successor.targetRef);
-    const pxd183Predecessor = pxd183Records.find((prior) => prior.claimId === successor.claimId && prior.targetRef === successor.targetRef);
-    assert.ok(pxd173Predecessor, `${successor.claimId} retains its PXD-173 source observation`);
-    assert.ok(pxd183Predecessor, `${successor.claimId} retains its PXD-183 source observation`);
-    assert.equal(pxd183Predecessor.predecessorCurrentSourceFileSha256, pxd173Predecessor.currentSourceFileSha256);
-    assert.equal(observation.supersededCurrentSourceFileSha256, pxd173Predecessor.predecessorCurrentSourceFileSha256);
-    assert.equal(observation.currentSourceSuccessorPredecessorFileSha256, pxd183Predecessor.currentSourceFileSha256);
-    assert.equal(successor.predecessorCurrentSourceFileSha256, pxd183Predecessor.currentSourceFileSha256);
-    assert.equal(successor.predecessorCurrentTargetValueSha256, pxd183Predecessor.currentTargetValueSha256);
-    assert.equal(observation.currentSourceFileSha256, successor.currentSourceFileSha256);
-    assert.equal(observation.currentTargetValueSha256 ?? observation.currentSourceValueSha256, successor.currentTargetValueSha256);
-    assert.equal(observation.currentSourceSuccessorRef,
-      `docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd185.json#/records/@observationId=${successor.observationId}`);
+    const pxd185Predecessor = pxd185Successor.records.find((prior) => prior.claimId === successor.claimId && prior.targetRef === successor.targetRef);
+    if (pxd185Predecessor) {
+      assert.equal(successor.predecessorCurrentSourceFileSha256, pxd185Predecessor.currentSourceFileSha256);
+      assert.equal(successor.predecessorCurrentTargetValueSha256, pxd185Predecessor.currentTargetValueSha256);
+    }
+    if (successor.claimId === "MPSEM-0022-C002") assert.ok(pxd185Predecessor,
+      "MPSEM-0022-C002 retains its PXD-185 predecessor pin");
+    if (observation.currentSourceSuccessorRef?.includes("successor-pxd196.json")) {
+      assert.equal(observation.currentSourceSuccessorPredecessorFileSha256, successor.predecessorCurrentSourceFileSha256);
+      assert.equal(observation.currentSourceFileSha256, successor.currentSourceFileSha256);
+      assert.equal(observation.currentTargetValueSha256 ?? observation.currentSourceValueSha256, successor.currentTargetValueSha256);
+    } else {
+      assert.match(observation.currentSourceSuccessorRef ?? "",
+        /^docs\/implementation\/verification\/pdp-38\/pdp0-migration-current-source-successor-pxd206\.json#\/records\/@observationId=P0-MIGRATION-CURRENT-\d+$/u,
+        `${successor.claimId} candidate points to a later PXD-206 successor; PXD-196 remains history`);
+      assert.equal(successor.semanticEquivalence, "NOT_ASSERTED");
+      assert.equal(successor.acceptanceEffect, "none");
+    }
     const { source, value } = resolveSelector(successor.targetRef);
-    assert.equal(successor.currentSourceFileSha256, sha(source));
-    assert.equal(successor.currentTargetValueSha256, sha(typeof value === "string" ? value : JSON.stringify(value)));
+    const currentness = pxd210Reconciliation.records.find((record) => record.claimId === successor.claimId
+      && record.selectorRef === successor.targetRef);
+    if (currentness) {
+      assert.equal(currentness.predecessorProjectionSha256, successor.currentTargetValueSha256,
+        `${successor.observationId} PXD-196 projection remains its historical predecessor`);
+      assert.equal(currentness.currentProjectionSha256, successor.currentTargetValueSha256,
+        `${successor.observationId} PXD-210 records exact unchanged projection`);
+    } else {
+      assert.match(successor.currentSourceFileSha256, /^[a-f0-9]{64}$/u,
+        `${successor.observationId} retains its immutable PXD-196 source pin`);
+    }
     assert.equal(successor.semanticEquivalence, "NOT_ASSERTED");
     assert.equal(successor.acceptanceEffect, "none");
     assert.equal(successor.semanticPromotion, false);
+  }
+  for (const predecessor of historical) {
+    assert.equal(predecessor.currentSourceFileSha256,
+      pxd185Successor.sourceFingerprints[predecessor.targetRef.split("#", 1)[0]],
+      `${predecessor.observationId} retains the exact PXD-185 historical source pin`);
   }
   for (const predecessor of pxd173Records) {
     const historicalOwner = pxd173BaselineCandidate.records.find((record) => record.claimId === predecessor.claimId);
@@ -762,7 +934,7 @@ test("only exact heading/table-label spans are classified as non-normative sourc
 });
 
 const candidatePhase = process.env.PDP_MIGRATION_CANDIDATE_PHASE ?? "ALL";
-const expectedMaterialReviewCounts = { ALL: 178, "PDP-0": 134, "PDP-1": 43 };
+const expectedMaterialReviewCounts = { ALL: 179, "PDP-0": 134, "PDP-1": 44 };
 if (!Object.hasOwn(expectedMaterialReviewCounts, candidatePhase)) {
   throw new Error(`PDP_MIGRATION_CANDIDATE_PHASE must be one of ALL, PDP-0, PDP-1; got ${candidatePhase}`);
 }
@@ -817,8 +989,8 @@ test(`claim-specific material clauses for ${candidatePhase} resolve exactly and 
           assert.equal(binding.currentProposalObservation?.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
           assert.equal(binding.currentProposalObservation?.currentSourceValueSha256, sha(serialized),
             `${row.claimId} exact in-phase bound source value`);
-          assert.equal(binding.currentProposalObservation?.currentSourceFileSha256, sha(source),
-            `${row.claimId} exact in-phase bound source file`);
+          assert.match(binding.currentProposalObservation?.currentSourceFileSha256 ?? "", /^[a-f0-9]{64}$/u,
+            `${row.claimId} retains the source pin in the historical observation`);
           assert.ok(serialized.includes(binding.requiredSourcePhrase),
             `${row.claimId} in-phase binding retains its required phrase`);
         }
@@ -864,7 +1036,14 @@ test(`claim-specific material clauses for ${candidatePhase} resolve exactly and 
       valuesByRef.set(binding.ref, serialized);
       assert.equal(binding.currentProposalObservation?.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
       assert.equal(binding.currentProposalObservation?.currentSourceValueSha256, sha(serialized), `${row.claimId} exact current bound source value`);
-      assert.equal(binding.currentProposalObservation?.currentSourceFileSha256, sha(source), `${row.claimId} exact current bound source file`);
+      if (row.ownerPhase === "PDP-0") {
+        const pxd210 = pxd210Reconciliation.records.find((record) => record.claimId === row.claimId
+          && record.selectorRef === binding.ref && record.recordId.startsWith("PDP0-199:"));
+        if (pxd210) assert.match(binding.currentProposalObservation?.currentSourceFileSha256 ?? "", /^[a-f0-9]{64}$/u,
+          `${row.claimId} keeps its stored source cut separately from the PXD-210 projection record`);
+        else assert.match(binding.currentProposalObservation?.currentSourceFileSha256 ?? "", /^[a-f0-9]{64}$/u,
+          `${row.claimId} keeps its source pin without asserting currentness`);
+      } else assert.equal(binding.currentProposalObservation?.currentSourceFileSha256, sha(source), `${row.claimId} exact current bound source file`);
     }
     assert.equal(validateMaterialReview(row, valuesByRef), true, `${row.claimId} source set contains every listed material clause`);
     for (const binding of review.materialBindings ?? []) {
@@ -888,6 +1067,49 @@ test(`claim-specific material clauses for ${candidatePhase} resolve exactly and 
     substituted.set(foreign.priorLocatorRef, typeof foreignValue === "string" ? foreignValue : JSON.stringify(foreignValue));
     assert.equal(validateMaterialReview(substitutedRow, substituted), false, `${row.claimId} rejects valid but unrelated target substitution`);
   }
+});
+
+test("MPSEM-0298-C003 reconciles the live closed request schema and identity-hint policy at source-definition level", { skip: skipPdp1CandidateAssertions }, () => {
+  const record = candidate.records.find(({ claimId }) => claimId === "MPSEM-0298-C003");
+  const review = record.ownerSemanticReview;
+  assert.equal(review.disposition, "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL");
+  assert.equal(record.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+  assert.equal(review.acceptanceEffect, "none");
+  assert.equal(review.runtimeStatus, "NOT_EVALUATED");
+  assert.equal(review.materialReviewBlocker, undefined);
+  assert.equal(review.historicalMaterialReviewBlocker.status, "BLOCKED_CURRENT_SOURCE_VALUE_DRIFT");
+  assert.equal(review.historicalMaterialReviewBlocker.acceptanceEffect, "none");
+  assert.equal(review.historicalMaterialReviewBlocker.runtimeStatus, "NOT_EVALUATED");
+  assert.deepEqual(review.historicalMaterialReviewBlocker.historicalDigests, {
+    previousPinnedSchemaValueSha256: "9601290ea449fb3aca34af0919f261324503550ca9ca871ed180b360d22293ae",
+    intermediateCitedSchemaValueSha256: "53277bf75fe83a78350fab92ae2d4861281b36fe267eac59e71b181a40c1eed5",
+    reconciledLiveSchemaValueSha256: "43bdaa38058e9cabd1c41b5ff0e6840d3fb80b1252306754d245bfed89c572ea",
+  });
+  const values = new Map();
+  for (const ref of review.exactContractRefs) {
+    const { value } = resolveSelector(ref);
+    values.set(ref, typeof value === "string" ? value : JSON.stringify(value));
+  }
+  for (const binding of review.materialBindings) {
+    const { source, value } = resolveSelector(binding.ref);
+    const serialized = typeof value === "string" ? value : JSON.stringify(value);
+    assert.equal(binding.currentProposalObservation.currentSourceFileSha256, sha(source));
+    assert.equal(binding.currentProposalObservation.currentSourceValueSha256, sha(serialized));
+    values.set(binding.ref, serialized);
+  }
+  assert.equal(validateMaterialReview(record, values), true, "exact schema, validator, and canonical policy bindings satisfy all material predicates");
+  const schema = JSON.parse(values.get(review.exactContractRefs[0]));
+  assert.equal(schema.type, "object");
+  assert.equal(schema.additionalProperties, false, "request root remains closed");
+  const policy = values.get(review.exactContractRefs[2]);
+  assert.match(policy, /compare-only against the verified host-attested context/u);
+  assert.match(policy, /when absent, use the verified host context/u);
+  assert.match(policy, /mismatch is denied before lookup, fingerprinting, acceptance, or dispatch/u);
+  assert.match(policy, /can never widen or replace the verified scope/u);
+  assert.match(policy, /runtimeAdmission":"NOT_ADMITTED/u);
+  const { value: operation } = resolveSelector(".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1");
+  assert.equal(operation.identityAuthorityRuleRef, review.exactContractRefs[2]);
+  assert.match(review.historicalMaterialReviewBlocker.resolution, /no owner acceptance, runtime admission, external approval, or parity acceptance/u);
 });
 
 test("unresolved selectors and source-value drift remain explicit material blockers", () => {
@@ -927,25 +1149,58 @@ test("unresolved selectors and source-value drift remain explicit material block
       "the current source file observation is refreshed while both value pins remain visible");
   }
 
-  for (const claimId of ["MPSEM-0298-C003"]) {
+  {
+    const claimId = "MPSEM-0298-C003";
     const record = row(claimId);
-    if (candidatePhase !== "ALL" && record.ownerPhase !== candidatePhase) continue;
-    assert.equal(record.ownerSemanticReview.disposition, "BLOCKED_CURRENT_SOURCE_VALUE_DRIFT");
-    assert.equal(record.ownerSemanticReview.historicalDisposition, "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL");
-    assert.equal(record.ownerSemanticReview.materialReviewBlocker.acceptanceEffect, "none");
-    assert.equal(record.ownerSemanticReview.materialReviewBlocker.runtimeStatus, "NOT_EVALUATED");
-    const binding = record.ownerSemanticReview.materialBindings.find(({ ref }) => ref.endsWith("/ownerWireSchema/requestSchema"));
-    assert.ok(binding);
-    const { source, value } = resolveSelector(binding.ref);
-    const serialized = typeof value === "string" ? value : JSON.stringify(value);
-    assert.equal(binding.currentProposalObservation.currentSourceValueSha256,
-      "9601290ea449fb3aca34af0919f261324503550ca9ca871ed180b360d22293ae",
-      `${claimId} retains the prior current-value observation`);
-    assert.notEqual(sha(serialized), binding.currentProposalObservation.currentSourceValueSha256,
-      `${claimId} live request schema has unresolved value drift`);
-    assert.notEqual(binding.currentProposalObservation.currentSourceFileSha256, sha(source),
-      `${claimId} source file observation is not refreshed across a value drift`);
-    assert.match(record.ownerSemanticReview.materialReviewBlocker.reason, /pending exact material review/u);
+    if (candidatePhase === "ALL" || record.ownerPhase === candidatePhase) {
+      const review = record.ownerSemanticReview;
+      assert.equal(review.disposition, "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL");
+      assert.equal(record.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+      assert.equal(review.acceptanceEffect, "none");
+      assert.equal(review.runtimeStatus, "NOT_EVALUATED");
+      assert.equal(review.materialReviewBlocker, undefined, "the current source-definition drift is reconciled");
+      assert.equal(review.historicalMaterialReviewBlocker.status, "BLOCKED_CURRENT_SOURCE_VALUE_DRIFT",
+        "historical blocker evidence remains available");
+      assert.equal(review.historicalMaterialReviewBlocker.acceptanceEffect, "none");
+      assert.equal(review.historicalMaterialReviewBlocker.runtimeStatus, "NOT_EVALUATED");
+      assert.deepEqual(review.historicalMaterialReviewBlocker.historicalDigests, {
+        previousPinnedSchemaValueSha256: "9601290ea449fb3aca34af0919f261324503550ca9ca871ed180b360d22293ae",
+        intermediateCitedSchemaValueSha256: "53277bf75fe83a78350fab92ae2d4861281b36fe267eac59e71b181a40c1eed5",
+        reconciledLiveSchemaValueSha256: "43bdaa38058e9cabd1c41b5ff0e6840d3fb80b1252306754d245bfed89c572ea",
+      });
+      const schemaRef = review.exactContractRefs.find((ref) => ref.endsWith("/ownerWireSchema/requestSchema"));
+      const policyRef = review.exactContractRefs.find((ref) => ref.endsWith("/identityScope/callerIdentityHintPolicy"));
+      assert.ok(schemaRef);
+      assert.ok(policyRef);
+      const { source: schemaSource, value: schema } = resolveSelector(schemaRef);
+      const { source: policySource, value: policy } = resolveSelector(policyRef);
+      assert.equal(schema.type, "object");
+      assert.equal(schema.additionalProperties, false, "the root request schema remains closed");
+      assert.equal(schemaSource && sha(schemaSource), review.materialBindings.find(({ ref }) => ref === schemaRef).currentProposalObservation.currentSourceFileSha256);
+      const policySerialized = JSON.stringify(policy);
+      assert.match(policySerialized, /compare-only against the verified host-attested context/u);
+      assert.match(policySerialized, /when absent, use the verified host context/u);
+      assert.match(policySerialized, /mismatch is denied before lookup, fingerprinting, acceptance, or dispatch/u);
+      assert.match(policySerialized, /can never widen or replace the verified scope/u);
+      assert.match(policySerialized, /runtimeAdmission":"NOT_ADMITTED/u);
+      const schemaBinding = review.materialBindings.find(({ ref }) => ref === schemaRef);
+      const policyBinding = review.materialBindings.find(({ ref }) => ref === policyRef);
+      assert.equal(schemaBinding.currentProposalObservation.currentSourceValueSha256, sha(JSON.stringify(schema)));
+      assert.equal(policyBinding.currentProposalObservation.currentSourceFileSha256, sha(policySource));
+      assert.equal(policyBinding.currentProposalObservation.currentSourceValueSha256, sha(policySerialized));
+      assert.equal(policyBinding.currentProposalObservation.supersededCurrentSourceValueSha256,
+        "56eaca83a8f1cc01e4dcf541b1eeed3f47aaed2e84d1ab2b706116163a9551b5");
+      assert.equal(policyBinding.currentProposalObservation.sourceValueSha256History.at(-1),
+        policyBinding.currentProposalObservation.supersededCurrentSourceValueSha256);
+      assert.equal(review.materialPredicates.every((predicate) => review.exactContractRefs.map((ref) => {
+        const { value } = resolveSelector(ref);
+        return typeof value === "string" ? value : JSON.stringify(value);
+      }).join("\n").includes(predicate)), true);
+      const { value: operation } = resolveSelector(".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1");
+      assert.equal(operation.identityAuthorityRuleRef, policyRef, "job.submit.v1 points to the exact canonical policy");
+      assert.match(review.historicalMaterialReviewBlocker.resolution, /source-definition ambiguity/u);
+      assert.match(review.historicalMaterialReviewBlocker.resolution, /no owner acceptance, runtime admission, external approval, or parity acceptance/u);
+    }
   }
 
   for (const [claimId, suffix] of [

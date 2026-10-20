@@ -4,6 +4,11 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import {
+  fingerprint, fingerprintPxdDecisionSection, pdp0DecisionSectionPinName,
+  pdp0OwnerCandidateProjectionPinName, pdp0SourceProjectionPinName,
+  projectPdp0OwnerCandidates, projectPdp0SourceManifest,
+} from './lib/pdp0-phase-scoped-source-fingerprints.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const PDP0_AUDIT_DISPOSITION_CROSSWALK_PATH = 'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json';
@@ -14,6 +19,24 @@ const dispositions = new Set([
 ]);
 const requireFromTools = createRequire(path.resolve(root, '../ghatana-tools/package.json'));
 const parseYaml = requireFromTools('yaml').parse;
+const PHASE_SCOPED_FINGERPRINT_ALGORITHM = 'SHA-256 of canonical PDP-0 projection JSON; PXD sections hash exact UTF-8 bytes';
+
+export function currentPdp0PhaseScopedSourceFingerprints(decisionRef) {
+  const decisionId = typeof decisionRef === 'string' && decisionRef.match(/PXD-\d{3}$/)?.[0];
+  if (!decisionId) throw new Error('coordinatorReview.decisionRef must identify an exact PXD-NNN decision section');
+  const read = file => fs.readFileSync(path.join(root, file), 'utf8');
+  const decisionLog = read('.product-experience/decision-log.md');
+  return {
+    [pdp0SourceProjectionPinName]: fingerprint(projectPdp0SourceManifest(
+      parseYaml(read('.product-experience/source-manifest.yaml')),
+      parseYaml(read('.product-experience/pdp-0-product-truth/reuse-decisions.yaml')),
+    )),
+    [pdp0OwnerCandidateProjectionPinName]: fingerprint(projectPdp0OwnerCandidates(
+      JSON.parse(read('docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json')),
+    )),
+    [pdp0DecisionSectionPinName(decisionId)]: fingerprintPxdDecisionSection(decisionLog, decisionId).sha256,
+  };
+}
 
 function loadData(file) {
   const raw = fs.readFileSync(path.join(root, file), 'utf8');
@@ -135,6 +158,23 @@ export function validatePdp0AuditDispositions({repositoryRoot = root, crosswalk 
     if (!absolute.startsWith(path.resolve(repositoryRoot) + path.sep) || !fs.existsSync(absolute)) { addError(errors, `fingerprinted source missing or outside repository: ${file}`); continue; }
     const actual = crypto.createHash('sha256').update(fs.readFileSync(absolute)).digest('hex');
     if (actual !== expected) addError(errors, `stale source fingerprint: ${file}`);
+  }
+
+  if (ledger.sourceBaseline?.phaseScopedFingerprintAlgorithm !== PHASE_SCOPED_FINGERPRINT_ALGORITHM) {
+    addError(errors, 'sourceBaseline must declare the PDP-0 scoped fingerprint algorithm');
+  }
+  const expectedPhaseScoped = (() => {
+    try { return currentPdp0PhaseScopedSourceFingerprints(ledger.coordinatorReview?.decisionRef); }
+    catch (error) { addError(errors, `cannot compute PDP-0 phase-scoped source fingerprints: ${error.message}`); return {}; }
+  })();
+  const phaseScopedMap = ledger.sourceBaseline?.phaseScopedSourceFingerprintsSha256;
+  if (!isRecord(phaseScopedMap) || Object.keys(phaseScopedMap).length === 0) addError(errors, 'sourceBaseline must contain current phase-scoped fingerprints');
+  else {
+    for (const [pin, expected] of Object.entries(expectedPhaseScoped)) {
+      if (typeof phaseScopedMap[pin] !== 'string' || !/^[a-f0-9]{64}$/.test(phaseScopedMap[pin])) addError(errors, `invalid PDP-0 phase-scoped fingerprint for ${pin}`);
+      else if (phaseScopedMap[pin] !== expected) addError(errors, `stale PDP-0 phase-scoped fingerprint: ${pin}`);
+    }
+    for (const pin of Object.keys(phaseScopedMap)) if (!Object.hasOwn(expectedPhaseScoped, pin)) addError(errors, `unrecognized PDP-0 phase-scoped fingerprint: ${pin}`);
   }
 
   const original = audit.originalAudit?.inventory;
@@ -268,6 +308,10 @@ export function validatePdp0AuditDispositions({repositoryRoot = root, crosswalk 
               : 'CONDITIONAL_PDP0_MEANING_DOWNSTREAM_AUTHORITY_REQUIRED';
         const expectedReviewRef = pxd172SourceMeaningRepairs.has(id)
           ? '.product-experience/decision-log.md#PXD-172'
+          : id === 'AUD-MUSIC-014'
+            ? '.product-experience/decision-log.md#PXD-196'
+          : id === 'AUD-DSP-007'
+            ? '.product-experience/decision-log.md#PXD-207'
           : id === 'AUD-SIM3-010'
             ? '.product-experience/decision-log.md#PXD-169'
             : '.product-experience/decision-log.md#PXD-167';
@@ -340,22 +384,77 @@ export function validatePdp0AuditDispositions({repositoryRoot = root, crosswalk 
   }
   const exactRequirementRef = (requirementId, caseId) => `.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=${requirementId}/acceptanceCases/@id=${caseId}`;
   const exactClauseRef = clauseId => `.product-experience/pdp-0-product-truth/requirements.yaml#declarativeProductionProfile/acceptanceClauses/@id=${clauseId}`;
+  const exactRecorderClauseRef = clauseId => `.product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile/acceptanceClauses/@id=${clauseId}`;
+  const exactCapabilityRef = capabilityId => `.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=${capabilityId}`;
   const hasEvidence = (row, ref) => (row?.pdp0EvidenceRefs ?? []).includes(ref);
   const sourceMeaning = ref => {
     const result = resolveRef(ref);
     return result.ok && isRecord(result.value) ? result.value : null;
   };
 
+  // The accepted source text for AUD-MUSIC-014 concerns checkpoint rights,
+  // not the adjacent audit label's copyright-similarity observation.
+  const musicCheckpoint = rows?.find(row => row.auditId === 'AUD-MUSIC-014');
+  const musicRightsCase = exactRequirementRef('MEDIA-REQ-CAP-GENERATE-AUDIO', 'MEDIA-REQ-CAP-GENERATE-AUDIO-AC-05');
+  const musicUnknownLicenseCase = exactRequirementRef('MEDIA-REQ-CAP-GENERATE-AUDIO', 'MEDIA-REQ-CAP-GENERATE-AUDIO-AC-02');
+  const musicPermittedUseCase = exactRequirementRef('MEDIA-REQ-CAP-RIGHTS', 'MEDIA-REQ-CAP-RIGHTS-AC-02');
+  const musicRightsMeaning = sourceMeaning(musicRightsCase);
+  const musicDirectEvidence = musicCheckpoint?.pdp0EvidenceRefs ?? [];
+  if (!musicCheckpoint || musicCheckpoint.disposition !== 'BOUND_EXISTING'
+      || !hasEvidence(musicCheckpoint, musicRightsCase)
+      || !hasEvidence(musicCheckpoint, musicUnknownLicenseCase)
+      || !hasEvidence(musicCheckpoint, musicPermittedUseCase)
+      || hasEvidence(musicCheckpoint, exactRequirementRef('MEDIA-REQ-CAP-QUALITY', 'MEDIA-REQ-CAP-QUALITY-AC-05'))
+      || !musicDirectEvidence.includes(exactCapabilityRef('media.generate.audio.music'))
+      || !/checkpoint identity and version/i.test(musicRightsMeaning?.then ?? '')
+      || !/license identity and use-scope terms/i.test(musicRightsMeaning?.then ?? '')
+      || !/noncommercial checkpoint terms for commercial use/i.test(musicRightsMeaning?.then ?? '')
+      || !/similarity observation/i.test(musicRightsMeaning?.rejection ?? '')
+      || musicCheckpoint.decisionRef?.id !== 'PXD-196'
+      || JSON.stringify([...(musicCheckpoint.independentQcDispositionResolution?.currentSourceEvidenceRefs ?? [])].sort())
+        !== JSON.stringify([...musicDirectEvidence].sort())) {
+    addError(errors, 'AUD-MUSIC-014 must bind exact checkpoint license/use-scope meaning and must not treat similarity observation as rights clearance');
+  }
+
+  // This acceptance binds internal governed asset search and derived indexes;
+  // importing an admitted source is not a search operation.
+  const governedAssetSearch = rows?.find(row => row.auditId === 'AUD-ASSET-009');
+  const assetEvidence = governedAssetSearch?.pdp0EvidenceRefs ?? [];
+  const assetLicenseFilterCase = exactRequirementRef('MEDIA-REQ-CAP-ARTIFACT', 'MEDIA-REQ-CAP-ARTIFACT-AC-05');
+  const assetLicenseFilterMeaning = sourceMeaning(assetLicenseFilterCase);
+  if (!governedAssetSearch || governedAssetSearch.disposition !== 'BOUND_EXISTING'
+      || !assetEvidence.includes(assetLicenseFilterCase)
+      || !assetEvidence.includes(exactCapabilityRef('media.artifact.search'))
+      || !assetEvidence.includes(exactCapabilityRef('media.artifact.derive'))
+      || !assetEvidence.includes(exactCapabilityRef('media.artifact.retain'))
+      || assetEvidence.some(ref => ref.includes('media.artifact.import'))
+      || governedAssetSearch.decisionRef?.id !== 'PXD-196'
+      || !/current authoritative per-version rights and license evidence explicitly permits the declared scope/i.test(assetLicenseFilterMeaning?.then ?? '')
+      || !/unknown or review-required rather than as an empty eligible result/i.test(assetLicenseFilterMeaning?.then ?? '')
+      || !/external-catalog search.*ranking.*complete results/i.test(assetLicenseFilterMeaning?.rejection ?? '')
+      || !/immutable artifact version\/hash identity/i.test(governedAssetSearch.phaseLocalRationale ?? '')
+      || !/purpose and tenant controls/i.test(governedAssetSearch.phaseLocalRationale ?? '')
+      || !/MEDIA-REQ-CAP-ARTIFACT-AC-05.*media\.artifact\.search/i.test(governedAssetSearch.phaseLocalRationale ?? '')
+      || !/does not interpret license terms.*legal clearance.*external-catalog search/i.test(governedAssetSearch.phaseLocalRationale ?? '')) {
+    addError(errors, 'AUD-ASSET-009 must bind the exact license/use-scope candidate filter, unknown-rights result boundary, and governed asset search/derivation meaning; external catalog and legal clearance remain unclaimed');
+  }
+
   // Imported acceptance text is retained for provenance and exact source round-trip only.
   // It cannot broaden the audited watermark meaning or substitute for its current P0 case.
   const cloneWatermark = rows?.find(row => row.auditId === 'AUD-CLONE-012');
   const qualityAc06 = exactRequirementRef('MEDIA-REQ-CAP-QUALITY', 'MEDIA-REQ-CAP-QUALITY-AC-06');
+  const qualityInspectCapability = exactCapabilityRef('media.quality.inspect');
   const cloneCandidateMappings = ledger.resolvedCandidateMappings?.['AUD-CLONE-012'] ?? [];
   const cloneMappingResolvesToAc06 = cloneCandidateMappings.length === 1
     && resolveRef(cloneCandidateMappings[0]).ok
     && resolveRef(cloneCandidateMappings[0]).value === resolveRef(qualityAc06).value;
   if (!cloneWatermark || cloneWatermark.disposition !== 'BOUND_EXISTING'
       || JSON.stringify(cloneWatermark.pdp0EvidenceRefs ?? []) !== JSON.stringify([qualityAc06])
+      || cloneWatermark.pdp0CapabilityScopeDisposition !== 'PARENT_REQUIREMENT_FAMILY_SCOPE_ONLY'
+      || !cloneWatermark.pdp0ContextRefs?.includes(qualityInspectCapability)
+      || !/parent-requirement family scope/i.test(cloneWatermark.phaseLocalRationale ?? '')
+      || !/no watermark-specific capability claim/i.test(cloneWatermark.phaseLocalRationale ?? '')
+      || !/robustness under a declared transformation/i.test(cloneWatermark.phaseLocalRationale ?? '')
       || !cloneMappingResolvesToAc06
       || cloneWatermark.decisionRef?.id !== 'PXD-174'
       || cloneWatermark.decisionRef?.path !== '.product-experience/decision-log.md#PXD-174'
@@ -512,6 +611,7 @@ export function validatePdp0AuditDispositions({repositoryRoot = root, crosswalk 
     addError(errors, 'AUD-DUB-002 must preserve strengthened AC-06 absent/unknown evidence and split PDP-2 selection from PDP-3 journey handoffs');
   }
   const exactClauseCaseRefs = {
+    'AUD-EDIT-007': exactRecorderClauseRef('MEDIA-REC-P0-AC-080'),
     'AUD-INTER-005': exactClauseRef('MEDIA-DECL-P0-AC-061'),
     'AUD-TRUST-016': exactClauseRef('MEDIA-DECL-P0-AC-057'),
     'AUD-OPS-016': exactClauseRef('MEDIA-DECL-P0-AC-058'),
@@ -519,6 +619,15 @@ export function validatePdp0AuditDispositions({repositoryRoot = root, crosswalk 
   };
   for (const [id, ref] of Object.entries(exactClauseCaseRefs)) {
     if (!hasEvidence(rows?.find(item => item.auditId === id), ref)) addError(errors, `${id} must bind the exact PDP-0 product boundary ${ref}`);
+  }
+  const edit007 = rows?.find(row => row.auditId === 'AUD-EDIT-007');
+  const soloCapabilityRef = exactCapabilityRef('media.animation.editing.track.solo');
+  if (!edit007 || !hasEvidence(edit007, soloCapabilityRef)
+      || edit007.disposition !== 'BOUND_EXISTING'
+      || !/does not define track lock or effects bypass/i.test(edit007.phaseLocalRationale ?? '')
+      || edit007.laterPhaseHandoffs?.ownerPhase !== 'PDP-1'
+      || !/track-lock-and-effects-bypass-operation-semantics/.test(edit007.laterPhaseHandoffs?.gap ?? '')) {
+    addError(errors, 'AUD-EDIT-007 must scope AC-080 and the exact track-solo capability to solo meaning while preserving lock/effects-bypass and all-edit parity in the PDP-1 handoff');
   }
   const exchangePackageRef = '.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.animation.output.output.exchange-package';
   if (!hasEvidence(rows?.find(item => item.auditId === 'AUD-ANIM3-016'), exchangePackageRef)) {

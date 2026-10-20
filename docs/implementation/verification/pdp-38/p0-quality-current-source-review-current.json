@@ -1,39 +1,116 @@
 {
   "schemaVersion": "media.pdp0.quality-current-source-review.v1",
   "artifactId": "P0-QUALITY-CURRENT-SOURCE-REVIEW-002",
-  "scope": "Additive PXD-170 current-source review of the complete P0 quality applicability crosswalk against the current capability cut, including semantic updates from PXD-168 and PXD-169. It records source joins and asserts no applicability, measurement, qualification, or acceptance effect.",
+  "scope": "Additive PXD-208 current-source refresh of the frozen historical 462-capability PDP-0 quality applicability cohort after the PXD-207/PXD-208 source cut. The seven definition extensions remain explicitly outside this quality cohort and receive no quality disposition from this refresh.",
   "sources": {
     "qualityPolicy": {
       "path": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-      "currentSha256": "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770"
+      "currentSha256": "e0aad41a1934e7f5588d8e011740ba661890ab8f0d2c18c85d7e54ce912ad4d6"
     },
     "capabilities": {
       "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-      "currentSha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+      "currentSha256": "6a0674f350af8bb75f54641f31377f199b27e016e2c3163b557ffa19397dac45",
       "capabilityCount": 462,
-      "identityField": "id"
+      "identityField": "id",
+      "totalDefinitionCount": 469,
+      "proposalDefinitionCount": 7
     }
   },
   "currentSourceRefresh": {
-    "decisionRef": ".product-experience/decision-log.md#PXD-170",
-    "priorSourceSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
-    "currentSourceSha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+    "decisionRef": ".product-experience/decision-log.md#PXD-208",
+    "predecessorRefreshRef": ".product-experience/decision-log.md#PXD-206",
+    "priorSourceSha256": "801e9eab9b6d2936b52254276c940456ae6d98fd9dc95f2364b56bd9e02da527",
+    "currentSourceSha256": "fc7c481af2a93697266bc1dacf0449551dba044d5420e065b5739823e4a2397e",
     "reviewedCapabilityRefs": [
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.list",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.stream.recording.integrate",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.file",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.detect.silence",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.cloth",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.soft-body",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.rope",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.particle",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.fluid",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.agent",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline"
+      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.reusable-composition",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.safe-area",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.master.audio.stereo-width",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speaker.condition"
     ],
-    "assessment": "The current 462 capability identities and their input/output artifact-type arrays were joined against every quality crosswalk row. No capability identity, input/output artifact type, quality disposition, measurement state, qualification state, or channel disposition changed as part of this review. The review does not assert semantic equivalence or approval.",
-    "acceptanceEffect": "none"
+    "reviewedCapabilityRefCount": 462,
+    "sourceFingerprints": {
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "9f3dc3e9af961a5c24a2fe5e2c9ad65ff2f3f4f5d46ffb231e80f162b23231af",
+      ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "f2f970b6f30a325a34a64ab8d8dab51d297510cf74136322b499fa04a2de7bc6",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "fc7c481af2a93697266bc1dacf0449551dba044d5420e065b5739823e4a2397e",
+      ".product-experience/pdp-0-product-truth/quality-policy.yaml": "e0aad41a1934e7f5588d8e011740ba661890ab8f0d2c18c85d7e54ce912ad4d6",
+      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "dfcbc43e98f5f89285f6bc9bad4e56a40235fea5e9e7efd691724bfb8d431af5",
+      ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "b3b52c0e48a95f41761c19ab780b03a589133c8ac4d7cd34f01d317ed0055fd3",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json": "1e76bedaff8372d24fa93a81b921fe552a4dd0994436f3e26b4b44a1826e7e3b",
+      ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
+      ".product-experience/decision-log.md#PXD-208-section": "f56e9d99f4ca5b4c2ba625a9923c1c11cd3f9b043cdb2613710cf798bf9fbbec"
+    },
+    "acceptanceEffect": "none",
+    "scope": "PXD-208 source-current rejoin: re-read the exact 462 historical owner-adjudicated capability identities and their quality input/output projections after the PXD-207 and PXD-208 PDP-0 source changes. The seven definition extensions remain outside this frozen cohort.",
+    "frozenPopulation": {
+      "capabilityRows": 462,
+      "uniqueCapabilityRefs": 462,
+      "qualityDimensions": 6,
+      "metricDefinitions": 16,
+      "dimensionDispositions": 2772,
+      "metricDispositions": 7392,
+      "measurementState": "NOT_EVALUATED",
+      "qualificationState": "NOT_EVALUATED"
+    },
+    "excludedDefinitionExtensions": [
+      {
+        "capabilityId": "media.recipe.specification.compile",
+        "disposition": "OUTSIDE_FROZEN_HISTORICAL_462_QUALITY_COHORT",
+        "qualityDisposition": "NOT_ASSIGNED_BY_THIS_REVIEW",
+        "measurementState": "NOT_EVALUATED",
+        "qualificationState": "NOT_EVALUATED",
+        "decisionRef": ".product-experience/decision-log.md#PXD-207"
+      },
+      {
+        "capabilityId": "media.project.scene.patch-merge",
+        "disposition": "OUTSIDE_FROZEN_HISTORICAL_462_QUALITY_COHORT",
+        "qualityDisposition": "NOT_ASSIGNED_BY_THIS_REVIEW",
+        "measurementState": "NOT_EVALUATED",
+        "qualificationState": "NOT_EVALUATED",
+        "decisionRef": ".product-experience/decision-log.md#PXD-207"
+      },
+      {
+        "capabilityId": "media.quality.audio.content-similarity.assess",
+        "disposition": "OUTSIDE_FROZEN_HISTORICAL_462_QUALITY_COHORT",
+        "qualityDisposition": "NOT_ASSIGNED_BY_THIS_REVIEW",
+        "measurementState": "NOT_EVALUATED",
+        "qualificationState": "NOT_EVALUATED",
+        "decisionRef": ".product-experience/decision-log.md#PXD-207"
+      },
+      {
+        "capabilityId": "media.generate.video.preset.manage",
+        "disposition": "OUTSIDE_FROZEN_HISTORICAL_462_QUALITY_COHORT",
+        "qualityDisposition": "NOT_ASSIGNED_BY_THIS_REVIEW",
+        "measurementState": "NOT_EVALUATED",
+        "qualificationState": "NOT_EVALUATED",
+        "decisionRef": ".product-experience/decision-log.md#PXD-207"
+      },
+      {
+        "capabilityId": "media.generate.video.shot-condition",
+        "disposition": "OUTSIDE_FROZEN_HISTORICAL_462_QUALITY_COHORT",
+        "qualityDisposition": "NOT_ASSIGNED_BY_THIS_REVIEW",
+        "measurementState": "NOT_EVALUATED",
+        "qualificationState": "NOT_EVALUATED",
+        "decisionRef": ".product-experience/decision-log.md#PXD-207"
+      },
+      {
+        "capabilityId": "media.job.schedule.manage",
+        "disposition": "OUTSIDE_FROZEN_HISTORICAL_462_QUALITY_COHORT",
+        "qualityDisposition": "NOT_ASSIGNED_BY_THIS_REVIEW",
+        "measurementState": "NOT_EVALUATED",
+        "qualificationState": "NOT_EVALUATED",
+        "decisionRef": ".product-experience/decision-log.md#PXD-207"
+      },
+      {
+        "capabilityId": "media.master.audio.creative-effect.apply",
+        "disposition": "OUTSIDE_FROZEN_HISTORICAL_462_QUALITY_COHORT",
+        "qualityDisposition": "NOT_ASSIGNED_BY_THIS_REVIEW",
+        "measurementState": "NOT_EVALUATED",
+        "qualificationState": "NOT_EVALUATED",
+        "decisionRef": ".product-experience/decision-log.md#PXD-207"
+      }
+    ]
   },
   "reviewedPopulation": {
     "capabilityRows": 462,
@@ -143,7 +220,15 @@
     "P0 crosswalk includes no PDP-1 operation, schema, or domain-object dependency",
     "The 26 exact typed video identity subjects, including the direct identity assessor input, are APPLICABLE with the authorized video-or-frame-reference condition; measurement and qualification remain NOT_EVALUATED.",
     "Authorized speaker identification binds its typed authorized-speaker-reference input and purpose/consent authority in the exact P0 quality applicability row.",
-    "The PXD-142 projection refresh changes no dimension/metric applicability, measurement, qualification, or channel disposition."
+    "The PXD-142 projection refresh changes no dimension/metric applicability, measurement, qualification, or channel disposition.",
+    "Historical PXD-196 rejoined all 462 exact capability identities and input/output artifact-type arrays to the quality rows at its preserved source cut.",
+    "PXD-206 rejoined all 462 current canonical capability identities and exact input/output artifact-type arrays; the 468-definition source includes six proposals outside the owner-adjudicated population.",
+    "Five PXD-206 capability type projections changed in the crosswalk; all six dimensions and sixteen metric applicability dispositions remain unchanged.",
+    "All 2,772 dimension dispositions and 7,392 metric dispositions remain present; measurement and qualification states remain NOT_EVALUATED.",
+    "The five stored owner-adjudicated type differences remain pending Media semantic owner disposition; this review has no acceptance effect.",
+    "PXD-208 re-reads the exact frozen 462 historical owner-adjudicated capability rows; all seven PXD-207 definition extensions are explicitly outside this quality cohort and receive no quality disposition from this review.",
+    "PXD-208 requirement authorization clarifications do not change any of the 462 quality input/output projections or the 2,772 dimension and 7,392 metric dispositions; measurement and qualification remain NOT_EVALUATED.",
+    "Current source pins include the PDP-0 capabilities, requirements, campaign extensions, quality policy, capability-leaf review, channel applicability, 501-row audit crosswalk, AQ traceability ledger, and PXD-207/PXD-208 decision sections."
   ],
   "historicalBoundary": {
     "historicalComparison": "NOT_ASSERTED",
@@ -228,7 +313,8 @@
     "supersededCurrentReviewSha256": "28e455e427859439a2cbf9b284a8eb2e6a522a8bbb0e3aec9a7183accfe4d885",
     "supersededCapabilitySha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
     "qualityPolicySha256": "79aef21ee20ba25c57fac4e679d3ed3881e289249672ddb332635c389196429d",
-    "note": "Preserves the previously reviewed PXD-141 capability and PXD-098/PXD-105 quality-policy source cut as history; current input-type projection differences are scoped by the additive PXD-142 correction review."
+    "note": "Preserves the previously reviewed PXD-141 capability and PXD-098/PXD-105 quality-policy source cut as history; current input-type projection differences are scoped by the additive PXD-142 correction review.",
+    "pxd170CapabilitySha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
   },
   "correctionOverlay": {
     "decisionRef": ".product-experience/decision-log.md#PXD-142",
@@ -246,20 +332,207 @@
   "sourceDelta": {
     "capabilityRowsRechecked": 462,
     "changedCapabilityRefs": [
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.list",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.stream.recording.integrate",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.file",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.detect.silence",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.cloth",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.soft-body",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.rope",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.particle",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.fluid",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.agent",
-      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline"
+      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.reusable-composition",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.safe-area",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.master.audio.stereo-width",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speaker.condition"
     ],
-    "artifactTypeProjectionChanged": false,
-    "qualityDispositionProjectionChanged": false
+    "artifactTypeProjectionChanged": true,
+    "qualityDispositionProjectionChanged": false,
+    "measurementStateProjectionChanged": false,
+    "qualificationStateProjectionChanged": false
+  },
+  "historicalSourceRefreshes": [
+    {
+      "decisionRef": ".product-experience/decision-log.md#PXD-170",
+      "priorSourceSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+      "currentSourceSha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+      "reviewedCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.list",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.stream.recording.integrate",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.file",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.detect.silence",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.cloth",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.soft-body",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.rope",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.particle",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.fluid",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.agent",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline"
+      ],
+      "assessment": "The current 462 capability identities and their input/output artifact-type arrays were joined against every quality crosswalk row. No capability identity, input/output artifact type, quality disposition, measurement state, qualification state, or channel disposition changed as part of this review. The review does not assert semantic equivalence or approval.",
+      "acceptanceEffect": "none"
+    },
+    {
+      "decisionRef": ".product-experience/decision-log.md#PXD-196",
+      "priorSourceSha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+      "currentSourceSha256": "bc1d9c389afc3445015679aa9bbf63dae310b5a91b34dbf7046a8de92f52dbba",
+      "reviewedCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search"
+      ],
+      "assessment": "All 462 capability identities and their exact input/output artifact-type arrays were rejoined to the complete 462-row quality crosswalk. The rights/use-scope addition for media.artifact.search does not change its quality input/output artifact-type projection or any quality applicability disposition. The six dimensions, sixteen metrics, 2,772 dimension dispositions, 7,392 metric dispositions, and NOT_EVALUATED measurement/qualification states remain unchanged. This is a current-source join check only; no semantic equivalence, owner approval, independent acceptance, measurement, qualification, or legal determination is asserted. The PXD-196 bounded semanticOutcome, semanticOutcomeContract.result, and effect.semanticOutcome now agree exactly.",
+      "acceptanceEffect": "none"
+    },
+    {
+      "decisionRef": ".product-experience/decision-log.md#PXD-206",
+      "priorSourceSha256": "7d6d3931506b9a0565cd558932c967a7e330dda9bed3cc58f912490d1c9c623d",
+      "currentSourceSha256": "801e9eab9b6d2936b52254276c940456ae6d98fd9dc95f2364b56bd9e02da527",
+      "reviewedCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.reusable-composition",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.safe-area",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.master.audio.stereo-width",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.speaker.condition"
+      ],
+      "reviewedCapabilityRefCount": 462,
+      "assessment": "All 462 owner-adjudicated capability identities and exact input/output artifact-type arrays were rejoined to the current 462-row quality crosswalk. Five current P0 source projections changed: three Compose leaves now declare a local versioned composition candidate, the ordered-speaker input includes its segment-map alternative, and stereo width includes delivery channel layout. The six dimensions, sixteen metrics, 2,772 dimension dispositions, 7,392 metric dispositions, and NOT_EVALUATED measurement/qualification states remain unchanged. No measurement or qualification is asserted. Owner adjudication rows for these five exact type differences remain unchanged and require Media semantic owner disposition; this coordinator source review does not claim owner approval, independent acceptance, semantic equivalence, legal determination, implementation, or closure.",
+      "acceptanceEffect": "none"
+    }
+  ],
+  "historicalSourceDeltas": [
+    {
+      "decisionRef": ".product-experience/decision-log.md#PXD-170",
+      "capabilityRowsRechecked": 462,
+      "changedCapabilityRefs": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.search",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.list",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.stream.recording.integrate",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.transcription.file",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.detect.silence",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.cloth",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.soft-body",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.rope",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.particle",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.fluid",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.agent",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.compose.multitrack-timeline"
+      ],
+      "artifactTypeProjectionChanged": false,
+      "qualityDispositionProjectionChanged": false
+    }
+  ],
+  "postReviewCurrentnessRefresh": {
+    "status": "CURRENT_SOURCE_PIN_REFRESH_ONLY",
+    "phaseScope": "PDP-0",
+    "decisionRef": ".product-experience/decision-log.md#PXD-209",
+    "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+    "predecessorSourceSha256": "fc7c481af2a93697266bc1dacf0449551dba044d5420e065b5739823e4a2397e",
+    "currentSourceSha256": "6a0674f350af8bb75f54641f31377f199b27e016e2c3163b557ffa19397dac45",
+    "reviewedFieldRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.import/ownerDefinition/successOutputs/0/optionalSemanticObservations/@id=importedCaptionTrack",
+    "reviewedFieldSha256": "8a06f5939a090c45696c78680d3a3725c8291923661fb9fb5a2983f3110b9b99",
+    "successOutputsPredecessorSha256": "8f819298dcfbe119a3967ef9eefe5cf3d3bfac9c912d700aa96e654fef534514",
+    "successOutputsCurrentBaseProjectionSha256": "8f819298dcfbe119a3967ef9eefe5cf3d3bfac9c912d700aa96e654fef534514",
+    "importCapabilityTypeJoins": {
+      "inputArtifactTypesPredecessorSha256": "8ba0297c71ec22a5599166dd294dd67991298aac553bf7fd7c90733d4a4fbedb",
+      "inputArtifactTypesCurrentSha256": "8ba0297c71ec22a5599166dd294dd67991298aac553bf7fd7c90733d4a4fbedb",
+      "outputArtifactTypesPredecessorSha256": "958d3a983a82d2f65116d39c34529ba7d7aa18ea80a8e906f76d93d4cffb889b",
+      "outputArtifactTypesCurrentSha256": "958d3a983a82d2f65116d39c34529ba7d7aa18ea80a8e906f76d93d4cffb889b",
+      "qualityJoinChanged": false
+    },
+    "frozenQualityPopulation": {
+      "capabilityRows": 462,
+      "dimensionDispositions": 2772,
+      "metricDispositions": 7392,
+      "definitionExtensionsExcluded": 7,
+      "measurementState": "NOT_EVALUATED",
+      "qualificationState": "NOT_EVALUATED"
+    },
+    "qualityImpact": "No PXD-209 quality disposition or meaning was reviewed; optional observation adds no capability input/output artifact type and leaves the five PXD-207 quality joins unchanged.",
+    "semanticReview": "NOT_PERFORMED",
+    "ownerApproval": "NOT_CLAIMED",
+    "acceptanceEffect": "none",
+    "reviewArtifactRef": "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd209.json",
+    "reviewArtifactSha256": "af80730aebc6a557b983752df726b1ed869abf83e386ec1c97b95f446c0e2693",
+    "sourceFingerprints": {
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "6a0674f350af8bb75f54641f31377f199b27e016e2c3163b557ffa19397dac45",
+      ".product-experience/decision-log.md#PXD-209-section": "bd024f73efbd5dffe4962de912767f35d27ffc94460184d54e13c6afe1cc6f5f",
+      "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd209.json": "af80730aebc6a557b983752df726b1ed869abf83e386ec1c97b95f446c0e2693",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "b2294ecff9f545ddc4829f3736234ba3a117baa0a4f9cacb0a4619530defcc4f",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json": "fb94993ed9903137771cfaf6f563afe6af018f4a86ea8a63497a48fba26b02b2"
+    }
+  },
+  "latestCurrentnessRefresh": {
+    "status": "CURRENTNESS_REFRESH_ONLY",
+    "phaseScope": "PDP-0",
+    "decisionRef": ".product-experience/decision-log.md#PXD-213",
+    "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+    "currentSourceSha256": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+    "sourceFingerprints": {
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+      ".product-experience/pdp-0-product-truth/quality-policy.yaml": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "53afdf91fd0fceb65e3058fb8dd2b7a384f2cfe4923609dbc5706d8859c7c8c3",
+      ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      ".product-experience/source-manifest.yaml#PDP-0-projection": "ed2ecf39745ca58b4eaae452e3bab4ba36dff4d7ed0d69572773a2d5ced025ad",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "969d94b291d279a238ae8b19e3982ef2294d1e77d4e4d86f5a376c86188c8807",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json": "1306cf6c0ccbdeab776307f3a69732db62bbce5eb5a4d2be0062526685a35244",
+      ".product-experience/decision-log.md#PXD-211-section": "b1e0e32ae20914152547c20f0fbe8b020070c77f3fd78572e1965753f943c4cf",
+      ".product-experience/decision-log.md#PXD-212-section": "1cd0c87ee6a05c80685bd7766e4100adb7bb08cf2e5bb7449f6fdf6a2897030e",
+      ".product-experience/decision-log.md#PXD-213-section": "d5b234b6e18cc6c916c25a9425d594b15238599ef1125812e75f097602984a59",
+      "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd213.json": "9bd0f2fe837f11c638c9f425a9ec4e1cb55c7438f10e23376f471de2c81d989d",
+      "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd212.json": "db03b1594f86518a699892ae2652ab5efea1d5547b2d5feced137ea9bdb36337"
+    },
+    "reviewedPopulation": {
+      "canonicalCapabilityRows": 462,
+      "capabilityRows": 462,
+      "qualityDimensions": 6,
+      "metricDefinitions": 16,
+      "dimensionDispositions": 2772,
+      "metricDispositions": 7392,
+      "definitionExtensionsExcluded": 7,
+      "measurementState": "NOT_EVALUATED",
+      "qualificationState": "NOT_EVALUATED"
+    },
+    "semanticReview": "PXD-212_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW",
+    "changedTypeJoins": [
+      {
+        "capabilityId": "media.edit.inpaint",
+        "capabilityOutputTypesRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.inpaint/outputArtifactTypes",
+        "qualityOutputTypesRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/records/@capabilityRef=media.edit.inpaint/outputArtifactTypes",
+        "capabilityOutputTypesSha256": "17fa687573b08b31566d5d9aaf30f76c80c2e93acb845c2ec5fa79f304a25fb7",
+        "qualityOutputTypesSha256": "17fa687573b08b31566d5d9aaf30f76c80c2e93acb845c2ec5fa79f304a25fb7",
+        "reviewStatus": "SEMANTIC_JOIN_REVIEWED",
+        "typeJoinStatus": "MATCHED_CURRENT_SOURCE",
+        "trustDispositionRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@capabilityRef=media.edit.inpaint",
+        "trustDispositionSha256": "0e204d5472e71c017716c3e0b197c6811f66a8d18a79615f1f1eb4533882db1d",
+        "goalApplicabilityRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#successMeasureContracts/ownerCapabilityApplicabilityCrosswalk/records/@capabilityIntentId=media.edit.inpaint",
+        "goalApplicabilitySha256": "f5e5819ef75cb47b3298e11f75189144cf8de25ca0f9e87693618b450ebd6197"
+      },
+      {
+        "capabilityId": "media.edit.matte",
+        "capabilityOutputTypesRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.matte/outputArtifactTypes",
+        "qualityOutputTypesRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/records/@capabilityRef=media.edit.matte/outputArtifactTypes",
+        "capabilityOutputTypesSha256": "aa960b8fde0cee279d7728eeb89c38d4e12112a6a947cc9e6ffe57d73bcfc3f8",
+        "qualityOutputTypesSha256": "aa960b8fde0cee279d7728eeb89c38d4e12112a6a947cc9e6ffe57d73bcfc3f8",
+        "reviewStatus": "SEMANTIC_JOIN_REVIEWED",
+        "typeJoinStatus": "MATCHED_CURRENT_SOURCE",
+        "trustDispositionRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@capabilityRef=media.edit.matte",
+        "trustDispositionSha256": "8da39d65e9e7875ed0141c884fb208f74a80cf1a66601f93fecb9c4ea082bb39",
+        "goalApplicabilityRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#successMeasureContracts/ownerCapabilityApplicabilityCrosswalk/records/@capabilityIntentId=media.edit.matte",
+        "goalApplicabilitySha256": "0f309e7357889b4a2495ef6a692830fb80dedcddcfa66c53ca73fecdd44b252d"
+      },
+      {
+        "capabilityId": "media.edit.retime-slow-motion-speed-ramp",
+        "capabilityOutputTypesRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.retime-slow-motion-speed-ramp/outputArtifactTypes",
+        "qualityOutputTypesRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/records/@capabilityRef=media.edit.retime-slow-motion-speed-ramp/outputArtifactTypes",
+        "capabilityOutputTypesSha256": "950365b82e454d2e8205fc6556cf66c70bf91b80b56b763c8956e0c20230d081",
+        "qualityOutputTypesSha256": "950365b82e454d2e8205fc6556cf66c70bf91b80b56b763c8956e0c20230d081",
+        "reviewStatus": "SEMANTIC_JOIN_REVIEWED",
+        "typeJoinStatus": "MATCHED_CURRENT_SOURCE",
+        "trustDispositionRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@capabilityRef=media.edit.retime-slow-motion-speed-ramp",
+        "trustDispositionSha256": "95bd1d335de15efa5b8ed61e1b6b1a903563449c5f9320307ebe5bbc2638aa11",
+        "goalApplicabilityRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#successMeasureContracts/ownerCapabilityApplicabilityCrosswalk/records/@capabilityIntentId=media.edit.retime-slow-motion-speed-ramp",
+        "goalApplicabilitySha256": "d4231a61e930db6e14d4cfc4b30729bb9ab73f46d021bdf2d9e4543414a60740"
+      }
+    ],
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "acceptanceEffect": "none",
+    "reviewArtifactRef": "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd213.json",
+    "reviewArtifactSha256": "9bd0f2fe837f11c638c9f425a9ec4e1cb55c7438f10e23376f471de2c81d989d",
+    "preservedSemanticReviewRef": ".product-experience/decision-log.md#PXD-212",
+    "preservedSemanticReviewArtifactSha256": "db03b1594f86518a699892ae2652ab5efea1d5547b2d5feced137ea9bdb36337"
   }
 }
