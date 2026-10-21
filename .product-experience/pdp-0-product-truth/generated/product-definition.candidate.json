@@ -3437,8 +3437,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
-      "sha256": "53afdf91fd0fceb65e3058fb8dd2b7a384f2cfe4923609dbc5706d8859c7c8c3",
-      "bytes": 7689678,
+      "sha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+      "bytes": 7689912,
       "format": "yaml",
       "schemaVersion": "media.capability-leaf-review.v1",
       "authority": null,
@@ -7373,14 +7373,14 @@
     },
     {
       "sourceRef": ".product-experience/decision-log.md",
-      "sha256": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-      "bytes": 379439,
+      "sha256": "b258b651165094987bfa5325dc26f785d5ec4a177eaaef8bd445febe6e65584f",
+      "bytes": 382326,
       "format": "markdown"
     },
     {
       "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
-      "sha256": "969d94b291d279a238ae8b19e3982ef2294d1e77d4e4d86f5a376c86188c8807",
-      "bytes": 1801532,
+      "sha256": "82343cdb98eb123207a0e22f8c3daa3c353cc4041ec2e0d769d4d2c7e0b34c12",
+      "bytes": 1801416,
       "format": "yaml",
       "schemaVersion": "ghatana.media.pdp0-disposition-crosswalk.v1",
       "authority": null,
@@ -7423,7 +7423,7 @@
     },
     {
       "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
-      "sha256": "1306cf6c0ccbdeab776307f3a69732db62bbce5eb5a4d2be0062526685a35244",
+      "sha256": "6b269d54f93ed86de5220fc4ed0e286089b53a0a23ef53fdd18da97cc418ce04",
       "bytes": 5445663,
       "format": "yaml",
       "schemaVersion": "ghatana.media.pdp0-audit-aq-traceability.v1",
@@ -7511,7 +7511,7 @@
     },
     {
       "sourceRef": "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd213.json",
-      "sha256": "a106e759888a1bc8aa81888832f6532afdb7ba4ab190697ee178cab172124e6d",
+      "sha256": "977494736f13fd3474fa850ef4dbd2d0cefeb30e76aa74cf2e1e32962e5054a7",
       "bytes": 7520,
       "format": "yaml",
       "schemaVersion": "media.pdp0.quality-currentness-successor.v1",
@@ -7544,6 +7544,79 @@
         "schemaVersion",
         "scope",
         "sourceFingerprints"
+      ],
+      "declaredIds": []
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json",
+      "sha256": "2177e350b2c8eeda74af2f498df7452477db24141daf94e9c875e7872b76fe54",
+      "bytes": 6754,
+      "format": "yaml",
+      "schemaVersion": "media.pdp0.capability-meaning-current-source-review.v1",
+      "authority": null,
+      "status": null,
+      "topLevelFields": [
+        "acceptanceEffect",
+        "changedFieldCoverage",
+        "closure",
+        "decisionRef",
+        "delivery",
+        "findings",
+        "implementation",
+        "independentAcceptance",
+        "ownerApproval",
+        "phaseScope",
+        "qualification",
+        "result",
+        "reviewKind",
+        "reviewedCapabilityIds",
+        "runtimeAdmission",
+        "schemaVersion",
+        "scope",
+        "sourceCut",
+        "sourceFingerprints",
+        "validation"
+      ],
+      "declaredIds": []
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd216.json",
+      "sha256": "4a4062c419ec2adace53f270a72ecc623277de5ab7e7c1914f42afa66fcc1fa6",
+      "bytes": 11119,
+      "format": "yaml",
+      "schemaVersion": "media.pdp0.current-source-reconciliation.v1",
+      "authority": null,
+      "status": null,
+      "topLevelFields": [
+        "auditDispositions",
+        "authority",
+        "capabilityMeaningReview",
+        "currentSourcePinsStatus",
+        "decisionEffect",
+        "decisionRef",
+        "phaseScope",
+        "phaseScopedSourceFingerprintsSha256",
+        "predecessorRefs",
+        "proposalDefinitions",
+        "schemaVersion",
+        "sourceCut",
+        "sourceFingerprints",
+        "surfaceDenominator",
+        "traceability"
+      ],
+      "declaredIds": []
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd218.json",
+      "sha256": "028af378c5eb3da122da4e92c478eb9af2a584561409656e636f6cbd4fd16fff",
+      "bytes": 8112,
+      "format": "yaml",
+      "schemaVersion": "media.pdp0.quality-currentness-successor.v1",
+      "authority": null,
+      "status": null,
+      "topLevelFields": [
+        "latestCurrentnessRefresh",
+        "schemaVersion"
       ],
       "declaredIds": []
     },
@@ -9346,8 +9419,8 @@
     },
     {
       "sourceRef": "docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json",
-      "sha256": "86566d4415ebf84c54a51a7572d24fd10022cd70de9ddcb0992c446beb0f7e6b",
-      "bytes": 35306,
+      "sha256": "29a2b6dae1d50bb80ef5cb8d8210149b320f7dbf66de31af0c861ce61fb99abf",
+      "bytes": 36071,
       "format": "yaml",
       "schemaVersion": "media.pdp0.quality-current-source-review.v1",
       "authority": null,

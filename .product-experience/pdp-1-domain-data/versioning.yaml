@@ -5,34 +5,36 @@ semanticOwner: media
 authority: .product-experience/pdp-0-product-truth/domain-model.yaml
 scopeStatus: proposed-boundaries-with-observed-compatibility; pending-owner-review
 sourceRefs: [ .product-experience/pdp-0-product-truth/domain-model.yaml, .product-experience/pdp-0-product-truth/state-models.yaml, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, libs/audio-video-types/src/contracts.ts, contracts/openapi/media.yaml, launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java, modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql ]
+# Top-level rule statuses classify the definition; observed, gaps, and notEstablished record runtime evidence and deferred bindings.
+statusSemantics: DEFINITION_CLASSIFICATION; runtime-observations-and-deferred-bindings-remain-in-observed-gaps-and-notEstablished
 rules:
 - id: authored-specification-versioning
   proposal: authored-specification-edits-create-a-new-semantic-version
-  status: proposed; pending-owner-review
+  status: MEDIA_LOGICAL_MEANING_RESOLVED; RUNTIME_PERSISTENCE_AND_CONCURRENT_WRITE_IMPLEMENTATION_DEFERRED
 - id: resolved-plan-versioning
   proposal: a-resolved-plan-is-fixed-for-one-run-and-replanning-creates-a-successor-plan
-  status: proposed; runtime-persistence-and-owner-semantics-unverified
+  status: MEDIA_LOGICAL_MEANING_RESOLVED; RUNTIME_PLAN_REGISTRY_PERSISTENCE_AND_EXECUTION_ADMISSION_DEFERRED
 - id: run-and-attempt-history
   proposal: preserve-run-and-attempt-history-with-explicit-fencing
-  status: unresolved; do-not-claim-durable-attempt-history
+  status: MEDIA_LOGICAL_MEANING_RESOLVED; DURABLE_HISTORY_DEFERRED
 - id: source-artifact-immutability
   proposal: source-bytes-are-immutable; replacement-or-correction-is-a-distinct-version
-  status: unresolved; no-canonical-artifact-version-record-or-key-observed
+  status: MEDIA_LOGICAL_MEANING_RESOLVED; STORAGE_ENFORCEMENT_DEFERRED
 - id: derived-artifact-identity
   proposal: derived-artifacts-have-stable-identity-and-explicit-source-ancestry
-  status: unresolved; canonical-derived-version-identity-and-ancestry-unbound
+  status: MEDIA_LOGICAL_MEANING_RESOLVED; STORAGE_ENFORCEMENT_DEFERRED
 - id: transcript-caption-ancestry
   proposal: transcript-and-caption-outputs-retain-source-and-transformation-ancestry
-  status: unresolved; source-lineage-and-version-contract-unbound
+  status: MEDIA_LOGICAL_MEANING_RESOLVED; PRODUCER_AND_CONSUMER_BINDINGS_DEFERRED
 - id: output-finality-and-reconciliation
   proposal: represent-finality-and-reconciliation-without-erasing-prior-observations
-  status: unresolved; append-only-history-not-established-by-runtime-evidence
+  status: MEDIA_LOGICAL_MEANING_RESOLVED; PROVIDER_FINALITY_AND_DURABILITY_DEFERRED
 - id: cross-boundary-references
   proposal: use-stable-opaque-identifiers-and-explicit-version-or-hash-references
-  status: proposed; canonical-version-reference-and-consumer-contract-pending
+  status: MEDIA_LOGICAL_MEANING_RESOLVED; EXTERNAL_CONSUMER_MAPPING_DEFERRED
 - id: wire-compatibility
   proposal: wire-compatible-evolution-does-not-authorize-semantic-reinterpretation
-  status: proposed; pending-owner-review
+  status: MEDIA_SOURCE_PRESERVATION_RULE_DEFINED; ADAPTER_AND_CONSUMER_ACCEPTANCE_DEFERRED
 observed:
   runtimeJob: ProcessingJob-has-a-version-field-and-lifecycle-instants-in-MediaRuntimeContracts; runtime-updates-increment-version
   lease: JobLease-has-expiry-and-fencingToken; runtime-rejects-stale-worker-results

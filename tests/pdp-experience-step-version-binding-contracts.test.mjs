@@ -122,6 +122,20 @@ test("all 130 step version-binding definitions join exact journey and P1 identit
   }
 });
 
+test("candidate-metric comparison steps bind only the P1 artifact-version object scope", () => {
+  const operation = operations.ownerDefinedOperationContracts.records.find(({ id }) => id === "media.operation.action.compare-candidate-on-metric");
+  assert.ok(operation);
+  const bindings = versionSource.records.filter(({ actionRef }) => actionRef === "media.action.compare-candidate-on-metric");
+  assert.equal(bindings.length, 10);
+  for (const binding of bindings) {
+    const { step } = contracts.get(binding.stepRef);
+    assert.deepEqual(operation.domainObjectRefs, ["media.domain.artifact-version"]);
+    assert.deepEqual(step.objectRefs, operation.domainObjectRefs, `${binding.id} exact P1 object scope`);
+    assert.deepEqual(step.stepDefinitionSemantics.canonicalBindings.objectRefs, operation.domainObjectRefs,
+      `${binding.id} semantic canonical binding follows P1 object scope`);
+  }
+});
+
 test("all projected journey steps have exact version semantics or a source-backed UNKNOWN disposition", async () => {
   const candidate = JSON.parse(await readFile(`${root}/generated/experience-specification.candidate.json`, "utf8"));
   const audit = candidate.candidateMappingReview.journeyBindingAudit;

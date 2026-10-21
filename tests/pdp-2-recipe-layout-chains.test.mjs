@@ -38,8 +38,9 @@ test("PDP-2 recipe review keeps recipe identity distinct from template, pattern,
     .filter((family) => family.id === "media.recipe.template")
     .flatMap((family) => family.capabilityIds));
   assert.ok(processingRecipeIds.size > 0, "PDP-0 contains processing recipe capabilities");
-  assert.ok([...processingRecipeIds].every((id) => id.startsWith("media.recipe.template.")),
-    "PDP-0 recipe IDs are processing capabilities, not GUI recipe records");
+  assert.deepEqual([...processingRecipeIds].filter((id) => !id.startsWith("media.recipe.template.")).sort(),
+    ["media.recipe.specification.compile"],
+    "the family also contains its explicit recipe-specification compilation capability");
   assert.ok([...processingRecipeIds].every((id) => !id.startsWith("media.gui.recipe.")));
 
   assert.ok(!compositionSchema.requiredFields.includes("recipeRef"),

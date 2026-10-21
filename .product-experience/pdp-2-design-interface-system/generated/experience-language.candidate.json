@@ -5,8 +5,8 @@
   "sourceAuthorities": [
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
-      "sha256": "1fe788580adbfa9b6b48e363bb8fd084c83dab117bcc5d6a758e3701c38b9908",
-      "bytes": 14849,
+      "sha256": "fd1308a1f4edcf2412d8fb514ad11bb9ba8e56b52f066109e84483eb83ba236a",
+      "bytes": 15250,
       "format": "markdown"
     },
     {
@@ -68,8 +68,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml",
-      "sha256": "fd5309a68670064d51303d61d28fec7ab07e328c1388404979e4b024809a7483",
-      "bytes": 6729,
+      "sha256": "0a8a425548c73399b64190706224ea2524a8117a55fcff6c003f51241086b795",
+      "bytes": 13764,
       "format": "yaml",
       "schemaVersion": "media.semantic-state-grammar.v1",
       "authority": "Media state presentation mappings; PDP-0 owns state machines",
@@ -80,17 +80,21 @@
         "ownerDefinedStatePresentationRules",
         "presentationRules",
         "productId",
+        "ruleManagementProposalPresentation",
         "schemaVersion",
         "source",
         "states",
         "status"
       ],
       "declaredIds": [
+        "media.p2.rule.rule-management-proposal-not-a-lifecycle.v1",
         "media.p2.rule.ui-behavior-preserving-relocation.v1",
         "media.p2.rule.ui-no-semantic-dummy-input.v1",
         "media.p2.rule.ui-state-presentation-not-state-machine.v1",
         "media.ui.behavior-preserving-relocation.v1",
         "media.ui.no-semantic-dummy-input.v1",
+        "media.ui.rule-management-proposal-not-a-lifecycle.v1",
+        "media.ui.rule-management-proposal-presentation.v1",
         "media.ui.state-presentation-not-state-machine.v1"
       ]
     },
@@ -117,8 +121,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
-      "sha256": "27e01c343a96029393f0b710bebb75a59fdc11680ffc71eb73803b56cb3ae105",
-      "bytes": 10362,
+      "sha256": "8fc0705fad95959ab2b078e8bfd35810aebb10f474eb5580b203777fd5a11226",
+      "bytes": 14266,
       "format": "yaml",
       "schemaVersion": "media.accessibility-language.v1",
       "authority": "Media-specific accessibility contracts over Shared primitives",
@@ -130,6 +134,7 @@
         "mediaOwnerDefinitionDecision",
         "normativeRuleRecords",
         "ownerDefinedCaptionAndAudioDescriptionOutputUse",
+        "ownerDefinedRuleManagementProposalControls",
         "productId",
         "requirements",
         "reviewTarget",
@@ -146,8 +151,10 @@
         "media.a11y.noncolor",
         "media.a11y.programmatic-state",
         "media.a11y.readability-reflow",
+        "media.a11y.rule-management-proposal-controls.v1",
         "media.a11y.text-spacing-and-target-size",
-        "media.p2.rule.caption-and-audio-description-output-use.v1"
+        "media.p2.rule.caption-and-audio-description-output-use.v1",
+        "media.p2.rule.rule-management-proposal-controls-accessibility.v1"
       ]
     },
     {
@@ -180,8 +187,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
-      "sha256": "d9637bb9ddfbce9231a8b15d7186c795f4737426d44097ad1c5453368b720ec3",
-      "bytes": 52299,
+      "sha256": "97a781fdc65ac5a10ff7a9a530fb36677a4077ef6227bfbbc045ea6f5a42bb78",
+      "bytes": 53363,
       "format": "yaml",
       "schemaVersion": "media.action-finality-grammar.v1",
       "authority": "Media interaction and wording for PDP-0 action/finality semantics",
@@ -796,13 +803,13 @@
       },
       {
         "id": "media-job.RUNNING",
-        "name": "Transcribing",
-        "description": "A current attempt is processing the authorized request."
+        "name": "In progress",
+        "description": "A current fenced attempt is executing an admitted stage for this request."
       },
       {
         "id": "media-job.COMPLETED",
-        "name": "Transcript ready to review",
-        "description": "The result is recorded; review is still required where applicable."
+        "name": "Completed",
+        "description": "Verified outputs are registered and satisfy the accepted result contract."
       },
       {
         "id": "media-job.OUTCOME_UNKNOWN",
@@ -1351,12 +1358,12 @@
       {
         "id": "media.language.state-presentation.media.job.RUNNING",
         "domainStateId": "media-job.RUNNING",
-        "presentationEffect": "Transcribing: A current attempt is processing the authorized request."
+        "presentationEffect": "In progress: A current fenced attempt is executing an admitted stage for this request."
       },
       {
         "id": "media.language.state-presentation.media.job.COMPLETED",
         "domainStateId": "media-job.COMPLETED",
-        "presentationEffect": "Transcript ready to review: The result is recorded; review is still required where applicable."
+        "presentationEffect": "Completed: Verified outputs are registered and satisfy the accepted result contract."
       },
       {
         "id": "media.language.state-presentation.media.job.OUTCOME.UNKNOWN",
@@ -1384,8 +1391,8 @@
         "presentationEffect": "Processing stopped by consent change: New processing is blocked; existing output and deletion scope follow the owning lifecycle policy."
       }
     ],
-    "createdAt": "2026-10-19T04:04:04.288Z",
-    "updatedAt": "2026-10-19T04:04:04.288Z"
+    "createdAt": "2026-10-19T17:02:44.816Z",
+    "updatedAt": "2026-10-19T17:02:44.816Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",

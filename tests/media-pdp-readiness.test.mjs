@@ -111,6 +111,21 @@ test('PXD-216 and PXD-196 bind current PDP-0 reviews while older P0-01 pins rema
  assert.match(policy.scope,/checkpoint identity and version.*license.*use-scope.*declared purpose/u);
  assert.match(policy.scope,/noncommercial.*commercial/u);
  assert.match(policy.scope,/similarity observation is not rights clearance/u);
+ const authorizationReview=byId.get('P0-05').currentSourceReview;
+ assert.equal(authorizationReview.status,'APPROVED_CURRENT_SOURCE_REVIEW');
+ assert.equal(authorizationReview.decisionRef,'.product-experience/decision-log.md#PXD-208');
+ assert.equal(authorizationReview.phaseScope,'PDP-0');
+ assert.equal(authorizationReview.reviewKind,'COORDINATOR_AUTHORED_CURRENT_SOURCE_SEMANTIC_REVIEW');
+ assert.equal(authorizationReview.verification.status,'PASS');
+ assert.equal(authorizationReview.ownerApproval,'NOT_CLAIMED');
+ assert.equal(authorizationReview.acceptanceEffect,'none');
+ assert.match(authorizationReview.acceptanceBoundary,/independent acceptance.*not claimed/iu);
+ for(const [file,digest] of Object.entries(authorizationReview.sourceFingerprints))
+  assert.equal(digest,sourcePin(file),`P0-05 current authorization review source pin ${file}`);
+ const resolvedAuthorizationReview=resolveCriterionReviewSourceCut(byId.get('P0-05'),sourcePin,sourceOwnerPhase);
+ assert.equal(resolvedAuthorizationReview.currentSourceReviewCurrent,true);
+ assert.equal(resolvedAuthorizationReview.currentSourcePinRefreshCurrent,true);
+ assert.equal(resolvedAuthorizationReview.sourceCutCurrent,true);
  const quality=byId.get('P0-06').currentCorrectiveReview;
  assert.equal(quality.reviewKind,'SCOPED_SOURCE_DEFINITION_REVIEW');
  assert.match(quality.scope,/462 capability identities.*quality applicability crosswalk/u);
@@ -234,6 +249,44 @@ broadTest('PDP-0 current-source refreshes drive currentness while retaining hist
  assert.equal(resolveCriterionReviewSourceCut(projectionRecord,current,owner).sourceCutCurrent,true,'a downstream-only pin change does not reopen the PDP-0 quality projection');
  files.p0='changed-p0';
  assert.equal(resolveCriterionReviewSourceCut(projectionRecord,current,owner).sourceCutCurrent,false,'a PDP-0 source change stales the quality projection');
+});
+broadTest('an explicit PDP-0 source review must remain current independently of pin refreshes',()=>{
+ const files={reviewSource:'review-current',p0Source:'p0-current',decision:'context-current',p1Source:'p1-prior'};
+ const current=file=>files[file]??null;
+ const owner=file=>file==='p1Source'?'PDP-1':'PDP-0';
+ const pinRefresh={status:'CURRENT_SOURCE_PIN_REFRESH_ONLY',phaseScope:'PDP-0',preservesReviewRef:'.product-experience/decision-log.md#PXD-196',
+   semanticReview:'NOT_PERFORMED',ownerApproval:'NOT_CLAIMED',acceptanceEffect:'none',currentSourceFingerprints:{p0Source:'p0-current',p1Source:'p1-prior'},
+   decisionContextFingerprint:{sourceRef:'decision',sha256:'context-current'}};
+ const sourceReview={status:'APPROVED_CURRENT_SOURCE_REVIEW',phaseScope:'PDP-0',decisionRef:'.product-experience/decision-log.md#PXD-208',
+   sourceFingerprints:{reviewSource:'review-current',p1Source:'p1-prior',decision:'context-current'}};
+ const record={taskId:'P0-05',status:'APPROVED_DIRECT_DEFINITION_CRITERION',currentCorrectiveReview:{status:'APPROVED_CURRENT_SOURCE_REVIEW',phaseScope:'PDP-0',decisionRef:'.product-experience/decision-log.md#PXD-196'},
+   currentSourceReview:sourceReview,currentSourcePinRefresh:pinRefresh};
+ let resolved=resolveCriterionReviewSourceCut(record,current,owner);
+ assert.equal(resolved.currentSourcePinRefreshCurrent,true);
+ assert.equal(resolved.currentSourceReviewCurrent,true);
+ assert.equal(resolved.sourceCutCurrent,true);
+ files.reviewSource='review-stale';
+ resolved=resolveCriterionReviewSourceCut(record,current,owner);
+ assert.equal(resolved.currentSourcePinRefreshCurrent,true,'a current pin refresh remains separately diagnosable');
+ assert.equal(resolved.currentSourceReviewCurrent,false,'a pin refresh cannot make a stale semantic review current');
+ assert.equal(resolved.sourceCutCurrent,false);
+ assert.equal(resolved.currentSourceReviewCurrent===true && resolved.sourceCutCurrent===true,false,
+   'a stale explicit source review cannot satisfy a PDP-0 criterion');
+ files.reviewSource='review-current';
+ files.p0Source='p0-stale';
+ resolved=resolveCriterionReviewSourceCut(record,current,owner);
+ assert.equal(resolved.currentSourceReviewCurrent,true,'a current semantic review stays distinct from its stale pin refresh');
+ assert.equal(resolved.currentSourcePinRefreshCurrent,false);
+ assert.equal(resolved.sourceCutCurrent,false);
+ files.p0Source='p0-current';
+ files.p1Source='p1-changed';
+ assert.equal(resolveCriterionReviewSourceCut(record,current,owner).currentSourceReviewCurrent,true,
+   'PDP-1-only source movement remains excluded from PDP-0 source currentness');
+ const withoutRefresh={...record,currentSourcePinRefresh:undefined};
+ assert.equal(resolveCriterionReviewSourceCut(withoutRefresh,current,owner).sourceCutCurrent,true,
+   'a current explicit source review can establish its own current source cut');
+ assert.equal(resolveCriterionReviewSourceCut({...withoutRefresh,currentSourceReview:{...sourceReview,sourceFingerprints:{}}},current,owner).sourceCutCurrent,false,
+   'an approved review with missing fingerprints fails closed');
 });
 broadTest('fixed 38-task scope rejects extras, duplicates and missing tasks',()=>{
   const rows=taskIds.map(id=>({id}));

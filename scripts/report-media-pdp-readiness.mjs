@@ -40,11 +40,14 @@ export function pdp0PhaseScopedSourcePins() {
   };
   for (const record of reviewProjection.records) {
     addDecisionId(record.decisionRef);
-    addDecisionId(record.currentCorrectiveReview?.decisionRef ?? record.currentSourceReview?.decisionRef);
+    addDecisionId(record.currentSourceReview?.decisionRef ?? record.currentCorrectiveReview?.decisionRef);
     addDecisionId(record.currentSourcePinRefresh?.decisionContextRef);
     for (const decisionRef of record.currentProjectionRefresh?.decisionContextRefs ?? []) addDecisionId(decisionRef);
   }
   addDecisionId(crosswalk.coordinatorReview?.decisionRef);
+  // Bind the quality-currentness successor by its exact decision section so
+  // downstream records do not depend on unrelated later decision-log edits.
+  addDecisionId('.product-experience/decision-log.md#PXD-218');
   const pins = {
     [pdp0SourceProjectionPinName]: fingerprint(projectPdp0SourceManifest(
       parseYaml(read('.product-experience/source-manifest.yaml')),
@@ -70,9 +73,10 @@ export function verificationCutChanged(before, after) {
 function hasCompleteCurrentP0CriterionScopes(definitionCriterionReviews) {
   return p0ReviewedScopeCriteria.every(id=>{
     const review=definitionCriterionReviews[id];
-    const currentReview=review?.currentCorrectiveReview ?? review?.currentSourceReview;
+    const currentReview=review?.currentSourceReview ?? review?.currentCorrectiveReview;
     return review?.status==='APPROVED_DIRECT_DEFINITION_CRITERION'
       && review.sourceCutCurrent===true
+      && (!review.currentSourceReview || review.currentSourceReviewCurrent===true)
       && ['APPROVED_CURRENT_CORRECTION','APPROVED_CURRENT_SOURCE_REVIEW'].includes(currentReview?.status)
       && currentReview.phaseScope==='PDP-0'
       && typeof currentReview.decisionRef==='string'&&currentReview.decisionRef.trim();
@@ -84,10 +88,9 @@ const suites = {
   'P0-03': ['tests/pdp-migration-current-source-claim-dispositions.test.mjs', 'tests/pdp-migration-semantic-reconciliation.test.mjs', 'tests/pdp-migration-capability-material-claims.test.mjs', 'tests/pdp-migration-preservation-identity-wire-claims.test.mjs', 'tests/pdp-migration-pxd120-current-target-observations.test.mjs', 'tests/pdp-migration-constitution-claims.test.mjs', 'tests/pdp-leaf-trust-reconstruction-dispositions.test.mjs', 'tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs', 'tests/pdp-migration-mpsem-0077-c002-persona-parity.test.mjs', 'tests/pdp-migration-p0-current-material-reviews.test.mjs', 'tests/pdp0-result-variant-trust-bindings.test.mjs', 'tests/media-pdp0-501-audit-dispositions.test.mjs', 'tests/media-pdp0-audit-aq-traceability.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd215.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd216.test.mjs', 'tests/pdp0-constitution-single-source-current-claim.test.mjs', 'tests/pdp0-semantic-corrections.test.mjs'],
   'P0-04': ['tests/pdp-0-final.test.mjs', 'tests/media-product-definition-resolved-intents.test.mjs', 'tests/media-pdp0-acceptance-actor-binding.test.mjs'],
   'P0-05': ['tests/pdp-truth-domain.test.mjs', 'tests/pdp0-constitution-normative-completeness.test.mjs', 'tests/pdp0-requirement-source-boundaries.test.mjs', 'tests/pdp0-policy-authority-boundary.test.mjs', 'tests/pdp0-generated-audio-checkpoint-rights.test.mjs'],
-  'P0-06': ['tests/pdp-0-06-measures-provenance.test.mjs', 'tests/media-measure-applicability-crosswalk.test.mjs', 'tests/pdp-truth-domain-quality-applicability.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-phase-noise-output-semantics.test.mjs', 'tests/pdp0-quality-current-source-review.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd206.test.mjs'],
+  'P0-06': ['tests/pdp-0-06-measures-provenance.test.mjs', 'tests/media-measure-applicability-crosswalk.test.mjs', 'tests/pdp-truth-domain-quality-applicability.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-phase-noise-output-semantics.test.mjs', 'tests/pdp0-quality-current-source-review.test.mjs', 'tests/pdp0-quality-current-source-review-pxd212.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd206.test.mjs'],
   'P0-07': ['tests/pdp-truth-domain-channel-profile-applicability.test.mjs', 'tests/media-p0-07-feature-channel-review.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-feature-review-current-source-observation.test.mjs', 'tests/pdp0-campaign-extension-surface-matrix.test.mjs', 'tests/media-pdp0-surface-denominator.test.mjs'],
-  'P0-08': ['tests/pdp-0-final.test.mjs', 'tests/media-product-definition-resolved-intents.test.mjs', 'tests/pdp-migration-current-source-claim-dispositions.test.mjs', 'tests/pdp0-development-handoff.test.mjs', 'tests/pdp0-animation-authored-provenance.test.mjs', 'tests/pdp0-phase-noise-output-semantics.test.mjs', 'tests/pdp0-bounded-resource-admission.test.mjs', 'tests/pdp0-requirement-source-boundaries.test.mjs', 'tests/pdp0-capability-leaf-review-authority-boundary.test.mjs', 'tests/pdp0-capability-intent-current-source-observation.test.mjs', 'tests/pdp0-capability-outcome-meaning.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd206.test.mjs', 'tests/pdp0-policy-authority-boundary.test.mjs', 'tests/pdp0-existing-operation-semantic-corrections.test.mjs', 'tests/media-pdp-readiness.test.mjs', 'tests/media-pdp0-501-audit-dispositions.test.mjs', 'tests/media-pdp0-audit-aq-traceability.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd215.test.mjs', 'tests/media-pdp0-acceptance-actor-binding.test.mjs', 'tests/media-pdp0-surface-denominator.test.mjs', 'tests/pdp0-semantic-corrections.test.mjs'],
-  'P0-08': ['tests/pdp-0-final.test.mjs', 'tests/media-product-definition-resolved-intents.test.mjs', 'tests/pdp-migration-current-source-claim-dispositions.test.mjs', 'tests/pdp0-development-handoff.test.mjs', 'tests/pdp0-animation-authored-provenance.test.mjs', 'tests/pdp0-phase-noise-output-semantics.test.mjs', 'tests/pdp0-bounded-resource-admission.test.mjs', 'tests/pdp0-requirement-source-boundaries.test.mjs', 'tests/pdp0-capability-leaf-review-authority-boundary.test.mjs', 'tests/pdp0-capability-intent-current-source-observation.test.mjs', 'tests/pdp0-capability-outcome-meaning.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd206.test.mjs', 'tests/pdp0-policy-authority-boundary.test.mjs', 'tests/pdp0-existing-operation-semantic-corrections.test.mjs', 'tests/media-pdp-readiness.test.mjs', 'tests/media-pdp0-501-audit-dispositions.test.mjs', 'tests/media-pdp0-audit-aq-traceability.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd215.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd216.test.mjs', 'tests/pdp0-constitution-single-source-current-claim.test.mjs', 'tests/pdp0-required-family-disposition-coverage.test.mjs', 'tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs', 'tests/media-pdp0-acceptance-actor-binding.test.mjs', 'tests/media-pdp0-surface-denominator.test.mjs', 'tests/pdp0-semantic-corrections.test.mjs'],
+  'P0-08': ['tests/pdp-0-final.test.mjs', 'tests/media-product-definition-resolved-intents.test.mjs', 'tests/pdp-migration-current-source-claim-dispositions.test.mjs', 'tests/pdp0-development-handoff.test.mjs', 'tests/pdp0-animation-authored-provenance.test.mjs', 'tests/pdp0-phase-noise-output-semantics.test.mjs', 'tests/pdp0-bounded-resource-admission.test.mjs', 'tests/pdp0-requirement-source-boundaries.test.mjs', 'tests/pdp0-capability-leaf-review-authority-boundary.test.mjs', 'tests/pdp0-capability-intent-current-source-observation.test.mjs', 'tests/pdp0-capability-outcome-meaning.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd206.test.mjs', 'tests/pdp0-policy-authority-boundary.test.mjs', 'tests/pdp0-existing-operation-semantic-corrections.test.mjs', 'tests/media-pdp-readiness.test.mjs', 'tests/pdp-shared-readiness-reporter-source-boundary.test.mjs', 'tests/media-pdp0-501-audit-dispositions.test.mjs', 'tests/media-pdp0-audit-aq-traceability.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd215.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd216.test.mjs', 'tests/pdp0-constitution-single-source-current-claim.test.mjs', 'tests/pdp0-required-family-disposition-coverage.test.mjs', 'tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs', 'tests/media-pdp0-acceptance-actor-binding.test.mjs', 'tests/media-pdp0-surface-denominator.test.mjs', 'tests/pdp0-semantic-corrections.test.mjs'],
   'P1-06': ['tests/media-typed-contract-bindings.test.mjs'],
   'P1-01': ['tests/media-domain-identity-reconciliation.test.mjs', 'tests/pdp-truth-domain-owner-identity-contracts.test.mjs', 'tests/pdp1-lane-a-current-source-review.test.mjs', 'tests/pdp1-versioning-classification.test.mjs'],
   'P1-02': ['tests/media-state-machine-extraction.test.mjs', 'tests/pdp1-transition-guard-definition-evaluator.test.mjs', 'tests/pdp-truth-domain-race-semantics.test.mjs', 'tests/pdp-truth-domain-transition-coverage.test.mjs'],
@@ -116,7 +119,7 @@ const suites = {
   'P2-09': ['tests/media-design-conformance.test.mjs', 'tests/pdp-design-current-public-consumer-bindings.test.mjs', 'tests/pdp-design-composition-catalogs.test.mjs', 'tests/media-ui-reuse-inventory.test.mjs', 'tests/media-presentation-architecture.test.mjs', 'tests/pdp2-phase-handoff-contract.test.mjs', 'tests/media-pdp-p2-dev-status.test.mjs', 'tests/media-physical-topology.test.mjs'],
   'P3-01': ['tests/pdp-experience-definition-mapping.test.mjs', 'tests/pdp-experience-generic-journey-step-projection.test.mjs', 'tests/pdp-experience-transition-projection.test.mjs', 'tests/pdp-experience-component-projection.test.mjs', 'tests/pdp-experience-component-source-dispositions.test.mjs', 'tests/media-j01-definition-semantics.test.mjs', 'tests/media-j02-definition-semantics.test.mjs', 'tests/media-transcript-review-definition.test.mjs', 'tests/media-caption-version-experience-definitions.test.mjs'],
   'P3-02': ['tests/pdp-3-screen-journey-crosslinks.test.mjs', 'tests/pdp-3-screen-source-bindings.test.mjs', 'tests/pdp-experience-view-state-binding.test.mjs', 'tests/pdp-experience-view-observation-state-projection.test.mjs', 'tests/pdp-experience-view-observation-predicates.test.mjs', 'tests/pdp-experience-default-navigation.test.mjs', 'tests/pdp-job-status-screen-definition.test.mjs'],
-  'P3-03': ['tests/pdp-experience-step-semantics.test.mjs', 'tests/pdp-experience-step-definition-oracle.test.mjs', 'tests/pdp-experience-journey-purpose-bindings.test.mjs', 'tests/pdp-experience-step-version-binding-contracts.test.mjs', 'tests/pdp-experience-journey-operation-bindings.test.mjs', 'tests/pdp-experience-step-guard-fact-contracts.test.mjs', 'tests/pdp-experience-typed-guard-fact-evaluator.test.mjs', 'tests/pdp-experience-rights-guard-fact-evaluator.test.mjs', 'tests/media-transcription-submission-experience-definition.test.mjs', 'tests/pdp3-j03-decision-crosswalk.test.mjs', 'tests/pdp-experience-immediate-result-sources.test.mjs'],
+  'P3-03': ['tests/pdp-experience-step-semantics.test.mjs', 'tests/pdp-experience-step-definition-oracle.test.mjs', 'tests/pdp-experience-journey-purpose-bindings.test.mjs', 'tests/pdp-experience-step-version-binding-contracts.test.mjs', 'tests/pdp-experience-journey-operation-bindings.test.mjs', 'tests/pdp-experience-step-guard-fact-contracts.test.mjs', 'tests/pdp-experience-typed-guard-fact-evaluator.test.mjs', 'tests/pdp-experience-rights-guard-fact-evaluator.test.mjs', 'tests/media-transcription-submission-experience-definition.test.mjs', 'tests/pdp3-j03-decision-crosswalk.test.mjs', 'tests/pdp-experience-immediate-result-sources.test.mjs', 'tests/pdp3-journey-channel-contract-bindings.test.mjs', 'tests/pdp3-reusable-rules-proposal-journey.test.mjs', 'tests/media-pdp3-j19-local-successor-choice.test.mjs', 'tests/media-pdp3-j20-source-bound-disposition.test.mjs', 'tests/media-pdp3-j21-product-integration-boundary.test.mjs', 'tests/media-pdp3-j26-artifact-erasure-purpose-binding.test.mjs', 'tests/media-pdp3-j28-related-delivery-purpose-binding.test.mjs', 'tests/pdp-experience-j08-paired-quality-channel-evidence.test.mjs'],
   'P3-04': ['tests/pdp-experience-action-inventory.test.mjs', 'tests/pdp-experience-action-reconciliation-contract.test.mjs', 'tests/pdp-experience-local-step-effect-definition.test.mjs', 'tests/pdp-experience-transition-edge-bindings.test.mjs', 'tests/pdp-experience-transition-trigger-semantics.test.mjs', 'tests/pdp-experience-identity-handoff.test.mjs'],
   'P3-05': ['tests/pdp-3-scenario-fixture-coverage.test.mjs', 'tests/pdp-3-definition-branch-coverage.test.mjs', 'tests/pdp-3-scenario-start-state-integrity.test.mjs', 'tests/pdp-experience-journey-scenario-bindings.test.mjs', 'tests/pdp-experience-scenario-local-context-bindings.test.mjs', 'tests/pdp-experience-254-guard-step-fixture-corpus.test.mjs', 'libs/media-experience-simulation/tests/pdp-experience-scenario-inventory.test.mjs', 'libs/media-experience-simulation/tests/pdp-experience-step-oracles.test.mjs'],
   'P3-06': ['tests/media-presentation-architecture.test.mjs', 'tests/pdp-experience-component-projection.test.mjs', 'tests/pdp-experience-component-source-dispositions.test.mjs', 'tests/pdp2-media-renderer-dom.test.mjs'],
@@ -322,9 +325,15 @@ export function resolveCriterionReviewSourceCut(record, fileDigest, sourceOwnerP
       && Object.entries(scopedPins).every(([file, hash]) => fileDigest(file) === hash));
   };
   const historicalSourceCutCurrent = matches(record.sourceFingerprints, recordPhase);
-  const correction = record.currentCorrectiveReview ?? record.currentSourceReview;
+  const explicitCurrentSourceReview = record.currentSourceReview;
+  const correction = explicitCurrentSourceReview ?? record.currentCorrectiveReview;
   const corrected = ['APPROVED_CURRENT_CORRECTION','APPROVED_CURRENT_SOURCE_REVIEW'].includes(correction?.status);
   const correctionScopeCurrent = recordPhase !== 'PDP-0' || correction?.phaseScope === 'PDP-0';
+  const currentSourceReviewCurrent = explicitCurrentSourceReview === undefined || explicitCurrentSourceReview === null
+    ? undefined
+    : Boolean(corrected && correctionScopeCurrent
+      && typeof correction.decisionRef === 'string' && correction.decisionRef.trim()
+      && matches(correction.sourceFingerprints, correction.phaseScope ?? recordPhase));
   const pinRefresh = record.currentSourcePinRefresh;
   const projectionRefresh = record.currentProjectionRefresh;
   const pinRefreshCurrent = Boolean(pinRefresh
@@ -348,10 +357,15 @@ export function resolveCriterionReviewSourceCut(record, fileDigest, sourceOwnerP
     && Object.entries(projectionRefresh.decisionContextFingerprints ?? {}).every(([sourceRef, hash]) => fileDigest(sourceRef) === hash));
   const refreshedSourceCutCurrent = record.taskId === 'P0-06' ? projectionRefreshCurrent
     : pinRefresh ? pinRefreshCurrent : undefined;
+  const reviewedSourceCutCurrent = currentSourceReviewCurrent === undefined
+    ? undefined
+    : currentSourceReviewCurrent && (refreshedSourceCutCurrent ?? true);
   return {...record, historicalSourceCutCurrent,
-    sourceCutCurrent: refreshedSourceCutCurrent ?? (corrected
+    sourceCutCurrent: reviewedSourceCutCurrent ?? refreshedSourceCutCurrent ?? (corrected
       ? correctionScopeCurrent && matches(correction.sourceFingerprints, correction.phaseScope ?? recordPhase)
       : historicalSourceCutCurrent),
+    ...(explicitCurrentSourceReview !== undefined && explicitCurrentSourceReview !== null
+      ? {currentSourceReviewCurrent} : {}),
     ...(pinRefresh ? {currentSourcePinRefreshCurrent: pinRefreshCurrent} : {}),
     ...(projectionRefresh ? {currentProjectionRefreshCurrent: projectionRefreshCurrent} : {})};
 }
@@ -362,7 +376,7 @@ export function selectApprovedMediaDecisions(definitionCriterionReviews = {}, mi
   for (const review of Object.values(definitionCriterionReviews)) {
     if (review?.status !== 'APPROVED_DIRECT_DEFINITION_CRITERION' || review.sourceCutCurrent !== true) continue;
     if (typeof review.decisionRef === 'string' && review.decisionRef.trim()) decisions.push(review.decisionRef);
-    const correction = review.currentCorrectiveReview ?? review.currentSourceReview;
+    const correction = review.currentSourceReview ?? review.currentCorrectiveReview;
     if (['APPROVED_CURRENT_CORRECTION','APPROVED_CURRENT_SOURCE_REVIEW'].includes(correction?.status) && correction.phaseScope === 'PDP-0'
         && typeof correction.decisionRef === 'string' && correction.decisionRef.trim()) decisions.push(correction.decisionRef);
   }
@@ -412,7 +426,7 @@ export function assessCurrentTaskDependencies(tasks) {
 export function buildReadiness({audit, residual, verification = {}, mainSha, fingerprints, definitionCensus = null, sourceWorkingTree = null, definitionCriterionReviews = {}}) {
   const tasks = assessCurrentTaskDependencies(audit.tasks.filter(t => taskIds.includes(t.id)).map(t => {
     const ownerReview=definitionCriterionReviews[t.id];
-    const currentReview=ownerReview?.currentCorrectiveReview ?? ownerReview?.currentSourceReview;
+    const currentReview=ownerReview?.currentSourceReview ?? ownerReview?.currentCorrectiveReview;
     const correctionOpen=Boolean(currentReview && !['APPROVED_CURRENT_CORRECTION','APPROVED_CURRENT_SOURCE_REVIEW'].includes(currentReview.status));
     const reviewedDefinition=ownerReview?.status==='APPROVED_DIRECT_DEFINITION_CRITERION' && ownerReview?.sourceCutCurrent===true && !correctionOpen;
     const knownMet = t.id === 'P0-04' || t.ledgerStatus === 'complete' || reviewedDefinition;
@@ -557,11 +571,34 @@ export function buildPdp0DevStatus({mainSha, sourceShaSet, verification = {}, de
     status:openIds.length === 0 && allDirectTestsPass ? 'DEV_COMPLETE' : 'IN_PROGRESS',
   };
 }
-export function writePdp0DevStatus(status, repositoryRoot = root) {
-  const outputPath=path.join(repositoryRoot,'docs/implementation/pdp-0-phase-dev-status.json');
-  fs.mkdirSync(path.dirname(outputPath),{recursive:true});
-  fs.writeFileSync(outputPath,JSON.stringify(status,null,2)+'\n');
+function writePhaseDevStatus(status, repositoryRoot, relativePath) {
+  const outputPath = path.join(repositoryRoot, relativePath);
+  if (fs.existsSync(outputPath)) {
+    const currentStatus = JSON.parse(fs.readFileSync(outputPath, 'utf8'));
+    if (currentStatus.status === 'DEV_COMPLETE' && status.status !== 'DEV_COMPLETE') {
+      const canonicalPins = pins => {
+        if (!pins || typeof pins !== 'object' || Array.isArray(pins) || Object.keys(pins).length === 0) return null;
+        const entries = Object.entries(pins);
+        if (entries.some(([file, hash]) => typeof file !== 'string' || !file.trim()
+            || typeof hash !== 'string' || !/^[a-f0-9]{64}$/u.test(hash))) return null;
+        return JSON.stringify(entries.sort(([left], [right]) => left.localeCompare(right)));
+      };
+      const currentPins = canonicalPins(currentStatus.sourceShaSet);
+      const nextPins = canonicalPins(status.sourceShaSet);
+      if (!currentPins || !nextPins) {
+        throw new Error(`Refusing to downgrade ${status.phase} DEV_COMPLETE status without valid nonempty sourceShaSet pins`);
+      }
+      if (currentPins === nextPins) {
+        throw new Error(`Refusing to downgrade ${status.phase} DEV_COMPLETE status while sourceShaSet is unchanged`);
+      }
+    }
+  }
+  fs.mkdirSync(path.dirname(outputPath), {recursive:true});
+  fs.writeFileSync(outputPath, JSON.stringify(status, null, 2) + '\n');
   return outputPath;
+}
+export function writePdp0DevStatus(status, repositoryRoot = root) {
+  return writePhaseDevStatus(status, repositoryRoot, 'docs/implementation/pdp-0-phase-dev-status.json');
 }
 export const p1Criteria = Array.from({length: 11}, (_, i) => `P1-${String(i + 1).padStart(2, '0')}`);
 export const p1SourceRoots = [
@@ -619,7 +656,6 @@ export const p2SourceRoots = [
   'apps/media-experience-explorer/specification-artifacts.json',
 ];
 export const p2DirectScripts = [
-  'scripts/report-media-pdp-readiness.mjs',
   'scripts/generate-media-phase-projections.mjs',
   'scripts/check-media-design-conformance.mjs',
   'scripts/check-media-presentation-architecture.mjs',
@@ -652,7 +688,6 @@ export const p3SourceRoots = [
   'apps/media-experience-explorer/specification-artifacts.json',
 ];
 export const p3DirectScripts = [
-  'scripts/report-media-pdp-readiness.mjs',
   'scripts/generate-media-phase-projections.mjs',
   'scripts/generate-media-product-manifest.mjs',
   'scripts/lib/pdp3-step-capability-purpose.mjs',
@@ -661,6 +696,20 @@ export const p3DirectScripts = [
   'scripts/check-media-presentation-architecture.mjs',
 ];
 const p1DeferredEvidenceFiles = ['tests/pdp-experience-capability-invocation-adapters.test.mjs'];
+export const p0DirectScripts = [
+  'scripts/lib/media-product-definition-residuals.mjs',
+  'scripts/lib/pdp0-feature-review-applicability.mjs',
+  'scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs',
+  'scripts/lib/product-definition-domain-rule-mapping.mjs',
+  'scripts/generate-media-phase-projections.mjs',
+  'scripts/generate-media-product-manifest.mjs',
+  'scripts/generate-media-pdp0-surface-phase-status-matrix.mjs',
+  'scripts/check-product-definition-authority.mjs',
+  'scripts/check-media-pdp0-501-audit-dispositions.mjs',
+  'scripts/check-media-pdp0-audit-aq-traceability.mjs',
+  'scripts/check-media-pdp0-surface-denominator.mjs',
+];
+export const p1DirectScripts = [];
 function identityRecords(source, keys) {
   return keys.flatMap(key => Array.isArray(source?.[key]) ? source[key] : [])
     .filter(row => row && typeof (row.id ?? row.machineId ?? row.transitionId) === 'string')
@@ -1021,10 +1070,7 @@ export function buildPdp1DevStatus({mainSha, sourceShaSet = {}, verification = {
   };
 }
 export function writePdp1DevStatus(status, repositoryRoot = root) {
-  const outputPath = path.join(repositoryRoot, 'docs/implementation/pdp-1-phase-dev-status.json');
-  fs.mkdirSync(path.dirname(outputPath), {recursive: true});
-  fs.writeFileSync(outputPath, JSON.stringify(status, null, 2) + '\n');
-  return outputPath;
+  return writePhaseDevStatus(status, repositoryRoot, 'docs/implementation/pdp-1-phase-dev-status.json');
 }
 export function buildPdp2SourceCensus(repositoryRoot = root) {
   const read = file => parseYaml(fs.readFileSync(path.join(repositoryRoot, file), 'utf8'));
@@ -1287,10 +1333,7 @@ export function buildPdp2DevStatus({mainSha, sourceShaSet = {}, verification = {
   };
 }
 export function writePdp2DevStatus(status, repositoryRoot = root) {
-  const outputPath = path.join(repositoryRoot, 'docs/implementation/pdp-2-phase-dev-status.json');
-  fs.mkdirSync(path.dirname(outputPath), {recursive:true});
-  fs.writeFileSync(outputPath, JSON.stringify(status, null, 2) + '\n');
-  return outputPath;
+  return writePhaseDevStatus(status, repositoryRoot, 'docs/implementation/pdp-2-phase-dev-status.json');
 }
 
 /** Current finite PDP-3 denominator and its three frozen phase inputs. */
@@ -1599,10 +1642,7 @@ export function buildPdp3DevStatus({mainSha, sourceShaSet = {}, verification = {
 }
 
 export function writePdp3DevStatus(status, repositoryRoot = root) {
-  const outputPath = path.join(repositoryRoot, 'docs/implementation/pdp-3-phase-dev-status.json');
-  fs.mkdirSync(path.dirname(outputPath), {recursive:true});
-  fs.writeFileSync(outputPath, JSON.stringify(status, null, 2) + '\n');
-  return outputPath;
+  return writePhaseDevStatus(status, repositoryRoot, 'docs/implementation/pdp-3-phase-dev-status.json');
 }
 export function buildP103TestArgs(groupName, repositoryRoot = root) {
   const group = p103VerificationSuites[groupName];
@@ -1678,6 +1718,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const selectedTasks=selectedTasksArg ? selectedTasksArg.slice('--verify-tasks='.length).split(',') : phaseStatus ? phaseCriteria : Object.keys(suites);
   if(selectedTasks.some(id=>!Object.hasOwn(suites,id)) || new Set(selectedTasks).size!==selectedTasks.length) throw new Error('Verification tasks must name distinct configured PDP suites');
   if(selectedTasksArg && !args.includes('--verify')) throw new Error('--verify-tasks requires --verify');
+  if (phaseStatus && args.includes('--write')
+      && (selectedTasks.length !== phaseCriteria.length || phaseCriteria.some(id => !selectedTasks.includes(id)))) {
+    throw new Error(`--write with --phase-dev-status=${phaseStatus} requires full-suite verification; subset verification cannot persist phase status`);
+  }
   const auditPath='docs/implementation/media-task-completion-blocker-report-2026-10-08.json';
   const audit=JSON.parse(fs.readFileSync(path.join(root,auditPath),'utf8'));
   // The implementation plan is an execution ledger, not normative phase input;
@@ -1701,6 +1745,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     'docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json',
     'docs/implementation/verification/pdp-38/p0-capability-corrections-current-source-review-current.json',
     'docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json',
+    'docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd218.json',
+    'docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json',
+    'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd216.json',
     'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd206.json',
     'docs/implementation/verification/pdp-38/p0-quality-current-source-review.json',
     'docs/implementation/verification/pdp-38/feature-review-animation-property-owner-current-source-observation.json',
@@ -1718,9 +1765,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     'docs/implementation/observations/media-unified-source-task-and-experiment-crosswalk-2026-10-18.json',
     'docs/implementation/observations/pdp0-semantic-audit-slices',
   ];
-  const p0DirectScripts = ['scripts/report-media-pdp-readiness.mjs', 'scripts/lib/media-product-definition-residuals.mjs', 'scripts/lib/pdp0-feature-review-applicability.mjs', 'scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs', 'scripts/lib/product-definition-domain-rule-mapping.mjs', 'scripts/generate-media-phase-projections.mjs', 'scripts/generate-media-product-manifest.mjs', 'scripts/generate-media-pdp0-surface-phase-status-matrix.mjs', 'scripts/check-product-definition-authority.mjs', 'scripts/check-media-pdp0-501-audit-dispositions.mjs', 'scripts/check-media-pdp0-audit-aq-traceability.mjs', 'scripts/check-media-pdp0-surface-denominator.mjs'];
   const sourceRoots=phaseStatus==='PDP-1'?p1SourceRoots:phaseStatus==='PDP-2'?p2SourceRoots:phaseStatus==='PDP-3'?p3SourceRoots:p0PinnedSources;
-  const phaseScripts=phaseStatus==='PDP-1'?['scripts/report-media-pdp-readiness.mjs']:phaseStatus==='PDP-2'?p2DirectScripts:phaseStatus==='PDP-3'?p3DirectScripts:p0DirectScripts;
+  const phaseScripts=phaseStatus==='PDP-1'?p1DirectScripts:phaseStatus==='PDP-2'?p2DirectScripts:phaseStatus==='PDP-3'?p3DirectScripts:p0DirectScripts;
   const sourceCut = (testFiles) => {
     const files = [...new Set([...execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '--', ...(phaseStatus ? sourceRoots : ['.product-experience']), ...(phaseStatus ? phaseScripts : ['scripts', 'config/closure', 'libs/media-experience-simulation'])], {cwd:root,encoding:'utf8'})
       .trim().split('\n'), ...testFiles])];

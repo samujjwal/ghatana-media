@@ -332,31 +332,21 @@ records:
         contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
         requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
         requestReferenceFields:
-          - fieldSelector: /properties/subjectRef
+          - fieldSelector: /properties/originalArtifactVersionRef
             allowedObjectRefs:
-              - media.domain.quality-assessment
               - media.domain.artifact-version
-            versionRule: exact immutable version required when the source action names a version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+          - fieldSelector: /properties/candidateArtifactVersionRef
+            allowedObjectRefs:
+              - media.domain.artifact-version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: null
         affectedObjectRefs:
-          - media.domain.quality-assessment
           - media.domain.artifact-version
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
     objectBindings:
-      - objectRef: media.domain.quality-assessment
-        identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-        identityTupleFields:
-          - tenantId
-          - outputArtifactVersionRef
-          - assessmentId
-          - methodVersion
-        identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-        versionTupleFields:
-          - outputArtifactVersionRef
-          - methodVersion
-        disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
       - objectRef: media.domain.artifact-version
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
         identityTupleFields:
@@ -368,47 +358,20 @@ records:
           - versionId
         disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
     versionFieldBindings:
-      - id: media.step-version-object-binding.j-05-04.quality-assessment.v1
-        objectRef: media.domain.quality-assessment
-        fields:
-          - direction: REQUEST
-            operationRef: media.operation.action.compare-candidate-on-metric
-            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
-            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
-        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
-        exactVersionTupleRequirement:
-          - outputArtifactVersionRef
-          - methodVersion
-        transitiveVersionJoins: []
-        canonicalVersionIdentityRequirement:
-          identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-          identityComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-          exactTupleFields:
-            - tenantId
-            - outputArtifactVersionRef
-            - assessmentId
-            - methodVersion
-          tupleComparison: ALL_IDENTITY_COMPONENTS_MUST_MATCH_THE_SAME_EXACT_OWNER_ISSUED_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
-          trustedContextFields:
-            - tenantId
-          missingOrStaleDisposition: UNKNOWN
-          foreignTenantOrMixedVersionDisposition: UNKNOWN
-        sourceBoundaryRefs: []
-        deferredVersionBinding: null
-        logicalVersionJoin: null
-        applicabilityContract: null
-        runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
-        acceptanceEffect: none
       - id: media.step-version-object-binding.j-05-04.artifact-version.v1
         objectRef: media.domain.artifact-version
         fields:
           - direction: REQUEST
             operationRef: media.operation.action.compare-candidate-on-metric
             requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/originalArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
+          - direction: REQUEST
+            operationRef: media.operation.action.compare-candidate-on-metric
+            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/candidateArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
             requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
         coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
         exactVersionTupleRequirement:
@@ -565,6 +528,20 @@ records:
           - media.domain.render-outcome
           - media.domain.artifact-version
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
+      - operationRef: media.operation.job-status.read-dimensions.v1
+        contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1
+        requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1/requestSchema
+        requestReferenceFields:
+          - fieldSelector: /properties/jobId
+            allowedObjectRefs:
+              - media.domain.processing-job
+            versionRule: Exact logicalJobId from the preceding submit-render admission receipt; absent or mismatched job identity remains UNKNOWN.
+        requestSemanticFields: []
+        resultVersionFields: []
+        resultSemanticsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1/resultSchema
+        affectedObjectRefs:
+          - media.domain.processing-job
+        disposition: OWNER_REQUEST_SCHEMA_RESOLVED
     objectBindings:
       - objectRef: media.domain.render-outcome
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.render-outcome
@@ -653,31 +630,21 @@ records:
         contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
         requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
         requestReferenceFields:
-          - fieldSelector: /properties/subjectRef
+          - fieldSelector: /properties/originalArtifactVersionRef
             allowedObjectRefs:
-              - media.domain.quality-assessment
               - media.domain.artifact-version
-            versionRule: exact immutable version required when the source action names a version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+          - fieldSelector: /properties/candidateArtifactVersionRef
+            allowedObjectRefs:
+              - media.domain.artifact-version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: null
         affectedObjectRefs:
-          - media.domain.quality-assessment
           - media.domain.artifact-version
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
     objectBindings:
-      - objectRef: media.domain.quality-assessment
-        identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-        identityTupleFields:
-          - tenantId
-          - outputArtifactVersionRef
-          - assessmentId
-          - methodVersion
-        identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-        versionTupleFields:
-          - outputArtifactVersionRef
-          - methodVersion
-        disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
       - objectRef: media.domain.artifact-version
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
         identityTupleFields:
@@ -689,47 +656,20 @@ records:
           - versionId
         disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
     versionFieldBindings:
-      - id: media.step-version-object-binding.j-12-02.quality-assessment.v1
-        objectRef: media.domain.quality-assessment
-        fields:
-          - direction: REQUEST
-            operationRef: media.operation.action.compare-candidate-on-metric
-            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
-            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
-        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
-        exactVersionTupleRequirement:
-          - outputArtifactVersionRef
-          - methodVersion
-        transitiveVersionJoins: []
-        canonicalVersionIdentityRequirement:
-          identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-          identityComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-          exactTupleFields:
-            - tenantId
-            - outputArtifactVersionRef
-            - assessmentId
-            - methodVersion
-          tupleComparison: ALL_IDENTITY_COMPONENTS_MUST_MATCH_THE_SAME_EXACT_OWNER_ISSUED_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
-          trustedContextFields:
-            - tenantId
-          missingOrStaleDisposition: UNKNOWN
-          foreignTenantOrMixedVersionDisposition: UNKNOWN
-        sourceBoundaryRefs: []
-        deferredVersionBinding: null
-        logicalVersionJoin: null
-        applicabilityContract: null
-        runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
-        acceptanceEffect: none
       - id: media.step-version-object-binding.j-12-02.artifact-version.v1
         objectRef: media.domain.artifact-version
         fields:
           - direction: REQUEST
             operationRef: media.operation.action.compare-candidate-on-metric
             requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/originalArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
+          - direction: REQUEST
+            operationRef: media.operation.action.compare-candidate-on-metric
+            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/candidateArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
             requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
         coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
         exactVersionTupleRequirement:
@@ -964,31 +904,21 @@ records:
         contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
         requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
         requestReferenceFields:
-          - fieldSelector: /properties/subjectRef
+          - fieldSelector: /properties/originalArtifactVersionRef
             allowedObjectRefs:
-              - media.domain.quality-assessment
               - media.domain.artifact-version
-            versionRule: exact immutable version required when the source action names a version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+          - fieldSelector: /properties/candidateArtifactVersionRef
+            allowedObjectRefs:
+              - media.domain.artifact-version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: null
         affectedObjectRefs:
-          - media.domain.quality-assessment
           - media.domain.artifact-version
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
     objectBindings:
-      - objectRef: media.domain.quality-assessment
-        identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-        identityTupleFields:
-          - tenantId
-          - outputArtifactVersionRef
-          - assessmentId
-          - methodVersion
-        identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-        versionTupleFields:
-          - outputArtifactVersionRef
-          - methodVersion
-        disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
       - objectRef: media.domain.artifact-version
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
         identityTupleFields:
@@ -1000,47 +930,20 @@ records:
           - versionId
         disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
     versionFieldBindings:
-      - id: media.step-version-object-binding.j-04-03.quality-assessment.v1
-        objectRef: media.domain.quality-assessment
-        fields:
-          - direction: REQUEST
-            operationRef: media.operation.action.compare-candidate-on-metric
-            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
-            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
-        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
-        exactVersionTupleRequirement:
-          - outputArtifactVersionRef
-          - methodVersion
-        transitiveVersionJoins: []
-        canonicalVersionIdentityRequirement:
-          identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-          identityComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-          exactTupleFields:
-            - tenantId
-            - outputArtifactVersionRef
-            - assessmentId
-            - methodVersion
-          tupleComparison: ALL_IDENTITY_COMPONENTS_MUST_MATCH_THE_SAME_EXACT_OWNER_ISSUED_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
-          trustedContextFields:
-            - tenantId
-          missingOrStaleDisposition: UNKNOWN
-          foreignTenantOrMixedVersionDisposition: UNKNOWN
-        sourceBoundaryRefs: []
-        deferredVersionBinding: null
-        logicalVersionJoin: null
-        applicabilityContract: null
-        runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
-        acceptanceEffect: none
       - id: media.step-version-object-binding.j-04-03.artifact-version.v1
         objectRef: media.domain.artifact-version
         fields:
           - direction: REQUEST
             operationRef: media.operation.action.compare-candidate-on-metric
             requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/originalArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
+          - direction: REQUEST
+            operationRef: media.operation.action.compare-candidate-on-metric
+            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/candidateArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
             requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
         coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
         exactVersionTupleRequirement:
@@ -1592,31 +1495,21 @@ records:
         contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
         requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
         requestReferenceFields:
-          - fieldSelector: /properties/subjectRef
+          - fieldSelector: /properties/originalArtifactVersionRef
             allowedObjectRefs:
-              - media.domain.quality-assessment
               - media.domain.artifact-version
-            versionRule: exact immutable version required when the source action names a version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+          - fieldSelector: /properties/candidateArtifactVersionRef
+            allowedObjectRefs:
+              - media.domain.artifact-version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: null
         affectedObjectRefs:
-          - media.domain.quality-assessment
           - media.domain.artifact-version
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
     objectBindings:
-      - objectRef: media.domain.quality-assessment
-        identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-        identityTupleFields:
-          - tenantId
-          - outputArtifactVersionRef
-          - assessmentId
-          - methodVersion
-        identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-        versionTupleFields:
-          - outputArtifactVersionRef
-          - methodVersion
-        disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
       - objectRef: media.domain.artifact-version
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
         identityTupleFields:
@@ -1628,47 +1521,20 @@ records:
           - versionId
         disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
     versionFieldBindings:
-      - id: media.step-version-object-binding.j-07-03.quality-assessment.v1
-        objectRef: media.domain.quality-assessment
-        fields:
-          - direction: REQUEST
-            operationRef: media.operation.action.compare-candidate-on-metric
-            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
-            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
-        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
-        exactVersionTupleRequirement:
-          - outputArtifactVersionRef
-          - methodVersion
-        transitiveVersionJoins: []
-        canonicalVersionIdentityRequirement:
-          identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-          identityComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-          exactTupleFields:
-            - tenantId
-            - outputArtifactVersionRef
-            - assessmentId
-            - methodVersion
-          tupleComparison: ALL_IDENTITY_COMPONENTS_MUST_MATCH_THE_SAME_EXACT_OWNER_ISSUED_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
-          trustedContextFields:
-            - tenantId
-          missingOrStaleDisposition: UNKNOWN
-          foreignTenantOrMixedVersionDisposition: UNKNOWN
-        sourceBoundaryRefs: []
-        deferredVersionBinding: null
-        logicalVersionJoin: null
-        applicabilityContract: null
-        runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
-        acceptanceEffect: none
       - id: media.step-version-object-binding.j-07-03.artifact-version.v1
         objectRef: media.domain.artifact-version
         fields:
           - direction: REQUEST
             operationRef: media.operation.action.compare-candidate-on-metric
             requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/originalArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
+          - direction: REQUEST
+            operationRef: media.operation.action.compare-candidate-on-metric
+            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/candidateArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
             requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
         coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
         exactVersionTupleRequirement:
@@ -3753,31 +3619,21 @@ records:
         contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
         requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
         requestReferenceFields:
-          - fieldSelector: /properties/subjectRef
+          - fieldSelector: /properties/originalArtifactVersionRef
             allowedObjectRefs:
-              - media.domain.quality-assessment
               - media.domain.artifact-version
-            versionRule: exact immutable version required when the source action names a version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+          - fieldSelector: /properties/candidateArtifactVersionRef
+            allowedObjectRefs:
+              - media.domain.artifact-version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: null
         affectedObjectRefs:
-          - media.domain.quality-assessment
           - media.domain.artifact-version
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
     objectBindings:
-      - objectRef: media.domain.quality-assessment
-        identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-        identityTupleFields:
-          - tenantId
-          - outputArtifactVersionRef
-          - assessmentId
-          - methodVersion
-        identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-        versionTupleFields:
-          - outputArtifactVersionRef
-          - methodVersion
-        disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
       - objectRef: media.domain.artifact-version
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
         identityTupleFields:
@@ -3789,47 +3645,20 @@ records:
           - versionId
         disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
     versionFieldBindings:
-      - id: media.step-version-object-binding.j-11-03.quality-assessment.v1
-        objectRef: media.domain.quality-assessment
-        fields:
-          - direction: REQUEST
-            operationRef: media.operation.action.compare-candidate-on-metric
-            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
-            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
-        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
-        exactVersionTupleRequirement:
-          - outputArtifactVersionRef
-          - methodVersion
-        transitiveVersionJoins: []
-        canonicalVersionIdentityRequirement:
-          identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-          identityComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-          exactTupleFields:
-            - tenantId
-            - outputArtifactVersionRef
-            - assessmentId
-            - methodVersion
-          tupleComparison: ALL_IDENTITY_COMPONENTS_MUST_MATCH_THE_SAME_EXACT_OWNER_ISSUED_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
-          trustedContextFields:
-            - tenantId
-          missingOrStaleDisposition: UNKNOWN
-          foreignTenantOrMixedVersionDisposition: UNKNOWN
-        sourceBoundaryRefs: []
-        deferredVersionBinding: null
-        logicalVersionJoin: null
-        applicabilityContract: null
-        runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
-        acceptanceEffect: none
       - id: media.step-version-object-binding.j-11-03.artifact-version.v1
         objectRef: media.domain.artifact-version
         fields:
           - direction: REQUEST
             operationRef: media.operation.action.compare-candidate-on-metric
             requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/originalArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
+          - direction: REQUEST
+            operationRef: media.operation.action.compare-candidate-on-metric
+            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/candidateArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
             requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
         coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
         exactVersionTupleRequirement:
@@ -4266,6 +4095,36 @@ records:
           - media.domain.processing-job
           - media.domain.job-attempt
           - media.domain.resolved-plan
+        disposition: OWNER_REQUEST_SCHEMA_RESOLVED
+      - operationRef: media.operation.job-status.read-dimensions.v1
+        contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1
+        requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1/requestSchema
+        requestReferenceFields:
+          - fieldSelector: /properties/jobId
+            allowedObjectRefs:
+              - media.domain.processing-job
+            versionRule: Exact logicalJobId from the preceding submit-render admission receipt; absent or mismatched job identity remains UNKNOWN.
+        requestSemanticFields: []
+        resultVersionFields: []
+        resultSemanticsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1/resultSchema
+        affectedObjectRefs:
+          - media.domain.processing-job
+        disposition: OWNER_REQUEST_SCHEMA_RESOLVED
+      - operationRef: media.operation.action.inspect-output-preview-and-version
+        contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version
+        requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/requestSchema
+        requestReferenceFields:
+          - fieldSelector: /properties/subjectRef
+            allowedObjectRefs:
+              - media.domain.render-outcome
+              - media.domain.artifact-version
+            versionRule: Exact observed render-outcome or immutable output version; lineage alone does not prove this job produced the output.
+        requestSemanticFields: []
+        resultVersionFields: []
+        resultSemanticsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1/resultSchema
+        affectedObjectRefs:
+          - media.domain.render-outcome
+          - media.domain.artifact-version
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
     objectBindings:
       - objectRef: media.domain.processing-job
@@ -4941,31 +4800,21 @@ records:
         contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
         requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
         requestReferenceFields:
-          - fieldSelector: /properties/subjectRef
+          - fieldSelector: /properties/originalArtifactVersionRef
             allowedObjectRefs:
-              - media.domain.quality-assessment
               - media.domain.artifact-version
-            versionRule: exact immutable version required when the source action names a version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+          - fieldSelector: /properties/candidateArtifactVersionRef
+            allowedObjectRefs:
+              - media.domain.artifact-version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: null
         affectedObjectRefs:
-          - media.domain.quality-assessment
           - media.domain.artifact-version
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
     objectBindings:
-      - objectRef: media.domain.quality-assessment
-        identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-        identityTupleFields:
-          - tenantId
-          - outputArtifactVersionRef
-          - assessmentId
-          - methodVersion
-        identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-        versionTupleFields:
-          - outputArtifactVersionRef
-          - methodVersion
-        disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
       - objectRef: media.domain.artifact-version
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
         identityTupleFields:
@@ -4977,47 +4826,20 @@ records:
           - versionId
         disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
     versionFieldBindings:
-      - id: media.step-version-object-binding.j-10-05.quality-assessment.v1
-        objectRef: media.domain.quality-assessment
-        fields:
-          - direction: REQUEST
-            operationRef: media.operation.action.compare-candidate-on-metric
-            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
-            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
-        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
-        exactVersionTupleRequirement:
-          - outputArtifactVersionRef
-          - methodVersion
-        transitiveVersionJoins: []
-        canonicalVersionIdentityRequirement:
-          identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-          identityComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-          exactTupleFields:
-            - tenantId
-            - outputArtifactVersionRef
-            - assessmentId
-            - methodVersion
-          tupleComparison: ALL_IDENTITY_COMPONENTS_MUST_MATCH_THE_SAME_EXACT_OWNER_ISSUED_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
-          trustedContextFields:
-            - tenantId
-          missingOrStaleDisposition: UNKNOWN
-          foreignTenantOrMixedVersionDisposition: UNKNOWN
-        sourceBoundaryRefs: []
-        deferredVersionBinding: null
-        logicalVersionJoin: null
-        applicabilityContract: null
-        runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
-        acceptanceEffect: none
       - id: media.step-version-object-binding.j-10-05.artifact-version.v1
         objectRef: media.domain.artifact-version
         fields:
           - direction: REQUEST
             operationRef: media.operation.action.compare-candidate-on-metric
             requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/originalArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
+          - direction: REQUEST
+            operationRef: media.operation.action.compare-candidate-on-metric
+            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/candidateArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
             requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
         coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
         exactVersionTupleRequirement:
@@ -5282,31 +5104,21 @@ records:
         contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
         requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
         requestReferenceFields:
-          - fieldSelector: /properties/subjectRef
+          - fieldSelector: /properties/originalArtifactVersionRef
             allowedObjectRefs:
-              - media.domain.quality-assessment
               - media.domain.artifact-version
-            versionRule: exact immutable version required when the source action names a version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+          - fieldSelector: /properties/candidateArtifactVersionRef
+            allowedObjectRefs:
+              - media.domain.artifact-version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: null
         affectedObjectRefs:
-          - media.domain.quality-assessment
           - media.domain.artifact-version
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
     objectBindings:
-      - objectRef: media.domain.quality-assessment
-        identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-        identityTupleFields:
-          - tenantId
-          - outputArtifactVersionRef
-          - assessmentId
-          - methodVersion
-        identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-        versionTupleFields:
-          - outputArtifactVersionRef
-          - methodVersion
-        disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
       - objectRef: media.domain.artifact-version
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
         identityTupleFields:
@@ -5318,47 +5130,20 @@ records:
           - versionId
         disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
     versionFieldBindings:
-      - id: media.step-version-object-binding.j-19-03.quality-assessment.v1
-        objectRef: media.domain.quality-assessment
-        fields:
-          - direction: REQUEST
-            operationRef: media.operation.action.compare-candidate-on-metric
-            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
-            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
-        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
-        exactVersionTupleRequirement:
-          - outputArtifactVersionRef
-          - methodVersion
-        transitiveVersionJoins: []
-        canonicalVersionIdentityRequirement:
-          identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-          identityComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-          exactTupleFields:
-            - tenantId
-            - outputArtifactVersionRef
-            - assessmentId
-            - methodVersion
-          tupleComparison: ALL_IDENTITY_COMPONENTS_MUST_MATCH_THE_SAME_EXACT_OWNER_ISSUED_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
-          trustedContextFields:
-            - tenantId
-          missingOrStaleDisposition: UNKNOWN
-          foreignTenantOrMixedVersionDisposition: UNKNOWN
-        sourceBoundaryRefs: []
-        deferredVersionBinding: null
-        logicalVersionJoin: null
-        applicabilityContract: null
-        runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
-        acceptanceEffect: none
       - id: media.step-version-object-binding.j-19-03.artifact-version.v1
         objectRef: media.domain.artifact-version
         fields:
           - direction: REQUEST
             operationRef: media.operation.action.compare-candidate-on-metric
             requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/originalArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
+          - direction: REQUEST
+            operationRef: media.operation.action.compare-candidate-on-metric
+            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/candidateArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
             requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
         coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
         exactVersionTupleRequirement:
@@ -7079,31 +6864,21 @@ records:
         contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
         requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
         requestReferenceFields:
-          - fieldSelector: /properties/subjectRef
+          - fieldSelector: /properties/originalArtifactVersionRef
             allowedObjectRefs:
-              - media.domain.quality-assessment
               - media.domain.artifact-version
-            versionRule: exact immutable version required when the source action names a version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+          - fieldSelector: /properties/candidateArtifactVersionRef
+            allowedObjectRefs:
+              - media.domain.artifact-version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: null
         affectedObjectRefs:
-          - media.domain.quality-assessment
           - media.domain.artifact-version
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
     objectBindings:
-      - objectRef: media.domain.quality-assessment
-        identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-        identityTupleFields:
-          - tenantId
-          - outputArtifactVersionRef
-          - assessmentId
-          - methodVersion
-        identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-        versionTupleFields:
-          - outputArtifactVersionRef
-          - methodVersion
-        disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
       - objectRef: media.domain.artifact-version
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
         identityTupleFields:
@@ -7115,47 +6890,20 @@ records:
           - versionId
         disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
     versionFieldBindings:
-      - id: media.step-version-object-binding.j-15-04.quality-assessment.v1
-        objectRef: media.domain.quality-assessment
-        fields:
-          - direction: REQUEST
-            operationRef: media.operation.action.compare-candidate-on-metric
-            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
-            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
-        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
-        exactVersionTupleRequirement:
-          - outputArtifactVersionRef
-          - methodVersion
-        transitiveVersionJoins: []
-        canonicalVersionIdentityRequirement:
-          identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-          identityComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-          exactTupleFields:
-            - tenantId
-            - outputArtifactVersionRef
-            - assessmentId
-            - methodVersion
-          tupleComparison: ALL_IDENTITY_COMPONENTS_MUST_MATCH_THE_SAME_EXACT_OWNER_ISSUED_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
-          trustedContextFields:
-            - tenantId
-          missingOrStaleDisposition: UNKNOWN
-          foreignTenantOrMixedVersionDisposition: UNKNOWN
-        sourceBoundaryRefs: []
-        deferredVersionBinding: null
-        logicalVersionJoin: null
-        applicabilityContract: null
-        runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
-        acceptanceEffect: none
       - id: media.step-version-object-binding.j-15-04.artifact-version.v1
         objectRef: media.domain.artifact-version
         fields:
           - direction: REQUEST
             operationRef: media.operation.action.compare-candidate-on-metric
             requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/originalArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
+          - direction: REQUEST
+            operationRef: media.operation.action.compare-candidate-on-metric
+            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/candidateArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
             requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
         coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
         exactVersionTupleRequirement:
@@ -7345,31 +7093,21 @@ records:
         contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
         requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
         requestReferenceFields:
-          - fieldSelector: /properties/subjectRef
+          - fieldSelector: /properties/originalArtifactVersionRef
             allowedObjectRefs:
-              - media.domain.quality-assessment
               - media.domain.artifact-version
-            versionRule: exact immutable version required when the source action names a version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+          - fieldSelector: /properties/candidateArtifactVersionRef
+            allowedObjectRefs:
+              - media.domain.artifact-version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: null
         affectedObjectRefs:
-          - media.domain.quality-assessment
           - media.domain.artifact-version
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
     objectBindings:
-      - objectRef: media.domain.quality-assessment
-        identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-        identityTupleFields:
-          - tenantId
-          - outputArtifactVersionRef
-          - assessmentId
-          - methodVersion
-        identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-        versionTupleFields:
-          - outputArtifactVersionRef
-          - methodVersion
-        disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
       - objectRef: media.domain.artifact-version
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
         identityTupleFields:
@@ -7381,47 +7119,20 @@ records:
           - versionId
         disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
     versionFieldBindings:
-      - id: media.step-version-object-binding.j-08-03.quality-assessment.v1
-        objectRef: media.domain.quality-assessment
-        fields:
-          - direction: REQUEST
-            operationRef: media.operation.action.compare-candidate-on-metric
-            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
-            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
-        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
-        exactVersionTupleRequirement:
-          - outputArtifactVersionRef
-          - methodVersion
-        transitiveVersionJoins: []
-        canonicalVersionIdentityRequirement:
-          identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-          identityComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-          exactTupleFields:
-            - tenantId
-            - outputArtifactVersionRef
-            - assessmentId
-            - methodVersion
-          tupleComparison: ALL_IDENTITY_COMPONENTS_MUST_MATCH_THE_SAME_EXACT_OWNER_ISSUED_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
-          trustedContextFields:
-            - tenantId
-          missingOrStaleDisposition: UNKNOWN
-          foreignTenantOrMixedVersionDisposition: UNKNOWN
-        sourceBoundaryRefs: []
-        deferredVersionBinding: null
-        logicalVersionJoin: null
-        applicabilityContract: null
-        runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
-        acceptanceEffect: none
       - id: media.step-version-object-binding.j-08-03.artifact-version.v1
         objectRef: media.domain.artifact-version
         fields:
           - direction: REQUEST
             operationRef: media.operation.action.compare-candidate-on-metric
             requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/originalArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
+          - direction: REQUEST
+            operationRef: media.operation.action.compare-candidate-on-metric
+            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/candidateArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
             requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
         coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
         exactVersionTupleRequirement:
@@ -9428,18 +9139,18 @@ records:
           - fieldName: captionVersionId
             boundObjectRefs:
               - media.domain.caption-version
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/outputSemantics/successFields/0
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/outputSemantics/successFields/1
             semanticDisposition: EXACT_OWNER_RESULT_FIELD; IDENTITY_FIELD_TYPE_FROM_CANONICAL_OBJECT_CONTRACT
           - fieldName: sourceArtifactVersionId
             boundObjectRefs:
               - media.domain.artifact-version
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/outputSemantics/successFields/4
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/outputSemantics/successFields/5
             semanticDisposition: EXACT_OWNER_RESULT_FIELD; IDENTITY_FIELD_TYPE_FROM_CANONICAL_OBJECT_CONTRACT
           - fieldName: parentVersionId
             boundObjectRefs:
               - media.domain.transcript-version
               - media.domain.caption-version
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/outputSemantics/successFields/6
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/outputSemantics/successFields/7
             semanticDisposition: EXACT_OWNER_RESULT_FIELD; IDENTITY_FIELD_TYPE_FROM_CANONICAL_OBJECT_CONTRACT
         resultSemanticsRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/outputSemantics
         affectedObjectRefs:
@@ -9496,7 +9207,7 @@ records:
             operationRef: media.operation.caption-version-write
             requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/ownerWireSchema/requestSchema
             resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/outputSemantics
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/outputSemantics/successFields/0
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/outputSemantics/successFields/1
             fieldName: captionVersionId
             artifactType: null
             boundObjectRefs:
@@ -9508,7 +9219,7 @@ records:
             operationRef: media.operation.caption-version-write
             requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/ownerWireSchema/requestSchema
             resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/outputSemantics
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/outputSemantics/successFields/6
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/outputSemantics/successFields/7
             fieldName: parentVersionId
             artifactType: null
             boundObjectRefs:
@@ -9559,7 +9270,7 @@ records:
             operationRef: media.operation.caption-version-write
             requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/ownerWireSchema/requestSchema
             resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/outputSemantics
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/outputSemantics/successFields/4
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/outputSemantics/successFields/5
             fieldName: sourceArtifactVersionId
             artifactType: null
             boundObjectRefs:
@@ -10165,31 +9876,21 @@ records:
         contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
         requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
         requestReferenceFields:
-          - fieldSelector: /properties/subjectRef
+          - fieldSelector: /properties/originalArtifactVersionRef
             allowedObjectRefs:
-              - media.domain.quality-assessment
               - media.domain.artifact-version
-            versionRule: exact immutable version required when the source action names a version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+          - fieldSelector: /properties/candidateArtifactVersionRef
+            allowedObjectRefs:
+              - media.domain.artifact-version
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: null
         affectedObjectRefs:
-          - media.domain.quality-assessment
           - media.domain.artifact-version
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
     objectBindings:
-      - objectRef: media.domain.quality-assessment
-        identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-        identityTupleFields:
-          - tenantId
-          - outputArtifactVersionRef
-          - assessmentId
-          - methodVersion
-        identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-        versionTupleFields:
-          - outputArtifactVersionRef
-          - methodVersion
-        disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
       - objectRef: media.domain.artifact-version
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
         identityTupleFields:
@@ -10201,47 +9902,20 @@ records:
           - versionId
         disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
     versionFieldBindings:
-      - id: media.step-version-object-binding.j-16-05.quality-assessment.v1
-        objectRef: media.domain.quality-assessment
-        fields:
-          - direction: REQUEST
-            operationRef: media.operation.action.compare-candidate-on-metric
-            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
-            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
-        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
-        exactVersionTupleRequirement:
-          - outputArtifactVersionRef
-          - methodVersion
-        transitiveVersionJoins: []
-        canonicalVersionIdentityRequirement:
-          identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
-          identityComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment/identityComponents
-          exactTupleFields:
-            - tenantId
-            - outputArtifactVersionRef
-            - assessmentId
-            - methodVersion
-          tupleComparison: ALL_IDENTITY_COMPONENTS_MUST_MATCH_THE_SAME_EXACT_OWNER_ISSUED_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
-          trustedContextFields:
-            - tenantId
-          missingOrStaleDisposition: UNKNOWN
-          foreignTenantOrMixedVersionDisposition: UNKNOWN
-        sourceBoundaryRefs: []
-        deferredVersionBinding: null
-        logicalVersionJoin: null
-        applicabilityContract: null
-        runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
-        acceptanceEffect: none
       - id: media.step-version-object-binding.j-16-05.artifact-version.v1
         objectRef: media.domain.artifact-version
         fields:
           - direction: REQUEST
             operationRef: media.operation.action.compare-candidate-on-metric
             requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/subjectRef
-            versionRule: exact immutable version required when the source action names a version
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/originalArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
+            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
+          - direction: REQUEST
+            operationRef: media.operation.action.compare-candidate-on-metric
+            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema/properties/candidateArtifactVersionRef
+            versionRule: EXACT_IMMUTABLE_ARTIFACT_VERSION
             requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
         coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
         exactVersionTupleRequirement:

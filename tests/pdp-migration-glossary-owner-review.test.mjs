@@ -86,6 +86,14 @@ test("the full live 22-claim glossary cohort preserves historical pins and binds
       assert.deepEqual(row.metadataFields, ["table-row-heading"]);
       continue;
     }
+    if (["MPSEM-0256-C001", "MPSEM-0256-C004", "MPSEM-0256-C005", "MPSEM-0256-C006"].includes(row.claimId)) {
+      assert.equal(row.semanticReviewStatus, "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY");
+      assert.equal(row.coordinatorReviewStatus, "PENDING");
+      assert.equal(row.acceptanceEffect, "none");
+      assert.equal(approved.proposedTargetRef, row.proposedTargetRef, "retain the historical proposal locator verbatim");
+      assert.equal(approved.proposedTargetValueSha256, row.proposedTargetValueSha256, "retain the historical proposal target pin verbatim");
+      continue; // Pending proposal locators are historical evidence, not current valid routes.
+    }
     const target = resolveRef(row.proposedTargetRef);
     assert.equal(sha(target), row.proposedTargetValueSha256, `${row.claimId} exact target hash`);
     validateMaterial(row, target);
@@ -101,13 +109,46 @@ test("glossary owner definitions reject loss of privacy axes, clock profiles, pi
   const row = (claimId) => artifact.records.find((entry) => entry.claimId === claimId);
   const mutate = (claimId, edit) => {
     const claim = row(claimId);
-    const target = structuredClone(resolveRef(claim.proposedTargetRef));
+    const targetRef = claimId === "MPSEM-0256-C005"
+      ? ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=story_explanation_time"
+      : claim.proposedTargetRef;
+    const target = structuredClone(resolveRef(targetRef));
     edit(target);
     assert.throws(() => validateMaterial(claim, target));
   };
   mutate("MPSEM-0036-C003", (target) => { target.summaryRule = "Use one private/public value."; });
   mutate("MPSEM-0255-C002", (target) => { target.intervalConvention = "Closed intervals."; });
-  mutate("MPSEM-0256-C006", (target) => { target.coupling = "Story scrub advances model time."; });
+  mutate("MPSEM-0256-C005", (target) => { target.coupling = "Story scrub advances model time."; });
   mutate("MPSEM-0261-C005", (target) => { target.convention = "pixel-boundary; top-left; right-down"; });
   mutate("MPSEM-0442-C002", (target) => { target.distinctions = ["Switching levels creates separate workflows."]; });
+});
+
+test("current media presentation glossary maps output/edit position to story time", () => {
+  const glossary = readYaml(".product-experience/pdp-0-product-truth/glossary.yaml");
+  const mediaTime = glossary.terms.find(({ id }) => id === "media.term.media-time");
+  const storyTime = glossary.terms.find(({ id }) => id === "media.term.story-time");
+  const fidelity = readYaml(".product-experience/pdp-0-product-truth/time-units-fidelity.yaml");
+  assert.match(mediaTime.definition, /output|editorial|story|explanation/iu);
+  assert.doesNotMatch(mediaTime.distinctions.join(" "), /distinct from .*story/u);
+  assert.doesNotMatch(mediaTime.distinctions.join(" "), /distinct from .*source timestamps/u);
+  assert.match(storyTime.definition, /output|editorial/u);
+  assert.match(storyTime.definition, /Source time remains separately identified and explicitly mapped/u);
+
+  assert.deepEqual(fidelity.productTruthClockDomains.domainIds, [
+    "source_video_presentation_time", "audio_sample_time", "story_explanation_time",
+    "simulation_execution_time", "wall_clock_time",
+  ]);
+  assert.match(fidelity.productTruthClockDomains.domainIdentityRule, /These five identifiers are the complete product clock set/u);
+  assert.match(fidelity.productTruthClockDomains.domainIdentityRule, /distinct/u);
+  assert.match(fidelity.productTruthClockDomains.domainIdentityRule, /Editorial and output presentation use story\/explanation time/u);
+  assert.match(fidelity.productTruthClockDomains.domainIdentityRule, /decode timestamps remain source-stream ordering metadata, not an additional product clock/u);
+});
+
+test("each conversion records uncertainty in the PDP-0 contract and fidelity rules", () => {
+  const fidelity = readYaml(".product-experience/pdp-0-product-truth/time-units-fidelity.yaml");
+  const requirement = readYaml(".product-experience/pdp-0-product-truth/requirements.yaml")
+    .recorderStudioProfile.acceptanceClauses.find(({ id }) => id === "MEDIA-REC-P0-AC-010");
+  assert.match(requirement.then, /exactly five distinct product clock domains/u);
+  assert.match(requirement.then, /each conversion names its source and destination domain.*uncertainty/isu);
+  assert.match(fidelity.conversionRequirements[0], /uncertainty/u);
 });

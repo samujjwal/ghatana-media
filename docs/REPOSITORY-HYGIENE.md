@@ -1,8 +1,8 @@
 # Media repository hygiene and naming
 
-**Status:** October 12, 2026. Active source hygiene is a **Build-stage maintenance** concern. PDP-0 through PDP-3 remain `DEV_COMPLETE` with no pending PDP development tasks.
+**Scope:** This guide records repository hygiene rules and cleanup history. It does not report current PDP status; use the [PDP source index](../.product-experience/README.md) and its source-pinned status records.
 
-## The current cleanup boundary
+## Repository categories and deletion criteria
 
 The repository contains canonical authored PDP contracts, a prepared copy of the runtime still canonical in `ghatana/services/media`, supported UI/client packages, migration inventories, preserved verification records, and an archived desktop source tree. Those categories have different deletion rules. Do not count historic work packets or old test logs as active development tasks.
 

@@ -5,22 +5,70 @@ status: authored-proposal; P0-010-and-accessibility-review-pending
 source: .product-experience/pdp-0-product-truth/state-models.yaml
 presentationRules:
   - Render the exact owning state plus a short explanation; do not create a second UI-only lifecycle.
+  - Generic media-job labels and actions reflect only the owning state. Operation-specific status labels require authoritative binding to the exact operation and displayed job identity. Result availability, review actions, and provenance actions additionally require authoritative binding across that operation, displayed job identity, and exact immutable result version; never infer them from the shared job state, an operation family, or a submission receipt.
+  - When exact operation and result context is absent, stale, or unknown, use the generic owner-state label and only actions safe for that generic state.
+  - For proposal-only rule management, render the exact source operation and outcome with its exact rule-set version, tenant, purpose, scope, source provenance, expected predecessor, and fingerprint; presentation labels never create a persistent state or admit an operation.
+  - A valid rule validation is an observation for the exact candidate and validation context. It is not approval, execution, applied effect, or measured media quality.
   - Keep job status, attempt status, consent, transcript alignment, review status, and effect finality as separate fields.
   - A state with no safe user action shows the responsible boundary and an explanation.
   - Notify only for action required, material degradation, approval, completion of long work, delivery outcome, or critical security/rights conditions; do not toast every internal processing stage.
+ruleManagementProposalPresentation:
+  id: media.ui.rule-management-proposal-presentation.v1
+  authority: Coordinator-authored PDP-2 presentation definition for the pending AUD-SPEC-020 proposal; no owner acceptance or runtime admission
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/handoff-contracts.yaml#/handoffs/pdp1ToPdp2CanonicalDomain/proposalHandoffs/@id=media.rules.manage.pdp1-definition-handoff.v1
+    - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml
+    - .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#ruleManagementProposalInterfaceBinding
+    - .product-experience/pdp-2-design-interface-system/accessibility.yaml#ownerDefinedRuleManagementProposalControls
+  semantics:
+    presentationOnly: true
+    createsPersistentLifecycleState: false
+    preservesExactBindings: [tenant, purpose, rule-set-scope, exact-version, expected-predecessor, source-provenance, normalized-graph, semantic-fingerprint, target-operation, validation-context, validation-receipt, candidate-operation-plan]
+    staleOrUnknown: Keep STALE and UNKNOWN visibly distinct, retain the requested exact version, and offer only safe read-only inspection or reconciliation; never substitute a latest version, silently rebase, blindly retry, or imply finality.
+    nonSuccess: Keep REJECTED, INVALID, UNSUPPORTED, DENIED, CONFLICT, STALE, UNKNOWN, and UNAVAILABLE distinct according to the exact operation result schema. Show the typed reason or diagnostics and no success-only candidate or plan when the source contract forbids it.
+    admission: Every presentation is non-callable while the source proposal is NOT_ADMITTED; no affordance implies owner approval, operation availability, media mutation, or execution.
+  operationOutcomes:
+    - operationRef: media.rules.compile-candidate.v1
+      resultSchemaRef: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/compileContract/resultSchema
+      outcomes: [COMPILED, REJECTED, UNSUPPORTED, DENIED, CONFLICT, STALE, UNKNOWN, UNAVAILABLE]
+      successMeaning: Exact versioned candidate, normalized graph, and fingerprint are returned; no rule is approved or applied.
+    - operationRef: media.rules.inspect-candidate.v1
+      resultSchemaRef: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/inspectContract/resultSchema
+      outcomes: [INSPECTED, DENIED, CONFLICT, STALE, UNKNOWN, UNAVAILABLE]
+      successMeaning: Read-only inspection of the exact requested tenant/rule-set/version tuple; no validation or reuse is implied.
+    - operationRef: media.rules.validate-candidate.v1
+      resultSchemaRef: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract/resultSchema
+      outcomes: [VALID, INVALID, UNSUPPORTED, UNAVAILABLE, DENIED, CONFLICT, STALE, UNKNOWN]
+      successMeaning: Validation observation is bound to the exact version, fingerprint, declared scope, and validation context; it does not authorize application.
+    - operationRef: media.rules.reuse-candidate.v1
+      resultSchemaRef: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/resultSchema
+      outcomes: [REUSE_REQUESTED, DENIED, CONFLICT, UNKNOWN, UNAVAILABLE, STALE, INVALID, UNSUPPORTED]
+      successMeaning: Return a candidate operation plan only; executionAdmission remains NOT_ADMITTED.
+  nonClaims:
+    ownerApproval: NOT_CLAIMED
+    independentAcceptance: NOT_CLAIMED
+    runtimeAdmission: NOT_ADMITTED
+    executionAdmission: NOT_ADMITTED
+  negativeCases:
+    - a display label or badge creates a persistent lifecycle state or an action absent from the exact source contract
+    - a candidate or VALID result is rendered as approval, execution, applied rules, or measured media quality
+    - a stale or unknown result falls back to the latest version, silently rebases, or retries without reconciliation
+    - any outcome drops the exact tenant, purpose, scope, version, provenance, predecessor, or fingerprint binding
+    - a proposal-only result is represented as callable, available, approved, or admitted
+  scopeStatus: COORDINATOR_AUTHORED_PROPOSAL_PRESENTATION_DEFINITION; PENDING_OWNER_REVIEW; no route or runtime compatibility implied
 states:
   - stateRef: media-job.QUEUED
     label: Waiting to start
     explanation: The request is recorded; processing has not started.
     safeActionRefs: [media.action.view-job-status, media.action.request-cancellation]
   - stateRef: media-job.RUNNING
-    label: Transcribing
-    explanation: A current attempt is processing the authorized request.
+    label: In progress
+    explanation: A current fenced attempt is executing an admitted stage for this request.
     safeActionRefs: [media.action.view-job-status, media.action.request-cancellation]
   - stateRef: media-job.COMPLETED
-    label: Transcript ready to review
-    explanation: The result is recorded; review is still required where applicable.
-    safeActionRefs: [media.action.review-transcript, media.action.inspect-provenance]
+    label: Completed
+    explanation: Verified outputs are registered and satisfy the accepted result contract.
+    safeActionRefs: [media.action.view-job-status]
   - stateRef: media-job.OUTCOME_UNKNOWN
     label: Outcome not confirmed
     explanation: The request may have started; check its status before taking another action.
@@ -66,6 +114,22 @@ ownerDefinedStatePresentationRules:
       - removing an authorization or effect boundary during relocation is not behavior-preserving
       - source relocation or compilation alone cannot establish semantic equivalence
     scopeStatus: OWNER_DEFINED_MIGRATION_CONSTRAINT; historical implementation verification remains separately evidenced.
+  - id: media.ui.rule-management-proposal-not-a-lifecycle.v1
+    rule: >-
+      The rule-management proposal's candidate, inspection, validation, reuse-plan, and non-success displays are
+      presentation of exact operation results only. Their labels do not add a persistent owner state, authority,
+      approval, execution, or measured effect. Preserve the exact tenant, purpose, scope, version, predecessor,
+      source references, graph, fingerprint, target operation, validation receipt, and operation-plan bindings.
+      STALE and UNKNOWN remain unresolved and never select a latest version, silently rebase, or trigger a blind retry.
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml
+      - .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#ruleManagementProposalInterfaceBinding
+      - .product-experience/pdp-2-design-interface-system/accessibility.yaml#ownerDefinedRuleManagementProposalControls
+    negativeCases:
+      - a candidate, valid validation observation, or candidate plan is presented as approval or execution
+      - a proposal-only operation is exposed as callable or runtime-admitted
+      - STALE or UNKNOWN changes the requested version or leads to an automatic retry
+    scopeStatus: COORDINATOR_AUTHORED_PROPOSAL_PRESENTATION_DEFINITION; PENDING_OWNER_REVIEW
 normativeRuleRecords:
   - id: media.p2.rule.ui-state-presentation-not-state-machine.v1
     ruleRef: .product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#/ownerDefinedStatePresentationRules/@id=media.ui.state-presentation-not-state-machine.v1
@@ -78,4 +142,8 @@ normativeRuleRecords:
   - id: media.p2.rule.ui-behavior-preserving-relocation.v1
     ruleRef: .product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#/ownerDefinedStatePresentationRules/@id=media.ui.behavior-preserving-relocation.v1
     sourceAuthority: .product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml
+    acceptanceEffect: none
+  - id: media.p2.rule.rule-management-proposal-not-a-lifecycle.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#/ownerDefinedStatePresentationRules/@id=media.ui.rule-management-proposal-not-a-lifecycle.v1
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#ruleManagementProposalInterfaceBinding
     acceptanceEffect: none

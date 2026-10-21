@@ -1,17 +1,19 @@
-> **Applied to repository 2026-10-16** as a narrowly-scoped execution addendum to the controlling plans
+> **Historical planning record only (2026-10-16).** This execution addendum applied to the plans controlling at that source cut. It is not a current task queue, PDP status, Build admission, or product-definition authority. Use the [canonical PDP source index](../../.product-experience/README.md) and the [live source/status pointer](MEDIA-UNIFIED-PRODUCTION-CURRENT-PLAN.md).
+>
+> **Applied to repository 2026-10-16** as a narrowly-scoped execution addendum to the plans controlling at that time
 > [MEDIA-DISCOVERY-PDP3-FINISH-2026-10-15.md](./MEDIA-DISCOVERY-PDP3-FINISH-2026-10-15.md) and
 > [MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md](./MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md).
 > It adds ordered execution steps and the D3-00 failure census; it is NOT a PDP phase exit or Build admission.
 > Fresh census companion: [observations/media-discovery-pdp3-failure-census-2026-10-16.json](./observations/media-discovery-pdp3-failure-census-2026-10-16.json).
 
-# Ghatana Media: PDP-3 DEV_COMPLETE → Complete-Product Build Plan
+# Historical Ghatana Media: PDP-3 DEV_COMPLETE → Complete-Product Build Plan
 **Reviewed 2026-10-16 | Repository:** `samujjwal/ghatana-media` | **remote main:** `7bc723c150538001a111d3be13e254b405fea7ee`
 
-> **Status:** REVIEWED PLAN / NOT A PDP PHASE EXIT / NOT A BUILD ADMISSION. This is a remaining-work **execution overlay**, not a competing product specification or another PBI backlog. The authoritative product definitions remain `.product-experience/pdp-0-product-truth/`, `pdp-1-domain-data/`, `pdp-2-design-interface-system/`, and `pdp-3-product-experience/`. Existing controlling plans remain `docs/implementation/MEDIA-DISCOVERY-PDP3-FINISH-2026-10-15.md`, `MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md`, and `media-build-coverage-plan-2026-10-15.json`. On application to the repository, merge this into those plans or link as a narrowly-scoped execution addendum; do not maintain two independently editable inventories.
+> **Status at the October 16 source cut:** reviewed planning overlay only; not a PDP phase exit or Build admission. Product meaning remains in the phase-owned `.product-experience/` sources. The plans named here controlled that dated cut only. This file preserves historical implementation handoff detail and does not schedule current work.
 
 ## A. Binding scope, reviewed facts and non-goals
 
-**Current campaign:** 50 unique source/surface identities (26 physical candidates: 12 physical, 12 support-only, 2 subsumed; 6 semantic compositions; 1 root; 17 consumers, including 1 archived N/A), giving **200 PDP-phase cells**. PDP-3 defines **30 journeys, 130 steps, 147 action identities, 47 screen contracts, 61 intended logical channel edges, and 14 consequential selectors**. Prior PDP-0/1/2 technical exits are R15/R30/R19 on their dated cuts, *not a proof of unchanged currentness*. The most recent PDP-3 R6 observation is `UNKNOWN`: 613 referenced paths, 291 historical matches, 46 changes, 276 previously unpinned; 43 of 61 edges were source-bound definition-only, 18 required logical clarification across ten journeys (including two deliberately blocked J-21 rights-approval edges). All 61 transports remain `UNBOUND` and runtime `NOT_ADMITTED` by design during Discovery.
+**Campaign at the 2026-10-16 review cut:** 50 unique source/surface identities (26 physical candidates: 12 physical, 12 support-only, 2 subsumed; 6 semantic compositions; 1 root; 17 consumers, including 1 archived N/A), giving **200 PDP-phase cells**. PDP-3 defined **30 journeys, 130 steps, 147 action identities, 47 screen contracts, 61 intended logical channel edges, and 14 consequential selectors**. Prior PDP-0/1/2 technical exits were R15/R30/R19 on their dated cuts, not proof of unchanged currentness. The then-most-recent PDP-3 R6 observation was `UNKNOWN`; all counts and states here are historical. All 61 transports were `UNBOUND` and runtime `NOT_ADMITTED` during Discovery.
 
 The **pasted review** describes an earlier 1,760-test suite with 72 failed assertions across 42 files and a six-file correction (146→147 actions; 144→145 derived effect/finality count); **that correction is now committed** on remote `main@7bc723c`. Its 66-failure residual is a reported expectation, *not a new execution result for the current remote HEAD*. No tests were executed from this planning environment; obtain a fresh deterministic census before claiming a count.
 

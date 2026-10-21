@@ -1,6 +1,6 @@
 # Ghatana Media — Owner-reviewed post-PDP execution directive
 
-> **PDP stages finished (owner correction, October 12, 2026):** PDP-0…PDP-3 are `DEV_COMPLETE`, with **0 remaining PDP development tasks**. All open IDs in this dated document belong to **Build/Integration/Test/Delivery** or real release/qualification decisions, not PDP authoring. Follow the [Build-stage handoff](MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md); the former 15-card remaining-PDP list is superseded. Dated implementation dispositions and authentic external authority requirements remain unchanged.
+> **Historical phase-status statement — October 12, 2026:** The `DEV_COMPLETE` claims and zero-task count below describe the source cut recorded at that time. They do not establish current phase status or authorize downstream work. Consult the [canonical PDP source index](../../.product-experience/README.md) and live phase status records before scheduling work. Preserve the 47 task IDs and their dated dispositions as provenance.
 
 **Date:** 2026-10-12 · **Media source:** [39ebe9f](https://github.com/samujjwal/ghatana-media/commit/39ebe9f982b50a85c4a1c6a64c62222a4f118c0b) · **Canonical ghatana runtime:** [fd6d91f](https://github.com/samujjwal/ghatana/commit/fd6d91fb919748a2be9532f7a8f22d02f086b2a1).
 

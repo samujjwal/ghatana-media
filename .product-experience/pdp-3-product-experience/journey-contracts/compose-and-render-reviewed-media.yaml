@@ -929,21 +929,30 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: EXACT_OPERATION_RESULT_DEFINED
-      scope: immediate-step-result
-      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
-      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
-      operationRef: media.operation.caption-draft-write
-      meaning: Immediate result is the operation envelope outcome SUCCEEDED, REJECTED,
-        or UNKNOWN_OUTCOME; SUCCEEDED returns the complete session-local draft
-        snapshot and source/parent identifiers, with no persistence or
-        canonical-version claim.
-      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
-        NOT_ADMITTED and no owner evidence/result is asserted
-      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/terminalSuccess
+      status: "SOURCE_DEFINED; runtime-admission-pending"
+      scope: "session-local-caption-draft-result"
+      sourceRef: ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics/result"
+      resultSchemaRef: ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics"
+      operationRef: "media.operation.caption-draft-write"
+      meaning: "Immediate result is the operation envelope outcome SUCCEEDED, REJECTED, or UNKNOWN_OUTCOME; SUCCEEDED returns the complete session-local draft snapshot and source/parent identifiers, with no persistence or canonical-version claim."
+      evidenceBoundary: "definition-grade operation contract only; runtimeAdmission NOT_ADMITTED and no owner evidence/result is asserted"
+      proposal: "Return the operation envelope outcome SUCCEEDED, REJECTED, or UNKNOWN_OUTCOME. On SUCCEEDED return exactly one complete session-local draft snapshot with exact source and typed-parent identities and the new draft revision; do not claim persistence, a canonical caption version, render, or delivery."
     failure:
-      status: candidate-proposal
-      sourceRef: journey.criticalNonhappyPaths
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: text-only correction branch; preserve prior snapshot on invalid request,
+        authority, source, parent, segment, or revision
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/error
+      proposal: Keep the prior snapshot unchanged on INVALID_REQUEST, ACCESS_DENIED,
+        DRAFT_NOT_FOUND_IN_CALLER_SCOPE, DRAFT_INITIALIZATION_BLOCKED,
+        SOURCE_IDENTITY_MISMATCH, PARENT_VERSION_STALE, DRAFT_REVISION_CONFLICT,
+        DRAFT_REVISION_EXHAUSTED, CAPTION_SEGMENT_NOT_FOUND,
+        SOURCE_CLOCK_UNAVAILABLE, CAPTION_TIMING_INVALID, UNAVAILABLE. These
+        operation errors remain distinct; UNKNOWN_OUTCOME is ambiguous, not a
+        rejection, and must be reconciled by inspecting the same draft before
+        another explicit edit.
+    journeyFailureContext:
+      status: JOURNEY_LEVEL_CONTEXT_ONLY; NOT_AN_IMMEDIATE_OPERATION_RESULT
+      sourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-18/criticalNonhappyPaths
       summary:
         - Stale asset/version, unsupported font/codec, color/alpha
           interpretation unknown, or rights approval expired.
@@ -958,8 +967,17 @@ steps:
       dispatch: NEVER
       ownerAcceptedOutcomeOracle: false
     recovery:
-      status: candidate-proposal
-      sourceRef: journey.recovery
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: same-session-local-draft
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/recovery
+      proposal: After an uncertain local result, inspect the same draftId and current
+        draftRevision before applying any edit again; never blindly reapply or
+        increment again. For stale parent, explicitly prepare a distinct
+        revision-zero draft under fresh policy and retain the old stale draft
+        until explicit discard.
+    journeyRecoveryContext:
+      status: JOURNEY_LEVEL_CONTEXT_ONLY; NOT_AN_IMMEDIATE_OPERATION_RESULT
+      sourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-18/recovery
       summary: Preserve composition and source versions; replace/review only affected
         assets and regenerate approval where material output changed.
     postconditions:
@@ -1119,7 +1137,7 @@ steps:
         authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
         transitionRef: null
         requirementRefs:
-          - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT
+          - MEDIA-REQ-CAP-ARTIFACT
         scenarioRefs: []
         capabilityRefs: [ media.artifact.derive ]
         authorityRefs:
@@ -1161,7 +1179,7 @@ steps:
         object/state/authority/transition/requirement identities, external
         review and lifecycle evidence remain separate.
       fixtureOracle:
-        status: NO_STEP_SCENARIO_BOUND; SERIALIZED_ORACLE_RECONCILIATION_PENDING
+        status: NO_STEP_SCENARIO_BOUND
         sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
         journeyRef: J-18
         scenarioRefs: []

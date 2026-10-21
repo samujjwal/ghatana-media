@@ -689,6 +689,47 @@ function validateBoundedJ19ScopedQueryDefinition(journey, { stepIndex, view, ope
   assert.equal(operation.operationKind, "QUERY");
   assert.equal(operation.actionRef, step.actionRef);
   assert.deepEqual(operation.domainObjectRefs, objectRefs);
+  if (operationId === "media.operation.action.compare-candidate-on-metric") {
+    const operationResultRef = ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema";
+    const pairedResultRef = ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema";
+    assert.equal(operation.contractVersion, 2);
+    assert.deepEqual(operation.resultSchema.fields, [
+      "requestId", "originalArtifactVersionRef", "candidateArtifactVersionRef", "metricRefs", "metricResults", "observedAt",
+    ]);
+    assert.equal(operation.resultSchemaRef, pairedResultRef);
+    assert.equal(operation.profileRef, profile.id);
+    assert.deepEqual(profile.resultEnvelope.fields, ["typed observations", "observedAt"]);
+    assert.equal(profile.finality, "read-only observation; no state mutation, external effect, or authorization grant");
+    assert.equal(step.success.status, "EXACT_OPERATION_RESULT_DEFINED");
+    assert.equal(step.success.scope, "immediate-step-result");
+    assert.equal(step.success.sourceRef, operationResultRef);
+    assert.equal(step.success.resultSchemaRef, operationResultRef);
+    assert.equal(step.success.pairedObservationResultSchemaRef, pairedResultRef);
+    assert.equal(step.success.operationRef, operation.id);
+    assert.match(step.success.meaning, /exact originalArtifactVersionRef, exact candidateArtifactVersionRef, requested metricRefs/u);
+    assert.match(step.success.meaning, /UNKNOWN and NOT_COMPARABLE remain explicit/u);
+    assert.match(step.success.meaning, /[Nn]o delta, direction, threshold, pass\/fail, aggregate, rank, winner, improvement, qualification, or user selection is inferred/u);
+    assert.match(step.success.evidenceBoundary, /runtimeAdmission NOT_ADMITTED and no owner evidence\/result is asserted/u);
+    assert.equal(step.success.laterJourneyOutcomeRef,
+      ".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/terminalSuccess");
+    assert.equal(step.stepDefinitionSemantics.stepSourceFacts.resultSourceRef, pairedResultRef);
+    assert.equal(step.stepDefinitionSemantics.stepSourceFacts.resultDisposition, "SOURCE_BOUND_IMMEDIATE_RESULT");
+    assert.equal(step.stepDefinitionSemantics.stepSourceFacts.comparisonEvidenceDisposition.operationVersion, 2);
+    assert.equal(step.stepDefinitionSemantics.stepSourceFacts.comparisonEvidenceDisposition.noDerivedConclusion, true);
+    assert.equal(step.stepDefinitionSemantics.action.runtimeAdmission, "NOT_ADMITTED");
+    assert.equal(step.stepDefinitionSemantics.canonicalBindings.canonicalOperationRef, operation.id);
+    assert.deepEqual(step.stepDefinitionSemantics.canonicalBindings.objectRefs, operation.domainObjectRefs);
+    assert.deepEqual(step.stepDefinitionSemantics.canonicalBindings.stateRefs, []);
+    assert.equal(step.degradedBehavior.status, "SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD");
+    assert.equal(step.degradedBehavior.sourceRef, pairedResultRef);
+    assert.match(step.degradedBehavior.disposition, /UNKNOWN/u);
+    assert.match(step.degradedBehavior.disposition, /NOT_COMPARABLE/u);
+    assert.equal(step.degradedBehavior.runtimeAdmission, "NOT_ADMITTED");
+    assert.equal(step.degradedBehavior.dispatch, "NEVER");
+    assert.equal(step.verification.status, "not-run");
+    assert.deepEqual(step.verification.actualEvidence, []);
+    return;
+  }
   assert.deepEqual(operation.resultSchema.fields, ["requestId", "exactTargetRef", "ownerReceipt", "observedAt"]);
   assert.equal(operation.resultSchemaRef, `${profile.id}#resultEnvelope`);
   assert.equal(operation.profileRef, profile.id);
@@ -781,6 +822,48 @@ function validateBoundedScopedQueryStepDefinition(journey, { journeyId, stepInde
   assert.equal(operation.actionRef, authoredActionRef);
   assert.deepEqual(operation.domainObjectRefs, step.objectRefs);
   assert.equal(operation.profileRef, profile.id);
+  if (journeyId === "J-16" && stepIndex === 4 && operationId === "media.operation.action.compare-candidate-on-metric") {
+    const operationResultRef = ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema";
+    const pairedResultRef = ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema";
+    assert.equal(operation.contractVersion, 2);
+    assert.deepEqual(operation.resultSchema.fields, [
+      "requestId", "originalArtifactVersionRef", "candidateArtifactVersionRef", "metricRefs", "metricResults", "observedAt",
+    ]);
+    assert.equal(operation.resultSchemaRef, pairedResultRef);
+    assert.deepEqual(operation.domainObjectRefs, ["media.domain.artifact-version"]);
+    assert.equal(operation.scopeStatus, "proposal-authored; exact-pair-request-and-paired-evidence-result meaning defined; owner-acceptance-not-claimed; independent-PDP1-and-PDP3-review-open; transport/runtime-NOT_ADMITTED");
+    assert.equal(step.canonicalOperationRef, operationId);
+    assert.deepEqual(step.objectRefs, operation.domainObjectRefs);
+    assert.deepEqual(step.stateRefs, []);
+    assert.equal(step.success.status, "EXACT_OPERATION_RESULT_DEFINED");
+    assert.equal(step.success.sourceRef, operationResultRef);
+    assert.equal(step.success.resultSchemaRef, operationResultRef);
+    assert.equal(step.success.pairedObservationResultSchemaRef, pairedResultRef);
+    assert.equal(step.success.operationRef, operationId);
+    assert.equal(step.success.laterJourneyOutcomeRef, laterOutcomeRef);
+    assert.match(step.success.meaning, /exact originalArtifactVersionRef, candidateArtifactVersionRef, requested metricRefs/u);
+    assert.match(step.success.meaning, /UNKNOWN and NOT_COMPARABLE remain explicit/u);
+    assert.match(step.success.meaning, /No delta, direction, threshold, pass\/fail, aggregate, rank, winner, improvement, or qualification is inferred/u);
+    assert.doesNotMatch(step.success.meaning, /exactTargetRef|ownerReceipt/u);
+    assert.match(step.success.evidenceBoundary, /runtimeAdmission NOT_ADMITTED and no owner evidence\/result is asserted/u);
+    assert.equal(step.stepDefinitionSemantics.stepSourceFacts.resultDisposition, "SOURCE_BOUND_IMMEDIATE_RESULT");
+    assert.equal(step.stepDefinitionSemantics.stepSourceFacts.resultSourceRef, pairedResultRef);
+    assert.equal(step.stepDefinitionSemantics.stepSourceFacts.comparisonEvidenceDisposition.operationVersion, 2);
+    assert.equal(step.stepDefinitionSemantics.stepSourceFacts.comparisonEvidenceDisposition.pairedObservationResultSchemaRef, pairedResultRef);
+    assert.equal(step.stepDefinitionSemantics.stepSourceFacts.comparisonEvidenceDisposition.noDerivedConclusion, true);
+    assert.equal(step.stepDefinitionSemantics.action.runtimeAdmission, "NOT_ADMITTED");
+    assert.deepEqual(step.stepDefinitionSemantics.canonicalBindings.objectRefs, operation.domainObjectRefs);
+    assert.deepEqual(step.stepDefinitionSemantics.operationContractBinding.domainObjectRefs, operation.domainObjectRefs);
+    assert.deepEqual(step.stepDefinitionSemantics.versionedObjectObservation.objectRefs, operation.domainObjectRefs);
+    assert.equal(step.degradedBehavior.sourceRef, operationResultRef);
+    assert.match(step.degradedBehavior.disposition, /UNKNOWN/u);
+    assert.match(step.degradedBehavior.disposition, /NOT_COMPARABLE/u);
+    assert.equal(step.degradedBehavior.runtimeAdmission, "NOT_ADMITTED");
+    assert.equal(step.degradedBehavior.dispatch, "NEVER");
+    assert.equal(step.verification.status, "not-run");
+    assert.deepEqual(step.verification.actualEvidence, []);
+    return;
+  }
   assert.equal(operation.resultSchemaRef, `${profile.id}#resultEnvelope`);
   assert.deepEqual(operation.resultSchema.fields, ["requestId", "exactTargetRef", "ownerReceipt", "observedAt"]);
   assert.deepEqual(profile.resultEnvelope.fields, ["typed observations", "observedAt"]);
@@ -1130,6 +1213,7 @@ function validateBoundedJ16CaptionDraftWriteDefinition(journey) {
   const step = journey.steps[2];
   const operationId = "media.operation.caption-draft-write";
   const resultRef = ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics";
+  const resultValueRef = `${resultRef}/result`;
   const operation = readYaml(".product-experience/pdp-1-domain-data/operations.yaml").operations
     .find(({ id }) => id === operationId);
   assert.equal(journey.journeyId, "J-16");
@@ -1156,15 +1240,15 @@ function validateBoundedJ16CaptionDraftWriteDefinition(journey) {
   assert.equal(step.transitionRef, null);
   assert.equal(step.transitionDisposition.status, "NO_P1_MACHINE_TRANSITION");
   assert.equal(step.transitionDisposition.decisionRef, ".product-experience/decision-log.md#PXD-068");
-  assert.equal(step.success.status, "EXACT_OPERATION_RESULT_DEFINED");
-  assert.equal(step.success.sourceRef, resultRef);
+  assert.equal(step.success.status, "SOURCE_DEFINED; runtime-admission-pending");
+  assert.equal(step.success.sourceRef, resultValueRef);
   assert.equal(step.success.resultSchemaRef, resultRef);
   assert.equal(step.success.operationRef, operationId);
-  assert.equal(step.success.laterJourneyOutcomeRef,
-    ".product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/terminalSuccess");
+  assert.equal(step.success.laterJourneyOutcomeRef, undefined,
+    "the immediate caption draft result does not bind the later J-16 terminal outcome");
   assert.match(step.success.meaning, /SUCCEEDED, REJECTED, or UNKNOWN_OUTCOME/u);
   assert.match(step.success.meaning, /complete session-local draft snapshot/u);
-  assert.match(step.success.meaning, /no persistence or canonical-version claim/u);
+  assert.match(step.success.meaning, /Persistence beyond the active session and any canonical-version claim are not asserted/u);
   assert.match(step.success.evidenceBoundary, /runtimeAdmission NOT_ADMITTED and no owner evidence\/result is asserted/u);
   assert.equal(step.bindingStatus.success,
     `step-scoped immediate result defined by ${resultRef}; later journey outcome remains separate`);
@@ -1179,7 +1263,7 @@ function validateBoundedJ16CaptionDraftWriteDefinition(journey) {
     `source-backed immediate-step degraded disposition defined by ${resultRef}`);
   assert.equal(step.stepDefinitionSemantics.action.runtimeAdmission, "NOT_ADMITTED");
   assert.deepEqual(step.stepDefinitionSemantics.action.exactOperationRefs, [operationId]);
-  assert.deepEqual(step.stepDefinitionSemantics.stepSourceFacts.resultSourceRef, [`${resultRef}/result`]);
+  assert.deepEqual(step.stepDefinitionSemantics.stepSourceFacts.resultSourceRef, [resultValueRef]);
   assert.equal(step.stepDefinitionSemantics.transitionApplicability.status,
     "LOCAL_SESSION_OR_DRAFT_EFFECT; NO_P1_MACHINE_TRANSITION");
   assert.equal(step.stepDefinitionSemantics.transitionApplicability.operationRef, operationId);
@@ -1628,6 +1712,35 @@ function validateBoundedSubmitRenderOutcomeDefinition(journey, { journeyId, step
     "same request identity reconciliation precedes any retry; unknown is neither success nor failure; retries require an eligible new fenced attempt under retry-job");
   assert.equal(asyncProfile.finality,
     "durable request acceptance only; model result, output, or delivery is not claimed");
+
+  if (journeyId === "J-19") {
+    assert.equal(step.optionalAfterTerminalOutcome, true);
+    assert.match(step.completionEffect, /^NONE\b/u);
+    assert.equal(step.success.status, "EXACT_OPERATION_RESULT_DEFINED; ADMISSION_ONLY");
+    assert.equal(step.success.scope, "optional-next-action-immediate-result");
+    assert.equal(step.success.sourceRef, resultRef);
+    assert.equal(step.success.resultSchemaRef, resultRef);
+    assert.equal(step.success.operationRef, operation.id);
+    assert.match(step.success.meaning, /durableAdmissionReceipt confirms job admission only/u);
+    assert.match(step.success.meaning, /does not establish render completion or link the logicalJobId to the selected candidate version/u);
+    assert.match(step.success.evidenceBoundary, /does not revise J-19's already-recorded selection or decline/u);
+    assert.equal(step.stepDefinitionSemantics.stepSourceFacts.resultDisposition, "SOURCE_BOUND_IMMEDIATE_RESULT");
+    assert.equal(step.stepDefinitionSemantics.stepSourceFacts.resultSourceRef, resultRef);
+    assert.equal(step.degradedBehavior.status, "SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD");
+    assert.equal(step.degradedBehavior.sourceRef,
+      ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME");
+    assert.equal(step.degradedBehavior.runtimeAdmission, "NOT_ADMITTED");
+    assert.equal(step.stepDefinitionSemantics.action.runtimeAdmission, "NOT_ADMITTED");
+    assert.equal(step.stepDefinitionSemantics.stepSourceFacts.success.sourceRef, resultRef);
+    assert.equal(step.stepDefinitionSemantics.stepSourceFacts.success.resultSchemaRef, resultRef);
+    assert.equal(step.stepDefinitionSemantics.stepSourceFacts.success.operationRef, operation.id);
+    assert.equal(step.verification.status, "not-run");
+    assert.deepEqual(step.verification.actualEvidence, []);
+    assert.equal(step.recovery.status, "SAME_REQUEST_RECONCILIATION");
+    assert.equal(step.recovery.sourceRef,
+      ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/recovery");
+    return;
+  }
 
   assert.equal(step.success.status, "EXACT_OPERATION_RESULT_DEFINED");
   assert.equal(step.success.scope, "immediate-step-result");
@@ -2402,7 +2515,7 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
         stepIndex: 2,
         view: "media.view.compare-results",
         operationId: "media.operation.action.compare-candidate-on-metric",
-        objectRefs: ["media.domain.quality-assessment", "media.domain.artifact-version"],
+        objectRefs: ["media.domain.artifact-version"],
       });
       boundedJ19QualityEvidenceValidated = true;
       validateBoundedSubmitRenderOutcomeDefinition(parsedJourney, {
@@ -2785,9 +2898,9 @@ test("PDP1 operation proposal preserves source denominators and the complete pro
   }
 
   const denominators = parsed.sourceDenominators;
-  assert.equal(denominators.uiProductActions.count, 146);
+  assert.equal(denominators.uiProductActions.count, 147);
   assert.equal(Object.keys(denominators.uiProductActions.explicitOperationIds).length, 14);
-  assert.equal(denominators.uiProductActions.unresolvedActionIds.length, 132);
+  assert.equal(denominators.uiProductActions.unresolvedActionIds.length, 133);
   assert.equal(denominators.uiProductActions.explicitOperationIds["media.action.request-transcription"], "media.operation.transcription-submission");
   assert.equal(denominators.httpOperations.count, 27);
   assert.equal(denominators.grpcRpcs.count, 43);
@@ -2933,14 +3046,15 @@ test("PDP1-005 registries preserve observed facts, proposal boundaries, and owne
 
   assert.match(versioning, /sourceRefs:.*launcher\/src\/main\/java\/com\/ghatana\/media\/launcher\/MediaRuntime\.java/u);
   assert.match(versioning, /sourceRefs:.*modules\/infrastructure\/persistence\/src\/main\/resources\/db\/migration\/V1__init_schema\.sql/u);
-  assert.match(versioning, /source-artifact-immutability[\s\S]*?status: unresolved;/u);
-  assert.match(versioning, /derived-artifact-identity[\s\S]*?status: unresolved;/u);
+  assert.match(versioning, /ruleId: source-artifact-immutability\s+classification: MEDIA_LOGICAL_MEANING_RESOLVED; STORAGE_ENFORCEMENT_DEFERRED/u);
+  assert.match(versioning, /ruleId: derived-artifact-identity\s+classification: MEDIA_LOGICAL_MEANING_RESOLVED; STORAGE_ENFORCEMENT_DEFERRED/u);
   assert.match(versioning, /checksum-and-sourceArtifactIds-fields; neither-proves-immutable-source-bytes-canonical-version-identity-or-complete-ancestry/u);
-  assert.match(versioning, /run-and-attempt-history[\s\S]*?do-not-claim-durable-attempt-history/u);
+  assert.match(versioning, /id: run-and-attempt-history\s+proposal:[^\n]+\s+status: MEDIA_LOGICAL_MEANING_RESOLVED; DURABLE_HISTORY_DEFERRED/u);
   assert.match(versioning, /job-version-and-lease-fencing-do-not-establish-durable-attempt-history/u);
   assert.match(versioning, /startup-handler-marks-recoverable-persisted-nonterminal-jobs-OUTCOME_UNKNOWN-without-failure-code-or-completion-timestamp; this-is-not-outcome-reconciliation/u);
   assert.match(versioning, /cancellation-uncertainty-is-represented-but-resolution-and-finality-semantics-remain-unaccepted/u);
-  assert.match(versioning, /canonical-version-reference-and-consumer-contract-pending/u);
+  assert.match(versioning, /ruleId: cross-boundary-references\s+classification: MEDIA_LOGICAL_MEANING_RESOLVED; EXTERNAL_CONSUMER_MAPPING_DEFERRED/u);
+  assert.match(versioning, /notEstablished: External consumer acceptance, product-specific transport field mapping, or published artifact compatibility/u);
 
   assert.match(privacy, /consentModel:\n  status: proposal-only;/u);
   assert.match(privacy, /atomic-revocation-propagation-to-in-flight-jobs-stream-frames-caches-and-delegated-provider-work/u);
@@ -2964,7 +3078,7 @@ test("PDP1-005 registries preserve observed facts, proposal boundaries, and owne
 
   assert.match(interoperability, /job-version-does-not-establish-durable-attempt-history-or-artifact-version-identity/u);
   assert.match(interoperability, /cross-product/u);
-  assert.match(versioning, /cross-boundary-references[\s\S]*?canonical-version-reference-and-consumer-contract-pending/u);
+  assert.match(versioning, /cross-boundary-references[\s\S]*?EXTERNAL_CONSUMER_MAPPING_DEFERRED/u);
 
   assert.match(authority, /^proposalStatus: proposal-only;/mu);
   assert.match(authority, /deployed-identity-and-delegation-provider-binding-not-established/u);

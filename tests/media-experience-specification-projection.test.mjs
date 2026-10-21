@@ -448,7 +448,7 @@ test('PDP-3 transition audit reads effective source dispositions and keeps reque
     assert.equal(effectiveDispositionBySourceStep.get(`${journeyId}/${ordinal}`), 'SOURCE_BACKED_LOCAL_NO_CANONICAL_TRANSITION');
     if (journeyId === 'J-16' || journeyId === 'J-18') {
       const sourceStep = sourceStepsByJourney.get(journeyId)[ordinal - 1];
-      assert.equal((sourceStep.stepDefinitionSemantics?.transitionApplicability ?? sourceStep.transitionApplicability)?.status, 'NO_P1_MACHINE_TRANSITION',
+      assert.equal((sourceStep.stepDefinitionSemantics?.transitionApplicability ?? sourceStep.transitionApplicability)?.status, 'LOCAL_SESSION_OR_DRAFT_EFFECT; NO_P1_MACHINE_TRANSITION',
         'the session-local caption-draft step carries the resolved no-P1-machine-transition disposition from its authored contract');
     }
   }

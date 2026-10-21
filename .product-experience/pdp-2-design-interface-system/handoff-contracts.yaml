@@ -93,6 +93,7 @@ handoffs:
       - Use reusable templates, layouts, recipes, patterns, component families, and token aliases; do not create screen-local semantic primitives.
       - Treat candidate screen links as inputs to PDP-3 review, not as evidence that screen behavior is complete.
       - Preserve the exact PDP-1 canonical-domain handoff and all PDP-2 identity references; reject stale, duplicate, or name-matched substitutions.
+      - For proposal-only PDP-1 feature handoffs, carry the explicitly defined PDP-2 presentation, accessible control, typed interface bindings, and source-surface mappings into PDP-3 without promoting proposed applicability, support, or admission.
       - Record development completion separately from external admission and independent certification.
     negativeCases:
       - A contract-only component is presented as an implemented or callable control.
@@ -124,5 +125,53 @@ handoffs:
           Determine whether these fields intentionally name distinct decisions or whether an exact PDP-3 projection
           update is needed. Preserve the PDP-2 grammar's PXD-072 journeyDecisionRef until that cross-reference is
           reconciled; this item records a question, not a proven defect or runtime-admission finding.
+    proposalFeatureHandoffs:
+      - id: media.rules.manage.pdp2-interface-proposal.v1
+        featureRef: media.rules.manage
+        sourcePhase: PDP-2
+        consumerPhase: PDP-3
+        status: COORDINATOR_AUTHORED_PROPOSAL_HANDOFF; PENDING_OWNER_REVIEW
+        sourceRefs:
+          - .product-experience/pdp-1-domain-data/handoff-contracts.yaml#/handoffs/pdp1ToPdp2CanonicalDomain/proposalHandoffs/@id=media.rules.manage.pdp1-definition-handoff.v1
+          - .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#ruleManagementProposalInterfaceBinding
+          - .product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#ruleManagementProposalPresentation
+          - .product-experience/pdp-2-design-interface-system/accessibility.yaml#ownerDefinedRuleManagementProposalControls
+        surfaceMappingRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/proposedApplicableChannels
+        surfaceMappingDisposition: COORDINATOR_PROPOSAL_ONLY; exact physical-surface applicability remains governed by the authoritative surface registry and phase applicability records
+        typedMeaningRefs:
+          compileRequest: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/compileContract/requestSchema
+          compileResult: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/compileContract/resultSchema
+          inspectRequest: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/inspectContract/requestSchema
+          inspectResult: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/inspectContract/resultSchema
+          validationRequest: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract/requestSchema
+          validationResult: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract/resultSchema
+          reuseRequest: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/requestSchema
+          reuseResult: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/resultSchema
+          candidate: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/ruleSetVersion/candidate/schema
+          normalizedGraph: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/normalizedSemanticGraph/schema
+          fingerprint: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/semanticFingerprint/schema
+          validationReceipt: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract/resultSchema
+          candidateOperationPlan: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/operationPlanSchema
+        preservedMeaning: >-
+          Preserve tenant, purpose, exact scope and version, expected predecessor, source provenance, normalized graph,
+          semantic fingerprint, validation context and receipt, target operation, candidate operation plan, and every
+          distinct operation outcome. Candidates and validation are not approval or execution; reuse returns a
+          candidate operation plan only. UNKNOWN and STALE require exact-version reconciliation and never select a
+          latest version, silently rebase, blindly retry, or produce partial effects.
+        consumerObligations:
+          - Define complete author, inspect, validate, reuse, and recovery journeys only against the exact typed references above.
+          - Keep channel-to-surface mappings visibly proposal-only until an authoritative applicability/owner decision exists; no channel mapping admits a route, runtime, or invocation.
+          - Preserve accessible control and status requirements from the PDP-2 accessibility definition and keep presentation values distinct from persistent domain states.
+          - Bind each candidate, validation receipt, and operation plan to its exact tenant, purpose, version, provenance, predecessor, fingerprint, target, and request context.
+          - Expose each denied, invalid, unsupported, stale, conflict, unknown, or unavailable outcome with its exact recovery boundary and no implied partial effects.
+        negativeCases:
+          - Presenting a proposal-only operation or proposed channel as callable, supported, or owner-approved.
+          - Treating a candidate, VALID observation, or operation plan as approval, execution, or a measured media result.
+          - Substituting a latest/different version, silently rebasing, or blindly retrying after STALE or UNKNOWN.
+          - Omitting accessible keyboard and non-drag authoring, exact-source status naming, or screen-reader exposure.
+        ownerApproval: NOT_CLAIMED
+        independentAcceptance: NOT_CLAIMED
+        runtimeAdmission: NOT_ADMITTED
+        executionAdmission: NOT_ADMITTED
     developmentStatusRef: docs/implementation/pdp-2-phase-dev-status.json
     scopeStatus: design-and-interface-definitions-exported-for-PDP3; development-gate-status-is-recorded-separately

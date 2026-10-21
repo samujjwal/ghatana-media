@@ -7962,7 +7962,7 @@
         "acceptanceEffect": "none"
       },
       "currentDisposition": {
-        "status": "OWNER_SOURCE_ROUTE_PENDING_MATERIAL_REVIEW",
+        "status": "CURRENT_PDP0_OWNER_ROUTE",
         "claimId": "MPSEM-0172-C002",
         "sourceClaimTextSha256": "51036b4b5ec4211768a4d0c632f122c1b3a7be949f1924f6145e2a8bb7bb5714",
         "sourceParentRef": ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml#/items/172",
@@ -7971,8 +7971,12 @@
         "meaning": "describe a stable product operation or outcome; do not name, identify, or imply a vendor, provider, model, engine, package, or deployment; Provider/model/engine identity and version belong in explicit implementation, dependency, profile, and provenance bindings; An alias is an explicit reference to one canonical Media semantic definition; does not create an independent capability, implementation, qualification, lifecycle, or runtime admission",
         "runtimeAdmission": "NOT_ADMITTED",
         "qualification": "NOT_EVALUATED",
-        "acceptanceEffect": "none"
-      }
+        "acceptanceEffect": "none",
+        "successorDecisionRef": ".product-experience/decision-log.md#PXD-211",
+        "historicalOwnerTargetRef": ".product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedCapabilityNamingRules/@id=media.requirement.capability-identities-name-media-semantics.v1"
+      },
+      "currentSemanticRouteSuccessorRef": ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml#/pdp38ClaimReconciliation/pxd211CurrentRouteSuccessors/records/@claimId=MPSEM-0172-C002",
+      "currentSemanticRouteDecisionRef": ".product-experience/decision-log.md#PXD-211"
     },
     {
       "claimId": "MPSEM-0177-C001",

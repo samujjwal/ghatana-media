@@ -1,8 +1,10 @@
-> **ACTIVE SCOPE UPDATE — October 8, 2026:** The current user objective is **PDP-0 through PDP-3 only (38 original P0/P1/P2/P3 tasks)**, not the full 71-task product/runtime/release program. For current execution, use **[EXECUTE-MEDIA-PDP-0-3-38-TASKS.md](./EXECUTE-MEDIA-PDP-0-3-38-TASKS.md)** instead of following the larger work order below. This document remains as historical context for the broader program. G/L/X/Explorer may provide exact dependencies, but E/R/X/L/G tasks are not additional completion targets. Do not request production-host, GPU/model/codec qualification or commercial release as a default gate for the four normative definition phases.
+> **Superseded proposal retained for provenance only — do not copy or execute this prompt.** Its 71-task program is not the active campaign scope. Follow the current repository `AGENTS.md`, the [canonical PDP source index](../../.product-experience/README.md), and the four source-pinned phase records in this directory. Preserve this file only for its original IDs, criteria, and provenance.
+
+> **Historical scope note — October 8, 2026:** At that time, the user objective was **PDP-0 through PDP-3 only (38 original P0/P1/P2/P3 tasks)**, not the full 71-task product/runtime/release program. The linked 38-task mandate is also a dated historical record; current phase status and permitted work come from the PDP status files linked above. This document remains historical context for the broader program. G/L/X/Explorer supplied exact dependencies, but E/R/X/L/G tasks were not completion targets for that request. Production-host, GPU/model/codec qualification and commercial release were not default gates for the four normative definition phases.
 
 # MASTER EXECUTION PROMPT — FINISH ALL 71 GHATANA MEDIA TASKS
 
-**Copy this entire document into the implementation/coding agent.** This is an instruction to **perform and verify repository implementation**, not to write another plan, review prompt, backlog, issue collection, or intention statement. Continue implementation across work batches; do not stop after a source-only review. Use actual currently connected coding tools, repositories and specialist/owner approvals when available. Carry work to its achievable completion within the active session. Never promise unattended future progress.
+**Historical instruction preserved verbatim for provenance; it is superseded and non-executable.** Do not copy or act on the instructions below as current work.
 
 ## A. Your role and success condition
 

@@ -7,6 +7,21 @@ import test from "node:test";
 const root = resolve(new URL("..", import.meta.url).pathname);
 const { parse } = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml");
 const readYaml = (file) => parse(readFileSync(resolve(root, file), "utf8"));
+const readReference = (reference) => {
+  const [file, pointer] = reference.split("#");
+  let value = readYaml(file);
+  for (const segment of (pointer ?? "").split("/").filter(Boolean)) {
+    const selector = /^@(id|stepId|audit_id)=(.+)$/u.exec(segment);
+    if (selector) {
+      assert.ok(Array.isArray(value), `${reference}: ${segment} selects an array`);
+      value = value.find((entry) => entry[selector[1]] === selector[2]);
+    } else {
+      value = value?.[segment];
+    }
+    assert.notEqual(value, undefined, `${reference}: resolves through ${segment}`);
+  }
+  return value;
+};
 const handoff = readYaml(".product-experience/pdp-2-design-interface-system/handoff-contracts.yaml").handoffs.pdp2ToPdp3DesignInterface;
 
 test("PDP-2 exports a finite design/interface definition handoff for PDP-3", () => {
@@ -84,4 +99,108 @@ test("PDP-2 records the J03-2 decision-reference crosswalk for PDP-3 reconciliat
     finding.observedReferences.pdp3JourneyStepDecisionRef);
   assert.equal(p3Action.actionDefinitionSemantics.reviewDecisionRef,
     finding.observedReferences.pdp3ActionRegistryReviewDecisionRef);
+});
+
+test("PDP-2 binds the proposal-only rule-management interface, presentation, and accessible outcomes", () => {
+  const p2 = readYaml(".product-experience/pdp-2-design-interface-system/interface-grammar.yaml");
+  const binding = p2.ruleManagementProposalInterfaceBinding;
+  const p1 = readYaml(".product-experience/pdp-1-domain-data/rule-management-contracts.yaml");
+  assert.equal(binding.id, "media.pdp2.interface.rule-management-proposal-binding.v1");
+  assert.equal(binding.featureRef, "media.rules.manage");
+  assert.equal(binding.disposition, "PROPOSAL_ONLY; PENDING_OWNER_REVIEW; NOT_IN_CANONICAL_OPERATION_DENOMINATOR");
+  assert.equal(binding.ownerApproval, "NOT_CLAIMED");
+  assert.equal(binding.independentAcceptance, "NOT_CLAIMED");
+  assert.equal(binding.runtimeAdmission, "NOT_ADMITTED");
+  assert.equal(binding.executionAdmission, "NOT_ADMITTED");
+  assert.equal(readReference(binding.sourceHandoff).id, "media.rules.manage.pdp1-definition-handoff.v1");
+  assert.equal(readReference(binding.sourceChannelProposal).length, 11);
+  assert.deepEqual(binding.operationRefs, [
+    "media.rules.compile-candidate.v1",
+    "media.rules.inspect-candidate.v1",
+    "media.rules.validate-candidate.v1",
+    "media.rules.reuse-candidate.v1",
+  ]);
+  for (const [key, ref] of Object.entries(binding.typedBindings)) {
+    assert.ok(existsSync(resolve(root, ref.split("#", 1)[0])), `${key} source exists`);
+    assert.notEqual(readReference(ref), undefined, `${key} is an exact schema or identity pointer`);
+  }
+  assert.deepEqual(binding.typedBindings, {
+    versionedCandidate: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/ruleSetVersion/candidate/schema",
+    normalizedSemanticGraph: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/normalizedSemanticGraph/schema",
+    semanticFingerprint: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/semanticFingerprint/schema",
+    compileRequest: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/compileContract/requestSchema",
+    compileResult: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/compileContract/resultSchema",
+    inspectRequest: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/inspectContract/requestSchema",
+    inspectResult: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/inspectContract/resultSchema",
+    validationRequest: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract/requestSchema",
+    validationResult: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract/resultSchema",
+    validationReceiptIdentity: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract/validationResultIdentity",
+    reuseRequest: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/requestSchema",
+    reuseResult: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/resultSchema",
+    candidateOperationPlan: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/operationPlanSchema",
+  });
+  assert.equal(binding.typedBindings.versionedCandidate,
+    ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/ruleSetVersion/candidate/schema");
+  assert.equal(binding.typedBindings.validationReceiptIdentity,
+    ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract/validationResultIdentity");
+  assert.deepEqual(binding.operationRefs, [
+    p1.compileContract.operationRef,
+    p1.inspectContract.operationRef,
+    p1.validationContract.operationRef,
+    p1.reuseContract.operationRef,
+  ]);
+  assert.equal(binding.channelProposalMappings.mappings.length, 11);
+  assert.equal(new Set(binding.channelProposalMappings.mappings.map(({ id }) => id)).size, 11);
+  assert.ok(binding.channelProposalMappings.mappings.every(({ sourceRef }) => {
+    assert.ok(sourceRef.includes("AUD-SPEC-020-CHANNEL-"));
+    return readReference(sourceRef) !== undefined;
+  }));
+  assert.match(binding.channelProposalMappings.authority, /no owner applicability decision or implementation claim/u);
+  assert.ok(binding.preservedBindings.optimisticConcurrency.includes("expectedVersionRef"));
+  assert.ok(binding.preservedBindings.optimisticConcurrency.includes("fingerprint"));
+  assert.ok(binding.preservedBindings.semantics.some(value => /no partial effects/u.test(value)));
+  assert.ok(binding.controlSemantics.forbiddenImplications.includes("channel-mapping-implies-applicability"));
+
+  const presentation = readYaml(".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml")
+    .ruleManagementProposalPresentation;
+  assert.equal(presentation.semantics.presentationOnly, true);
+  assert.equal(presentation.semantics.createsPersistentLifecycleState, false);
+  assert.deepEqual(presentation.operationOutcomes.map(({ operationRef }) => operationRef), binding.operationRefs);
+  assert.deepEqual(presentation.operationOutcomes.map(({ outcomes }) => outcomes), [
+    ["COMPILED", "REJECTED", "UNSUPPORTED", "DENIED", "CONFLICT", "STALE", "UNKNOWN", "UNAVAILABLE"],
+    ["INSPECTED", "DENIED", "CONFLICT", "STALE", "UNKNOWN", "UNAVAILABLE"],
+    ["VALID", "INVALID", "UNSUPPORTED", "UNAVAILABLE", "DENIED", "CONFLICT", "STALE", "UNKNOWN"],
+    ["REUSE_REQUESTED", "DENIED", "CONFLICT", "UNKNOWN", "UNAVAILABLE", "STALE", "INVALID", "UNSUPPORTED"],
+  ]);
+  assert.equal(presentation.nonClaims.ownerApproval, "NOT_CLAIMED");
+  assert.equal(presentation.nonClaims.runtimeAdmission, "NOT_ADMITTED");
+  assert.ok(presentation.negativeCases.some(value => /latest version/u.test(value)));
+  for (const source of presentation.sourceRefs) assert.notEqual(readReference(source), undefined, source);
+
+  const accessibility = readYaml(".product-experience/pdp-2-design-interface-system/accessibility.yaml")
+    .ownerDefinedRuleManagementProposalControls;
+  assert.equal(accessibility.id, "media.a11y.rule-management-proposal-controls.v1");
+  assert.equal(accessibility.evidenceBoundary.status, "DEFINITION_ONLY_NOT_MEASURED");
+  assert.ok(accessibility.interactionRequirements.some(value => /keyboard-operable, non-drag equivalent/u.test(value)));
+  assert.ok(accessibility.requiredBindings.some(value => /exact immutable rule-set version/u.test(value)));
+  assert.equal(accessibility.runtimeAdmission, "NOT_ADMITTED");
+  assert.equal(accessibility.executionAdmission, "NOT_ADMITTED");
+  for (const source of accessibility.sourceRefs) assert.notEqual(readReference(source), undefined, source);
+
+  const proposalHandoff = handoff.proposalFeatureHandoffs.find(({ featureRef }) => featureRef === "media.rules.manage");
+  assert.ok(proposalHandoff);
+  assert.equal(proposalHandoff.sourcePhase, "PDP-2");
+  assert.equal(proposalHandoff.consumerPhase, "PDP-3");
+  assert.equal(proposalHandoff.ownerApproval, "NOT_CLAIMED");
+  assert.equal(proposalHandoff.runtimeAdmission, "NOT_ADMITTED");
+  assert.ok(proposalHandoff.consumerObligations.some(value => /complete author, inspect, validate, reuse, and recovery journeys/u.test(value)));
+  assert.equal(proposalHandoff.typedMeaningRefs.compileRequest, binding.typedBindings.compileRequest);
+  assert.equal(proposalHandoff.typedMeaningRefs.compileResult, binding.typedBindings.compileResult);
+  assert.equal(proposalHandoff.typedMeaningRefs.inspectRequest, binding.typedBindings.inspectRequest);
+  assert.equal(proposalHandoff.typedMeaningRefs.inspectResult, binding.typedBindings.inspectResult);
+  assert.equal(proposalHandoff.typedMeaningRefs.validationRequest, binding.typedBindings.validationRequest);
+  assert.equal(proposalHandoff.typedMeaningRefs.validationResult, binding.typedBindings.validationResult);
+  assert.equal(proposalHandoff.typedMeaningRefs.reuseRequest, binding.typedBindings.reuseRequest);
+  assert.equal(proposalHandoff.typedMeaningRefs.reuseResult, binding.typedBindings.reuseResult);
+  for (const source of proposalHandoff.sourceRefs) assert.ok(existsSync(resolve(root, source.split("#", 1)[0])), source);
 });

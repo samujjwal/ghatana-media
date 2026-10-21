@@ -1845,6 +1845,120 @@ $defs:
           type: string
           minLength: 1
           maxLength: 4000
+  candidateMetricPairSide:
+    type: object
+    additionalProperties: false
+    required: [ subjectArtifactVersionRef, status, currentness ]
+    properties:
+      subjectArtifactVersionRef:
+        oneOf:
+          - $ref: "#/$defs/canonicalReferences/media_domain_artifact-version"
+      status: { enum: [ OBSERVED, NO_OBSERVATION, SUBJECT_NOT_FOUND, UNKNOWN ] }
+      currentness: { enum: [ CURRENT, STALE, UNKNOWN ] }
+      observationRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+      evidenceRefs:
+        type: array
+        minItems: 1
+        maxItems: 64
+        uniqueItems: true
+        items: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 }
+      sourceObservation:
+        type: object
+        additionalProperties: false
+        required: [ metricRef, modalityRef, methodRef, methodVersionRef, applicability, disposition, evidenceRefs ]
+        properties:
+          observationRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+          providerRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+          metricRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256, sourceRegistryRef: .product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions, identityField: id, unknownDisposition: REJECT }
+          metricVersionRef: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 }
+          modalityRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+          methodRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+          methodVersionRef: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 }
+          applicability: { enum: [ APPLICABLE, NOT_APPLICABLE, ABSTAINED, NOT_EVALUATED, BLOCKED ] }
+          disposition: { enum: [ PASS, FAIL, INDETERMINATE, NOT_EVALUATED ] }
+          value: { anyOf: [ { type: number }, { type: string }, { type: 'null' } ] }
+          unitRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+          uncertainty: { anyOf: [ { type: number }, { type: string }, { type: 'null' } ] }
+          abstentionReasonRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+          calibrationRef: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 }
+          evidenceRefs:
+            type: array
+            minItems: 1
+            maxItems: 64
+            uniqueItems: true
+            items: { type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384 }
+  candidateMetricPairResultFields:
+    type: object
+    additionalProperties: false
+    required: [ originalArtifactVersionRef, candidateArtifactVersionRef, metricRefs, metricResults, observedAt ]
+    properties:
+      originalArtifactVersionRef:
+        oneOf:
+          - $ref: "#/$defs/canonicalReferences/media_domain_artifact-version"
+      candidateArtifactVersionRef:
+        oneOf:
+          - $ref: "#/$defs/canonicalReferences/media_domain_artifact-version"
+      metricRefs:
+        type: array
+        items: { type: string, format: opaque-reference, minLength: 1, maxLength: 256, sourceRegistryRef: .product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions, identityField: id, unknownDisposition: REJECT }
+        minItems: 1
+        maxItems: 16
+        uniqueItems: true
+      metricResults:
+        type: array
+        minItems: 1
+        maxItems: 16
+        uniqueItems: true
+        items:
+          type: object
+          additionalProperties: false
+          required: [ metricRef, originalSide, candidateSide, comparability ]
+          properties:
+            metricRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256, sourceRegistryRef: .product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions, identityField: id, unknownDisposition: REJECT }
+            originalSide: { $ref: "#/$defs/candidateMetricPairSide" }
+            candidateSide: { $ref: "#/$defs/candidateMetricPairSide" }
+            comparability: { enum: [ SAME_DECLARED_SCOPE, NOT_COMPARABLE, UNKNOWN ] }
+        allOf:
+          - items:
+              allOf:
+                - if:
+                    properties: { originalSide: { properties: { status: { const: OBSERVED } } } }
+                  then:
+                    properties: { originalSide: { required: [ sourceObservation ] } }
+                - if:
+                    properties: { originalSide: { properties: { status: { enum: [ NO_OBSERVATION, UNKNOWN, SUBJECT_NOT_FOUND ] } } } }
+                  then:
+                    properties: { originalSide: { not: { required: [ sourceObservation ] } } }
+                - if:
+                    properties: { candidateSide: { properties: { status: { const: OBSERVED } } } }
+                  then:
+                    properties: { candidateSide: { required: [ sourceObservation ] } }
+                - if:
+                    properties: { candidateSide: { properties: { status: { enum: [ NO_OBSERVATION, UNKNOWN, SUBJECT_NOT_FOUND ] } } } }
+                  then:
+                    properties: { candidateSide: { not: { required: [ sourceObservation ] } } }
+      observedAt: { type: string, format: date-time }
+    allOf:
+      - properties:
+          metricResults:
+            items:
+              allOf:
+                - if:
+                    properties: { originalSide: { properties: { status: { const: OBSERVED } } } }
+                  then:
+                    properties: { originalSide: { required: [ sourceObservation ] } }
+                - if:
+                    properties: { originalSide: { properties: { status: { enum: [ NO_OBSERVATION, UNKNOWN, SUBJECT_NOT_FOUND ] } } } }
+                  then:
+                    properties: { originalSide: { not: { required: [ sourceObservation ] } } }
+                - if:
+                    properties: { candidateSide: { properties: { status: { const: OBSERVED } } } }
+                  then:
+                    properties: { candidateSide: { required: [ sourceObservation ] } }
+                - if:
+                    properties: { candidateSide: { properties: { status: { enum: [ NO_OBSERVATION, UNKNOWN, SUBJECT_NOT_FOUND ] } } } }
+                  then:
+                    properties: { candidateSide: { not: { required: [ sourceObservation ] } } }
 canonicalReferenceTenantRule: Every tenantId inside a submitted canonical object reference must equal the tenant
   resolved by the trusted host context; caller-selected tenant IDs never select or grant scope.
 unknownOutcomeRule: UNKNOWN is neither success nor failure; reconcile the same tenant/principal request identity and
@@ -1878,7 +1992,7 @@ idempotencyBindings:
   - sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
     sourceRequestIdempotency:
       scope: trusted tenant and principal plus requestId
-      fingerprint: canonical validated action payload and exact target identities
+      fingerprint: canonical validated action payload and exact original/candidate artifact versions and metricRefs
       replay: same payload returns original receipt; different payload is IDEMPOTENCY_CONFLICT
     unknownOutcomeRule: UNKNOWN is neither success nor failure; reconcile the same tenant/principal request identity and
       payload fingerprint before any command resubmission; never blindly replay or allocate a new request identity.
@@ -2579,33 +2693,18 @@ resultProjectionBindings:
       - requestedSubjects
   - sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
     sourceResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
-    wireSuccessBranchRef: .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.compare-candidate-on-metric.v1/resultSchema/oneOf/0
+    wireSuccessBranchRef: .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.compare-candidate-on-metric.v2/resultSchema/oneOf/0
     mappingStatus: OWNER_DECLARED_NORMALIZED_PROJECTION; no producer-payload or field-value equivalence is implied
-    sourceDeclaredFields:
-      - exactTargetRef
-      - observedAt
-      - ownerReceipt
-      - requestId
-    normalizedSuccessFields:
-      - observationRefs
-      - observedAt
-      - requestedSubjects
+    sourceDeclaredFields: [ candidateArtifactVersionRef, metricRefs, metricResults, observedAt, originalArtifactVersionRef, requestId ]
+    normalizedSuccessFields: [ candidateArtifactVersionRef, metricRefs, metricResults, observedAt, originalArtifactVersionRef, requestId ]
     sourceFieldMappings:
-      - sourceField: exactTargetRef
-        wireField: null
-        disposition: NOT_EXPOSED_IN_NORMALIZED_BRANCH
-      - sourceField: observedAt
-        wireField: observedAt
-        disposition: NAME_MATCH_ONLY
-      - sourceField: ownerReceipt
-        wireField: null
-        disposition: NOT_EXPOSED_IN_NORMALIZED_BRANCH
-      - sourceField: requestId
-        wireField: null
-        disposition: NOT_EXPOSED_IN_NORMALIZED_BRANCH
-    normalizedOnlyFields:
-      - observationRefs
-      - requestedSubjects
+      - { sourceField: candidateArtifactVersionRef, wireField: candidateArtifactVersionRef, disposition: NAME_MATCH_ONLY }
+      - { sourceField: metricRefs, wireField: metricRefs, disposition: NAME_MATCH_ONLY }
+      - { sourceField: metricResults, wireField: metricResults, disposition: NAME_MATCH_ONLY }
+      - { sourceField: observedAt, wireField: observedAt, disposition: NAME_MATCH_ONLY }
+      - { sourceField: originalArtifactVersionRef, wireField: originalArtifactVersionRef, disposition: NAME_MATCH_ONLY }
+      - { sourceField: requestId, wireField: requestId, disposition: NAME_MATCH_ONLY }
+    normalizedOnlyFields: []
   - sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-media-versions
     sourceResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-media-versions/resultSchema
     wireSuccessBranchRef: .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.compare-media-versions.v1/resultSchema/oneOf/0
@@ -5943,122 +6042,124 @@ records:
       unknownIsNotSuccess: true
       legacyRawJsonDisposition: UNTRUSTED_OBSERVATION_ONLY; never canonical result or finality evidence
       runtimeAdmission: NOT_ADMITTED
-  - id: media.owner-action-wire.compare-candidate-on-metric.v1
+  - id: media.owner-action-wire.compare-candidate-on-metric.v2
+    supersessionNote: Breaking semantic revision of historical v1 single-subject request to ordered, distinct original/candidate ArtifactVersion pair; v1 is retained only in Git history and is not an active same-action wire record.
     actionRef: media.action.compare-candidate-on-metric
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
     actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.compare-candidate-on-metric
-    sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
-      permission from its presence.
+    metricRefRegistryRef: .product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions
+    metricRefIdentityField: id
+    unknownMetricDisposition: REJECT
+    sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer permission from its presence.
     sourceFinality: read-only-or-navigation; no-write-finality
     sourceGuards:
       - resolve-the-current-workspace-and-exact-target-before-access-or-change
       - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
       - preserve-the-requested-context-and-exact-version-across-recovery
-    sourceRecovery: retain-the-exact-context-and-request-identity; reconcile-unknown-effects-before-retry;
-      never-substitute-a-newer-version
+    sourceRecovery: retain-the-exact-context-and-request-identity; reconcile-unknown-effects-before-retry; never-substitute-a-newer-version
     domainObjectRefs:
-      - media.domain.quality-assessment
       - media.domain.artifact-version
     allowedSubjectObjectRefs:
-      - media.domain.quality-assessment
       - media.domain.artifact-version
     sourceRequiredProperties:
-      - subjectRef
+      - requestId
+      - originalArtifactVersionRef
+      - candidateArtifactVersionRef
+      - metricRefs
     ownerCompletedRequiredProperties: []
     requestSchema:
       type: object
       additionalProperties: false
-      required:
-        - operationRef
-        - actionRef
-        - subjectRef
+      required: [ operationRef, actionRef, requestId, originalArtifactVersionRef, candidateArtifactVersionRef, metricRefs ]
       properties:
-        operationRef:
-          const: media.operation.action.compare-candidate-on-metric
-        actionRef:
-          const: media.action.compare-candidate-on-metric
-        subjectRef:
+        operationRef: { const: media.operation.action.compare-candidate-on-metric }
+        actionRef: { const: media.action.compare-candidate-on-metric }
+        requestId: { type: string, format: opaque-idempotency-key, minLength: 1, maxLength: 128 }
+        originalArtifactVersionRef:
           oneOf:
-            - $ref: "#/$defs/canonicalReferences/media_domain_quality-assessment"
             - $ref: "#/$defs/canonicalReferences/media_domain_artifact-version"
+        candidateArtifactVersionRef:
+          oneOf:
+            - $ref: "#/$defs/canonicalReferences/media_domain_artifact-version"
+        metricRefs:
+          type: array
+          items: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+          minItems: 1
+          maxItems: 16
+          uniqueItems: true
+    pairValidation:
+      enforce: [ exactly-two-ordered-exact-artifact-version-refs, distinct-original-and-candidate-refs, unique-metricRefs ]
+      legacyRequestDisposition: REJECT_SINGLE_SUBJECT; do-not-infer-a-pair
     resultSchema:
       type: object
       oneOf:
         - type: object
           additionalProperties: false
-          required:
-            - operationRef
-            - actionRef
-            - outcome
-            - requestedSubjects
-            - observationRefs
-            - observedAt
+          required: [ operationRef, actionRef, outcome, requestId, originalArtifactVersionRef, candidateArtifactVersionRef, metricRefs, metricResults, observedAt ]
           properties:
-            operationRef:
-              const: media.operation.action.compare-candidate-on-metric
-            actionRef:
-              const: media.action.compare-candidate-on-metric
-            outcome:
-              const: OBSERVED
-            requestedSubjects:
+            operationRef: { const: media.operation.action.compare-candidate-on-metric }
+            actionRef: { const: media.action.compare-candidate-on-metric }
+            outcome: { const: OBSERVED }
+            requestId: { type: string, minLength: 1 }
+            originalArtifactVersionRef:
+              oneOf:
+                - $ref: "#/$defs/canonicalReferences/media_domain_artifact-version"
+            candidateArtifactVersionRef:
+              oneOf:
+                - $ref: "#/$defs/canonicalReferences/media_domain_artifact-version"
+            metricRefs:
               type: array
-              items:
-                $ref: "#/$defs/canonicalReferenceAny"
+              items: { type: string, format: opaque-reference, minLength: 1, maxLength: 256, sourceRegistryRef: .product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions, identityField: id, unknownDisposition: REJECT }
               minItems: 1
-              maxItems: 32
-            observationRefs:
-              type: array
-              items:
-                $ref: "#/$defs/canonicalReferenceAny"
-              minItems: 1
-              maxItems: 256
-            observedAt:
-              type: string
-              format: date-time
+              maxItems: 16
+              uniqueItems: true
+            metricResults: { $ref: "#/$defs/candidateMetricPairResultFields/properties/metricResults" }
+            observedAt: { type: string, format: date-time }
         - type: object
           additionalProperties: false
-          required:
-            - operationRef
-            - actionRef
-            - outcome
-            - requestedSubjects
-            - reasonCode
+          required: [ operationRef, actionRef, outcome, requestId, originalArtifactVersionRef, candidateArtifactVersionRef, metricRefs, reasonCode ]
           properties:
-            operationRef:
-              const: media.operation.action.compare-candidate-on-metric
-            actionRef:
-              const: media.action.compare-candidate-on-metric
-            outcome:
-              enum:
-                - UNKNOWN
-                - DENIED
-            requestedSubjects:
+            operationRef: { const: media.operation.action.compare-candidate-on-metric }
+            actionRef: { const: media.action.compare-candidate-on-metric }
+            outcome: { enum: [ UNKNOWN, DENIED ] }
+            requestId: { type: string, minLength: 1 }
+            originalArtifactVersionRef:
+              oneOf:
+                - $ref: "#/$defs/canonicalReferences/media_domain_artifact-version"
+            candidateArtifactVersionRef:
+              oneOf:
+                - $ref: "#/$defs/canonicalReferences/media_domain_artifact-version"
+            metricRefs:
               type: array
-              items:
-                $ref: "#/$defs/canonicalReferenceAny"
+              items: { type: string, format: opaque-reference, minLength: 1, maxLength: 256, sourceRegistryRef: .product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions, identityField: id, unknownDisposition: REJECT }
               minItems: 1
-              maxItems: 32
-            reasonCode:
-              type: string
-              minLength: 1
-              maxLength: 128
+              maxItems: 16
+              uniqueItems: true
+            reasonCode: { type: string, minLength: 1, maxLength: 128 }
     requestAuthority:
       tenantId: HOST_AUTHENTICATED_ONLY
       principalId: HOST_AUTHENTICATED_ONLY
       authorityDecision: HOST_RESOLVED_AND_RECHECKED_AT_EFFECT_BOUNDARY
       workspaceScope: HOST_RESOLVED; caller selections are inputs, never authority
     semantics:
-      sourceDeclaredResultFields:
-        - requestId
-        - exactTargetRef
-        - ownerReceipt
-        - observedAt
+      sourceDeclaredResultFields: [ requestId, originalArtifactVersionRef, candidateArtifactVersionRef, metricRefs, metricResults, observedAt ]
       effectKind: READ_ONLY_OBSERVATION
-      unknownIsNotSuccess: true
+      pairedResultContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
+      sourceObservationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1
+      metricIdentityResolution: resolve-request-and-result-metricRefs-against-exact-id-values-from-.product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions; reject-unknown-identities
+      scopeContractRef: .product-experience/pdp-1-domain-data/value-objects.yaml#providerSignalContract
+      metricCoverage: exact-requested-list-and-one-result-row-per-requested-metric-in-order; no-duplicate-extra-or-missing-metrics
+      semanticResultValidatorRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultRules
+      sideObservationDisposition: preserve-OBSERVED-NO_OBSERVATION-SUBJECT_NOT_FOUND-UNKNOWN-and-currentness-per-side; only-OBSERVED-carries-sourceObservation; each-sourceObservation.metricRef-must-resolve-in-quality-policy.metricDefinitions-and-match-row-and-request.metricRef; never-drop-or-synthesize-side-status-or-evidence
+      observationSelection: exact-side-subjectArtifactVersionRef-plus-requested-metricRef
+      comparability: validate-per-metric; if-either-side-is-not-OBSERVED-or-not-CURRENT-then-UNKNOWN; SAME_DECLARED_SCOPE-only-when-both-OBSERVED-and-CURRENT-and-all-six-providerSignalContract.scopeIdentity-fields-are-present-nonempty-and-equal; NOT_COMPARABLE-only-when-both-OBSERVED-and-CURRENT-and-at-least-one-scopeIdentity-field-is-missing-or-mismatched; retain-both-raw-sides
+      forbiddenDerivedClaims: [ delta, direction, threshold, pass/fail, aggregate, rank, winner, improvement, qualification ]
+      definitionReviewStatus: OWNER_ACCEPTANCE_NOT_CLAIMED; independent-review-open
       legacyRawJsonDisposition: UNTRUSTED_OBSERVATION_ONLY; never canonical result or finality evidence
+      unknownIsNotSuccess: true
       runtimeAdmission: NOT_ADMITTED
   - id: media.owner-action-wire.compare-media-versions.v1
     actionRef: media.action.compare-media-versions

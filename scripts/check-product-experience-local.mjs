@@ -250,6 +250,7 @@ function resolveStableAnchor(source, anchor) {
 }
 
 const capabilitySource = read(join(productRoot, "pdp-0-product-truth/capabilities.yaml"));
+const parsedCapabilityDefinitions = parseYaml(capabilitySource);
 const familySection = capabilitySource.split(/^families:\s*$/mu)[1]?.split(/^capabilities:\s*$/mu)[0] ?? "";
 const capabilitySection = capabilitySource.split(/^capabilities:\s*$/mu)[1] ?? "";
 const capabilityIds = new Set(idsFrom(capabilitySection, /^\s*- id: (media\.[A-Za-z0-9._-]+)$/gmu));
@@ -264,7 +265,10 @@ const journeyCatalogSource = read(join(productRoot, "pdp-0-product-truth/journey
 const coverageSource = read(join(productRoot, "vision-requirements-coverage.yaml"));
 const requirementIds = new Set(idsFrom(requirementSource, /^- id: (MEDIA-REQ-[A-Z0-9-]+)[ \t]*$/gmu));
 const capabilityRequirementRefs = collectMatches([capabilitySection], /^\s*- (MEDIA-REQ-[A-Z0-9-]+)$/gmu);
-if (capabilityIds.size !== 462) fail(`PDP-0 historical capability leaf denominator is ${capabilityIds.size}; expected 462`);
+let parsedLeafReview;
+try { parsedLeafReview = parseYaml(leafReviewSource); }
+catch (error) { fail(`PDP-0 capability leaf review is not valid YAML: ${error.message}`); parsedLeafReview = {}; }
+if (capabilityIds.size !== 469) fail(`PDP-0 current capability definition population is ${capabilityIds.size}; expected 462 preserved historical leaves plus 7 explicit definition extensions`);
 if (familyIds.size !== 38) fail(`PDP-0 historical capability family denominator is ${familyIds.size}; expected 38`);
 unique([...capabilityIds], "PDP-0 capability ID");
 unique([...familyIds], "PDP-0 capability family ID");
@@ -303,12 +307,148 @@ const requirementOutcomeTraceCount = requirementBlocks.filter((block) =>
   /^\s*relatedOutcomeRefs:\s*$/mu.test(block) && /\n\s*-\s*media\.goal\./mu.test(block)).length;
 if (requirementIds.size !== 38) fail("Historical requirement-family denominator is " + requirementIds.size + "; expected 38");
 const intentIds = new Set(idsFrom(goalsSource, /^\s*- id: (media\.intent\.[A-Za-z0-9._-]+)$/gmu));
-const ownerAdjudicationIds = new Set(idsFrom(leafReviewSource, /^\s*- capabilityRef: (media\.[A-Za-z0-9._-]+)$/gmu));
+const ownerAdjudicationRows = parsedLeafReview.ownerCapabilityLeafAdjudication?.records ?? [];
+const ownerAdjudicationIds = new Set(ownerAdjudicationRows.map(({ capabilityRef }) => capabilityRef).filter(Boolean));
 if (intentIds.size !== 19) fail(`Historical intent denominator is ${intentIds.size}; expected 19`);
 if (ownerAdjudicationIds.size !== 462) fail(`Owner adjudication denominator is ${ownerAdjudicationIds.size}; expected 462`);
+for (const id of ownerAdjudicationIds) {
+  if (!capabilityIds.has(id)) fail(`Historical owner-adjudicated capability is missing from the current definition source: ${id}`);
+}
 let campaignExtensions;
 try { campaignExtensions = parseYaml(campaignExtensionSource); }
 catch (error) { fail(`PDP-0 campaign extension is not valid YAML: ${error.message}`); campaignExtensions = {}; }
+const definitionPopulation = campaignExtensions.currentDefinitionPopulation ?? {};
+const extensionRows = definitionPopulation.records ?? [];
+const extensionIds = new Set(extensionRows.map(({ capabilityId }) => capabilityId));
+const unadjudicatedCurrentIds = new Set([...capabilityIds].filter((id) => !ownerAdjudicationIds.has(id)));
+if (definitionPopulation.historicalCapabilityLeavesPreserved !== 462
+    || definitionPopulation.currentCapabilityDefinitions !== 469
+    || definitionPopulation.definitionExtensionCapabilityLeaves !== 7
+    || definitionPopulation.ownerAdjudications !== 462
+    || definitionPopulation.ownerApproval !== "NOT_CLAIMED"
+    || definitionPopulation.independentAcceptance !== "NOT_CLAIMED") {
+  fail("PDP-0 definition extension census must preserve 462 historical owner-adjudicated leaves and explicitly account for seven delegated source extensions");
+}
+const expectedExtensionIds = [
+  "media.generate.video.preset.manage",
+  "media.generate.video.shot-condition",
+  "media.job.schedule.manage",
+  "media.master.audio.creative-effect.apply",
+  "media.project.scene.patch-merge",
+  "media.quality.audio.content-similarity.assess",
+  "media.recipe.specification.compile",
+].sort();
+if (extensionRows.length !== 7 || extensionIds.size !== 7
+    || [...extensionIds].sort().join(",") !== expectedExtensionIds.join(",")
+    || [...extensionIds].some((id) => !unadjudicatedCurrentIds.has(id))
+    || [...unadjudicatedCurrentIds].some((id) => !extensionIds.has(id))) {
+  fail("Current capability definitions must equal the 462 preserved owner-adjudicated leaves plus the seven explicitly recorded definition extensions");
+}
+for (const row of extensionRows) {
+  if (row.ownerApproval !== "NOT_CLAIMED" || row.independentAcceptance !== "NOT_CLAIMED") {
+    fail(`Capability definition extension ${row.capabilityId} must not claim owner or independent acceptance`);
+  }
+}
+let extensionApplicabilitySource;
+let parsedApplicationsChannels;
+try {
+  parsedApplicationsChannels = parseYaml(read(join(productRoot, "pdp-0-product-truth/applications-channels.yaml")));
+  extensionApplicabilitySource = parsedApplicationsChannels.coordinatorDefinitionExtensionApplicability;
+}
+catch (error) { fail(`PDP-0 definition extension applicability is not valid YAML: ${error.message}`); extensionApplicabilitySource = {}; }
+const extensionApplicabilityRows = extensionApplicabilitySource.records ?? [];
+const extensionApplicabilityIds = new Set(extensionApplicabilityRows.map(({ capabilityRef }) => capabilityRef));
+if (extensionApplicabilitySource.status !== "USER_DELEGATED_PDP0_APPLICABILITY_DECISIONS; source-current; independent acceptance pending"
+    || extensionApplicabilitySource.ownerApproval !== "NOT_CLAIMED"
+    || extensionApplicabilitySource.independentAcceptance !== "NOT_CLAIMED"
+    || extensionApplicabilitySource.executionAdmission !== "NOT_ADMITTED"
+    || extensionApplicabilityRows.length !== 7 || extensionApplicabilityIds.size !== 7
+    || [...extensionIds].some((id) => !extensionApplicabilityIds.has(id))) {
+  fail("All seven definition extensions need a separate, source-current applicability record that preserves the 462 owner-adjudication boundary");
+}
+let extensionTopology = {};
+let extensionSurfaceRegistry = {};
+try {
+  extensionTopology = JSON.parse(read(join(productRoot, "surfaces/media-physical-topology.v1.json")));
+  extensionSurfaceRegistry = parseYaml(read(join(productRoot, "surface-registry.yaml")));
+} catch (error) { fail(`PDP-0 definition extension surface authorities are invalid: ${error.message}`); }
+const extensionPhysicalRows = extensionTopology.manifestCandidates ?? [];
+const extensionCompositionRows = extensionTopology.compositions ?? [];
+const extensionConsumerRows = extensionTopology.consumerCrosswalk ?? [];
+const extensionSurfaceIds = new Set([
+  ...extensionPhysicalRows.map(({ surfaceId }) => surfaceId),
+  ...extensionCompositionRows.map(({ surfaceId }) => surfaceId),
+  ...extensionConsumerRows.map(({ surfaceId }) => surfaceId),
+]);
+const extensionNonDecisionSurfaceIds = new Set([
+  ...extensionPhysicalRows
+    .filter(({ phaseApplicability }) => phaseApplicability?.["PDP-0"]?.disposition === "NOT_APPLICABLE_SUPPORT")
+    .map(({ surfaceId }) => surfaceId),
+  ...(extensionSurfaceRegistry.surfaces ?? [])
+    .filter(({ applicabilityDisposition }) => applicabilityDisposition === "NOT_ACTIVE_ARCHIVED")
+    .map(({ surfaceId }) => surfaceId),
+]);
+const extensionChannelIds = new Set([
+  ...(parsedApplicationsChannels?.channels ?? []).map(({ id }) => id),
+  ...(parsedApplicationsChannels?.ownerDefinedChannels?.records ?? []).map(({ id }) => id),
+]);
+const extensionLogicalCandidatesByChannel = new Map((extensionSurfaceRegistry.surfaces ?? []).length
+  ? (extensionSurfaceRegistry.channelSurfaceProposals?.mappings ?? []).map(({ channelRef, candidateSurfaceRefs }) => [channelRef, candidateSurfaceRefs ?? []])
+  : []);
+const sortRefs = (refs) => [...new Set(refs ?? [])].sort().join("\0");
+for (const row of extensionRows) {
+  const applicability = extensionApplicabilityRows.find(({ capabilityRef }) => capabilityRef === row.capabilityId);
+  const capability = parsedCapabilityDefinitions.capabilities.find(({ id }) => id === row.capabilityId);
+  const selectedChannels = (capability?.supportedChannels ?? []).map((channel) => `media.channel.${channel}`);
+  const owner = applicability?.sourceOwnerSurfaceRef;
+  const ownerConsumer = extensionConsumerRows.find(({ surfaceId }) => surfaceId === owner);
+  const expectedPhysical = applicability?.resolution?.physicalSurfaceRefs ?? [];
+  const ownerPhysicalIds = new Set(ownerConsumer?.physicalRefs ?? []);
+  const descendsFromSource = (composition, ancestors = new Set()) => {
+    if (ancestors.has(composition.surfaceId)) return false;
+    const next = new Set(ancestors).add(composition.surfaceId);
+    return (composition.children ?? []).some((child) => expectedPhysical.includes(child)
+      || extensionCompositionRows.some((nested) => nested.surfaceId === child && descendsFromSource(nested, next)));
+  };
+  const expectedComposites = extensionCompositionRows.filter((composition) => descendsFromSource(composition)).map(({ surfaceId }) => surfaceId);
+  const expectedIncludedSurfaces = [owner, ...expectedPhysical, ...expectedComposites].filter(Boolean);
+  const decision = applicability?.decision ?? {};
+  const resolution = applicability?.resolution ?? {};
+  const expectedExcludedChannels = [...extensionChannelIds].filter((id) => id !== applicability?.candidateChannelRef);
+  const expectedExcludedSurfaces = [...extensionSurfaceIds].filter((id) => !expectedIncludedSurfaces.includes(id)
+    && !extensionNonDecisionSurfaceIds.has(id));
+  const mappedLogicalCandidates = extensionLogicalCandidatesByChannel.get(applicability?.candidateChannelRef) ?? [];
+  const expectedOwnerProposalRefs = (applicability?.sourceAuditIds ?? []).map((id) =>
+    `docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=${id}/owner_surface_proposal`);
+  if (!applicability
+      || row.channelApplicabilityProposalRef !== `.product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability/records/@capabilityRef=${row.capabilityId}`
+      || sortRefs(applicability.declaredSupportedChannelRefs) !== sortRefs(row.declaredSupportedChannelRefs)
+      || selectedChannels.length !== 1 || applicability.candidateChannelRef !== selectedChannels[0]
+      || !applicability.sourceAuditIds?.length || !applicability.sourceOwnerSurfaceProposalRefs?.length
+      || sortRefs(applicability.sourceOwnerSurfaceProposalRefs) !== sortRefs(expectedOwnerProposalRefs)
+      || !ownerConsumer || !mappedLogicalCandidates.includes(owner)
+      || expectedPhysical.length !== 1 || expectedPhysical.some((id) => !ownerPhysicalIds.has(id))
+      || sortRefs(resolution.logicalConsumerSurfaceRefs) !== sortRefs([owner])
+      || sortRefs(resolution.physicalSurfaceRefs) !== sortRefs(expectedPhysical)
+      || sortRefs(resolution.compositeSurfaceRefs) !== sortRefs(expectedComposites)
+      || sortRefs(decision.includedSurfaceRefs) !== sortRefs(expectedIncludedSurfaces)
+      || sortRefs(decision.excludedSurfaceRefs?.map(({ surfaceRef }) => surfaceRef)) !== sortRefs(expectedExcludedSurfaces)
+      || sortRefs(decision.excludedChannelRefs?.map(({ channelRef }) => channelRef)) !== sortRefs(expectedExcludedChannels)
+      || decision.includedChannelRef !== applicability.candidateChannelRef
+      || decision.status !== "DELEGATED_PDP0_APPLICABILITY_DECISION"
+      || decision.sourceOfDecision !== "explicit-user-delegated-Media-owner-PDP-0-applicability-only"
+      || decision.decisionRef !== ".product-experience/decision-log.md#PXD-207"
+      || decision.ownerApproval !== "NOT_CLAIMED" || decision.independentAcceptance !== "NOT_CLAIMED"
+      || decision.executionAdmission !== "NOT_ADMITTED") {
+    fail(`Definition extension ${row.capabilityId} has an incomplete exact source-bound applicability proposal`);
+  }
+}
+const parsedRequirements = parseYaml(requirementSource).requirements ?? [];
+for (const { capabilityId, requirementRef } of extensionRows) {
+  const requirementId = requirementRef?.match(/@id=(MEDIA-REQ-[A-Z0-9-]+)/u)?.[1];
+  const family = parsedRequirements.find(({ id }) => id === requirementId);
+  if (!family?.capabilityIds?.includes(capabilityId)) fail(`Definition extension ${capabilityId} must be linked from its owning requirement family ${requirementId ?? "<missing>"}`);
+}
 const extension = campaignExtensions.records?.find((record) => record.id === "AUD-SPEC-020");
 if (!extension) fail("PDP-0 campaign extension is missing stable record AUD-SPEC-020");
 else {
@@ -485,7 +625,7 @@ if (/localProjection: (?:P0|P1|P2|P3)(?:\s|$)/mu.test(coverageSource)) {
   fail("Vision/requirements crosswalk contains legacy P0/P1/P2/P3 projections");
 }
 note(outcomeIds.size + " PDP-0 vision outcomes have journey/supporting-view coverage; " + requirementOutcomeTraceCount + " requirement groups have outcome traces");
-note(`${capabilityIds.size} historical PDP-0 capability leaves resolve to ${familyIds.size} families and ${requirementIds.size} requirement IDs; ${intentIds.size} intents and ${ownerAdjudicationIds.size} owner adjudications remain canonical. AUD-SPEC-020 is checked as a separate campaign extension. Historical inline-field observation: ${capabilityCoreComplete} legacy inline shapes and ${operationSpecificParameterProposals} inline parameter proposals`);
+note(`${capabilityIds.size} current PDP-0 capability definitions resolve to ${familyIds.size} families and ${requirementIds.size} requirement IDs; ${ownerAdjudicationIds.size} historical owner adjudications remain canonical. Seven source extensions have separate source-current applicability records; independent acceptance remains pending and AUD-SPEC-020 remains a separate campaign extension. Historical inline-field observation: ${capabilityCoreComplete} legacy inline shapes and ${operationSpecificParameterProposals} inline parameter proposals`);
 
 const componentSource = read(join(productRoot, "pdp-2-design-interface-system/component-contracts.yaml"));
 const componentSection = componentSource.split(/^components:\s*$/mu)[1]?.split(/^masterPlanCoverage:\s*$/mu)[0] ?? "";

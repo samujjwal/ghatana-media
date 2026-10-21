@@ -8,8 +8,10 @@ const { parse } = toolsRequire('yaml');
 const base = '.product-experience/pdp-3-product-experience';
 const actions = parse(await readFile(`${base}/action-registry.yaml`, 'utf8')).actions;
 const ownerActions = parse(await readFile(`${base}/action-registry.yaml`, 'utf8')).ownerDefinedActions ?? [];
-const recoveryQuery = parse(await readFile('.product-experience/pdp-1-domain-data/operations.yaml', 'utf8'))
-  .ownerDefinedOperationContracts.records.find(({ id }) => id === 'media.operation.stream-session.inspect-execution-recovery.v1');
+const p1Operations = parse(await readFile('.product-experience/pdp-1-domain-data/operations.yaml', 'utf8'));
+const recoveryQuery = p1Operations.ownerDefinedOperationContracts.records.find(({ id }) => id === 'media.operation.stream-session.inspect-execution-recovery.v1');
+const captionDraftWrite = p1Operations.operations.find(({ id }) => id === 'media.operation.caption-draft-write');
+const p0Requirements = parse(await readFile('.product-experience/pdp-0-product-truth/requirements.yaml', 'utf8'));
 const ownerActionById = new Map(ownerActions.map((action) => [action.id, action]));
 const actionById = new Map(actions.map((action) => [action.id, action]));
 const journeyFiles = (await readdir(`${base}/journey-contracts`)).filter((path) => path.endsWith('.yaml')).sort();
@@ -102,6 +104,18 @@ test('all 130 PDP-3 journey steps preserve their exact source facts and action d
       assert.deepEqual(binding.stepSourceFacts.result, step.result,
         `${journey.journeyId}/${index + 1} preserves an explicitly declared source result`);
     }
+    if ((journey.journeyId === 'J-03' && step.stepId === 'J03-5')
+      || ((journey.journeyId === 'J-16' && index === 2) || (journey.journeyId === 'J-18' && index === 3))) {
+      const immediate = binding.stepSourceFacts.success;
+      assert.equal(immediate.sourceRef, '.product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics/result');
+      assert.equal(immediate.resultSchemaRef, '.product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics');
+      assert.ok(Array.isArray(binding.stepSourceFacts.resultSourceRef));
+      assert.ok(binding.stepSourceFacts.resultSourceRef.includes(immediate.sourceRef));
+      assert.match(immediate.meaning, /complete session-local draft snapshot/u);
+      assert.match(captionDraftWrite.outputSemantics.result, /complete-new-session-local-draft-snapshot/u);
+      assert.equal(Object.hasOwn(immediate, 'laterJourneyOutcomeRef'), false,
+        `${journey.journeyId}/${index + 1} reports only the immediate P1 draft result`);
+    }
     if (binding.stepSourceFacts.success?.sourceRef === 'journey.terminalSuccess') {
       assert.equal(step.success?.sourceRef, 'journey.terminalSuccess');
       assert.deepEqual(binding.stepSourceFacts.success.summary, step.success.summary);
@@ -111,6 +125,14 @@ test('all 130 PDP-3 journey steps preserve their exact source facts and action d
     }
     assert.deepEqual(binding.stepSourceFacts.failure, step.failure ?? null);
     assert.deepEqual(binding.stepSourceFacts.recovery, step.recovery ?? null);
+    if (journey.journeyId === 'J-18' && index === 3) {
+      const requirementId = 'MEDIA-REQ-CAP-ARTIFACT';
+      assert.ok(p0Requirements.requirements.some(({ id }) => id === requirementId),
+        'J-18/4 requirement identity resolves to the live P0 requirement');
+      assert.deepEqual(step.requirementRefs, [requirementId]);
+      assert.deepEqual(binding.canonicalBindings.requirementRefs, [requirementId],
+        'J-18/4 canonical requirement uses the oracle stable-ID vocabulary');
+    }
     for (const key of ['surfaceRefs', 'objectRefs', 'stateRefs', 'canonicalOperationRef', 'authorityRef', 'transitionRef', 'requirementRefs', 'scenarioRefs']) {
       assert.deepEqual(binding.canonicalBindings[key], step[key] ?? (key.endsWith('Refs') ? [] : null), `${journey.journeyId}/${index + 1} exact ${key}`);
     }

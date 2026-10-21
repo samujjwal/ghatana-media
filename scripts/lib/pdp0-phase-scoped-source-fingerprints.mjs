@@ -182,7 +182,7 @@ export function projectPdp0DirectCriterionReviews(reviewDocument, sourceOwnerPha
   }
   const records = P0_IDS.filter(id => byId.has(id)).map(id => byId.get(id));
   if (!records.length) throw new Error('direct-criterion review contains no PDP-0 records');
-  const allowedRecordKeys = new Set(['taskId', 'status', 'decisionRef', 'scope', 'sourceFingerprints', 'verification', 'acceptanceBoundary', 'currentCorrectiveReview', 'historicalCorrectiveReviews', 'currentSourcePinRefresh', 'currentProjectionRefresh', 'scopeBoundary']);
+  const allowedRecordKeys = new Set(['taskId', 'status', 'decisionRef', 'scope', 'sourceFingerprints', 'verification', 'acceptanceBoundary', 'currentCorrectiveReview', 'currentSourceReview', 'historicalCorrectiveReviews', 'currentSourcePinRefresh', 'currentProjectionRefresh', 'scopeBoundary']);
   const reviewKeys = new Set([
     'status', 'decisionRef', 'reviewKind', 'phaseScope', 'scope', 'sourceFingerprints', 'supersedesReviewRef',
     'verification', 'acceptanceBoundary', 'acceptanceEffect', 'ownerApproval', 'currentSourceCutNote',
@@ -312,7 +312,7 @@ export function projectPdp0DirectCriterionReviews(reviewDocument, sourceOwnerPha
   const projectedRecords = records.map(record => {
     assertKnownKeys(record, allowedRecordKeys, `direct-criterion ${record.taskId}`);
     if (/^P0-\d{2}$/.test(record.taskId) && !P0_IDS.includes(record.taskId)) throw new Error(`unrecognized PDP-0 direct-criterion ID: ${record.taskId}`);
-    const activeP0Review = record.currentCorrectiveReview ?? record.currentSourceReview;
+    const activeP0Review = record.currentSourceReview ?? record.currentCorrectiveReview;
     if (P0_IDS.includes(record.taskId) && activeP0Review && activeP0Review.phaseScope !== 'PDP-0') {
       throw new Error(`${record.taskId} current review must declare PDP-0 phaseScope`);
     }
@@ -320,6 +320,7 @@ export function projectPdp0DirectCriterionReviews(reviewDocument, sourceOwnerPha
     if (record.sourceFingerprints) projected.sourceFingerprints = projectFingerprintMap(record.sourceFingerprints);
     if (record.verification) projected.verification = projectVerification(record.verification);
     if (record.currentCorrectiveReview) projected.currentCorrectiveReview = projectReview(record.currentCorrectiveReview);
+    if (record.currentSourceReview) projected.currentSourceReview = projectReview(record.currentSourceReview);
     if (record.currentSourcePinRefresh) {
       if (!['P0-02', 'P0-05', 'P0-07'].includes(record.taskId)) throw new Error(`${record.taskId} cannot carry currentSourcePinRefresh`);
       projected.currentSourcePinRefresh = projectCurrentSourcePinRefresh(record.currentSourcePinRefresh, record.taskId);

@@ -461,7 +461,6 @@ records:
   localEffectContractId: null
   localEffectContractRef: null
   domainObjectRefs:
-  - media.domain.quality-assessment
   - media.domain.artifact-version
   stateRefs: []
   authorityRefs:
@@ -621,8 +620,7 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml#/steps/2
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-render
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.submit-render
-  mappingBasis: Request the explicitly named operation for the exact target only after fresh actor, capability,
-    policy, and target checks.
+  mappingBasis: Request the explicitly named render operation for the exact target only after fresh actor, capability, policy, and target checks; observe terminality separately through the exact logicalJobId using media.operation.job-status.read-dimensions.v1. Job observation does not change submit-render's durable-admission finality.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
@@ -650,7 +648,8 @@ records:
   - media.operation.action.inspect-output-preview-and-version
   operationRefs:
   - media.operation.action.inspect-output-preview-and-version
-  supportingOperationRefs: []
+  supportingOperationRefs:
+  - media.operation.job-status.read-dimensions.v1
   operationKinds:
   - QUERY
   capabilityRefs: []
@@ -675,9 +674,10 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml#/steps/3
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-output-preview-and-version
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-output-preview-and-version
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1
   observationContractRefs:
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1
-  mappingBasis: Bind preview/version inspection to the exact immutable output-preview-version-lineage observation; the read-only result does not register, approve, deliver, dispatch, qualify, or retry an artifact.
+  mappingBasis: Bind preview/version inspection to the exact immutable output-preview-version-lineage observation and supporting terminal job-status query for the exact submitted logicalJobId; these remain distinct observations joined by exact job and source snapshot. Neither read registers, approves, delivers, dispatches, qualifies, or retries an artifact.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
@@ -721,8 +721,7 @@ records:
   recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence; never-claim-success-from-local-state
   sourceRefs:
   - .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/0
-  mappingBasis: Change only the current local draft or selection; keep committed source and versioned objects unchanged
-    until a separately specified commit.
+  mappingBasis: Destination choice remains a local draft effect; a separate supporting query observes the exact immutable output and owner-resolved lineage. Spatial-export report semantics are definition-only evidence, not a package or delivery result; no consumer receipt is inferred.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs: []
@@ -759,7 +758,6 @@ records:
   localEffectContractId: null
   localEffectContractRef: null
   domainObjectRefs:
-  - media.domain.quality-assessment
   - media.domain.artifact-version
   stateRefs: []
   authorityRefs:
@@ -995,7 +993,6 @@ records:
   localEffectContractId: null
   localEffectContractRef: null
   domainObjectRefs:
-  - media.domain.quality-assessment
   - media.domain.artifact-version
   stateRefs: []
   authorityRefs:
@@ -1405,7 +1402,6 @@ records:
   localEffectContractId: null
   localEffectContractRef: null
   domainObjectRefs:
-  - media.domain.quality-assessment
   - media.domain.artifact-version
   stateRefs: []
   authorityRefs:
@@ -2693,6 +2689,57 @@ records:
   acceptanceEffect: none
   allowedOperationRefs:
   - media.operation-slice.inspect-artifact
+  relatedActionBindings:
+    - id: media.pdp3.action-binding.j26-artifact-delete.v1
+      bindingKind: EXACT_PURPOSE_BOUND_CAPABILITY_COMMAND_NOT_STEP_TRANSITION
+      journeyStepTransition: false
+      purposeRef: media.intent.manage-artifact-lifecycle
+      purposeSourceRef: .product-experience/pdp-0-product-truth/goals-jtbd.yaml#intents/@id=media.intent.manage-artifact-lifecycle
+      actionRegistryDisposition: CAPABILITY_COMMAND; NO_SEPARATE_PDP3_ACTION_ID_AUTHORED
+      capabilityRef: media.artifact.delete
+      capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.delete/ownerDefinition
+      operationRef: media.operation.capability.media-artifact-delete
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete
+      operationKind: COMMAND
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete/resultSchema
+      typedResultRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.artifact-lifecycle-observation-access-revoked-hold-pending-erasure-confirmed-or-external-unknown
+      authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+      actorScope:
+        journeyActorSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-26/actors
+        capabilityActorSourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.delete/actorRefs
+        eligibleActorRefs: [media.creator, media.editor, media.operator]
+        trustedContextRef: media.capability-contract-envelope.request.v1#trustedContext
+        guard: Only the current authenticated actor in the capability's source-declared actor set may invoke; require verified actor/workspace, current delegated authority, and effect-boundary policy checks.
+      targetBinding:
+        exactArtifactVersion: input1.payload.artifactId and input1.payload.versionId identify exactly one immutable governed artifact version; the successful typed result must echo both exactly.
+        purposeAndPolicy: input2.payload.purposeRef equals media.intent.manage-artifact-lifecycle and rightsEvidenceRefs bind current rights, consent, retention, and hold evidence to the exact object/version and decision boundary.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete/requestSchema
+      resultClasses:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.artifact-lifecycle-observation-access-revoked-hold-pending-erasure-confirmed-or-external-unknown
+        classifierRef: .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/erasureFinality/outcomeClassifier
+        ACCESS_REVOKED: ACCESS_REVOKED; access restriction is not physical erasure.
+        HOLD: BLOCKED_BY_HOLD maps to ERASURE_BLOCKED_BY_HOLD; retain the exact hold disposition.
+        PENDING: ERASURE_REQUESTED or PHYSICAL_ERASURE_PENDING remains pending, not confirmed.
+        PARTIAL: PARTIALLY_ERASED is emitted only by the P1 erasure outcome classifier for incomplete copy coverage.
+        EXTERNAL_UNKNOWN: EXTERNAL_ERASURE_UNCONFIRMED remains unconfirmed; privacy unknown output is ERASURE_OUTCOME_UNKNOWN.
+        ERASURE_CONFIRMED: permitted only when the exact current all-copy inventory, current hold disposition, owner evidence for each copy, and tombstone replay requirements in the P1 classifier all pass.
+      effect: Request lifecycle handling only for the exact artifact/version under this purpose and current rights/retention/hold context; command acceptance is not deletion or erasure finality.
+      finality: No lifecycle receipt or local observation establishes all-copy deletion; ERASURE_CONFIRMED is a classifier result requiring complete current owner evidence.
+      unknownDisposition: Preserve the same request identity and exact object/version; missing, stale, denied, partial, mismatched, or unavailable evidence remains pending/UNKNOWN and is never promoted to erasure success.
+      runtimeAdmission: NOT_ADMITTED
+      externalAcceptance: PENDING
+      acceptanceEffect: none
+      sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/lifecycleEffectBoundaries/artifactErasure
+      - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-26/intentRefs
+      - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.delete/actorRefs
+      - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.delete/ownerDefinition
+      - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete/requestSchema
+      - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete/resultSchema
+      - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/erasureFinality/outcomeClassifier
 - id: media.pdp3.step-purpose-binding.j26-step-03.v1
   journeyRef: J-26
   journeySourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-26
@@ -3069,7 +3116,6 @@ records:
   localEffectContractId: null
   localEffectContractRef: null
   domainObjectRefs:
-  - media.domain.quality-assessment
   - media.domain.artifact-version
   stateRefs: []
   authorityRefs:
@@ -3187,7 +3233,9 @@ records:
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-simulation-result
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-simulation-result
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/resultSchema
-  mappingBasis: Bind simulation-result inspection to its exact owner-defined P1 result schema for the selected run; this read-only query asserts no P1 machine transition, missing, partial, and unavailable evidence remain distinct, and a plan does not establish execution.
+  - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=media.owner-wire-contract.simulation-measurements.v1/resultSchema
+  mappingBasis: Bind simulation-result inspection to its exact owner-defined P1 query envelope and bind the separate measurement-production capability's typed result schema to this J-14 step. The capability result is a supporting source contract only; the P3 mapping does not claim invocation, query-envelope correlation, simulation execution, independent scientific validity, or runtime admission. Missing, partial, and unavailable query evidence remain distinct, and a plan does not establish execution.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
@@ -3420,7 +3468,9 @@ records:
   - media.operation.action.submit-render
   operationRefs:
   - media.operation.action.submit-render
-  supportingOperationRefs: []
+  supportingOperationRefs:
+  - media.operation.job-status.read-dimensions.v1
+  - media.operation.action.inspect-output-preview-and-version
   operationKinds:
   - COMMAND
   capabilityRefs: []
@@ -3448,6 +3498,7 @@ records:
   - .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/2
   - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-render
   - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.submit-render
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1
   mappingBasis: Request the explicitly named operation for the exact target only after fresh actor, capability,
     policy, and target checks.
   runtimeAdmission: NOT_ADMITTED
@@ -3494,11 +3545,79 @@ records:
   recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence; never-claim-success-from-local-state
   sourceRefs:
   - .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/3
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1
   mappingBasis: Change only the current local draft or selection; keep committed source and versioned objects unchanged
     until a separately specified commit.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs: []
+  relatedActionBindings:
+    - id: media.pdp3.action-binding.j28-deliver-exact-version.v1
+      bindingKind: EXACT_SINGLE_OPERATION_RELATED_DELIVERY_REQUEST_NOT_STEP_TRANSITION
+      journeyStepTransition: false
+      actionRef: media.action.deliver-exact-version
+      actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.deliver-exact-version
+      intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/pdp1ResultEvidence/operationResultBindings/3
+      operationRef: media.operation.action.deliver-exact-version
+      actionExactOperationRefs: [media.operation.action.deliver-exact-version]
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version
+      operationKind: COMMAND
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
+      authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+      domainObjectRefs: [media.domain.artifact-version, media.domain.delivery-outcome]
+      targetBinding:
+        exactArtifactVersion: request.artifactVersionId and exactTargetRef identify the immutable output version prepared by this J-28 export.
+        destination: request.destinationRef is the exact declared J-28 consumer destination; do not substitute another destination.
+        profile: request.deliveryProfileRef is the exact declared versioned delivery profile.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/requestSchema
+      effect: Request delivery only for the exact immutable output version, declared destination, and profile after current authority, rights, policy, and explicit confirmation checks.
+      finality: The request receipt is not destination delivery, consumer access, destination ACK, or a conversion report receipt; only the exact current typed destination acknowledgment may establish ACKNOWLEDGED.
+      observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
+      unknownDisposition: Preserve the same request identity and exact artifact version, destination, and profile; missing, stale, or mismatched acknowledgment remains pending/UNKNOWN and is reconciled without blind retry.
+      recovery: Reconcile the original exact request and typed destination acknowledgment before any permitted follow-up; never replay an uncertain delivery request.
+      runtimeAdmission: NOT_ADMITTED
+      transport: UNBOUND
+      externalAcceptance: PENDING
+      acceptanceEffect: none
+      sourceRefs:
+      - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-28/completion
+      - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-28/preconditions
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
+    - id: media.pdp3.action-binding.j28-destination-ack-reconciliation.v1
+      bindingKind: EXACT_SINGLE_OPERATION_RELATED_QUERY
+      journeyStepTransition: false
+      actionRef: media.action.reconcile-delivery-acknowledgment
+      actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.reconcile-delivery-acknowledgment
+      intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/3
+      operationRef: media.operation.action.reconcile-delivery-acknowledgment
+      actionExactOperationRefs: [media.operation.action.reconcile-delivery-acknowledgment]
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.reconcile-delivery-acknowledgment
+      operationKind: QUERY
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1/resultSchema
+      authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      domainObjectRefs: [media.domain.delivery-outcome]
+      effect: Read the exact current delivery acknowledgment for the original immutable delivery request; the query never delivers or changes an artifact.
+      observationEffect: Return only the exact scoped owner observation for delivery acknowledgment; the observation does not rewrite the delivery request or establish consumer receipt without current owner authority and matching evidence.
+      finality: The reconciliation query receipt is not destination evidence; only a current owner-authorized typed observation exactly joined to the original delivery result, request ID, fingerprint, artifact version, and destination can report ACKNOWLEDGED.
+      recovery: Preserve the exact original delivery request identity; repeat only the authorized reconciliation query and never resubmit delivery while the outcome is UNKNOWN.
+      observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
+      unknownDisposition: Missing, stale, denied, timed-out, mismatched, or unavailable evidence remains UNKNOWN; preserve the same request identity and never retry delivery blindly.
+      runtimeAdmission: NOT_ADMITTED
+      transport: UNBOUND
+      externalAcceptance: PENDING
+      acceptanceEffect: none
+      sourceRefs:
+      - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-28/completion
+      - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-28/recovery
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.reconcile-delivery-acknowledgment
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
 - id: media.pdp3.step-purpose-binding.j01-step-01.v1
   journeyRef: J-01
   journeySourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-01
@@ -3578,7 +3697,9 @@ records:
   localEffectContractRef: null
   domainObjectRefs:
   - media.domain.project
-  stateRefs: []
+  stateRefs:
+  - media-project/ACTIVE
+  - media-project/ARCHIVED
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   requirementRefs:
@@ -4017,7 +4138,6 @@ records:
   localEffectContractId: null
   localEffectContractRef: null
   domainObjectRefs:
-  - media.domain.quality-assessment
   - media.domain.artifact-version
   stateRefs: []
   authorityRefs:
@@ -4181,7 +4301,6 @@ records:
   localEffectContractId: null
   localEffectContractRef: null
   domainObjectRefs:
-  - media.domain.quality-assessment
   - media.domain.artifact-version
   stateRefs: []
   authorityRefs:
@@ -4202,6 +4321,29 @@ records:
   acceptanceEffect: none
   allowedOperationRefs:
   - media.operation.action.compare-candidate-on-metric
+  relatedActionBindings:
+  - id: media.pdp3.action-binding.j19-successor-choice.v1
+    bindingKind: RELATED_LOCAL_TERMINAL_CHOICE_NOT_STEP_TRANSITION
+    journeyStepTransition: false
+    semanticRole: LOCAL_SELECTION_OR_SESSION_DRAFT
+    actionRef: media.action.select-exact-candidates
+    actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.select-exact-candidates
+    intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/terminalOutcomeBinding
+    actionExactOperationRefs: []
+    operationRefs: []
+    inputObservationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
+    allowedChoices: [SELECT_SUCCESSOR, DECLINE_SUCCESSOR]
+    eligibility: Both exact immutable versions and every required metric side are OBSERVED and CURRENT; comparability is SAME_DECLARED_SCOPE.
+    otherwise: Preserve UNKNOWN or NOT_COMPARABLE; do not record a terminal choice or substitute a candidate.
+    effect: Record only the user's explicit choice against the exact eligible measured pair; do not commit or mutate the source object.
+    finality: local-draft-only; not-a-committed-result
+    recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence; never-claim-success-from-local-state
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+    sourceRefs:
+    - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-19/completion
+    - .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/terminalOutcomeBinding
+    - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.select-exact-candidates
 - id: media.pdp3.step-purpose-binding.j19-step-04.v1
   journeyRef: J-19
   journeySourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-19
@@ -5289,7 +5431,6 @@ records:
   localEffectContractId: null
   localEffectContractRef: null
   domainObjectRefs:
-  - media.domain.quality-assessment
   - media.domain.artifact-version
   stateRefs: []
   authorityRefs:
@@ -5598,7 +5739,6 @@ records:
   localEffectContractId: null
   localEffectContractRef: null
   domainObjectRefs:
-  - media.domain.quality-assessment
   - media.domain.artifact-version
   stateRefs: []
   authorityRefs:
@@ -6992,7 +7132,10 @@ records:
   ownerOperationBindingRef: null
   localEffectContractId: null
   localEffectContractRef: null
-  domainObjectRefs: []
+  domainObjectRefs:
+  - media.domain.artifact-version
+  - media.domain.transcript-version
+  - media.domain.caption-version
   stateRefs: []
   authorityRefs: []
   requirementRefs: []
@@ -7144,7 +7287,6 @@ records:
   localEffectContractId: null
   localEffectContractRef: null
   domainObjectRefs:
-  - media.domain.quality-assessment
   - media.domain.artifact-version
   stateRefs: []
   authorityRefs:

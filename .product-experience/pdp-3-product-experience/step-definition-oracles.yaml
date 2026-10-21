@@ -825,7 +825,6 @@ journeys:
       - QUERY
       capabilityOptions: *id045
       domainObjectRefs:
-      - media.domain.quality-assessment
       - media.domain.artifact-version
       stateRefs: []
       authorityRefs:
@@ -1207,6 +1206,8 @@ journeys:
     - preserve-the-requested-context-and-exact-version-across-recovery
     canonicalOperationRefs: &id099
     - media.operation.action.inspect-output-preview-and-version
+    supportingObservationOperationRefs:
+    - media.operation.job-status.read-dimensions.v1
     operationKinds:
     - QUERY
     capabilityOptions: &id077 []
@@ -1254,6 +1255,8 @@ journeys:
       actionRef: media.action.inspect-output-preview-and-version
       operationRefs:
       - media.operation.action.inspect-output-preview-and-version
+      supportingObservationOperationRefs:
+      - media.operation.job-status.read-dimensions.v1
       operationKinds:
       - QUERY
       capabilityOptions: *id077
@@ -1464,7 +1467,6 @@ journeys:
       - QUERY
       capabilityOptions: *id093
       domainObjectRefs:
-      - media.domain.quality-assessment
       - media.domain.artifact-version
       stateRefs: []
       authorityRefs:
@@ -1884,7 +1886,6 @@ journeys:
       - QUERY
       capabilityOptions: *id120
       domainObjectRefs:
-      - media.domain.quality-assessment
       - media.domain.artifact-version
       stateRefs: []
       authorityRefs:
@@ -2730,7 +2731,6 @@ journeys:
       - QUERY
       capabilityOptions: *id177
       domainObjectRefs:
-      - media.domain.quality-assessment
       - media.domain.artifact-version
       stateRefs: []
       authorityRefs:
@@ -5900,7 +5900,6 @@ journeys:
       - QUERY
       capabilityOptions: *id380
       domainObjectRefs:
-      - media.domain.quality-assessment
       - media.domain.artifact-version
       stateRefs: []
       authorityRefs:
@@ -6629,6 +6628,9 @@ journeys:
       actionRef: media.action.submit-render
       operationRefs:
       - media.operation.action.submit-render
+      supportingObservationOperationRefs:
+      - media.operation.job-status.read-dimensions.v1
+      - media.operation.action.inspect-output-preview-and-version
       operationKinds:
       - COMMAND
       capabilityOptions: *id425
@@ -6689,6 +6691,7 @@ journeys:
     actorRefs: *id317
     guardRefs: *id318
     canonicalOperationRefs: []
+    supportingObservationOperationRefs: []
     operationKinds: []
     capabilityOptions: &id431 []
     operationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
@@ -6737,6 +6740,7 @@ journeys:
       operationKinds: []
       capabilityOptions: *id431
       domainObjectRefs: []
+      supportingObservationOperationRefs: []
       stateRefs: []
       authorityRefs: []
       requirementRefs: []
@@ -7898,7 +7902,6 @@ journeys:
       - QUERY
       capabilityOptions: *id490
       domainObjectRefs:
-      - media.domain.quality-assessment
       - media.domain.artifact-version
       stateRefs: []
       authorityRefs:
@@ -8214,7 +8217,6 @@ journeys:
       - QUERY
       capabilityOptions: *id508
       domainObjectRefs:
-      - media.domain.quality-assessment
       - media.domain.artifact-version
       stateRefs: []
       authorityRefs:
@@ -8336,8 +8338,8 @@ journeys:
       - .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/3
       runtimeAdmission: NOT_ADMITTED
       decisionRef: .product-experience/decision-log.md#PXD-075
-      bindingId: media.step-definition-binding.j-19-step-04.v1
-      semanticDefinitionId: media.step-semantic-definition.j-19-step-04.v1
+      bindingId: media.step-definition-binding.j-19-step-05.v1
+      semanticDefinitionId: media.step-semantic-definition.j-19-step-05.v1
     sourceFacts:
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/3
       journeyRef: J-19
@@ -10686,7 +10688,6 @@ journeys:
       - QUERY
       capabilityOptions: *id639
       domainObjectRefs:
-      - media.domain.quality-assessment
       - media.domain.artifact-version
       stateRefs: []
       authorityRefs:
@@ -11258,7 +11259,6 @@ journeys:
       - QUERY
       capabilityOptions: *id658
       domainObjectRefs:
-      - media.domain.quality-assessment
       - media.domain.artifact-version
       stateRefs: []
       authorityRefs:
@@ -14309,7 +14309,10 @@ journeys:
       - media.operation.caption-draft-write
       operationKinds: []
       capabilityOptions: *id831
-      domainObjectRefs: []
+      domainObjectRefs:
+      - media.domain.artifact-version
+      - media.domain.transcript-version
+      - media.domain.caption-version
       stateRefs: []
       authorityRefs: []
       requirementRefs:
@@ -14566,7 +14569,6 @@ journeys:
       - QUERY
       capabilityOptions: *id843
       domainObjectRefs:
-      - media.domain.quality-assessment
       - media.domain.artifact-version
       stateRefs: []
       authorityRefs:

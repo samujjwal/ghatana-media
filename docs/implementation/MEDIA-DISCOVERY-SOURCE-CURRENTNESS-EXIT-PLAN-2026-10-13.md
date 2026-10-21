@@ -1,11 +1,11 @@
-# Ghatana Media — prescriptive Discovery source-currentness reconciliation and exit plan
+# Historical Ghatana Media Discovery currentness plan (2026-10-13)
 
-> **Controlling update — October 13, 2026:** The status/owner-pending statements below describe an earlier review cut. The [delegated Media owner decision](../../.product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md) approves PDP-0's exact source fingerprint and resolves the *internal owner-selection* blocker, but MDC-06 still needs a fresh technical capture and published phase exit. The [controlling plan](MEDIA-DISCOVERY-PDP0-3-CONTROLLING-EXECUTION-PLAN-2026-10-13.md) and [200-cell matrix](media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json) supersede this file's older progress claims; the task methodology remains useful. No PDP-1–3 currentness or Discovery PASS is claimed.
+> **Historical plan only.** This plan records a 2026-10-13 source cut, including its PDP-0-first sequence. It does not schedule current work. Consult the [canonical source/status index](../../.product-experience/README.md) and continue at the earliest unfinished phase.
 
 
 **Campaign scope:** Entire `samujjwal/ghatana-media` Discovery (PDP-0→3), including physical leaves, semantic compositions/root and channel consumers.
 **Baseline:** GitHub `main@90065c229debe88ca2143e58cad708d5ebc83cf5` on 2026-10-13; validate `HEAD` and source digests again before execution.
-**Stage:** DISCOVERY. **Active phase:** PDP-0; PDP-1/PDP-2/PDP-3 sections below are dependency-ordered future tasks, **not current-phase authorization**.
+**Stage at that cut:** DISCOVERY. **Phase at that cut:** PDP-0; later-phase sections were dependency-ordered future tasks, not current-phase authorization.
 **Denominator:** 26 physical manifest candidates (12 PHYSICAL, 12 SUPPORT_ONLY, 2 SUBSUMED), six semantic compositions and one repository root; 17 separate consumer-crosswalk entries (one archived). The 17 are not independent copies of 26 physical units.
 **Prerequisite/gate:** PDP-0 currentness FAIL/UNKNOWN, despite prior `DEV_COMPLETE` definition cut; later PDPs currentness UNKNOWN; Build not entered.
 **Owner decision:** [MEDIA-DISCOVERY-CURRENTNESS-OWNER-2026-10-13](../../.product-experience/reviews/2026-10-13-pdp0-discovery-delegated-review.md), APPROVED WITH COMMENTS.

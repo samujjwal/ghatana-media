@@ -1831,16 +1831,20 @@
       "proposalRecordSha256": "1ba3ea0c6f39560fdc00fa378f978d55d3b61ac6bf19855596e5a7084b49e956",
       "proposedTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=media_presentation_time",
       "proposedTargetValueSha256": "079b923eb18320904a59f7ae4c068cb45d5fd7eb88dc276119a4f78086474505",
-      "currentTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=media_presentation_time",
-      "currentTargetValueSha256": "079b923eb18320904a59f7ae4c068cb45d5fd7eb88dc276119a4f78086474505",
+      "currentTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/productTruthClockDomains",
+      "currentTargetValueSha256": "080a8469aa06e084af6d6fbcf08d8f7a3da90f9d035737cd28e2ae966abde1d4",
       "targetHashEncoding": "SHA-256(UTF-8(JSON.stringify(resolved YAML/JSON value)))",
-      "materialMeaning": "Maintain separate clocks: media presentation time",
+      "materialMeaning": "The complete five-domain product clock rule assigns editorial and output presentation to story/explanation time and preserves separate source-video, audio-sample, simulation, and wall-clock domains.",
       "semanticReviewStatus": "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED",
-      "coordinatorReviewStatus": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+      "coordinatorReviewStatus": "COORDINATOR_SOURCE_ROUTE_REVIEW",
       "acceptanceEffect": "none",
       "testSources": [
         "tests/pdp-migration-glossary-owner-review.test.mjs"
-      ]
+      ],
+      "supersededCurrentTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=media_presentation_time",
+      "supersededCurrentTargetValueSha256": "079b923eb18320904a59f7ae4c068cb45d5fd7eb88dc276119a4f78086474505",
+      "supersededCoordinatorReviewStatus": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+      "routeReviewNote": "Current product-source route reviewed against the five-domain PDP-0 definition. This is a coordinator source review only; owner acceptance and phase acceptance are not claimed."
     },
     {
       "claimId": "MPSEM-0256-C004",
@@ -1854,16 +1858,20 @@
       "proposalRecordSha256": "3fc266d88fabb234db3b2b8312620980da76173ffef7b2cca5798e6447872599",
       "proposedTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=t_sim",
       "proposedTargetValueSha256": "ff393814628143f672a766f429a68fd4160172cb9fd5e8da2a5012cba240f323",
-      "currentTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=t_sim",
-      "currentTargetValueSha256": "ff393814628143f672a766f429a68fd4160172cb9fd5e8da2a5012cba240f323",
+      "currentTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=simulation_execution_time",
+      "currentTargetValueSha256": "43e0210070e2ae822ae366d5993312a98f168dde8a80f6297bf5ee8dbbb88866",
       "targetHashEncoding": "SHA-256(UTF-8(JSON.stringify(resolved YAML/JSON value)))",
-      "materialMeaning": "`t_sim` simulation time",
+      "materialMeaning": "Simulation execution position advanced by a declared domain model.",
       "semanticReviewStatus": "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED",
-      "coordinatorReviewStatus": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+      "coordinatorReviewStatus": "COORDINATOR_SOURCE_ROUTE_REVIEW",
       "acceptanceEffect": "none",
       "testSources": [
         "tests/pdp-migration-glossary-owner-review.test.mjs"
-      ]
+      ],
+      "supersededCurrentTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=t_sim",
+      "supersededCurrentTargetValueSha256": "ff393814628143f672a766f429a68fd4160172cb9fd5e8da2a5012cba240f323",
+      "supersededCoordinatorReviewStatus": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+      "routeReviewNote": "Current product-source route reviewed against the five-domain PDP-0 definition. This is a coordinator source review only; owner acceptance and phase acceptance are not claimed."
     },
     {
       "claimId": "MPSEM-0256-C005",
@@ -1877,16 +1885,20 @@
       "proposalRecordSha256": "65a7ebed000c1117b9a75b002c9db0a2466c0d18eccdd4b3f8e78cfda16c05a0",
       "proposedTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=t_story",
       "proposedTargetValueSha256": "3b77647e37dfd76322c45a824361c49760f5f442e247602eee2be2541858103e",
-      "currentTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=t_story",
-      "currentTargetValueSha256": "3b77647e37dfd76322c45a824361c49760f5f442e247602eee2be2541858103e",
+      "currentTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=story_explanation_time",
+      "currentTargetValueSha256": "5a7a30a72bf86be62d58bc5a54ab30c2b16fee89551efd255da041a5ce91693e",
       "targetHashEncoding": "SHA-256(UTF-8(JSON.stringify(resolved YAML/JSON value)))",
-      "materialMeaning": "`t_story` explanation/animation time",
+      "materialMeaning": "Narrative, explanation, animation, editorial, or output presentation position, separate from source time.",
       "semanticReviewStatus": "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED",
-      "coordinatorReviewStatus": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+      "coordinatorReviewStatus": "COORDINATOR_SOURCE_ROUTE_REVIEW",
       "acceptanceEffect": "none",
       "testSources": [
         "tests/pdp-migration-glossary-owner-review.test.mjs"
-      ]
+      ],
+      "supersededCurrentTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=t_story",
+      "supersededCurrentTargetValueSha256": "3b77647e37dfd76322c45a824361c49760f5f442e247602eee2be2541858103e",
+      "supersededCoordinatorReviewStatus": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+      "routeReviewNote": "Current product-source route reviewed against the five-domain PDP-0 definition. This is a coordinator source review only; owner acceptance and phase acceptance are not claimed."
     },
     {
       "claimId": "MPSEM-0256-C006",
@@ -1900,16 +1912,20 @@
       "proposalRecordSha256": "7ab5b17d9ddb550e48def51836dacf5292b52e6604b0a0e33fce29cf244e5731",
       "proposedTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=t_sim",
       "proposedTargetValueSha256": "ff393814628143f672a766f429a68fd4160172cb9fd5e8da2a5012cba240f323",
-      "currentTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=t_sim",
-      "currentTargetValueSha256": "ff393814628143f672a766f429a68fd4160172cb9fd5e8da2a5012cba240f323",
+      "currentTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=simulation_execution_time",
+      "currentTargetValueSha256": "43e0210070e2ae822ae366d5993312a98f168dde8a80f6297bf5ee8dbbb88866",
       "targetHashEncoding": "SHA-256(UTF-8(JSON.stringify(resolved YAML/JSON value)))",
-      "materialMeaning": "Scrubbing or pausing story time must not unintentionally advance a scientific model.",
+      "materialMeaning": "Story pause or seek does not advance simulation state without an explicit bounded model command.",
       "semanticReviewStatus": "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED",
-      "coordinatorReviewStatus": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+      "coordinatorReviewStatus": "COORDINATOR_SOURCE_ROUTE_REVIEW",
       "acceptanceEffect": "none",
       "testSources": [
         "tests/pdp-migration-glossary-owner-review.test.mjs"
-      ]
+      ],
+      "supersededCurrentTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=t_sim",
+      "supersededCurrentTargetValueSha256": "ff393814628143f672a766f429a68fd4160172cb9fd5e8da2a5012cba240f323",
+      "supersededCoordinatorReviewStatus": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+      "routeReviewNote": "Current product-source route reviewed against the five-domain PDP-0 definition. This is a coordinator source review only; owner acceptance and phase acceptance are not claimed."
     },
     {
       "claimId": "MPSEM-0261-C003",
@@ -2112,16 +2128,20 @@
       "proposalRecordSha256": "de616cb278586af041d821ec3aaf672c30f8dac805bf274cc2362874e96339ca",
       "proposedTargetRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/@id=media.value.source-frame-sample-mapping",
       "proposedTargetValueSha256": "f9b96e47841bad229ea14a27c61bc94c06a200b84a044357efe3329efbd4dc0c",
-      "currentTargetRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/@id=media.value.source-frame-sample-mapping",
-      "currentTargetValueSha256": "f9b96e47841bad229ea14a27c61bc94c06a200b84a044357efe3329efbd4dc0c",
+      "currentTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=source_video_presentation_time",
+      "currentTargetValueSha256": "073f376a789e8fcfbf8096549f7847995deb5b815dc35bc79f1d51bd0f3f9a3a",
       "targetHashEncoding": "SHA-256(UTF-8(JSON.stringify(resolved YAML/JSON value)))",
-      "materialMeaning": "Source decode and presentation timestamps retain signed source PTS/DTS, exact original rational time base, immutable artifact and stream identity, VFR map, discontinuities and explicit conversion/loss; names alone do not bind legacy wire values.",
+      "materialMeaning": "Source/video presentation timestamp and discontinuity meaning; decode timestamps remain ordering metadata.",
       "semanticReviewStatus": "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED",
-      "coordinatorReviewStatus": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+      "coordinatorReviewStatus": "COORDINATOR_SOURCE_ROUTE_REVIEW",
       "acceptanceEffect": "none",
       "testSources": [
         "tests/pdp-migration-temporal-owner-review.test.mjs"
-      ]
+      ],
+      "supersededCurrentTargetRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/@id=media.value.source-frame-sample-mapping",
+      "supersededCurrentTargetValueSha256": "f9b96e47841bad229ea14a27c61bc94c06a200b84a044357efe3329efbd4dc0c",
+      "supersededCoordinatorReviewStatus": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+      "routeReviewNote": "Current product-source route reviewed against the five-domain PDP-0 definition. This is a coordinator source review only; owner acceptance and phase acceptance are not claimed."
     },
     {
       "claimId": "MPSEM-0256-C003",
@@ -2135,16 +2155,20 @@
       "proposalRecordSha256": "c0902dea6de4d415207c51323dfbdd15b2fbeb70a29d738305990bf5eabedec4",
       "proposedTargetRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/@id=media.value.source-frame-sample-mapping",
       "proposedTargetValueSha256": "f9b96e47841bad229ea14a27c61bc94c06a200b84a044357efe3329efbd4dc0c",
-      "currentTargetRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/@id=media.value.source-frame-sample-mapping",
-      "currentTargetValueSha256": "f9b96e47841bad229ea14a27c61bc94c06a200b84a044357efe3329efbd4dc0c",
+      "currentTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=audio_sample_time",
+      "currentTargetValueSha256": "f5ce8a284ab25b626ff151e10af1bf258852e7d7d76e61aaae23dd7684af4aaf",
       "targetHashEncoding": "SHA-256(UTF-8(JSON.stringify(resolved YAML/JSON value)))",
-      "materialMeaning": "Audio sample time is a sample index in an identified stream with exact rate, count, origin, sample format/layout and encoder priming/padding; timestamps are not durations and endpoint interpretation remains container/model-specific.",
+      "materialMeaning": "Sample index and rate for one identified audio stream.",
       "semanticReviewStatus": "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED",
-      "coordinatorReviewStatus": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+      "coordinatorReviewStatus": "COORDINATOR_SOURCE_ROUTE_REVIEW",
       "acceptanceEffect": "none",
       "testSources": [
         "tests/pdp-migration-temporal-owner-review.test.mjs"
-      ]
+      ],
+      "supersededCurrentTargetRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/@id=media.value.source-frame-sample-mapping",
+      "supersededCurrentTargetValueSha256": "f9b96e47841bad229ea14a27c61bc94c06a200b84a044357efe3329efbd4dc0c",
+      "supersededCoordinatorReviewStatus": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+      "routeReviewNote": "Current product-source route reviewed against the five-domain PDP-0 definition. This is a coordinator source review only; owner acceptance and phase acceptance are not claimed."
     },
     {
       "claimId": "MPSEM-0256-C007",
@@ -2527,15 +2551,20 @@
       "proposedTargetRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/@id=media.value.replay-provenance-definition",
       "proposedTargetValueSha256": "b8550da2b1500f74f3371128f5b4849e0bbb405965d27a8d4429d6328120fe51",
       "currentTargetRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/@id=media.value.replay-provenance-definition",
-      "currentTargetValueSha256": "b8550da2b1500f74f3371128f5b4849e0bbb405965d27a8d4429d6328120fe51",
+      "currentTargetValueSha256": "be781aa5be9ca23ac0603980e9aa25104123579a6d316b0077228bb4f7919b65",
       "targetHashEncoding": "SHA-256(UTF-8(JSON.stringify(resolved YAML/JSON value)))",
       "materialMeaning": "Replay classification requires exact source/output version references, execution provenance, replay class, method/scope and qualified evidence; unavailable evidence remains replay unavailable and does not create replay claim.",
-      "semanticReviewStatus": "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED",
-      "coordinatorReviewStatus": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
       "acceptanceEffect": "none",
       "testSources": [
         "tests/pdp-migration-temporal-owner-review.test.mjs"
-      ]
+      ],
+      "supersededCurrentTargetRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/@id=media.value.replay-provenance-definition",
+      "supersededCurrentTargetValueSha256": "b8550da2b1500f74f3371128f5b4849e0bbb405965d27a8d4429d6328120fe51",
+      "supersededSemanticReviewStatus": "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED",
+      "supersededCoordinatorReviewStatus": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+      "routeReviewNote": "Current target byte pin only. PDP-1 owns semantic review of the changed value; semantic equivalence is not asserted and no owner or phase acceptance is claimed."
     },
     {
       "claimId": "MPSEM-0272-C002",

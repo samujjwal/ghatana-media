@@ -44,10 +44,14 @@ pdp1ResultEvidence:
     - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/steps/2
       purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j04-step-03.v1
       operationRef: media.operation.action.compare-candidate-on-metric
-      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
-      exactResult: requestId, exactTargetRef, ownerReceipt, and observedAt only; no comparison values or synthesis-result approval are defined in this result.
-      semanticJoinLimit: This receipt is not a synthesis result, output registration, or approval observation.
-      unknownDisposition: Missing, stale, denied, mismatched, or unavailable scoped observation remains UNKNOWN; repeat only the same authorized read and do not infer comparison values, synthesis success, registration, or approval.
+      operationVersion: 2
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/contractVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
+      typedObservationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1
+      exactResult: The ordered requested metric set and one paired result row per metric; each side preserves its source status, currentness, raw observation and provenance. Scope mismatch is per-metric NOT_COMPARABLE; unavailable or stale evidence remains UNKNOWN.
+      semanticJoinLimit: Read-only paired observation only. It derives no delta, direction, threshold, pass/fail, aggregate, rank, winner, improvement, qualification, synthesis success, output registration, or approval.
+      unknownDisposition: Missing, stale, denied, mismatched, unavailable, or incomplete paired evidence remains UNKNOWN; repeat only the same authorized read and do not infer synthesis success, registration, or approval.
     - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/steps/3
       purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j04-step-04.v1
       operationRef: media.operation.action.inspect-output-preview-and-version
@@ -775,7 +779,6 @@ steps:
       - media.surface.service-grpc
       - media.surface.sdk
     objectRefs:
-      - media.domain.quality-assessment
       - media.domain.artifact-version
     canonicalOperationRef: media.operation.action.compare-candidate-on-metric
     authorityRef: null
@@ -920,7 +923,6 @@ steps:
           - media.surface.service-grpc
           - media.surface.sdk
         objectRefs:
-          - media.domain.quality-assessment
           - media.domain.artifact-version
         stateRefs: []
         canonicalOperationRef: media.operation.action.compare-candidate-on-metric

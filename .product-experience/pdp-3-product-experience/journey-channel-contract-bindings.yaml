@@ -1,6 +1,6 @@
 "schemaVersion": "media.pdp3-journey-channel-contract-bindings.v1"
 "artifactId": "media.pdp3.journey-channel-contract-bindings"
-"status": "SOURCE_BOUND_LOGICAL_DEFINITIONS_PARTIAL; CHANNEL_TRANSPORT_EQUIVALENCE_UNBOUND; RUNTIME_NOT_ADMITTED"
+"status": "SOURCE_BOUND_LOGICAL_DEFINITIONS_COMPLETE; CHANNEL_TRANSPORT_EQUIVALENCE_UNBOUND; RUNTIME_NOT_ADMITTED"
 "authority": "Owner-approved channel intent is sourced from the delegated decision packet; journey behavior remains authored by each journey and domain meaning by PDP-1."
 "ownerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md#MD30-01"
 "sourceRefs":
@@ -18,9 +18,9 @@
   "sourceBoundDefinitionOnlyOperationMappings": 6
   "allRuntimeAdmission": "NOT_ADMITTED"
   "sourceBoundHttpOperationMappings": 6
-  "logicalDefinitionOnlyEdges": 43
+  "logicalDefinitionOnlyEdges": 61
   "transportEquivalenceUnboundEdges": 61
-  "incompleteP1StateOrObservationEdges": 18
+  "incompleteP1StateOrObservationEdges": 0
 "channelGrammar":
   "media.channel.web":
     "consumerSurfaceId": "media.surface.web"
@@ -2205,7 +2205,7 @@
     "p1OperationBindings":
       - "operationRef": "media.operation.action.compare-candidate-on-metric"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric"
-        "operationVersion": 1
+        "operationVersion": 2
         "disposition": "UNBOUND"
         "transportRef": "UNBOUND"
         "sourceRefs":
@@ -2391,7 +2391,7 @@
     "p1OperationBindings":
       - "operationRef": "media.operation.action.compare-candidate-on-metric"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric"
-        "operationVersion": 1
+        "operationVersion": 2
         "disposition": "UNBOUND"
         "transportRef": "UNBOUND"
         "sourceRefs":
@@ -2589,7 +2589,7 @@
     "p1OperationBindings":
       - "operationRef": "media.operation.action.compare-candidate-on-metric"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric"
-        "operationVersion": 1
+        "operationVersion": 2
         "disposition": "UNBOUND"
         "transportRef": "UNBOUND"
         "sourceRefs":
@@ -2768,7 +2768,7 @@
     "p1OperationBindings":
       - "operationRef": "media.operation.action.compare-candidate-on-metric"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric"
-        "operationVersion": 1
+        "operationVersion": 2
         "disposition": "UNBOUND"
         "transportRef": "UNBOUND"
         "sourceRefs":
@@ -2970,6 +2970,7 @@
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
     "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
     "p1ObservationRefs":
+      - ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty"
       - ".product-experience/pdp-0-product-truth/capabilities.yaml#media.quality.inspect"
       - ".product-experience/pdp-0-product-truth/capabilities.yaml#media.vision.analyze.expression"
       - ".product-experience/pdp-0-product-truth/capabilities.yaml#media.vision.analyze.gaze"
@@ -3093,7 +3094,7 @@
     "exactTransportMappingCount": 0
     "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-05"
     "pdp1OperationRefs":
@@ -3365,9 +3366,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "Selected analysis capability result schemas and journey operation-result bindings are source-bound, but the J-05 result contract leaves frame/region selectors, model/provider identity, and confidence evidence unresolved; no exact terminal observation binds those fields with source and uncertainty. Submission receipt remains distinct from analysis completion."
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-05.j-05.step-01"
@@ -3390,7 +3390,7 @@
     "p1OperationBindings":
       - "operationRef": "media.operation.action.compare-candidate-on-metric"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric"
-        "operationVersion": 1
+        "operationVersion": 2
         "disposition": "UNBOUND"
         "transportRef": "UNBOUND"
         "sourceRefs":
@@ -3680,6 +3680,7 @@
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
     "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
     "p1ObservationRefs":
+      - ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty"
       - ".product-experience/pdp-0-product-truth/capabilities.yaml#media.quality.inspect"
       - ".product-experience/pdp-0-product-truth/capabilities.yaml#media.vision.analyze.expression"
       - ".product-experience/pdp-0-product-truth/capabilities.yaml#media.vision.analyze.gaze"
@@ -3804,7 +3805,7 @@
     "exactTransportMappingCount": 0
     "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-05"
     "pdp1OperationRefs":
@@ -4075,9 +4076,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "Selected analysis capability result schemas and journey operation-result bindings are source-bound, but the J-05 result contract leaves frame/region selectors, model/provider identity, and confidence evidence unresolved; no exact terminal observation binds those fields with source and uncertainty. Submission receipt remains distinct from analysis completion."
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-05.j-05.step-01"
@@ -4100,7 +4100,7 @@
     "p1OperationBindings":
       - "operationRef": "media.operation.action.compare-candidate-on-metric"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric"
-        "operationVersion": 1
+        "operationVersion": 2
         "disposition": "UNBOUND"
         "transportRef": "UNBOUND"
         "sourceRefs":
@@ -4280,6 +4280,7 @@
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
     "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
     "p1ObservationRefs":
+      - ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty"
       - ".product-experience/pdp-0-product-truth/capabilities.yaml#media.quality.inspect"
       - ".product-experience/pdp-0-product-truth/capabilities.yaml#media.vision.analyze.expression"
       - ".product-experience/pdp-0-product-truth/capabilities.yaml#media.vision.analyze.gaze"
@@ -4400,7 +4401,7 @@
     "exactTransportMappingCount": 0
     "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-05"
     "pdp1OperationRefs":
@@ -4671,9 +4672,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "Selected analysis capability result schemas and journey operation-result bindings are source-bound, but the J-05 result contract leaves frame/region selectors, model/provider identity, and confidence evidence unresolved; no exact terminal observation binds those fields with source and uncertainty. Submission receipt remains distinct from analysis completion."
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-05.j-05.step-01"
@@ -5646,7 +5646,7 @@
     "p1OperationBindings":
       - "operationRef": "media.operation.action.compare-candidate-on-metric"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric"
-        "operationVersion": 1
+        "operationVersion": 2
         "disposition": "UNBOUND"
         "transportRef": "UNBOUND"
         "sourceRefs":
@@ -5799,10 +5799,11 @@
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
-            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema"
           ],
           "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceEffect",
-          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "resultRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema",
           "authorityRefs": [
             ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
             ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
@@ -5810,7 +5811,7 @@
           "versionRefs": [
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/contractVersion"
           ],
-          "operationVersion": 1,
+          "operationVersion": 2,
           "deniedUnknownRecoveryRefs": [
             ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
             "media.operation-profile.scoped-query.v1#errors",
@@ -5820,7 +5821,8 @@
           "finalityRefs": [
             "media.operation-profile.scoped-query.v1#resultEnvelope",
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
-            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceFinality"
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceFinality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema"
           ]
         }
       },
@@ -5926,7 +5928,7 @@
     "p1OperationBindings":
       - "operationRef": "media.operation.action.compare-candidate-on-metric"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric"
-        "operationVersion": 1
+        "operationVersion": 2
         "disposition": "UNBOUND"
         "transportRef": "UNBOUND"
         "sourceRefs":
@@ -6092,6 +6094,7 @@
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
     "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
     "p1ObservationRefs":
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema"
       - ".product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-08"
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.compare-candidate-on-metric"
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-quality-evidence"
@@ -6175,7 +6178,7 @@
     "exactTransportMappingCount": 0
     "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-08"
     "pdp1OperationRefs":
@@ -6407,9 +6410,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "The typed quality-evidence query joins the exact selected output-version subject and a nonempty unique metricRefs request; the original-versus-candidate version pair, evaluation algorithm context, and matched same-subject metric result remain unjoined."
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-08.j-08.step-01"
@@ -6510,6 +6512,15 @@
     "p1StateRefs":
       - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
+        "disposition": "EXACT_P1_STATE_SOURCE_REF"
+      - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED"
+        "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED"
+        "disposition": "EXACT_P1_STATE_SOURCE_REF"
+      - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED"
+        "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED"
+        "disposition": "EXACT_P1_STATE_SOURCE_REF"
+      - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN"
+        "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN"
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
     "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
     "p1ObservationRefs":
@@ -6681,6 +6692,9 @@
         "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
+      - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED"
+      - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED"
+      - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN"
       - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/GUI"
     "typedRequestResultErrors":
@@ -6868,6 +6882,15 @@
       - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
+      - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED"
+        "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED"
+        "disposition": "EXACT_P1_STATE_SOURCE_REF"
+      - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED"
+        "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED"
+        "disposition": "EXACT_P1_STATE_SOURCE_REF"
+      - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN"
+        "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN"
+        "disposition": "EXACT_P1_STATE_SOURCE_REF"
     "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
     "p1ObservationRefs":
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-version-and-review-scope"
@@ -7038,6 +7061,9 @@
         "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
+      - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED"
+      - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED"
+      - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN"
       - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/headless"
     "typedRequestResultErrors":
@@ -7131,7 +7157,7 @@
     "p1OperationBindings":
       - "operationRef": "media.operation.action.compare-candidate-on-metric"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric"
-        "operationVersion": 1
+        "operationVersion": 2
         "disposition": "UNBOUND"
         "transportRef": "UNBOUND"
         "sourceRefs":
@@ -7234,6 +7260,8 @@
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
     "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
     "p1ObservationRefs":
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1/resultSchema"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.candidate-video-artifact-with-execution-provenance"
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.compare-candidate-on-metric"
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-quality-evidence"
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.review-processing-parameters"
@@ -7313,7 +7341,7 @@
     "exactTransportMappingCount": 0
     "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-10"
     "pdp1OperationRefs":
@@ -7476,9 +7504,20 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "The terminal identity/geometry/control/AI-unavailable branches lack exact source-bound per-condition state, copy, action, expected-result, and finality bindings."
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "deferredDependencies":
+      - "dependencyId": "media.pdp3.deferred-dependency.j10-candidate-version-join.v1"
+        "dependencyType": "P1_OWNER_CONTRACT"
+        "disposition": "UNBOUND_PENDING_P1_OWNER_CONTRACT"
+        "sourceRefs":
+          - ".product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-10/completion"
+          - ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.candidate-video-artifact-with-execution-provenance"
+          - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1/resultSchema"
+          - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1/bindingRules"
+        "definedBehavior": "Without a source-defined same-job candidate-version join, continuity remains UNKNOWN and no assessment is transferred to another candidate."
+        "blocksPdp3Definition": false
+        "blocksJourneySuccess": true
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-10.j-10.step-01"
@@ -7501,7 +7540,7 @@
     "p1OperationBindings":
       - "operationRef": "media.operation.action.compare-candidate-on-metric"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric"
-        "operationVersion": 1
+        "operationVersion": 2
         "disposition": "UNBOUND"
         "transportRef": "UNBOUND"
         "sourceRefs":
@@ -7634,10 +7673,11 @@
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
-            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema"
           ],
           "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceEffect",
-          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "resultRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema",
           "authorityRefs": [
             ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
             ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
@@ -7645,7 +7685,7 @@
           "versionRefs": [
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/contractVersion"
           ],
-          "operationVersion": 1,
+          "operationVersion": 2,
           "deniedUnknownRecoveryRefs": [
             ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
             "media.operation-profile.scoped-query.v1#errors",
@@ -7655,7 +7695,8 @@
           "finalityRefs": [
             "media.operation-profile.scoped-query.v1#resultEnvelope",
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
-            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceFinality"
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceFinality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema"
           ]
         }
       }
@@ -7719,7 +7760,7 @@
     "p1OperationBindings":
       - "operationRef": "media.operation.action.compare-candidate-on-metric"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric"
-        "operationVersion": 1
+        "operationVersion": 2
         "disposition": "UNBOUND"
         "transportRef": "UNBOUND"
         "sourceRefs":
@@ -7867,10 +7908,11 @@
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
-            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema"
           ],
           "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceEffect",
-          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "resultRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema",
           "authorityRefs": [
             ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
             ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
@@ -7878,7 +7920,7 @@
           "versionRefs": [
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/contractVersion"
           ],
-          "operationVersion": 1,
+          "operationVersion": 2,
           "deniedUnknownRecoveryRefs": [
             ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
             "media.operation-profile.scoped-query.v1#errors",
@@ -7888,7 +7930,8 @@
           "finalityRefs": [
             "media.operation-profile.scoped-query.v1#resultEnvelope",
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
-            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceFinality"
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceFinality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema"
           ]
         }
       },
@@ -7997,6 +8040,7 @@
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
     "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
     "p1ObservationRefs":
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/renderOutputResultDefinition"
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-output-preview-and-version"
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.submit-render"
       - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-output-preview-and-version"
@@ -8060,7 +8104,7 @@
     "exactTransportMappingCount": 0
     "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-13"
     "pdp1OperationRefs":
@@ -8131,9 +8175,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "No source-bound rig/scene-version render/export result or typed conversion-loss observation exists; preview lineage alone does not prove the terminal output."
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-13.j-13.step-01"
@@ -8187,6 +8230,8 @@
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
     "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
     "p1ObservationRefs":
+      - ".product-experience/pdp-1-domain-data/operations.yaml#outputTypes/records/@id=media.owner-output-type.simulation-pass-result-measurements.v1"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=media.owner-wire-contract.simulation-measurements.v1/resultSchema"
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-quality-evidence"
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-simulation-result"
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.submit-render"
@@ -8253,7 +8298,7 @@
     "exactTransportMappingCount": 0
     "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-14"
     "pdp1OperationRefs":
@@ -8334,9 +8379,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "No typed simulation measurement/fidelity observation or render-completion binding supports the terminal measurements-and-render result."
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-14.j-14.step-01"
@@ -8396,6 +8440,8 @@
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
     "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
     "p1ObservationRefs":
+      - ".product-experience/pdp-1-domain-data/operations.yaml#outputTypes/records/@id=media.owner-output-type.simulation-pass-result-measurements.v1"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=media.owner-wire-contract.simulation-measurements.v1/resultSchema"
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-quality-evidence"
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-simulation-result"
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.submit-render"
@@ -8462,7 +8508,7 @@
     "exactTransportMappingCount": 0
     "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-14"
     "pdp1OperationRefs":
@@ -8543,9 +8589,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "No typed simulation measurement/fidelity observation or render-completion binding supports the terminal measurements-and-render result."
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-14.j-14.step-01"
@@ -8568,7 +8613,7 @@
     "p1OperationBindings":
       - "operationRef": "media.operation.action.compare-candidate-on-metric"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric"
-        "operationVersion": 1
+        "operationVersion": 2
         "disposition": "UNBOUND"
         "transportRef": "UNBOUND"
         "sourceRefs":
@@ -8751,10 +8796,11 @@
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
-            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema"
           ],
           "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceEffect",
-          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "resultRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema",
           "authorityRefs": [
             ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
             ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
@@ -8762,7 +8808,7 @@
           "versionRefs": [
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/contractVersion"
           ],
-          "operationVersion": 1,
+          "operationVersion": 2,
           "deniedUnknownRecoveryRefs": [
             ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
             "media.operation-profile.scoped-query.v1#errors",
@@ -8772,7 +8818,8 @@
           "finalityRefs": [
             "media.operation-profile.scoped-query.v1#resultEnvelope",
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
-            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceFinality"
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceFinality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema"
           ]
         }
       },
@@ -8920,7 +8967,7 @@
     "p1OperationBindings":
       - "operationRef": "media.operation.action.compare-candidate-on-metric"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric"
-        "operationVersion": 1
+        "operationVersion": 2
         "disposition": "UNBOUND"
         "transportRef": "UNBOUND"
         "sourceRefs":
@@ -9111,10 +9158,11 @@
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",
-            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema"
           ],
           "noEffectRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceEffect",
-          "resultRef": "media.operation-profile.scoped-query.v1#resultEnvelope",
+          "resultRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema",
           "authorityRefs": [
             ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
             ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
@@ -9122,7 +9170,7 @@
           "versionRefs": [
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/contractVersion"
           ],
-          "operationVersion": 1,
+          "operationVersion": 2,
           "deniedUnknownRecoveryRefs": [
             ".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME",
             "media.operation-profile.scoped-query.v1#errors",
@@ -9132,7 +9180,8 @@
           "finalityRefs": [
             "media.operation-profile.scoped-query.v1#resultEnvelope",
             ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",
-            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceFinality"
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/sourceFinality",
+            ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema"
           ]
         }
       },
@@ -9281,7 +9330,7 @@
     "p1OperationBindings":
       - "operationRef": "media.operation.action.compare-candidate-on-metric"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric"
-        "operationVersion": 1
+        "operationVersion": 2
         "disposition": "UNBOUND"
         "transportRef": "UNBOUND"
         "sourceRefs":
@@ -9461,7 +9510,7 @@
     "p1OperationBindings":
       - "operationRef": "media.operation.action.compare-candidate-on-metric"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric"
-        "operationVersion": 1
+        "operationVersion": 2
         "disposition": "UNBOUND"
         "transportRef": "UNBOUND"
         "sourceRefs":
@@ -10141,11 +10190,12 @@
       - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j19-step-01.v1"
       - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j19-step-02.v1"
       - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j19-step-03.v1"
+      - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j19-step-03.v1/relatedActionBindings/@id=media.pdp3.action-binding.j19-successor-choice.v1"
       - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j19-step-04.v1"
     "p1OperationBindings":
       - "operationRef": "media.operation.action.compare-candidate-on-metric"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric"
-        "operationVersion": 1
+        "operationVersion": 2
         "disposition": "UNBOUND"
         "transportRef": "UNBOUND"
         "sourceRefs":
@@ -10196,6 +10246,7 @@
       - ".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/0"
       - ".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/1"
       - ".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/2"
+      - ".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/3"
       - ".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/3"
     "p1AuthorityRefs":
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
@@ -10254,7 +10305,7 @@
     "exactTransportMappingCount": 0
     "unresolvedOperationRefs": []
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-19"
     "pdp1OperationRefs":
@@ -10345,9 +10396,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "No source-bound successor selection/result or post-render completion observation exists; durable submit receipt alone does not prove terminal optimization."
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-19.j-19.step-01"
@@ -10523,7 +10573,7 @@
     "exactTransportMappingCount": 0
     "unresolvedOperationRefs": ["media.operation-slice.cancel-job","media.operation-slice.retry-job","media.operation.action.check-job-outcome","media.operation.action.view-job-status"]
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-20"
     "pdp1OperationRefs":
@@ -10667,8 +10717,20 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers": ["Immediate cancel, retry, job-status, and outcome-check results plus state applicability and authority references are source-bound. P1 cancel-job defines no deadline request field, deadline guard, or deadline-specific result/error, and no exact cancellation or retry transition ID/finality is defined or joined. Retry remains conditional on current owner eligibility; UNKNOWN does not authorize replay."]
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "deferredDependencies":
+      - "dependencyId": "media.pdp3.deferred-dependency.j20-cancel-retry-transitions.v1"
+        "dependencyType": "P1_OWNER_TRANSITION_CONTRACT"
+        "disposition": "UNBOUND_PENDING_P1_OWNER_TRANSITION"
+        "sourceRefs":
+          - ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition/stateSemantics"
+          - ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/stateSemantics"
+          - ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema"
+          - ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema"
+        "definedBehavior": "Cancel and retry remain conditional owner requests without an exact from-state or transition ID; acknowledgment is not terminal cancellation or dispatch, and UNKNOWN denies replay."
+        "blocksPdp3Definition": false
+        "blocksJourneySuccess": false
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-20.j-20.step-01"
@@ -10843,7 +10905,7 @@
     "exactTransportMappingCount": 0
     "unresolvedOperationRefs": ["media.operation-slice.cancel-job","media.operation-slice.retry-job","media.operation.action.check-job-outcome","media.operation.action.view-job-status"]
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-20"
     "pdp1OperationRefs":
@@ -10987,8 +11049,20 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers": ["Immediate cancel, retry, job-status, and outcome-check results plus state applicability and authority references are source-bound. P1 cancel-job defines no deadline request field, deadline guard, or deadline-specific result/error, and no exact cancellation or retry transition ID/finality is defined or joined. Retry remains conditional on current owner eligibility; UNKNOWN does not authorize replay."]
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "deferredDependencies":
+      - "dependencyId": "media.pdp3.deferred-dependency.j20-cancel-retry-transitions.v1"
+        "dependencyType": "P1_OWNER_TRANSITION_CONTRACT"
+        "disposition": "UNBOUND_PENDING_P1_OWNER_TRANSITION"
+        "sourceRefs":
+          - ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition/stateSemantics"
+          - ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/stateSemantics"
+          - ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema"
+          - ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema"
+        "definedBehavior": "Cancel and retry remain conditional owner requests without an exact from-state or transition ID; acknowledgment is not terminal cancellation or dispatch, and UNKNOWN denies replay."
+        "blocksPdp3Definition": false
+        "blocksJourneySuccess": false
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-20.j-20.step-01"
@@ -11122,7 +11196,7 @@
       - "media.operation.action.inspect-version-and-review-scope"
       - "media.operation.action.review-rights-approval-and-format-effects"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "journeyId": "J-21"
     "pdp1OperationRefs": ["media.operation-slice.inspect-provenance","media.operation.action.inspect-output-preview-and-version","media.operation.action.inspect-version-and-review-scope","media.operation.action.review-rights-approval-and-format-effects"]
     "pdp1StateOrObservationRefs":
@@ -11176,9 +11250,19 @@
     "transportRefOrUnbound": "UNBOUND"
     "p1OperationStateProofs": [{"operationRef":"media.operation-slice.inspect-provenance","disposition":"EXACT_TYPED_OBSERVATION_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-03.v1"],"observationRef":".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"},{"operationRef":"media.operation.action.inspect-output-preview-and-version","disposition":"NO_P1_MACHINE_STATE","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-02.v1"],"noP1MachineState":{"sourceRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"],"noEffectRef":".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect","resultRef":"media.operation-profile.scoped-query.v1#resultEnvelope","authorityRefs":[".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"],"versionRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/contractVersion"],"operationVersion":1,"deniedUnknownRecoveryRefs":[".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME","media.operation-profile.scoped-query.v1#errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"],"finalityRefs":["media.operation-profile.scoped-query.v1#resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceFinality"]}},{"operationRef":"media.operation.action.inspect-version-and-review-scope","disposition":"NO_P1_MACHINE_STATE","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-01.v1"],"noP1MachineState":{"sourceRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceEffect",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/resultSchema",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"],"noEffectRef":".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceEffect","resultRef":"media.operation-profile.scoped-query.v1#resultEnvelope","authorityRefs":[".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"],"versionRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/contractVersion"],"operationVersion":1,"deniedUnknownRecoveryRefs":[".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME","media.operation-profile.scoped-query.v1#errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"],"finalityRefs":["media.operation-profile.scoped-query.v1#resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceFinality"]}},{"operationRef":"media.operation.action.review-rights-approval-and-format-effects","disposition":"EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-01.v1"],"journeyResultBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/pdp1ResultEvidence/operationResultBindings/1"],"typedObservationBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/pdp1ResultEvidence/typedObservationBindings/0"],"relatedActionBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-01.v1/relatedActionBindings/@id=media.pdp3.action-binding.j21-read-rights-observation.v1"],"stateRefs":[],"transitionRefs":[]}]
     "p1JourneyResultRefs": [".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1"]
-    "logicalDefinitionBlockers": ["J21 approval mutation remains BLOCKED_EXCLUDED pending genuine rights-owner approval; the exact read-only rights-decision query and typed observation are source-bound, and no approval or channel transport is inferred."]
+    "logicalDefinitionBlockers": []
+    "deferredDependencies":
+      - "dependencyId": "media.pdp3.deferred-dependency.j21-rights-approval-authorization.v1"
+        "dependencyType": "EXTERNAL_OWNER_AUTHORIZATION"
+        "disposition": "BLOCKED_EXCLUDED"
+        "sourceRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#rightsApprovalActionDisposition"
+          - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1"
+        "definedBehavior": "The exact-version rights query is read-only; approval mutation is excluded. No approval is claimed without a genuine current rights-owner decision."
+        "blocksPdp3Definition": false
+        "blocksMutationClaim": true
     "channelTransportEquivalence": "UNBOUND"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "fixtureIds":
       - "media.definition-step-oracle.j-21.j-21.step-01"
       - "media.definition-step-oracle.j-21.j-21.step-02"
@@ -11313,7 +11397,7 @@
       - "media.operation.action.inspect-version-and-review-scope"
       - "media.operation.action.review-rights-approval-and-format-effects"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "journeyId": "J-21"
     "pdp1OperationRefs": ["media.operation-slice.inspect-provenance","media.operation.action.inspect-output-preview-and-version","media.operation.action.inspect-version-and-review-scope","media.operation.action.review-rights-approval-and-format-effects"]
     "pdp1StateOrObservationRefs":
@@ -11367,9 +11451,19 @@
     "transportRefOrUnbound": "UNBOUND"
     "p1OperationStateProofs": [{"operationRef":"media.operation-slice.inspect-provenance","disposition":"EXACT_TYPED_OBSERVATION_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-03.v1"],"observationRef":".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1"},{"operationRef":"media.operation.action.inspect-output-preview-and-version","disposition":"NO_P1_MACHINE_STATE","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-02.v1"],"noP1MachineState":{"sourceRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"],"noEffectRef":".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceEffect","resultRef":"media.operation-profile.scoped-query.v1#resultEnvelope","authorityRefs":[".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"],"versionRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/contractVersion"],"operationVersion":1,"deniedUnknownRecoveryRefs":[".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME","media.operation-profile.scoped-query.v1#errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"],"finalityRefs":["media.operation-profile.scoped-query.v1#resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/sourceFinality"]}},{"operationRef":"media.operation.action.inspect-version-and-review-scope","disposition":"NO_P1_MACHINE_STATE","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-01.v1"],"noP1MachineState":{"sourceRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceEffect",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/resultSchema",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality"],"noEffectRef":".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceEffect","resultRef":"media.operation-profile.scoped-query.v1#resultEnvelope","authorityRefs":[".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"],"versionRefs":[".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/contractVersion"],"operationVersion":1,"deniedUnknownRecoveryRefs":[".product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME","media.operation-profile.scoped-query.v1#errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/errors",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery"],"finalityRefs":["media.operation-profile.scoped-query.v1#resultEnvelope",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/finality",".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope/sourceFinality"]}},{"operationRef":"media.operation.action.review-rights-approval-and-format-effects","disposition":"EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF","purposeBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-01.v1"],"journeyResultBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/pdp1ResultEvidence/operationResultBindings/1"],"typedObservationBindingRefs":[".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/pdp1ResultEvidence/typedObservationBindings/0"],"relatedActionBindingRefs":[".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j21-step-01.v1/relatedActionBindings/@id=media.pdp3.action-binding.j21-read-rights-observation.v1"],"stateRefs":[],"transitionRefs":[]}]
     "p1JourneyResultRefs": [".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1"]
-    "logicalDefinitionBlockers": ["J21 approval mutation remains BLOCKED_EXCLUDED pending genuine rights-owner approval; the exact read-only rights-decision query and typed observation are source-bound, and no approval or channel transport is inferred."]
+    "logicalDefinitionBlockers": []
+    "deferredDependencies":
+      - "dependencyId": "media.pdp3.deferred-dependency.j21-rights-approval-authorization.v1"
+        "dependencyType": "EXTERNAL_OWNER_AUTHORIZATION"
+        "disposition": "BLOCKED_EXCLUDED"
+        "sourceRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#rightsApprovalActionDisposition"
+          - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1"
+        "definedBehavior": "The exact-version rights query is read-only; approval mutation is excluded. No approval is claimed without a genuine current rights-owner decision."
+        "blocksPdp3Definition": false
+        "blocksMutationClaim": true
     "channelTransportEquivalence": "UNBOUND"
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "fixtureIds":
       - "media.definition-step-oracle.j-21.j-21.step-01"
       - "media.definition-step-oracle.j-21.j-21.step-02"
@@ -13313,6 +13407,15 @@
       - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1"
       - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-03.v1"
     "p1OperationBindings":
+      - "operationRef": "media.operation.capability.media-artifact-delete"
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete"
+        "operationVersion": 1
+        "disposition": "UNBOUND"
+        "transportRef": "UNBOUND"
+        "sourceRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1/relatedActionBindings/@id=media.pdp3.action-binding.j26-artifact-delete.v1"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/5"
+        "reason": "Exact typed artifact-delete request/result is source-bound to J-26's lifecycle purpose and exact artifact version. Channel mapping remains UNBOUND; current owner/provider evidence is not asserted and ERASURE_CONFIRMED is not inferred."
       - "operationRef": "media.operation-slice.inspect-artifact"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact"
         "operationVersion": 1
@@ -13389,6 +13492,8 @@
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
     "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
     "p1ObservationRefs":
+      - ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.artifact-lifecycle-observation-access-revoked-hold-pending-erasure-confirmed-or-external-unknown"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete/resultSchema"
       - ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records"
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation-slice.inspect-artifact"
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-consent-and-permitted-use"
@@ -13459,15 +13564,25 @@
       - "media.operation.action.view-job-status"
       - "media.operation.action.revoke-authorized-consent"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-26"
     "pdp1OperationRefs":
+      - "media.operation.capability.media-artifact-delete"
       - "media.operation-slice.inspect-artifact"
       - "media.operation.action.inspect-consent-and-permitted-use"
       - "media.operation.action.view-job-status"
       - "media.operation.action.revoke-authorized-consent"
     "p1OperationStateProofs":
+      - "operationRef": "media.operation.capability.media-artifact-delete"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/5"
+        "typedObservationBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
       - "operationRef": "media.operation-slice.inspect-artifact"
         "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
         "purposeBindingRefs":
@@ -13558,9 +13673,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "The consent-revocation COMMAND request and exact J-26 purpose/result join are source-bound, but no consent authority receipt is available; artifact-delete still lacks a J-26 action-purpose join and there is no terminal lifecycle transition/finality or all-copy erasure receipt. Request/read evidence cannot prove revocation completion or erasure."
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-26.j-26.step-01"
@@ -13579,6 +13693,15 @@
       - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1"
       - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-03.v1"
     "p1OperationBindings":
+      - "operationRef": "media.operation.capability.media-artifact-delete"
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete"
+        "operationVersion": 1
+        "disposition": "UNBOUND"
+        "transportRef": "UNBOUND"
+        "sourceRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1/relatedActionBindings/@id=media.pdp3.action-binding.j26-artifact-delete.v1"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/5"
+        "reason": "Exact typed artifact-delete request/result is source-bound to J-26's lifecycle purpose and exact artifact version. Channel mapping remains UNBOUND; current owner/provider evidence is not asserted and ERASURE_CONFIRMED is not inferred."
       - "operationRef": "media.operation-slice.inspect-artifact"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact"
         "operationVersion": 1
@@ -13659,6 +13782,8 @@
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
     "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
     "p1ObservationRefs":
+      - ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.artifact-lifecycle-observation-access-revoked-hold-pending-erasure-confirmed-or-external-unknown"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete/resultSchema"
       - ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records"
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation-slice.inspect-artifact"
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-consent-and-permitted-use"
@@ -13736,15 +13861,25 @@
       - "media.operation.action.view-job-status"
       - "media.operation.action.revoke-authorized-consent"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-26"
     "pdp1OperationRefs":
+      - "media.operation.capability.media-artifact-delete"
       - "media.operation-slice.inspect-artifact"
       - "media.operation.action.inspect-consent-and-permitted-use"
       - "media.operation.action.view-job-status"
       - "media.operation.action.revoke-authorized-consent"
     "p1OperationStateProofs":
+      - "operationRef": "media.operation.capability.media-artifact-delete"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/5"
+        "typedObservationBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
       - "operationRef": "media.operation-slice.inspect-artifact"
         "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
         "purposeBindingRefs":
@@ -13839,9 +13974,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "The consent-revocation COMMAND request and exact J-26 purpose/result join are source-bound, but no consent authority receipt is available; artifact-delete still lacks a J-26 action-purpose join and there is no terminal lifecycle transition/finality or all-copy erasure receipt. Request/read evidence cannot prove revocation completion or erasure."
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-26.j-26.step-01"
@@ -13860,6 +13994,15 @@
       - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1"
       - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-03.v1"
     "p1OperationBindings":
+      - "operationRef": "media.operation.capability.media-artifact-delete"
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete"
+        "operationVersion": 1
+        "disposition": "UNBOUND"
+        "transportRef": "UNBOUND"
+        "sourceRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1/relatedActionBindings/@id=media.pdp3.action-binding.j26-artifact-delete.v1"
+          - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/5"
+        "reason": "Exact typed artifact-delete request/result is source-bound to J-26's lifecycle purpose and exact artifact version. Channel mapping remains UNBOUND; current owner/provider evidence is not asserted and ERASURE_CONFIRMED is not inferred."
       - "operationRef": "media.operation-slice.inspect-artifact"
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact"
         "operationVersion": 1
@@ -13942,6 +14085,8 @@
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
     "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
     "p1ObservationRefs":
+      - ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.artifact-lifecycle-observation-access-revoked-hold-pending-erasure-confirmed-or-external-unknown"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete/resultSchema"
       - ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records"
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation-slice.inspect-artifact"
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.inspect-consent-and-permitted-use"
@@ -14012,15 +14157,25 @@
       - "media.operation.action.view-job-status"
       - "media.operation.action.revoke-authorized-consent"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-26"
     "pdp1OperationRefs":
+      - "media.operation.capability.media-artifact-delete"
       - "media.operation-slice.inspect-artifact"
       - "media.operation.action.inspect-consent-and-permitted-use"
       - "media.operation.action.view-job-status"
       - "media.operation.action.revoke-authorized-consent"
     "p1OperationStateProofs":
+      - "operationRef": "media.operation.capability.media-artifact-delete"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1"
+        "journeyResultBindingRefs":
+          - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/5"
+        "typedObservationBindingRefs": []
+        "stateRefs": []
+        "transitionRefs": []
       - "operationRef": "media.operation-slice.inspect-artifact"
         "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
         "purposeBindingRefs":
@@ -14111,9 +14266,8 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "The consent-revocation COMMAND request and exact J-26 purpose/result join are source-bound, but no consent authority receipt is available; artifact-delete still lacks a J-26 action-purpose join and there is no terminal lifecycle transition/finality or all-copy erasure receipt. Request/read evidence cannot prove revocation completion or erasure."
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-26.j-26.step-01"
@@ -14688,11 +14842,38 @@
           - ".product-experience/pdp-3-product-experience/screen-registry.yaml"
           - ".product-experience/pdp-3-product-experience/action-registry.yaml"
         "reason": "No exact source-proven channel-equivalent operation binding in the reviewed channel inventory."
+      - "operationRef": "media.operation.action.deliver-exact-version"
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version"
+        "operationVersion": 1
+        "disposition": "UNBOUND"
+        "transportRef": "UNBOUND"
+        "sourceRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1/relatedActionBindings/@id=media.pdp3.action-binding.j28-deliver-exact-version.v1"
+          - ".product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml"
+        "reason": "J28 binds this exact related delivery command at definition level; no exact source-proven channel-equivalent operation mapping is admitted."
+      - "operationRef": "media.operation.action.reconcile-delivery-acknowledgment"
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.reconcile-delivery-acknowledgment"
+        "operationVersion": 1
+        "disposition": "UNBOUND"
+        "transportRef": "UNBOUND"
+        "sourceRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1/relatedActionBindings/@id=media.pdp3.action-binding.j28-deliver-exact-version.v1"
+          - ".product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml"
+        "reason": "J28 binds the exact typed acknowledgment observation at definition level; no exact source-proven channel-equivalent query mapping is admitted."
     "p1StateRefs":
       - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
-    "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
+      - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED"
+        "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED"
+        "disposition": "EXACT_P1_STATE_SOURCE_REF"
+      - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED"
+        "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED"
+        "disposition": "EXACT_P1_STATE_SOURCE_REF"
+      - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN"
+        "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN"
+        "disposition": "EXACT_P1_STATE_SOURCE_REF"
+    "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_AND_TYPED_ACK_OBSERVATION_SOURCE_BOUND"
     "p1ObservationRefs":
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.submit-render"
       - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-render"
@@ -14700,6 +14881,11 @@
       - ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/1"
       - ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/2"
       - ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/3"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.deliver-exact-version"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.reconcile-delivery-acknowledgment"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedWorkflowContracts/records/@id=media.workflow-contract.spatial-export-boundary.v1/output"
+      - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1/relatedActionBindings/@id=media.pdp3.action-binding.j28-deliver-exact-version.v1"
     "p1AuthorityRefs":
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
@@ -14752,13 +14938,18 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "source-only; no accepted web operation-channel binding in the reviewed sources"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs": []
+    "unresolvedOperationRefs":
+      - "media.operation.action.submit-render"
+      - "media.operation.action.deliver-exact-version"
+      - "media.operation.action.reconcile-delivery-acknowledgment"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-28"
     "pdp1OperationRefs":
       - "media.operation.action.submit-render"
+      - "media.operation.action.deliver-exact-version"
+      - "media.operation.action.reconcile-delivery-acknowledgment"
     "p1OperationStateProofs":
       - "operationRef": "media.operation.action.submit-render"
         "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
@@ -14768,8 +14959,28 @@
         "relatedActionBindingRefs": []
         "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-job",".product-experience/pdp-1-domain-data/states.yaml#media-attempt"]
         "transitionRefs": []
+      - "operationRef": "media.operation.action.deliver-exact-version"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/pdp1ResultEvidence/operationResultBindings/3"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1/relatedActionBindings/@id=media.pdp3.action-binding.j28-deliver-exact-version.v1"]
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED",".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED",".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN"]
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.reconcile-delivery-acknowledgment"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/pdp1ResultEvidence/operationResultBindings/4"]
+        "typedObservationBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/pdp1ResultEvidence/typedObservationBindings/0"]
+        "relatedActionBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1/relatedActionBindings/@id=media.pdp3.action-binding.j28-destination-ack-reconciliation.v1"]
+        "stateRefs": []
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
+      - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED"
+      - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED"
+      - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/GUI"
     "typedRequestResultErrors":
       "sourceRefs":
@@ -14815,9 +15026,19 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "P1 submit-render proves durable job admission only; no source-bound post-render consumer receipt or conversion-report result exists, so terminal delivery remains undefined."
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "deferredDependencies":
+      - "dependencyId": "media.pdp3.deferred-dependency.j28-render-output-report-join.v1"
+        "dependencyType": "P1_OWNER_CONTRACT"
+        "disposition": "UNBOUND_PENDING_P1_OWNER_CONTRACT"
+        "sourceRefs":
+          - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema"
+          - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedWorkflowContracts/records/@id=media.workflow-contract.spatial-export-boundary.v1/output"
+          - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1"
+        "definedBehavior": "Render job, output version, conversion report, package, and consumer receipt remain UNKNOWN without an exact source-defined join; do not claim terminal success."
+        "blocksPdp3Definition": false
+        "blocksJourneySuccess": true
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-28.j-28.step-01"
@@ -14849,11 +15070,44 @@
           - ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/@id=media.surface.integrations"
           - ".product-experience/pdp-0-product-truth/dependency-contracts.yaml"
         "reason": "No exact source-proven channel-equivalent operation binding in the reviewed channel inventory."
+      - "operationRef": "media.operation.action.deliver-exact-version"
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version"
+        "operationVersion": 1
+        "disposition": "UNBOUND"
+        "transportRef": "UNBOUND"
+        "sourceRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1/relatedActionBindings/@id=media.pdp3.action-binding.j28-deliver-exact-version.v1"
+          - ".product-experience/pdp-3-product-experience/services/service-registry.yaml"
+          - ".product-experience/surface-registry.yaml#/surfaces/@id=media.surface.integrations"
+          - ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/@id=media.surface.integrations"
+          - ".product-experience/pdp-0-product-truth/dependency-contracts.yaml"
+        "reason": "J28 binds this exact related delivery command at definition level; no exact source-proven channel-equivalent operation mapping is admitted."
+      - "operationRef": "media.operation.action.reconcile-delivery-acknowledgment"
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.reconcile-delivery-acknowledgment"
+        "operationVersion": 1
+        "disposition": "UNBOUND"
+        "transportRef": "UNBOUND"
+        "sourceRefs":
+          - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1/relatedActionBindings/@id=media.pdp3.action-binding.j28-deliver-exact-version.v1"
+          - ".product-experience/pdp-3-product-experience/services/service-registry.yaml"
+          - ".product-experience/surface-registry.yaml#/surfaces/@id=media.surface.integrations"
+          - ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/@id=media.surface.integrations"
+          - ".product-experience/pdp-0-product-truth/dependency-contracts.yaml"
+        "reason": "J28 binds the exact typed acknowledgment observation at definition level; no exact source-proven channel-equivalent query mapping is admitted."
     "p1StateRefs":
       - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
         "disposition": "EXACT_P1_STATE_SOURCE_REF"
-    "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_PRESENT_WHERE_AUTHORED"
+      - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED"
+        "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED"
+        "disposition": "EXACT_P1_STATE_SOURCE_REF"
+      - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED"
+        "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED"
+        "disposition": "EXACT_P1_STATE_SOURCE_REF"
+      - "stateRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN"
+        "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN"
+        "disposition": "EXACT_P1_STATE_SOURCE_REF"
+    "stateOrObservationDisposition": "EXACT_P1_STATE_REFS_AND_TYPED_ACK_OBSERVATION_SOURCE_BOUND"
     "p1ObservationRefs":
       - ".product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.submit-render"
       - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-render"
@@ -14861,6 +15115,11 @@
       - ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/1"
       - ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/2"
       - ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/3"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.deliver-exact-version"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.reconcile-delivery-acknowledgment"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedWorkflowContracts/records/@id=media.workflow-contract.spatial-export-boundary.v1/output"
+      - ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1/relatedActionBindings/@id=media.pdp3.action-binding.j28-deliver-exact-version.v1"
     "p1AuthorityRefs":
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
       - ".product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects"
@@ -14913,13 +15172,18 @@
     "transportStatusSource": "SOURCE_ONLY_NOT_ADMITTED_UNLESS_EXACT_PUBLIC_WIRE_VERIFIED"
     "channelInventoryStatus": "contract-only; host-dependent external transport unbound; runtime admission NOT_ADMITTED"
     "exactTransportMappingCount": 0
-    "unresolvedOperationRefs": []
+    "unresolvedOperationRefs":
+      - "media.operation.action.submit-render"
+      - "media.operation.action.deliver-exact-version"
+      - "media.operation.action.reconcile-delivery-acknowledgment"
     "runtimeAdmission": "NOT_ADMITTED"
-    "semanticCompleteness": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "semanticCompleteness": "SOURCE_BOUND_DEFINITION_ONLY"
     "sourceAuthorityDecision": "APPROVED_INTENDED_CHANNEL_SCOPE; NOT AN OPERATION EQUIVALENCE OR RUNTIME ADMISSION"
     "journeyId": "J-28"
     "pdp1OperationRefs":
       - "media.operation.action.submit-render"
+      - "media.operation.action.deliver-exact-version"
+      - "media.operation.action.reconcile-delivery-acknowledgment"
     "p1OperationStateProofs":
       - "operationRef": "media.operation.action.submit-render"
         "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
@@ -14929,8 +15193,28 @@
         "relatedActionBindingRefs": []
         "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#media-job",".product-experience/pdp-1-domain-data/states.yaml#media-attempt"]
         "transitionRefs": []
+      - "operationRef": "media.operation.action.deliver-exact-version"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/pdp1ResultEvidence/operationResultBindings/3"]
+        "typedObservationBindingRefs": []
+        "relatedActionBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1/relatedActionBindings/@id=media.pdp3.action-binding.j28-deliver-exact-version.v1"]
+        "stateRefs": [".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED",".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED",".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN"]
+        "transitionRefs": []
+      - "operationRef": "media.operation.action.reconcile-delivery-acknowledgment"
+        "disposition": "EXACT_JOURNEY_TYPED_RESULT_SOURCE_REF"
+        "purposeBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1"]
+        "journeyResultBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/pdp1ResultEvidence/operationResultBindings/4"]
+        "typedObservationBindingRefs": [".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/pdp1ResultEvidence/typedObservationBindings/0"]
+        "relatedActionBindingRefs": [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1/relatedActionBindings/@id=media.pdp3.action-binding.j28-destination-ack-reconciliation.v1"]
+        "stateRefs": []
+        "transitionRefs": []
     "pdp1StateOrObservationRefs":
       - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED"
+      - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/SUBMITTED"
+      - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/ACKNOWLEDGED"
+      - ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/OUTCOME_UNKNOWN"
+      - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1"
     "pdp2GrammarRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/headless"
     "typedRequestResultErrors":
       "sourceRefs":
@@ -14976,9 +15260,19 @@
         - ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml"
       "disposition": "SOURCE_FINALITY_RULES_REFERENCED; CHANNEL_FINALITY_EQUIVALENCE_UNBOUND"
     "transportRefOrUnbound": "UNBOUND"
-    "logicalDefinitionBlockers":
-      - "P1 submit-render proves durable job admission only; no source-bound post-render consumer receipt or conversion-report result exists, so terminal delivery remains undefined."
-    "logicalDefinitionDisposition": "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING"
+    "logicalDefinitionBlockers": []
+    "deferredDependencies":
+      - "dependencyId": "media.pdp3.deferred-dependency.j28-render-output-report-join.v1"
+        "dependencyType": "P1_OWNER_CONTRACT"
+        "disposition": "UNBOUND_PENDING_P1_OWNER_CONTRACT"
+        "sourceRefs":
+          - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema"
+          - ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedWorkflowContracts/records/@id=media.workflow-contract.spatial-export-boundary.v1/output"
+          - ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1"
+        "definedBehavior": "Render job, output version, conversion report, package, and consumer receipt remain UNKNOWN without an exact source-defined join; do not claim terminal success."
+        "blocksPdp3Definition": false
+        "blocksJourneySuccess": true
+    "logicalDefinitionDisposition": "SOURCE_BOUND_DEFINITION_ONLY"
     "channelTransportEquivalence": "UNBOUND"
     "fixtureIds":
       - "media.definition-step-oracle.j-28.j-28.step-01"

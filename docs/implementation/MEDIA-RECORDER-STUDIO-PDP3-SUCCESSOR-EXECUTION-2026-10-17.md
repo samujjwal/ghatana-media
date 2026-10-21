@@ -1,4 +1,6 @@
-# Media Recorder/Studio — current successor Discovery completion worklist
+> **Historical worklist only (2026-10-17).** The task list and status below describe a dated source cut; they do not schedule current work or establish current phase status. Use the [canonical PDP source index](../../.product-experience/README.md) and the [live source/status pointer](MEDIA-UNIFIED-PRODUCTION-CURRENT-PLAN.md).
+
+# Media Recorder/Studio — successor Discovery completion worklist
 
 **As-of source state:** 2026-10-17, branch `codex/media-recorder-pdp3-pdp2-design-parity-20261017`, on the merged PR #10–#15 Media baseline. **Status:** `SOURCE_AUTHORED_PENDING_NATIVE_VALIDATION_CURRENTNESS_AND_ACCEPTANCE`. This document is a readable execution view; all normative product meaning remains in the existing `.product-experience` phase authorities. This is **not** a PDP acceptance, release, implementation or independent specialist receipt.
 
@@ -8,9 +10,9 @@ Media owns the autonomous experience recorder, configurable source capture contr
 
 Source bytes, semantic requirement scope, operation/runtime implementation, provider/license qualification, measured output, independent human/legal/rights approval, and destination publication finality are **different claims**. A source-only SUCCESSOR cannot be promoted by historical phase status, a generated fingerprint, a source checker, a mock, a transport acknowledgment or a pleasant-looking film. The 216 phase cells are the **proposed** 54-surface successor, not automatically closed or development-complete.
 
-## Exact current authored inventory
+## Authored inventory at the 2026-10-17 source cut
 
-| Scope | Current source definition | Admission/proof caveat |
+| Scope | Source definition in that cut | Admission/proof caveat |
 |---|---|---|
 | Existing physical/composition/consumer baseline | 26 physical candidates, 7 compositions, 17 historical consumers / 50 identities / 200 historical PDP cells | Preserve exact build coordinates and previous source-cut statuses |
 | Proposed Recorder sub-surfaces | 4 logical child consumers; 21 consumers, 54 identities / 216 proposed phase cells | Source-only, no new executable package |

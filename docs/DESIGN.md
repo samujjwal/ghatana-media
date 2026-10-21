@@ -1,6 +1,6 @@
 # Media design
 
-> **Current document scope (2026-10-12):** The four Media PDP definitions are `DEV_COMPLETE` with **zero remaining PDP tasks**. Historical implementation/migration observations below are not new PDP gates. Follow the [Build handoff](implementation/MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md) and the current canonical runtime for actual implementation decisions.
+> This guide covers design and runtime implementation references; it is not a PDP status or product-meaning authority. Use the phase-owned sources and source-pinned status records linked from the [PDP source index](../.product-experience/README.md). No Media application has been released.
 
 ## Purpose, consumers, and change policy
 
@@ -12,8 +12,8 @@ It introduces no wire contract, acceptance, or product-ownership decision.
 
 Change product meaning in its owning phase first; update projections and tests
 from that source. Preserve existing compatibility until consumer parity and the
-cutover/acceptance record authorize change. The four-phase hardening plan in
-[REQUIREMENTS](REQUIREMENTS.md) is the governing minimum.
+cutover/acceptance record authorize change. The current phase boundaries and
+source ownership are defined in the [PDP source index](../.product-experience/README.md).
 
 ## Runtime decisions and rationale
 

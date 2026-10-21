@@ -47,6 +47,16 @@ function example(schema) {
         if (value && typeof value === "object" && !Array.isArray(value)) Object.assign(result, value);
       }
     }
+    if (result.artifactType === "typed-visual-analysis-result-with-applicability-and-uncertainty") {
+      const visual = result.payload?.value;
+      if (visual) {
+        // Keep the generated fixture source-honest: a COMPLETE or OBSERVED
+        // result requires sourceObservations, so use the explicitly UNKNOWN
+        // case unless a test supplies source-bound observation evidence.
+        visual.overallDisposition = "UNKNOWN";
+        for (const dimension of visual.dimensionResults ?? []) dimension.disposition = "UNKNOWN";
+      }
+    }
     return result;
   }
   if (schema.allOf) {
@@ -250,9 +260,9 @@ test("all 448 canonical capability request and result schemas close against exac
 });
 
 
-test("all 129 input and 98 output type definitions are material, closed, and reject missing required evidence", () => {
-  assert.equal(contract.inputPayloadSchemas.length, 129);
-  assert.equal(contract.outputPayloadSchemas.length, 98);
+test("all 131 input and 102 output type definitions are material, closed, and reject missing required evidence", () => {
+  assert.equal(contract.inputPayloadSchemas.length, 131);
+  assert.equal(contract.outputPayloadSchemas.length, 102);
   assert.equal(contract.inputPayloadSchemaCount, contract.inputPayloadSchemas.length);
   assert.equal(contract.outputPayloadSchemaCount, contract.outputPayloadSchemas.length);
   const ajv = buildAjv();

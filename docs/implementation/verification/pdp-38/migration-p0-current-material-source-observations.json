@@ -13,26 +13,30 @@
           "requiredSourcePhrase": "Each capability declares an explicit trust/reconstruction disposition against its P0 semantic inputs and outputs.",
           "historicalCurrentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
           "historicalCurrentTargetValueSha256": "528d2743c10dc3678364a3c4ff7ea6f096c002316bd511b155b11e777c65a6c5",
-          "currentSourceFileSha256": "49c079d4aff2499bb3c226ac52e3a7101d483392775bd9b05a0a469295329ce2",
+          "currentSourceFileSha256": "77a8e9bcfbaa591b3d1aa4779ae0be74fd83119b87e7d1fd5a20cc75455aeb2d",
           "currentTargetValueSha256": "528d2743c10dc3678364a3c4ff7ea6f096c002316bd511b155b11e777c65a6c5",
           "semanticEquivalence": "NOT_ASSERTED",
           "acceptanceEffect": "none",
           "supersededCurrentSourceFileSha256": "7af0487e342293d40477703f55d15a58b4b613f407c03daa19e121941d8856d4",
-          "currentSourceSuccessorRef": "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd185.json#/records/@observationId=P0-MIGRATION-CURRENT-089",
-          "currentSourceSuccessorPredecessorFileSha256": "4fe7fa39a380c8209741301b5488739db204a89444c150adba39f4ec3d2ff3a8"
+          "currentSourceSuccessorRef": "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd206.json#/records/@observationId=P0-MIGRATION-CURRENT-177",
+          "currentSourceSuccessorPredecessorFileSha256": "ad3f569668f817a1536741ae105d729911c42e6fb801c01d7022ba19168b7c33",
+          "preRefreshCurrentSourceFileSha256": "ad3f569668f817a1536741ae105d729911c42e6fb801c01d7022ba19168b7c33"
         },
         {
           "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#coverageRule",
           "requiredSourcePhrase": "Every scoped capability below is a finite semantic leaf.",
           "historicalCurrentSourceFileSha256": "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf",
           "historicalCurrentTargetValueSha256": "b5756336bf7681a60d3d18027e546f48d81d0548c6da7c9ea7413503ea2fb1e1",
-          "currentSourceFileSha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+          "currentSourceFileSha256": "bc1d9c389afc3445015679aa9bbf63dae310b5a91b34dbf7046a8de92f52dbba",
           "currentTargetValueSha256": "b5756336bf7681a60d3d18027e546f48d81d0548c6da7c9ea7413503ea2fb1e1",
           "semanticEquivalence": "NOT_ASSERTED",
           "acceptanceEffect": "none",
           "sourceCorrectionDecisionRef": ".product-experience/decision-log.md#PXD-153",
           "sourceCorrectionEvidenceRef": "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json",
-          "supersededCurrentSourceFileSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+          "supersededCurrentSourceFileSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+          "preRefreshCurrentSourceFileSha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+          "currentSourceSuccessorRef": "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd196.json#/records/@observationId=P0-MIGRATION-CURRENT-094",
+          "currentSourceSuccessorPredecessorFileSha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
         }
       ]
     },
@@ -55,13 +59,16 @@
           "requiredSourcePhrase": "Every scoped capability below is a finite semantic leaf.",
           "historicalCurrentSourceFileSha256": "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf",
           "historicalCurrentTargetValueSha256": "b5756336bf7681a60d3d18027e546f48d81d0548c6da7c9ea7413503ea2fb1e1",
-          "currentSourceFileSha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+          "currentSourceFileSha256": "bc1d9c389afc3445015679aa9bbf63dae310b5a91b34dbf7046a8de92f52dbba",
           "currentTargetValueSha256": "b5756336bf7681a60d3d18027e546f48d81d0548c6da7c9ea7413503ea2fb1e1",
           "semanticEquivalence": "NOT_ASSERTED",
           "acceptanceEffect": "none",
           "sourceCorrectionDecisionRef": ".product-experience/decision-log.md#PXD-153",
           "sourceCorrectionEvidenceRef": "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json",
-          "supersededCurrentSourceFileSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d"
+          "supersededCurrentSourceFileSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+          "preRefreshCurrentSourceFileSha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+          "currentSourceSuccessorRef": "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd196.json#/records/@observationId=P0-MIGRATION-CURRENT-121",
+          "currentSourceSuccessorPredecessorFileSha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
         }
       ]
     },
@@ -126,50 +133,65 @@
           "requiredSourcePhrase": "propose safe bounded batch rendering through CLI; exact commands and installed behavior remain to be authored.",
           "historicalCurrentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
           "historicalCurrentTargetValueSha256": "7df1f201b2d1066f644f3966b78258589911b8c55c130c80e8dff42e4cfbcbc2",
-          "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+          "currentSourceFileSha256": "b9f6a24eb1ef1e55dc64e4deacda7f713818acfdd8d11b1576747bdf723eccaa",
           "currentTargetValueSha256": "7df1f201b2d1066f644f3966b78258589911b8c55c130c80e8dff42e4cfbcbc2",
           "semanticEquivalence": "NOT_ASSERTED",
-          "acceptanceEffect": "none"
+          "acceptanceEffect": "none",
+          "preRefreshCurrentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+          "currentSourceSuccessorRef": "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd196.json#/records/@observationId=P0-MIGRATION-CURRENT-122",
+          "currentSourceSuccessorPredecessorFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76"
         },
         {
           "targetRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/commandSurfaceSeparationRule/rule",
           "requiredSourcePhrase": "A CLI command binds one exact canonical operation/action and one invocation mode.",
           "historicalCurrentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
           "historicalCurrentTargetValueSha256": "578eec1a25745b4d4eace7e340238c6020074802c6e661504e95e93f2eb806b9",
-          "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+          "currentSourceFileSha256": "b9f6a24eb1ef1e55dc64e4deacda7f713818acfdd8d11b1576747bdf723eccaa",
           "currentTargetValueSha256": "578eec1a25745b4d4eace7e340238c6020074802c6e661504e95e93f2eb806b9",
           "semanticEquivalence": "NOT_ASSERTED",
-          "acceptanceEffect": "none"
+          "acceptanceEffect": "none",
+          "preRefreshCurrentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+          "currentSourceSuccessorRef": "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd196.json#/records/@observationId=P0-MIGRATION-CURRENT-123",
+          "currentSourceSuccessorPredecessorFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76"
         },
         {
           "targetRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/commandSurfaceSeparationRule/invocationModes",
           "requiredSourcePhrase": "BATCH_EXECUTION",
           "historicalCurrentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
           "historicalCurrentTargetValueSha256": "908b3439fcddd83bb0c2aaf73fbbb09221dfe2b6e1f45c806669a830f281d5a7",
-          "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+          "currentSourceFileSha256": "b9f6a24eb1ef1e55dc64e4deacda7f713818acfdd8d11b1576747bdf723eccaa",
           "currentTargetValueSha256": "908b3439fcddd83bb0c2aaf73fbbb09221dfe2b6e1f45c806669a830f281d5a7",
           "semanticEquivalence": "NOT_ASSERTED",
-          "acceptanceEffect": "none"
+          "acceptanceEffect": "none",
+          "preRefreshCurrentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+          "currentSourceSuccessorRef": "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd196.json#/records/@observationId=P0-MIGRATION-CURRENT-124",
+          "currentSourceSuccessorPredecessorFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76"
         },
         {
           "targetRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/commandSurfaceSeparationRule/scopeStatus",
           "requiredSourcePhrase": "no executable or channel behavior is admitted",
           "historicalCurrentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
           "historicalCurrentTargetValueSha256": "0b70c048e73f4a70e28285ec5dcf788bd05c5dde008ffd5d5057779e54fb2b76",
-          "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+          "currentSourceFileSha256": "b9f6a24eb1ef1e55dc64e4deacda7f713818acfdd8d11b1576747bdf723eccaa",
           "currentTargetValueSha256": "0b70c048e73f4a70e28285ec5dcf788bd05c5dde008ffd5d5057779e54fb2b76",
           "semanticEquivalence": "NOT_ASSERTED",
-          "acceptanceEffect": "none"
+          "acceptanceEffect": "none",
+          "preRefreshCurrentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+          "currentSourceSuccessorRef": "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd196.json#/records/@observationId=P0-MIGRATION-CURRENT-125",
+          "currentSourceSuccessorPredecessorFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76"
         },
         {
           "targetRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/commandSurfaceSeparationRule/executionAdmission",
           "requiredSourcePhrase": "NOT_ADMITTED",
           "historicalCurrentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
           "historicalCurrentTargetValueSha256": "0549d46d0e3897e429f607a99d5a5a375d8a3851c50da6ae838e539fcba7e102",
-          "currentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+          "currentSourceFileSha256": "b9f6a24eb1ef1e55dc64e4deacda7f713818acfdd8d11b1576747bdf723eccaa",
           "currentTargetValueSha256": "0549d46d0e3897e429f607a99d5a5a375d8a3851c50da6ae838e539fcba7e102",
           "semanticEquivalence": "NOT_ASSERTED",
-          "acceptanceEffect": "none"
+          "acceptanceEffect": "none",
+          "preRefreshCurrentSourceFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76",
+          "currentSourceSuccessorRef": "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd196.json#/records/@observationId=P0-MIGRATION-CURRENT-126",
+          "currentSourceSuccessorPredecessorFileSha256": "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76"
         }
       ]
     }

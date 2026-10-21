@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "media.pdp0.caption-import-current-source-review.v1",
+  "artifactId": "P0-CAPTION-IMPORT-CURRENT-SOURCE-REVIEW-PXD209",
+  "decisionRef": ".product-experience/decision-log.md#PXD-209",
+  "predecessorReviewRef": "docs/implementation/verification/pdp-38/p0-capability-corrections-current-source-review-current.json#media.artifact.import/ownerDefinition.successOutputs",
+  "scope": "PXD-209 additive source-current successor for the exact optional imported-caption observation on media.artifact.import; PXD-171 remains the immutable predecessor source cut.",
+  "source": {
+    "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+    "predecessorSha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+    "currentSha256": "6a0674f350af8bb75f54641f31377f199b27e016e2c3163b557ffa19397dac45",
+    "historicalPredecessorSourceSha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d",
+    "predecessorGitBlobSha1": "50415818c623b29a19bc82544f1b43d256ba18ef"
+  },
+  "reviewedField": {
+    "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.import/ownerDefinition/successOutputs",
+    "predecessorSha256": "8f819298dcfbe119a3967ef9eefe5cf3d3bfac9c912d700aa96e654fef534514",
+    "currentSha256": "8a06f5939a090c45696c78680d3a3725c8291923661fb9fb5a2983f3110b9b99",
+    "predecessorProjection": [
+      {
+        "artifactType": "import-observation-and-source-resolution-evidence",
+        "requiredOnSuccess": true
+      },
+      {
+        "artifactType": "artifact-version-reference-only-after-owner-confirmed-registration",
+        "requiredOnSuccess": false
+      },
+      {
+        "artifactType": "verification-or-quarantine-state-when-issued",
+        "requiredOnSuccess": false
+      }
+    ],
+    "addedOptionalObservation": {
+      "id": "importedCaptionTrack",
+      "when": "An authorized sidecar or embedded caption track is explicitly requested and observed in the exact immutable imported source version.",
+      "fields": {
+        "sourceVersionRef": "Exact immutable source version inspected.",
+        "captionTrackRef": "Track identity or source location as observed.",
+        "language": "Observed language tag when available; otherwise UNKNOWN.",
+        "format": "Observed sidecar format or embedded track encoding when available; otherwise UNKNOWN.",
+        "timingMapping": "Declared source timebase, any explicit mapping applied, and conversion or alignment uncertainty.",
+        "provenance": "Whether the track was observed embedded or supplied as an authorized sidecar."
+      },
+      "constraints": [
+        "Observation does not alter source media, register or replace a canonical artifact, or claim caption correctness.",
+        "Missing, malformed, or unknown track mapping remains explicit."
+      ]
+    },
+    "predecessorProjection": [
+      {
+        "artifactType": "import-observation-and-source-resolution-evidence",
+        "requiredOnSuccess": true
+      },
+      {
+        "artifactType": "artifact-version-reference-only-after-owner-confirmed-registration",
+        "requiredOnSuccess": false
+      },
+      {
+        "artifactType": "verification-or-quarantine-state-when-issued",
+        "requiredOnSuccess": false
+      }
+    ],
+    "predecessorProjectionSha256": "8f819298dcfbe119a3967ef9eefe5cf3d3bfac9c912d700aa96e654fef534514",
+    "predecessorProjectionSourceSha256": "f9a979392587069dbb9c2a653fe9866e9b61ee31192725404ec01e5426291f5d"
+  },
+  "requirementBinding": {
+    "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-08",
+    "sourceSha256": "9f3dc3e9af961a5c24a2fe5e2c9ad65ff2f3f4f5d46ffb231e80f162b23231af",
+    "requirementCaseSha256": "239e86a740f2c42e4c707b7836d2777225879a1902832287b2b81e84ec22c728",
+    "capabilityId": "media.artifact.import",
+    "requirementId": "MEDIA-REQ-CAP-ARTIFACT",
+    "acceptanceCaseId": "MEDIA-REQ-CAP-ARTIFACT-AC-08"
+  },
+  "decisionSection": {
+    "sourceRef": ".product-experience/decision-log.md#PXD-209-section",
+    "sha256": "bd024f73efbd5dffe4962de912767f35d27ffc94460184d54e13c6afe1cc6f5f"
+  },
+  "definitionPopulation": {
+    "historicalOwnerAdjudicatedCapabilityLeaves": 462,
+    "definitionExtensionLeaves": 7,
+    "currentDefinitionCount": 469,
+    "newCapabilityCount": 0
+  },
+  "reviewBoundary": {
+    "semanticDisposition": "USER_DELEGATED_PDP0_SEMANTIC_ADDITION",
+    "semanticEquivalence": "NOT_ASSERTED",
+    "acceptanceEffect": "none",
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "implementation": "NOT_ASSERTED",
+    "formatOrParserSupport": "NOT_ASSERTED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "qualification": "NOT_ASSERTED",
+    "nativeClosure": "NOT_ASSERTED",
+    "deliveryReadiness": "NOT_ASSERTED"
+  }
+}

@@ -1,354 +1,208 @@
 TAP version 13
 # Subtest: J-03 binds only existing save and exact-pair compare operations, preserving the global experience population
-not ok 1 - J-03 binds only existing save and exact-pair compare operations, preserving the global experience population
+ok 1 - J-03 binds only existing save and exact-pair compare operations, preserving the global experience population
   ---
-  duration_ms: 326.1485
+  duration_ms: 1644.780159
   type: 'test'
-  location: '/Users/samujjwal/Development/ghatana-media/tests/media-caption-version-experience-definitions.test.mjs:157:1'
-  failureType: 'testCodeFailure'
-  error: |-
-    Expected values to be strictly equal:
-    
-    147 !== 146
-    
-  code: 'ERR_ASSERTION'
-  name: 'AssertionError'
-  expected: 146
-  actual: 147
-  operator: 'strictEqual'
-  stack: |-
-    TestContext.<anonymous> (file:///Users/samujjwal/Development/ghatana-media/tests/media-caption-version-experience-definitions.test.mjs:163:10)
-    async Test.run (node:internal/test_runner/test:1404:7)
-    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
   ...
 # Subtest: J-03 source bindings reject swapped lineage, unsafe request replay, promoted runtime, and provenance export
 ok 2 - J-03 source bindings reject swapped lineage, unsafe request replay, promoted runtime, and provenance export
   ---
-  duration_ms: 10.547667
+  duration_ms: 19.775407
   type: 'test'
   ...
 # Subtest: PXD-060 preserves the exact immutable-registration effect and taxonomy candidates stay non-admitted without Boolean coercion
-not ok 3 - PXD-060 preserves the exact immutable-registration effect and taxonomy candidates stay non-admitted without Boolean coercion
+ok 3 - PXD-060 preserves the exact immutable-registration effect and taxonomy candidates stay non-admitted without Boolean coercion
   ---
-  duration_ms: 1.55475
+  duration_ms: 53.913185
   type: 'test'
-  location: '/Users/samujjwal/Development/ghatana-media/tests/media-caption-version-experience-definitions.test.mjs:200:1'
-  failureType: 'testCodeFailure'
-  error: 'Invalid experience definition: typed action definition mismatch media.action.confirm-selected-fallback'
-  code: 'ERR_TEST_FAILURE'
-  stack: |-
-    fail (file:///Users/samujjwal/Development/ghatana-media/scripts/lib/media-experience-definition-mapping.mjs:12:37)
-    resolveExperienceDefinitionSemantics (file:///Users/samujjwal/Development/ghatana-media/scripts/lib/media-experience-definition-mapping.mjs:94:97)
-    TestContext.<anonymous> (file:///Users/samujjwal/Development/ghatana-media/tests/media-caption-version-experience-definitions.test.mjs:201:22)
-    Test.runInAsyncScope (node:async_hooks:226:14)
-    Test.run (node:internal/test_runner/test:1397:25)
-    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
-    Test.postRun (node:internal/test_runner/test:1537:19)
-    Test.run (node:internal/test_runner/test:1462:12)
-    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
   ...
 # Subtest: J-01 keeps its four ordered steps and five registered screens without expanding the denominator
-not ok 4 - J-01 keeps its four ordered steps and five registered screens without expanding the denominator
+ok 4 - J-01 keeps its four ordered steps and five registered screens without expanding the denominator
   ---
-  duration_ms: 345.761625
+  duration_ms: 926.051202
   type: 'test'
-  location: '/Users/samujjwal/Development/ghatana-media/tests/media-j01-definition-semantics.test.mjs:25:1'
-  failureType: 'testCodeFailure'
-  error: |-
-    Expected values to be strictly equal:
-    
-    147 !== 146
-    
-  code: 'ERR_ASSERTION'
-  name: 'AssertionError'
-  expected: 146
-  actual: 147
-  operator: 'strictEqual'
-  stack: |-
-    TestContext.<anonymous> (file:///Users/samujjwal/Development/ghatana-media/tests/media-j01-definition-semantics.test.mjs:31:10)
-    async Test.run (node:internal/test_runner/test:1404:7)
-    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
   ...
 # Subtest: each ordered step binds only its exact project query or create operation and applies no state transition
 ok 5 - each ordered step binds only its exact project query or create operation and applies no state transition
   ---
-  duration_ms: 0.734166
+  duration_ms: 0.765528
   type: 'test'
   ...
 # Subtest: screen links distinguish trusted identity, scoped project views, and optional post-journey continuation
 ok 6 - screen links distinguish trusted identity, scoped project views, and optional post-journey continuation
   ---
-  duration_ms: 7.044625
+  duration_ms: 35.897236
   type: 'test'
   ...
 # Subtest: create finality is receipt-bound; project reads do not claim reversible remote effects
-not ok 7 - create finality is receipt-bound; project reads do not claim reversible remote effects
+ok 7 - create finality is receipt-bound; project reads do not claim reversible remote effects
   ---
-  duration_ms: 1.375959
+  duration_ms: 5.479757
   type: 'test'
-  location: '/Users/samujjwal/Development/ghatana-media/tests/media-j01-definition-semantics.test.mjs:122:1'
-  failureType: 'testCodeFailure'
-  error: 'Invalid experience definition: typed action definition mismatch media.action.confirm-selected-fallback'
-  code: 'ERR_TEST_FAILURE'
-  stack: |-
-    fail (file:///Users/samujjwal/Development/ghatana-media/scripts/lib/media-experience-definition-mapping.mjs:12:37)
-    resolveExperienceDefinitionSemantics (file:///Users/samujjwal/Development/ghatana-media/scripts/lib/media-experience-definition-mapping.mjs:94:97)
-    TestContext.<anonymous> (file:///Users/samujjwal/Development/ghatana-media/tests/media-j01-definition-semantics.test.mjs:142:22)
-    Test.runInAsyncScope (node:async_hooks:226:14)
-    Test.run (node:internal/test_runner/test:1397:25)
-    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
-    Test.postRun (node:internal/test_runner/test:1537:19)
-    Test.run (node:internal/test_runner/test:1462:12)
-    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
   ...
 # Subtest: PXD-055 cannot authorize unrelated actions or substitute another operation or source decision
 ok 8 - PXD-055 cannot authorize unrelated actions or substitute another operation or source decision
   ---
-  duration_ms: 0.536667
+  duration_ms: 1.908791
   type: 'test'
   ...
 # Subtest: J-02 source definitions preserve the original population and bind only existing identities
-not ok 9 - J-02 source definitions preserve the original population and bind only existing identities
+ok 9 - J-02 source definitions preserve the original population and bind only existing identities
   ---
-  duration_ms: 310.2925
+  duration_ms: 2358.598296
   type: 'test'
-  location: '/Users/samujjwal/Development/ghatana-media/tests/media-j02-definition-semantics.test.mjs:21:1'
-  failureType: 'testCodeFailure'
-  error: |-
-    Expected values to be strictly equal:
-    
-    147 !== 146
-    
-  code: 'ERR_ASSERTION'
-  name: 'AssertionError'
-  expected: 146
-  actual: 147
-  operator: 'strictEqual'
-  stack: |-
-    TestContext.<anonymous> (file:///Users/samujjwal/Development/ghatana-media/tests/media-j02-definition-semantics.test.mjs:28:10)
-    async Test.run (node:internal/test_runner/test:1404:7)
-    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
   ...
 # Subtest: conditional upload effects and read observations are not coerced to public undo booleans
 ok 10 - conditional upload effects and read observations are not coerced to public undo booleans
   ---
-  duration_ms: 0.751375
+  duration_ms: 0.692151
   type: 'test'
   ...
 # Subtest: attachment definition maps only its supported immutable project-reference effect
-not ok 11 - attachment definition maps only its supported immutable project-reference effect
+ok 11 - attachment definition maps only its supported immutable project-reference effect
   ---
-  duration_ms: 1.489625
+  duration_ms: 5.556679
   type: 'test'
-  location: '/Users/samujjwal/Development/ghatana-media/tests/media-j02-definition-semantics.test.mjs:83:1'
-  failureType: 'testCodeFailure'
-  error: 'Invalid experience definition: typed action definition mismatch media.action.confirm-selected-fallback'
-  code: 'ERR_TEST_FAILURE'
-  stack: |-
-    fail (file:///Users/samujjwal/Development/ghatana-media/scripts/lib/media-experience-definition-mapping.mjs:12:37)
-    resolveExperienceDefinitionSemantics (file:///Users/samujjwal/Development/ghatana-media/scripts/lib/media-experience-definition-mapping.mjs:94:97)
-    TestContext.<anonymous> (file:///Users/samujjwal/Development/ghatana-media/tests/media-j02-definition-semantics.test.mjs:95:21)
-    Test.runInAsyncScope (node:async_hooks:226:14)
-    Test.run (node:internal/test_runner/test:1397:25)
-    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
-    Test.postRun (node:internal/test_runner/test:1537:19)
-    Test.run (node:internal/test_runner/test:1462:12)
-    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
   ...
 # Subtest: existing recovery records remain manual, source-defined, and non-admitted
-not ok 12 - existing recovery records remain manual, source-defined, and non-admitted
+ok 12 - existing recovery records remain manual, source-defined, and non-admitted
   ---
-  duration_ms: 0.538958
+  duration_ms: 3.448267
   type: 'test'
-  location: '/Users/samujjwal/Development/ghatana-media/tests/media-j02-definition-semantics.test.mjs:100:1'
-  failureType: 'testCodeFailure'
-  error: 'Invalid experience definition: typed action definition mismatch media.action.confirm-selected-fallback'
-  code: 'ERR_TEST_FAILURE'
-  stack: |-
-    fail (file:///Users/samujjwal/Development/ghatana-media/scripts/lib/media-experience-definition-mapping.mjs:12:37)
-    resolveExperienceDefinitionSemantics (file:///Users/samujjwal/Development/ghatana-media/scripts/lib/media-experience-definition-mapping.mjs:94:97)
-    TestContext.<anonymous> (file:///Users/samujjwal/Development/ghatana-media/tests/media-j02-definition-semantics.test.mjs:101:21)
-    Test.runInAsyncScope (node:async_hooks:226:14)
-    Test.run (node:internal/test_runner/test:1397:25)
-    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
-    Test.postRun (node:internal/test_runner/test:1537:19)
-    Test.run (node:internal/test_runner/test:1462:12)
-    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
   ...
 # Subtest: J-03 binds the existing transcript review step without changing the journey or action population
-not ok 13 - J-03 binds the existing transcript review step without changing the journey or action population
+ok 13 - J-03 binds the existing transcript review step without changing the journey or action population
   ---
-  duration_ms: 318.150291
+  duration_ms: 1724.671878
   type: 'test'
-  location: '/Users/samujjwal/Development/ghatana-media/tests/media-transcript-review-definition.test.mjs:77:1'
-  failureType: 'testCodeFailure'
-  error: |-
-    Expected values to be strictly equal:
-    
-    147 !== 146
-    
-  code: 'ERR_ASSERTION'
-  name: 'AssertionError'
-  expected: 146
-  actual: 147
-  operator: 'strictEqual'
-  stack: |-
-    TestContext.<anonymous> (file:///Users/samujjwal/Development/ghatana-media/tests/media-transcript-review-definition.test.mjs:83:10)
-    async Test.run (node:internal/test_runner/test:1404:7)
-    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
   ...
 # Subtest: transcript identity, read selector, source link, availability, and errors match PDP-1
 ok 14 - transcript identity, read selector, source link, availability, and errors match PDP-1
   ---
-  duration_ms: 0.74325
+  duration_ms: 0.789308
   type: 'test'
   ...
 # Subtest: review screen binds only the exact query while local playback actions remain separate
 ok 15 - review screen binds only the exact query while local playback actions remain separate
   ---
-  duration_ms: 0.114125
+  duration_ms: 0.493693
   type: 'test'
   ...
 # Subtest: read action stays UNKNOWN for reversibility and cannot forge a public Boolean
-not ok 16 - read action stays UNKNOWN for reversibility and cannot forge a public Boolean
+ok 16 - read action stays UNKNOWN for reversibility and cannot forge a public Boolean
   ---
-  duration_ms: 1.381167
+  duration_ms: 16.164496
   type: 'test'
-  location: '/Users/samujjwal/Development/ghatana-media/tests/media-transcript-review-definition.test.mjs:158:1'
-  failureType: 'testCodeFailure'
-  error: 'Invalid experience definition: typed action definition mismatch media.action.confirm-selected-fallback'
-  code: 'ERR_TEST_FAILURE'
-  stack: |-
-    fail (file:///Users/samujjwal/Development/ghatana-media/scripts/lib/media-experience-definition-mapping.mjs:12:37)
-    resolveExperienceDefinitionSemantics (file:///Users/samujjwal/Development/ghatana-media/scripts/lib/media-experience-definition-mapping.mjs:94:97)
-    TestContext.<anonymous> (file:///Users/samujjwal/Development/ghatana-media/tests/media-transcript-review-definition.test.mjs:159:22)
-    Test.runInAsyncScope (node:async_hooks:226:14)
-    Test.run (node:internal/test_runner/test:1397:25)
-    Test.processPendingSubtests (node:internal/test_runner/test:969:18)
-    Test.postRun (node:internal/test_runner/test:1537:19)
-    Test.run (node:internal/test_runner/test:1462:12)
-    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)
   ...
 # Subtest: PXD-064 cannot be reused for a different action, operation, authority, decision, or admission
 ok 17 - PXD-064 cannot be reused for a different action, operation, authority, decision, or admission
   ---
-  duration_ms: 10.597417
+  duration_ms: 106.683878
   type: 'test'
   ...
 # Subtest: experience candidate projects the exact PXD-083 Media required-prop source set
 ok 18 - experience candidate projects the exact PXD-083 Media required-prop source set
   ---
-  duration_ms: 0.983417
+  duration_ms: 8.258181
   type: 'test'
   ...
 # Subtest: existing public prop projection remains exactly source-bound
 ok 19 - existing public prop projection remains exactly source-bound
   ---
-  duration_ms: 0.087083
+  duration_ms: 0.565679
   type: 'test'
   ...
 # Subtest: PDP-3 component projection preserves contract-only and observed export identity as separate dispositions
 ok 20 - PDP-3 component projection preserves contract-only and observed export identity as separate dispositions
   ---
-  duration_ms: 0.95125
+  duration_ms: 3.844021
   type: 'test'
   ...
 # Subtest: component source disposition rejects missing, overlapping, and implementation-promoting records
 ok 21 - component source disposition rejects missing, overlapping, and implementation-promoting records
   ---
-  duration_ms: 11.155875
+  duration_ms: 17.676761
   type: 'test'
   ...
 # Subtest: PDP-3 typed action semantics project only exact owner definitions
-not ok 22 - PDP-3 typed action semantics project only exact owner definitions
+ok 22 - PDP-3 typed action semantics project only exact owner definitions
   ---
-  duration_ms: 19.528083
+  duration_ms: 37.504599
   type: 'test'
-  location: '/Users/samujjwal/Development/ghatana-media/tests/pdp-experience-definition-mapping.test.mjs:15:1'
-  failureType: 'testCodeFailure'
-  error: 'Invalid experience definition: typed action definition mismatch media.action.confirm-selected-fallback'
-  code: 'ERR_TEST_FAILURE'
-  stack: |-
-    fail (file:///Users/samujjwal/Development/ghatana-media/scripts/lib/media-experience-definition-mapping.mjs:12:37)
-    resolveExperienceDefinitionSemantics (file:///Users/samujjwal/Development/ghatana-media/scripts/lib/media-experience-definition-mapping.mjs:94:97)
-    TestContext.<anonymous> (file:///Users/samujjwal/Development/ghatana-media/tests/pdp-experience-definition-mapping.test.mjs:16:18)
-    Test.runInAsyncScope (node:async_hooks:226:14)
-    Test.run (node:internal/test_runner/test:1397:25)
-    Test.start (node:internal/test_runner/test:1257:17)
-    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
   ...
 # Subtest: PDP-3 typed action mapping rejects stale decision, effect, role, and operation identities
 ok 23 - PDP-3 typed action mapping rejects stale decision, effect, role, and operation identities
   ---
-  duration_ms: 13.824042
+  duration_ms: 40.428505
   type: 'test'
   ...
 # Subtest: PDP-3 external-owner exceptions fail closed when the exact role, no-mutation, or non-admission boundary drifts
 ok 24 - PDP-3 external-owner exceptions fail closed when the exact role, no-mutation, or non-admission boundary drifts
   ---
-  duration_ms: 37.729917
+  duration_ms: 34.756744
   type: 'test'
   ...
 # Subtest: projects a P1 ordered workflow with a separate supporting observation
 ok 25 - projects a P1 ordered workflow with a separate supporting observation
   ---
-  duration_ms: 3.570833
+  duration_ms: 15.430924
   type: 'test'
   ...
 # Subtest: keeps a passive consent read as supporting observation without turning it into a mutating action
 ok 26 - keeps a passive consent read as supporting observation without turning it into a mutating action
   ---
-  duration_ms: 1.314459
+  duration_ms: 0.948946
   type: 'test'
   ...
 # Subtest: keeps Media's identity handoff as a bound single action while Shared wire mapping stays separate
 ok 27 - keeps Media's identity handoff as a bound single action while Shared wire mapping stays separate
   ---
-  duration_ms: 0.471917
+  duration_ms: 0.462382
   type: 'test'
   ...
 # Subtest: projects user-selected capability alternatives without defaulting a branch
 ok 28 - projects user-selected capability alternatives without defaulting a branch
   ---
-  duration_ms: 0.384708
+  duration_ms: 0.556534
   type: 'test'
   ...
 # Subtest: fails closed for missing or untyped source operation identities
 ok 29 - fails closed for missing or untyped source operation identities
   ---
-  duration_ms: 0.204208
+  duration_ms: 0.486749
   type: 'test'
   ...
 # Subtest: projects only the exact per-step version definition refs
 ok 30 - projects only the exact per-step version definition refs
   ---
-  duration_ms: 0.338708
+  duration_ms: 0.593447
   type: 'test'
   ...
 # Subtest: reference resolution is scoped to the exact public journey-step owner
 ok 31 - reference resolution is scoped to the exact public journey-step owner
   ---
-  duration_ms: 0.1825
+  duration_ms: 0.400253
   type: 'test'
   ...
 # Subtest: the only projected transition is the exact successful upload-finalization edge
 ok 32 - the only projected transition is the exact successful upload-finalization edge
   ---
-  duration_ms: 1.632666
+  duration_ms: 2.400137
   type: 'test'
   ...
 # Subtest: foreign operations, actions, states, edge outcomes, and unreviewed additions are rejected
 ok 33 - foreign operations, actions, states, edge outcomes, and unreviewed additions are rejected
   ---
-  duration_ms: 42.144083
+  duration_ms: 75.369391
   type: 'test'
   ...
 1..33
 # tests 33
 # suites 0
-# pass 23
-# fail 10
+# pass 33
+# fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 4325.160208
+# duration_ms 17349.743863

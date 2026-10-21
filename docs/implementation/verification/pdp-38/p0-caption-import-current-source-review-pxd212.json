@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "media.pdp0.caption-import-current-source-review.v1",
+  "artifactId": "P0-CAPTION-IMPORT-CURRENT-SOURCE-REVIEW-PXD212",
+  "decisionRef": ".product-experience/decision-log.md#PXD-212",
+  "predecessorReviewRef": "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd209.json",
+  "scope": "PXD-212 source-current successor review of the exact optional imported-caption observation and AC-08 binding; PXD-209 remains immutable history.",
+  "sourceFingerprints": {
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "a0e94ab197a76d1de2ecb9ddcbb92869644b16b603e1813eca5f091979ef8cf8",
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    ".product-experience/decision-log.md#PXD-212-section": "fca7ed3effb20c88040258763bbdb0b7be7a33314c8699097d400fe9bc95429b"
+  },
+  "reviewedField": {
+    "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.import/ownerDefinition/successOutputs/0/optionalSemanticObservations/@id=importedCaptionTrack",
+    "currentSha256": "df04bba6f025349588572fd1a44dddf3975bb0c1c6d03b0a185a3a5be8fb4013"
+  },
+  "requirementBinding": {
+    "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-08",
+    "caseSha256": "239e86a740f2c42e4c707b7836d2777225879a1902832287b2b81e84ec22c728"
+  },
+  "changeAssessment": {
+    "optionalObservationChanged": false,
+    "importCapabilityTypesChanged": false,
+    "qualityDispositionChanged": false
+  },
+  "reviewBoundary": {
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "acceptanceEffect": "none"
+  }
+}

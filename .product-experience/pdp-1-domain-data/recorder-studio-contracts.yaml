@@ -254,6 +254,87 @@ canonicalOperationProposals:
       resultVariants: [APPLIED, CONFLICT, DENIED, OUTCOME_UNKNOWN]
       invariant: single-media-project-cas-and-lock-preservation
       negativeCases: [wrong-tenant, stale-source-or-revision, unadmitted-provider, revoked-rights, wrong-actor, unknown-outcome-must-reconcile]
+      revisionSemanticsRef: .product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics/projectRevision
+      resultContract:
+        status: SOURCE_AUTHORED_DEFINITION_ONLY
+        schemaVersion: media.recorder.edit-commit-result.v1
+        resultSchema:
+          type: object
+          $defs:
+            projectRevisionRef:
+              type: object
+              additionalProperties: false
+              required: [objectType, identity]
+              properties:
+                objectType: {const: media.domain.project-revision}
+                identity:
+                  type: object
+                  additionalProperties: false
+                  required: [tenantId, projectId, revisionId]
+                  properties:
+                    tenantId: {type: string, minLength: 1}
+                    projectId: {type: string, minLength: 1}
+                    revisionId: {type: string, minLength: 1}
+          oneOf:
+            - type: object
+              additionalProperties: false
+              required: [outcome, tenantId, projectId, expectedRevisionId, successorRevisionRef, editOperationIds, idempotencyKey, requestFingerprint, receiptRef]
+              properties:
+                outcome: {const: APPLIED}
+                tenantId: {type: string, minLength: 1}
+                projectId: {type: string, minLength: 1}
+                expectedRevisionId: {type: string, minLength: 1}
+                successorRevisionRef: {$ref: '#/$defs/projectRevisionRef'}
+                editOperationIds: {type: array, minItems: 1, uniqueItems: true, items: {type: string, minLength: 1}}
+                idempotencyKey: {type: string, minLength: 1}
+                requestFingerprint: {type: string, minLength: 1}
+                receiptRef: {type: string, minLength: 1}
+            - type: object
+              additionalProperties: false
+              required: [outcome, tenantId, projectId, expectedRevisionId, disclosure, idempotencyKey, requestFingerprint]
+              properties:
+                outcome: {const: CONFLICT}
+                tenantId: {type: string, minLength: 1}
+                projectId: {type: string, minLength: 1}
+                expectedRevisionId: {type: string, minLength: 1}
+                disclosure: {enum: [AUTHORIZED, WITHHELD]}
+                currentHeadRevisionRef: {$ref: '#/$defs/projectRevisionRef'}
+                idempotencyKey: {type: string, minLength: 1}
+                requestFingerprint: {type: string, minLength: 1}
+              allOf:
+                - if: {properties: {disclosure: {const: AUTHORIZED}}, required: [disclosure]}
+                  then: {required: [currentHeadRevisionRef]}
+                - if: {properties: {disclosure: {const: WITHHELD}}, required: [disclosure]}
+                  then: {not: {required: [currentHeadRevisionRef]}}
+            - type: object
+              additionalProperties: false
+              required: [outcome, tenantId, projectId, expectedRevisionId, reasonCode, idempotencyKey, requestFingerprint]
+              properties:
+                outcome: {const: DENIED}
+                tenantId: {type: string, minLength: 1}
+                projectId: {type: string, minLength: 1}
+                expectedRevisionId: {type: string, minLength: 1}
+                reasonCode: {type: string, minLength: 1, maxLength: 128}
+                idempotencyKey: {type: string, minLength: 1}
+                requestFingerprint: {type: string, minLength: 1}
+            - type: object
+              additionalProperties: false
+              required: [outcome, tenantId, projectId, expectedRevisionId, idempotencyKey, requestFingerprint, reconciliationRef]
+              properties:
+                outcome: {const: OUTCOME_UNKNOWN}
+                tenantId: {type: string, minLength: 1}
+                projectId: {type: string, minLength: 1}
+                expectedRevisionId: {type: string, minLength: 1}
+                idempotencyKey: {type: string, minLength: 1}
+                requestFingerprint: {type: string, minLength: 1}
+                reconciliationRef: {type: string, minLength: 1}
+        successRule: exactly-one-successor-revision-for-exact-expectedRevisionId; receipt-echoes-the-accepted-request; no-second-effect-on-duplicate
+        conflictRule: atomically-compare-expectedRevisionId-to-current-head; no-project-write-no-automatic-merge-no-overwrite; current-head-reference-only-when-disclosure-is-authorized
+        conflictHeadInvariant: when-disclosed-currentHeadRevisionRef-tenantId-and-projectId-equal-result-scope-and-revisionId-differs-from-expectedRevisionId
+        disclosureRule: AUTHORIZED-means-the-server-governing-policy-authorizes-current-head-disclosure; caller-authorization-alone-is-insufficient
+        idempotencyRule: key-scope-is-trusted-tenant-principal-and-canonical-operation; server-fingerprint-covers-complete-validated-request-and-edit-payload; same-key-same-fingerprint-returns-original-receipt-without-effect; same-key-different-fingerprint-is-rejected
+        unknownRule: OUTCOME_UNKNOWN-is-neither-success-nor-failure; reconcile-the-exact-same-request-using-same-tenant-principal-operation-key-and-fingerprint-before-retry; no-new-key-or-resubmission-until-authoritative-readback-resolves-outcome
+        recoveryRule: after-CONFLICT-reread-exact-current-head-present-diff-and-require-a-new-explicit-command-with-new-idempotency-identity
       runtimeStatus: NOT_ADMITTED
       authoritySource: .product-experience/pdp-1-domain-data/operations.yaml
     - id: media.recorder.operation.scene.recapture.v1

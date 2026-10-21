@@ -24,6 +24,26 @@ test('current PDP-1 semantic review pins the exact full denominator and delegate
   for (const [population, count] of Object.entries(census.reviewDenominators)) {
     assert.equal(review.reviewedPopulationIds[population].length, count, `${population} covers its exact current denominator`);
   }
+  assert.equal(census.sourceRecordCount.p0CapabilityCount, 469);
+  assert.equal(census.sourceRecordCount.capabilityOperationRecordCount, 462);
+  assert.equal(census.sourceRecordCount.definitionExtensionOperationMappingCount, 7);
+  assert.equal(census.reviewDenominators.capabilityOperations, 462,
+    'the 462 owner-adjudicated capability operation contracts keep their own denominator');
+  assert.equal(census.reviewDenominators.definitionExtensionOperationMappings, 7,
+    'the seven PXD-207 mappings are a separate source population');
+  assert.equal(census.identityIds.length, 2040);
+  const expectedExtensions = [
+    'media.generate.video.preset.manage', 'media.generate.video.shot-condition',
+    'media.job.schedule.manage', 'media.master.audio.creative-effect.apply',
+    'media.project.scene.patch-merge', 'media.quality.audio.content-similarity.assess',
+    'media.recipe.specification.compile',
+  ].map(id => `definitionExtensionOperationMappings:media.definition-extension-operation.${id.replaceAll('.', '-')}`);
+  assert.deepEqual(review.reviewedPopulationIds.definitionExtensionOperationMappings, expectedExtensions.sort());
+  assert.equal(review.reviewDenominators.definitionExtensionOperationMappings, 7);
+  assert.equal(review.currentCutReview.sourceIdentityCount, 2040);
+  assert.equal(review.currentCutReview.reviewedPopulationCount, 25);
+  assert.equal(review.sourceIdentityCount, 2040);
+  assert.equal(review.reviewedPopulationCount, 25);
   assert.deepEqual(review.outstandingMeaningIds, []);
   assert.ok(Object.hasOwn(sourceFingerprints, '.product-experience/decision-log.md'),
     'the accepted route-owner contract and related P1 decisions are included in the review source cut');
@@ -38,6 +58,23 @@ test('current PDP-1 semantic review pins the exact full denominator and delegate
   assert.equal(review.currentCutReview?.currentOperationsSourceReinspection?.currentSourceReviewArtifactSha256,
     crypto.createHash('sha256').update(fs.readFileSync('.product-experience/pdp-1-domain-data/operations-current-source-review.json')).digest('hex'),
     'the current reinspection binds its exact source-review artifact');
+  const j05Visual = review.supplementaryReviews.find(item => item.id === 'PDP1-J05-VISUAL-SOURCE-SCOPED-OBSERVATIONS-2026-10-19');
+  assert.ok(j05Visual, 'the current review includes its bounded J05 visual source reinspection');
+  assert.equal(j05Visual.operationId, 'media.operation.vision-analysis');
+  assert.equal(j05Visual.sourceSha256, sourceFingerprints['.product-experience/pdp-1-domain-data/operations.yaml']);
+  assert.ok(j05Visual.sourceSelectors.includes('.product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.vision-analysis/context'));
+  assert.ok(j05Visual.sourceSelectors.includes('.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty'));
+  assert.equal(j05Visual.p0VisionCapabilityIds.length, 20);
+  assert.equal(j05Visual.verification.command, 'node --test tests/pdp1-vision-source-scoped-observation-contract.test.mjs');
+  assert.equal(j05Visual.verification.status, 'PASS');
+  assert.equal(j05Visual.verification.passed, 8);
+  assert.equal(j05Visual.verification.total, 8);
+  assert.equal(j05Visual.runtimeAdmission, 'NOT_ADMITTED');
+  assert.equal(j05Visual.transportMapping, 'NOT_ESTABLISHED');
+  assert.equal(j05Visual.ownerAcceptance, 'NOT_CLAIMED');
+  assert.equal(j05Visual.independentSpecialistAcceptance, 'NOT_CLAIMED');
+  assert.match(j05Visual.meaning, /legacy opaque timeRange is never converted/u);
+  assert.match(j05Visual.boundary, /multimodal-analysis operation and legacy RPC mappings remain unresolved/u);
   const pxd164Impact = JSON.parse(fs.readFileSync('docs/implementation/observations/media-discovery-pdp1-pxd164-semantic-repair-impact-2026-10-14-r1.json', 'utf8'));
   const historicalReview = review.sourceCutHistory?.find(item => item.id === 'PDP1_SOURCE_REVIEW_CUT_PRE_2026_10_18');
   assert.ok(historicalReview, 'the predecessor source review remains preserved as history');
@@ -174,6 +211,7 @@ test('P1-03 preserves all test cases in all three groups', () => {
   ]) assert.ok(boundedArgs.includes(path.resolve(file)), `${file} is enforced by the P1-03 gate`);
   assert.ok(mappingArgs.includes(path.resolve('tests/pdp1-capability-intent-operation-mapping.test.mjs')));
   for (const file of [
+    'tests/pdp1-vision-source-scoped-observation-contract.test.mjs',
     'tests/pdp1-artifact-upload-result-schema.test.mjs',
     'tests/pdp1-artifact-wire-byte-ceilings.test.mjs',
     'tests/pdp1-job-submit-typed-input-mapping.test.mjs',
@@ -211,8 +249,8 @@ test('PDP-1 current identity census matches the normative owner registry denomin
   assert.equal(census.sourceRecordCount.actionWireContracts, 79);
   assert.equal(census.sourceRecordCount.capabilityOperations, 462);
   assert.equal(census.sourceRecordCount.capabilityBounds, 462);
-  assert.equal(census.sourceRecordCount.capabilityInputPayloadSchemas, 129);
-  assert.equal(census.sourceRecordCount.capabilityOutputPayloadSchemas, 98);
+  assert.equal(census.sourceRecordCount.capabilityInputPayloadSchemas, 131);
+  assert.equal(census.sourceRecordCount.capabilityOutputPayloadSchemas, 102);
   assert.equal(census.sourceRecordCount.capabilityOperationRecordCount, 462);
   assert.equal(census.sourceRecordCount.canonicalOperationSchemaCount, 448);
   assert.equal(census.sourceRecordCount.existingOperationBindingCount, 14);

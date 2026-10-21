@@ -2,76 +2,87 @@ TAP version 13
 # Subtest: actual PDP-0 owner applicability source closes all pairs and exact binding projections
 ok 1 - actual PDP-0 owner applicability source closes all pairs and exact binding projections
   ---
-  duration_ms: 6584.373115
+  duration_ms: 14978.437626
   type: 'test'
   ...
 # Subtest: same-count substitution, duplicates and stale binding projections are rejected
 ok 2 - same-count substitution, duplicates and stale binding projections are rejected
   ---
-  duration_ms: 1.619426
+  duration_ms: 2.144903
   type: 'test'
   ...
-1..0
-# Subtest: /home/samujjwal/Developments/ghatana-media/tests/media-operation-bounds.test.mjs
-ok 2 - /home/samujjwal/Developments/ghatana-media/tests/media-operation-bounds.test.mjs
+# Subtest: P0-02 reconciles supportedParameters with each P0 parameter schema and typed inputs
+ok 3 - P0-02 reconciles supportedParameters with each P0 parameter schema and typed inputs
   ---
-  duration_ms: 2947.217402
+  duration_ms: 22.177209
+  type: 'test'
+  ...
+# Subtest: P0 input and output meaning has no dependency on downstream operation or wire-schema bindings
+ok 4 - P0 input and output meaning has no dependency on downstream operation or wire-schema bindings
+  ---
+  duration_ms: 10.210679
   type: 'test'
   ...
 # Subtest: every declared NFR has one complete owner measurement method without implying observation or acceptance
-ok 4 - every declared NFR has one complete owner measurement method without implying observation or acceptance
+ok 5 - every declared NFR has one complete owner measurement method without implying observation or acceptance
   ---
-  duration_ms: 10862.527522
+  duration_ms: 15856.788329
   type: 'test'
   ...
 # Subtest: performance method binds all six proposed budgets while preserving unnamed environments as a gate
-ok 5 - performance method binds all six proposed budgets while preserving unnamed environments as a gate
+ok 6 - performance method binds all six proposed budgets while preserving unnamed environments as a gate
   ---
-  duration_ms: 0.504773
+  duration_ms: 0.580678
   type: 'test'
   ...
 # Subtest: missing method material and attempted qualification promotion fail validation
-ok 6 - missing method material and attempted qualification promotion fail validation
+ok 7 - missing method material and attempted qualification promotion fail validation
   ---
-  duration_ms: 1.599888
+  duration_ms: 2.09276
   type: 'test'
   ...
 # Subtest: SLO and human/specialist methods remain gated on their real external evidence
-ok 7 - SLO and human/specialist methods remain gated on their real external evidence
+ok 8 - SLO and human/specialist methods remain gated on their real external evidence
   ---
-  duration_ms: 0.154219
+  duration_ms: 0.309501
   type: 'test'
   ...
 # Subtest: trustworthy-output applicability follows output-producer role and preserves incomplete candidates
-ok 8 - trustworthy-output applicability follows output-producer role and preserves incomplete candidates
+ok 9 - trustworthy-output applicability follows output-producer role and preserves incomplete candidates
   ---
-  duration_ms: 3700.628768
+  duration_ms: 9078.920865
   type: 'test'
   ...
 # Subtest: P0 model acquisition and reuse policy separates package licenses from model and asset terms
-ok 9 - P0 model acquisition and reuse policy separates package licenses from model and asset terms
+ok 10 - P0 model acquisition and reuse policy separates package licenses from model and asset terms
   ---
-  duration_ms: 106.412907
+  duration_ms: 191.087298
   type: 'test'
   ...
 # Subtest: P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
-ok 10 - P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
+ok 11 - P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
   ---
-  duration_ms: 476.920608
+  duration_ms: 752.942646
+  type: 'test'
+  ...
+# Subtest: P0 bounded asset search retains page and continuation limits with the rights filter
+ok 12 - P0 bounded asset search retains page and continuation limits with the rights filter
+  ---
+  duration_ms: 1.918766
   type: 'test'
   ...
 # Subtest: P0 bounded invocation admission distinguishes inapplicable resources from unknown or unbounded ones
-ok 11 - P0 bounded invocation admission distinguishes inapplicable resources from unknown or unbounded ones
+ok 13 - P0 bounded invocation admission distinguishes inapplicable resources from unknown or unbounded ones
   ---
-  duration_ms: 294.41619
+  duration_ms: 427.205129
   type: 'test'
   ...
-1..11
-# tests 11
+1..13
+# tests 13
 # suites 0
-# pass 11
+# pass 13
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 11080.376323
+# duration_ms 16077.58174

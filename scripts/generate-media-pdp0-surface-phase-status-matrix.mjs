@@ -15,7 +15,6 @@ const sourcePaths = [
   '.product-experience/pdp-0-product-truth/applications-channels.yaml',
   '.product-experience/pdp-0-product-truth/capabilities.yaml',
   '.product-experience/pdp-0-product-truth/campaign-extensions.yaml',
-  '.product-experience/decision-log.md',
   statusPath,
 ];
 const digest = (value) => createHash('sha256').update(value).digest('hex');
@@ -34,9 +33,15 @@ for (const cell of projection.records) {
   if (!cellBySurface.has(cell.surfaceId)) cellBySurface.set(cell.surfaceId, []);
   cellBySurface.get(cell.surfaceId).push(cell);
 }
-const sourceFingerprints = Object.fromEntries(sourcePaths.map((sourcePath) => [sourcePath, sha256(sourcePath)]));
-const sourceFingerprintSetSha256 = digest(JSON.stringify(Object.entries(sourceFingerprints).sort(([a], [b]) => a.localeCompare(b))));
 const projectedPins = pdp0PhaseScopedSourcePins();
+const decisionRef = authority.applications.coordinatorDefinitionExtensionApplicability.decisionRef;
+const decisionId = decisionRef.match(/#(PXD-\d{3})$/)?.[1];
+if (!decisionId) throw new Error('PDP-0 extension applicability must bind one exact PXD decision section.');
+const decisionSectionPin = `.product-experience/decision-log.md#${decisionId}-section`;
+if (!projectedPins[decisionSectionPin]) throw new Error(`Missing current PDP-0 section pin for ${decisionRef}.`);
+const sourceFingerprints = Object.fromEntries(sourcePaths.map((sourcePath) => [sourcePath, sha256(sourcePath)]));
+sourceFingerprints[decisionSectionPin] = projectedPins[decisionSectionPin];
+const sourceFingerprintSetSha256 = digest(JSON.stringify(Object.entries(sourceFingerprints).sort(([a], [b]) => a.localeCompare(b))));
 const staleSourcePins = Object.entries(status.sourceShaSet ?? {}).flatMap(([sourceRef, expectedSha256]) => {
   const projectionPin = sourceRef.includes('#');
   const currentSha256 = projectionPin
@@ -165,19 +170,21 @@ for (const row of matrix.surfaces) {
     ...featureRows,
   ];
   row.sourceRefs = [...new Set([
-    ...row.sourceRefs,
+    ...(row.sourceRefs ?? []).filter((sourceRef) => sourceRef !== '.product-experience/decision-log.md'),
     '.product-experience/pdp-0-product-truth/applications-channels.yaml',
     '.product-experience/pdp-0-product-truth/campaign-extensions.yaml',
     '.product-experience/pdp-0-product-truth/capabilities.yaml',
     authority.applications.coordinatorDefinitionExtensionApplicability.decisionRef,
     ...featureRows.map((item) => item.sourceRef),
   ])].sort();
+  const priorRowSourceFingerprints = {...(row.sourceFingerprints ?? {})};
+  delete priorRowSourceFingerprints['.product-experience/decision-log.md'];
   row.sourceFingerprints = {
-    ...row.sourceFingerprints,
+    ...priorRowSourceFingerprints,
     '.product-experience/pdp-0-product-truth/applications-channels.yaml': sourceFingerprints['.product-experience/pdp-0-product-truth/applications-channels.yaml'],
     '.product-experience/pdp-0-product-truth/campaign-extensions.yaml': sourceFingerprints['.product-experience/pdp-0-product-truth/campaign-extensions.yaml'],
     '.product-experience/pdp-0-product-truth/capabilities.yaml': sourceFingerprints['.product-experience/pdp-0-product-truth/capabilities.yaml'],
-    '.product-experience/decision-log.md': sourceFingerprints['.product-experience/decision-log.md'],
+    [decisionSectionPin]: sourceFingerprints[decisionSectionPin],
   };
   row.sourceCurrent = phaseSourceCurrentness.status === 'CURRENT';
   row.sourceCurrentBasis = phaseSourceCurrentness.status === 'CURRENT'

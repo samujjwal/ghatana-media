@@ -271,12 +271,54 @@ steps:
         success:
           status: SOURCE_BOUND_SUBMISSION_RECEIPT_ONLY
           sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema
-          disposition: Request identity receipt only; a separate exact typed output observation is required for journey completion.
+          disposition: The exact action/capability/wrapper chain returns a request receipt only. It does not assert QUEUED, execution, capability completion or output availability; a later exact typed output observation is required.
         failure:
           status: SOURCE_BOUND_CONDITION_DISPOSITIONS_WITH_PUBLIC_API_ADMISSION_GAP
           sourceRef: journey.criticalNonhappyPaths
-          branchRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0/failure/branches
-        degradedBehavior: null
+          operationErrorRefs:
+            - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/errors
+            - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/errors
+          branches:
+            - id: privacy-denial
+              condition: Privacy denial
+              sourceOutcome: RIGHTS_OR_CONSENT_DENIED; RIGHTS_NOT_VERIFIED; CONSENT_NOT_CURRENT
+              sourceRefs:
+                - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/errors
+                - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/errors
+              disposition: Preserve the exact owner-reported denial; no request or output success is inferred.
+            - id: unqualified-fallback
+              condition: Unqualified fallback
+              sourceOutcome: PROFILE_NOT_QUALIFIED_OR_UNSUPPORTED_PROFILE
+              sourceRefs:
+                - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/errors
+                - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/errors
+              disposition: Preserve the exact profile error and do not substitute an unqualified capability or fallback.
+            - id: cancellation-boundary
+              condition: Cancellation boundary
+              sourceOutcome: UNKNOWN_OUTCOME_WHEN_DISPATCH_FINALITY_IS_AMBIGUOUS
+              sourceRefs:
+                - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/errors
+                - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/errors
+              disposition: This submission step does not request cancellation. If dispatch finality is ambiguous, reconcile the same request identity; do not infer cancellation, completion or retry eligibility.
+            - id: missing-public-api
+              condition: Missing public API
+              sourceOutcome: NOT_ADMITTED_NO_DISPATCH
+              sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/admission/executionAdmission
+              disposition: Runtime and transport remain NOT_ADMITTED/UNBOUND; do not dispatch.
+              sourceGap: P1 defines no distinct MISSING_PUBLIC_API operation error. This is an admission blocker, not a synthesized operation result.
+            - id: generic-document-request
+              condition: Generic document request routed as video OCR by MIME alone
+              sourceOutcome: INVALID_REQUEST_OR_UNSUPPORTED_PROFILE; NO_MEDIA_FALLBACK
+              sourceRefs:
+                - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-06/handoffCondition
+                - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/errors
+              disposition: Do not route a generic document request through the Media multimodal capability; hand off only under the declared future public contract.
+          recovery:
+            status: SOURCE_BOUND_SAME_IDENTITY_UNKNOWN_RECONCILIATION
+            sourceRefs:
+              - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/recovery
+              - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/resultObservationSemantics
+            disposition: Preserve exact request identity; reconcile ambiguous effects before retry; never infer QUEUED, execution, completion or output from receipt.
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -333,7 +375,7 @@ steps:
         object/state/authority/transition/requirement identities, external
         review and lifecycle evidence remain separate.
       fixtureOracle:
-        status: SOURCE_BOUND_BRANCH_ORACLE; FIXTURES_NOT_EXECUTED
+        status: NO_STEP_SCENARIO_BOUND
         sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
         journeyRef: J-06
         scenarioRefs: []

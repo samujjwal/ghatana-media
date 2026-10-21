@@ -113,6 +113,8 @@ export function assertOperationStateProofs(edge, { operationsById, purposeById, 
     const exactVersionRef = `${operationSourceRef}/contractVersion`;
     const exactSourceFinalityRef = `${operationSourceRef}/sourceFinality`;
     const profileSourceRef = `.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=${operation.profileRef}`;
+    const exactResultSchemaMaterialRef = typeof operation.resultSchemaRef === "string" && operation.resultSchemaRef.startsWith(".")
+      ? operation.resultSchemaRef : `${profileSourceRef}/resultEnvelope`;
     const exactProfileRefs = [
       `${profileSourceRef}/requestEnvelope`,
       `${profileSourceRef}/resultEnvelope`,
@@ -123,6 +125,7 @@ export function assertOperationStateProofs(edge, { operationsById, purposeById, 
     if (edge.p1OperationBindings.find((binding) => binding.operationRef === operationRef)?.sourceRef !== operationSourceRef
       || !noState.sourceRefs.includes(operationSourceRef)
       || !noState.sourceRefs.includes(exactResultSchemaSourceRef)
+      || !noState.sourceRefs.includes(exactResultSchemaMaterialRef)
       || exactProfileRefs.some((ref) => !noState.sourceRefs.includes(ref))) {
       throw new Error(`${edge.id} no-state proof must cite the exact owner operation contract`);
     }

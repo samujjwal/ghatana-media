@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "media.pdp0.quality-currentness-successor.v1",
+  "artifactId": "P0-QUALITY-CURRENT-SOURCE-REVIEW-PXD212",
+  "latestCurrentnessRefresh": {
+    "status": "CURRENT_SOURCE_SEMANTIC_JOIN_REVIEW",
+    "phaseScope": "PDP-0",
+    "decisionRef": ".product-experience/decision-log.md#PXD-212",
+    "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+    "currentSourceSha256": "a0e94ab197a76d1de2ecb9ddcbb92869644b16b603e1813eca5f091979ef8cf8",
+    "sourceFingerprints": {
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "a0e94ab197a76d1de2ecb9ddcbb92869644b16b603e1813eca5f091979ef8cf8",
+      ".product-experience/pdp-0-product-truth/quality-policy.yaml": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "ddb3f77e178ba6af2a6263f72ba4b6c489987fba2de37dff12629647ae6be2ad",
+      ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      ".product-experience/source-manifest.yaml#PDP-0-projection": "2806c4d8a56a98f2a4840b7e83681548fd7f716506c0184d5bf212c2a345cfde",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "0079a1bcbd915e503cd2690645ff7c16dbd023a9ef7ed828e8a55c2e5d9c0a27",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json": "957891ae0ea39c1161f6ea344d17ba5489ee373be80d941434bcc2038e680730",
+      ".product-experience/decision-log.md#PXD-211-section": "b1e0e32ae20914152547c20f0fbe8b020070c77f3fd78572e1965753f943c4cf",
+      ".product-experience/decision-log.md#PXD-212-section": "fca7ed3effb20c88040258763bbdb0b7be7a33314c8699097d400fe9bc95429b",
+      "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd212.json": "a1175c3990fc37c8a322f2411c3b1515204cd3aebe5ec2126503536e76761913"
+    },
+    "reviewedPopulation": {
+      "canonicalCapabilityRows": 462,
+      "capabilityRows": 462,
+      "qualityDimensions": 6,
+      "metricDefinitions": 16,
+      "dimensionDispositions": 2772,
+      "metricDispositions": 7392,
+      "definitionExtensionsExcluded": 7,
+      "measurementState": "NOT_EVALUATED",
+      "qualificationState": "NOT_EVALUATED"
+    },
+    "semanticReview": "PERFORMED_EXACT_TYPE_JOIN_REVIEW",
+    "changedTypeJoins": [
+      {
+        "capabilityId": "media.edit.inpaint",
+        "capabilityOutputTypesRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.inpaint/outputArtifactTypes",
+        "qualityOutputTypesRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/records/@capabilityRef=media.edit.inpaint/outputArtifactTypes",
+        "capabilityOutputTypesSha256": "17fa687573b08b31566d5d9aaf30f76c80c2e93acb845c2ec5fa79f304a25fb7",
+        "qualityOutputTypesSha256": "17fa687573b08b31566d5d9aaf30f76c80c2e93acb845c2ec5fa79f304a25fb7",
+        "reviewStatus": "SEMANTIC_JOIN_REVIEWED",
+        "typeJoinStatus": "MATCHED_CURRENT_SOURCE",
+        "trustDispositionRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@capabilityRef=media.edit.inpaint",
+        "trustDispositionSha256": "0e204d5472e71c017716c3e0b197c6811f66a8d18a79615f1f1eb4533882db1d",
+        "goalApplicabilityRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#successMeasureContracts/ownerCapabilityApplicabilityCrosswalk/records/@capabilityIntentId=media.edit.inpaint",
+        "goalApplicabilitySha256": "f5e5819ef75cb47b3298e11f75189144cf8de25ca0f9e87693618b450ebd6197"
+      },
+      {
+        "capabilityId": "media.edit.matte",
+        "capabilityOutputTypesRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.matte/outputArtifactTypes",
+        "qualityOutputTypesRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/records/@capabilityRef=media.edit.matte/outputArtifactTypes",
+        "capabilityOutputTypesSha256": "aa960b8fde0cee279d7728eeb89c38d4e12112a6a947cc9e6ffe57d73bcfc3f8",
+        "qualityOutputTypesSha256": "aa960b8fde0cee279d7728eeb89c38d4e12112a6a947cc9e6ffe57d73bcfc3f8",
+        "reviewStatus": "SEMANTIC_JOIN_REVIEWED",
+        "typeJoinStatus": "MATCHED_CURRENT_SOURCE",
+        "trustDispositionRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@capabilityRef=media.edit.matte",
+        "trustDispositionSha256": "8da39d65e9e7875ed0141c884fb208f74a80cf1a66601f93fecb9c4ea082bb39",
+        "goalApplicabilityRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#successMeasureContracts/ownerCapabilityApplicabilityCrosswalk/records/@capabilityIntentId=media.edit.matte",
+        "goalApplicabilitySha256": "0f309e7357889b4a2495ef6a692830fb80dedcddcfa66c53ca73fecdd44b252d"
+      },
+      {
+        "capabilityId": "media.edit.retime-slow-motion-speed-ramp",
+        "capabilityOutputTypesRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.edit.retime-slow-motion-speed-ramp/outputArtifactTypes",
+        "qualityOutputTypesRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk/records/@capabilityRef=media.edit.retime-slow-motion-speed-ramp/outputArtifactTypes",
+        "capabilityOutputTypesSha256": "950365b82e454d2e8205fc6556cf66c70bf91b80b56b763c8956e0c20230d081",
+        "qualityOutputTypesSha256": "950365b82e454d2e8205fc6556cf66c70bf91b80b56b763c8956e0c20230d081",
+        "reviewStatus": "SEMANTIC_JOIN_REVIEWED",
+        "typeJoinStatus": "MATCHED_CURRENT_SOURCE",
+        "trustDispositionRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@capabilityRef=media.edit.retime-slow-motion-speed-ramp",
+        "trustDispositionSha256": "95bd1d335de15efa5b8ed61e1b6b1a903563449c5f9320307ebe5bbc2638aa11",
+        "goalApplicabilityRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#successMeasureContracts/ownerCapabilityApplicabilityCrosswalk/records/@capabilityIntentId=media.edit.retime-slow-motion-speed-ramp",
+        "goalApplicabilitySha256": "d4231a61e930db6e14d4cfc4b30729bb9ab73f46d021bdf2d9e4543414a60740"
+      }
+    ],
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "acceptanceEffect": "none",
+    "reviewArtifactRef": "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd212.json",
+    "reviewArtifactSha256": "a1175c3990fc37c8a322f2411c3b1515204cd3aebe5ec2126503536e76761913"
+  }
+}

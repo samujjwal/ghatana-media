@@ -12,6 +12,7 @@ const p1Path = ".product-experience/pdp-1-domain-data/operations.yaml";
 const p3Path = ".product-experience/pdp-3-product-experience";
 const p1 = readYaml(p1Path);
 const actions = readYaml(`${p3Path}/action-registry.yaml`);
+const stepOracles = readYaml(`${p3Path}/step-definition-oracles.yaml`);
 const cases = [
   { file: "transcribe-and-correct-captions.yaml", stepId: "J03-2", binding: "media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-2", action: "media.action.request-transcription", operation: "media.operation.transcription-submission" },
   { file: "transcribe-and-correct-captions.yaml", stepId: "J03-5", binding: "media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-5", action: "media.action.correct-caption", operation: "media.operation.caption-draft-write" },
@@ -58,7 +59,7 @@ for (const item of cases) {
     assert.deepEqual(semantics.canonicalBindings.authorityRefs, binding.authorityRefs);
     assert.deepEqual(semantics.canonicalBindings.objectRefs, binding.domainObjectRefs);
     assert.deepEqual(semantics.canonicalBindings.stateRefs, []);
-    assert.equal(semantics.transitionApplicability.status, "NO_P1_MACHINE_TRANSITION");
+    assert.match(semantics.transitionApplicability.status, /NO_P1_MACHINE_TRANSITION/u);
     assert.equal(semantics.transitionApplicability.transitionRef, null);
     assert.equal(semantics.action.runtimeAdmission, "NOT_ADMITTED");
     assert.match(semantics.verification.status, /SOURCE_LINKAGE_CHECKED_BY_LOCAL_REGRESSION/u);
@@ -104,8 +105,8 @@ test("J03-5 through J03-7 preserve session-local and registration boundaries", (
   assert.match(timing.stepSourceFacts.failure.proposal, /CAPTION_TIMING_INVALID/u);
   assert.match(timing.stepSourceFacts.success.proposal, /half-open tick range/u);
   for (const semantics of [text, timing]) {
-    assert.match(semantics.stepSourceFacts.recovery.proposal, /inspect the same active-session draft|inspect the same draftId and current draftRevision/iu);
-    assert.match(semantics.stepSourceFacts.recovery.proposal, /never blindly reapply|never silently overwrite/iu);
+    assert.match(semantics.stepSourceFacts.recovery.proposal, /inspect the same active-session draft|inspect the same draftId and current draftRevision|Reinspect the same draft and exact source clock/iu);
+    assert.match(semantics.stepSourceFacts.recovery.proposal, /never blindly reapply|never silently overwrite|explicit user-entered replacement values|never estimate/iu);
     assert.ok(semantics.verification.sourceRefs.includes(`${p1Path}#operations/@id=media.operation.caption-draft-write/idempotency`));
   }
   assert.match(save.stepSourceFacts.success.proposal, /captionVersionId/u);
@@ -118,11 +119,18 @@ test("J16-03 and J18-04 remain draft-only with no journey render or delivery out
   for (const [file, journeyRef, ordinal] of [["translate-and-dub-existing-video.yaml", "J-16", 3], ["compose-and-render-reviewed-media.yaml", "J-18", 4]]) {
     const journey = readYaml(`${p3Path}/journey-contracts/${file}`);
     const semantics = journey.steps.find((candidate) => candidate.stepDefinitionSemantics?.journeyRef === journeyRef && candidate.stepDefinitionSemantics?.ordinal === ordinal).stepDefinitionSemantics;
+    const oracle = stepOracles.journeys.find((candidate) => candidate.journeyId === journeyRef).steps.find((candidate) => candidate.id === `${journeyRef}.step-${String(ordinal).padStart(2, "0")}`);
     const branchText = JSON.stringify({ success: semantics.stepSourceFacts.success, failure: semantics.stepSourceFacts.failure, recovery: semantics.stepSourceFacts.recovery, outcome: semantics.stepOutcomeSemantics });
     assert.match(branchText, /session-local/u);
     assert.equal("laterJourneyOutcomeRef" in semantics.stepSourceFacts.success, false);
     assert.doesNotMatch(branchText, /terminalSuccess|Versioned composition renders|delivered only/u);
-    assert.match(semantics.fixtureOracle.status, /SERIALIZED_ORACLE_RECONCILIATION_PENDING/u);
+    assert.equal(semantics.fixtureOracle.status, "NO_STEP_SCENARIO_BOUND");
     assert.deepEqual(semantics.fixtureOracle.scenarioRefs, []);
+    assert.deepEqual(semantics.fixtureOracle.scenarios, []);
+    assert.equal(oracle.canonicalBindings.actionRef, semantics.action.actionRef);
+    assert.deepEqual(oracle.canonicalBindings.operationRefs, [semantics.canonicalBindings.canonicalOperationRef]);
+    assert.deepEqual(oracle.canonicalBindings.domainObjectRefs, semantics.canonicalBindings.objectRefs);
+    assert.deepEqual(oracle.canonicalBindings.requirementRefs, semantics.canonicalBindings.requirementRefs);
+    assert.equal(oracle.sourceFacts.sourceRef, semantics.sourceRef);
   }
 });

@@ -49,6 +49,24 @@ function pairKey(edge) {
   return `${edge.journeyRef}\u0000${edge.channelRef}`;
 }
 
+function purposeRefResolves(ref, purposeById) {
+  const selectors = (ref.split("#")[1] ?? "").split(/[&#]/)[0].split("/").filter(Boolean);
+  const rootSelectorIndex = selectors.findIndex((selector) => selector.startsWith("@id="));
+  if (rootSelectorIndex < 0) return false;
+  let value = purposeById.get(selectors[rootSelectorIndex].slice(4));
+  if (!value) return false;
+  for (const selector of selectors.slice(rootSelectorIndex + 1)) {
+    if (selector.startsWith("@id=")) {
+      const childId = selector.slice(4);
+      value = Array.isArray(value) ? value.find((item) => item.id === childId) : undefined;
+    } else {
+      value = value?.[selector];
+    }
+    if (value === undefined) return false;
+  }
+  return true;
+}
+
 function assertValid(document, sources) {
   const { packet, operations, states, api, sdk, productionCli, fixtureCli, journeyPurpose, scenarioFixtures } = sources;
   const intended = packet.journeyChannelTasks.flatMap((task) =>
@@ -131,7 +149,7 @@ function assertValid(document, sources) {
     assert.equal(edge.consumerSurfaceId, expected.consumerSurfaceId);
     assert.equal(edge.journeyContractRef, expected.contractSource);
     assert.ok(edge.purposeBindingRefs.length > 0, `${edge.id} cites journey-purpose bindings`);
-    assert.ok(edge.purposeBindingRefs.every((ref) => purposeById.has(ref.split("@id=")[1]?.split(/[&#]/)[0])), `${edge.id} purpose refs resolve`);
+    assert.ok(edge.purposeBindingRefs.every((ref) => purposeRefResolves(ref, purposeById)), `${edge.id} purpose refs resolve`);
     assert.ok(edge.p1OperationBindings.length > 0, `${edge.id} carries its exact journey operation inventory`);
     assert.deepEqual(edge.pdp1OperationRefs, [...new Set(edge.p1OperationBindings.map((binding) => binding.operationRef))]);
     assert.ok(edge.p1OperationBindings.every((binding) => operationsById.has(binding.operationRef)), `${edge.id} uses known P1 operation identities`);
@@ -267,13 +285,13 @@ const sources = {
 test("MDC30-C channel binding registry covers the owner-approved 61-edge set without promoting proposals", () => {
   const registry = readYaml(registryPath);
   assertValid(registry, sources);
-  assert.equal(registry.status, "SOURCE_BOUND_LOGICAL_DEFINITIONS_PARTIAL; CHANNEL_TRANSPORT_EQUIVALENCE_UNBOUND; RUNTIME_NOT_ADMITTED");
+  assert.equal(registry.status, "SOURCE_BOUND_LOGICAL_DEFINITIONS_COMPLETE; CHANNEL_TRANSPORT_EQUIVALENCE_UNBOUND; RUNTIME_NOT_ADMITTED");
   assert.equal(registry.counts.sourceBoundDefinitionOnlyOperationMappings, 6);
   assert.equal(registry.counts.sourceBoundHttpOperationMappings, 6);
-  assert.equal(registry.counts.logicalDefinitionOnlyEdges, 43);
-  assert.equal(registry.counts.incompleteP1StateOrObservationEdges, 18);
-  assert.equal(registry.edges.filter((edge) => edge.logicalDefinitionDisposition === "SOURCE_BOUND_DEFINITION_ONLY").length, 43);
-  assert.equal(registry.edges.filter((edge) => edge.logicalDefinitionDisposition === "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING").length, 18);
+  assert.equal(registry.counts.logicalDefinitionOnlyEdges, 61);
+  assert.equal(registry.counts.incompleteP1StateOrObservationEdges, 0);
+  assert.equal(registry.edges.filter((edge) => edge.logicalDefinitionDisposition === "SOURCE_BOUND_DEFINITION_ONLY").length, 61);
+  assert.equal(registry.edges.filter((edge) => edge.logicalDefinitionDisposition === "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING").length, 0);
   assert.equal(registry.counts.transportEquivalenceUnboundEdges, 61);
   assert.equal(registry.adversarialFixtureCases.length, 14);
   assert.deepEqual(registry.adversarialFixtureCases.slice(-7).map((fixture) => fixture.id), [
@@ -287,33 +305,13 @@ test("MDC30-C channel binding registry covers the owner-approved 61-edge set wit
   ]);
 });
 
-test("current source gaps remain explicit after operation-result proofs are joined", () => {
+test("deferred P1 and external authorization dependencies stay explicit without blocking P3 definitions", () => {
   const registry = readYaml(registryPath);
   const incompleteEdges = registry.edges
     .filter((edge) => edge.logicalDefinitionDisposition === "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING")
     .map((edge) => edge.id)
     .sort();
-  assert.deepEqual(incompleteEdges, [
-    "media.pdp3.channel-binding.j05.grpc-api.v1",
-    "media.pdp3.channel-binding.j05.sdk.v1",
-    "media.pdp3.channel-binding.j05.web.v1",
-    "media.pdp3.channel-binding.j08.web.v1",
-    "media.pdp3.channel-binding.j10.web.v1",
-    "media.pdp3.channel-binding.j13.web.v1",
-    "media.pdp3.channel-binding.j14.product-integration.v1",
-    "media.pdp3.channel-binding.j14.web.v1",
-    "media.pdp3.channel-binding.j19.web.v1",
-    "media.pdp3.channel-binding.j20.cli.v1",
-    "media.pdp3.channel-binding.j20.web.v1",
-    "media.pdp3.channel-binding.j21.product-integration.v1",
-    "media.pdp3.channel-binding.j21.web.v1",
-    "media.pdp3.channel-binding.j26.http-api.v1",
-    "media.pdp3.channel-binding.j26.product-integration.v1",
-    "media.pdp3.channel-binding.j26.web.v1",
-    "media.pdp3.channel-binding.j28.product-integration.v1",
-    "media.pdp3.channel-binding.j28.web.v1",
-  ]);
-  const blockerFor = (edgeId) => registry.edges.find((edge) => edge.id === edgeId).logicalDefinitionBlockers.join(" ");
+  assert.deepEqual(incompleteEdges, []);
   for (const id of ["media.pdp3.channel-binding.j09.web.v1", "media.pdp3.channel-binding.j09.product-integration.v1"]) {
     const edge = registry.edges.find((item) => item.id === id);
     assert.equal(edge.logicalDefinitionDisposition, "SOURCE_BOUND_DEFINITION_ONLY");
@@ -326,10 +324,10 @@ test("current source gaps remain explicit after operation-result proofs are join
   }
   for (const id of ["media.pdp3.channel-binding.j05.web.v1", "media.pdp3.channel-binding.j05.grpc-api.v1", "media.pdp3.channel-binding.j05.sdk.v1"]) {
     const edge = registry.edges.find((item) => item.id === id);
-    assert.equal(edge.logicalDefinitionDisposition, "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING", `${id} retains terminal-output blocker`);
-    assert.match(edge.logicalDefinitionBlockers.join(" "), /frame\/region selectors, model\/provider identity, and confidence evidence unresolved/u);
+    assert.equal(edge.logicalDefinitionDisposition, "SOURCE_BOUND_DEFINITION_ONLY", `${id} binds the exact source-defined visual-analysis result`);
+    assert.ok(edge.p1ObservationRefs.includes(".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty"));
+    assert.deepEqual(edge.logicalDefinitionBlockers, []);
   }
-  assert.match(blockerFor("media.pdp3.channel-binding.j05.web.v1"), /frame\/region selectors, model\/provider identity, and confidence evidence unresolved/u);
   const j08 = readYaml(".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml");
   const j08CapabilityStep = j08.steps[1].stepDefinitionSemantics.stepSourceFacts.terminalResultObservation;
   const j08QualityObservation = j08.steps[3].stepDefinitionSemantics.stepSourceFacts.typedQualityEvidenceObservation;
@@ -343,9 +341,25 @@ test("current source gaps remain explicit after operation-result proofs are join
   assert.match(j08QualityObservation.subjectBinding, /selected successful capability output identity/u);
   assert.match(j08QualityObservation.metricSelection, /nonempty unique metricRefs/u);
   assert.match(j08QualityObservation.comparisonBoundary, /original-versus-candidate version pair or evaluation algorithm context/u);
-  assert.match(blockerFor("media.pdp3.channel-binding.j08.web.v1"), /original-versus-candidate version pair, evaluation algorithm context, and matched same-subject metric result remain unjoined/u);
-  assert.match(blockerFor("media.pdp3.channel-binding.j10.web.v1"), /per-condition state, copy, action, expected-result, and finality bindings/u);
-  assert.match(blockerFor("media.pdp3.channel-binding.j28.web.v1"), /post-render consumer receipt or conversion-report result/u);
+  assert.equal(registry.edges.find((edge) => edge.id === "media.pdp3.channel-binding.j08.web.v1").logicalDefinitionDisposition, "SOURCE_BOUND_DEFINITION_ONLY");
+  assert.deepEqual(registry.edges.find((edge) => edge.id === "media.pdp3.channel-binding.j08.web.v1").logicalDefinitionBlockers, []);
+  const j10Edge = registry.edges.find((edge) => edge.id === "media.pdp3.channel-binding.j10.web.v1");
+  assert.equal(j10Edge.logicalDefinitionDisposition, "SOURCE_BOUND_DEFINITION_ONLY");
+  assert.deepEqual(j10Edge.logicalDefinitionBlockers, []);
+  assert.deepEqual(j10Edge.deferredDependencies[0], {
+    dependencyId: "media.pdp3.deferred-dependency.j10-candidate-version-join.v1",
+    dependencyType: "P1_OWNER_CONTRACT",
+    disposition: "UNBOUND_PENDING_P1_OWNER_CONTRACT",
+    sourceRefs: [
+      ".product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-10/completion",
+      ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.candidate-video-artifact-with-execution-provenance",
+      ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1/resultSchema",
+      ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1/bindingRules",
+    ],
+    definedBehavior: "Without a source-defined same-job candidate-version join, continuity remains UNKNOWN and no assessment is transferred to another candidate.",
+    blocksPdp3Definition: false,
+    blocksJourneySuccess: true,
+  });
   for (const id of [
     "media.pdp3.channel-binding.j23.cli.v1",
     "media.pdp3.channel-binding.j23.web.v1",
@@ -365,14 +379,17 @@ test("current source gaps remain explicit after operation-result proofs are join
   }
   for (const id of ["media.pdp3.channel-binding.j20.cli.v1", "media.pdp3.channel-binding.j20.web.v1"]) {
     const edge = registry.edges.find((item) => item.id === id);
-    assert.equal(edge.logicalDefinitionDisposition, "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING");
+    assert.equal(edge.logicalDefinitionDisposition, "SOURCE_BOUND_DEFINITION_ONLY");
+    assert.deepEqual(edge.logicalDefinitionBlockers, []);
     assert.deepEqual(
       edge.unresolvedOperationRefs,
       edge.p1OperationBindings.filter((binding) => binding.disposition === "UNBOUND").map((binding) => binding.operationRef),
       `${id} retains all operations without channel mappings`,
     );
-    assert.match(edge.logicalDefinitionBlockers.join(" "), /no exact cancellation or retry transition ID\/finality is defined or joined/u);
-    assert.match(edge.logicalDefinitionBlockers.join(" "), /Retry remains conditional on current owner eligibility; UNKNOWN does not authorize replay/u);
+    assert.equal(edge.deferredDependencies[0].dependencyType, "P1_OWNER_TRANSITION_CONTRACT");
+    assert.equal(edge.deferredDependencies[0].disposition, "UNBOUND_PENDING_P1_OWNER_TRANSITION");
+    assert.equal(edge.deferredDependencies[0].blocksPdp3Definition, false);
+    assert.match(edge.deferredDependencies[0].definedBehavior, /UNKNOWN denies replay/u);
     assert.equal(edge.p1OperationStateProofs.length, 4);
     assert.deepEqual(edge.p1OperationStateProofs.map((proof) => proof.operationRef).sort(), [
       "media.operation-slice.cancel-job", "media.operation-slice.retry-job",
@@ -399,15 +416,17 @@ test("current source gaps remain explicit after operation-result proofs are join
   }
   for (const id of ["media.pdp3.channel-binding.j26.http-api.v1", "media.pdp3.channel-binding.j26.product-integration.v1", "media.pdp3.channel-binding.j26.web.v1"]) {
     const edge = registry.edges.find((item) => item.id === id);
-    assert.equal(edge.logicalDefinitionDisposition, "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING");
+    assert.equal(edge.logicalDefinitionDisposition, "SOURCE_BOUND_DEFINITION_ONLY");
     assert.equal(edge.channelTransportEquivalence, "UNBOUND");
     assert.equal(edge.runtimeAdmission, "NOT_ADMITTED");
-    assert.equal(edge.p1OperationStateProofs.length, 4);
+    assert.equal(edge.p1OperationStateProofs.length, 5);
+    assert.deepEqual(edge.logicalDefinitionBlockers, []);
+    const deleteProof = edge.p1OperationStateProofs.find((proof) => proof.operationRef === "media.operation.capability.media-artifact-delete");
+    assert.deepEqual(deleteProof.purposeBindingRefs, [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1"]);
+    assert.deepEqual(deleteProof.journeyResultBindingRefs, [".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/pdp1ResultEvidence/operationResultBindings/5"]);
     const revokeProof = edge.p1OperationStateProofs.find((proof) => proof.operationRef === "media.operation.action.revoke-authorized-consent");
     assert.deepEqual(revokeProof.purposeBindingRefs, [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-01.v1"]);
     assert.deepEqual(revokeProof.relatedActionBindingRefs, [".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-01.v1/relatedActionBindings/@id=media.pdp3.action-binding.j26-consent-revocation-request.v1"]);
-    assert.match(edge.logicalDefinitionBlockers.join(" "), /artifact-delete still lacks a J-26 action-purpose join/u);
-    assert.match(edge.logicalDefinitionBlockers.join(" "), /no terminal lifecycle transition\/finality or all-copy erasure receipt/u);
     assert.ok(edge.unresolvedOperationRefs.includes("media.operation.action.revoke-authorized-consent"));
     if (id.endsWith("j26.http-api.v1")) assert.equal(edge.exactTransportMappingCount, 1, "the existing GET route is preserved as the only exact HTTP mapping");
   }
@@ -417,9 +436,16 @@ test("current source gaps remain explicit after operation-result proofs are join
     "media.pdp3.channel-binding.j21.web.v1",
   ]);
   for (const edge of j21Edges) {
-    assert.equal(edge.logicalDefinitionDisposition, "INCOMPLETE_P1_STATE_OR_OBSERVATION_BINDING");
+    assert.equal(edge.logicalDefinitionDisposition, "SOURCE_BOUND_DEFINITION_ONLY");
+    assert.deepEqual(edge.logicalDefinitionBlockers, []);
+    assert.equal(edge.deferredDependencies[0].dependencyType, "EXTERNAL_OWNER_AUTHORIZATION");
+    assert.equal(edge.deferredDependencies[0].disposition, "BLOCKED_EXCLUDED");
+    assert.equal(edge.deferredDependencies[0].blocksPdp3Definition, false);
+    assert.equal(edge.deferredDependencies[0].blocksMutationClaim, true);
     assert.equal(edge.channelTransportEquivalence, "UNBOUND");
-    assert.match(edge.logicalDefinitionBlockers.join(" "), /approval mutation remains BLOCKED_EXCLUDED pending genuine rights-owner approval/u);
+    assert.equal(edge.deferredDependencies[0].dependencyType, "EXTERNAL_OWNER_AUTHORIZATION");
+    assert.equal(edge.deferredDependencies[0].disposition, "BLOCKED_EXCLUDED");
+    assert.match(edge.deferredDependencies[0].definedBehavior, /approval mutation is excluded/u);
     assert.equal(edge.p1OperationStateProofs.length, edge.p1OperationBindings.length);
     const rightsQuery = edge.p1OperationStateProofs.find((proof) => proof.operationRef === "media.operation.action.review-rights-approval-and-format-effects");
     assert.deepEqual(rightsQuery.journeyResultBindingRefs, [".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/pdp1ResultEvidence/operationResultBindings/1"]);

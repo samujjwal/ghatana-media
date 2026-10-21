@@ -2,58 +2,70 @@ TAP version 13
 # Subtest: P0 model acquisition and reuse policy separates package licenses from model and asset terms
 ok 1 - P0 model acquisition and reuse policy separates package licenses from model and asset terms
   ---
-  duration_ms: 91.363552
+  duration_ms: 159.968548
   type: 'test'
   ...
 # Subtest: P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
 ok 2 - P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
   ---
-  duration_ms: 386.833349
+  duration_ms: 842.104758
   type: 'test'
   ...
 1..0
 # Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-constitution-normative-completeness.test.mjs
 ok 2 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-constitution-normative-completeness.test.mjs
   ---
-  duration_ms: 1583.700288
+  duration_ms: 2778.418736
+  type: 'test'
+  ...
+# Subtest: P0 generated-audio checkpoint rights bind exact identity, license, declared purpose, and commercial scope
+ok 4 - P0 generated-audio checkpoint rights bind exact identity, license, declared purpose, and commercial scope
+  ---
+  duration_ms: 1.469758
+  type: 'test'
+  ...
+# Subtest: P0 checkpoint rights block unknown and incompatible use without asserting runtime admission
+ok 5 - P0 checkpoint rights block unknown and incompatible use without asserting runtime admission
+  ---
+  duration_ms: 0.589829
   type: 'test'
   ...
 # Subtest: P0 policy assigns one semantic authority and keeps platform mechanics separate
-ok 4 - P0 policy assigns one semantic authority and keeps platform mechanics separate
+ok 6 - P0 policy assigns one semantic authority and keeps platform mechanics separate
   ---
-  duration_ms: 1.221654
+  duration_ms: 2.015773
   type: 'test'
   ...
 # Subtest: identity, consent, rights, version and revocation checks fail closed at policy boundaries
-ok 5 - identity, consent, rights, version and revocation checks fail closed at policy boundaries
+ok 7 - identity, consent, rights, version and revocation checks fail closed at policy boundaries
   ---
-  duration_ms: 0.459817
+  duration_ms: 0.522479
   type: 'test'
   ...
 # Subtest: policy definitions do not claim runtime/provider admission or acceptance
-ok 6 - policy definitions do not claim runtime/provider admission or acceptance
+ok 8 - policy definitions do not claim runtime/provider admission or acceptance
   ---
-  duration_ms: 0.175218
+  duration_ms: 0.257516
   type: 'test'
   ...
 # Subtest: P0 input inspection, simulation, trust, and mission rules have no PDP-1 contract prerequisites
-ok 7 - P0 input inspection, simulation, trust, and mission rules have no PDP-1 contract prerequisites
+ok 9 - P0 input inspection, simulation, trust, and mission rules have no PDP-1 contract prerequisites
   ---
-  duration_ms: 2.416679
+  duration_ms: 2.820542
   type: 'test'
   ...
 # Subtest: historical migration source stays provenance and cannot become current phase acceptance
-ok 8 - historical migration source stays provenance and cannot become current phase acceptance
+ok 10 - historical migration source stays provenance and cannot become current phase acceptance
   ---
-  duration_ms: 0.310603
+  duration_ms: 0.362107
   type: 'test'
   ...
-1..8
-# tests 8
+1..10
+# tests 10
 # suites 0
-# pass 8
+# pass 10
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 6173.638114
+# duration_ms 8420.7812

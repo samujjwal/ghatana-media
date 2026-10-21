@@ -1,22 +1,24 @@
-# Ghatana Media — PDP-0 → PDP-1 → PDP-2 → PDP-3 Sequential Development Completion Plan
+> **Historical proposal / provenance record:** This dated plan is not current status, a product-definition source, or an active task queue. Use the [canonical PDP source index](../../.product-experience/README.md) for definitions and `pdp-0-phase-dev-status.json` through `pdp-3-phase-dev-status.json` in this directory for current phase status.
 
-**Status:** Implementation-ready development plan; not a phase acceptance receipt.  
+# Historical PDP-0 → PDP-1 → PDP-2 → PDP-3 Development Plan (October 9–11, 2026)
+
+**Status:** Historical planning record only; not an active plan, task queue, or phase-status authority. Use the [canonical PDP source index](../../.product-experience/README.md) and its linked source-pinned phase status records for current work.
 **Source review date:** 2026-10-09; **plan initially reconciled:** 2026-10-10; **execution ledger updated:** 2026-10-11. **Original review cut:** `bda45da41fc7b334aa8d20b7fafdea72da860d4c`. **Reconciliation baseline:** `5e138efbcef02c71e3255a57e2ee13b3179f49b5` (`main` and `origin/main` at that time).
 **Primary repo:** `samujjwal/ghatana-media`. Implement required public contract fixes in their actual owning repository only if essential for *definition correctness*.  
 **Scope:** PDP-0 Product Truth, PDP-1 Canonical Domain & Data, PDP-2 Design Language & Interfaces, PDP-3 Complete Product Experience. The Explorer is a consumer/projection, not a phase or independent project.
 
-### Live execution ledger — 2026-10-11 (all phases development-complete)
+### Historical execution ledger — 2026-10-11 (reported all phases development-complete at that cut)
 
-> **Current-state note (2026-10-12):** The ledger below records the four
+> **Historical source-cut note (2026-10-12):** The ledger below records the four
 > `DEV_COMPLETE` phase-development results. It is not an independent acceptance
 > or release result. The reviewed definition cut is `adc9aa6`; `0837fef` refreshed
 > only the four phase status records and verification logs. See the generated
-> [current status projection](./post-pdp-current-status.json), which checks the
-> exact recorded source pins and shows later working-tree differences by file.
+> [historical status projection](./post-pdp-current-status.json), which checked the
+> exact recorded source pins and showed later working-tree differences by file.
 > Post-PDP implementation, migration, external owner acceptance, Lifecycle
 > receipts, production qualification, and release authorization remain separate.
 
-This ledger records the current development-only sequence. The evaluated checkout is based on `5e138efbcef02c71e3255a57e2ee13b3179f49b5`; the local PDP-1 source cut is recorded in `pdp-1-phase-dev-status.json`. Phase status artifacts are valid only for the exact source hashes they record.
+This ledger records the development-only sequence reported at its historical cut. The evaluated checkout was based on `5e138efbcef02c71e3255a57e2ee13b3179f49b5`; the local PDP-1 source cut was recorded in `pdp-1-phase-dev-status.json`. Phase status artifacts are valid only for the exact source hashes they record.
 
 | Order | Phase | State | Exit record / next step |
 | --- | --- | --- | --- |
@@ -25,13 +27,13 @@ This ledger records the current development-only sequence. The evaluated checkou
 | 3 | PDP-2 — Design & Interfaces | `DEV_COMPLETE`, re-frozen | The source-pinned refresh passes P2-01..P2-09 (184/184 tests) with zero outstanding meaning IDs and a passing definition-only conformance check. See `docs/implementation/pdp-2-phase-dev-status.json`; the reusable handoff remains definition-only and makes no runtime-admission claim. |
 | 4 | PDP-3 — Complete Experience | `DEV_COMPLETE`, frozen | The current source-pinned gate passes P3-01..P3-10 (337/337 tests, zero skipped); all three public projections are schema-valid, pass their public validators, and are current under the strict projection check. The J-02 exact artifact/version and current-read guards have typed fixture links and negative cases. See `docs/implementation/pdp-3-phase-dev-status.json`. Terminal cross-phase and repository-wide checks remain; runtime, release and external acceptance remain separate. |
 
-All four phases are now frozen at `DEV_COMPLETE`. PDP-1 was reopened once for the material action-to-operation guard mismatch found during PDP-3 work, corrected at its owner, and re-frozen after the full 342/342 gate passed. PDP-2 then passed its exact-cut refresh (184/184) against the corrected PDP-1 status and is re-frozen. PDP-3 now passes its current source-pinned gate (337/337, zero skipped) after aligning the exact artifact/version guard, J-03 result mirror, J-26 fixture record reference and the corresponding source tests. PXD-160 defines J-29's separate same-session `MediaStreamSession` recovery observation with exact session identity, current authority/purpose, lease/fence, sequence and exhaustive frame-outcome coverage; it does not widen PXD-152's separate ProcessingJob/JobAttempt execution-reference contract. The user delegated the exact route semantics, while endpoint, transport, dispatch, replay and runtime admission remain `NOT_ADMITTED`. PDP-2's shared-token release/owner approval and independent design/accessibility review remain deferred. PXD-162 resolves the deferred J03-2 cross-reference question without reopening PDP-2. Proceed with the terminal manifest/projection, cross-phase, and repository-wide development checks; do not reopen a frozen phase without a material contract change.
+At that historical cut, the report stated all four phases were frozen at `DEV_COMPLETE`. Those statuses and counts are not current; consult the live source-pinned phase status records. The historical review reported PDP-1 corrections, PDP-2 refresh, PDP-3 checks, and deferred acceptance/runtime items. Preserve these details as provenance only; current work follows the earliest unfinished phase in the live records.
 
 > **MANDATE:** Finish **development definition**, one phase at a time. Do not run a Lifecycle closure campaign, prepare receipts, collect convergence evidence, perform release readiness, qualify GPUs/codecs/models, deploy a production Media host, or expand the general 71-task program. Do not use those deferred activities as blockers to a semantically complete phase. Continue to write and execute ordinary unit, contract, schema, UI/keyboard and negative-behavior tests needed for code quality.
 
 ## 1. Historical source-review context
 
-The October 9–10 review inspected the then-current main/commit tree, phase overviews, package scripts, readiness reporter, exact PDP-1 action and guard catalogs, PDP-2 composition grammar, PDP-3 journey registries and transition/version/source files, and prior targeted review findings. Its source cuts and phase states below are historical. The live execution ledger above supersedes them; do not treat the old readiness counts as current.
+The October 9–10 review inspected the then-current main/commit tree, phase overviews, package scripts, readiness reporter, exact PDP-1 action and guard catalogs, PDP-2 composition grammar, PDP-3 journey registries and transition/version/source files, and prior targeted review findings. Its source cuts and phase states below are historical. The dated ledger above supersedes those earlier observations; current phase status is recorded only in the linked source-pinned status files.
 
 | Source fact | Directly observed | Interpretation for this plan |
 | --- | --- | --- |
@@ -55,7 +57,7 @@ The October 10 review's published-cut counts are **verification targets, not cur
 
 The execution order is now explicit: PDP-0 is corrected and its finite development gate passes; freeze the corrected handoff; then integrate/reconcile existing PDP-1 work, finish P1-01 identities, complete the P1-02 state/guard authority audit, semantically review all 462 P1-03 mappings and 79 action-wire contracts, resolve P1-04/05 interface mappings, and close P1-06/07 and P1-08/09/10 before the P1-11 phase gate. No broad PDP-0 reconstruction or PDP-2/PDP-3 implementation starts during this sequence.
 
-### 1.2 Historical execution checkpoint (October 10, 2026; superseded by the live ledger above)
+### 1.2 Historical execution checkpoint (October 10, 2026; superseded by the dated ledger above)
 
 The shared checkout is on `main` at reconciliation baseline `5e138efbcef02c71e3255a57e2ee13b3179f49b5`; integrated PDP-1 work remains uncommitted and active. PXD-142's eight-item reopen and its 62/62 focused suite plus finite P0 gate are historical evidence for that earlier source cut. PXD-153 reopened P0 only for `media.artifact.upload.ownerDefinition.parameterSchema.properties.declaredByteLength.minimum` from 0 to 1, matching the positive `begin-upload.expectedSizeBytes` contract. The focused PXD-153 regression passed (1/1), and the final finite gate passes P0-01 through P0-08; P0 is frozen at `DEV_COMPLETE`. P0-03 records 50 passed and 10 historical skips; P0-08 passes 96/96. This is development verification only; no independent acceptance, runtime admission, or Lifecycle evidence is implied. Other P0 meaning and boundaries remain outside this reopen.
 
@@ -63,11 +65,11 @@ The same audit found separate PDP-1 mapping work: 42 direct rows with input mism
 
 The PXD-142 focused evidence of **62/62** and its P0-08 95/95 result are historical. The final finite P0 gate reports P0-01 22/22, P0-02 11/11, P0-03 PASS (50 passed, 10 historical skips), P0-04 5/5, P0-05 8/8, P0-06 10/10, P0-07 8/8, and P0-08 96/96. PXD-153 and `pdp-0-phase-dev-status.json` record the current P0 correction and frozen development handoff. The prior P1 focused evidence remains historical until rerun on the current reconciled source cut. P1-07/08/09/10 edits and their existing tests are preserved; runtime and Shared/Event Plane admission remain `NOT_ADMITTED` where recorded. The read-only P1 lane review confirms the dependency order P1-01 identities → P1-02 states/guards → P1-03 full capability mappings/action wires, followed by P1-04/05 through P1-11. The existing edits are uncommitted and require current-source revalidation before they can support a P1 completion claim.
 
-Historical execution note: PDP-1's current P1-01 through P1-11 gates pass, and its exported handoff is frozen in `pdp-1-phase-dev-status.json`. PDP-2's current P2-01 through P2-09 gates also pass, and its design/interface handoff is frozen in `pdp-2-phase-dev-status.json`. Do not reopen either phase absent a material contract change. PDP-3 is the sole active phase.
+Historical execution note: at that plan's source cut, the report said PDP-1 and PDP-2 gates passed and described PDP-3 as the sole active phase. That sequence and status are not current; use the live source-pinned phase records.
 
 **Size and change risk:** the current Git tree reports approximately 10.5 MB for `pdp-1-domain-data/operations.yaml`, 7.4 MB for `pdp-1-domain-data/transitions.yaml`, 7.9 MB for `pdp-0-product-truth/capability-leaf-review.yaml`, 6 MB for `pdp-0-product-truth/capabilities.yaml`, and 2.8 MB for `pdp-0-product-truth/migration-semantics-review.yaml`. These large normalized/proposal and derived populations are fragile if edited wholesale. Do not create a second competing source-of-truth catalog or rerun expensive global qualification for every single-record change. Use existing source-owned records and bounded selectors, with full-denominator validation once per phase.
 
-**Current status caution:** direct source criteria previously marked satisfied may need **affected-source revalidation** after the latest 174-file commit. Previously reviewed unrelated scope must remain frozen, not implicitly reopened. A reviewed, immutable source cut plus targeted changed-record semantic comparison is the basis for deciding this.
+**Historical status caution at that source cut:** direct source criteria previously marked satisfied might have needed **affected-source revalidation** after the then-latest 174-file commit. Previously reviewed unrelated scope was to remain frozen, not implicitly reopened. This note does not describe current phase status.
 
 ## 2. Non-negotiable execution and ownership rules
 
@@ -313,7 +315,7 @@ These integration tasks do not create new PDP task IDs or an extra phase. INT-01
 
 ## 10. Work allocation for the existing three agents
 
-**One phase active, three independent ownership lanes:**
+**Historical staffing plan (not current assignments):**
 
 | Active phase | Agent A | Agent B | Agent C | Integrator |
 | --- | --- | --- | --- | --- |
@@ -322,7 +324,7 @@ These integration tasks do not create new PDP task IDs or an extra phase. INT-01
 | PDP-2 | Shared tokens/typed component contracts | Templates/layouts/recipes/accessibility/responsive | API/CLI/SDK/events/Agent interface grammar and keyboard/copy tests | Whole design source consistency, no duplicate styling rules, phase lock |
 | PDP-3 | Screen contracts and UI state/anatomy | Journey-step action/transition/effect/finality | Scenarios/headless channels/renderer/contracts/examples | Whole 47/30/130 denominator and negative cases, final integration |
 
-**Conflict rules:** single author for `capability-leaf-review.yaml`, `operations.yaml`, `transitions.yaml`, `owner-action-wire-contracts.yaml`, `action-registry.yaml`, `journey-registry.yaml`, generated candidates and shared decision log at a time. Other agents provide patches by distinct source modules/IDs or review findings without simultaneous wholesale writes. The integrator handles manual merge, rerun and commit. PDP-0 through PDP-3 are frozen at `DEV_COMPLETE`; the terminal cross-phase and full-suite checks remain part of repository completion.
+**Historical conflict rules and disposition:** the October 2026 plan required one author at a time for `capability-leaf-review.yaml`, `operations.yaml`, `transitions.yaml`, `owner-action-wire-contracts.yaml`, `action-registry.yaml`, `journey-registry.yaml`, generated candidates, and the shared decision log. The plan's report that PDP-0 through PDP-3 were frozen at `DEV_COMPLETE` applies only to its recorded cut. Current phase order and status come from the live source-pinned records linked in the canonical PDP index.
 
 **No task ping-pong:** A downstream discrepancy is submitted as an *interface change request*: {phase owner, exact record IDs, violated invariant, minimal patch, affected tests}. The prior phase owner decides to fix a real semantic defect or rejects an invalid downstream assumption. Approved frozen records not impacted by that request are never re-reviewed.
 
@@ -338,4 +340,4 @@ After **each phase only** (not each tiny commit), provide:
 
 **Terminal result requested by the user:** `PDP-0 DEV_COMPLETE, PDP-1 DEV_COMPLETE, PDP-2 DEV_COMPLETE, PDP-3 DEV_COMPLETE` on `main`, with a stable single-source-of-truth model, all applicable capability/domain/design/experience semantics complete, source-current public schema checks, development test suite green, and no contradictory ownership. **Do not claim** independent certification, production readiness, Lifecycle closure, convergence or release qualification.
 
-**Current execution:** The live execution ledger above is authoritative. Historical PDP-0 and PDP-1 reopen notes, source counts, and verification results in this document describe their recorded cuts and remain context only; they do not reopen either frozen phase. PDP-2 and PDP-3 each advance only on their own current source-pinned development gate and frozen handoff. The final development outcome remains the four `DEV_COMPLETE` phase records on `main`, without external acceptance or release claims.
+**Current status authority:** the source-pinned PDP-0 through PDP-3 records linked from the [canonical PDP index](../../.product-experience/README.md) determine current phase status. The historical reopen notes, source counts, verification results, and terminal goal in this document describe their recorded cuts only; they do not report today’s phase state or schedule current work.

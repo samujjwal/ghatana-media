@@ -97,6 +97,113 @@ test("job read projections preserve the Java/OpenAPI record and fail closed on u
   assert.ok(validateMediaJobReadProjection({ job, readObservation, providerReconciliation: "PROVIDER_RECONCILED" }, wire).includes("STORED_READ_CANNOT_CLAIM_PROVIDER_RECONCILIATION"));
 });
 
+test("candidate-video successful output carries the exact artifact version joined to its producing job", () => {
+  const operations = read(".product-experience/pdp-1-domain-data/operations.yaml");
+  const schemas = operations.capabilityOperationContracts.outputPayloadSchemas;
+  const output = schemas.find(
+    ({ id }) => id === "media.typed-output.candidate-video-artifact-with-execution-provenance",
+  );
+  assert.ok(output, "canonical P1 output schema exists");
+  const { schema, resultIdentityBinding } = output;
+  assert.deepEqual(schema.properties.payload.required, ["jobId", "artifactId", "versionId"]);
+  assert.deepEqual(resultIdentityBinding.tuple, ["jobId", "artifactId", "versionId"]);
+  assert.match(resultIdentityBinding.canonicalJoin, /same-success-result.*exact-artifactId-and-versionId.*issued-jobId/u);
+  assert.match(resultIdentityBinding.attemptRule, /same-job-attempt-that-produced-this-output/u);
+  assert.match(resultIdentityBinding.unavailable, /return-unknown/u);
+  assert.match(resultIdentityBinding.unavailable, /do-not-infer-from-jobId-or-lineage/u);
+  assert.match(resultIdentityBinding.ambiguous, /return-unknown/u);
+  assert.match(resultIdentityBinding.mismatch, /attemptId/u);
+  assert.match(resultIdentityBinding.mismatch, /binding-error/u);
+  assert.match(resultIdentityBinding.mismatch, /do-not-accept-the-output/u);
+
+  const Ajv = require("ajv").default;
+  const ajv = new Ajv({ allErrors: true, strict: false });
+  ajv.addFormat("opaque-id", /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/);
+  ajv.addFormat("opaque-version-id", /^[A-Za-z0-9][A-Za-z0-9._:+-]{0,127}$/);
+  ajv.addFormat("opaque-versioned-reference", /^.{1,384}$/);
+  const validate = ajv.compile(schema);
+  const valid = { artifactType: "candidate-video-artifact-with-execution-provenance", payload: {
+    jobId: "job-7", artifactId: "video-7", versionId: "version-3", attemptId: "attempt-2",
+  } };
+  assert.equal(validate(valid), true, JSON.stringify(validate.errors));
+  for (const field of ["artifactId", "versionId"]) {
+    const missing = structuredClone(valid);
+    delete missing.payload[field];
+    assert.equal(validate(missing), false, `${field} is mandatory on successful typed output`);
+  }
+  const blankVersion = structuredClone(valid);
+  blankVersion.payload.versionId = "";
+  assert.equal(validate(blankVersion), false, "an empty version identity is not an exact version");
+
+  const sourceDerived = schemas.find(
+    ({ id }) => id === "media.typed-output.source-derived-candidate-video-with-lineage",
+  );
+  assert.ok(sourceDerived, "canonical source-derived P1 output schema exists");
+  assert.deepEqual(sourceDerived.schema.properties.payload.required, ["jobId", "artifactId", "versionId", "sourceLineage"]);
+  assert.deepEqual(sourceDerived.resultIdentityBinding.tuple, ["jobId", "artifactId", "versionId"]);
+  assert.match(sourceDerived.resultIdentityBinding.attemptRule, /same-job-attempt-that-produced-this-output/u);
+  assert.match(sourceDerived.resultIdentityBinding.sourceIdentityRule, /sourceLineage\.artifactId.*distinct.*payload-artifactId.*versionId/u);
+  assert.match(sourceDerived.resultIdentityBinding.unavailable, /do-not-infer-from-jobId-or-sourceLineage/u);
+  assert.match(sourceDerived.resultIdentityBinding.ambiguous, /return-unknown/u);
+  assert.match(sourceDerived.resultIdentityBinding.mismatch, /binding-error.*do-not-accept-the-output/u);
+  const validateSourceDerived = ajv.compile(sourceDerived.schema);
+  const generatedAndSource = { artifactType: "candidate-video-artifact-with-execution-provenance", payload: {
+    jobId: "job-8", artifactId: "generated-video-8", versionId: "generated-version-2", attemptId: "attempt-4",
+    sourceLineage: {
+      artifactId: "source-video-3", versionId: "source-version-9", sourceRef: "artifact://source-video-3/source-version-9",
+      rightsContext: { artifactType: "policy-decision-reference-or-rights-observation", payload: {
+        kind: "rights-observation", reference: "rights-observation:source-video-3/v1",
+      } },
+    },
+  } };
+  assert.equal(validateSourceDerived(generatedAndSource), true, JSON.stringify(validateSourceDerived.errors));
+  assert.notEqual(generatedAndSource.payload.artifactId, generatedAndSource.payload.sourceLineage.artifactId,
+    "generated output identity remains distinct from source artifact identity");
+  assert.notEqual(generatedAndSource.payload.versionId, generatedAndSource.payload.sourceLineage.versionId,
+    "generated output version remains distinct from source version");
+  for (const field of ["artifactId", "versionId"]) {
+    const missing = structuredClone(generatedAndSource);
+    delete missing.payload[field];
+    assert.equal(validateSourceDerived(missing), false, `generated ${field} is mandatory independently of source lineage`);
+  }
+
+  const outputById = new Map(schemas.map((record) => [record.id, record]));
+  const generatedVideoContracts = operations.capabilityOperationContracts.records
+    .filter(({ successOutputs = [] }) => successOutputs.some(({ payloadSchemaRef }) =>
+      payloadSchemaRef === output.id || payloadSchemaRef === sourceDerived.id));
+  assert.equal(generatedVideoContracts.length, 7, "all seven current video producer operations use a source-defined candidate-video output");
+
+  for (const operation of generatedVideoContracts) {
+    const successOutput = operation.successOutputs.find(({ payloadSchemaRef }) =>
+      payloadSchemaRef === output.id || payloadSchemaRef === sourceDerived.id);
+    const outputContract = outputById.get(successOutput.payloadSchemaRef);
+    const expectedPayload = outputContract.schema.properties.payload;
+    const outputVariants = operation.resultSchema.properties.outputs.items.oneOf
+      .filter(({ properties }) => properties.artifactType.const === outputContract.artifactType);
+    assert.equal(outputVariants.length, 1, `${operation.id} has one exact result-schema variant for its declared output`);
+    const assertPayloadParity = (actualPayload, label) => {
+      assert.equal(actualPayload.additionalProperties, expectedPayload.additionalProperties,
+        `${operation.id} ${label} preserves the closed output object boundary`);
+      assert.deepEqual(actualPayload.required, expectedPayload.required,
+        `${operation.id} ${label} requires every identity and lineage field in its referenced output contract`);
+      assert.deepEqual(Object.keys(actualPayload.properties).sort(), Object.keys(expectedPayload.properties).sort(),
+        `${operation.id} ${label} declares every canonical field, including optional attempt and evidence fields`);
+      for (const field of Object.keys(expectedPayload.properties)) {
+        assert.strictEqual(actualPayload.properties[field], expectedPayload.properties[field],
+          `${operation.id} ${label} reuses the canonical ${field} schema from ${successOutput.payloadSchemaRef}`);
+      }
+    };
+    assertPayloadParity(outputVariants[0].properties.payload, "base result schema");
+
+    const successRule = operation.resultSchema.allOf.find(({ if: condition }) =>
+      condition?.properties?.outcome?.const === "SUCCEEDED");
+    const successVariants = successRule.then.properties.outputs.items.oneOf
+      .filter(({ properties }) => properties.artifactType.const === outputContract.artifactType);
+    assert.equal(successVariants.length, 1, `${operation.id} success-only result schema preserves the declared output contract`);
+    assertPayloadParity(successVariants[0].properties.payload, "SUCCEEDED result schema");
+  }
+});
+
 test("provider and recovery populations include exact local compute and unknown asynchronous operations", () => {
   const goals = read(goalsPath);
   const capabilities = read(capPath).capabilities;

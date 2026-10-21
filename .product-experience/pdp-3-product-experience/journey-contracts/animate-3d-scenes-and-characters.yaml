@@ -25,8 +25,43 @@ pdp1ResultEvidence:
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1
     - .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+  postRenderObservationBindings:
+    status: SOURCE_BOUND_GENERIC_OBSERVATIONS; J13_RUNTIME_AND_PRODUCER_OUTPUT_JOIN_NOT_ADMITTED
+    sourceCompletionRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-13/completion
+    renderOutputResultDefinition:
+      status: SOURCE_BOUND_EXPECTED_RESULT_SHAPE; RUNTIME_PRODUCER_JOIN_NOT_OBSERVED
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/renderOutputResultDefinition
+      exactJobJoin: logicalJobId, requestId, requestFingerprint, jobRevisionRef, sourceSnapshotDigest, resolvedPlanRef/version, renderProfileRef/version, rigVersionRef, and sceneVersionRef must all identify the submitted render and declared render plan.
+      outputSetRule: Bind exactly the expectedOutputSlotRefs resolved by the exact plan/profile versions; each slot has one typed disposition and exact immutable artifactVersionRef/registrationReceiptRef or a reasoned NOT_PRODUCED/REJECTED disposition.
+      conversionLossRule: Preserve the per-slot conversionLossDisposition and exact report/evidence reference; UNKNOWN conversion loss is consequential and prevents terminal success.
+      finalityBoundary: This is a P1 expected result definition. It does not establish that runtime produced or registered any output.
+    jobStatus:
+      operationRef: media.operation.job-status.read-dimensions.v1
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1/resultSchema
+      typedObservationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.job-status-seven-dimension.v1
+      exactJobBinding: Query jobId must equal the logicalJobId from the preceding submit-render receipt.
+      terminalSuccessDimension: dimensions.overallJob.value=COMPLETED with currentness=CURRENT and its evidenceRef; all other terminal/unknown values remain distinct.
+    outputVersionLineage:
+      operationRef: media.operation.action.inspect-output-preview-and-version
+      typedObservationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1
+      exactResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1/resultSchema
+      exactSubjectBinding: Request subjectRef equals the exact immutable output version; current FULL OBSERVED evidence is required.
+      producerJoinBoundary: The output-lineage observation does not name a job. A render-outcome identity with the exact submitted jobId and exact outputArtifactVersionRef is separately required; source lineage alone cannot prove that the job produced the output.
+    animationVersionBinding:
+      animationGraphRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.animation-graph
+      sceneGraphRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.scene-graph
+      rule: Preserve exact immutable graph versions and rig mapping; missing rig mapping or target scene version blocks completion.
+    exportLossReportBinding:
+      workflowContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedWorkflowContracts/records/@id=media.workflow-contract.spatial-export-boundary.v1
+      resultBoundary: Source definition only. Candidate materialization and actual conversion result remain UNKNOWN/NOT_ADMITTED.
+      requiredReportFields: [sourceArtifactRef, sourceArtifactVersionRef, targetFormatProfileRef, targetFormatProfileVersionRef, sourceGeometryPlanRef, coordinateTransformRef, unitTransformRef, axisTransformRef, handednessDisposition, originDisposition, fieldDispositionRecords, unsupportedFieldDisposition, integrityEvidenceRef]
+      dispositionRule: Every source field has PRESERVED, TRANSFORMED, OMITTED_WITH_EXPLICIT_LOSS, or REJECTED with reason and evidenceRef.
+    terminalSuccessJoin: Require a current successful job observation, an exact render-outcome job/output pair, the exact animation/scene graph versions, and a complete loss report. Missing, stale, partial, unknown, or mismatched evidence cannot satisfy P0 completion.
   operationResultBindings:
     - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml#/steps/2
       journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j13-step-03.v1
@@ -66,6 +101,16 @@ pdp1ResultEvidence:
       observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1
       exactResult: The exact current full observation resolves an immutable artifact version and digest with owner-resolved source lineage; incomplete, stale, mismatched, denied, or unavailable evidence is UNKNOWN and contains no artifact identity.
       unknownDisposition: Missing, stale, mismatched, denied, unavailable, or incomplete lineage is UNKNOWN; this read does not register, approve, deliver, dispatch, qualify, or retry an artifact.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml#/steps/3
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j13-step-04.v1
+      presentationOperationRef: media.operation.action.inspect-output-preview-and-version
+      sourceQueryOperationRef: media.operation.job-status.read-dimensions.v1
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1/resultSchema
+      typedObservationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.job-status-seven-dimension.v1
+      exactJoin: Query jobId equals the exact logicalJobId returned by the preceding submit-render step; status and output lineage are separate observations and no job-to-output production relation is inferred.
+      unknownDisposition: Missing, stale, denied, unavailable, or UNKNOWN_OBSERVATION status remains UNKNOWN and does not imply output identity, export success, or delivery.
 preconditions:
   - Scene/rig assets, coordinate convention, rights, and supported interchange
     subset are identified.
@@ -283,7 +328,8 @@ steps:
             never-claim-success-from-local-state
         recovery:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.add-scene-entity
-          recovery: preserve-the-exact-target-and-current-draft;
+          recovery: >-
+            preserve-the-exact-target-and-current-draft;
             explain-denial-or-incomplete-evidence;
             never-claim-success-from-local-state
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
@@ -1103,6 +1149,8 @@ steps:
           - media.domain.artifact-version
         stateRefs: []
         canonicalOperationRef: media.operation.action.inspect-output-preview-and-version
+        supportingObservationOperationRefs:
+          - media.operation.job-status.read-dimensions.v1
         authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
         transitionRef: null
         requirementRefs: []
@@ -1266,18 +1314,19 @@ steps:
 sourceGap:
   id: MDC30-C-13-render-completion-and-conversion-observation
   status: UNKNOWN_NOT_ADMITTED
-  missingOwnerDefinition: >-
-    P1 submit-render binds only requestId, logicalJobId, sourceSnapshotDigest,
-    renderProfileRef, and durableAdmissionReceipt; it establishes job admission,
-    not terminal rendering. The exact-version output-preview/version-lineage
-    observation identifies an observed immutable output but does not join a
-    terminal render result to this journey or provide a typed format/geometry
-    conversion-loss report. Keep the existing submission and preview bindings;
+  missingJourneyAllocation: >-
+    The P1 status, output-lineage, render-outcome identity, animation/scene version,
+    and spatial-export loss-report contracts are now explicitly allocated above.
+    These definitions do not produce runtime observations or establish that a
+    submitted job produced a particular output. Preserve UNKNOWN until current
+    owner evidence joins the exact job to its render outcome and output version;
     do not infer render completion, export success, or conversion fidelity.
   sourceRefs:
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.workflow-contract.spatial-export-boundary.v1
     - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j13-step-03.v1
     - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j13-step-04.v1
   boundary: Render completion and typed conversion-loss outcome remain unbound; channel transport and runtime admission remain NOT_ADMITTED.

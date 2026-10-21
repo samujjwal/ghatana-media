@@ -2,14 +2,11 @@
 
 **Ghatana Media** defines governed audio, video, image, speech, and time-based product experiences—from exact source ingestion to review, creation, transformation, and authorized delivery.
 
-## Current state
+## Product definition source
 
-> **October 15 successor source cut:** Remote `main@7ef839fd9bb871782b112e370bb9f6c3c3a60556` includes J-27 fallback/PXD-163 and J-16 step-version repairs. The implementer reports strict projection and 130/130 steps PASS, but the broad sweep still reports 24 residual failures. No post-commit R7 currentness or PDP-3 exit has been established. **Discovery FAIL, Build NOT_ENTERED, Delivery BLOCKED.** [Current remaining-only PDP3 queue](docs/implementation/MEDIA-DISCOVERY-PDP3-FINISH-2026-10-15.md#r2-ordered-remaining-only-execution-queue--after-7ef839fd9bb8) · [R2 delegated owner decisions](docs/implementation/MEDIA-DISCOVERY-TO-BUILD-OWNER-REVIEW-2026-10-15.md#r2--successor-delegated-owner-review-of-main7ef839fd9bb871782b112e370bb9f6c3c3a60556-october-15-2026) · [full-product Build plan](docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md). The following R6 metrics remain a historical observation, not a recaptured live R7.
+The canonical editable Media product-definition root is [`.product-experience/`](.product-experience/README.md). [Product Truth](.product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md) owns PDP-0 meaning; each later PDP owns its definitions in its phase directory. The generated source manifest indexes declared artifact identities, locations, and roles; it does not establish semantic currentness or acceptance. The Experience Explorer is a projection, not another definition source.
 
-- **Current Discovery (October 15, 2026; commit `8c4a3ef8`):** PDP-0 R15, PDP-1 R30, PDP-2 R19 have recorded technical PASS at their exact source cuts. PDP-3 R6 has been captured but source currentness is **UNKNOWN**, not `DEV_COMPLETE` on the current cut: 43/61 logical edges are source-bound definition-only, 18 need disposition including two intentionally blocked J-21 approval edges; 14 consequential selectors have current source mappings. R6 compares 613 paths with 291 historical pin matches, 46 changed and 276 without authoritative historical pins. The correct [remaining Discovery work](docs/implementation/MEDIA-DISCOVERY-PDP3-FINISH-2026-10-15.md) preserves the exact gates and [owner choices](docs/implementation/MEDIA-DISCOVERY-TO-BUILD-OWNER-REVIEW-2026-10-15.md). The [complete-product Build blueprint](docs/implementation/MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md) is **planning only** until the 200-cell Discovery barrier passes.
-- **Discovery barrier:** `FAIL`. **Build:** `NOT_ENTERED`. **Native PDP closure:** `NOT_ENTERED`. **Delivery:** `BLOCKED`.
-- The **Media product-definition authority** is [`.product-experience/`](.product-experience/). The **canonical executable runtime** remains `ghatana/services/media` until an authorized source/writer transfer. This repository's runtime copy is not an independent live production service.
-- Independent acceptance, public dependency admission, real provider availability, source cutover, and release are separate downstream matters, not unfinished PDP tasks.
+The [PDP-0](docs/implementation/pdp-0-phase-dev-status.json), [PDP-1](docs/implementation/pdp-1-phase-dev-status.json), [PDP-2](docs/implementation/pdp-2-phase-dev-status.json), and [PDP-3](docs/implementation/pdp-3-phase-dev-status.json) records own the recorded development statuses. A status is current for this source cut only when its pins pass the owning phase's native validation. Read the earliest unfinished phase; this README and other plans do not mirror phase status. `DEV_COMPLETE` describes definition development only, separate from acceptance, implementation, qualification, and release. No Media application has been released.
 
 ## Start here
 
@@ -18,10 +15,10 @@ Read the [documentation index](docs/README.md) for product, architecture, testin
 - [Product Truth](.product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md): outcomes, capability scope, rights, trust, quality and requirements.
 - [Domain/Data](.product-experience/pdp-1-domain-data/DOMAIN-MODEL.md): exact identities, operations, states, guards, versions, events and finality.
 - [Design/Interface](.product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md): accessible GUI/headless grammar, components, presentation and API/CLI/SDK/event semantics.
-- [Product Experience](.product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md): 47 screens, 30 journeys, 130 steps and supported/unsupported interaction definitions.
+- [Product Experience](.product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md): supported and unsupported experience definitions, with canonical screen and journey records.
 - [Experience Explorer](apps/media-experience-explorer/README.md): a separate source-linked review tool, **not** a fifth PDP or production host.
 
-The [recorded phase statuses](docs/implementation/post-pdp-current-status.json) distinguish completed definition development from implementation, independent review, production qualification and release.
+The phase-specific status records distinguish definition development from implementation, independent review, production qualification and release.
 
 ## Architecture and ownership
 
@@ -52,12 +49,8 @@ These are source checks, not live-runtime or release qualification. For implemen
 | `modules/`, `launcher/`, `runtime-contracts/`, `providers/`, `adapters/` | Prepared source copy of runtime modules, pending owner-approved transfer |
 | `contracts/`, `config/` | OpenAPI, runtime route/provider source and configuration contracts |
 | `tests/`, module-local tests | Definition and implementation regression suites |
-| `docs/implementation/` | Current Build handoff plus explicitly dated historical review/verification records |
+| `docs/implementation/` | Source-pinned phase status records, verification results, and provenance |
 | `migration/`, `docs/migration/` | Source/consumer comparisons and still-unauthorized migration preparation |
 | `archive/media-desktop-apps/` | Inactive, intentionally archived desktops referenced by migration provenance; not active product apps |
 
 **Naming:** New domain concepts should say **Media** and use intent-based names. Existing `audio-video` external paths, binary IDs and Gradle/package coordinates require compatibility review before renaming. Never mechanically rename stable PDP identities to improve aesthetics.
-
-## What not to restart
-
-The old `EXECUTE-MEDIA-PDP` and `PDP-0-3-SEQUENTIAL` plans, historical verification logs and the [withdrawn “remaining PDP” task list](docs/implementation/MEDIA-PDP-0-3-DEV-ONLY-REMAINING-2026-10-12.md) are not active work instructions. A new normative product requirement requires a **separate versioned change decision**; implementation or source-projection defects are repaired during Build.

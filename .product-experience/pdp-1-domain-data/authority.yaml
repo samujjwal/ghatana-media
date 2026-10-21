@@ -70,6 +70,21 @@ ownerDefinedPdp10AuthorityScopes:
     requiredObservation: Current trusted identity owner observation bound to the request, identity epoch and exact tenant, principal, delegation and workspace tuple.
     callerClaimsNeverAuthority: [tenantId, principalId, role, delegation, workspaceAuthority, consentBoolean, ownerLabel]
     unknownOrMismatched: DENY before lookup or effect; do not fall back to global scope
+    callerIdentityHintPolicy:
+      id: media.authority.caller-identity-hint-compare-only.v1
+      authoritativeContext: verified host-attested tenant, principal, and current delegation bound to the request
+      bodyIdentity: >-
+        The closed media.operation.job.submit.v1 request schema rejects root tenantId and principalId fields. Identity
+        values carried in its declared nested typed inputs, including identity-and-authority-context, or in target-operation
+        bodies remain caller data; nested tenant, principal, and delegation values must exactly match the verified host-attested
+        identity and never supply or override authority. This rule does not prohibit unrelated scope or resource selectors.
+      ingressHints: >-
+        An ingress adapter may provide tenant or principal identity hints through any channel. Such hints are compare-only
+        against the verified host-attested context; when absent, use the verified host context. Nested typed-input and
+        target-operation body identity values are likewise compare-only and must exactly match that context. A mismatch is denied before
+        lookup, fingerprinting, acceptance, or dispatch, and can never widen or replace the verified scope.
+      externalIdentityProviderOrRuntime: unverified; NOT_ADMITTED
+      runtimeAdmission: NOT_ADMITTED
   jobStatusRead:
     id: media.authority.job-status-dimension-read.v1
     owner: Media-domain-owner-of-normalized-job-status-meaning

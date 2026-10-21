@@ -10,6 +10,9 @@ const paths = {
   registry: '.product-experience/surface-registry.yaml',
   topology: '.product-experience/surfaces/media-physical-topology.v1.json',
   requirements: '.product-experience/pdp-0-product-truth/requirements.yaml',
+  leafReview: '.product-experience/pdp-0-product-truth/capability-leaf-review.yaml',
+  campaignExtensions: '.product-experience/pdp-0-product-truth/campaign-extensions.yaml',
+  applicationsChannels: '.product-experience/pdp-0-product-truth/applications-channels.yaml',
   actorCatalog: '.product-experience/pdp-0-product-truth/actors-responsibilities.yaml',
   capabilities: '.product-experience/pdp-0-product-truth/capabilities.yaml',
   p0: '.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml',
@@ -51,7 +54,7 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
   const parsedDocs = {};
   // Syntax and duplicate mapping keys are source-level errors, even when
   // count-based selectors coincidentally find every expected line.
-  for (const id of ['registry', 'requirements', 'actorCatalog', 'p0', 'journeyCatalog', 'domain', 'domainVersioning', 'p1', 'interfaceGrammar', 'editingGrammar', 'p2', 'templates', 'recipes', 'layouts']) {
+  for (const id of ['registry', 'requirements', 'leafReview', 'campaignExtensions', 'applicationsChannels', 'actorCatalog', 'p0', 'journeyCatalog', 'domain', 'domainVersioning', 'p1', 'interfaceGrammar', 'editingGrammar', 'p2', 'templates', 'recipes', 'layouts']) {
     const document = parseDocument(original[id], {uniqueKeys:true, strict:true});
     parsedDocs[id] = document;
     for (const issue of document.errors) fail(id+': invalid or duplicate YAML mapping: '+issue.message);
@@ -156,47 +159,77 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
 
   const req = original.requirements;
   const p0 = original.p0, p1 = original.p1, p2 = original.p2;
-  const requirementLeaves = new Map((parsedDocs.requirements.toJS()?.requirements ?? [])
+  const requirementsDocument = parsedDocs.requirements.toJS();
+  const requirementLeaves = new Map((requirementsDocument?.requirements ?? [])
     .map(r => [r.id, new Set(r.capabilityIds ?? [])]));
   const allCapIds = extract(original.capabilities.slice(original.capabilities.indexOf('\ncapabilities:\n')), /^  - id: (media\.[^\s]+)$/gm);
   const canonCaps = new Set(allCapIds);
   const canonReqIds = new Set(extract(req, /^- id: (MEDIA-REQ-CAP-[A-Z-]+)$/gm));
-  if (allCapIds.length !== 462 || canonCaps.size !== 462) fail('historical 462 capability leaf identities changed');
-  if (canonReqIds.size !== 38) fail('historical 38 requirement family identities changed');
-  const caseSection = req.split('\nrecorderStudioProfile:\n')[1];
-  if (!caseSection) return { errors: [...errors, 'canonical Recorder Studio requirements profile is missing'], stats: {} };
-  const clauseChunks = caseSection.split(/^    - id: (MEDIA-REC-P0-AC-\d{3})\s*$/gm);
+  const leafReviewDocument = parsedDocs.leafReview.toJS();
+  const campaignExtensionDocument = parsedDocs.campaignExtensions.toJS();
+  const currentDefinitionPopulation = campaignExtensionDocument?.currentDefinitionPopulation ?? {};
+  const ownerAdjudicationRows = leafReviewDocument?.ownerCapabilityLeafAdjudication?.records ?? [];
+  const ownerAdjudicationIds = ownerAdjudicationRows.map(row => row.capabilityRef);
+  const ownerAdjudicationSet = new Set(ownerAdjudicationIds);
+  const definitionExtensionRows = currentDefinitionPopulation.records ?? [];
+  const definitionExtensionIds = definitionExtensionRows.map(row => row.capabilityId);
+  const definitionExtensionSet = new Set(definitionExtensionIds);
+  const currentCapabilityIds = new Set(allCapIds);
+  const joinedCapabilityIds = new Set([...ownerAdjudicationSet, ...definitionExtensionSet]);
+  if (allCapIds.length !== 469 || canonCaps.size !== 469) fail('current capability definition denominator must be 469');
+  if (ownerAdjudicationRows.length !== 462 || ownerAdjudicationSet.size !== 462
+      || leafReviewDocument?.ownerCapabilityLeafAdjudication?.exactLeafCount !== 462
+      || leafReviewDocument?.ownerCapabilityLeafAdjudication?.uniqueLeafCount !== 462) {
+    fail('owner-adjudicated capability denominator must remain 462');
+  }
+  if (definitionExtensionRows.length !== 7 || definitionExtensionSet.size !== 7
+      || currentDefinitionPopulation.historicalCapabilityLeavesPreserved !== 462
+      || currentDefinitionPopulation.currentCapabilityDefinitions !== 469
+      || currentDefinitionPopulation.definitionExtensionCapabilityLeaves !== 7
+      || currentDefinitionPopulation.ownerAdjudications !== 462
+      || currentDefinitionPopulation.ownerApproval !== 'NOT_CLAIMED'
+      || currentDefinitionPopulation.independentAcceptance !== 'NOT_CLAIMED'
+      || [...definitionExtensionSet].some(id => ownerAdjudicationSet.has(id))
+      || joinedCapabilityIds.size !== 469
+      || [...currentCapabilityIds].some(id => !joinedCapabilityIds.has(id))
+      || [...joinedCapabilityIds].some(id => !currentCapabilityIds.has(id))) {
+    fail('current capabilities must partition into 462 owner-adjudicated leaves and seven separately recorded definition extensions');
+  }
+  if (canonReqIds.size !== 38) fail('current requirement family denominator must be 38');
+  const recorderStudioProfile = requirementsDocument?.recorderStudioProfile;
+  if (!recorderStudioProfile) return { errors: [...errors, 'canonical Recorder Studio requirements profile is missing'], stats: {} };
+  const clauses = recorderStudioProfile.acceptanceClauses ?? [];
   const caseIds = [], positiveAndDenied = [];
   const caseDetails = new Map();
-  for (let i = 1; i + 1 < clauseChunks.length; i += 2) {
-    const id = clauseChunks[i], body = clauseChunks[i + 1];
+  for (const clause of clauses) {
+    const id = clause?.id;
     caseIds.push(id);
-    const parent = body.match(/^      parentRequirementId: (\S+)/m)?.[1];
-    const cap = body.match(/^      capabilityLeafId: (\S+)/m)?.[1];
-    const surface = body.match(/^      surfaceId: (\S+)/m)?.[1];
+    const parent = clause?.parentRequirementId;
+    const cap = clause?.capabilityLeafId;
+    const surface = clause?.surfaceId;
     if (!canonReqIds.has(parent)) fail(id+': missing canonical parent requirement '+parent);
     if (!canonCaps.has(cap)) fail(id+': missing canonical capability leaf '+cap);
     if (!requirementLeaves.get(parent)?.has(cap))
       fail(id+': canonical parent requirement does not own capability leaf '+cap);
     if (!newSurfaceIds.includes(surface)) fail(id+': missing intended owner surface');
-    if (!/^      given: ".+"/m.test(body) || !/^      when: ".+"/m.test(body)
-       || !/^      then: ".+"/m.test(body) || !/^      rejection: ".+"/m.test(body))
+    if (['given', 'when', 'then', 'rejection'].some(field =>
+      typeof clause?.[field] !== 'string' || clause[field].trim().length === 0))
       fail(id+': complete given/when/then/negative scenario is required');
     positiveAndDenied.push(id);
-    caseDetails.set(id, {cap, surface, group: body.match(/^      group: (\S+)/m)?.[1]});
+    caseDetails.set(id, {cap, surface, group: clause?.group});
   }
   if (caseIds.length !== 84 || new Set(caseIds).size !== 84 || caseIds.some(id => !stableCaseId.test(id)))
     fail('exactly 84 stable unique canonical Recorder Studio acceptance cases required');
-  const requiredCaseCount = Number(caseSection.match(/^  requiredClauseCount: (\d+)$/m)?.[1]);
+  const requiredCaseCount = Number(recorderStudioProfile.requiredClauseCount);
   const p0CaseCount = Number(p0.match(/^  scopedProfileCaseCount: (\d+)$/m)?.[1]);
   if (requiredCaseCount !== 84 || p0CaseCount !== 84 || requiredCaseCount !== caseIds.length)
     fail('Recorder Studio requirement and PDP-0 scoped case counts must agree at exactly 84');
   if (!sameSet(caseIds, Array.from({length:84}, (_, i) => 'MEDIA-REC-P0-AC-'+String(i+1).padStart(3,'0'))))
     fail('Recorder Studio canonical acceptance case IDs must be contiguous and lossless');
-  const historicalReqCount = Number(req.match(/^  historicalFamilyRequirementsPreserved: (\d+)$/m)?.[1]);
-  const historicalCapCount = Number(req.match(/^  historicalCapabilityLeavesPreserved: (\d+)$/m)?.[1]);
-  if (historicalReqCount !== canonReqIds.size || historicalCapCount !== canonCaps.size)
-    fail('Recorder Studio profile may not redefine historical family or capability denominators');
+  const historicalReqCount = Number(recorderStudioProfile.historicalFamilyRequirementsPreserved);
+  const historicalCapCount = Number(recorderStudioProfile.historicalCapabilityLeavesPreserved);
+  if (historicalReqCount !== canonReqIds.size || historicalCapCount !== ownerAdjudicationSet.size)
+    fail('Recorder Studio profile must retain the 38 requirement families and 462 owner-adjudicated capability leaves');
 
   const capGroupRecords = [...p0.matchAll(/^  (REC-C\d{2}): \[([^\]]+)\]$/gm)];
   const capGroupCapabilities = new Map(capGroupRecords.map(m => [m[1], new Set(yamlList(m[2]))]));

@@ -4,21 +4,24 @@
 not a semantic authority. Product meaning is owned by accepted decisions and
 records beneath `.product-experience/`; proposals remain proposals.
 
-## Current phase-development status (2026-10-12)
+## Historical phase-development status (2026-10-12)
 
 This file's 2026-10-07 migration observations below are a historical snapshot.
-At definition cut `adc9aa6`, all four phase-development status records declare
+At definition cut `adc9aa6`, all four phase-development status records declared
 `DEV_COMPLETE`; the checkpoint at `0837fef` refreshed those records and their
 verification logs without changing the pinned definition content. The phase
 result does not assert independent semantic acceptance, package publication,
 runtime implementation or qualification, Lifecycle receipt currentness,
-migration cutover, or release authorization. See the [current dimensional
-status projection](../implementation/post-pdp-current-status.json) and the
-[current gap classifications](../../.product-experience/gap-current-status.yaml).
+migration cutover, or release authorization. These statements are retained as
+historical provenance only. Consult the [canonical PDP source index](../../.product-experience/README.md)
+for live source-pinned development status.
 
-## Current ownership and completed definition handoff
+## Historical ownership and definition handoff note
 
-**As of October 12, 2026, PDP-0, PDP-1, PDP-2 and PDP-3 are `DEV_COMPLETE`, with zero remaining PDP authoring tasks.** Media product meaning is owned in `ghatana-media/.product-experience/`; the canonical executable runtime and writer remains `ghatana/services/media` until an authorized transfer. The narrow historical P0-001 migration-boundary acceptance is not the same dimension as completed PDP source development. The old snapshot below must not be read as an active PDP backlog.
+At the October 12, 2026 snapshot, the phase records reported all four PDPs as
+`DEV_COMPLETE`. That status is not current. Media product meaning is owned in
+`ghatana-media/.product-experience/`; the historical runtime/source-transfer
+observations below do not establish current status or authorization.
 
 ## Historical October 7 migration/source observations (not current PDP tasks)
 

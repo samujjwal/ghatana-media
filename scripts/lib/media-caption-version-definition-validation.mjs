@@ -45,6 +45,16 @@ export function validateMediaCaptionVersionDefinitions({ operations, domainObjec
     add(has(write.canonicalParentRequirement, /authoritative-canonical-transcript-version-identity.*legacy-media\.domain\.transcription-UUID-and-synthetic-fixture-parentVersionId-are-not-equivalent/u),
       `${writeId} must reject legacy or synthetic IDs as proof of a canonical transcript parent`);
     add(write.inputSemantics?.requiredFields?.includes('requestId'), `${writeId} must require a replay identity`);
+    const requestIdPattern = '^[A-Za-z0-9][A-Za-z0-9._~-]*$';
+    const requestIdRequestSchema = write.ownerWireSchema?.requestSchema?.properties?.requestId;
+    const requestIdResultSchema = write.ownerWireSchema?.resultSchema?.properties?.requestId;
+    const requestIdResultRequired = write.ownerWireSchema?.resultSchema?.required?.includes('requestId');
+    add(requestIdRequestSchema?.format === 'opaque-idempotency-key' && requestIdRequestSchema.pattern === requestIdPattern &&
+      requestIdRequestSchema.minLength === 1 && requestIdRequestSchema.maxLength === 128 &&
+      requestIdResultRequired &&
+      requestIdResultSchema?.format === requestIdRequestSchema.format && requestIdResultSchema.pattern === requestIdRequestSchema.pattern &&
+      requestIdResultSchema.minLength === requestIdRequestSchema.minLength && requestIdResultSchema.maxLength === requestIdRequestSchema.maxLength,
+      `${writeId} request and every result outcome must require the same bounded opaque idempotency-key domain`);
     add(write.inputSemantics?.requiredFields?.includes('captionSegments') && write.inputSemantics.segmentFields?.includes('startTick') && write.inputSemantics.segmentFields.includes('endTick'),
       `${writeId} must snapshot ordered text and both source-tick endpoints`);
     add(has(write.inputSemantics?.ticks, /positive-safe-integer.*endTick.*sourceDurationTicks.*no-rescaling/u),
@@ -73,8 +83,11 @@ export function validateMediaCaptionVersionDefinitions({ operations, domainObjec
       `${writeId} may retry only after authoritative terminal no-effect proof and fresh policy evaluation`);
     add(has(write.finality, /does-not-imply-delivery-or-publication/u), `${writeId} must not imply delivery or publication`);
     add(write.outputSemantics?.review === 'registration-does-not-approve-or-accept-the-caption-content', `${writeId} result must not promote registration into approval`);
-    add(write.outputSemantics?.successFields?.includes('registrationReceiptId') && write.outputSemantics.successFields.includes('captionVersionId'),
-      `${writeId} must return an opaque version ID and registration receipt`);
+    add(write.outputSemantics?.successFields?.includes('requestId') && write.outputSemantics.successFields.includes('registrationReceiptId') &&
+      write.outputSemantics.successFields.includes('captionVersionId'),
+      `${writeId} success result must return its request identity, opaque version ID, and registration receipt`);
+    add(has(write.outputSemantics?.resultIdentity, /Every SUCCEEDED, REJECTED, and UNKNOWN_OUTCOME result echoes.*exact requestId.*reconcile the original request identity.*echo alone does not prove registration or authorize a retry/u),
+      `${writeId} every result outcome must echo its original request identity without granting finality or retry authority`);
     add(write.transition?.transitionRefs?.length === 0 && has(write.transition?.applicability, /not-a-domain-state-transition/u),
       `${writeId} is append-only registration, not a state transition`);
     add(write.scopeStatus?.includes('proposal-only') && write.scopeStatus.includes('runtime-NOT_ADMITTED'),

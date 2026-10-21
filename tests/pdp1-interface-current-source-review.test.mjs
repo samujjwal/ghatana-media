@@ -26,6 +26,9 @@ test("P1 interface review pins current sources and reconciles source populations
   const operationReview = JSON.parse(readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/operations-current-source-review.json"), "utf8"));
   const sourceReinspection = review.currentSourceCutDeltaReview.operationsSourceReinspection;
   assert.equal(review.currentSourceCutDeltaReview.operationsSha256, operationsSha256);
+  assert.equal(sourceReinspection.populations.ownerTypedObservationContracts, 16);
+  assert.equal(sourceReinspection.ownerTypedObservationContracts, 16);
+  assert.equal(sourceReinspection.ownerTypedObservationValidationRules, 15);
   assert.equal(sourceReinspection.status, "REINSPECTED_CURRENT_SOURCE_CUT");
   assert.equal(sourceReinspection.sourceSha256, operationsSha256);
   assert.equal(sourceReinspection.previousReviewedSourceSha256,
@@ -66,9 +69,30 @@ test("P1 interface review pins current sources and reconciles source populations
   assert.equal(ownerOperations.actionOperationDispositionInventory.records.find(({ actionId }) =>
     actionId === fallbackReview.actionRef).exactOperationRefs[0], fallbackReview.operationRefs[0]);
   const typedObservationIds = ownerOperations.ownerTypedObservationContracts.records.map(({ id }) => id);
-  assert.equal(typedObservationIds.length, 15);
+  assert.equal(typedObservationIds.length, 16);
   assert.deepEqual(sourceReinspection.currentOwnerTypedObservationContractIds, typedObservationIds);
   assert.equal(ownerOperations.ownerTypedObservationValidationRules.records.length, 15);
+  const candidateMetricPair = ownerOperations.ownerTypedObservationContracts.records.find(({ id }) =>
+    id === "media.observation-contract.candidate-metric-pair.v1");
+  const candidateMetricPairOperation = ownerOperations.ownerDefinedOperationContracts.records.find(({ id }) =>
+    id === "media.operation.action.compare-candidate-on-metric");
+  assert.ok(candidateMetricPair && candidateMetricPairOperation);
+  assert.deepEqual(candidateMetricPair.operationRefs, [candidateMetricPairOperation.id]);
+  assert.equal(candidateMetricPair.operationKind, "QUERY");
+  assert.equal(candidateMetricPair.bindingStatus, "DEFINITION_ONLY_NO_EXISTING_ENDPOINT_OR_RUNTIME_BINDING");
+  assert.equal(candidateMetricPairOperation.resultSchemaRef,
+    ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema");
+  assert.equal(candidateMetricPairOperation.scopeStatus,
+    "proposal-authored; exact-pair-request-and-paired-evidence-result meaning defined; owner-acceptance-not-claimed; independent-PDP1-and-PDP3-review-open; transport/runtime-NOT_ADMITTED");
+  assert.deepEqual(ownerOperations.ownerTypedObservationValidationRules.records
+    .filter(({ observationContractRef }) => observationContractRef === candidateMetricPair.id), []);
+  assert.equal(candidateMetricPair.runtimeAdmission, "NOT_ADMITTED");
+  assert.ok(candidateMetricPairOperation.resultSchema.resultRules.length > 0,
+    "candidate metric pair validation remains explicitly inline on its operation");
+  assert.ok(candidateMetricPairOperation.resultSchema.resultRules.some((rule) =>
+    rule.includes("no-delta-direction-threshold-pass-fail-aggregate-rank-winner-improvement-or-qualification")));
+  assert.match(sourceReinspection.additionalObservationDisposition,
+    /media\.observation-contract\.candidate-metric-pair\.v1.*owner acceptance is not claimed.*independent review is open.*NOT_ADMITTED/u);
   assert.equal(review.currentSourceCutDeltaReview.externalOwnerAcceptance, "PENDING");
   assert.equal(review.currentSourceCutDeltaReview.independentReview, "OPEN");
   assert.equal(review.currentSourceCutDeltaReview.runtimeAdmission, "NOT_ADMITTED");

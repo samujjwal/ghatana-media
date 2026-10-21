@@ -140,7 +140,8 @@ function validate(files) {
   needs("jobStore", "lease_token=?");
   needs("runtime", "if (!jobStore.leaseValid(lease))");
   needs("pgTest", 'hasMessageContaining("version changed")');
-  needs("versioning", "no-canonical-artifact-version-record-or-key-observed");
+  needs("versioning", "artifact-version-record-and-canonical-version-key-not-observed-in-runtime-contracts");
+  needs("versioning", "artifactVersionId");
 
   needs("maintenance", "private void deleteObject(String objectKey)");
   needs("maintenance", ".deleteObject(DeleteObjectRequest.builder()");

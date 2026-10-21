@@ -22,6 +22,8 @@ const retryPolicyRead = operations.ownerTypedObservationContracts.records
 const actionById = new Map(actionRegistry.actions.map((row) => [row.id, row]));
 const protectedQueryId = "media.owner-action-wire.inspect-job-retry-policy.v1";
 const domainObjects = read(".product-experience/pdp-1-domain-data/domain-objects.yaml");
+const qualityPolicy = read(".product-experience/pdp-0-product-truth/quality-policy.yaml");
+const canonicalMetricRefs = new Set(qualityPolicy.metricDefinitions.map(({ id }) => id));
 
 function validateCatalog(catalog = wire, sourceOperations = operations) {
   return validateOwnerActionWireCatalog({
@@ -115,6 +117,47 @@ function closedSchemaErrors(schema, rootSchema, path = "$", visited = new Set())
     errors.push(...closedSchemaErrors(schema.additionalProperties, rootSchema, `${path}{value}`, visited));
   }
   return errors;
+}
+
+function candidateMetricPairResultExample() {
+  const metricRef = qualityPolicy.metricDefinitions[0].id;
+  const artifactVersion = (artifactId, versionId) => ({
+    objectType: "media.domain.artifact-version",
+    identity: { tenantId: "tenant-1", artifactId, versionId },
+  });
+  const original = artifactVersion("original", "v1");
+  const candidate = artifactVersion("candidate", "v2");
+  const sourceObservation = (observationRef) => ({
+    observationRef,
+    providerRef: "provider:review",
+    metricRef,
+    metricVersionRef: "metric-version:quality-v1",
+    modalityRef: "media.modality.image-quality",
+    methodRef: "media.method.quality-review",
+    methodVersionRef: "media.method.quality-review:v1",
+    applicability: "APPLICABLE",
+    disposition: "PASS",
+    evidenceRefs: [`evidence:${observationRef}:v1`],
+    unitRef: "media.unit.score",
+  });
+  const scope = sourceObservation("observation:original");
+  const candidateScope = { ...sourceObservation("observation:candidate"), providerRef: scope.providerRef };
+  return {
+    operationRef: "media.operation.action.compare-candidate-on-metric",
+    actionRef: "media.action.compare-candidate-on-metric",
+    outcome: "OBSERVED",
+    requestId: "request:pair-result-fixture",
+    originalArtifactVersionRef: original,
+    candidateArtifactVersionRef: candidate,
+    metricRefs: [metricRef],
+    metricResults: [{
+      metricRef,
+      originalSide: { subjectArtifactVersionRef: original, status: "OBSERVED", currentness: "CURRENT", sourceObservation: scope },
+      candidateSide: { subjectArtifactVersionRef: candidate, status: "OBSERVED", currentness: "CURRENT", sourceObservation: candidateScope },
+      comparability: "SAME_DECLARED_SCOPE",
+    }],
+    observedAt: "2026-10-11T12:00:00Z",
+  };
 }
 
 function schemaExample(schema, rootSchema, visited = new Set()) {
@@ -547,7 +590,9 @@ test("all 79 closed result variants accept a schema-valid payload and reject ext
   for (const record of wire.records) {
     const validate = ajv.compile({ $defs: wire.$defs, allOf: [record.resultSchema] });
     for (const [index, branch] of record.resultSchema.oneOf.entries()) {
-      const example = schemaExample(branch, refRoot);
+      const example = record.id === "media.owner-action-wire.compare-candidate-on-metric.v2" && index === 0
+        ? candidateMetricPairResultExample()
+        : schemaExample(branch, refRoot);
       assert.equal(validate(example), true,
         `${record.id} result branch ${index} accepts its schema-derived payload: ${JSON.stringify(validate.errors)}`);
       assert.equal(validate({ ...example, unreviewedResult: true }), false,
@@ -730,4 +775,457 @@ test("retry-policy wire rejects omitted selectors, caller authority/version, wea
     mutate(copy);
     assert.equal(retryPolicyWireIsSourceBound(copy), false);
   }
+});
+
+test("candidate metric pair uses exact versioned references and preserves ordered one-row-per-metric evidence", () => {
+  const record = wire.records.find(({ id }) => id === "media.owner-action-wire.compare-candidate-on-metric.v2");
+  const operation = operationById.get("media.operation.action.compare-candidate-on-metric");
+  const pairContract = operations.ownerTypedObservationContracts.records
+    .find(({ id }) => id === "media.observation-contract.candidate-metric-pair.v1");
+  assert.ok(record);
+  assert.ok(operation);
+  assert.ok(pairContract);
+  assert.equal(operation.contractVersion, 2);
+  assert.match(record.supersessionNote, /Breaking semantic revision.*single-subject.*ordered, distinct original\/candidate ArtifactVersion pair/);
+  assert.equal(operation.operationKind, "QUERY");
+  assert.equal(record.semantics.runtimeAdmission, "NOT_ADMITTED");
+  assert.deepEqual(operation.domainObjectRefs, ["media.domain.artifact-version"]);
+  assert.deepEqual(record.allowedSubjectObjectRefs, ["media.domain.artifact-version"]);
+  assert.equal(operation.resultSchemaRef,
+    ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema");
+  assert.equal(record.semantics.pairedResultContractRef, operation.resultSchemaRef);
+  assert.deepEqual(operation.resultSchema.fields, [
+    "requestId", "originalArtifactVersionRef", "candidateArtifactVersionRef", "metricRefs", "metricResults", "observedAt",
+  ]);
+  assert.deepEqual(record.semantics.forbiddenDerivedClaims,
+    ["delta", "direction", "threshold", "pass/fail", "aggregate", "rank", "winner", "improvement", "qualification"]);
+
+  const artifactVersion = (artifactId, versionId) => ({
+    objectType: "media.domain.artifact-version",
+    identity: { tenantId: "tenant-1", artifactId, versionId },
+  });
+  const originalVersion = artifactVersion("original", "v1");
+  const candidateVersion = artifactVersion("candidate", "v2");
+  const request = {
+    operationRef: record.requestSchema.properties.operationRef.const,
+    actionRef: record.requestSchema.properties.actionRef.const,
+    requestId: "request-1",
+    originalArtifactVersionRef: originalVersion,
+    candidateArtifactVersionRef: candidateVersion,
+    metricRefs: ["QUALITY-METRIC-IMAGE-DEFECTS", "QUALITY-METRIC-VIDEO-CONTINUITY", "QUALITY-METRIC-AUDIO-DEFECTS"],
+  };
+  const ajv = new Ajv2020({ allErrors: true, strict: false });
+  const validateRequestSchema = ajv.compile({ $defs: wire.$defs, ...record.requestSchema });
+  const sameArtifactVersionIdentity = (left, right) =>
+    left?.objectType === right?.objectType
+    && left?.identity?.tenantId === right?.identity?.tenantId
+    && left?.identity?.artifactId === right?.identity?.artifactId
+    && left?.identity?.versionId === right?.identity?.versionId;
+  const distinctArtifactVersions = (value) => !sameArtifactVersionIdentity(
+    value.originalArtifactVersionRef, value.candidateArtifactVersionRef);
+  const resolveMetricRefs = (metricRefs) => Array.isArray(metricRefs)
+    && metricRefs.every((metricRef) => canonicalMetricRefs.has(metricRef));
+  const validateRequest = (value) => validateRequestSchema(value)
+    && distinctArtifactVersions(value)
+    && resolveMetricRefs(value.metricRefs);
+  assert.equal(validateRequest(request), true, JSON.stringify(validateRequestSchema.errors));
+  assert.equal(validateRequest({ ...request, requestId: undefined }), false, "requestId is required");
+  assert.equal(validateRequest({ ...request, candidateArtifactVersionRef: undefined }), false, "one target is not a pair");
+  assert.equal(validateRequest({ ...request, candidateArtifactVersionRef: originalVersion }), false,
+    "equal exact ArtifactVersion references are rejected");
+  const reorderedOriginalVersion = {
+    identity: { versionId: "v1", artifactId: "original", tenantId: "tenant-1" },
+    objectType: "media.domain.artifact-version",
+  };
+  assert.equal(validateRequest({ ...request, candidateArtifactVersionRef: reorderedOriginalVersion }), false,
+    "equal canonical identities are rejected regardless of property order");
+  assert.equal(validateRequest({ ...request, originalArtifactVersionRef: { ...originalVersion, objectType: "media.domain.artifact" } }), false,
+    "wrong canonical objectType is rejected");
+  assert.equal(validateRequest({ ...request, candidateArtifactVersionRef: { ...candidateVersion, identity: { tenantId: "tenant-1", artifactId: "candidate" } } }), false,
+    "incomplete canonical ArtifactVersion identity is rejected");
+  assert.equal(validateRequest({ ...request, legacySubjectRef: "artifact-version:original:v1" }), false, "legacy singular-subject requests are rejected");
+  assert.equal(validateRequest({ ...request, extraArtifactVersionRef: "artifact-version:third:v3" }), false, "three-target requests are rejected");
+  assert.equal(validateRequest({ ...request, metricRefs: [] }), false, "missing requested metrics are rejected");
+  assert.equal(validateRequest({ ...request, metricRefs: [request.metricRefs[0], request.metricRefs[0]] }), false, "duplicate requested metrics are rejected");
+  assert.equal(validateRequest({ ...request, metricRefs: ["QUALITY-METRIC-UNKNOWN"] }), false,
+    "unknown metric identities are rejected by canonical registry resolution");
+
+  const sourceObservation = (metricRef, observationRef) => ({
+    observationRef,
+    providerRef: "provider:quality-review",
+    metricRef,
+    metricVersionRef: "metric-version:quality-v1",
+    modalityRef: "media.modality.image-quality",
+    methodRef: "media.method.quality-review",
+    methodVersionRef: "media.method.quality-review:v1",
+    applicability: "APPLICABLE",
+    disposition: "PASS",
+    value: 0.82,
+    unitRef: "media.unit.score",
+    evidenceRefs: [`evidence:${observationRef}:v1`],
+  });
+  const observed = {
+    operationRef: request.operationRef,
+    actionRef: request.actionRef,
+    outcome: "OBSERVED",
+    requestId: request.requestId,
+    originalArtifactVersionRef: request.originalArtifactVersionRef,
+    candidateArtifactVersionRef: request.candidateArtifactVersionRef,
+    metricRefs: [...request.metricRefs],
+    metricResults: [
+      {
+        metricRef: request.metricRefs[0],
+        originalSide: { subjectArtifactVersionRef: originalVersion, status: "OBSERVED", currentness: "CURRENT", sourceObservation: sourceObservation(request.metricRefs[0], "observation:original-quality") },
+        candidateSide: { subjectArtifactVersionRef: candidateVersion, status: "NO_OBSERVATION", currentness: "CURRENT" },
+        comparability: "UNKNOWN",
+      },
+      {
+        metricRef: request.metricRefs[1],
+        originalSide: { subjectArtifactVersionRef: originalVersion, status: "UNKNOWN", currentness: "UNKNOWN" },
+        candidateSide: { subjectArtifactVersionRef: candidateVersion, status: "OBSERVED", currentness: "STALE", sourceObservation: sourceObservation(request.metricRefs[1], "observation:candidate-latency") },
+        comparability: "UNKNOWN",
+      },
+      {
+        metricRef: request.metricRefs[2],
+        originalSide: { subjectArtifactVersionRef: originalVersion, status: "SUBJECT_NOT_FOUND", currentness: "UNKNOWN" },
+        candidateSide: { subjectArtifactVersionRef: candidateVersion, status: "UNKNOWN", currentness: "UNKNOWN" },
+        comparability: "UNKNOWN",
+      },
+    ],
+    observedAt: "2026-10-11T12:00:00Z",
+  };
+  const validateResult = ajv.compile({ $defs: wire.$defs, ...record.resultSchema });
+  assert.equal(validateResult(observed), true, JSON.stringify(validateResult.errors));
+  assert.equal(validateResult({ ...observed, outcome: "NOT_COMPARABLE" }), false,
+    "noncomparability is represented on metric rows, not as a result that drops observations");
+  assert.equal(observed.metricResults[0].candidateSide.status, "NO_OBSERVATION", "missing side observation remains explicit");
+  assert.equal(observed.metricResults[1].originalSide.status, "UNKNOWN", "unknown side observation remains explicit");
+  assert.equal(observed.metricResults[2].originalSide.status, "SUBJECT_NOT_FOUND", "missing subject status remains explicit");
+  assert.equal(observed.metricResults[0].originalSide.sourceObservation.observationRef, "observation:original-quality",
+    "present raw source evidence and provenance remain attached to their side");
+
+  assert.equal(validateResult({ ...observed, metricResults: [{ ...observed.metricResults[0], originalSide: { status: "UNKNOWN", currentness: "UNKNOWN", sourceObservation: sourceObservation(request.metricRefs[0], "synthetic") } }, observed.metricResults[1]] }), false,
+    "sourceObservation cannot be synthesized for an UNKNOWN side");
+  assert.equal(validateResult({ ...observed, metricResults: [{ ...observed.metricResults[0], originalSide: { status: "NO_OBSERVATION", currentness: "CURRENT", sourceObservation: sourceObservation(request.metricRefs[0], "synthetic") } }, observed.metricResults[1]] }), false,
+    "sourceObservation cannot be synthesized for an absent side");
+  assert.equal(validateResult({ ...observed, metricResults: [{ ...observed.metricResults[0], unreviewedWinner: "candidate" }, observed.metricResults[1]] }), false,
+    "results reject derived or undeclared claims");
+
+  const exactMetricCoverage = (requested, result) =>
+    JSON.stringify(requested.metricRefs) === JSON.stringify(result.metricRefs)
+    && result.metricResults.length === requested.metricRefs.length
+    && result.metricResults.every((row, index) => row.metricRef === requested.metricRefs[index]);
+  const scopeIdentityFields = ["providerRef", "metricRef", "metricVersionRef", "methodRef", "methodVersionRef", "unitRef"];
+  const deriveMetricComparability = (row) => {
+    const sides = [row.originalSide, row.candidateSide];
+    if (sides.some((side) => side.status !== "OBSERVED" || side.currentness !== "CURRENT")) return "UNKNOWN";
+    const [left, right] = sides.map((side) => side.sourceObservation);
+    const exactCompleteTuple = scopeIdentityFields.every((field) =>
+      typeof left?.[field] === "string" && left[field].length > 0
+      && typeof right?.[field] === "string" && right[field].length > 0
+      && left[field] === right[field]);
+    return exactCompleteTuple ? "SAME_DECLARED_SCOPE" : "NOT_COMPARABLE";
+  };
+  const validateMetricComparability = (row) => row.comparability === deriveMetricComparability(row);
+  const validateCompleteResult = (requested, result) => validateResult(result)
+    && exactMetricCoverage(requested, result)
+    && result.requestId === requested.requestId
+    && sameArtifactVersionIdentity(result.originalArtifactVersionRef, requested.originalArtifactVersionRef)
+    && sameArtifactVersionIdentity(result.candidateArtifactVersionRef, requested.candidateArtifactVersionRef)
+    && resolveMetricRefs(requested.metricRefs)
+    && resolveMetricRefs(result.metricRefs)
+    && result.metricResults.every((row) =>
+      sameArtifactVersionIdentity(row.originalSide.subjectArtifactVersionRef, requested.originalArtifactVersionRef)
+      && sameArtifactVersionIdentity(row.candidateSide.subjectArtifactVersionRef, requested.candidateArtifactVersionRef)
+      && [row.originalSide, row.candidateSide].every((side) =>
+        side.sourceObservation === undefined || (canonicalMetricRefs.has(side.sourceObservation.metricRef)
+          && side.sourceObservation.metricRef === row.metricRef))
+      && validateMetricComparability(row));
+  assert.equal(validateCompleteResult(request, observed), true);
+  assert.equal(validateCompleteResult(request, { ...observed, metricRefs: ["QUALITY-METRIC-UNKNOWN", ...request.metricRefs.slice(1)] }), false,
+    "unknown result metric identities are rejected");
+  assert.equal(validateCompleteResult(request, {
+    ...observed,
+    metricResults: [{
+      ...observed.metricResults[0],
+      originalSide: { ...observed.metricResults[0].originalSide, sourceObservation: { ...observed.metricResults[0].originalSide.sourceObservation, metricRef: "QUALITY-METRIC-UNKNOWN" } },
+    }, ...observed.metricResults.slice(1)],
+  }), false, "source observation metricRef must resolve and match its row and request metric");
+  assert.equal(validateCompleteResult(request, { ...observed, requestId: "other-request" }), false,
+    "result requestId must echo the exact requestId");
+  assert.equal(validateCompleteResult(request, {
+    ...observed,
+    originalArtifactVersionRef: reorderedOriginalVersion,
+    metricResults: observed.metricResults.map((row) => ({
+      ...row,
+      originalSide: { ...row.originalSide, subjectArtifactVersionRef: reorderedOriginalVersion },
+    })),
+  }), true, "identity echoes remain exact when canonical object keys are reordered");
+  const makeObservedPairRow = (metricRef, originalEvidence, candidateEvidence, comparability) => ({
+    metricRef,
+    originalSide: { subjectArtifactVersionRef: originalVersion, status: "OBSERVED", currentness: "CURRENT", sourceObservation: originalEvidence },
+    candidateSide: { subjectArtifactVersionRef: candidateVersion, status: "OBSERVED", currentness: "CURRENT", sourceObservation: candidateEvidence },
+    comparability,
+  });
+  const replaceFirstMetricRow = (row) => ({ ...observed, metricResults: [row, ...observed.metricResults.slice(1)] });
+  const exactScopeEvidence = sourceObservation(request.metricRefs[0], "observation:exact-scope");
+  const sameScopeRow = makeObservedPairRow(request.metricRefs[0], exactScopeEvidence, { ...exactScopeEvidence }, "SAME_DECLARED_SCOPE");
+  assert.equal(validateCompleteResult(request, replaceFirstMetricRow(sameScopeRow)), true,
+    "both current observed sides with an exact complete tuple are comparable");
+
+  for (const field of scopeIdentityFields) {
+    const mismatchEvidence = { ...exactScopeEvidence, [field]: `${exactScopeEvidence[field]}:different` };
+    const mismatchRow = makeObservedPairRow(request.metricRefs[0], exactScopeEvidence, mismatchEvidence, "NOT_COMPARABLE");
+    const mismatchResult = replaceFirstMetricRow(mismatchRow);
+    if (field === "metricRef") {
+      assert.equal(validateCompleteResult(request, mismatchResult), false,
+        "a source observation for another metric is rejected even though its scope tuple differs");
+    } else {
+      assert.equal(validateCompleteResult(request, mismatchResult), true, `${field} mismatch yields per-metric NOT_COMPARABLE with both sides retained`);
+    }
+
+    const missingEvidence = { ...exactScopeEvidence };
+    delete missingEvidence[field];
+    const missingRow = makeObservedPairRow(request.metricRefs[0], exactScopeEvidence, missingEvidence, "NOT_COMPARABLE");
+    const missingResult = replaceFirstMetricRow(missingRow);
+    if (["metricRef", "methodRef", "methodVersionRef"].includes(field)) {
+      assert.equal(validateCompleteResult(request, missingResult), false,
+        `quality-evidence.v1 requires ${field}; malformed observed evidence is rejected`);
+    } else {
+      assert.equal(validateCompleteResult(request, missingResult), true, `${field} missing yields per-metric NOT_COMPARABLE`);
+    }
+  }
+  const contradictoryUnavailable = replaceFirstMetricRow({
+    ...observed.metricResults[0], comparability: "NOT_COMPARABLE",
+  });
+  assert.equal(validateCompleteResult(request, contradictoryUnavailable), false,
+    "NO_OBSERVATION plus NOT_COMPARABLE is rejected by complete-result validation");
+  for (const resultIndex of [1, 2]) {
+    for (const comparability of ["SAME_DECLARED_SCOPE", "NOT_COMPARABLE"]) {
+      const invalidUnavailableResult = {
+        ...observed,
+        metricResults: observed.metricResults.map((row, index) => index === resultIndex
+          ? { ...row, comparability }
+          : row),
+      };
+      assert.equal(validateCompleteResult(request, invalidUnavailableResult), false,
+        `${observed.metricResults[resultIndex].originalSide.status}/${observed.metricResults[resultIndex].candidateSide.currentness} cannot be labelled ${comparability}`);
+    }
+  }
+  const validNonComparableRow = makeObservedPairRow(
+    request.metricRefs[0], exactScopeEvidence,
+    { ...exactScopeEvidence, providerRef: "provider:other" }, "NOT_COMPARABLE");
+  assert.equal(validateCompleteResult(request, replaceFirstMetricRow(validNonComparableRow)), true,
+    "NOT_COMPARABLE retains both current observed source sides when tuple fields mismatch");
+  assert.equal(validateCompleteResult(request, { ...observed, metricResults: observed.metricResults.slice(0, 1) }), false,
+    "the semantic result validator rejects a partial result");
+  assert.equal(exactMetricCoverage(request, { ...observed, metricResults: observed.metricResults.slice(0, 2) }), false,
+    "a missing metric result is rejected");
+  assert.equal(exactMetricCoverage(request, { ...observed, metricRefs: request.metricRefs.slice(0, 2) }), false,
+    "a missing result metric is rejected");
+  assert.equal(exactMetricCoverage(request, { ...observed, metricRefs: [...request.metricRefs, "QUALITY-METRIC-UNKNOWN"] }), false,
+    "an extra result metric is rejected");
+  assert.equal(exactMetricCoverage(request, { ...observed, metricRefs: [request.metricRefs[0], request.metricRefs[0], request.metricRefs[2]] }), false,
+    "a duplicate result metric is rejected");
+  assert.equal(exactMetricCoverage(request, { ...observed, metricResults: [observed.metricResults[0], observed.metricResults[0], observed.metricResults[2]] }), false,
+    "a duplicate metric result is rejected");
+  assert.equal(exactMetricCoverage(request, { ...observed, metricResults: [...observed.metricResults, observed.metricResults[0]] }), false,
+    "an extra metric result is rejected");
+  assert.equal(exactMetricCoverage(request, { ...observed, metricResults: [...observed.metricResults].reverse() }), false,
+    "metric result order must match the request");
+  assert.equal(validateCompleteResult(request, { ...observed, candidateArtifactVersionRef: { ...candidateVersion, objectType: "media.domain.artifact" } }), false,
+    "wrong result objectType is rejected");
+  assert.equal(validateCompleteResult(request, { ...observed, originalArtifactVersionRef: { ...originalVersion, identity: { tenantId: "tenant-1", artifactId: "original" } } }), false,
+    "incomplete result ArtifactVersion identity is rejected");
+});
+
+test("quality-evidence.v1 stays backward compatible and provider scope remains fail-closed", () => {
+  const evidence = operations.ownerTypedObservationContracts.records
+    .find(({ id }) => id === "media.observation-contract.quality-evidence.v1");
+  const observation = evidence.resultSchema.properties.observations.items;
+  assert.ok(observation.properties.observationRef);
+  assert.ok(observation.properties.providerRef);
+  assert.ok(observation.properties.metricVersionRef);
+  for (const optionalField of ["observationRef", "providerRef", "metricVersionRef"]) {
+    assert.equal(observation.required.includes(optionalField), false, `${optionalField} remains optional in v1`);
+  }
+
+
+});
+
+test("J-28 spatial export is source-bound, report-complete, and distinct from delivery", () => {
+  const operation = operationById.get("media.operation.spatial-export.execute.v1");
+  assert.ok(operation, "J-28 has a canonical PDP-1 export command");
+  assert.equal(operation.operationKind, "COMMAND");
+  assert.equal(operation.workflowRef, "media.workflow-contract.spatial-export-boundary.v1");
+  assert.ok(operation.sourceRefs.includes(".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-28"));
+  assert.ok(operation.requestSchema.required.includes("sourceArtifactVersionRef"));
+  assert.ok(operation.requestSchema.required.includes("targetFormatProfileVersionRef"));
+  assert.ok(operation.requestSchema.required.includes("lossPolicyRef"));
+  assert.equal(operation.requestSchema.allOf.length, 2, "scene and rig exact versions are supplied together when applicable");
+  assert.equal(operation.requestSchema.properties.sceneVersionRef.format, "opaque-versioned-reference");
+  assert.equal(operation.requestSchema.properties.rigVersionRef.format, "opaque-versioned-reference");
+
+  const report = operation.resultSchema.properties.export.properties.conversionReport;
+  assert.deepEqual(report.required, [
+    "sourceArtifactRef", "sourceArtifactVersionRef", "targetFormatProfileRef", "targetFormatProfileVersionRef",
+    "sourceGeometryPlanRef", "coordinateTransformRef", "unitTransformRef", "axisTransformRef",
+    "handednessDisposition", "originDisposition", "fieldDispositionRecords", "unsupportedFieldDisposition", "integrityEvidenceRef",
+  ]);
+  assert.deepEqual(report.properties.fieldDispositionRecords.items.properties.disposition.enum,
+    ["PRESERVED", "TRANSFORMED", "OMITTED_WITH_EXPLICIT_LOSS", "REJECTED"]);
+  assert.ok(operation.resultSchema.properties.export.required.includes("outputArtifactVersionRef"));
+  assert.ok(operation.resultSchema.properties.export.required.includes("outputRegistrationResultRef"));
+  assert.ok(operation.resultSchema.properties.export.required.includes("outputRegistrationReceiptRef"));
+  assert.equal(operation.requestResultBindings[0].requireSeparateOutputRegistration,
+    "media.operation.artifact.output.register.v1");
+  const binding = operation.requestResultBindings[0];
+  assert.deepEqual(binding.exactPairs, ["requestId"], "the result is joined to its exact request identity");
+  assert.deepEqual(binding.exportExactPairs, [
+    "sourceArtifactRef", "sourceArtifactVersionRef", "targetFormatProfileRef", "targetFormatProfileVersionRef", "sourceGeometryPlanRef",
+  ], "the export echoes the exact requested source, target profile, and geometry plan tuple");
+  assert.deepEqual(binding.reportExactPairs, binding.exportExactPairs,
+    "the conversion report carries the same exact source, target profile, and geometry plan tuple");
+  assert.equal(binding.outputVersionMustMatchRegistrationReceipt, true);
+  assert.equal(binding.registrationResultMustResolveToSucceededResultForExactOperationAndRequest, true);
+  assert.equal(binding.outputArtifactVersionRefMustEqualRegistrationPayloadArtifactIdAndVersionId, true,
+    "the output version is the exact artifact identity/version in the registration result payload");
+  assert.equal(binding.registrationSourceVersionRefsMustContainExactRequestSourceArtifactVersionRef, true,
+    "the separate registration request includes this export request's exact source version");
+  assert.equal(binding.registrationReceiptRefMustEqualResolvedRegistrationPayloadReceipt, true,
+    "the export receipt reference is the exact receipt resolved from the registration result");
+  assert.equal(binding.reportAndExportSourceTargetPlanTuplesMustEqualRequest, true,
+    "both export and conversion report tuples are bound back to the request");
+  assert.equal(binding.missingOrMismatch, "UNKNOWN_OUTCOME");
+  assert.equal(binding.deliveryOrDestinationAcknowledgmentImplied, false);
+
+  const ajv = new Ajv2020({ allErrors: true, strict: false, validateFormats: false });
+  const validate = ajv.compile(operation.resultSchema);
+  const exported = Object.fromEntries(operation.resultSchema.required.map((name) =>
+    [name, schemaExample(operation.resultSchema.properties[name], operation.resultSchema)]));
+  exported.outcome = "EXPORTED";
+  exported.operationRef = operation.id;
+  exported.export = schemaExample(operation.resultSchema.properties.export, operation.resultSchema);
+  assert.equal(validate(exported), true, JSON.stringify(validate.errors));
+  assert.equal(validate({ ...exported, export: { ...exported.export, conversionReport: undefined } }), false,
+    "an export without the complete loss/conversion report is rejected");
+  assert.equal(validate({ ...exported, outcome: "UNKNOWN_OUTCOME", reasonRef: "reason:unknown" }), false,
+    "unknown outcome cannot also claim a candidate output");
+  const request = Object.fromEntries(operation.requestSchema.required.map((name) =>
+    [name, schemaExample(operation.requestSchema.properties[name], operation.requestSchema)]));
+  assert.equal(ajv.validate(operation.requestSchema, { ...request, sceneVersionRef: "scene:v1" }), false,
+    "a scene version cannot be supplied without its rig version");
+});
+
+test("J-28 source binding rejects mismatched export and registration evidence", () => {
+  const operation = operationById.get("media.operation.spatial-export.execute.v1");
+  const binding = operation.requestResultBindings[0];
+  const tupleFields = [...new Set([...binding.exportExactPairs, ...binding.reportExactPairs])];
+  const request = Object.fromEntries(operation.requestSchema.required.map((name) =>
+    [name, schemaExample(operation.requestSchema.properties[name], operation.requestSchema)]));
+  request.requestId = "spatial-export-request-28";
+  for (const field of tupleFields) request[field] = `request:${field}`;
+
+  const report = Object.fromEntries(operation.resultSchema.properties.export.properties.conversionReport.required.map((name) =>
+    [name, schemaExample(operation.resultSchema.properties.export.properties.conversionReport.properties[name],
+      operation.resultSchema.properties.export.properties.conversionReport)]));
+  const exportedResult = {
+    outcome: "EXPORTED",
+    operationRef: operation.id,
+    requestId: request.requestId,
+    resultDigest: `sha256:${"a".repeat(64)}`,
+    observedAt: "2026-10-19T00:00:00Z",
+    export: {
+      ...Object.fromEntries(operation.resultSchema.properties.export.required
+        .filter((name) => name !== "conversionReport")
+        .map((name) => [name, schemaExample(operation.resultSchema.properties.export.properties[name],
+          operation.resultSchema.properties.export)])),
+      conversionReport: report,
+    },
+  };
+  for (const field of tupleFields) {
+    exportedResult.export[field] = request[field];
+    exportedResult.export.conversionReport[field] = request[field];
+  }
+
+  const registrationRequest = {
+    operationRef: binding.requireSeparateOutputRegistration,
+    requestId: "registration-request-28",
+    sourceVersionRefs: [request.sourceArtifactVersionRef],
+  };
+  const payload = {
+    kind: "governed-artifact-reference",
+    artifactId: "exported-artifact-28",
+    versionId: "version-3",
+    registrationReceiptRef: "receipt:registration-28",
+  };
+  const registrationResult = {
+    outcome: "SUCCEEDED",
+    operationRef: binding.requireSeparateOutputRegistration,
+    operationVersion: 1,
+    requestId: registrationRequest.requestId,
+    outputs: [{ artifactType: "governed-artifact-reference-or-lifecycle-observation", payload }],
+  };
+  const registrationResultRef = "registration-result:28";
+  const outputVersionRef = (artifactId, versionId) => `artifact-version:${artifactId}:${versionId}`;
+  exportedResult.export.outputRegistrationResultRef = registrationResultRef;
+  exportedResult.export.outputArtifactVersionRef = outputVersionRef(payload.artifactId, payload.versionId);
+  exportedResult.export.outputRegistrationReceiptRef = payload.registrationReceiptRef;
+
+  // Test-local evaluator for the declarative binding only; it is not a runtime implementation.
+  const evaluateBinding = (candidate, resolvedRegistrationRef, resolvedRegistrationResult, resolvedRegistrationRequest) => {
+    if (candidate.outcome !== binding.when || candidate.requestId !== request.requestId) return false;
+    if (candidate.export.outputRegistrationResultRef !== resolvedRegistrationRef) return false;
+    if (!resolvedRegistrationResult || resolvedRegistrationResult.outcome !== "SUCCEEDED"
+      || resolvedRegistrationResult.operationRef !== binding.requireSeparateOutputRegistration
+      || resolvedRegistrationResult.requestId !== resolvedRegistrationRequest?.requestId
+      || resolvedRegistrationRequest.operationRef !== binding.requireSeparateOutputRegistration) return false;
+    if (!resolvedRegistrationRequest.sourceVersionRefs.includes(request.sourceArtifactVersionRef)) return false;
+    const outputs = resolvedRegistrationResult.outputs ?? [];
+    if (outputs.length !== 1) return false;
+    const registered = outputs[0]?.payload;
+    if (!registered?.artifactId || !registered?.versionId || !registered?.registrationReceiptRef) return false;
+    if (candidate.export.outputArtifactVersionRef !== outputVersionRef(registered.artifactId, registered.versionId)) return false;
+    if (candidate.export.outputRegistrationReceiptRef !== registered.registrationReceiptRef) return false;
+    return [...binding.exportExactPairs, ...binding.reportExactPairs]
+      .every((field) => candidate.export[field] === request[field]
+        && candidate.export.conversionReport[field] === request[field]);
+  };
+
+  assert.equal(evaluateBinding(exportedResult, registrationResultRef, registrationResult, registrationRequest), true,
+    "the internally consistent positive fixture satisfies the declarative binding");
+  assert.equal(evaluateBinding({ ...exportedResult, requestId: "different-request" }, registrationResultRef, registrationResult, registrationRequest), false,
+    "a result cannot echo a different request ID");
+  for (const field of tupleFields) {
+    assert.equal(evaluateBinding({ ...exportedResult, export: { ...exportedResult.export, [field]: "foreign-value" } },
+      registrationResultRef, registrationResult, registrationRequest), false, `export ${field} must exactly echo the request`);
+    assert.equal(evaluateBinding({ ...exportedResult, export: { ...exportedResult.export,
+      conversionReport: { ...exportedResult.export.conversionReport, [field]: "foreign-value" } },
+    }, registrationResultRef, registrationResult, registrationRequest), false, `report ${field} must exactly echo the request`);
+  }
+  assert.equal(evaluateBinding({ ...exportedResult, export: { ...exportedResult.export,
+    outputArtifactVersionRef: "artifact-version:other-artifact:version-3" } }, registrationResultRef, registrationResult, registrationRequest), false,
+  "the output artifact version must match the registered artifact ID and version ID");
+  assert.equal(evaluateBinding({ ...exportedResult, export: { ...exportedResult.export,
+    outputRegistrationReceiptRef: "receipt:other-registration" } }, registrationResultRef, registrationResult, registrationRequest), false,
+  "the export receipt reference must match the resolved registration payload receipt");
+  assert.equal(evaluateBinding(exportedResult, "registration-result:unresolved", registrationResult, registrationRequest), false,
+    "the output registration result reference must resolve to the supplied registration result");
+  assert.equal(evaluateBinding(exportedResult, registrationResultRef, { ...registrationResult,
+    outputs: [...registrationResult.outputs, ...registrationResult.outputs] }, registrationRequest), false,
+  "duplicate registration outputs do not establish one exact registered output");
+  for (const outcome of ["REJECTED", "UNKNOWN_OUTCOME"]) {
+    assert.equal(evaluateBinding(exportedResult, registrationResultRef, { ...registrationResult, outcome }, registrationRequest), false,
+      `${outcome} registration cannot substantiate an exported output`);
+  }
+  assert.equal(evaluateBinding(exportedResult, registrationResultRef, registrationResult,
+    { ...registrationRequest, sourceVersionRefs: [] }), false,
+  "registration must retain the exact source version from the export request");
+
+  assert.equal(binding.deliveryOrDestinationAcknowledgmentImplied, false);
+  const ajv = new Ajv2020({ allErrors: true, strict: false, validateFormats: false });
+  const validateResult = ajv.compile(operation.resultSchema);
+  assert.equal(validateResult({ ...exportedResult, export: { ...exportedResult.export,
+    deliveryReceiptRef: "receipt:delivery" } }), false,
+  "an export result cannot add a delivery receipt or destination acknowledgment claim");
 });

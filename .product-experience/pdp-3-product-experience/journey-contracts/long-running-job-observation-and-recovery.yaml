@@ -100,6 +100,13 @@ pdp1ResultEvidence:
       operationRef: media.operation-slice.cancel-job
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema
+      journeyStateApplicabilityRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/4/stepDefinitionSemantics/transitionApplicability
+      operationStateSemanticsRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition/stateSemantics
+      stateRefs:
+        - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_REQUESTED
+        - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/CANCELLED
+      transitionRef: null
+      transitionDisposition: "No exact from-state or transition ID is defined; cancellation request acknowledgement does not establish terminal cancellation."
       exactResult: The durable cancellation-request record for the exact job and current attempt set; it does not establish provider stop, terminal cancellation, or absence of further effect.
       unknownDisposition: UNKNOWN retains the same request identity and requires reconciliation; no terminal cancellation is inferred.
     - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/5
@@ -107,8 +114,27 @@ pdp1ResultEvidence:
       operationRef: media.operation-slice.retry-job
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema
+      journeyStateApplicabilityRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/5/stepDefinitionSemantics/transitionApplicability
+      operationStateSemanticsRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/stateSemantics
+      stateRefs:
+        - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CLAIMED
+        - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RUNNING
+      transitionRef: null
+      transitionDisposition: "No exact from-state or transition ID is defined; retry request alone does not establish dispatch or outcome."
       exactResult: The durable new fenced attempt identity under the same logical job; it does not establish provider dispatch or processing outcome and is conditional on current authority, eligibility, and budget.
       unknownDisposition: UNKNOWN requires reconciliation of the same request identity before any new request; UNKNOWN does not authorize replay.
+completionDisposition:
+  status: SOURCE_BOUND_DEFINITION_ONLY; RUNTIME_NOT_ADMITTED; OWNER_EVIDENCE_NOT_ASSERTED
+  sourceRefs:
+    - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-20/completion
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+    - .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+  completion: The user observes owner-confirmed completion or a known uncertainty for the same request and job; recovery preserves already completed work.
+  identity: Preserve the exact requestId and job identity (exactTargetRef) across detachment, reattachment, observation, reconciliation, and any authorized recovery.
+  unknownDisposition: If completion or finality is unconfirmed, retain UNKNOWN for that same requestId and job; provide the outcome-check path and do not infer success, failure, cancellation, or absence from timeout, detachment, or missing evidence.
+  recoveryDisposition: Reattach and inspect/reconcile the existing job first. Preserve completed work and prior-attempt history; any retry remains conditional on owner classification, current authority, and budget.
+  evidenceBoundary: Definition-grade source binding only; no owner receipt, runtime result, transport admission, or completion evidence is asserted.
+  runtimeAdmission: NOT_ADMITTED
 intent: media.intent.resolve-job
 preconditions:
   - The job has one stable owner-issued identity and the current actor may view
@@ -1823,19 +1849,31 @@ steps:
             NOT_ADMITTED and no owner evidence/result is asserted
           laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/terminalSuccess
         failure:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.criticalNonhappyPaths
-          proposal:
-            - id: browser-or-cli-detaches
-              response: preserve-job-identity-and-status;
-                stopping-observation-is-not-cancellation
-            - id: cancellation-unconfirmed
-              response: retain-running-or-pending-state-until-owner-evidence-confirms-a-final-outcome
-            - id: remote-outcome-unknown
-              response: disable-resubmission-and-check-the-existing-job-outcome
-            - id: progress-unavailable
-              response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
+          status: SOURCE_DEFINED_OPERATION_FAILURE_BRANCHES; DEADLINE_BRANCH_BLOCKED
+          scope: step-05-cancel-job
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition
+          branches:
+            - id: already-terminal
+              sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition/guards
+              condition: terminal-job-is-returned-without-rewriting-history
+              disposition: preserve-the-authoritative-terminal-job-and-attempt-projection; do-not-create-or-imply-a-cancellation-transition
+            - id: denied
+              sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition/errors
+              condition: ACCESS_DENIED-or-current-cancel-authority-is-not-established
+              disposition: no-cancellation-request-effect-is-asserted; retain-last-authoritative-job-state
+            - id: request-unknown-or-lost-ack
+              sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition/retry
+              condition: UNKNOWN_OUTCOME-or-acknowledgement-is-lost
+              disposition: preserve-the-same-requestId-and-reconcile-the-same-job-and-attempt-evidence-before-any-resubmission; automatic-retry-is-forbidden
+            - id: reconciliation-unknown
+              sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition/recovery
+              condition: dispatch-or-effect-finality-remains-unknown
+              disposition: keep-job-current-or-unknown; do-not-claim-CANCELLED; permit-a-racing-terminal-result
+            - id: deadline-semantics-unavailable
+              sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition
+              condition: a-cancellation-deadline-or-deadline-expiry-result-is-requested
+              disposition: BLOCKED_NO_P1_CANCEL_DEADLINE_FIELD_GUARD_OR_RESULT_SEMANTIC; preserve-pending-or-UNKNOWN-and-do-not-infer-timeout-as-cancellation
+              blocker: P1 cancel-job ownerDefinition defines no deadline request field, deadline guard, or deadline-specific error/result; an unrelated retry deadline cannot define cancellation timeout behavior
         degradedBehavior:
           status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
           sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema
@@ -1892,7 +1930,7 @@ steps:
           - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/OUTCOME_UNKNOWN
           - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUPERSEDED
         canonicalOperationRef: media.operation-slice.cancel-job
-        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+        authorityRef: null
         transitionRef: null
         requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         scenarioRefs: []
@@ -2266,26 +2304,42 @@ steps:
           operationRef: media.operation-slice.retry-job
           meaning: After prior-effect reconciliation, current authority and policy,
             deadline, and retry budget pass, the exact P1 result is at most one
-            fenced new-attempt identity under the same logical job; the receipt
-            does not establish provider dispatch or processing outcome. Retry
-            remains conditional and runtime NOT_ADMITTED.
+            fenced new-attempt identity under the same logical job; provider
+            dispatch and outcome remain separate, and the receipt does not
+            establish provider dispatch or processing outcome. Retry remains
+            conditional and runtime NOT_ADMITTED.
           evidenceBoundary: definition-grade operation contract only; runtimeAdmission
             NOT_ADMITTED and no owner evidence/result is asserted
           laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/terminalSuccess
         failure:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.criticalNonhappyPaths
-          proposal:
-            - id: browser-or-cli-detaches
-              response: preserve-job-identity-and-status;
-                stopping-observation-is-not-cancellation
-            - id: cancellation-unconfirmed
-              response: retain-running-or-pending-state-until-owner-evidence-confirms-a-final-outcome
-            - id: remote-outcome-unknown
-              response: disable-resubmission-and-check-the-existing-job-outcome
-            - id: progress-unavailable
-              response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
+          status: SOURCE_DEFINED_OPERATION_FAILURE_BRANCHES
+          scope: step-06-retry-job
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition
+          branches:
+            - id: denied
+              sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/errors
+              condition: ACCESS_DENIED-or-current-authority-is-not-established
+              disposition: preserve-job-and-prior-attempt; do-not-dispatch-or-claim-a-new-attempt
+            - id: retry-forbidden
+              sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/guards
+              condition: prior-attempt-is-not-owner-classified-retryable-or-prior-outcome-is-UNKNOWN
+              disposition: do-not-dispatch; for-UNKNOWN-run-separate-authoritative-reconciliation-first
+            - id: stale-authority-or-version
+              sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/errors
+              condition: current-authority-or-expected-job-version-does-not-match
+              disposition: reject-without-new-attempt; reread-and-reauthorize-before-a-new-explicit-request
+            - id: exhausted-budget
+              sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/errors
+              condition: RETRY_BUDGET_EXHAUSTED-or-retry-budget-remains-guard-fails
+              disposition: retry-forbidden; no-new-attempt-or-fence-is-created
+            - id: retry-request-unknown-or-lost-ack
+              sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/retry
+              condition: UNKNOWN_OUTCOME-or-acknowledgement-is-lost-after-retry-request
+              disposition: reconcile-the-same-requestId-and-job-before-any-resubmission; never-allocate-a-second-attempt-for-a-matching-request
+            - id: prior-effect-reconciliation-unknown
+              sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerDefinition/recovery
+              condition: prior-attempt-effect-cannot-be-authoritatively-classified
+              disposition: UNKNOWN-denies-retry; preserve-prior-attempt-history-and-do-not-dispatch
         degradedBehavior:
           status: CONDITIONAL_SOURCE_BACKED_HOLD
           sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema
@@ -2343,7 +2397,7 @@ steps:
           - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/OUTCOME_UNKNOWN
           - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUPERSEDED
         canonicalOperationRef: media.operation-slice.retry-job
-        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+        authorityRef: null
         transitionRef: null
         requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         scenarioRefs:

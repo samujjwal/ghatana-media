@@ -72,9 +72,36 @@ test("P1 operation current-source review pins this source and preserves historic
   assert.equal(review.reviewKind, "P1_OWNER_SOURCE_RECONCILIATION");
   assert.equal(review.sourcePath, sourcePath);
   assert.equal(review.currentSourceSha256, sha256);
+  const pairReview = review.currentCandidateMetricPairDefinitionReview;
+  assert.equal(pairReview.sourcePins["operations.yaml"], sha256);
+  assert.equal(pairReview.sourcePins["owner-action-wire-contracts.yaml"], wireSha256);
+  assert.equal(pairReview.operation.id, "media.operation.action.compare-candidate-on-metric");
+  assert.equal(pairReview.operation.currentContractVersion, 2);
+  assert.equal(pairReview.operation.observationContractId, "media.observation-contract.candidate-metric-pair.v1");
+  assert.equal(pairReview.operation.wireId, "media.owner-action-wire.compare-candidate-on-metric.v2");
+  assert.equal(pairReview.population.ownerTypedObservationContracts, source.ownerTypedObservationContracts.records.length);
+  assert.equal(pairReview.population.validationRules, source.ownerTypedObservationValidationRules.records.length);
+  assert.equal(pairReview.ownerAcceptance, "NOT_CLAIMED");
+  assert.equal(pairReview.runtimeAdmission, "NOT_ADMITTED");
+  assert.equal(pairReview.transportAdmission, "NOT_ADMITTED");
+  assert.match(pairReview.operation.resultMeaning, /every providerSignalContract\.scopeIdentity field/u);
+  assert.match(pairReview.operation.resultMeaning, /NOT_COMPARABLE/u);
+  assert.match(pairReview.operation.resultMeaning, /UNKNOWN/u);
   const reinspection = review.currentSourceReinspection;
   assert.equal(reinspection.status, "REINSPECTED_CURRENT_SOURCE_CUT");
   assert.equal(reinspection.currentSourceSha256, sha256);
+  const visualJ05 = reinspection.supplementalVisualJ05Review;
+  assert.equal(visualJ05.findingId, "PDP1-J05-VISUAL-OBSERVATION-SOURCE-REINSPECTION-2026-10-19");
+  assert.equal(visualJ05.currentSourceSha256, sha256);
+  assert.equal(visualJ05.operationId, "media.operation.vision-analysis");
+  assert.ok(visualJ05.sourceSelectors.includes(
+    ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty",
+  ));
+  assert.match(visualJ05.reconciledMeaning, /exact immutable image-or-video subject version/u);
+  assert.match(visualJ05.reconciledMeaning, /legacy opaque timeRange is never converted/u);
+  assert.equal(visualJ05.focusedVerification.status, "PASS");
+  assert.equal(visualJ05.focusedVerification.passed, 8);
+  assert.equal(visualJ05.focusedVerification.total, 8);
   assert.equal(reinspection.previousReviewedSourceSha256,
     "f2d32a678d1cbe197d92ac74c4a6ec2efbda7dedd506e38a07462bd739ba5087");
   assert.equal(review.currentSourceCutDeltaReview.currentSourceSha256, sha256);
@@ -82,14 +109,16 @@ test("P1 operation current-source review pins this source and preserves historic
     "HISTORICAL_PASS_NOT_CURRENT_FOR_PXD164");
   assert.equal(review.currentSourceCutDeltaReview.focusedVerification.currentSourceSha256,
     "62d0a4050a43da1c58a63d12adaa7c27055c63afc51580bd1e2478d1da3dace8");
-  assert.equal(review.currentSourceCutDeltaReview.supplementalPdp1DefinitionDelta.currentSourceSha256, sha256);
+  assert.equal(review.currentSourceCutDeltaReview.supplementalPdp1DefinitionDelta.currentSourceSha256,
+    "a83eb064b7cc41c2914c8c1dd7249255af154859b08f4cd6d9b188945771bac5");
   const definitionDelta = review.currentSourceCutDeltaReview.supplementalPdp1DefinitionDelta;
   assert.equal(definitionDelta.priorPdp1DefinitionFollowUp.findingId,
     "PDP1-TRANSCRIPTION-FINGERPRINT-OPTIONAL-FIELDS-OMITTED");
   const transcriptionFingerprintFollowUp = definitionDelta.latestPdp1DefinitionFollowUp;
   assert.equal(transcriptionFingerprintFollowUp.findingId, "PDP1-TRANSCRIPTION-FINGERPRINT-VERSION-NOT-ADVANCED");
   assert.equal(transcriptionFingerprintFollowUp.operationId, "media.operation.transcription-submission");
-  assert.equal(transcriptionFingerprintFollowUp.currentSourceSha256, sha256);
+  assert.equal(transcriptionFingerprintFollowUp.currentSourceSha256,
+    "a83eb064b7cc41c2914c8c1dd7249255af154859b08f4cd6d9b188945771bac5");
   assert.equal(transcriptionFingerprintFollowUp.disposition,
     "RESOLVED_WITH_SUCCESSOR_FINGERPRINT_VERSION");
   assert.equal(transcriptionFingerprintFollowUp.focusedVerification.command,
@@ -101,6 +130,17 @@ test("P1 operation current-source review pins this source and preserves historic
     "media.transcription-submission-fingerprint.v4");
   assert.equal(transcriptionFingerprintFollowUp.definitionResolution.supersedes,
     "media.transcription-submission-fingerprint.v3");
+  const captionResultIdentityFollowUp = definitionDelta.latestCaptionVersionResultIdentityReview;
+  assert.equal(captionResultIdentityFollowUp.findingId,
+    "PDP1-CAPTION-WRITE-RESULT-REQUEST-ID-OPTIONAL");
+  assert.equal(captionResultIdentityFollowUp.currentSourceSha256,
+    "a83eb064b7cc41c2914c8c1dd7249255af154859b08f4cd6d9b188945771bac5");
+  assert.equal(captionResultIdentityFollowUp.disposition,
+    "RESOLVED_REQUIRED_ECHO_FOR_ALL_OUTCOMES");
+  assert.equal(captionResultIdentityFollowUp.definitionResolution.requiredResultIdentity,
+    "requestId is required for SUCCEEDED, REJECTED, and UNKNOWN_OUTCOME results.");
+  assert.equal(captionResultIdentityFollowUp.ownerAcceptance, "NOT_CLAIMED");
+  assert.equal(captionResultIdentityFollowUp.runtimeAdmission, "NOT_ADMITTED");
   assert.equal(reinspection.previousSourceBytesAvailableInGit, false);
   assert.equal(reinspection.immediatePredecessorSourceSha256,
     "a038e57033cb67a072f7574185e2cfbe407511f1b58d6e2ea288ee8e98d3cf88");
@@ -135,14 +175,15 @@ test("P1 operation current-source review pins this source and preserves historic
   const pxd164 = reinspection.pxd164SemanticReconciliation;
   assert.equal(pxd164.decisionRef, ".product-experience/decision-log.md#PXD-164");
   assert.equal(pxd164.operationId, "media.operation.action.request-admitted-speech-operation");
-  assert.equal(pxd164.operationSourceSha256, sha256);
-  assert.equal(pxd164.wireSourceSha256, wireSha256);
+  assert.equal(pxd164.operationSourceSha256, "a83eb064b7cc41c2914c8c1dd7249255af154859b08f4cd6d9b188945771bac5");
+  assert.equal(pxd164.wireSourceSha256, "fe399c563d6681d251bdecc5e03f1cd8849d77e707df4d768305ce5f7abda26f");
   assert.equal(pxd164.status, "INTERNAL_SOURCE_REVIEW_COMPLETE; PHASE_ACCEPTANCE_NOT_CLAIMED");
   assert.equal(pxd164.focusedVerification.status, "PASS");
   assert.equal(pxd164.focusedVerification.passed, 75);
   assert.equal(pxd164.focusedVerification.total, 75);
-  assert.equal(pxd164.focusedVerification.sourcePins.operationsSha256, sha256);
-  assert.equal(pxd164.focusedVerification.sourcePins.ownerActionWireContractsSha256, wireSha256);
+  assert.equal(pxd164.focusedVerification.sourcePins.operationsSha256, "a83eb064b7cc41c2914c8c1dd7249255af154859b08f4cd6d9b188945771bac5");
+  assert.equal(pxd164.focusedVerification.sourcePins.ownerActionWireContractsSha256,
+    "fe399c563d6681d251bdecc5e03f1cd8849d77e707df4d768305ce5f7abda26f");
   assert.equal(pxd164.ownerAcceptance, "NOT_CLAIMED");
   assert.equal(pxd164.independentSpecialistAcceptance, "NOT_CLAIMED");
   assert.equal(pxd164.runtimeAdmission, "NOT_ADMITTED");
@@ -255,17 +296,18 @@ test("P1 current reinspection reconciles the 147-action and typed-observation in
   assert.equal(populations.capabilityOperationRecords, 462);
   assert.equal(populations.inputPayloadSchemas, source.capabilityOperationContracts.inputPayloadSchemas.length);
   assert.equal(populations.outputPayloadSchemas, source.capabilityOperationContracts.outputPayloadSchemas.length);
-  assert.equal(populations.ownerTypedObservationContracts, 15);
+  assert.equal(populations.ownerTypedObservationContracts, 16);
   assert.equal(populations.ownerTypedObservationValidationRules, 15);
   assert.equal(reinspection.currentInventoryReconciliation.capabilityOperationSchemasAndMappings.capabilityOperationMappingRecordCount,
     source.capabilityOperationContracts.records.length);
 
   const observations = source.ownerTypedObservationContracts.records;
   const validations = source.ownerTypedObservationValidationRules.records;
-  assert.equal(observations.length, 15);
+  assert.equal(observations.length, 16);
   assert.equal(validations.length, 15);
   assert.deepEqual(new Set(validations.map(({ id }) => id)),
-    new Set(observations.map(({ id }) => id.replace("media.observation-contract.", "media.observation-validation."))));
+    new Set(observations.filter(({ id }) => id !== "media.observation-contract.candidate-metric-pair.v1")
+      .map(({ id }) => id.replace("media.observation-contract.", "media.observation-validation."))));
   const operationIds = new Set([
     ...source.operations.map(({ id }) => id),
     ...source.individualOperationContracts.records.map(({ id }) => id),
@@ -630,4 +672,37 @@ test("the P1 source review does not imply implementation, admission, or phase ac
     const actual = createHash("sha256").update(readFileSync(resolve(root, source.path))).digest("hex");
     assert.equal(actual, source.sha256, `${source.path} changed; refresh this semantic census review`);
   }
+});
+
+test("P1 current source cut records job.submit identity authority as compare-only", () => {
+  const currentOperationsSha256 = createHash("sha256").update(sourceBytes).digest("hex");
+  const owner = ownerOperations.get("media.operation.job.submit.v1");
+  const exactAuthorityRef = ".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope/callerIdentityHintPolicy";
+  const authority = readSourceYaml(".product-experience/pdp-1-domain-data/authority.yaml");
+  const policy = authority.ownerDefinedPdp10AuthorityScopes.identityScope.callerIdentityHintPolicy;
+  const delta = review.currentSourceCutDeltaReview.jobSubmitIdentityAuthorityRuleBinding;
+
+  assert.equal(review.currentSourceSha256, currentOperationsSha256);
+  assert.equal(review.currentSourceReinspection.currentSourceSha256, currentOperationsSha256);
+  assert.equal(review.currentSourceCutDeltaReview.currentSourceSha256, currentOperationsSha256);
+  assert.equal(review.currentCandidateMetricPairDefinitionReview.sourcePins["operations.yaml"], currentOperationsSha256);
+  assert.equal(review.currentCandidateMetricPairDefinitionReview.sourcePins["operations.yaml"], currentOperationsSha256);
+  assert.equal(owner.identityAuthorityRuleRef, exactAuthorityRef);
+  assert.equal(delta.operationId, owner.id);
+  assert.equal(delta.selector,
+    ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/identityAuthorityRuleRef");
+  assert.equal(delta.authorityRef, exactAuthorityRef);
+  assert.equal(delta.currentSourceSha256, currentOperationsSha256);
+  assert.match(policy.authoritativeContext, /verified host-attested tenant, principal, and current delegation/u);
+  assert.match(policy.ingressHints, /compare-only/u);
+  assert.match(policy.ingressHints, /when absent, use the verified host context/u);
+  assert.match(policy.ingressHints, /can never widen or replace the verified scope/u);
+  assert.equal(policy.runtimeAdmission, "NOT_ADMITTED");
+  assert.equal(policy.externalIdentityProviderOrRuntime, "unverified; NOT_ADMITTED");
+  assert.equal(delta.boundary.includes("Owner acceptance is NOT_CLAIMED"), true);
+  assert.equal(delta.boundary.includes("runtime and transport admission are NOT_ADMITTED"), true);
+  assert.match(review.currentCandidateMetricPairDefinitionReview.operation.resultMeaning,
+    /Pair comparability requires every providerSignalContract\.scopeIdentity field to match exactly/u);
+  assert.match(review.currentCandidateMetricPairDefinitionReview.sourcePinRefreshNote, /unrelated/u);
+  assert.match(review.currentCandidateMetricPairDefinitionReview.sourcePinRefreshNote, /meaning are unchanged/u);
 });

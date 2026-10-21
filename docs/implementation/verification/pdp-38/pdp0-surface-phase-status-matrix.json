@@ -4,21 +4,21 @@
   "campaign": {
     "macroStage": "DISCOVERY",
     "phase": "PDP-0",
-    "sourceBaselineCommit": "79329cc4ec49ce546bc1097f53f3c2ff125bad2c",
+    "sourceBaselineCommit": "d75ae0c8079c9faea83c3460d351b462a363c76f",
     "status": "DEV_COMPLETE"
   },
-  "generatedAt": "2026-10-20T20:29:35.227Z",
+  "generatedAt": "2026-10-21T07:45:50.786Z",
   "statusRecordRef": "docs/implementation/pdp-0-phase-dev-status.json",
-  "statusRecordSha256": "d380bb2ba2c877daadef8ebc7c99de77ce38eb77168d292129a018032dd714df",
-  "sourceFingerprintSetSha256": "43bba5d75017ebd95245b6fede4873d56b132930b03e33207fe6ca809b9841a4",
+  "statusRecordSha256": "fe52d0061e3e6edbcfe8012ef6ac833d1835577d102a362a066a289b2fae22c1",
+  "sourceFingerprintSetSha256": "0f9b08edbb55a125bd508c24ce15869ce4b28aed0cd77304f27199065ce4c6fa",
   "sourceFingerprints": {
     ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
     ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
     ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
     ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
     ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-    ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-    "docs/implementation/pdp-0-phase-dev-status.json": "d380bb2ba2c877daadef8ebc7c99de77ce38eb77168d292129a018032dd714df"
+    "docs/implementation/pdp-0-phase-dev-status.json": "fe52d0061e3e6edbcfe8012ef6ac833d1835577d102a362a066a289b2fae22c1",
+    ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
   },
   "denominatorValidation": {
     "status": "PASS",
@@ -104,8 +104,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -1582,7 +1582,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2"
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -3046,7 +3046,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2"
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -4516,7 +4516,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2"
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -5982,8 +5982,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -7550,8 +7550,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -9189,8 +9189,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -10823,8 +10823,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -12564,7 +12564,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2"
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -14028,7 +14028,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2"
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -15494,8 +15494,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -16972,7 +16972,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2"
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -18464,8 +18464,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -19945,8 +19945,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -21426,8 +21426,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -23001,8 +23001,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -24488,7 +24488,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2"
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -25951,7 +25951,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2"
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -27427,8 +27427,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -28959,7 +28959,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2"
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -30504,8 +30504,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -32009,8 +32009,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -33511,7 +33511,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2"
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -35004,8 +35004,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -36515,8 +36515,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -38083,8 +38083,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -39672,9 +39672,9 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md": "59699d732188d23787c33a402df9cef5c6006a42fc96eace422197bbd5a08401",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -41179,8 +41179,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -42723,8 +42723,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -44234,8 +44234,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -45772,8 +45772,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -47296,8 +47296,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -48920,8 +48920,8 @@
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -50536,9 +50536,9 @@
         ".product-experience/pdp-3-product-experience/screen-registry.yaml": "b49380a9bdedaee554a21a07b4eb26bd6891d16c784fb2ccbfb7c3bc09f1d438",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -52111,9 +52111,9 @@
         ".product-experience/pdp-3-product-experience/screen-registry.yaml": "b49380a9bdedaee554a21a07b4eb26bd6891d16c784fb2ccbfb7c3bc09f1d438",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -54085,9 +54085,9 @@
         ".product-experience/pdp-2-design-interface-system/api/conventions.yaml": "3b3c3f47dbe86edf8fe6d5697ceb5e98f64f68c4abaa2c02597c5db3d2006719",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -56069,8 +56069,8 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -57699,8 +57699,8 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -59203,8 +59203,8 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -60708,8 +60708,8 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -62219,8 +62219,8 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -63752,9 +63752,9 @@
         ".product-experience/pdp-2-design-interface-system/sdk/conventions.yaml": "e18f2ecd1f3948c4d3e435b8cc2c7ce9c3eaa7d52b88fac351d1d57e3a40ad7f",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -65740,8 +65740,8 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978"
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -67729,7 +67729,7 @@
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2"
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -69220,7 +69220,7 @@
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2"
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -70695,9 +70695,9 @@
         ".product-experience/pdp-0-product-truth/dependency-contracts.yaml": "b698f43e88c61170c1a25f6789062b87ef07bd1edaca2261e077cf5ae2efbaaf",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -72192,7 +72192,7 @@
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2"
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -73792,7 +73792,7 @@
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2"
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -75488,7 +75488,7 @@
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2"
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -76957,9 +76957,9 @@
         ".product-experience/authority-map.yaml": "03d010ab4985ff76b8dafea6a32d86196fe7bf2a034f8b43216b6378c35ead3e",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -78442,9 +78442,9 @@
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -79962,7 +79962,7 @@
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2"
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -81456,8 +81456,8 @@
         ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml": "3bcc559debed0e6c0e21536ea409ede27fff59903e4e7e9ad852cef7f7a79f72",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -82986,9 +82986,9 @@
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
-        ".product-experience/decision-log.md": "49054932a5e66272ab9947b6f1f98607cec8b4c6fe2067559b25ad57e7b99ac2",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26"
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
       },
       "sourceCurrent": true,
       "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
@@ -84446,8 +84446,8 @@
   "sourcePinImpactReview": {
     "phase": "PDP-0",
     "reviewedPath": "docs/implementation/pdp-0-phase-dev-status.json",
-    "predecessorSha256": "d2694d352098dc8db6c4b115950ccc9a41e4b553cc11d86738a7623cec12f828",
-    "currentSha256": "d380bb2ba2c877daadef8ebc7c99de77ce38eb77168d292129a018032dd714df",
+    "predecessorSha256": "1dcfb709f49c2bd6184ec32f830ded18fe04c7fa9b6c0153ca6c9f7e8ce181f6",
+    "currentSha256": "fe52d0061e3e6edbcfe8012ef6ac833d1835577d102a362a066a289b2fae22c1",
     "disposition": "PDP0_DEFINITION_EXTENSION_APPLICABILITY_MATRIX_REFRESH; PXD207_EXPLICIT_PARTITION_SOURCE_CURRENT",
     "impact": "The 54-surface matrix now carries all 4,158 channel-by-surface cells and 378 extension-by-surface summaries. Counts: 14 direct proposal cells, 21 derived aggregate proposal cells, 3430 explicit owner-decided N/A cells, 616 source-backed support-only N/A cells, and 77 source-backed archived N/A cells. PXD-207 source decisions preserve owner approval and independent acceptance as unclaimed.",
     "pdp0Retest": "P0_TESTS_PASS; DISCOVERY_BARRIER_RECALCULATED",
@@ -84629,7 +84629,7 @@
   },
   "phaseSourceCurrentness": {
     "status": "CURRENT",
-    "sourcePinCount": 164,
+    "sourcePinCount": 168,
     "staleSourcePinCount": 0,
     "staleSourcePins": [],
     "note": "Live byte pins are checked by file path; #fragment pins are compared with pdp0PhaseScopedSourcePins() projections."

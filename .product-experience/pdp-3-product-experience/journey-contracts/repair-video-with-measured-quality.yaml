@@ -23,18 +23,52 @@ channelBindingState: "PDP-3 binding registry records source references and expli
 channelDefinitionEvidence:
   status: SOURCE_GROUNDED_PARTIAL; TRANSPORT_UNBOUND; RUNTIME_NOT_ADMITTED
   sourceRefs:
-    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1/requestSchema
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
+    - .product-experience/pdp-1-domain-data/value-objects.yaml#providerSignalContract
+    - .product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions
     - .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/identity
-  sourceGroundedInputs: exact-immutable-subject-version; nonempty-unique-metricRefs-for-quality-observation; scoped-read-only-comparison
-  sourceGroundedResult: typed-quality-observation-with-subjectArtifactVersionRef-metricRefs-evidenceRefs-observedAt-and-currentness
+  sourceGroundedInputs: Exact immutable subject version for the quality observation; for paired comparison, two distinct ordered exact immutable originalArtifactVersionRef/candidateArtifactVersionRef values, nonempty unique metricRefs resolved exactly to PDP-0 quality-policy metric IDs, and requestId.
+  sourceGroundedResult: P1 v2 candidate-metric-pair echoes requestId, exact ordered original/candidate versions, and metricRefs; one ordered metricResults row per requested metric; both side statuses/currentness and unchanged raw source observations/provenance are retained with observedAt. Per-metric comparability is source-defined; no derived quality conclusion is produced.
   blockedSemantics:
-    - compare-candidate-on-metric accepts a generic exact subjectRef and returns a generic owner receipt; it does not define original-versus-candidate version pairing or algorithm context.
-    - The typed quality-evidence query is joined to the exact selected output-version subject and a nonempty unique metricRefs request; no original-versus-candidate version pair, evaluation algorithm context, or matched measured result for every requested metric is joined.
-    - Visual preview is not measured repair evidence; empty, foreign-version, missing, stale and unavailable observations cannot satisfy terminalSuccess.
+    - Compare results require two distinct ordered EXACT_IMMUTABLE_ARTIFACT_VERSION references and the exact requested metric set; do not substitute a mutable artifact or newer version.
+    - For each requested metric, pair only source quality-evidence rows on the exact original and candidate subjects; comparability requires all six providerSignalContract.scopeIdentity fields to match exactly. Preserve both sides and their raw evidence; missing/mismatched scope is NOT_COMPARABLE and stale/unavailable evidence is UNKNOWN.
+    - The operation does not derive delta, direction, threshold, pass/fail, aggregate, rank, winner, improvement, or qualification. Visual preview is not measured repair evidence.
     - Web remains UNBOUND and NOT_ADMITTED; no channel transport or runtime equivalence is asserted.
+  webChannelEvidence:
+    status: SOURCE_BOUND_PAIRED_OBSERVATION_DEFINITION_ONLY
+    channelRef: media.channel.web
+    consumerSurfaceRef: media.surface.web
+    journeyCompletionRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-08/completion
+    sourceStepRefs:
+      originalVersionSelection: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/0
+      repairCandidateResult: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      pairedMetricQuery: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/2
+    pairedQuery:
+      operationRef: media.operation.action.compare-candidate-on-metric
+      operationVersion: 2
+      operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
+      exactInputs:
+        originalArtifactVersionRef: exact immutable source version selected at steps/0; never a mutable or latest alias
+        candidateArtifactVersionRef: exact immutable version returned in the successful repair operation's authoritative outputs; never infer it from dispatch, preview, or a newer alias
+        metricRefs: exact nonempty unique P0 quality-policy metric IDs requested by the user, in request order
+      pairedEvidence:
+        subjectVersionRule: each side's source quality-evidence rows must name its exact requested artifact version and metric
+        scopeRule: all six providerSignalContract.scopeIdentity fields must match exactly across the pair
+        preservedSideStates: [OBSERVED, NO_OBSERVATION, SUBJECT_NOT_FOUND, UNKNOWN]
+        mismatchDisposition: NOT_COMPARABLE per metric while retaining both sides
+        unavailableOrStaleDisposition: UNKNOWN; preserve source status and currentness without synthesizing observations
+        derivedConclusion: none; do not derive delta, direction, threshold, pass/fail, aggregate, rank, winner, improvement, or qualification
+    transportDisposition: UNBOUND
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceBoundary: Source meaning only; no web transport equivalence, query execution, owner acceptance, or measured outcome is claimed.
   unknownAndDenied: Missing/stale/unavailable evidence and ambiguous query results remain UNKNOWN or abstention; preserve exact versions and do not promote a preview or owner receipt to measured improvement.
 pdp1ResultEvidence:
   status: SOURCE_BOUND_DEFINITION_ONLY; CHANNEL_TRANSPORT_UNBOUND; RUNTIME_NOT_ADMITTED
@@ -190,9 +224,10 @@ pdp1ResultEvidence:
       operationRef: media.operation.action.compare-candidate-on-metric
       operationKind: QUERY
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
-      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope
-      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
-      operationVersion: 1
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+      pairedObservationResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
+      operationVersion: 2
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/contractVersion
       authorityRefs:
         - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
@@ -204,7 +239,7 @@ pdp1ResultEvidence:
       unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
       stateRefs: []
       transitionRefs: []
-      exactResult: "Exact P1 result schema requires: typed observations, observedAt. Source finality: read-only-or-navigation; no-write-finality"
+      exactResult: "Exact P1 v2 paired result echoes the distinct exact original/candidate immutable version references and requested metric set, with exactly one ordered metric result per requested metric. Preserve both source-side statuses, currentness, raw observations and provenance; unavailable/stale evidence remains UNKNOWN and mismatched scope identity is NOT_COMPARABLE. The read is non-mutating and derives no quality conclusion."
       unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: retain-the-exact-context-and-request-identity; reconcile-unknown-effects-before-retry; never-substitute-a-newer-version"
     - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/3
       journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j08-step-04.v1
@@ -1130,7 +1165,6 @@ steps:
     surfaceRefs:
       - media.surface.web
     objectRefs:
-      - media.domain.quality-assessment
       - media.domain.artifact-version
     canonicalOperationRef: media.operation.action.compare-candidate-on-metric
     authorityRef: null
@@ -1230,21 +1264,30 @@ steps:
           mutate a source object or infer permission from its presence.
       stepSourceFacts:
         intent: Before/after, candidate ranking and applicable measurements
-        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.compare-candidate-on-metric; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
-        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+        result: "Immediate result is the read-only P1 v2 paired observation: requestId, exact originalArtifactVersionRef, exact candidateArtifactVersionRef, requested metricRefs, one ordered metricResults row per requested metric, and observedAt. Preserve per-side status, currentness, raw evidence, and provenance; NOT_COMPARABLE and UNKNOWN remain explicit. No quality conclusion or journey completion is inferred."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
         resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         comparisonEvidenceDisposition:
-          status: COMPARISON_QUERY_ENVELOPE_ONLY; QUALITY_METRICS_FROM_SEPARATE_OWNER_OBSERVATION
+          status: SOURCE_BOUND_PAIRED_METRIC_RESULT; USER_SELECTION_AND_QUALITY_THRESHOLD_UNBOUND
+          operationVersion: 2
+          requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
           resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+          pairedObservationResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
           qualityEvidenceStepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/3
-          qualityEvidenceContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1
-          note: The comparison action result is only a request/target/receipt/time envelope; it is not itself a typed metric observation or proof of a quality threshold.
+          originalVersionSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/0
+          candidateVersionSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+          metricSetSourceRef: .product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions
+          exactVersionPair: >-
+            originalArtifactVersionRef and candidateArtifactVersionRef are distinct exact immutable artifact-version references echoed in the result
+          metricJoin: each result row matches one requested metricRef and pairs source observations only for those exact original and candidate version subjects
+          comparability: all six providerSignalContract.scopeIdentity fields must match exactly; preserve both sides; mismatch is NOT_COMPARABLE, stale/unavailable evidence is UNKNOWN
+          noDerivedConclusion: true; no delta, threshold, winner, improvement or qualification is inferred
         success:
           status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
-          proposal: Eligible stabilized/upscaled/repaired output is compared under
-            applicable metrics with limitations visible.
+          proposal: Typed paired results are available for requested metrics with
+            limitations visible; no winner, improvement, or qualification is inferred.
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -1275,7 +1318,6 @@ steps:
         surfaceRefs:
           - media.surface.web
         objectRefs:
-          - media.domain.quality-assessment
           - media.domain.artifact-version
         stateRefs: []
         canonicalOperationRef: media.operation.action.compare-candidate-on-metric
@@ -1304,8 +1346,8 @@ steps:
         scenarios: []
         positiveBranch:
           status: SOURCE_BOUND_IMMEDIATE_RESULT
-          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
-          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.compare-candidate-on-metric; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
+          summary: "Read-only P1 v2 paired result echoes the exact immutable original and candidate versions and requested metric set; it retains paired per-side evidence states and provenance, with NOT_COMPARABLE and UNKNOWN explicit and no derived quality conclusion."
         nonhappyBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -1348,8 +1390,8 @@ steps:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
           intendedResult:
             status: SOURCE_BOUND_IMMEDIATE_RESULT
-            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
-            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.compare-candidate-on-metric; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
+            summary: "Read-only P1 v2 paired result echoes the exact immutable original and candidate versions and requested metric set; it retains paired per-side evidence states and provenance, with NOT_COMPARABLE and UNKNOWN explicit and no derived quality conclusion."
           effect: Read or navigate using the exact selected context; do not mutate a
             source object or infer permission from its presence.
           finality: read-only-or-navigation; no-write-finality

@@ -1,7 +1,7 @@
 schemaVersion: media.authored-traceability.v1
 productId: media
 mode: authored-relations
-status: partial-authored-links; independent-P0-010-semantic-closure-pending
+status: authored-relations; current-PDP-0-development-status-is-recorded-in-the-source-bound-phase-status; owner-acceptance-and-independent-P0-010-review-pending
 artifactPathBase: repository-root-relative
 sourceRefs:
 - migration-plan:section-5
@@ -36,8 +36,8 @@ planTaskDependencies:
   - taskRef: P0-003
     dependsOnPlanTaskRefs:
     - P0-002
-    localStatus: 17-of-462-leaves-have-operation-specific-proposals-including-nine-job-and-eight-artifact-intake-speech-profile-records;
-      445-leaf-details-and-owner-review-pending
+    localStatus: historical-review-counts-retained-only; prior observations of 445 operation-bound leaves, 385 journey references,
+      and 123 proposal actions do not block current PDP-0 definition development; P0-003 owner and specialist acceptance remains pending
   - taskRef: P0-004
     dependsOnPlanTaskRefs:
     - P0-003
@@ -69,8 +69,9 @@ planTaskDependencies:
     - P0-002
     - P0-003
     - P0-007
-    localStatus: canonical-api-and-embedded-channel-identities-and-alias-normalization-authored; per-operation-channel-proposals-expanded-for-eight-selected-leaves;
-      full-channel-dispositions-and-owner-accessibility-review-pending
+    localStatus: canonical-channel-and-journey definition status is recorded by the source-bound PDP-0 phase status; P0-009 owner
+      and accessibility acceptance remains pending; historical observations of 445 operation-bound leaves, 385 journey references,
+      and 123 proposal actions do not block current P0-009 authoring
   - taskRef: P0-010
     dependsOnPlanTaskRefs:
     - P0-001
@@ -229,7 +230,7 @@ taskArtifactLinks:
   - .product-experience/pdp-0-product-truth/requirements.yaml
   - .product-experience/pdp-0-product-truth/qualification-policy.yaml
   - .product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml
-  acceptanceState: 17-of-462-leaves-have-operation-specific-proposals; remaining-445-leaf-details-and-owner-review-pending
+  acceptanceState: historical-operation-detail-counts-retained-as-provenance; owner-and-specialist-acceptance-pending; current-PDP-0-development-status-is-recorded-in-the-source-bound-phase-status
 - id: TRACE-P0-004
   taskRef: P0-004
   relation: authors-proposed-domain-time-unit-and-fidelity-semantics
@@ -283,8 +284,7 @@ taskArtifactLinks:
   artifactPresence:
     .product-experience/pdp-0-product-truth/handoff-contracts.yaml: authored-proposal; acceptance and owner contract
       binding remain pending
-  acceptanceState: canonical-channel-identities-authored-and-eight-selected-operation-channel-proposals-expanded;
-    full-per-operation-channel-and-accessibility-review-pending
+  acceptanceState: source-definition-status-is-recorded-in-the-source-bound-PDP-0-phase-status; P0-009-owner-and-accessibility-acceptance-pending
 - id: TRACE-P0-010
   taskRef: P0-010
   relation: independent-semantic-acceptance-inputs-and-generated-coverage-currentness
@@ -575,7 +575,7 @@ crossArtifactRelations:
   relation: references
   to: .product-experience/pdp-0-product-truth/capabilities.yaml
   referenceField: capabilityIds
-  status: family-leaf-IDs-present; per-leaf-parameters-channels-priority-lane-and-availability-pending-GAP-MEDIA-CAPABILITY-LEAF-DETAIL-and-P0-010
+  status: current-P0-leaf-intent-and-applicability-authority-is-capability-leaf-review; historic-operation-detail-counts-do-not-block-PDP-0-development; owner-acceptance-and-P0-010-review-pending; operation-contract-bindings-are-downstream-PDP-1
 - id: TRACE-REL-QUALITY-DIMENSIONS
   from: .product-experience/pdp-0-product-truth/quality-policy.yaml
   relation: references
@@ -606,7 +606,7 @@ crossArtifactRelations:
   to:
   - .product-experience/pdp-0-product-truth/goals-jtbd.yaml
   - .product-experience/pdp-0-product-truth/applications-channels.yaml
-  status: pending-P0-009-and-P0-010-review
+  status: authored-P0-009-relationship-input; P0-009-owner-acceptance-and-independent-P0-010-review-pending
 - id: TRACE-REL-DEPENDENCY-OWNER-BINDINGS
   from: .product-experience/pdp-0-product-truth/dependency-contracts.yaml
   relation: binds-to-public-owner-contracts

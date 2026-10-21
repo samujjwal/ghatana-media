@@ -1,6 +1,8 @@
+> **Superseded execution mandate retained for criteria and provenance only — do not execute its in-body work queue.** The live campaign has completed PDP-0 through PDP-3 definition development with zero outstanding phase-local tasks. Follow current `AGENTS.md`, the [canonical PDP source index](../../.product-experience/README.md), and the four source-pinned phase records in this directory for allowed work and current status. Preserve the original task IDs and criteria here as provenance.
+
 # EXECUTE MEDIA PDP-0–PDP-3 — PHASE-ONLY COMPLETION MANDATE
 
-## Current execution override — October 9, 2026
+## Historical execution override — October 9, 2026 (superseded)
 
 The user's latest instruction limits this execution pass to completing **correct, complete, comprehensive, production-grade PDP-0 through PDP-3 definitions**. Implement the remaining source contracts, cross-phase meanings, interface and design grammar, complete journey/action/state/recovery definitions, and deterministic definition-level validation. The coordinator delegates implementation, verification and fixes to parallel Luna agents and integrates reviewed changes.
 
@@ -8,12 +10,12 @@ The user's latest instruction limits this execution pass to completing **correct
 
 Ordinary tests, typed schema validation, generated definition projections, deterministic rendering, and negative contract fixtures remain necessary to establish source correctness. They are engineering validation, not an instruction to create a proof/closure system. Complete every executable source requirement in the 38-task scope, including the source content of review-gated rows, while preserving the original ledger and correctly completed selections and mappings. Runtime deployment, model/codec qualification, standalone Explorer work, release readiness and commercial activation remain excluded. This override controls any conflicting execution or completion instructions below; the earlier mandate is retained for historical task criteria and exact owning paths.
 
-**Instruction date:** October 8, 2026. **Reviewed remote baseline:** `samujjwal/ghatana-media` on `main@0287460f52ac2b9c23f1bea0c9e29e533a3f9eab`. The implementer MUST rediscover live main before edits.  
-**Current objective:** complete the four canonical Product Development Phases **PDP-0, PDP-1, PDP-2 and PDP-3** as self-contained, correct, current, independently acceptable *sources of product truth*.  
-**Task denominator:** **exactly 38** original tasks: `P0-01…P0-08`, `P1-01…P1-11`, `P2-01…P2-09`, `P3-01…P3-10`. **Not** the historical 71-task cross-repository implementation/release backlog.  
-**Operational owner:** user-delegated Media semantic/product owner and Principal Engineering integrator. This instruction is to **implement**, not simply review or generate proposals.
+**Historical instruction date:** October 8, 2026. **Historical reviewed baseline:** `samujjwal/ghatana-media` on `main@0287460f52ac2b9c23f1bea0c9e29e533a3f9eab`. This baseline and the directions below do not describe the live checkout.
+**Historical objective:** complete the four canonical Product Development Phases **PDP-0, PDP-1, PDP-2 and PDP-3** as self-contained product definitions. This did not establish owner acceptance or phase closure.
+**Historical task denominator:** **38** original task IDs: `P0-01…P0-08`, `P1-01…P1-11`, `P2-01…P2-09`, `P3-01…P3-10`. Keep them as provenance; they are not a current task queue.
+**Historical operating role:** user-delegated Media semantic/product owner and Principal Engineering integrator. Current authority and allowed work are defined by repository `AGENTS.md` and the live source-pinned phase records.
 
-This document **supersedes `docs/implementation/IMPLEMENTER-MASTER-PROMPT-ALL-71-TASKS.md` for the current objective**. It contains every one of the 38 task IDs with exact source paths, latest audited missing predicates, prescribed next changes and exit conditions, so no separate attachment is needed. Existing source-of-truth files remain authoritative; this instruction does not create a fifth phase or authorize fake evidence.
+At its historical source cut, this document superseded `docs/implementation/IMPLEMENTER-MASTER-PROMPT-ALL-71-TASKS.md`. Neither prompt is executable now. The 38 task IDs and their recorded criteria remain here for provenance; current definitions live in `.product-experience/`, while current phase status and permitted transitions live in `AGENTS.md` and the four source-pinned phase records.
 
 ## 1. Hard scope and authority decisions
 

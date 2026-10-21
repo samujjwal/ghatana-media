@@ -1,0 +1,705 @@
+schemaVersion: media.journey-contract.v1
+productId: media
+journeyId: J-31
+title: Author, inspect, validate, and request reuse of a reusable rule candidate
+status: PROPOSAL_BOUND_PDP3_DEFINITION_COMPLETE; OWNER_APPLICABILITY_REVIEW_PENDING; RUNTIME_NOT_ADMITTED
+definitionBoundary:
+  disposition: CONDITIONAL_ON_AUD_SPEC_020_PROPOSAL; OWNER_APPROVAL_NOT_CLAIMED; RUNTIME_NOT_ADMITTED
+  featureRef: media.rules.manage
+  sourceIntentRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition
+  sourceAcceptanceRefs:
+    - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/acceptanceCases/@id=AUD-SPEC-020-CAP-AC-01
+    - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/acceptanceCases/@id=AUD-SPEC-020-CAP-AC-02
+    - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/acceptanceCases/@id=AUD-SPEC-020-CAP-AC-03
+  p1ContractRef: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml
+  p1ToP2HandoffRef: .product-experience/pdp-1-domain-data/handoff-contracts.yaml#/handoffs/pdp1ToPdp2CanonicalDomain/proposalHandoffs/@id=media.rules.manage.pdp1-definition-handoff.v1
+  p2ContractRef: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#ruleManagementProposalInterfaceBinding
+  p2ToP3HandoffRef: .product-experience/pdp-2-design-interface-system/handoff-contracts.yaml#/handoffs/pdp2ToPdp3Experience/proposalHandoffs/@id=media.rules.manage.pdp2-interface-proposal.v1
+  applicability:
+    status: PROPOSED_ONLY; EXACT_SURFACE_RESOLUTION_IS_A_PROPOSAL; OWNER_APPROVAL_NOT_CLAIMED
+    sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability
+    proposedApplicableChannels:
+      - media.channel.web
+      - media.channel.api
+      - media.channel.embedded
+      - media.channel.http-api
+      - media.channel.grpc-api
+      - media.channel.sdk
+      - media.channel.cli
+      - media.channel.product-integration
+    proposedNotApplicableChannels:
+      - channelRef: media.channel.legacy-desktop
+        disposition: NOT_APPLICABLE_ARCHIVED; PROPOSAL_ONLY; OWNER_APPROVAL_NOT_CLAIMED
+      - channelRef: media.channel.agent
+        disposition: NOT_APPLICABLE_NON_INVOCATION; PROPOSAL_ONLY; OWNER_APPROVAL_NOT_CLAIMED
+      - channelRef: media.channel.event
+        disposition: NOT_APPLICABLE_NON_INVOCATION; PROPOSAL_ONLY; OWNER_APPROVAL_NOT_CLAIMED
+    bindingRule: These proposal scopes identify definition candidates only; they do not assert active support, route, package, command, invocation, or runtime admission. No transport mapping is defined here.
+    proposedChannelSurfaceMappings:
+      status: EXACT_SOURCE_COPY; PROPOSAL_ONLY; OWNER_APPROVAL_NOT_CLAIMED
+      uniqueSurfaceIdentityCount: 37
+      records:
+        - channelRef: media.channel.web
+          sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-WEB
+          disposition: PROPOSED_APPLICABLE
+          logicalConsumerSurfaceRefs:
+            - media.surface.production-studio
+            - media.surface.web
+          physicalSurfaceRefs:
+            - media.physical.libs-audio-video-ui
+          compositeSurfaceRefs:
+            - media.composition.client-and-machine-interfaces
+            - media.composition.creation-composition-and-delivery
+        - channelRef: media.channel.api
+          sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-API
+          disposition: PROPOSED_APPLICABLE
+          logicalConsumerSurfaceRefs:
+            - media.surface.grpc.multimodal
+            - media.surface.grpc.stt
+            - media.surface.grpc.tts
+            - media.surface.grpc.vision
+            - media.surface.public-http
+            - media.surface.service-grpc
+          physicalSurfaceRefs:
+            - media.physical.launcher
+            - media.physical.modules-intelligence-multimodal-service
+            - media.physical.modules-speech-stt-service
+            - media.physical.modules-speech-tts-service
+            - media.physical.modules-vision-vision-service
+            - media.physical.runtime-contracts
+          compositeSurfaceRefs:
+            - media.composition.client-and-machine-interfaces
+            - media.composition.creation-composition-and-delivery
+            - media.composition.governed-job-execution
+            - media.composition.ingestion-and-versioned-artifacts
+            - media.composition.speech-and-caption-workflows
+            - media.composition.vision-and-multimodal-analysis
+        - channelRef: media.channel.embedded
+          sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-EMBEDDED
+          disposition: PROPOSED_APPLICABLE
+          logicalConsumerSurfaceRefs:
+            - media.surface.embedded
+            - media.surface.interactive-demo-player
+          physicalSurfaceRefs:
+            - media.physical.libs-audio-video-ui
+          compositeSurfaceRefs:
+            - media.composition.client-and-machine-interfaces
+            - media.composition.creation-composition-and-delivery
+        - channelRef: media.channel.http-api
+          sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-HTTP-API
+          disposition: PROPOSED_APPLICABLE
+          logicalConsumerSurfaceRefs:
+            - media.surface.public-http
+          physicalSurfaceRefs:
+            - media.physical.launcher
+            - media.physical.runtime-contracts
+          compositeSurfaceRefs:
+            - media.composition.client-and-machine-interfaces
+            - media.composition.creation-composition-and-delivery
+            - media.composition.governed-job-execution
+            - media.composition.ingestion-and-versioned-artifacts
+            - media.composition.vision-and-multimodal-analysis
+        - channelRef: media.channel.grpc-api
+          sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-GRPC-API
+          disposition: PROPOSED_APPLICABLE
+          logicalConsumerSurfaceRefs:
+            - media.surface.grpc.multimodal
+            - media.surface.grpc.stt
+            - media.surface.grpc.tts
+            - media.surface.grpc.vision
+            - media.surface.service-grpc
+          physicalSurfaceRefs:
+            - media.physical.modules-intelligence-multimodal-service
+            - media.physical.modules-speech-stt-service
+            - media.physical.modules-speech-tts-service
+            - media.physical.modules-vision-vision-service
+            - media.physical.runtime-contracts
+          compositeSurfaceRefs:
+            - media.composition.client-and-machine-interfaces
+            - media.composition.creation-composition-and-delivery
+            - media.composition.governed-job-execution
+            - media.composition.ingestion-and-versioned-artifacts
+            - media.composition.speech-and-caption-workflows
+            - media.composition.vision-and-multimodal-analysis
+        - channelRef: media.channel.sdk
+          sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-SDK
+          disposition: PROPOSED_APPLICABLE
+          logicalConsumerSurfaceRefs:
+            - media.surface.sdk
+          physicalSurfaceRefs:
+            - media.physical.libs-audio-video-client
+            - media.physical.libs-audio-video-types
+          compositeSurfaceRefs:
+            - media.composition.client-and-machine-interfaces
+            - media.composition.creation-composition-and-delivery
+        - channelRef: media.channel.cli
+          sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-CLI
+          disposition: PROPOSED_APPLICABLE
+          logicalConsumerSurfaceRefs:
+            - media.surface.cli
+            - media.surface.recorder-orchestrator
+          physicalSurfaceRefs:
+            - media.physical.libs-audio-video-client
+            - media.physical.libs-media-experience-simulation
+          compositeSurfaceRefs:
+            - media.composition.client-and-machine-interfaces
+            - media.composition.creation-composition-and-delivery
+            - media.composition.repository-root
+        - channelRef: media.channel.product-integration
+          sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-PRODUCT-INTEGRATION
+          disposition: PROPOSED_APPLICABLE
+          logicalConsumerSurfaceRefs:
+            - media.surface.integrations
+          physicalSurfaceRefs:
+            - media.physical.adapters-ledger
+            - media.physical.modules-infrastructure-cache
+            - media.physical.modules-infrastructure-messaging
+            - media.physical.modules-infrastructure-persistence
+            - media.physical.modules-infrastructure-security
+            - media.physical.providers-aws-postgresql
+          compositeSurfaceRefs:
+            - media.composition.creation-composition-and-delivery
+            - media.composition.governed-job-execution
+            - media.composition.ingestion-and-versioned-artifacts
+      mappingRule: Each row copies one exact AUD-SPEC-020 proposed channel resolution. These are PDP-3 definition scopes only and remain outside the owner-approved journey-channel edge registry.
+  runtimeAdmission: NOT_ADMITTED
+  executionAdmission: NOT_ADMITTED
+intentRefs: [media.intent.manage-reusable-rules]
+outcomeRefs: [media.goal.integrate-repeatably, media.goal.resolve-safely]
+actors: [media.creator, media.editor, media.developer-integrator, media.operator]
+channelRefs:
+  - media.channel.web
+  - media.channel.api
+  - media.channel.embedded
+  - media.channel.http-api
+  - media.channel.grpc-api
+  - media.channel.sdk
+  - media.channel.cli
+  - media.channel.product-integration
+  - media.channel.legacy-desktop
+  - media.channel.agent
+  - media.channel.event
+channelBindingState: Exact PDP-0 applicability records are proposal-only; channel-to-surface and transport equivalence remain unbound, owner review is pending, and runtime admission is NOT_ADMITTED.
+accessibility:
+  web: Interactive authoring, exact-version inspection, validation status, and reuse-plan review expose programmatic names, roles, descriptions, keyboard operation, visible focus, and announced status/errors. Status is not conveyed by color alone; error and unknown states retain focus and exact request/version context.
+  headless: API, SDK, CLI, and product-integration proposals preserve the same typed request/result meanings and explicit outcome states. No endpoint, wire shape, package, command, or invocation is assigned by this journey; absent a separately authorized mapping, behavior remains UNBOUND and NOT_ADMITTED.
+preconditions:
+  - Caller supplies exact tenant, principal, actor, purpose, rights/consent context, request identity, and idempotency key for each proposed operation.
+  - Caller identifies the rule-set scope, declared input and constraint provenance, and exact predecessor when compiling a successor.
+  - Validation and reuse name one exact version, fingerprint, validation context, and target operation; target-operation authorization is distinct and separately evidenced.
+  - Source operations are proposal-only and not admitted; this journey does not assert owner acceptance, authorization evidence, or runtime availability.
+completion:
+  meaning: The caller can distinguish an immutable candidate, exact-version inspection, a version-bound validation observation, and a non-executable candidate operation plan. No rule is approved, applied, or executed by this journey.
+  sourceRefs:
+    - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/outcome
+    - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/compileContract
+    - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/inspectContract
+    - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract
+    - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract
+  evidenceBoundary: Definition only; no owner receipt, runtime result, transport proof, approval, operation execution, or measured media result is asserted.
+steps:
+  - stepId: author-versioned-candidate
+    operationRef: media.rules.compile-candidate.v1
+    requestSchemaRef: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/compileContract/requestSchema
+    resultSchemaRef: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/compileContract/resultSchema
+    requestInputs: [requestContext, ruleSetRef, expectedVersionRef, declaredScope, declaredInputs, constraints, sourceRefs, rules]
+    success:
+      outcomes: [COMPILED]
+      resultFields: [candidate, normalizedSemanticGraph, semanticFingerprint]
+      invariant: Candidate is immutable, versioned, and does not approve or execute its rules; the exact predecessor is preserved and never silently rebased.
+    nonSuccess:
+      outcomes: [REJECTED, UNSUPPORTED, DENIED, CONFLICT, STALE, UNKNOWN, UNAVAILABLE]
+      effects: NONE
+      candidateReturned: false
+  - stepId: inspect-exact-version
+    operationRef: media.rules.inspect-candidate.v1
+    requestSchemaRef: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/inspectContract/requestSchema
+    resultSchemaRef: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/inspectContract/resultSchema
+    requestInputs: [requestContext, ruleSetVersion]
+    exactTarget: tenantRef + ruleSetId + versionId
+    success:
+      outcomes: [INSPECTED]
+      resultFields: [candidate, sourceRefs]
+      invariant: Inspection is read-only and returns only the requested exact version; it does not imply validation, approval, reuse, or execution.
+    nonSuccess:
+      outcomes: [DENIED, CONFLICT, STALE, UNKNOWN, UNAVAILABLE]
+      fallbackToDifferentVersion: false
+  - stepId: validate-exact-candidate
+    operationRef: media.rules.validate-candidate.v1
+    requestSchemaRef: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract/requestSchema
+    resultSchemaRef: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract/resultSchema
+    requestInputs: [requestContext, candidateVersionRef, ruleSetVersion, expectedFingerprint, validationContextRef]
+    success:
+      outcomes: [VALID]
+      resultFields: [validationResultRef, candidateVersionRef, ruleSetVersion, fingerprint, validationContextRef, observedAt, sourceRefs, diagnostics]
+      invariant: VALID applies only to the exact version, fingerprint, scope, and current validation context; it is observational and grants no approval or execution authority.
+    nonSuccess:
+      outcomes: [INVALID, UNSUPPORTED, UNAVAILABLE, DENIED, CONFLICT, STALE, UNKNOWN]
+      effects: NONE
+      authorizesReuse: false
+  - stepId: request-candidate-only-reuse
+    operationRef: media.rules.reuse-candidate.v1
+    requestSchemaRef: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/requestSchema
+    resultSchemaRef: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/resultSchema
+    requestInputs: [requestContext, candidateVersionRef, ruleSetVersion, expectedFingerprint, targetOperationRef, targetOperationAuthorizationRef, validationResultRef, validationContextRef]
+    success:
+      outcome: REUSE_REQUESTED
+      resultField: operationPlan
+      planSchemaRef: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/operationPlanSchema
+      requiredPlanDisposition: CANDIDATE_OPERATION_PLAN_ONLY
+      requiredExecutionAdmission: NOT_ADMITTED
+      invariant: Plan binds the exact candidate, version, fingerprint, validation evidence, target operation, separate authorization reference, and provenance; it does not apply rules or invoke the target.
+    nonSuccess:
+      outcomes: [DENIED, CONFLICT, UNKNOWN, UNAVAILABLE, STALE, INVALID, UNSUPPORTED]
+      operationPlanReturned: false
+      effects: NONE
+  - stepId: recover-without-replay-or-rebase
+    sourceRefs:
+      - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/recovery
+      - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/failClosedCases
+    cases:
+      UNKNOWN: Reconcile the same tenant, principal, operation, request identity, idempotency key, and canonical payload fingerprint before any retry; UNKNOWN is not success or permission for a second write.
+      STALE_or_CONFLICT: Inspect the exact requested/current identities and require a new explicit request; never select latest or silently rebase.
+      INVALID_or_UNSUPPORTED: Preserve the prior version and diagnostics; correct inputs only through a separately explicit authoring request.
+      DENIED_or_UNAVAILABLE: Preserve scope and evidence; report the exact non-success state with no partial effects and no implied fallback.
+      MISMATCHED_VERSION_OR_FINGERPRINT: Stop reuse, retain the exact references, and inspect/revalidate the same candidate; do not substitute another version.
+channelExperienceBindings:
+  - channelRef: media.channel.web
+    applicabilitySourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-WEB
+    p2InterfaceBindingRef: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#ruleManagementProposalInterfaceBinding/channelProposalMappings/mappings/@id=media.pdp2.interface.rules.web-proposal.v1
+    logicalConsumerSurfaceRefs:
+      - media.surface.production-studio
+      - media.surface.web
+    physicalSurfaceRefs:
+      - media.physical.libs-audio-video-ui
+    compositeSurfaceRefs:
+      - media.composition.client-and-machine-interfaces
+      - media.composition.creation-composition-and-delivery
+    actor: media.creator
+    entry: Creator opens the web authoring and review experience for the exact tenant and purpose.
+    interactionSequence:
+      - stepId: author-versioned-candidate
+        interaction: Provide exact typed compile context and review the immutable candidate.
+      - stepId: inspect-exact-version
+        interaction: Request the named tenant/rule-set/version tuple and inspect only that version.
+      - stepId: validate-exact-candidate
+        interaction: Validate the exact candidate version, fingerprint, and context; validity grants no authority.
+      - stepId: request-candidate-only-reuse
+        interaction: Request a candidate-only plan for the exact target with separate authorization evidence.
+      - stepId: recover-without-replay-or-rebase
+        interaction: Follow source-bound recovery for the exact outcome; do not rebase, substitute, or blindly replay.
+    successPresentation: Present the immutable candidate, exact-version inspection, validation observation, and
+      candidate-only reuse plan in the current review context.
+    nonSuccessPresentation:
+      outcomes:
+        - REJECTED
+        - INVALID
+        - UNSUPPORTED
+        - DENIED
+        - CONFLICT
+        - STALE
+        - UNKNOWN
+        - UNAVAILABLE
+      presentation: Show each typed outcome with request and exact-version context; keep errors and unknown visible without
+        discarding the prior candidate.
+      noPartialEffects: true
+    recoveryRefs:
+      - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/recovery
+      - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/failClosedCases
+      - .product-experience/pdp-3-product-experience/proposal-journeys/manage-reusable-rules-proposal.yaml#/steps/4/cases
+    accessibility: Use named, keyboard-operable controls, visible focus, announced status/errors, and text labels
+      independent of color; preserve focus and exact request/version context.
+    applicabilityDisposition: PROPOSED_APPLICABLE; OWNER_APPROVAL_NOT_CLAIMED
+    transportBinding: UNBOUND
+    invocationBinding: UNBOUND
+    runtimeAdmission: NOT_ADMITTED
+    executionAdmission: NOT_ADMITTED
+  - channelRef: media.channel.api
+    applicabilitySourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-API
+    p2InterfaceBindingRef: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#ruleManagementProposalInterfaceBinding/channelProposalMappings/mappings/@id=media.pdp2.interface.rules.api-proposal.v1
+    logicalConsumerSurfaceRefs:
+      - media.surface.grpc.multimodal
+      - media.surface.grpc.stt
+      - media.surface.grpc.tts
+      - media.surface.grpc.vision
+      - media.surface.public-http
+      - media.surface.service-grpc
+    physicalSurfaceRefs:
+      - media.physical.launcher
+      - media.physical.modules-intelligence-multimodal-service
+      - media.physical.modules-speech-stt-service
+      - media.physical.modules-speech-tts-service
+      - media.physical.modules-vision-vision-service
+      - media.physical.runtime-contracts
+    compositeSurfaceRefs:
+      - media.composition.client-and-machine-interfaces
+      - media.composition.creation-composition-and-delivery
+      - media.composition.governed-job-execution
+      - media.composition.ingestion-and-versioned-artifacts
+      - media.composition.speech-and-caption-workflows
+      - media.composition.vision-and-multimodal-analysis
+    actor: media.developer-integrator
+    entry: A protocol-neutral API consumer enters through either inherited HTTP API or gRPC API scope.
+    interactionSequence:
+      - stepId: author-versioned-candidate
+        interaction: Provide exact typed compile context and review the immutable candidate.
+      - stepId: inspect-exact-version
+        interaction: Request the named tenant/rule-set/version tuple and inspect only that version.
+      - stepId: validate-exact-candidate
+        interaction: Validate the exact candidate version, fingerprint, and context; validity grants no authority.
+      - stepId: request-candidate-only-reuse
+        interaction: Request a candidate-only plan for the exact target with separate authorization evidence.
+      - stepId: recover-without-replay-or-rebase
+        interaction: Follow source-bound recovery for the exact outcome; do not rebase, substitute, or blindly replay.
+    successPresentation: Present shared typed request/result meaning across inherited HTTP and gRPC scopes; define no additional transport.
+    nonSuccessPresentation:
+      outcomes:
+        - REJECTED
+        - INVALID
+        - UNSUPPORTED
+        - DENIED
+        - CONFLICT
+        - STALE
+        - UNKNOWN
+        - UNAVAILABLE
+      presentation: Return the shared typed outcome and exact context through the selected inherited scope; preserve
+        non-success without partial effects.
+      noPartialEffects: true
+    recoveryRefs:
+      - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/recovery
+      - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/failClosedCases
+      - .product-experience/pdp-3-product-experience/proposal-journeys/manage-reusable-rules-proposal.yaml#/steps/4/cases
+    accessibility: Expose typed outcomes and diagnostics to consuming applications; preserve distinguishable status/error
+      meaning for accessible presentation.
+    applicabilityDisposition: PROPOSED_APPLICABLE; OWNER_APPROVAL_NOT_CLAIMED
+    transportBinding: UNBOUND
+    invocationBinding: UNBOUND
+    runtimeAdmission: NOT_ADMITTED
+    executionAdmission: NOT_ADMITTED
+    inheritsChannelRefs:
+      - media.channel.http-api
+      - media.channel.grpc-api
+    transportScope: UMBRELLA_ONLY; INHERITS_HTTP_AND_GRPC_PROPOSAL_SCOPES; NO_THIRD_TRANSPORT
+  - channelRef: media.channel.embedded
+    applicabilitySourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-EMBEDDED
+    p2InterfaceBindingRef: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#ruleManagementProposalInterfaceBinding/channelProposalMappings/mappings/@id=media.pdp2.interface.rules.embedded-proposal.v1
+    logicalConsumerSurfaceRefs:
+      - media.surface.embedded
+      - media.surface.interactive-demo-player
+    physicalSurfaceRefs:
+      - media.physical.libs-audio-video-ui
+    compositeSurfaceRefs:
+      - media.composition.client-and-machine-interfaces
+      - media.composition.creation-composition-and-delivery
+    actor: media.creator
+    entry: A host experience enters the embedded rule workflow within its containing experience, subject to host-provided
+      context.
+    interactionSequence:
+      - stepId: author-versioned-candidate
+        interaction: Provide exact typed compile context and review the immutable candidate.
+      - stepId: inspect-exact-version
+        interaction: Request the named tenant/rule-set/version tuple and inspect only that version.
+      - stepId: validate-exact-candidate
+        interaction: Validate the exact candidate version, fingerprint, and context; validity grants no authority.
+      - stepId: request-candidate-only-reuse
+        interaction: Request a candidate-only plan for the exact target with separate authorization evidence.
+      - stepId: recover-without-replay-or-rebase
+        interaction: Follow source-bound recovery for the exact outcome; do not rebase, substitute, or blindly replay.
+    successPresentation: Present the same candidate, exact inspection, validation observation, and non-executable reuse plan
+      in the embedding context.
+    nonSuccessPresentation:
+      outcomes:
+        - REJECTED
+        - INVALID
+        - UNSUPPORTED
+        - DENIED
+        - CONFLICT
+        - STALE
+        - UNKNOWN
+        - UNAVAILABLE
+      presentation: Keep host context and exact request/version visible; report non-success without fallback or effects.
+      noPartialEffects: true
+    recoveryRefs:
+      - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/recovery
+      - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/failClosedCases
+      - .product-experience/pdp-3-product-experience/proposal-journeys/manage-reusable-rules-proposal.yaml#/steps/4/cases
+    accessibility: Use semantic names, roles, keyboard access, visible focus, and announced status/errors; no color-only or
+      pointer-only interaction.
+    applicabilityDisposition: PROPOSED_APPLICABLE; OWNER_APPROVAL_NOT_CLAIMED
+    transportBinding: UNBOUND
+    invocationBinding: UNBOUND
+    runtimeAdmission: NOT_ADMITTED
+    executionAdmission: NOT_ADMITTED
+  - channelRef: media.channel.http-api
+    applicabilitySourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-HTTP-API
+    p2InterfaceBindingRef: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#ruleManagementProposalInterfaceBinding/channelProposalMappings/mappings/@id=media.pdp2.interface.rules.http-api-proposal.v1
+    logicalConsumerSurfaceRefs:
+      - media.surface.public-http
+    physicalSurfaceRefs:
+      - media.physical.launcher
+      - media.physical.runtime-contracts
+    compositeSurfaceRefs:
+      - media.composition.client-and-machine-interfaces
+      - media.composition.creation-composition-and-delivery
+      - media.composition.governed-job-execution
+      - media.composition.ingestion-and-versioned-artifacts
+      - media.composition.vision-and-multimodal-analysis
+    actor: media.developer-integrator
+    entry: A caller targets the proposed public HTTP consumer surface with typed operation input; no endpoint or HTTP
+      support is assigned.
+    interactionSequence:
+      - stepId: author-versioned-candidate
+        interaction: Provide exact typed compile context and review the immutable candidate.
+      - stepId: inspect-exact-version
+        interaction: Request the named tenant/rule-set/version tuple and inspect only that version.
+      - stepId: validate-exact-candidate
+        interaction: Validate the exact candidate version, fingerprint, and context; validity grants no authority.
+      - stepId: request-candidate-only-reuse
+        interaction: Request a candidate-only plan for the exact target with separate authorization evidence.
+      - stepId: recover-without-replay-or-rebase
+        interaction: Follow source-bound recovery for the exact outcome; do not rebase, substitute, or blindly replay.
+    successPresentation: Present the typed result and outcome for the exact request, candidate/version, fingerprint, and operation context.
+    nonSuccessPresentation:
+      outcomes:
+        - REJECTED
+        - INVALID
+        - UNSUPPORTED
+        - DENIED
+        - CONFLICT
+        - STALE
+        - UNKNOWN
+        - UNAVAILABLE
+      presentation: Represent typed non-success with exact context and no partial effects; unknown writes require same-request
+        reconciliation.
+      noPartialEffects: true
+    recoveryRefs:
+      - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/recovery
+      - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/failClosedCases
+      - .product-experience/pdp-3-product-experience/proposal-journeys/manage-reusable-rules-proposal.yaml#/steps/4/cases
+    accessibility: Provide machine-readable status and diagnostics for accessible presentation; no wire shape is assigned.
+    applicabilityDisposition: PROPOSED_APPLICABLE; OWNER_APPROVAL_NOT_CLAIMED
+    transportBinding: UNBOUND
+    invocationBinding: UNBOUND
+    runtimeAdmission: NOT_ADMITTED
+    executionAdmission: NOT_ADMITTED
+  - channelRef: media.channel.grpc-api
+    applicabilitySourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-GRPC-API
+    p2InterfaceBindingRef: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#ruleManagementProposalInterfaceBinding/channelProposalMappings/mappings/@id=media.pdp2.interface.rules.grpc-api-proposal.v1
+    logicalConsumerSurfaceRefs:
+      - media.surface.grpc.multimodal
+      - media.surface.grpc.stt
+      - media.surface.grpc.tts
+      - media.surface.grpc.vision
+      - media.surface.service-grpc
+    physicalSurfaceRefs:
+      - media.physical.modules-intelligence-multimodal-service
+      - media.physical.modules-speech-stt-service
+      - media.physical.modules-speech-tts-service
+      - media.physical.modules-vision-vision-service
+      - media.physical.runtime-contracts
+    compositeSurfaceRefs:
+      - media.composition.client-and-machine-interfaces
+      - media.composition.creation-composition-and-delivery
+      - media.composition.governed-job-execution
+      - media.composition.ingestion-and-versioned-artifacts
+      - media.composition.speech-and-caption-workflows
+      - media.composition.vision-and-multimodal-analysis
+    actor: media.developer-integrator
+    entry: A caller targets a proposed gRPC consumer surface with typed operation input; no service or RPC is assigned.
+    interactionSequence:
+      - stepId: author-versioned-candidate
+        interaction: Provide exact typed compile context and review the immutable candidate.
+      - stepId: inspect-exact-version
+        interaction: Request the named tenant/rule-set/version tuple and inspect only that version.
+      - stepId: validate-exact-candidate
+        interaction: Validate the exact candidate version, fingerprint, and context; validity grants no authority.
+      - stepId: request-candidate-only-reuse
+        interaction: Request a candidate-only plan for the exact target with separate authorization evidence.
+      - stepId: recover-without-replay-or-rebase
+        interaction: Follow source-bound recovery for the exact outcome; do not rebase, substitute, or blindly replay.
+    successPresentation: Present the typed result and outcome for the exact request, candidate/version, fingerprint, and operation context.
+    nonSuccessPresentation:
+      outcomes:
+        - REJECTED
+        - INVALID
+        - UNSUPPORTED
+        - DENIED
+        - CONFLICT
+        - STALE
+        - UNKNOWN
+        - UNAVAILABLE
+      presentation: Represent typed non-success with exact context and no partial effects; unknown writes require same-request
+        reconciliation.
+      noPartialEffects: true
+    recoveryRefs:
+      - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/recovery
+      - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/failClosedCases
+      - .product-experience/pdp-3-product-experience/proposal-journeys/manage-reusable-rules-proposal.yaml#/steps/4/cases
+    accessibility: Provide machine-readable status and diagnostics for accessible presentation; no protobuf or RPC shape is assigned.
+    applicabilityDisposition: PROPOSED_APPLICABLE; OWNER_APPROVAL_NOT_CLAIMED
+    transportBinding: UNBOUND
+    invocationBinding: UNBOUND
+    runtimeAdmission: NOT_ADMITTED
+    executionAdmission: NOT_ADMITTED
+  - channelRef: media.channel.sdk
+    applicabilitySourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-SDK
+    p2InterfaceBindingRef: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#ruleManagementProposalInterfaceBinding/channelProposalMappings/mappings/@id=media.pdp2.interface.rules.sdk-proposal.v1
+    logicalConsumerSurfaceRefs:
+      - media.surface.sdk
+    physicalSurfaceRefs:
+      - media.physical.libs-audio-video-client
+      - media.physical.libs-audio-video-types
+    compositeSurfaceRefs:
+      - media.composition.client-and-machine-interfaces
+      - media.composition.creation-composition-and-delivery
+    actor: media.developer-integrator
+    entry: An integrating application supplies shared typed operation inputs through the proposed SDK consumer scope; no
+      package or method is assigned.
+    interactionSequence:
+      - stepId: author-versioned-candidate
+        interaction: Provide exact typed compile context and review the immutable candidate.
+      - stepId: inspect-exact-version
+        interaction: Request the named tenant/rule-set/version tuple and inspect only that version.
+      - stepId: validate-exact-candidate
+        interaction: Validate the exact candidate version, fingerprint, and context; validity grants no authority.
+      - stepId: request-candidate-only-reuse
+        interaction: Request a candidate-only plan for the exact target with separate authorization evidence.
+      - stepId: recover-without-replay-or-rebase
+        interaction: Follow source-bound recovery for the exact outcome; do not rebase, substitute, or blindly replay.
+    successPresentation: Expose the shared typed result, exact version, fingerprint, validation context, and candidate-only
+      plan to the caller.
+    nonSuccessPresentation:
+      outcomes:
+        - REJECTED
+        - INVALID
+        - UNSUPPORTED
+        - DENIED
+        - CONFLICT
+        - STALE
+        - UNKNOWN
+        - UNAVAILABLE
+      presentation: Keep typed outcome and exact request context available; reconcile UNKNOWN against the same request before retry.
+      noPartialEffects: true
+    recoveryRefs:
+      - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/recovery
+      - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/failClosedCases
+      - .product-experience/pdp-3-product-experience/proposal-journeys/manage-reusable-rules-proposal.yaml#/steps/4/cases
+    accessibility: Preserve typed status and diagnostic distinctions for the host application; no package, method, or
+      convenience behavior is assigned.
+    applicabilityDisposition: PROPOSED_APPLICABLE; OWNER_APPROVAL_NOT_CLAIMED
+    transportBinding: UNBOUND
+    invocationBinding: UNBOUND
+    runtimeAdmission: NOT_ADMITTED
+    executionAdmission: NOT_ADMITTED
+  - channelRef: media.channel.cli
+    applicabilitySourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-CLI
+    p2InterfaceBindingRef: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#ruleManagementProposalInterfaceBinding/channelProposalMappings/mappings/@id=media.pdp2.interface.rules.cli-proposal.v1
+    logicalConsumerSurfaceRefs:
+      - media.surface.cli
+      - media.surface.recorder-orchestrator
+    physicalSurfaceRefs:
+      - media.physical.libs-audio-video-client
+      - media.physical.libs-media-experience-simulation
+    compositeSurfaceRefs:
+      - media.composition.client-and-machine-interfaces
+      - media.composition.creation-composition-and-delivery
+      - media.composition.repository-root
+    actor: media.operator
+    entry: An operator enters the proposed CLI definition scope with exact operation context; no command or flag is assigned.
+    interactionSequence:
+      - stepId: author-versioned-candidate
+        interaction: Provide exact typed compile context and review the immutable candidate.
+      - stepId: inspect-exact-version
+        interaction: Request the named tenant/rule-set/version tuple and inspect only that version.
+      - stepId: validate-exact-candidate
+        interaction: Validate the exact candidate version, fingerprint, and context; validity grants no authority.
+      - stepId: request-candidate-only-reuse
+        interaction: Request a candidate-only plan for the exact target with separate authorization evidence.
+      - stepId: recover-without-replay-or-rebase
+        interaction: Follow source-bound recovery for the exact outcome; do not rebase, substitute, or blindly replay.
+    successPresentation: Present readable outcome for the candidate, exact inspection, validation observation, or candidate-only reuse plan.
+    nonSuccessPresentation:
+      outcomes:
+        - REJECTED
+        - INVALID
+        - UNSUPPORTED
+        - DENIED
+        - CONFLICT
+        - STALE
+        - UNKNOWN
+        - UNAVAILABLE
+      presentation: Report typed non-success with exact context; do not silently retry, select latest, or alter prior version.
+      noPartialEffects: true
+    recoveryRefs:
+      - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/recovery
+      - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/failClosedCases
+      - .product-experience/pdp-3-product-experience/proposal-journeys/manage-reusable-rules-proposal.yaml#/steps/4/cases
+    accessibility: Use readable text labels/diagnostics, keyboard-driven interaction, and no color-only status; no command
+      syntax is assigned.
+    applicabilityDisposition: PROPOSED_APPLICABLE; OWNER_APPROVAL_NOT_CLAIMED
+    transportBinding: UNBOUND
+    invocationBinding: UNBOUND
+    runtimeAdmission: NOT_ADMITTED
+    executionAdmission: NOT_ADMITTED
+  - channelRef: media.channel.product-integration
+    applicabilitySourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-PRODUCT-INTEGRATION
+    p2InterfaceBindingRef: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#ruleManagementProposalInterfaceBinding/channelProposalMappings/mappings/@id=media.pdp2.interface.rules.product-integration-proposal.v1
+    logicalConsumerSurfaceRefs:
+      - media.surface.integrations
+    physicalSurfaceRefs:
+      - media.physical.adapters-ledger
+      - media.physical.modules-infrastructure-cache
+      - media.physical.modules-infrastructure-messaging
+      - media.physical.modules-infrastructure-persistence
+      - media.physical.modules-infrastructure-security
+      - media.physical.providers-aws-postgresql
+    compositeSurfaceRefs:
+      - media.composition.creation-composition-and-delivery
+      - media.composition.governed-job-execution
+      - media.composition.ingestion-and-versioned-artifacts
+    actor: media.developer-integrator
+    entry: A product integrator maps its authorized caller context to the proposed integration scope; no active integration
+      or invocation is asserted.
+    interactionSequence:
+      - stepId: author-versioned-candidate
+        interaction: Provide exact typed compile context and review the immutable candidate.
+      - stepId: inspect-exact-version
+        interaction: Request the named tenant/rule-set/version tuple and inspect only that version.
+      - stepId: validate-exact-candidate
+        interaction: Validate the exact candidate version, fingerprint, and context; validity grants no authority.
+      - stepId: request-candidate-only-reuse
+        interaction: Request a candidate-only plan for the exact target with separate authorization evidence.
+      - stepId: recover-without-replay-or-rebase
+        interaction: Follow source-bound recovery for the exact outcome; do not rebase, substitute, or blindly replay.
+    successPresentation: Expose typed result and exact candidate/version, provenance, validation, and candidate-only plan meaning.
+    nonSuccessPresentation:
+      outcomes:
+        - REJECTED
+        - INVALID
+        - UNSUPPORTED
+        - DENIED
+        - CONFLICT
+        - STALE
+        - UNKNOWN
+        - UNAVAILABLE
+      presentation: Preserve distinct typed failures and exact reconciliation context; no implicit fallback or effects.
+      noPartialEffects: true
+    recoveryRefs:
+      - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/recovery
+      - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/failClosedCases
+      - .product-experience/pdp-3-product-experience/proposal-journeys/manage-reusable-rules-proposal.yaml#/steps/4/cases
+    accessibility: Require the integrating product to expose typed outcomes and diagnostics accessibly; no connector or
+      invocation contract is assigned.
+    applicabilityDisposition: PROPOSED_APPLICABLE; OWNER_APPROVAL_NOT_CLAIMED
+    transportBinding: UNBOUND
+    invocationBinding: UNBOUND
+    runtimeAdmission: NOT_ADMITTED
+    executionAdmission: NOT_ADMITTED
+negativeCases:
+  - A proposal-only channel is presented as approved, callable, supported, routed, packaged, or admitted.
+  - A candidate, VALID observation, or operation plan is presented as approval, applied rules, execution, or a measured media result.
+  - Missing or unknown authority, rights, inputs, validation evidence, or current version is defaulted to success.
+  - A different/latest version is substituted, the expected predecessor is silently rebased, or an UNKNOWN write is blindly retried.
+  - Invalid, unsupported, denied, stale, conflict, unknown, or unavailable input causes partial effects or changes the prior version.
+runtimeAdmission: NOT_ADMITTED
+executionAdmission: NOT_ADMITTED

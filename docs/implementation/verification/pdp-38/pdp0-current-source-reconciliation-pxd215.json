@@ -1,0 +1,125 @@
+{
+  "schemaVersion": "media.pdp0.current-source-reconciliation.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-215",
+  "phaseScope": "PDP-0",
+  "sourceCut": {
+    "repositoryHead": "79329cc4ec49ce546bc1097f53f3c2ff125bad2c",
+    "workingTree": "MODIFIED_SOURCE_CUT",
+    "sourceCount": 24
+  },
+  "currentSourcePinsStatus": "CURRENT_SOURCE_PINS_VERIFIED_NO_ACCEPTANCE_EFFECT",
+  "authority": {
+    "phaseScope": "PDP-0",
+    "reviewKind": "COORDINATOR_AUTHORED_CURRENT_SOURCE_RECONCILIATION",
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "acceptanceEffect": "none",
+    "implementation": "NOT_CLAIMED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "qualification": "NOT_EVALUATED",
+    "closure": "NOT_CLAIMED",
+    "delivery": "NOT_CLAIMED"
+  },
+  "sourceFingerprints": {
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "a0e94ab197a76d1de2ecb9ddcbb92869644b16b603e1813eca5f091979ef8cf8",
+    ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
+    ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+    ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce",
+    ".product-experience/pdp-0-product-truth/information-architecture.yaml": "d975ee33c3752ab64f84b10aa4e008206fd84f67b8e68ce5665309cd360f4b9f",
+    ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "faadcc8eaa9c1338d1b3014f899d8ae7c7b69c290d694956e8eae2c477003ac8",
+    ".product-experience/pdp-0-product-truth/reuse-decisions.yaml": "22319bb51b947ca105f99c8c970c6ae2efdf30ed53b34a91ce2981451278effa",
+    ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "c773587617d430bb3db7da47a0c3f1fe73ce22ecc1f540e8faa23516cfdb7ceb",
+    ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+    ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "ba8ba5c497a4c05db2ca74b71912e40975bb1ba7c3db3571211bfa89588f6f5e",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json": "e89f7ace14d33e152dc46a8904baffb8b374cdf3840835b714be68e89a490e3b",
+    "scripts/check-media-pdp0-501-audit-dispositions.mjs": "d50b96220bf32117d2d211ff159fac65893ab246b0ce086318cf2de72d6250c5",
+    "scripts/check-media-pdp0-audit-aq-traceability.mjs": "3d5e50f7a7f318052fcf8bbcac66c3ef1c7a6f7d8162d0a8eb13169613647f63",
+    "scripts/report-media-pdp-readiness.mjs": "2aa63ba3b2a9147afed015fd5dbf1850f89337f1c328ced586787b603b715bee",
+    "tests/media-pdp0-501-audit-dispositions.test.mjs": "2a0f2da97465667dd5bd9a826aeadb824385aad8abe9180c73e41cf38078a3a9",
+    "tests/media-pdp0-audit-aq-traceability.test.mjs": "27c60c4aa7da5f0751ee8e1f6149cd515ada97955d1aaedf83f4b9db88f91d2d",
+    "tests/pdp-migration-semantic-reconciliation.test.mjs": "d3621dd42e5ea27e84985b5a7a4f0d8cb5004170225c3a97ca44438916e9ca87",
+    "tests/pdp0-speech-audit-mapping-pxd213.test.mjs": "0600f2bc1acf245c2c76ddf879983dbb5ae157449da8a663c1a6498a18287c74",
+    "tests/pdp0-current-source-reconciliation-pxd215.test.mjs": "dc460d220f0a43f2c2fb090d98a017194b127f5638d1b568db77474789f1148d",
+    ".product-experience/source-manifest.yaml#PDP-0-projection": "2806c4d8a56a98f2a4840b7e83681548fd7f716506c0184d5bf212c2a345cfde",
+    "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
+    ".product-experience/decision-log.md#PXD-215-section": "110a004c083d06ff60d3c8e394162e18b8c45e45fd58939607affb760cca381a"
+  },
+  "phaseScopedSourceFingerprintsSha256": {
+    ".product-experience/source-manifest.yaml#PDP-0-projection": "2806c4d8a56a98f2a4840b7e83681548fd7f716506c0184d5bf212c2a345cfde",
+    "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
+    ".product-experience/decision-log.md#PXD-215-section": "110a004c083d06ff60d3c8e394162e18b8c45e45fd58939607affb760cca381a"
+  },
+  "predecessorRefs": [
+    "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd214.json",
+    ".product-experience/decision-log.md#PXD-214",
+    ".product-experience/decision-log.md#PXD-213"
+  ],
+  "traceability": {
+    "sourceRows": 501,
+    "originalRows": 428,
+    "thirdPassRows": 73,
+    "canonicalDefinitionJoins": 497,
+    "coordinatorProposalDefinitionJoins": 2,
+    "postPdpImplementationOnlyRows": 2,
+    "missingDefinitionJoins": 0,
+    "canonicalCapabilityLeaves": 462,
+    "currentCapabilityDefinitions": 469,
+    "currentDefinitionExtensions": 7
+  },
+  "proposalDefinitions": [
+    {
+      "auditId": "AUD-SPEC-020",
+      "status": "COORDINATOR_AUTHORED_PDP0_PROPOSAL_PENDING_OWNER_REVIEW",
+      "capabilityDefinitionRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition",
+      "capabilityId": "media.rules.manage",
+      "requirementDefinitionRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/requirementDefinition",
+      "requirementId": "MEDIA-REQ-CAP-RULES",
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/requirementDefinition/acceptanceCases/@id=MEDIA-REQ-CAP-RULES-AC-01",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/requirementDefinition/acceptanceCases/@id=MEDIA-REQ-CAP-RULES-AC-02"
+      ],
+      "ownerApproval": "NOT_CLAIMED",
+      "independentAcceptance": "NOT_CLAIMED"
+    },
+    {
+      "auditId": "AUD-OPS-021",
+      "status": "COORDINATOR_AUTHORED_PDP0_PROPOSAL_PENDING_OWNER_REVIEW",
+      "capabilityDefinitionRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-OPS-021/capabilityDefinition",
+      "capabilityId": "media.capability.model-package.manage",
+      "requirementDefinitionRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-OPS-021/requirementDefinition",
+      "requirementId": "MEDIA-REQ-AUD-OPS-021-MODEL-PACKAGE-MANAGE",
+      "acceptanceCaseRefs": [
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-OPS-021/requirementDefinition/acceptanceCases/@id=MEDIA-REQ-AUD-OPS-021-MODEL-PACKAGE-MANAGE-AC-01",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-OPS-021/requirementDefinition/acceptanceCases/@id=MEDIA-REQ-AUD-OPS-021-MODEL-PACKAGE-MANAGE-AC-02",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-OPS-021/requirementDefinition/acceptanceCases/@id=MEDIA-REQ-AUD-OPS-021-MODEL-PACKAGE-MANAGE-AC-03",
+        ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-OPS-021/requirementDefinition/acceptanceCases/@id=MEDIA-REQ-AUD-OPS-021-MODEL-PACKAGE-MANAGE-AC-04"
+      ],
+      "ownerApproval": "NOT_CLAIMED",
+      "independentAcceptance": "NOT_CLAIMED"
+    }
+  ],
+  "auditDispositions": {
+    "total": 501,
+    "original": 428,
+    "focused": 73,
+    "counts": {
+      "BOUND_EXISTING": 499,
+      "PDP0_MEANING_CHANGE_REQUIRED": 0,
+      "EXPLICIT_NOT_APPLICABLE": 0,
+      "POST_PDP_IMPLEMENTATION_ONLY": 2,
+      "BLOCKED_EXTERNAL_OWNER_DECISION": 0
+    },
+    "unresolvedPdp0": 0
+  },
+  "surfaceDenominator": {
+    "physical": 26,
+    "composites": 7,
+    "logical": 21,
+    "activeLogical": 20,
+    "archivedLogical": 1,
+    "total": 54
+  },
+  "decisionEffect": "PDP-0 traceability projection and current-source routing only; proposal joins remain distinct from canonical definitions and retain unclaimed owner/independent acceptance. No semantic equivalence, implementation, runtime admission, qualification, closure, or Delivery readiness is asserted."
+}

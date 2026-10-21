@@ -103,6 +103,51 @@ function mergeObjectSchemas(schemas: readonly DefinitionSchema[]): DefinitionSch
   return { ...schemas[0], properties, required: [...required] };
 }
 
+function conditionMatches(condition: DefinitionSchema | undefined, value: Record<string, unknown>): boolean {
+  const properties = condition?.properties as Record<string, DefinitionSchema> | undefined;
+  if (!properties) return false;
+  return Object.entries(properties).every(([key, expected]) => {
+    if (expected.const !== undefined) return value[key] === expected.const;
+    if (expected.properties && value[key] && typeof value[key] === "object" && !Array.isArray(value[key])) {
+      return conditionMatches(expected, value[key] as Record<string, unknown>);
+    }
+    return true;
+  });
+}
+
+function applySelectedSchemaRequirements(
+  schema: DefinitionSchema,
+  rootProperties: Record<string, DefinitionSchema>,
+  value: Record<string, unknown>,
+  path: string,
+): void {
+  const localProperties = (schema.properties as Record<string, DefinitionSchema> | undefined) ?? {};
+  for (const name of (schema.required as string[] | undefined) ?? []) {
+    if (value[name] !== undefined) continue;
+    const property = rootProperties[name] ?? localProperties[name];
+    if (!property) continue;
+    value[name] = definitionSample(
+      localProperties[name] ? { ...property, ...localProperties[name] } : property,
+      `${path}-${name}`,
+    );
+  }
+
+  for (const alternatives of [schema.anyOf, schema.oneOf]) {
+    if (Array.isArray(alternatives) && alternatives.length > 0) {
+      const selected = alternatives[0] as DefinitionSchema;
+      applySelectedSchemaRequirements(selected, rootProperties, value, `${path}-choice`);
+      break;
+    }
+  }
+
+  for (const entry of (schema.allOf as DefinitionSchema[] | undefined) ?? []) {
+    const condition = entry.if as DefinitionSchema | undefined;
+    if (!conditionMatches(condition, value)) continue;
+    const thenSchema = entry.then as DefinitionSchema | undefined;
+    if (thenSchema) applySelectedSchemaRequirements(thenSchema, rootProperties, value, `${path}-then`);
+  }
+}
+
 function definitionSample(schema: DefinitionSchema, path: string): unknown {
   if (schema.const !== undefined) return schema.const;
   if (Array.isArray(schema.enum)) return schema.enum[0];
@@ -118,12 +163,7 @@ function definitionSample(schema: DefinitionSchema, path: string): unknown {
       const property = properties[name];
       if (!property) continue;
       const conditionalSchemas = ((schema.allOf as DefinitionSchema[] | undefined) ?? [])
-        .filter((entry) => {
-          const condition = entry.if as DefinitionSchema | undefined;
-          const conditionProperties = condition?.properties as Record<string, DefinitionSchema> | undefined;
-          return conditionProperties && Object.entries(conditionProperties).every(([key, value]) =>
-            value.const === undefined || result[key] === value.const);
-        })
+        .filter((entry) => conditionMatches(entry.if as DefinitionSchema | undefined, result))
         .map((entry) => entry.then as DefinitionSchema | undefined)
         .filter((entry): entry is DefinitionSchema => Boolean(entry?.properties));
       const conditionalProperty = conditionalSchemas.map((entry) => (entry.properties as Record<string, DefinitionSchema>)[name]).filter(Boolean);
@@ -133,22 +173,9 @@ function definitionSample(schema: DefinitionSchema, path: string): unknown {
       result[name] = definitionSample(effective, `${path}-${name}`);
     }
     for (const entry of (schema.allOf as DefinitionSchema[] | undefined) ?? []) {
-      const condition = entry.if as DefinitionSchema | undefined;
-      const conditionProperties = condition?.properties as Record<string, DefinitionSchema> | undefined;
-      const matches = conditionProperties && Object.entries(conditionProperties).every(([key, value]) =>
-        value.const === undefined || result[key] === value.const);
-      if (!matches) continue;
+      if (!conditionMatches(entry.if as DefinitionSchema | undefined, result)) continue;
       const thenSchema = entry.then as DefinitionSchema | undefined;
-      const thenProperties = thenSchema?.properties as Record<string, DefinitionSchema> | undefined;
-      for (const name of (thenSchema?.required as string[] | undefined) ?? []) {
-        required.add(name);
-        if (result[name] === undefined && properties[name]) {
-          result[name] = definitionSample(
-            thenProperties?.[name] ? { ...properties[name], ...thenProperties[name] } : properties[name],
-            `${path}-${name}`,
-          );
-        }
-      }
+      if (thenSchema) applySelectedSchemaRequirements(thenSchema, properties, result, `${path}-then`);
     }
     return result;
   }

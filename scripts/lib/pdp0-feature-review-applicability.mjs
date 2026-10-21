@@ -6,6 +6,9 @@ export const PDP0_PXD212_CAPTION_REVIEW_PATH = "docs/implementation/verification
 export const PDP0_PXD213_QUALITY_REVIEW_PATH = "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd213.json";
 export const PDP0_PXD213_CAPTION_REVIEW_PATH = "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd213.json";
 export const PDP0_PXD212_QUALITY_HISTORY_PATH = "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd212.json";
+export const PDP0_PXD216_MEANING_REVIEW_PATH = "docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json";
+export const PDP0_PXD216_RECONCILIATION_PATH = "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd216.json";
+export const PDP0_PXD218_QUALITY_REVIEW_PATH = "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd218.json";
 export const PDP0_CAPTION_IMPORT_SELECTOR = ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.import/ownerDefinition/successOutputs/0/optionalSemanticObservations/@id=importedCaptionTrack";
 
 const sha256 = value => createHash("sha256").update(value).digest("hex");
@@ -140,8 +143,13 @@ export function validatePdp0Pxd212Currentness({ qualityHistoryReview, latestQual
 }
 
 
-/** Validate the source-bound PXD-213 currentness successor without granting owner acceptance. */
-export function validatePdp0Pxd213Currentness({ qualityHistoryReview, latestQualityReview, captionReview, sourceDocuments = {}, sourceTexts = {}, decisionLogText = "" }) {
+function validatePdp0QualityCurrentnessSuccessor({ qualityHistoryReview, latestQualityReview, captionReview, sourceDocuments = {}, sourceTexts = {}, decisionLogText = "" }, {
+  successorId,
+  preservedReviewId,
+  preservedReviewPath,
+  additionalPins = {},
+  semanticReview,
+}) {
   const errors = [];
   const fail = message => errors.push(message);
   const cPath = PDP0_PXD213_CAPTION_REVIEW_PATH;
@@ -162,7 +170,7 @@ export function validatePdp0Pxd213Currentness({ qualityHistoryReview, latestQual
   try {
     manifestProjectionSha256 = fingerprint(projectPdp0SourceManifest(sourceDocuments[manifestPath], sourceDocuments[reusePath]));
   } catch (error) {
-    fail(`PXD-213 PDP-0 source-manifest projection cannot be computed: ${error.message}`);
+    fail(`${successorId} PDP-0 source-manifest projection cannot be computed: ${error.message}`);
   }
   const expectedPins = {
     [capPath]: sourceTexts[capPath] === undefined ? undefined : sha256(sourceTexts[capPath]),
@@ -178,30 +186,31 @@ export function validatePdp0Pxd213Currentness({ qualityHistoryReview, latestQual
     [".product-experience/decision-log.md#PXD-212-section"]: fingerprintPxdDecisionSection(decisionLogText, "PXD-212").sha256,
     [".product-experience/decision-log.md#PXD-213-section"]: fingerprintPxdDecisionSection(decisionLogText, "PXD-213").sha256,
     [cPath]: sourceTexts[cPath] === undefined ? undefined : sha256(sourceTexts[cPath]),
+    ...additionalPins,
   };
   const pins = latest?.sourceFingerprints;
   if (!pins || JSON.stringify(Object.keys(pins).sort()) !== JSON.stringify(Object.keys(expectedPins).sort())) {
-    fail("PXD-213 latestCurrentnessRefresh must pin the exact current input set, including the PDP-0 manifest projection and PXD-211/PXD-212/PXD-213 decision sections");
+    fail(`${successorId} latestCurrentnessRefresh must pin the exact current input set, including the PDP-0 manifest projection and its semantic predecessor`);
   } else {
     for (const [ref, actual] of Object.entries(expectedPins)) {
-      if (!actual || pins[ref] !== actual) fail(`PXD-213 latestCurrentnessRefresh has a missing or stale current source pin: ${ref}`);
+      if (!actual || pins[ref] !== actual) fail(`${successorId} latestCurrentnessRefresh has a missing or stale current source pin: ${ref}`);
     }
   }
   if (latest?.phaseScope !== "PDP-0"
-      || latest?.decisionRef !== ".product-experience/decision-log.md#PXD-213"
-    || latest?.status !== "CURRENTNESS_REFRESH_ONLY"
+      || latest?.decisionRef !== `.product-experience/decision-log.md#${successorId}`
+      || latest?.status !== "CURRENTNESS_REFRESH_ONLY"
       || latest?.sourceRef !== capPath
       || latest?.currentSourceSha256 !== expectedPins[capPath]
-      || latest?.semanticReview !== "PXD-212_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW"
-      || latest?.preservedSemanticReviewRef !== ".product-experience/decision-log.md#PXD-212"
-      || latest?.preservedSemanticReviewArtifactSha256 !== expectedPins[pxd212QualityPath]
+      || latest?.semanticReview !== semanticReview
+      || latest?.preservedSemanticReviewRef !== `.product-experience/decision-log.md#${preservedReviewId}`
+      || latest?.preservedSemanticReviewArtifactSha256 !== expectedPins[preservedReviewPath]
       || latest?.ownerApproval !== "NOT_CLAIMED"
       || latest?.independentAcceptance !== "NOT_CLAIMED"
       || latest?.acceptanceEffect !== "none") {
-    fail("PXD-213 latest currentness authority, semantic-review, or non-acceptance boundary is invalid");
+    fail(`${successorId} latest currentness authority, semantic-review, or non-acceptance boundary is invalid`);
   }
   if (!standaloneLatest || fingerprint(standaloneLatest) !== fingerprint(latest)) {
-    fail("PXD-213 standalone quality review must exactly match latestCurrentnessRefresh in the current quality review");
+    fail(`${successorId} standalone quality review must exactly match latestCurrentnessRefresh in the current quality review`);
   }
   const population = latest?.reviewedPopulation;
   if (population?.canonicalCapabilityRows !== 462 || population?.capabilityRows !== 462
@@ -210,7 +219,7 @@ export function validatePdp0Pxd213Currentness({ qualityHistoryReview, latestQual
       || population?.definitionExtensionsExcluded !== 7
       || population?.measurementState !== "NOT_EVALUATED"
       || population?.qualificationState !== "NOT_EVALUATED") {
-    fail("PXD-213 latest currentness population must preserve the 462 × 6/16 frozen quality cohort and seven excluded extensions");
+    fail(`${successorId} latest currentness population must preserve the 462 × 6/16 frozen quality cohort and seven excluded extensions`);
   }
   const expectedJoinIds = ["media.edit.inpaint", "media.edit.matte", "media.edit.retime-slow-motion-speed-ramp"];
   const joins = latest?.changedTypeJoins;
@@ -239,14 +248,14 @@ export function validatePdp0Pxd213Currentness({ qualityHistoryReview, latestQual
           || join.reviewStatus !== "SEMANTIC_JOIN_REVIEWED"
           || join.typeJoinStatus !== "MATCHED_CURRENT_SOURCE";
       })) {
-    fail("PXD-213 must semantically review exact inpaint, matte, and retime capability, quality, trust-disposition, and goal-applicability joins");
+    fail(`${successorId} must retain exact inpaint, matte, and retime capability, quality, trust-disposition, and goal-applicability joins`);
   }
   if (qualityHistoryReview?.schemaVersion !== "media.pdp0.quality-current-source-review.v1"
       || qualityHistoryReview?.artifactId !== "P0-QUALITY-CURRENT-SOURCE-REVIEW-002"
       || latestQualityReview?.schemaVersion !== "media.pdp0.quality-currentness-successor.v1"
       || latest?.reviewArtifactRef !== cPath
       || latest?.reviewArtifactSha256 !== (sourceTexts[cPath] === undefined ? undefined : sha256(sourceTexts[cPath]))) {
-    fail("PXD-213 quality review must bind the exact PXD-213 caption review file");
+    fail(`${successorId} quality review must bind the exact PXD-213 caption review file`);
   }
   const importOutputs = sourceDocuments[capPath]?.capabilities?.find(({ id }) => id === "media.artifact.import")?.ownerDefinition?.successOutputs;
   const optionalObservation = importOutputs?.[0]?.optionalSemanticObservations?.find(({ id }) => id === "importedCaptionTrack");
@@ -272,6 +281,39 @@ export function validatePdp0Pxd213Currentness({ qualityHistoryReview, latestQual
     fail("PXD-213 caption source pins must bind current capability, AC-08 requirement, and decision section");
   }
   return { valid: errors.length === 0, errors, expectedPins };
+}
+
+/** Validate the source-bound PXD-213 currentness observation without granting owner acceptance. */
+export function validatePdp0Pxd213Currentness(input) {
+  return validatePdp0QualityCurrentnessSuccessor(input, {
+    successorId: "PXD-213",
+    preservedReviewId: "PXD-212",
+    preservedReviewPath: PDP0_PXD212_QUALITY_HISTORY_PATH,
+    semanticReview: "PXD-212_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW",
+  });
+}
+
+/** Validate the post-PXD-216 currentness refresh; PXD-213 remains immutable history. */
+export function validatePdp0Pxd218Currentness(input) {
+  const decisionPath = ".product-experience/decision-log.md";
+  return validatePdp0QualityCurrentnessSuccessor(input, {
+    successorId: "PXD-218",
+    preservedReviewId: "PXD-216",
+    preservedReviewPath: PDP0_PXD216_MEANING_REVIEW_PATH,
+    semanticReview: "PXD-216_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW",
+    additionalPins: {
+      [PDP0_PXD213_QUALITY_REVIEW_PATH]: sourceDigestFromInput(input, PDP0_PXD213_QUALITY_REVIEW_PATH),
+      [PDP0_PXD216_MEANING_REVIEW_PATH]: sourceDigestFromInput(input, PDP0_PXD216_MEANING_REVIEW_PATH),
+      [PDP0_PXD216_RECONCILIATION_PATH]: sourceDigestFromInput(input, PDP0_PXD216_RECONCILIATION_PATH),
+      [`${decisionPath}#PXD-216-section`]: fingerprintPxdDecisionSection(input.decisionLogText ?? "", "PXD-216").sha256,
+      [`${decisionPath}#PXD-218-section`]: fingerprintPxdDecisionSection(input.decisionLogText ?? "", "PXD-218").sha256,
+    },
+  });
+}
+
+function sourceDigestFromInput(input, ref) {
+  const text = input?.sourceTexts?.[ref];
+  return typeof text === "string" ? sha256(text) : undefined;
 }
 
 const SOURCE_LABEL_CHANNEL = Object.freeze({
@@ -344,7 +386,7 @@ function resolveSelector(ref, sourceDocuments) {
 }
 
 /** Resolve the full definition-only 15×38 dimension and 462-leaf applicability join. */
-export function resolvePdp0FeatureReviewApplicability({ applicability, requirements, capabilities, capabilityCrosswalk, channels, sourceDocuments, reviewedMaterialArtifact, reviewedMaterialArtifactText, reviewedReferenceCorrectionArtifact, reviewedReferenceCorrectionArtifactText, qualityMetricObservations, qualityPolicySourceText, qualityCurrentSourceReview, qualityCurrentSourceReviewText, qualityCurrentSourceFingerprints, captionImportCurrentSourceReview, captionImportCurrentSourceReviewText, pxd213QualityCurrentSourceReview, pxd213QualityCurrentSourceReviewText, pxd213CaptionImportCurrentSourceReview, pxd213CaptionImportCurrentSourceReviewText, pxd213CurrentSourceTexts, requirePxd213Currentness = false, requirementsSourceText, decisionLogSourceText, animationRelationshipObservation, animationRelationshipObservationText, relationshipSourceText, textToImageObservation, textToImageObservationText, capabilitiesSourceText, capabilityIntentOwnerBindingObservation, capabilityIntentOwnerBindingObservationText, capabilitySemanticReview, capabilitySemanticReviewText, p0CurrentSourceCorrection, p0CurrentSourceCorrectionText, p0UploadByteLengthCorrection, p0UploadByteLengthCorrectionText, p0CapabilityCorrectionsCurrentSourceReview, p0CapabilityCorrectionsCurrentSourceReviewText, policyAuthorityObservation, policyAuthorityObservationText, policyAuthoritySourceText, cliChannelObservation, cliChannelObservationText, applicationsChannelsSourceText, qualificationPolicyObservation, qualificationPolicyObservationText, qualificationPolicySourceText }) {
+export function resolvePdp0FeatureReviewApplicability({ applicability, requirements, capabilities, capabilityCrosswalk, channels, sourceDocuments, reviewedMaterialArtifact, reviewedMaterialArtifactText, reviewedReferenceCorrectionArtifact, reviewedReferenceCorrectionArtifactText, qualityMetricObservations, qualityPolicySourceText, qualityCurrentSourceReview, qualityCurrentSourceReviewText, qualityCurrentSourceFingerprints, captionImportCurrentSourceReview, captionImportCurrentSourceReviewText, pxd218QualityCurrentSourceReview, pxd218QualityCurrentSourceReviewText, pxd213CaptionImportCurrentSourceReview, pxd213CaptionImportCurrentSourceReviewText, pxd218CurrentSourceTexts, requirePxd218Currentness = false, requirementsSourceText, decisionLogSourceText, animationRelationshipObservation, animationRelationshipObservationText, relationshipSourceText, textToImageObservation, textToImageObservationText, capabilitiesSourceText, capabilityIntentOwnerBindingObservation, capabilityIntentOwnerBindingObservationText, capabilitySemanticReview, capabilitySemanticReviewText, p0CurrentSourceCorrection, p0CurrentSourceCorrectionText, p0UploadByteLengthCorrection, p0UploadByteLengthCorrectionText, p0CapabilityCorrectionsCurrentSourceReview, p0CapabilityCorrectionsCurrentSourceReviewText, policyAuthorityObservation, policyAuthorityObservationText, policyAuthoritySourceText, cliChannelObservation, cliChannelObservationText, applicationsChannelsSourceText, qualificationPolicyObservation, qualificationPolicyObservationText, qualificationPolicySourceText }) {
   const fail = (reason) => { throw new Error(`Invalid PDP-0 feature applicability: ${reason}`); };
   const dimensions = applicability?.dimensions;
   const requirementRows = requirements?.requirements;
@@ -613,16 +655,16 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     && typeof qualityCurrentSourceReviewText === "string"
     && JSON.stringify(JSON.parse(qualityCurrentSourceReviewText)) === JSON.stringify(qualitySourceReview);
   if (!qualitySourceReviewValid) fail(`P0 quality current-source review is absent, stale, or has an invalid acceptance boundary (PXD-208 historical pins=${qualityFingerprintMapValid}; PXD-209 currentness pins=${qualityCurrentnessFingerprintMapValid}; live capability=${qualitySourceReview?.sources?.capabilities?.currentSha256 === createHash("sha256").update(capabilitiesSourceText ?? "").digest("hex")}; caption artifact=${qualitySourceReview?.postReviewCurrentnessRefresh?.reviewArtifactSha256 === createHash("sha256").update(captionImportCurrentSourceReviewText ?? "").digest("hex")})`);
-  if (requirePxd213Currentness) {
-    const pxd213Validation = validatePdp0Pxd213Currentness({
+  if (requirePxd218Currentness) {
+    const pxd218Validation = validatePdp0Pxd218Currentness({
       qualityHistoryReview: qualitySourceReview,
-      latestQualityReview: pxd213QualityCurrentSourceReview,
+      latestQualityReview: pxd218QualityCurrentSourceReview,
       captionReview: pxd213CaptionImportCurrentSourceReview,
       sourceDocuments,
-      sourceTexts: pxd213CurrentSourceTexts ?? {},
+      sourceTexts: pxd218CurrentSourceTexts ?? {},
       decisionLogText: decisionLogSourceText,
     });
-    if (!pxd213Validation.valid) fail(pxd213Validation.errors[0]);
+    if (!pxd218Validation.valid) fail(pxd218Validation.errors[0]);
   }
   const approvedCurrentSourceObservation = new Map();
   const qualificationObservationSha256 = "ea9f6acde7310f6b306c39ad1bd32f1ad9031aaac7e43b0db586984c7231df6c";

@@ -1,3 +1,5 @@
+> **Historical review only (2026-10-17).** This read-only coverage report records a dated source cut. It is not a current task queue, phase status, or product-definition authority. Use the [canonical PDP source index](../../.product-experience/README.md) and the [live source/status pointer](MEDIA-UNIFIED-PRODUCTION-CURRENT-PLAN.md).
+
 # Recorder/Studio PDP-0–2 successor coverage reconciliation — 2026-10-17
 
 **Review basis:** source-authored definitions on `samujjwal/ghatana-media`, branch `codex/media-recorder-pdp0-pdp2-surfaces-20261017` after the 84-case/52-manual-operation extension. This file is an **auditor's read-only coverage report**, not a second requirement/operation/decision authority. Normative records remain `.product-experience/pdp-0-product-truth/requirements.yaml`, `.product-experience/pdp-0-product-truth/recorder-studio-extension.yaml`, `.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml`, and `.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml`.
@@ -145,4 +147,3 @@ state vocabulary. Native phase checks remain required before `DEV_COMPLETE`.
 ## October 18 forward pointer — historical source review retained
 
 The source analysis in this October 17 Recorder/Studio review remains attributable only to its original checked cut. The [current unified plan and diagrams](MEDIA-UNIFIED-PRODUCTION-CURRENT-PLAN.md) and [full 501-source audit](references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json) retain all 428 earlier voice/editor/media feature targets and 73 original third-pass Recorder/animation/simulation/TutorPutor intents. The [original stable 73-ID crosswalk](observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json) and [86 original task/experiment references](observations/media-unified-source-task-and-experiment-crosswalk-2026-10-18.json) are updated independently of this record. Do not reinterpret the legacy 84 Recorder clauses as exhaustive exact semantic acceptance of all 501 audit targets or retroactively mark this phase's new source cut `DEV_COMPLETE`. Native status remains pending.
-

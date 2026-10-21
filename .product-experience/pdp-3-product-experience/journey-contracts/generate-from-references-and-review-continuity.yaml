@@ -23,16 +23,37 @@ channelDefinitionEvidence:
   sourceRefs:
     - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-image-to-video/requestSchema
     - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-image-to-video/resultSchema
-    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-quality-video-video-assess-geometry-continuity
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-quality-video-video-assess-geometry-continuity/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-quality-video-video-assess-geometry-continuity/resultSchema
     - .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/unknownOutcome
-  sourceGroundedInputs: selected-generation-capability-inputs-preserve-exact-immutable-source-version; declared-parameters-are-not-substituted
-  sourceGroundedResult: capability-result-envelope-with-outcome-observedAt-outputs-provenance-implementationState-qualificationState-runtimeAvailability; successful-generation-requires-authoritative-owner-receipt-and-exact-output-version
+  sourceGroundedInputs: P1 generation request binds requestId, text-or-video intent (including only source-declared text/locale/constraints), exact image artifactId/versionId, and required output width/height, rational frameRate, durationMilliseconds, and outputProfileRef. These controls are the defined request parameters; no unlisted control or condition is inferred.
+  sourceGroundedResult: Generation envelope carries outcome/observedAt/outputs/provenance/implementationState/qualificationState/runtimeAvailability; successful output is candidate-video-artifact-with-execution-provenance with jobId and optional attemptId/evidenceRef. The schema does not provide the candidate artifactId/versionId needed to bind a later assessment, and dispatch/receipt alone is not a completed generated version.
   blockedSemantics:
-    - P1 provides exact source-version input and capability-level finality, but this journey does not bind each selected condition/reference geometry to a specific generation request and same-subject result.
-    - Geometry-continuity assessment is a separate read-only observation; P1 does not make it a required action for each J-10 condition or establish a generation-to-assessment join.
-    - Identity continuity remains observational and is not identity proof. AI unavailable or unsupported control cannot imply a generated result or an authorized fallback.
+    - Journey-selected references/conditions/controls are not each mapped to explicit request fields beyond the exact source image, authored intent text/constraints, and listed output parameters; unresolved or unsupported controls remain pending/UNKNOWN rather than silently substituted.
+    - Geometry-continuity assessment is a separate operation requiring an exact candidate video version, exact applicable reference/measurement context version, requested dimensions, and requestId. P1 does not expose a generated output version in the generation result or define a generation-to-assessment same-version join; that join therefore remains UNKNOWN/pending and no result can be claimed for it.
+    - Assessment results are source-bound to their submitted candidate version and retain declared quality-observation output/provenance; missing, stale, partial, or unavailable observations remain UNKNOWN/partial. Assessment is not proof that each generation condition was met.
+    - Identity continuity remains observational and is not identity proof. AI unavailability, unsupported controls, denial, or uncertain finality cannot imply a generated result or an authorized fallback.
     - Web remains UNBOUND and NOT_ADMITTED; no channel transport or runtime equivalence is asserted.
   unknownAndDenied: Preserve missing/partial/stale geometry, identity drift, unsupported controls, AI unavailability, denied requests and ambiguous finality as scoped UNKNOWN/abstention/denial; no retry or fallback is inferred.
+sourceGap:
+  id: MDC30-C-10-candidate-version-to-continuity-result-join
+  status: PDP1_PREDECESSOR_CONTRACT_GAP; UNKNOWN_NOT_ADMITTED
+  missingOwnerDefinition: >-
+    P0 requires every continuity observation to bind to the exact generated
+    candidate artifact/version. The P1 generation result currently identifies
+    a jobId but does not return candidate artifactId/versionId. The separate
+    output-preview lineage query resolves an exact artifact version but accepts
+    only that version as subject and does not bind it to the generation jobId.
+    No exact same-job candidate-version join is defined. Keep continuity
+    assessment UNKNOWN until an owner-defined result or observation provides
+    that join; do not infer a candidate version from dispatch, a job ID, a
+    preview locator, or source lineage alone.
+  sourceRefs:
+    - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-10/completion
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.candidate-video-artifact-with-execution-provenance
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1/bindingRules
+  boundary: No candidate continuity result or candidate-version identity is claimed until the exact generation-job/output-version join is source-defined; channel transport and runtime admission remain NOT_ADMITTED.
 pdp1ResultEvidence:
   status: SOURCE_BOUND_DEFINITION_ONLY; CHANNEL_TRANSPORT_UNBOUND; RUNTIME_NOT_ADMITTED
   sourceRefs:
@@ -129,9 +150,10 @@ pdp1ResultEvidence:
       operationRef: media.operation.action.compare-candidate-on-metric
       operationKind: QUERY
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
-      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope
-      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
-      operationVersion: 1
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+      pairedObservationResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
+      operationVersion: 2
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/contractVersion
       authorityRefs:
         - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
@@ -143,7 +165,7 @@ pdp1ResultEvidence:
       unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
       stateRefs: []
       transitionRefs: []
-      exactResult: "Exact P1 result schema requires: typed observations, observedAt. Source finality: read-only-or-navigation; no-write-finality"
+      exactResult: "Exact P1 v2 paired result echoes distinct exact original/candidate immutable versions and each requested metric result with both source sides preserved. It derives no winner or quality conclusion; NOT_COMPARABLE and UNKNOWN remain explicit."
       unknownDisposition: "UNKNOWN_OUTCOME is neither success nor failure; apply exact source-defined recovery: retain-the-exact-context-and-request-identity; reconcile-unknown-effects-before-retry; never-substitute-a-newer-version"
     - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml#/steps/3
       journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j10-step-04.v1
@@ -1682,7 +1704,6 @@ steps:
     surfaceRefs:
       - media.surface.web
     objectRefs:
-      - media.domain.quality-assessment
       - media.domain.artifact-version
     canonicalOperationRef: media.operation.action.compare-candidate-on-metric
     authorityRef: null
@@ -1822,7 +1843,6 @@ steps:
         surfaceRefs:
           - media.surface.web
         objectRefs:
-          - media.domain.quality-assessment
           - media.domain.artifact-version
         stateRefs: []
         canonicalOperationRef: media.operation.action.compare-candidate-on-metric

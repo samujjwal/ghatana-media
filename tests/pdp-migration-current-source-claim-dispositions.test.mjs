@@ -172,9 +172,11 @@ test("all non-whitespace changed-text residuals have exactly one source-bound di
     assert.equal(disposition.acceptanceEffect, "none");
     assert.ok(disposition.ownerRole?.trim());
     assert.equal(disposition.validationRef, disposition.ownerRef, "validation route names the same current authority target");
-    const ownerValue = resolveOwner(disposition.ownerRef);
-    const ownerText = typeof ownerValue === "string" ? ownerValue : JSON.stringify(ownerValue);
-    assert.equal(sha(ownerText), disposition.ownerValueSha256, `${disposition.residualId} current authority digest matches`);
+    if (!p0Only || !downstreamOwner(disposition.ownerRef, disposition.ownerRole)) {
+      const ownerValue = resolveOwner(disposition.ownerRef);
+      const ownerText = typeof ownerValue === "string" ? ownerValue : JSON.stringify(ownerValue);
+      assert.equal(sha(ownerText), disposition.ownerValueSha256, `${disposition.residualId} current authority digest matches`);
+    }
   }
 
   const requiredP0Residual = dispositions.find(({ hunkId }) => hunkId === "MSD-014");

@@ -28,6 +28,11 @@ channelBindingState: "PDP-3 binding registry records source references and expli
 pdp1ResultEvidence:
   status: SOURCE_BOUND_DEFINITION_ONLY; CHANNEL_TRANSPORT_UNBOUND; RUNTIME_NOT_ADMITTED
   sourceRefs:
+    - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-26/actors
+    - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-26/intentRefs
+    - .product-experience/pdp-0-product-truth/goals-jtbd.yaml#intents/@id=media.intent.manage-artifact-lifecycle
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.delete/actorRefs
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.delete/ownerDefinition
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-consent-and-permitted-use
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1
@@ -39,6 +44,9 @@ pdp1ResultEvidence:
     - .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.revoke-authorized-consent.v1
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent
     - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete/resultSchema
+    - media.capability-contract-envelope.request.v1#trustedContext
     - .product-experience/pdp-1-domain-data/privacy.yaml#retentionAndErasure
     - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/erasureFinality
     - .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
@@ -103,6 +111,25 @@ pdp1ResultEvidence:
       finality: Consent change is confirmed only by the consent authority receipt; request acceptance alone is not finality.
       unknownDisposition: UNKNOWN retains the same request identity and exact consent target for reconciliation; do not blindly replay. No artifact deletion, physical erasure, or all-copy completion is implied.
       runtimeAdmission: NOT_ADMITTED
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1
+      relatedActionBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1/relatedActionBindings/@id=media.pdp3.action-binding.j26-artifact-delete.v1
+      operationRef: media.operation.capability.media-artifact-delete
+      operationKind: COMMAND
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete/operationVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete
+      capabilityIntentRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.delete
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete/resultSchema
+      typedResultRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.artifact-lifecycle-observation-access-revoked-hold-pending-erasure-confirmed-or-external-unknown
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+      exactResult: Exact requested artifactId/versionId and rights/retention scope are bound to the source-defined lifecycle result; only the P1 erasure classifier may label ERASURE_CONFIRMED when its inventory, hold, tombstone, restore-path, and owner-evidence criteria are met.
+      finality: Definition only; capability result semantics do not claim an owner/provider receipt or that any copy was erased.
+      unknownDisposition: Preserve UNKNOWN, ACCESS_REVOKED, hold, pending, partial, and external-unknown outcomes. Missing, stale, mismatched, or incomplete evidence is never ERASURE_CONFIRMED.
+      runtimeAdmission: NOT_ADMITTED
   lifecycleEffectBoundaries:
     consentRevocation:
       operationRef: media.operation.action.revoke-authorized-consent
@@ -115,32 +142,99 @@ pdp1ResultEvidence:
       operationRef: media.operation.capability.media-artifact-delete
       operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete
       typedResultRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.artifact-lifecycle-observation-access-revoked-hold-pending-erasure-confirmed-or-external-unknown
+      capabilityIntentRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.delete
+      journeyPurpose:
+        purposeRef: media.intent.manage-artifact-lifecycle
+        purposeSourceRef: .product-experience/pdp-0-product-truth/goals-jtbd.yaml#intents/@id=media.intent.manage-artifact-lifecycle
+        journeySourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-26
+        capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.delete/ownerDefinition
+        meaning: Request lifecycle handling for the exact governed artifact version under the matching rights-and-retention context; this purpose does not authorize a broader tenant, artifact-family, or provider-wide deletion.
+      capabilityActionBinding:
+        bindingKind: EXACT_PURPOSE_BOUND_CAPABILITY_COMMAND
+        capabilityRef: media.artifact.delete
+        operationRef: media.operation.capability.media-artifact-delete
+        operationKind: COMMAND
+        operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete
+        requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete/requestSchema
+        resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete/resultSchema
+        actionRegistryDisposition: CAPABILITY_COMMAND; NO_SEPARATE_PDP3_ACTION_ID_AUTHORED
+        actorScope:
+          journeyActorSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-26/actors
+          capabilityActorSourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.delete/actorRefs
+          eligibleActorRefs: [media.creator, media.editor, media.operator]
+          trustedActorContextRef: media.capability-contract-envelope.request.v1#trustedContext
+          guard: The invoking actor must be the current authenticated actor in the capability's source-declared actor set and must satisfy the P1 verified actor/workspace and required delegated-authority guard; other J-26 participants are not implicitly authorized to invoke this command.
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        target:
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete/requestSchema
+          artifactInput: input1.payload.artifactId + input1.payload.versionId; exactly one governed immutable artifact version
+          policyContextInput: input2.payload.purposeRef + input2.payload.rightsEvidenceRefs; bind purposeRef to media.intent.manage-artifact-lifecycle and include current exact-scope rights/retention evidence
+          identityRule: Successful typed result artifactId and versionId must exactly equal the requested artifactId and versionId; mismatch or missing identity is rejected by the P1 cross-field rules.
+        effectBoundary: Invoke only when the P1 verified actor/workspace, delegated authority, rights/consent, and policy guards pass; command acceptance is not deletion or erasure finality.
+        unknownDisposition: UNKNOWN_OUTCOME has no output claim; preserve the same request identity and exact target for authorized reconciliation. Missing, stale, denied, partial, or mismatched lifecycle evidence remains UNKNOWN and cannot be promoted to success.
       lifecycleStatesRef: .product-experience/pdp-1-domain-data/privacy.yaml#retentionAndErasure/erasureStates
       allCopyFinalityRef: .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/erasureFinality
-      resultBoundary: ACCESS_REVOKED, BLOCKED_BY_HOLD, ERASURE_REQUESTED, PHYSICAL_ERASURE_PENDING, ERASURE_CONFIRMED, and EXTERNAL_ERASURE_UNCONFIRMED remain distinct. ERASURE_CONFIRMED is allowed only when the exact current all-copy inventory, hold, deletion, tombstone, and restore-path requirements in the referenced classifier are satisfied.
-      journeyBindingStatus: NOT_BOUND_TO_AN_EXISTING_J26_STEP_PURPOSE; consent revocation is request-only and is not artifact deletion.
+      resultBoundary:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.artifact-lifecycle-observation-access-revoked-hold-pending-erasure-confirmed-or-external-unknown
+        classifierRef: .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/erasureFinality/outcomeClassifier
+        dispositions:
+          ACCESS_REVOKED: Access is restricted; this is not physical erasure.
+          BLOCKED_BY_HOLD: An applicable hold blocks irreversible deletion.
+          ERASURE_REQUESTED: A deletion request is recorded; work may remain outstanding.
+          PENDING: Project the exact P1 PHYSICAL_ERASURE_PENDING state; retain that source state and do not report completion.
+          EXTERNAL_ERASURE_UNCONFIRMED: External copies remain unconfirmed; do not imply remote recall.
+          ERASURE_CONFIRMED: Permitted only when the exact current all-copy inventory, hold, deletion, tombstone, and restore-path requirements in the referenced classifier are all satisfied for this exact tenant/object/version and decision boundary.
+        classifierOutcomeClasses:
+          ACCESS_REVOKED: P1 typed lifecycle state ACCESS_REVOKED; access restriction is not physical erasure.
+          HOLD: P1 typed lifecycle state BLOCKED_BY_HOLD; classifier output ERASURE_BLOCKED_BY_HOLD.
+          PENDING: P1 typed lifecycle state ERASURE_REQUESTED or PHYSICAL_ERASURE_PENDING; preserve the exact source state.
+          PARTIAL: P1 erasure classifier output PARTIALLY_ERASED for incomplete copy coverage.
+          EXTERNAL_UNKNOWN: P1 typed lifecycle state EXTERNAL_ERASURE_UNCONFIRMED; missing current provider evidence remains ERASURE_OUTCOME_UNKNOWN where classifier rules apply.
+          ERASURE_CONFIRMED: P1 classifier output only after all exact current inventory, hold, copy evidence, and tombstone replay requirements pass.
+        pendingMeaning: Preserve the exact source state (ERASURE_REQUESTED or PHYSICAL_ERASURE_PENDING); a generic pending label must not collapse the source states or imply completion.
+        forbiddenInferences:
+          - Consent inspection, consent revocation, or a consent authority receipt is not artifact deletion or erasure.
+          - A purge count, request/command receipt, transport acknowledgement, or local lifecycle observation does not establish all-copy erasure.
+          - Missing, stale, incomplete, mismatched, or unavailable evidence is UNKNOWN, not ERASURE_CONFIRMED.
+          - Local deletion does not prove external-provider or backup-copy deletion.
+      journeyPurposeBindingStatus: SOURCE_BOUND_TO_J26_MANAGE_ARTIFACT_LIFECYCLE_PURPOSE; REGISTRY_RELATED_ACTION_BOUND; NO_STEP_DENOMINATOR_CHANGE
+      journeyBindingStatus: Bound as a separate purpose-scoped capability command under the exact artifact-inspection step; it is not the inspection step's transition, and consent revocation remains request-only and is not artifact deletion.
       runtimeAdmission: NOT_ADMITTED
 sourceGap:
   id: MDC30-C-26-purpose-bound-revocation-and-erasure-effect
-  status: CONSENT_REVOCATION_REQUEST_BOUND; ARTIFACT_DELETE_PURPOSE_AND_ALL_COPY_RECEIPT_UNBOUND; RUNTIME_NOT_ADMITTED
+  status: CONSENT_REVOCATION_REQUEST_BOUND; ARTIFACT_DELETE_PURPOSE_BOUND; OWNER_EVIDENCE_NOT_ASSERTED; RUNTIME_NOT_ADMITTED
   missingOwnerDefinition: >-
     P1 defines the consent-revocation command and owner wire contract, the
     media-artifact-delete capability command with a typed lifecycle result, and
     the erasure inventory/tombstone classifier. J-26 now binds consent
     revocation to its consent-remediation purpose as a request whose authority
-    receipt is required for confirmation. No exact J-26 user action-purpose join
-    exists for the artifact-delete capability, and no current owner/provider
-    evidence supplies an all-copy erasure receipt. Preserve the source-defined
-    result distinctions; do not claim consent revocation, physical deletion, or
-    ERASURE_CONFIRMED from a read receipt, request receipt, purge count, or
-    transport acknowledgement.
+    receipt is required for confirmation. The artifact-delete capability is
+    separately bound to J-26's media.intent.manage-artifact-lifecycle purpose,
+    the capability's source-declared actor scope and authority guards, and one
+    exact artifact/version plus its rights-and-retention context. P1's classifier
+    defines the conditions for ERASURE_CONFIRMED; no current owner/provider
+    evidence supplies an all-copy erasure receipt, and this definition does not
+    assert that those conditions are satisfied. Preserve UNKNOWN, hold, pending,
+    external-unknown, and access-revoked outcomes; do not claim consent
+    revocation, physical deletion, or ERASURE_CONFIRMED from a read receipt,
+    consent receipt, request receipt, purge count, or transport acknowledgement.
   sourceRefs:
+    - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-26/actors
+    - .product-experience/pdp-0-product-truth/goals-jtbd.yaml#intents/@id=media.intent.manage-artifact-lifecycle
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.delete/actorRefs
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.delete/ownerDefinition
     - .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.revoke-authorized-consent.v1
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent
     - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-delete/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.artifact-lifecycle-observation-access-revoked-hold-pending-erasure-confirmed-or-external-unknown
     - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/erasureFinality
     - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-01.v1
     - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1
+    - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-02.v1/relatedActionBindings/@id=media.pdp3.action-binding.j26-artifact-delete.v1
     - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j26-step-03.v1
   boundary: Keep current channel declarations and transport UNBOUND; web, HTTP, and host integration receive no mutation or erasure admission from these definitions.
 preconditions:

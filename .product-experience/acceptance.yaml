@@ -932,6 +932,49 @@ recordedHumanDecisionInputs:
   exclusions:
     - Immutable release candidate, license approval, model/codec/provider qualification, commercial publication, deployment, cutover, independent review, Lifecycle receipts, and phase closure.
 
+- id: ACCEPT-INPUT-MEDIA-OWNER-PDP0-SEMANTIC-SCOPE-20261019
+  phaseTask: P0-01-and-P0-07
+  decisionInput: accepted-source-definition-decisions-only
+  decisionSource: .product-experience/decision-log.md#PXD-207
+  sourceOfDecision: explicit-user-delegation-in-current-thread-to-review-and-authorize-Media-owner-decisions
+  decisionDate: '2026-10-19'
+  acceptedScope:
+    - Resolve the five exact capability input/output type differences listed by PXD-206 to current PDP-0 definitions.
+    - Include AUD-DSP-007 through the exact creative-effects leaf, parent requirement and acceptance case recorded by PXD-207.
+    - Decide exact channel/surface applicability for the seven separately recorded PDP-0 definition extensions, preserving the historical 462 owner-adjudication population.
+  evidenceRefs:
+    - .product-experience/decision-log.md#PXD-207
+    - .product-experience/pdp-0-product-truth/capabilities.yaml
+    - .product-experience/pdp-0-product-truth/requirements.yaml
+    - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#currentDefinitionPopulation
+    - .product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability
+    - docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#6.8
+  comments:
+    - This records a user-delegated product-definition decision by the coordinator; it does not claim that a named human owner signed or independently accepted the decision.
+    - All explicit non-applicability decisions require stable feature, channel and surface identities plus source-backed rationale; implementation and runtime availability remain separate.
+  exclusions:
+    - Independent semantic acceptance, legal or scientific certification, runtime admission, implementation, qualification, native phase closure, and Delivery.
+
+- id: ACCEPT-INPUT-MEDIA-OWNER-PDP0-CAPTION-IMPORT-20261019
+  phaseTask: P0-01
+  decisionInput: accepted-source-definition-decision-only
+  decisionSource: .product-experience/decision-log.md#PXD-209
+  sourceOfDecision: explicit-user-delegation-in-current-thread-to-review-and-authorize-Media-owner-decisions
+  decisionDate: '2026-10-19'
+  acceptedScope:
+    - Define the optional authorized caption-track observation for an exact immutable import source under MEDIA-REQ-CAP-ARTIFACT-AC-08.
+    - Bind AUD-ASSET-012 to exact import and subtitle-delivery source meanings while preserving its source acceptance text as provenance.
+  evidenceRefs:
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.import/ownerDefinition/successOutputs
+    - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases/@id=MEDIA-REQ-CAP-ARTIFACT-AC-08
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.deliver.subtitles
+    - docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json#AUD-ASSET-012
+  comments:
+    - This is a coordinator-authored, user-delegated source definition decision; it does not claim that a named human owner signed or independently accepted the decision.
+    - The import observation does not alter source media or register a caption artifact; destination export remains a separate authorized delivery outcome.
+  exclusions:
+    - PDP-1 operation/wire/domain approval, PDP-2 interface grammar, PDP-3 journey acceptance, independent semantic acceptance, implementation, qualification, runtime admission, native phase closure, and Delivery.
+
 - id: ACCEPT-INPUT-MEDIA-OWNER-RULES-MEASURES-20261008
   phaseTask: P0-05-and-P0-06
   decisionInput: accepted-bounded-definition-mappings-only

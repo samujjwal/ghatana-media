@@ -1,8 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+import { resolve } from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
+const repositoryRoot = fileURLToPath(new URL('..', import.meta.url));
+const { parse: parseYaml } = createRequire(resolve(repositoryRoot, '../ghatana-tools/package.json'))('yaml');
 const candidate = JSON.parse(await readFile('.product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json', 'utf8'));
 const model = candidate.candidateModel;
 const templateRefsAndPatterns = [
@@ -58,6 +63,45 @@ test('PDP-2 recovery and accessibility projections preserve their authored scope
   assert.ok(model.accessibilityRules.every(({ standard, level }) => standard === 'WCAG 2.2' && level === 'AA'));
   assert.match(candidate.candidateMappingReview.ownerDecisionStatus, /PENDING/);
   assert.equal(candidate.acceptance, 'NOT_CLAIMED');
+});
+
+test('generic job-state presentation preserves PDP-0 meaning and does not imply transcript review', async () => {
+  const grammar = parseYaml(await readFile('.product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml', 'utf8'));
+  const truth = parseYaml(await readFile('.product-experience/pdp-0-product-truth/state-models.yaml', 'utf8'));
+  const jobModel = truth.models.find(({ modelId }) => modelId === 'media-job');
+  const runningTruth = jobModel.states.find(({ id }) => id === 'RUNNING');
+  const completedTruth = jobModel.states.find(({ id }) => id === 'COMPLETED');
+  assert.equal(runningTruth.meaning, 'at least one current fenced attempt is executing an admitted stage');
+  assert.equal(completedTruth.meaning, 'verified outputs are registered and satisfy the accepted result contract');
+
+  const running = grammar.states.find(({ stateRef }) => stateRef === 'media-job.RUNNING');
+  const completed = grammar.states.find(({ stateRef }) => stateRef === 'media-job.COMPLETED');
+  assert.deepEqual(running, {
+    stateRef: 'media-job.RUNNING',
+    label: 'In progress',
+    explanation: 'A current fenced attempt is executing an admitted stage for this request.',
+    safeActionRefs: ['media.action.view-job-status', 'media.action.request-cancellation'],
+  });
+  assert.deepEqual(completed, {
+    stateRef: 'media-job.COMPLETED',
+    label: 'Completed',
+    explanation: 'Verified outputs are registered and satisfy the accepted result contract.',
+    safeActionRefs: ['media.action.view-job-status'],
+  });
+  assert.ok(!completed.safeActionRefs.includes('media.action.review-transcript'));
+  assert.ok(!completed.safeActionRefs.includes('media.action.inspect-provenance'));
+  assert.ok(grammar.presentationRules.some((rule) => rule.includes('Operation-specific status labels require authoritative binding to the exact operation and displayed job identity')));
+  assert.ok(grammar.presentationRules.some((rule) => rule.includes('displayed job identity, and exact immutable result version')));
+  assert.ok(grammar.presentationRules.some((rule) => rule.includes('When exact operation and result context is absent')));
+
+  for (const [stateRef, source] of [['media-job.RUNNING', running], ['media-job.COMPLETED', completed]]) {
+    const projectedState = model.semanticStates.find(({ id }) => id === stateRef);
+    const projectedMapping = model.domainStatePresentationMappings.find(({ domainStateId }) => domainStateId === stateRef);
+    assert.deepEqual([projectedState.name, projectedState.description], [source.label, source.explanation]);
+    assert.equal(projectedMapping.presentationEffect, `${source.label}: ${source.explanation}`);
+    assert.doesNotMatch(projectedState.name, /transcript/i);
+    assert.doesNotMatch(projectedState.description, /review/i);
+  }
 });
 
 test('PDP-2 projects exact owner-approved recipe identities while admission stays pending', () => {

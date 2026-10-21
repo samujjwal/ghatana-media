@@ -107,6 +107,35 @@ pdp1ResultEvidence:
       unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
       exactResult: requestId, logicalJobId, sourceSnapshotDigest, renderProfileRef, and durableAdmissionReceipt; durable job admission only, with no render completion or delivery inferred.
       unknownDisposition: Unknown is neither success nor failure; reconcile the same request identity before an eligible retry.
+  capabilityResultBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml#/steps/1
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j14-step-02.v1
+      capabilityRef: media.simulation.output.measurements
+      operationRef: media.operation.capability.media-simulation-output-measurements
+      operationKind: COMMAND
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/operationVersion
+      ownerWireContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=media.owner-wire-contract.simulation-measurements.v1
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=media.owner-wire-contract.simulation-measurements.v1/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=media.owner-wire-contract.simulation-measurements.v1/resultSchema
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+      finalityRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/finality
+      errorsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/errors
+      recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements/recovery
+      sourceCapabilityRef: .product-experience/pdp-0-product-truth/capabilities.yaml#media.simulation.output.measurements
+      exactResult: On a source-defined SUCCEEDED result, the wire contract permits exactly one typed simulation-pass measurement output with model, initial-state, run, plan, pass-contract, profile, production-status, measurement-value, and operation-provenance references. PRODUCED versus ESTIMATED remains explicit; this is not an independently observed physical measurement or ground truth.
+      exactRunBinding:
+        typedResultRunRef: $.result.outputs[0].payload.mediaRunRef
+        queryTargetRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope/properties/exactTargetRef
+        equalityRule: Any follow-up inspect-simulation-result query must use the exact mediaRunRef returned by the typed measurement output; the query result is not joined when the target differs, is absent, or is stale.
+        traceFields: [modelRef, initialStateRef, simulationPlanRef, passContractRef, profileId, profileVersion, productionStatus, measurementSchemaRef, unitSystemRef, timeRangeRef, domainMethodRef, observedAt]
+        conditionalRender: Render is optional. If submitted, its separate durable admission remains distinct from simulation measurement and render completion remains UNKNOWN until the exact render result is observed.
+      resultDisposition: SOURCE_DEFINED_TYPED_CAPABILITY_RESULT; INVOCATION_AND_QUERY_RESULT_CORRELATION_UNBOUND; RUNTIME_NOT_ADMITTED
+      unknownDisposition: REJECTED and UNKNOWN_OUTCOME make no output claim; UNKNOWN_OUTCOME requires same-identity reconciliation. A run query with a different or unresolved mediaRunRef remains UNKNOWN. The typed result does not establish scientific validity, physical ground truth, or optional render completion.
+      executionAdmission: NOT_ADMITTED
 preconditions:
   - Domain owner/model, equations, unit-bearing conditions, validity range,
     solver envelope, and fidelity tier are referenced.
@@ -588,7 +617,7 @@ steps:
           - media.domain.job-attempt
         stateRefs: []
         canonicalOperationRef: media.operation.action.inspect-simulation-result
-        authorityRef: null
+        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
         transitionRef: null
         requirementRefs: []
         scenarioRefs: []
@@ -923,7 +952,7 @@ steps:
           - media.domain.quality-assessment
         stateRefs: []
         canonicalOperationRef: media.operation.action.inspect-quality-evidence
-        authorityRef: null
+        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
         transitionRef: null
         requirementRefs: []
         scenarioRefs: []
@@ -1252,10 +1281,9 @@ steps:
           - media.domain.job-attempt
           - media.domain.resolved-plan
         stateRefs:
-          - .product-experience/pdp-1-domain-data/states.yaml#media-job
-          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+          - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED
         canonicalOperationRef: media.operation.action.submit-render
-        authorityRef: null
+        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
         transitionRef: null
         requirementRefs: []
         scenarioRefs: []
@@ -1428,23 +1456,26 @@ steps:
 sourceGap:
   id: MDC30-C-14-terminal-simulation-render-observation
   status: UNKNOWN_NOT_ADMITTED
-  missingOwnerDefinition: >-
-    P1 inspect-simulation-result is an exact-target scoped read whose immediate
-    envelope is requestId, exactTargetRef, ownerReceipt, and observedAt; this
-    J-14 binding does not join that envelope to a typed simulation-pass result,
-    exact run parameters, or a completed render/measurement result.
-    inspect-quality-evidence returns typed quality evidence for an exact
-    subject version but is not a simulation terminal or render-completion
-    receipt. The submit-render operation is durable admission only. Bind a
-    typed same-subject terminal observation and exact constraints/units/fidelity
-    semantics only when an owner-defined operation/result and purpose binding
-    establish them; otherwise retain UNKNOWN for missing, partial, stale,
-    denied, and unavailable results.
+  missingRuntimeEvidence: >-
+    P1 defines the typed measurements result including exact mediaRunRef,
+    model/initial-state/plan/pass/profile identity, measurement schema, unit
+    system, time range, domain method, production status, and source provenance.
+    J-14 binds a follow-up inspect-simulation-result query only when its exact
+    target equals that returned mediaRunRef. These are source definitions, not
+    runtime observations: no query/capability invocation, measurement result,
+    scientific validity, or render completion is asserted here. Preserve
+    UNKNOWN for absent, mismatched, partial, stale, denied, or unavailable
+    results. Rendering remains conditional and separate from simulation
+    measurement; submit-render admission alone is not completion.
   sourceRefs:
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-simulation
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-output-measurements
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=media.owner-wire-contract.simulation-measurements.v1/resultSchema
     - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-simulation-pass-with-produced-versus-estimated-provenance
+    - .product-experience/pdp-1-domain-data/operations.yaml#outputTypes/records/@id=media.owner-output-type.simulation-pass-result-measurements.v1
     - .product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#ownerDefinedVisualVsScientificFidelityBoundary
   integrationDisposition: HOST_DEPENDENT; NOT_ADMITTED
   boundary: Both declared channels remain transport-unbound; product-integration requires host authority and admission evidence not present in this journey contract.

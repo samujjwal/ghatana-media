@@ -590,7 +590,10 @@ export function validateOwnerActionWireCatalog({ catalog, operations, actions, d
   }
 
   for (const record of records) {
-    if (!record.id || !record.id.startsWith("media.owner-action-wire.") || !record.id.endsWith(".v1")) issues.push(fail("INVALID_STABLE_ID", record.id));
+    if (typeof record.id !== "string"
+      || !/^media\.owner-action-wire\.[a-z0-9][a-z0-9.-]*\.v[1-9][0-9]*$/u.test(record.id)) {
+      issues.push(fail("INVALID_STABLE_ID", record.id));
+    }
     if (!bySourceOperation.has(record.sourceOperationRef)) issues.push(fail("FOREIGN_SOURCE_OPERATION", record.sourceOperationRef));
     if (record.actionRef && byAction.get(record.actionRef) !== record) issues.push(fail("DUPLICATE_ACTION_BINDING", record.actionRef));
     if (!record.requestAuthority || record.requestAuthority.tenantId !== "HOST_AUTHENTICATED_ONLY" || record.requestAuthority.principalId !== "HOST_AUTHENTICATED_ONLY") {

@@ -254,6 +254,19 @@ test("PDP-1 rule proposal defines typed immutable versions, closed graph/fingerp
   assert.equal(contract.contractIdentity.operationDisposition, "PROPOSED_PDP1_CONTRACT_ONLY; NOT_IN_CANONICAL_OPERATION_DENOMINATOR");
   assert.ok(contract.sourceRefs.includes(".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/compileAcceptance"));
   assert.ok(contract.sourceRefs.includes(".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/validationCoverage"));
+  assert.ok(contract.sourceRefs.includes(".product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics/projectRevision"));
+  assert.ok(contract.sourceRefs.includes(".product-experience/pdp-1-domain-data/operations.yaml#ownerOptimisticConcurrencyRule"));
+  assert.match(contract.compileContract.requestSchema.properties.expectedVersionRef.format, /opaque-versioned-reference/u);
+  assert.match(contract.compileContract.predecessorRuleBasis, /Adapts the generic ownerOptimisticConcurrencyRule/u);
+  assert.match(contract.compileContract.rules.join(" "), /exact observed current predecessor/u);
+  assert.match(contract.compileContract.rules.join(" "), /return UNKNOWN/u);
+  assert.match(contract.compileContract.rules.join(" "), /Never substitute the latest version or silently rebase/u);
+  assert.match(contract.compileContract.rules.join(" "), /does not establish that a rule-management runtime/u);
+
+  const revisionSemantics = parse(readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/versioning.yaml"), "utf8")).ownerDefinedRevisionSemantics.projectRevision;
+  assert.match(revisionSemantics.commandPrecondition, /expectedHeadRevisionId/u);
+  assert.match(revisionSemantics.stale, /CONFLICT/u);
+  assert.match(revisionSemantics.stale, /no mutation/u);
 
   assertSchema("ruleSetVersion.candidate.schema", candidate);
   assertParameterValueCompatibility(candidate.rules[0], candidate.declaredInputs);
@@ -290,6 +303,7 @@ test("PDP-1 rule proposal defines typed immutable versions, closed graph/fingerp
     assert.deepEqual({ tenantRef: expectedTenant, ruleSetId: expectedRuleSet }, compileTuple, "expected version is from the exact request tenant and rule-set tuple");
     assert.ok(expectedVersion, "expected predecessor has a version identity");
   }
+  assert.equal(candidate.parentVersionRef, compileRequest.expectedVersionRef, "compiled candidate parent equals the exact expected predecessor");
   assertSchema("compileContract.requestSchema", compileRequest);
   assert.throws(() => assertRuleSetRefBindings("media.ruleset:tenant-b:color-policy", compileRequest.requestContext), /tenant equals/u);
   assert.throws(() => {
@@ -301,10 +315,15 @@ test("PDP-1 rule proposal defines typed immutable versions, closed graph/fingerp
   const compileSuccess = { outcome: "COMPILED", requestContext, ruleSetRef: candidate.ruleSetRef, observedAt: "2026-10-19T12:00:00Z", candidate, normalizedSemanticGraph: graph, semanticFingerprint: { algorithm: contract.semanticFingerprint.calculation.algorithm, value: digest, graphFormat: graph.graphFormat } };
   assertSchema("compileContract.resultSchema", compileSuccess);
   assert.equal(compileSuccess.ruleSetRef, candidate.ruleSetRef, "successful compile returns candidate's exact stable ruleSetRef");
-  for (const outcome of ["REJECTED", "UNSUPPORTED"]) assertSchema("compileContract.resultSchema", { outcome, requestContext, ruleSetRef: candidate.ruleSetRef, observedAt: "2026-10-19T12:00:00Z", diagnostics: [] });
+  for (const outcome of ["REJECTED", "UNSUPPORTED"]) {
+    const failure = { outcome, requestContext, ruleSetRef: candidate.ruleSetRef, observedAt: "2026-10-19T12:00:00Z", diagnostics: [{ code: "RULE_INVALID", path: "rules[0]", disposition: "ERROR" }] };
+    assertSchema("compileContract.resultSchema", failure);
+    assertRejected("compileContract.resultSchema", { ...failure, diagnostics: [] });
+  }
   for (const outcome of ["DENIED", "CONFLICT", "STALE", "UNKNOWN", "UNAVAILABLE"]) assertSchema("compileContract.resultSchema", { outcome, requestContext, ruleSetRef: candidate.ruleSetRef, observedAt: "2026-10-19T12:00:00Z", reasonRef: `reason:${outcome.toLowerCase()}` });
   for (const outcome of ["REJECTED", "UNSUPPORTED", "DENIED", "CONFLICT", "STALE", "UNKNOWN", "UNAVAILABLE"]) {
-    const failure = { outcome, requestContext, ruleSetRef: candidate.ruleSetRef, observedAt: "2026-10-19T12:00:00Z", ...(outcome === "REJECTED" || outcome === "UNSUPPORTED" ? { diagnostics: [] } : { reasonRef: `reason:${outcome.toLowerCase()}` }) };
+    const failure = { outcome, requestContext, ruleSetRef: candidate.ruleSetRef, observedAt: "2026-10-19T12:00:00Z", ...(outcome === "REJECTED" || outcome === "UNSUPPORTED" ? { diagnostics: [{ code: "RULE_INVALID", path: "rules[0]", disposition: "ERROR" }] } : { reasonRef: `reason:${outcome.toLowerCase()}` }) };
+    assertSchema("compileContract.resultSchema", failure);
     for (const key of ["candidate", "normalizedSemanticGraph", "semanticFingerprint"]) assertRejected("compileContract.resultSchema", { ...failure, [key]: compileSuccess[key] });
   }
   assertRejected("compileContract.resultSchema", { ...compileSuccess, semanticFingerprint: undefined });

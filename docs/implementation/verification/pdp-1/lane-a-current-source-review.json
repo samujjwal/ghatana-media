@@ -11,11 +11,11 @@
     ".product-experience/pdp-1-domain-data/relationships.yaml": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
     ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
     ".product-experience/pdp-1-domain-data/value-objects.yaml": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916",
-    ".product-experience/pdp-1-domain-data/versioning.yaml": "59554ec8e83719fc66ac118fc26fd024ac1aa855f8b71d01f02fd6c14c1c5f3c",
+    ".product-experience/pdp-1-domain-data/versioning.yaml": "f2bb21787e984b997b7fe08800bf9eda5340e8121c8a9c0d9202c66ee0e6c1a3",
     ".product-experience/pdp-1-domain-data/interoperability.yaml": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
     ".product-experience/pdp-0-product-truth/domain-model.yaml": "18ddbf9b87f8c36a8903e11dfbf0da04e269c0a53ebb5d42439c3eae74631c2d",
     ".product-experience/pdp-0-product-truth/state-models.yaml": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
-    ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "65923f1d333c0b7cf259eb1bc0ddfaab30f115dda8993b5685b253526d397904",
+    ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "8a50f8ed3a28e032d0bd0ef150fc50b2c4560f898f67add60d9fd4cb4d8fda96",
     ".product-experience/pdp-0-product-truth/schema-bindings.yaml": "32da5a7166a15d48a4653f4a0d49fbbc8d41c6ee2c27d72b0fabd8b53184564e"
   },
   "selectors": {
@@ -69,7 +69,7 @@
         ".product-experience/pdp-1-domain-data/interoperability.yaml#canonicalDefinitionConversionBinding",
         ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml"
       ],
-      "meaning": "Explicit rational clocks, selected rounding and exact loss, sample boundaries, image-version-bound pixel center/boundary conventions, and dimensioned units have owner definitions. Legacy scalar/wire bindings, clock alignment, scientific calibration, and runtime adapter qualification remain unknown or not evaluated. Spatial frames now require registered explicit source/target versions, units, signed axes, and handedness consistent with basis parity; declaration validation does not apply a transform. Provider confidence/similarity comparisons require exact provider/metric/method/version/unit scope and establish no calibration."
+      "meaning": "PDP-0 defines five distinct product clock domains: source video presentation, audio sample, story/explanation, simulation execution, and wall-clock time. Decode DTS remains ordering metadata, not a sixth product clock. PDP-1 defines rational value and conversion semantics while legacy scalar/wire bindings, clock alignment, scientific calibration, and runtime adapter qualification remain unknown or not evaluated. Spatial frames require registered explicit source/target versions, units, signed axes, and handedness consistent with basis parity; declaration validation does not apply a transform. Provider confidence/similarity comparisons require exact provider/metric/method/version/unit scope and establish no calibration."
     },
     {
       "id": "projection-and-consumer-boundaries",
@@ -888,7 +888,7 @@
     }
   ],
   "sourceCutRefresh": {
-    "reviewedOn": "2026-10-18",
+    "reviewedOn": "2026-10-19",
     "status": "INTERNAL_CURRENT_SOURCE_REINSPECTION; PHASE_ACCEPTANCE_NOT_CLAIMED",
     "authority": "Internal PDP-1 source-definition review under user-delegated Media definition authority; no owner receipt, independent certification, runtime admission, or phase closure is claimed.",
     "priorSourceFingerprintsPreserved": {
@@ -914,11 +914,29 @@
       },
       ".product-experience/pdp-1-domain-data/versioning.yaml": {
         "prior": "e37745de73204fe6a68f61bd5998478e097429e9a63bea62022484e3f6a58111",
-        "current": "59554ec8e83719fc66ac118fc26fd024ac1aa855f8b71d01f02fd6c14c1c5f3c"
+        "current": "f2bb21787e984b997b7fe08800bf9eda5340e8121c8a9c0d9202c66ee0e6c1a3"
       }
     },
     "scope": "Rebind the existing Lane A identity, relationship, value, versioning, and interoperability findings to the exact current source bytes; no historical decision or acceptance effect is rewritten.",
     "outstandingMeaningIds": [],
     "runtimeAdmission": "NOT_ADMITTED"
+  },
+  "currentPdp0TemporalReconciliation": {
+    "reviewedOn": "2026-10-20",
+    "authority": "Internal PDP-1 source reconciliation under user-delegated Media definition authority; no owner acceptance, independent review, runtime admission, or phase acceptance is claimed.",
+    "sourcePath": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml",
+    "priorCurrentSourceSha256": "65923f1d333c0b7cf259eb1bc0ddfaab30f115dda8993b5685b253526d397904",
+    "currentSourceSha256": "8a50f8ed3a28e032d0bd0ef150fc50b2c4560f898f67add60d9fd4cb4d8fda96",
+    "clockDomainIds": [
+      "source_video_presentation_time",
+      "audio_sample_time",
+      "story_explanation_time",
+      "simulation_execution_time",
+      "wall_clock_time"
+    ],
+    "excludedDecodeMetadata": [
+      "DTS"
+    ],
+    "disposition": "PDP-1 value definitions preserve five distinct product clocks; DTS remains source-stream decode-order metadata, not another product clock. Existing wire fields remain compatibility observations until separately reconciled and admitted."
   }
 }

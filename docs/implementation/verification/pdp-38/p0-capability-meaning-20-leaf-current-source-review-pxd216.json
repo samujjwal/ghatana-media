@@ -1,0 +1,222 @@
+{
+  "schemaVersion": "media.pdp0.capability-meaning-current-source-review.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-216",
+  "phaseScope": "PDP-0",
+  "reviewKind": "COORDINATOR_AUTHORED_CURRENT_SOURCE_SEMANTIC_REVIEW",
+  "scope": "Enumerate and reconcile the 20 source-current capability leaves with material PDP-0 meaning fields changed in the current working source cut. For every leaf, verify stable identity, unique family and requirement membership, acceptance-case reference closure, actors, intent and outcome joins, typed semantic input/output, profile and bounds, trust branches, current channel applicability, and quality disposition. Confirm uncertainty, rights, candidate, version, fallback, and unsupported-case semantics where applicable.",
+  "sourceCut": {
+    "workingTree": "MODIFIED_SOURCE_CUT",
+    "sourceCount": 7
+  },
+  "reviewedCapabilityIds": [
+    "media.project.organize",
+    "media.artifact.import",
+    "media.artifact.search",
+    "media.artifact.list",
+    "media.artifact.derive",
+    "media.multimodal.describe",
+    "media.multimodal.summarize",
+    "media.audio.analysis.detect.beat-onset",
+    "media.speech.synthesis.speaker.condition",
+    "media.generate.spatial.create.spatial-audio",
+    "media.animation.material",
+    "media.edit.inpaint",
+    "media.edit.matte",
+    "media.edit.retime-slow-motion-speed-ramp",
+    "media.compose.multitrack-timeline",
+    "media.compose.safe-area",
+    "media.compose.reusable-composition",
+    "media.master.audio.stereo-width",
+    "media.quality.rank",
+    "media.deliver.subtitles"
+  ],
+  "changedFieldCoverage": [
+    {
+      "capabilityId": "media.project.organize",
+      "fields": [
+        "outcome",
+        "ownerDefinition"
+      ]
+    },
+    {
+      "capabilityId": "media.artifact.import",
+      "fields": [
+        "outcome",
+        "ownerDefinition"
+      ]
+    },
+    {
+      "capabilityId": "media.artifact.search",
+      "fields": [
+        "outcome",
+        "supportedParameters",
+        "ownerDefinition"
+      ]
+    },
+    {
+      "capabilityId": "media.artifact.list",
+      "fields": [
+        "supportedParameters"
+      ]
+    },
+    {
+      "capabilityId": "media.artifact.derive",
+      "fields": [
+        "outcome",
+        "ownerDefinition"
+      ]
+    },
+    {
+      "capabilityId": "media.multimodal.describe",
+      "fields": [
+        "outcome",
+        "ownerDefinition"
+      ]
+    },
+    {
+      "capabilityId": "media.multimodal.summarize",
+      "fields": [
+        "outcome",
+        "ownerDefinition"
+      ]
+    },
+    {
+      "capabilityId": "media.audio.analysis.detect.beat-onset",
+      "fields": [
+        "outcome",
+        "ownerDefinition"
+      ]
+    },
+    {
+      "capabilityId": "media.speech.synthesis.speaker.condition",
+      "fields": [
+        "inputArtifactTypes",
+        "outcome",
+        "ownerDefinition"
+      ]
+    },
+    {
+      "capabilityId": "media.generate.spatial.create.spatial-audio",
+      "fields": [
+        "outcome",
+        "ownerDefinition"
+      ]
+    },
+    {
+      "capabilityId": "media.animation.material",
+      "fields": [
+        "explicitUnsupportedCases",
+        "outcome",
+        "ownerDefinition"
+      ]
+    },
+    {
+      "capabilityId": "media.edit.inpaint",
+      "fields": [
+        "outputArtifactTypes",
+        "ownerDefinition"
+      ]
+    },
+    {
+      "capabilityId": "media.edit.matte",
+      "fields": [
+        "outputArtifactTypes",
+        "ownerDefinition"
+      ]
+    },
+    {
+      "capabilityId": "media.edit.retime-slow-motion-speed-ramp",
+      "fields": [
+        "outcome",
+        "outputArtifactTypes",
+        "ownerDefinition"
+      ]
+    },
+    {
+      "capabilityId": "media.compose.multitrack-timeline",
+      "fields": [
+        "outcome",
+        "outputArtifactTypes",
+        "ownerDefinition"
+      ]
+    },
+    {
+      "capabilityId": "media.compose.safe-area",
+      "fields": [
+        "outcome",
+        "outputArtifactTypes",
+        "ownerDefinition"
+      ]
+    },
+    {
+      "capabilityId": "media.compose.reusable-composition",
+      "fields": [
+        "outcome",
+        "outputArtifactTypes",
+        "ownerDefinition"
+      ]
+    },
+    {
+      "capabilityId": "media.master.audio.stereo-width",
+      "fields": [
+        "explicitUnsupportedCases",
+        "inputArtifactTypes",
+        "outcome",
+        "ownerDefinition"
+      ]
+    },
+    {
+      "capabilityId": "media.quality.rank",
+      "fields": [
+        "outcome",
+        "ownerDefinition"
+      ]
+    },
+    {
+      "capabilityId": "media.deliver.subtitles",
+      "fields": [
+        "outcome",
+        "ownerDefinition"
+      ]
+    }
+  ],
+  "sourceFingerprints": {
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+    ".product-experience/pdp-0-product-truth/quality-policy.yaml": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+    ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+    ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce"
+  },
+  "findings": [],
+  "result": {
+    "status": "PASS",
+    "reviewedCapabilityCount": 20,
+    "exactIdentityAndFamilyJoins": "PASS",
+    "requirementAndAcceptanceReferenceClosure": "PASS",
+    "intentOutcomeActorAndTypedArtifactJoins": "PASS",
+    "profileBoundsTrustChannelAndQualityJoins": "PASS",
+    "uncertaintyRightsCandidateFallbackAndUnsupportedSemantics": "PASS",
+    "newRequirementIntroduced": false
+  },
+  "ownerApproval": "NOT_CLAIMED",
+  "independentAcceptance": "NOT_CLAIMED",
+  "acceptanceEffect": "none",
+  "implementation": "NOT_CLAIMED",
+  "runtimeAdmission": "NOT_ADMITTED",
+  "qualification": "NOT_EVALUATED",
+  "closure": "NOT_CLAIMED",
+  "delivery": "NOT_CLAIMED",
+  "validation": {
+    "status": "PASS",
+    "testCount": 3,
+    "passed": 3,
+    "failed": 0,
+    "command": "node --test --test-reporter=tap tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs tests/pdp0-required-family-disposition-coverage.test.mjs",
+    "testRefs": [
+      "tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs",
+      "tests/pdp0-required-family-disposition-coverage.test.mjs"
+    ]
+  }
+}

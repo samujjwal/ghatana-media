@@ -1,6 +1,8 @@
-# Post-PDP 47-task disposition — 2026-10-12
+# Historical post-PDP 47-task disposition (2026-10-12)
 
-> **PDP stages finished (owner correction, October 12, 2026):** PDP-0…PDP-3 are `DEV_COMPLETE`, with **0 remaining PDP development tasks**. All open IDs in this dated document belong to **Build/Integration/Test/Delivery** or real release/qualification decisions, not PDP authoring. Follow the [Build-stage handoff](MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md); the former 15-card remaining-PDP list is superseded. Dated implementation dispositions and authentic external authority requirements remain unchanged.
+> **Deferred historical record only.** The live Discovery barrier has not passed. This disposition does not authorize Build, closure, Delivery, or release work; use the [canonical PDP source index](../../.product-experience/README.md) for current phase status.
+
+> **Historical phase-status statement — October 12, 2026:** The `DEV_COMPLETE` claims and zero-task count below describe the source cut recorded at that time. They do not establish current phase status or authorize downstream work. Consult the [canonical PDP source index](../../.product-experience/README.md) and live phase status records before scheduling work. Preserve the 47 task IDs and their dated dispositions as provenance.
 
 This is the local coordinator’s disposition of the 47 follow-on tasks in the deep review. It records source implementation, verification, and remaining authority/dependency gates; it does not replace the task ledger, transfer receipt, independent reviews, Lifecycle records, or release decision. The user’s request authorizes scoped Media implementation and product decisions. It does not make this coordinator the Shared, Platform, Lifecycle, independent-review, or commercial-release owner.
 

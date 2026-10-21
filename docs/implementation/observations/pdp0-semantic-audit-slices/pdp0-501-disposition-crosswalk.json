@@ -36,7 +36,7 @@
       "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs": "f6c1a9107d9e120e9408e7d9aed7e9f64bdb6db345666d651509e343b8e78a61",
       "scripts/check-media-pdp0-501-audit-dispositions.mjs": "d50b96220bf32117d2d211ff159fac65893ab246b0ce086318cf2de72d6250c5",
       "tests/media-pdp0-501-audit-dispositions.test.mjs": "a8c9a74a9591a5d0669207cc53f45bf5e9e0ff3504c083e3c78e874673714583",
-      "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs": "2242e495196f473098499e8f51d7ef5e8fe44582edebef6d0bb7333b4b56f931",
+      "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs": "08a1a8cfeaf366e9cfbba8e7e78cb14f5b2ba15efef29690067779019414d4ee",
       "tests/pdp0-phase-scoped-source-fingerprints.test.mjs": "cded5a4617493afa30685c6f6226893f1b1e5f42ca74acf826421230d42e00e9",
       ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "8a50f8ed3a28e032d0bd0ef150fc50b2c4560f898f67add60d9fd4cb4d8fda96",
       "tests/pdp0-speech-audit-mapping-pxd213.test.mjs": "3ecc362728b2d0d8cb87ed2625483a5a666e2ffc47e70d70b8cdf129495686ca",
@@ -45,7 +45,6 @@
       ".product-experience/pdp-0-product-truth/information-architecture.yaml": "d975ee33c3752ab64f84b10aa4e008206fd84f67b8e68ce5665309cd360f4b9f",
       ".product-experience/pdp-0-product-truth/reuse-decisions.yaml": "22319bb51b947ca105f99c8c970c6ae2efdf30ed53b34a91ce2981451278effa",
       "scripts/check-media-pdp0-audit-aq-traceability.mjs": "3d5e50f7a7f318052fcf8bbcac66c3ef1c7a6f7d8162d0a8eb13169613647f63",
-      "scripts/report-media-pdp-readiness.mjs": "cba499750db63162d77ca49dcadcc81c2d1a4c35802fb54428201ec1d05a34b4",
       "tests/media-pdp0-audit-aq-traceability.test.mjs": "fd6bb6d76774e42dd1765edd454bae113f28fc565b80a0c4829328b0143cc901",
       "tests/pdp0-current-source-reconciliation-pxd215.test.mjs": "c173895d714964c1fd0e8fc2d28d01d0f34b44ec60f763d31aba8d7d58e88bb8"
     },
@@ -56,7 +55,7 @@
     "phaseScopedSourceFingerprintsSha256": {
       ".product-experience/source-manifest.yaml#PDP-0-projection": "ed2ecf39745ca58b4eaae452e3bab4ba36dff4d7ed0d69572773a2d5ced025ad",
       "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
-      ".product-experience/decision-log.md#PXD-216-section": "8967d93a59d0cc0e840118871d83522e30676a924fd630c995f4aecda19170b5"
+      ".product-experience/decision-log.md#PXD-216-section": "1adcd700671d93ba0d05dbc271dd1c1e2b9184970f384f1a15b210122b43e95c"
     }
   },
   "denominator": {
@@ -447,12 +446,12 @@
     "sourceFingerprints": {
       ".product-experience/source-manifest.yaml#PDP-0-projection": "ed2ecf39745ca58b4eaae452e3bab4ba36dff4d7ed0d69572773a2d5ced025ad",
       "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
-      ".product-experience/decision-log.md#PXD-216-section": "8967d93a59d0cc0e840118871d83522e30676a924fd630c995f4aecda19170b5"
+      ".product-experience/decision-log.md#PXD-216-section": "1adcd700671d93ba0d05dbc271dd1c1e2b9184970f384f1a15b210122b43e95c"
     },
     "phaseScopedSourceFingerprintsSha256": {
       ".product-experience/source-manifest.yaml#PDP-0-projection": "ed2ecf39745ca58b4eaae452e3bab4ba36dff4d7ed0d69572773a2d5ced025ad",
       "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
-      ".product-experience/decision-log.md#PXD-216-section": "8967d93a59d0cc0e840118871d83522e30676a924fd630c995f4aecda19170b5"
+      ".product-experience/decision-log.md#PXD-216-section": "1adcd700671d93ba0d05dbc271dd1c1e2b9184970f384f1a15b210122b43e95c"
     },
     "independentAcceptance": "NOT_CLAIMED",
     "acceptanceEffect": "none"

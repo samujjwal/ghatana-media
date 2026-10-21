@@ -1,6 +1,6 @@
 # Media Discovery → Build: delegated owner review and technical dispositions
 
-**Record:** MEDIA-DBR-2026-10-15-R1 | **Reviewed repository:** `samujjwal/ghatana-media@8c4a3ef8c037a8808d2744139d95f146e70f12d3` on `main` | **Stage:** DISCOVERY, **active phase:** PDP-3 / MDC-30 | **Denominator:** 26 physical candidates (12 physical, 12 support, 2 subsumed) + six semantic compositions + one root + 17 consumer crosswalks = 50 identities, 200 phase review cells.
+**Record:** MEDIA-DBR-2026-10-15-R1 | **Reviewed repository:** `samujjwal/ghatana-media@8c4a3ef8c037a8808d2744139d95f146e70f12d3` on `main` | **Stage at review:** DISCOVERY, **phase at review:** PDP-3 / MDC-30 | **Denominator at review:** 26 physical candidates (12 physical, 12 support, 2 subsumed) + six semantic compositions + one root + 17 consumer crosswalks = 50 identities, 200 phase review cells. This decision record does not schedule current work; follow the live source/status index.
 
 **Attribution:** This record is an AI-assisted *internal* Media product/architecture/planning disposition under the account owner's instruction. It is not an independent qualified reviewer signature, another repository owner's permission, an actual test run, Lifecycle acceptance/closure, product implementation, or release authorization. The prior October 15 delegated owner record remains valid for its exact scope. This review adds decisions for the later R6 attempt; it does **not** alter the historical receipts.
 

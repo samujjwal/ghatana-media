@@ -3,7 +3,7 @@
 **Product and semantic owner:** Media product/platform engineering  
 **Canonical Media product meaning:** `ghatana-media/.product-experience/`  
 **Canonical executable runtime (until transfer):** `ghatana/services/media`  
-**Historical definition authoring:** PDP-0…PDP-3 were `DEV_COMPLETE` on previous recorded cuts; this is **not current Discovery admission**. Current technical exits: PDP-0 R15, PDP-1 R30, PDP-2 R19 PASS; PDP-3 R6 UNKNOWN, active MDC-30; see [the controlling finish plan](docs/implementation/MEDIA-DISCOVERY-PDP3-FINISH-2026-10-15.md). Build remains NOT_ENTERED. R2 source review of `main@7ef839fd9bb8` records J-27/J-16 fixes and the next remaining authoring tasks; no successor PDP-3 exit yet.
+**Current development status:** consult the four source-pinned phase records linked from [the canonical PDP index](.product-experience/README.md) for the live phase status and source-currentness. At the current source cut, PDP-0 through PDP-3 report `DEV_COMPLETE` with zero outstanding definition tasks; the current PDP-3 surface matrix is source-current across all 54 identities. This is Discovery definition completion only. No Build, PDP acceptance/closure, Delivery, or release transition is authorized by a `DEV_COMPLETE` record alone.
 
 ## Responsibilities
 

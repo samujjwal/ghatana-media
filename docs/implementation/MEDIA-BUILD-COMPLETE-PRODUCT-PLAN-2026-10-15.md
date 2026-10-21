@@ -1,4 +1,6 @@
-# Ghatana Media — complete-product Build Plan Implementation candidate
+# Ghatana Media — deferred Build Plan Implementation candidate
+
+> **Planning reference only.** BUILD has not been entered. Do not schedule or execute this plan until the live source-pinned PDP-0 through PDP-3 records establish the Discovery exit barrier. This document is not a product-definition source or current development status; keep PDP meaning in `.product-experience/` and consult its status index before any later-stage planning.
 
 > **October 15 R2 source-review update:** the nine-file J-27/J-16 hardening commit `7ef839fd9bb871782b112e370bb9f6c3c3a60556` is now on main. This plan remains **PREPARED ONLY**; PDP-3 successor/R7 and 200-cell Discovery PASS have not been proved. R2 internal decisions and the remaining PDP-3 plan are [here](MEDIA-DISCOVERY-TO-BUILD-OWNER-REVIEW-2026-10-15.md) and [here](MEDIA-DISCOVERY-PDP3-FINISH-2026-10-15.md). No Build code is authorized by this planning review. In addition to 50/30/47, `PBI-00` must materialize and validate the exact PDP0 **462-capability-leaf** implementation bridge before calling Plan Implementation complete.
 
@@ -274,7 +276,7 @@ Use small deterministic fixtures for develop/test, rootless containerized Postgr
 
 ---
 
-## 2026-10-18 unified-source successor integration (current planning reader)
+## 2026-10-18 unified-source successor integration (dated planning input; Build deferred)
 
 The [current unified-production plan](MEDIA-UNIFIED-PRODUCTION-CURRENT-PLAN.md) now joins the [complete 428+73 source blueprint](references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md), [501-item audit mapping](observations/media-unified-production-501-feature-reconciliation-2026-10-18.json), 84 Recorder and 61 declarative PDP cases, and GharBatai's [existing 32-DX single-queue adoption](https://github.com/samujjwal/gharbatai/blob/codex/gharbatai-media-editorial-pdp-handoff-20261018/docs/demo-recording/CURRENT-PROFESSIONAL-DEMO-MEDIA-HANDOFF.md). It does **not** create a 17th PBI or advance this prepared-only Build plan. All Media video/voice/audio/AI/director/color/music/collab/interactive/scientific simulation requirements in the 22 review domains remain in PBI-00…PBI-15 and must be reviewed for actual P0 leaf fit, typed P1 semantics, P2 interface parity and P3 cases before implementation scheduling.
 
@@ -287,4 +289,3 @@ Before beginning `PBI-00`, read the [exact attached 501-item audit](references/M
 ### Original blueprint worklist — one existing PBI owner per implementation obligation
 
 The [source-exact 86-item work-and-test crosswalk](observations/media-unified-source-task-and-experiment-crosswalk-2026-10-18.json) contains **40 original implementation/definition planning rows** (`M-00…15`, `INV-01…12`, `DAS-01…12`) and **46 original acceptance experiment rows** (`C-01…28`, `DAS-A01…A18`), with original row text and candidate PBI-00…15 associations. All 16 existing PBIs are represented. The crosswalk is **planning-only**, not another execution queue, surface, operation, stage transition or assertion that these experiments passed. Do not leave out high-cost models, professional manual editing, qualified codec/source readback, scientific validation, TutorPutor's public AEF or GharBatai's human signoff because a narrower 61-case focus already exists. At post-Discovery `PBI-00` entry, establish the exact owner/package/test/QA assignment and discard duplicate planning queues after preserving source trace. See the [dependency diagrams](MEDIA-UNIFIED-PRODUCTION-CURRENT-PLAN.md#source-dependency-diagram-for-original-planned-work).
-

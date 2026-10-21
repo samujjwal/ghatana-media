@@ -17,6 +17,7 @@ const versioning = parse(readFileSync(`${base}versioning.yaml`, "utf8"));
 const interop = parse(readFileSync(`${base}interoperability.yaml`, "utf8"));
 const stateTruth = parse(readFileSync(".product-experience/pdp-0-product-truth/state-models.yaml", "utf8"));
 const productTruth = parse(readFileSync(".product-experience/pdp-0-product-truth/domain-model.yaml", "utf8"));
+const timeFidelity = parse(readFileSync(".product-experience/pdp-0-product-truth/time-units-fidelity.yaml", "utf8"));
 
 const fingerprint = (path) => createHash("sha256").update(readFileSync(path)).digest("hex");
 
@@ -29,6 +30,16 @@ test("Lane A current-source review binds exact reviewed inputs and preserves his
   assert.equal(review.acceptanceEffect, "none");
   assert.equal(review.runtimeStorageAndWireParity, "NOT_ADMITTED");
   assert.equal(review.independentReviewAndQualification, "NOT_EVALUATED");
+});
+
+test("Lane A reconciles the current PDP-0 product clocks without promoting decode timestamps", () => {
+  const reconciliation = review.currentPdp0TemporalReconciliation;
+  assert.equal(reconciliation.sourcePath, ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml");
+  assert.equal(reconciliation.currentSourceSha256, review.sourceFingerprints[reconciliation.sourcePath]);
+  assert.deepEqual(reconciliation.clockDomainIds, timeFidelity.productTruthClockDomains.domainIds);
+  assert.deepEqual(reconciliation.excludedDecodeMetadata, ["DTS"]);
+  assert.match(review.reviewFindings.find(({ id }) => id === "temporal-spatial-precision-and-loss").meaning,
+    /five distinct product clock domains.*DTS remains ordering metadata/iu);
 });
 
 test("Lane A populations remain distinct and current relationship endpoints resolve to exact tenant-scoped identities", () => {

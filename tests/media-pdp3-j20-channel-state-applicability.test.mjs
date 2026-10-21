@@ -75,6 +75,16 @@ test('J20 web and CLI operation proofs project exact cancellation and retry stat
   assert.match(cancelOperation.ownerDefinition.stateSemantics.join(' '), /cancellation-request-is-not-CANCELLED/u);
   assert.match(cancelOperation.ownerDefinition.resultSchema.finality, /durable-request-record-or-terminal-job-observation/u);
   assert.match(cancelOperation.ownerDefinition.recovery, /never-map-detach-or-timeout-to-cancellation-confirmation/u);
+  const cancelStep = journey.steps[4];
+  const cancelDeadlineBranch = cancelStep.failure.branches.find(({ id }) => id === 'deadline-semantics-unavailable');
+  assert.ok(cancelDeadlineBranch, 'cancellation deadline behavior remains explicitly unavailable');
+  assert.equal(cancelDeadlineBranch.sourceRef,
+    '.product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerDefinition');
+  assert.equal(cancelDeadlineBranch.disposition,
+    'BLOCKED_NO_P1_CANCEL_DEADLINE_FIELD_GUARD_OR_RESULT_SEMANTIC; preserve-pending-or-UNKNOWN-and-do-not-infer-timeout-as-cancellation');
+  assert.match(cancelDeadlineBranch.blocker, /no deadline request field, deadline guard, or deadline-specific error\/result/u);
+  assert.match(cancelStep.stepDefinitionSemantics.action.finality, /pending-until-authoritative-stop/u);
+  assert.doesNotMatch(cancelStep.stepDefinitionSemantics.action.finality, /timeout.*CANCELLED|CANCELLED.*timeout/u);
   assert.ok(retryOperation.ownerDefinition.guards.includes('prior-outcome-is-not-unknown'));
   assert.match(retryOperation.ownerDefinition.authority, /retry-budget-and-rights-are-authority-read/u);
   assert.match(retryOperation.ownerDefinition.resultSchema.finality, /durable-new-attempt-identity-and-fence/u);

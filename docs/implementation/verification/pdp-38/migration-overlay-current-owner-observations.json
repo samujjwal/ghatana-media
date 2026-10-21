@@ -41,11 +41,33 @@
       "targetRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk",
       "historicalTargetValueSha256": "5fd9e16cdd9812126ad5bbf56ee3bc6d5c5aed58f6e4a551added40a2ff5b3fd",
       "currentTargetValueSha256": "d5f6f00dfde6fb8eaef4ea064b65016216fc5db44791b627adcf5dceb1c483e0",
-      "currentSourceFileSha256": "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5",
+      "previousObservedCurrentSourceFileSha256": "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5",
+      "currentSourceFileSha256": "7495821ea1a05ad6631f57d49722e5653bde93b416cf6f1c47d89fd6f66b5dee",
       "priorReviewRef": "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0303-C002",
       "semanticEquivalence": "NOT_ASSERTED",
       "acceptanceEffect": "none",
-      "observation": "Additive current-owner byte observation after source updates. The historical overlay target pin remains unchanged; this record does not re-adjudicate claim parity or acceptance."
+      "observation": "Current raw-source-file pin refreshed after PDP-1 source updates; the prior raw source-file pin and exact selected operation projection remain recorded and unchanged. The historical target pin is preserved; no semantic parity or acceptance is re-adjudicated."
+    },
+    {
+      "claimId": "MPSEM-0450-C002",
+      "targetRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/activity-attention.yaml#ownerDefinedAttentionNotificationScope",
+      "historicalTargetValueSha256": "84f80a8cd1ddae2196bbdeb1ac1af86ca63fd23a0f7c5086a9ef2fb8c6eb3fe8",
+      "previousObservedCurrentTargetValueSha256": "22758079429e8c960f30dee534b2c26069166624bdc486e5612d234eaea9b99f",
+      "currentTargetValueSha256": "19906b4f4255cc5371d168f00a118c9b425ba18f8ae9a3a4ebad326b80160737",
+      "currentSourceFileSha256": "b1716b4f00a05f0ec73a4c3aff4c56fb6ebfb8919731aaf309c2f604d2bfae94",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "acceptanceEffect": "none",
+      "observation": "Corrected the current owner locator after finding that the former selector resolved to an unrelated animation presentation rule. This observation pins the current PDP-2 notification-scope bytes only; claim-specific semantic parity remains pending, and the prior target digest is retained unchanged as historical evidence."
+    },
+    {
+      "claimId": "MPSEM-1259-C001-S16",
+      "targetRef": ".product-experience/acceptance.yaml#/recordedHumanDecisionInputs",
+      "historicalTargetValueSha256": "cd4f0b4926f55680d220794379ba98019cc8ed89407813a4097e3a44feb31366",
+      "currentTargetValueSha256": "f350ed2443b0e52167e21c290c05fa11a6d20435ad4b6802cd33fc869f005b78",
+      "currentSourceFileSha256": "46c986feec71c284db1d2f4c553c203c2edaea285dc7194d806a84c77f8ca75d",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "acceptanceEffect": "none",
+      "observation": "Additive current-byte observation after the shared acceptance record changed. The historical target pin remains unchanged; no current owner decision, receipt, or semantic equivalence is asserted by this source-byte refresh."
     },
     {
       "claimId": "MPSEM-1259-C001-S06",

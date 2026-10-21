@@ -94,6 +94,8 @@ test('request snapshot, scoped key, profile, language, receipt, and reconciliati
 
   assert.deepEqual(p3.submitRequiredFields, expectedSubmit);
   assert.deepEqual(p3.submitAllowedFields, p1.submitAllowedFields);
+  assert.ok(p1.submitAllowedFields.includes('customGlossaryRef'));
+  assert.ok(p1.submitAllowedFields.includes('fillerRetakeCandidates'));
   assert.deepEqual(p3.commonRequiredFields, p1.commonRequiredFields);
   assert.deepEqual(p3.commonAllowedFields, p1.commonAllowedFields);
   assert.deepEqual(p3.reconcileRequiredFields, p1.reconcileRequiredFields);
@@ -102,7 +104,8 @@ test('request snapshot, scoped key, profile, language, receipt, and reconciliati
   assert.deepEqual(selected.contextPreservation, expectedContextPreservation);
   assert.deepEqual(selected.stepDefinitionSemantics.stepSourceFacts.contextPreservation, expectedContextPreservation);
   assert.deepEqual(p3.requestFingerprint.binds, expectedFingerprint);
-  assert.equal(p3.requestFingerprint.version, 'media.transcription-submission-fingerprint.v2');
+  assert.equal(p3.requestFingerprint.version, p1.requestFingerprint.version);
+  assert.deepEqual(p3.requestFingerprint.optionalFieldEncoding, p1.requestFingerprint.optionalFieldEncoding);
   assert.equal(p3.requestFingerprint.encoding, p1.requestFingerprint.encoding);
   assert.deepEqual(p3.requestFingerprint.languageIntentEncoding, p1.requestFingerprint.languageIntentEncoding);
   assert.deepEqual(p3.requestFingerprint.scalarEncoding, p1.requestFingerprint.scalarEncoding);
@@ -117,6 +120,7 @@ test('request snapshot, scoped key, profile, language, receipt, and reconciliati
 
   assert.deepEqual(sourceBinding.submitRequiredFields, expectedSubmit);
   assert.deepEqual(sourceBinding.submitAllowedFields, p1.submitAllowedFields);
+  assert.equal(sourceBinding.submitAllowedFieldsSourceRef, '.product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission/inputSemantics/submitAllowedFields');
   assert.deepEqual(sourceBinding.commonRequiredFields, p1.commonRequiredFields);
   assert.deepEqual(sourceBinding.commonAllowedFields, p1.commonAllowedFields);
   assert.deepEqual(sourceBinding.reconcileRequiredFields, p1.reconcileRequiredFields);

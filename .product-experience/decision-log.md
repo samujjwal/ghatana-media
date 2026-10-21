@@ -1933,3 +1933,693 @@ This is a no-effect source-currentness recheck. It changes no PDP-0 product mean
 Under the existing delegated PDP-0 no-effect source-currentness scope, correct the PXD-173 historical candidate assertion to read the immutable baseline candidate from commit `1b3e4a4a10dec00e59f750b360fd3547f70ac70d`, which contains the PXD-173 `af774f4db0a306ac3514475d65170560c345e7a6ecdf17305edb2ac3b9af41fe` observation. Retain exact PXD-183/PXD-185 successor checks. Rebind the P0-05/P0-07 direct reviews and the 501-row crosswalk review to the resulting current source bytes, preserving PXD-191 and earlier reviews and pins as history.
 
 This is a test-baseline and source-currentness correction only. It changes no PDP-0 meaning, status, denominator, row disposition, applicability proposal, owner-scope proposal, phase handoff, or acceptance state. Owner approval and independent acceptance remain unclaimed; runtime admission, implementation, qualification, closure, and Delivery readiness are not asserted. This decision entry does not fingerprint the crosswalk; the crosswalk and direct review records pin the final log bytes.
+
+### PXD-193 — Refresh PDP-0 audit and applicability pins after the PDP-1 proposal handoff
+
+Under the user's delegated Media product-definition coordination scope, review the exact current delta to `.product-experience/source-manifest.yaml` and `scripts/report-media-pdp-readiness.mjs` after the PDP-1 rule-management proposal handoff, and the later PDP-2 proposal-only interface, accessible-control, state-presentation, and handoff definitions. The manifest records the current authored P1/P2 source and provenance fingerprints; reporter additions remain within phase-specific census and verification inputs. These downstream definitions do not change PDP-0 meaning, applicability, scope, or predicates. The P0-03/P0-07 source criteria are unchanged. Refresh the PDP-0 501-row audit crosswalk's manifest fingerprint and the P0-05/P0-07 current-source review pins, preserving PXD-192 and earlier reviews as history.
+
+This is a no-effect source-currentness review. It changes no PDP-0 product meaning, audit disposition, applicability proposal, owner-scope proposal, denominator, phase handoff, or acceptance state. Owner approval and independent acceptance remain `NOT_CLAIMED`; no runtime admission, implementation, qualification, closure, or Delivery readiness is asserted. The current crosswalk and direct-review records pin the exact current source bytes; the native PDP-0 producer alone determines development completion.
+
+### PXD-194 — Rebind PDP-0 source observations after source-manifest regeneration
+
+Under the user's delegated Media product-definition coordination scope, review the generated `.product-experience/source-manifest.yaml` refresh after PDP-1 definition edits. The regenerated manifest has exact-byte SHA-256 `bd92548e1d21717c037e32c327f43adb0b05d6281e1d0524633aacf2585e928e`; its changed records and dependency edges are provenance projections of the current canonical sources. The PDP-0 requirements, capabilities, acceptance definitions, audit target IDs, dispositions and source text are unchanged by this refresh. Rebind the PDP-0 audit crosswalk and current direct-criteria observations to the regenerated manifest while preserving all earlier pins and reviews as history.
+
+This is a no-effect PDP-0 source-currentness review. It changes no PDP-0 meaning, applicability, 501-row disposition, owner-scope proposal, 54-identity denominator, downstream phase handoff, or acceptance state. Current observations remain pending where specified. Owner approval and independent acceptance remain `NOT_CLAIMED`; no runtime admission, implementation, qualification, closure, or Delivery readiness is asserted. The native PDP-0 readiness producer alone determines current-source development completion.
+
+### PXD-195 — Rebind PDP-0 observations after current PDP-1 source updates
+
+Under the user's delegated Media product-definition coordination scope, review the exact current source delta after the Recorder Studio PDP-1 edit-result contract update and owner-candidate observation refresh. The generated `.product-experience/source-manifest.yaml` now fingerprints the current authored sources at SHA-256 `ae0360ac506edc38fa0c52301e6b08e996b81ea6b09bf474aaef832384d1b0cb`; `.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml` is `cb37e443d3f7fcce968399d8ed3e0bb5b27535f0954ac70da21bd376d9c40cb2`; the 501-feature owner-candidate observation file is `ce0b54be12c655438b099311dd72adc9f996faca8c36bc2dfd6daf34e2d1376c`; and its focused test is `2a939d149a6b5491549ff286da3bb96aff52b8aaaef9384124546a32a40740ed`. Rebind current PDP-0 source observations and surface-row fingerprints to these exact bytes while preserving historical pins and the existing 501-row dispositions.
+
+This is a provenance-only PDP-0 review. It changes no PDP-0 product meaning, applicability, 501-row disposition, owner-scope proposal, 54-identity denominator, phase handoff, or acceptance state. A pending PDP-1 candidate value-drift observation remains owned by PDP-1 and is not resolved or accepted by this review. Owner approval and independent acceptance remain `NOT_CLAIMED`; no runtime admission, implementation, qualification, closure, or Delivery readiness is asserted. The native PDP-0 readiness producer alone determines current-source development completion.
+
+### Internal PDP-1 definition decision — J-13 exact render output result
+
+Under the user's delegated Media product-definition coordination scope, define the PDP-1 terminal render-result meaning needed by the existing J-13 journey and `media.operation.action.submit-render` contract. The exact owner-controlled, immutable resolved render plan and render profile versions declare the expected output slot set; input, target, rig, scene, or artifact counts never determine output cardinality. A result binds the exact request and fingerprint, logical job and revision, source snapshot and versions, plan/profile versions, J-13 rig and scene versions, each expected output slot, its immutable registered artifact version and receipt, and that output's conversion-loss disposition. `COMPLETED` requires the exact expected set and durable authoritative result. `PARTIALLY_SUCCEEDED` requires explicit partial permission and a closed disposition for every expected slot with no consequential unknown. Duplicate, extra, missing, mismatched, or unknown results prevent either success state; `OUTCOME_UNKNOWN` and `RECONCILING` remain distinct while evidence is unresolved.
+
+This is a coordinator-authored internal PDP-1 definition decision under user delegation. It preserves PDP-0's J-13 meaning and does not claim a human owner decision or acceptance, independent review, runtime behavior or production, PDP phase acceptance/closure, delivery, or release qualification. The decision is definition-only; it adds no operation identity and grants no runtime or execution admission.
+
+### PXD-196 — Resolve PDP-0 asset and generated-audio rights meaning and rebind exact current reviews
+
+Under the user's delegated Media PDP-0 definition-review scope, resolve two source-grounded Product Truth gaps found while reviewing the exact current 501-row audit. `MEDIA-REQ-CAP-ARTIFACT-AC-05` and `media.artifact.search` now define Studio search over the governed asset store for an explicit declared intended-use scope: only an exact immutable asset version with current authoritative per-version rights/license evidence expressly permitting that scope is eligible. Missing, unknown, denied, expired, revoked, restricted, incompatible, or unresolved evidence is never eligible; an unresolved candidate remains UNKNOWN/review-required, not an empty eligible result. This defines candidate eligibility only; it does not interpret law or license terms, establish legal clearance, promise ranking/completeness, or add external-catalog search. `MEDIA-REQ-CAP-GENERATE-AUDIO-AC-05` separately binds each generated music/effect checkpoint to its exact immutable identity and version, applicable license and use scope, and declared purpose. It fails closed when the checkpoint evidence is absent, unknown, denied, restricted, expired, or incompatible, including noncommercial checkpoint weights used for a commercial purpose. Similarity analysis is not rights clearance; no copyright finding or legal judgment is claimed.
+
+Reconcile `AUD-ASSET-009` to the exact governed asset-search acceptance case and search/derive/retain capabilities, and `AUD-MUSIC-014` to the exact generated-audio checkpoint-rights case. Keep both rows `BOUND_EXISTING` against the now-authored canonical definitions, preserve their exact imported feature and acceptance text, and retain license interpretation, per-use legal determination, model/provider behavior, implementation, and qualification as separate handoffs. No audit row is added or removed: retain 428 original plus 73 third-pass IDs, 501 unique rows, 499 `BOUND_EXISTING`, two `POST_PDP_IMPLEMENTATION_ONLY`, and zero unresolved PDP-0 rows. Retain the canonical 462 capability leaves, 38 requirement families, 19 intents, and 462 adjudications.
+
+For `P0-07`, bind all 61 exact declarative acceptance cases to their owning surface scopes, closing the 48 previously unresolved case/surface pairs without duplicate identities: Recorder/Production Studio 37 (20 profile cases plus 17 distinct cases), Interactive Demo Player 8 (3 plus 5), and Recorder Orchestrator 25 (13 plus 12). Preserve the full current campaign denominator of 26 physical candidates, 7 compositions including root, 21 logical consumers, and 54 registered identities; this case mapping adds no surface. The generic Web partition remains 77 applicable and 385 not applicable, and CLI remains `NOT_ADMITTED` where the feature proposal supplies no invocation semantics.
+
+The PDP-1 source edits recorded by PXD-193 through PXD-195 did not change PDP-0 product meaning and were not the reason for this semantic correction. Their whole-file source-manifest, decision-log, and mixed-phase candidate pins caused avoidable PDP-0 currentness invalidation. Replace those broad pins with deterministic, validated PDP-0 projections: preserve global product/PDP invariants, PDP-0 artifact identities and PDP-0 dependency edges, and only the external-owner observations explicitly referenced by current P0 sources; fingerprint the exact anchored PXD decision section and exact PDP-0 review/owner-candidate populations; exclude unrelated downstream records and dependent edges. Keep direct pins on canonical PDP-0 sources, topology, surface registry, campaign input, exact audit rows, and reviewed P0 evidence. A downstream-only record or appended PDP-1 decision must not change a PDP-0 projection; a changed PDP-0 requirement, ownership, P0 dependency, referenced external observation, P0 decision section, or reviewed candidate row must invalidate it. Unknown projection fields or changed membership fail closed.
+
+
+PXD-196 also records the current P0-01 review of the authored search meaning: license-eligible search requires the actor-declared intended-use scope and exact immutable version; unresolved rights evidence stays UNKNOWN or review-required. The full 501-row audit, 462 capability identities, and existing requirement/capability denominators remain intact. The P0-02 current-source recheck reviewed all 462 capability profile/bounds joins; the new search intent and scope parameter leave the exact search bounds reference, page-size range (1–100), continuation-token limit (512), and all profile/bounds dispositions unchanged. These are source-definition checks, not runtime or admission claims.
+
+
+This is a coordinator-authored PDP-0 source-definition review and source-cut correction under the user's delegation. The source review verifies exact current definitions and provenance only. Owner approval, independent acceptance, legal clearance, qualified model/copyright review, runtime behavior, implementation, qualification, native phase closure, and Delivery readiness remain `NOT_CLAIMED`/`NOT_EVALUATED`; the native PDP-0 producer alone determines source-current `DEV_COMPLETE`.
+
+### PXD-197 — Bind J-10 continuity observations to exact generated candidates
+
+Under the user's delegated Media PDP-0 definition-review scope, make the J-10
+completion identity explicit: every continuity observation applies only to the
+exact generated candidate artifact/version it reviews. Preserve that
+candidate-to-observation join together with the exact reference versions,
+controls, candidate ordering, review notes, and selected continuity regions.
+If candidate identity/version is absent, stale, ambiguous, or mismatched, the
+continuity result remains UNKNOWN and must not be transferred to another
+candidate. This narrows the identity of the existing continuity outcome; it
+does not claim that continuity proves personal identity, that a candidate was
+registered or produced, or that a model/provider is qualified or available.
+
+This is a coordinator-authored PDP-0 source-definition correction under the
+user's delegation, prompted by a downstream source trace that could otherwise
+have invented the candidate-to-result join in PDP-1. It does not claim human
+owner approval, independent acceptance, runtime execution, implementation,
+qualification, native phase closure, delivery, or release readiness. Refresh
+only the directly affected PDP-0 source-current records and the dependent
+J-10 PDP-1/PDP-3 definitions after this clause is frozen.
+
+### PXD-198 — Scope track-solo evidence without broadening the edit claim
+
+Under the user's delegated Media PDP-0 definition-review scope, bind the solo
+portion of `AUD-EDIT-007` to the existing `media.animation.editing.track.solo`
+capability and `MEDIA-REC-P0-AC-080`, whose exact capability leaf and parent
+requirement are source-bound. Preserve the audit row's exact feature and
+acceptance text and its current disposition. This evidence covers the declared
+solo selection and isolation result only; it does not establish PDP-0 meaning
+for track lock or effects bypass, nor does it prove parity across all 52 edit
+kinds. Keep those operation details in the existing PDP-1 handoff. Do not add a
+capability or claim owner acceptance, independent acceptance, implementation,
+qualification, closure, or Delivery readiness.
+
+### PXD-199 — Close PDP-0 clock and fidelity distinctions and map the complete capability population
+
+Under the user's delegated Media PDP-0 definition-review scope, make the
+Product Truth clock taxonomy exact: source/video presentation time, audio
+sample time, story/explanation time, simulation execution time, and wall-clock
+time. PTS identifies source presentation position; DTS remains decode-order
+metadata in the declared source time base, not a sixth product clock. Every
+conversion names its source and destination domains and time bases/rates,
+origin, uncertainty, and explicit interval/rounding policy. Story pause or seek
+does not advance simulation time unless an explicit bounded model command says
+so. Do not infer alignment, convert implicitly, or silently discard uncertainty.
+
+Keep visual level of detail, visual quality/fidelity, domain-model fidelity,
+and validation tier as separate reported axes. Preserve TutorPutor ownership
+and exact source meanings for F0–F4; Media does not create an alias tier or
+infer scientific validation from render detail, resolution, polygon count,
+visual similarity, or presentation quality. PDP-1 may define typed conversion
+representations but may not redefine or collapse these PDP-0 distinctions.
+
+Record recommendation-only A–Q mappings for all 462 canonical PDP-0
+capability leaves in exact source order, alongside the 428 original audit-row
+cluster recommendations. Preserve the separate 73-item third-pass audit
+partition and all 501 exact IDs. These coordinator recommendations make the
+complete capability denominator reviewable; they are not canonical product
+meaning, owner acceptance, independent acceptance, or proof that a capability
+is implemented. Keep exact direct, contextual, family-scope, and absent audit
+joins distinct; do not invent a leaf capability or feature-specific case to
+eliminate a mapping gap. Preserve the 84 Recorder and 61 declarative cases and
+the 462 capability leaves without changing their identities or denominator.
+
+This coordinator-authored PDP-0 source-definition correction and traceability
+reconciliation is based on the exact current requirements, time/fidelity
+record, 501-row crosswalk, blueprint, capability list, and isolated A–Q
+recommendation slices. Owner approval, independent acceptance, qualified
+scientific or legal review, runtime behavior, implementation, qualification,
+native phase closure, and Delivery readiness remain NOT_CLAIMED or
+NOT_EVALUATED. The native PDP-0 producer alone determines source-current
+DEV_COMPLETE.
+
+### PXD-200 — Repair feature-specific PDP-0 meanings before downstream handoff
+
+Under the user's direct delegation to complete the attached Media PDP-0–3
+development-definition plan, correct the current PDP-0 definitions for the 20
+source audit rows whose earlier `BOUND_EXISTING` dispositions were not supported
+by feature-specific semantic outcomes: `AUD-ASSET-003`, `AUD-ASSET-004`,
+`AUD-ASSET-006`, `AUD-ASSET-012`, `AUD-TTS-012`, `AUD-TTS-021`,
+`AUD-DSP-003`, `AUD-DSP-014`, `AUD-DSP-016`, `AUD-DSP-018`,
+`AUD-MUSIC-003`, `AUD-VISION-006`, `AUD-VISION-013`, `AUD-VISION-017`,
+`AUD-MOTION-007`, `AUD-MOTION-008`, `AUD-DIRECT-005`, `AUD-DIRECT-017`,
+`AUD-SOCIAL-006`, and `AUD-SOCIAL-009`. Preserve every original audit ID and
+source phrase, all 501 source rows, all 462 capability identities, all 38
+requirement families, and the existing 84 Recorder plus 61 declarative
+acceptance cases. Add 21 narrowly scoped acceptance cases to express the
+missing meanings and their rejection/unknown conditions.
+
+Define project/library hierarchy and smart-bin membership, source-version and
+time-bounded artifact search, caption import/export, ordered per-segment
+authorized-speaker assignments, per-voice reusable effect chains and derived
+audio provenance, local gain/pan automation and speech-region editing,
+explicit channel-layout handling, captured-versus-generated ADR/room-tone
+placement, uncertain safe-area placement candidates, editable branded motion
+templates, supported beat-grid/downbeat/tempo observations, source-time
+highlight and audience/channel variant candidates under declared ranking
+objectives, and source-grounded title/description/chapter candidates. Preserve
+rights, exact-source lineage, uncertainty, no-default-ranking, no-silent-
+fallback, reviewable-candidate, and no-implicit-commit/render distinctions.
+
+For `AUD-MOTION-008`, the current definition covers material-property
+animation; arbitrary user-authored shader source/execution is explicitly
+unsupported in this product baseline. Do not imply a shader sandbox or claim
+execution support. A future change in this scope requires a new versioned
+decision and capability identity review.
+
+Correct the crosswalk only after these source definitions exist, linking each
+row to its exact current capability and acceptance case; represent
+`AUD-MOTION-008` as an explicitly scoped unsupported outcome. Preserve the 501
+identity denominator and separate all downstream operation, interface,
+experience, implementation and qualification handoffs. This records a
+coordinator-authored source correction under the user's delegation; human
+owner approval, independent semantic acceptance, specialist/legal/scientific
+review, runtime execution, implementation, qualification, native phase
+closure, Delivery and release remain unclaimed. The native PDP-0 producer
+alone determines current-source `DEV_COMPLETE`.
+
+### PXD-201 — Correct feature-specific audit crosswalk evidence
+
+Under the user's direct delegation to reconcile the PDP-0 audit coverage, correct the exact feature-to-definition evidence for `AUD-SPEC-001`, `AUD-SPEC-003`, `AUD-SPEC-009`, `AUD-SPEC-015`, `AUD-DSP-002`, `AUD-MUSIC-014`, `AUD-GEN-013`, `AUD-GEN-025`, `AUD-GEN-027`, `AUD-OPS-013`, `AUD-CAP-017`, `AUD-CAP-022`, `AUD-CAP-025`, `AUD-ASSET-013`, `AUD-ASSET-017`, `AUD-ASR-017`, `AUD-TTS-022`, `AUD-CLONE-010`, `AUD-CLONE-011`, and `AUD-CLONE-016` in the 501-row PDP-0 crosswalk. Preserve every source audit ID and phrase, the 501-row denominator, the 499 `BOUND_EXISTING` and 2 `POST_PDP_IMPLEMENTATION_ONLY` dispositions, and the 462-leaf historical owner-adjudication denominator.
+
+Bind recipe specification compilation to the proposed recipe compiler and Recipe Template AC07–09; scene patch/merge to the proposed project patch/merge definition and Project AC07; multitrack controls to Compose AC11; action-linked crop/focus to smart crop and Stream AC05; aspect-safe framing to smart crop and Compose AC10; action-effect readback to Stream AC07, Quality AC13, and `media.quality.inspect`; SMPTE source-time mapping to source-reference resolution, Artifact AC11, and the clock/time-fidelity definition; project backup/restore to version/restore and Project AC08; paired streaming recording/transcription to transcription AC07 and the recording/output registration meanings; remote worker provenance to Provenance AC05; and the video camera, preset, shot-condition, scheduler, and clone/watermark rows to their exact feature meanings and cases as recorded in the crosswalk.
+
+For `AUD-MUSIC-014`, preserve the mismatch between its copyright-similarity feature label and checkpoint-rights source acceptance text. Map the label only to the proposed bounded similarity observation and Quality AC14; map the acceptance text to generated-audio checkpoint rights and use-scope cases. Similarity does not establish ownership, infringement, legal clearance, or permission to use. Do not assert an age threshold, protected-public-figure legal test, or authorship/watermark qualification.
+
+The six referenced campaign extension definitions remain coordinator-authored proposals pending exact owner applicability and admission. This decision does not add owner-adjudicated leaves, assign surface/channel N/A, claim owner acceptance, independent review, legal or specialist signoff, implementation, qualification, closure, or Delivery readiness. PDP-1 operation-contract and BUILD verification work remain separate downstream handoffs. Preserve PXD-199 and PXD-200 as history; this is the current crosswalk review only.
+
+### PXD-202 — Record complete PDP-0 definition-extension applicability proposal
+
+Under the user's direct delegation to complete and review the PDP-0 source
+definitions, enumerate each of the six separately proposed capability
+extensions across all 11 channel identities and all 54 registered PDP-0
+surface identities. Keep these six definitions outside the historical 462
+owner-adjudicated capability-intent records. Preserve the exact source audit
+owner-surface candidates: CLI on Recorder Orchestrator for specification
+compilation, scene patch/merge, and job scheduling; Web on Production Studio
+for bounded audio-similarity assessment, video preset management, and shot
+condition management.
+
+Represent the full 3,564 channel-by-surface cells with exact source refs and
+separate 324 extension-by-surface summaries. The coordinator proposal contains
+12 direct candidate channel/surface cells and 15 derived aggregate proposal
+cells. Composite proposals remain derived from descendant applicability and
+their own obligations; they are not direct owner decisions. Existing support-
+only surfaces contribute 528 source-backed N/A channel/surface cells and the
+archived consumer contributes 66. Keep all 2,943 remaining channel/surface
+pairs `UNKNOWN_PENDING_OWNER_DECISION`; a declared support list, an absent
+channel mapping, or a topology relation does not establish N/A. Record one
+phase-local P0-07 task across the 45 active surfaces and keep the Discovery
+barrier `FAIL` until the applicable owner-scope decisions are source-current.
+
+This is a coordinator-authored, source-bound applicability proposal and
+current-source review only. It does not add owner-adjudicated leaves, finalize
+any unknown, grant the coordinator semantic-owner authority, claim owner
+approval or independent acceptance, admit runtime execution, perform native
+closure, or enter Delivery. Preserve the 462 historical owner records and the
+separate PDP-1, Build, closure, and Delivery handoffs.
+
+### PXD-203 — Correct recursive composite applicability derivation
+
+Supersede only the aggregate counts and composition-resolution result in
+PXD-202. Resolve each proposed capability's registered owner surface to exact
+PDP-0-applicable physical descendants, then follow explicit topology
+`CONTAINS` membership recursively through nested compositions. A direct
+support-only or archived physical child cannot make a composition applicable;
+topology adjacency or absence from a map alone never establishes a positive
+or N/A decision. Composite rows remain derived aggregate proposals and include
+their own obligations in the aggregate review; they are not direct leaf owner
+decisions.
+
+The corrected proposal still covers six extensions, 462 historical owner
+adjudications, 11 channels, and 54 surface identities (3,564 channel/surface
+cells). It contains 12 direct candidate cells, 18 recursively derived
+aggregate proposal cells, 2,940 `UNKNOWN_PENDING_OWNER_DECISION` cells, 528
+source-backed support-only N/A cells, and 66 archived N/A cells. At the
+extension-by-surface level, the corresponding counts are 12 direct, 18
+derived, 240 unknown, 48 support-only N/A, and 6 archived N/A.
+
+PXD-202 remains historical and its former 15-derived/2,943-unknown totals are
+superseded by this topology-corrected projection. The proposal remains
+incomplete pending exact owner decisions for every unknown channel/surface
+cell; owner approval and independent acceptance remain `NOT_CLAIMED`, runtime
+execution remains `NOT_ADMITTED`, and the Discovery barrier remains `FAIL`.
+This is a PDP-0 coordinator source review only; it does not complete native
+phase validation, owner acceptance, closure, Build, or Delivery.
+
+### PXD-204 — Reconcile six current-source feature-audit bindings
+
+Under the user's direct delegation to coordinate Media PDP-0 definition work,
+recheck the exact current requirements, capability leaves, and original audit
+rows for `AUD-TTS-017`, `AUD-TTS-018`, `AUD-DSP-007`, `AUD-DSP-019`,
+`AUD-MUSIC-008`, and `AUD-MOTION-012`. Preserve the 501 audit IDs and source
+phrases; do not treat mismatched imported acceptance-family text as semantic
+coverage. The review finds no remaining PDP-0 meaning gap in these six rows:
+TTS-017 is defined by Speech Synthesis AC-03; TTS-018 by AC-05; DSP-007 by
+Master Audio AC-03; DSP-019 by Master Audio AC-03/04; MUSIC-008 by Rights
+AC-03 plus Generate Audio AC-04; and MOTION-012 by Recipe Template AC-10.
+
+Correct the current crosswalk to these exact source cases and remove misleading
+leaf-level evidence for room matching/equalization. For TTS-017, explicitly
+distinguish response-text composition from speaker-conditioned audio. For
+MOTION-012, bind data-bearing chart values to the exact source fields, schema,
+transformation, and source version. Focused regression assertions cover the
+positive/negative semantics and retain source-acceptance mismatch as provenance.
+
+This coordinator-authored source review does not create new capability IDs,
+change the 462 historical owner-adjudication denominator, grant owner or
+independent acceptance, resolve the separate campaign-extension applicability
+proposal, admit execution, complete native PDP-0 validation, enter Build, or
+authorize Delivery. The six extension proposal remains at 12 direct, 18 derived,
+2,940 unknown, 528 support-only N/A, and 66 archived N/A cells under PXD-203;
+its exact owner decisions remain outstanding and the Discovery barrier remains
+`FAIL`.
+
+### PXD-205 — Correct the AUD-DSP-007 capability join blocker
+
+The PXD-204 crosswalk review overstated the exact source coverage for
+`AUD-DSP-007`. Current `MEDIA-REQ-CAP-MASTER-AUDIO-AC-03` defines the parent
+transformation boundary and rejects substituting room matching for creative
+delay, chorus, flanger, or reverb, but neither the `media.master.audio` family
+nor its parent requirement lists a corresponding capability leaf. The audit
+row's `canonical_media_pdp_id` is null, its source mapping remains unverified,
+and its proposed `media.surface.production-studio` scope is not owner accepted.
+No exact existing leaf can be cited without semantic substitution.
+
+Correct only this row's current disposition to
+`BLOCKED_EXTERNAL_OWNER_DECISION`. The Media product semantic owner must decide
+whether these creative effects are in product scope and, if included, provide
+or authorize the stable capability identity and exact family/requirement
+binding; if excluded, the owner must record the explicit scope rationale. Keep
+AC-03 as parent-level evidence only, preserve the audit acceptance phrase as
+provenance where it describes later measurement/qualification, and do not map
+the row to `media.master.audio.room-match` or create a new capability ID under
+this coordinator correction. The other five PXD-204 bindings remain current.
+
+This correction records a coordinator finding, not the missing owner decision.
+Owner approval, independent acceptance, implementation, qualification,
+closure, and Delivery readiness remain unclaimed. PDP-0 remains in Discovery;
+the P0-07 extension applicability decision is a separate blocker.
+
+### PXD-206 — Reconcile current PDP-0 projections after feature-meaning corrections
+
+Under the user's delegated PDP-0 definition-review scope, refresh only the
+current-source projections affected by PXD-200. The canonical capability file
+contains 468 definitions: 462 historical owner-adjudicated leaves plus six
+separately recorded campaign proposals. Keep those populations distinct.
+
+The exact typed input population remains 462 leaves and 939 slots. Its distinct
+shared shape count is 144, not the historical 142: PXD-200 added the ordered
+segment-speaker alternative to `media.speech.synthesis.speaker.condition` and
+made channel layout explicit for `media.master.audio.stereo-width`. Preserve
+142 in the historical PXD-171 review; update the current profile projection to
+144. Rejoin the three Compose local-candidate output shapes, the ordered-speaker
+input alternatives, and the stereo-width input shape in the P0 quality
+applicability projection. The 1,848-row measure applicability projection is
+rejoined and retains its source dispositions, admission, baseline, target, and
+qualification states.
+Refresh the three affected Compose trust-reconstruction branches to state that
+their local versioned candidate is not rendered media and does not imply a
+project commit or completed render. Keep all measurement, measurement target,
+qualification, and runtime states unchanged and unevaluated.
+
+The existing `ownerCapabilityLeafAdjudication` rows remain unchanged. Their
+stored artifact-type fields still say `versioned-composition-and-render-manifest`
+for the three Compose leaves, `authorized-speaker-reference` for the ordered
+speaker input, and `delivery-and-loudness-context` for the stereo-width input.
+These five exact type differences require the Media semantic owner to adjudicate
+the changed meanings before the affected leaves can be represented as
+owner-current. This review records the coordinator's
+source-bound proposal only. It does not claim owner approval, independent
+acceptance, legal or specialist signoff, implementation, qualification,
+native PDP closure, or Delivery readiness. Preserve PXD-171 and PXD-196 as
+history; the native PDP-0 producer alone determines current-source
+`DEV_COMPLETE`.
+
+### PXD-207 — Resolve current PDP-0 owner meaning and exact extension scope
+
+Under the user's explicit delegation to review, decide, and authorize
+source-backed Media product-owner decisions, resolve the PDP-0 definition
+decisions surfaced by PXD-205, PXD-206, and PXD-203. Record this as a delegated
+product-definition decision; it does not impersonate an identified human
+owner, constitute independent acceptance, or authorize implementation or
+runtime execution.
+
+For the five exact PXD-206 owner-leaf type differences, adopt the current
+PDP-0 meanings: the three Compose leaves return
+`local-versioned-composition-candidate`; speaker conditioning accepts
+`authorized-speaker-reference-or-ordered-segment-speaker-map`; and stereo
+width accepts `delivery-target-channel-layout-and-loudness-context`. Preserve
+PXD-171, PXD-196, and PXD-206 source cuts as historical records. Update the
+current capability-leaf rows and their current-source projections together.
+
+Include `AUD-DSP-007` in product scope. Add the exact leaf
+`media.master.audio.creative-effect.apply` to the `media.master.audio` family
+and bind it to `MEDIA-REQ-CAP-MASTER-AUDIO` and its AC-03 case. Its defined
+meaning covers the explicitly selected delay, chorus, flanger, or reverb
+effect and versioned effect parameters, including ordered effect-chain
+provenance. It prepares only a local source-preserving derived-audio
+candidate. It does not substitute room matching, imply rendered or committed
+audio, or claim a quality pass. Keep this new definition separate from the
+historical 462 owner-adjudicated leaves and preserve the 501 original audit
+identities.
+
+Resolve extension applicability for the six existing PDP-0 definition
+extensions and the new creative-effect leaf using the exact source-owner
+surface and candidate channel stated in each decision record. The applicable
+leaf scope is that exact logical owner surface and its linked physical package;
+the repository root and the three compositions that recursively contain that
+scope are derived aggregates. Explicitly record all other active channel and
+surface pairs as not applicable to that exact product scope, with stable
+feature/channel/surface identities and source-backed rationale. Retain
+topology-backed support-only and archived N/A dispositions. In particular,
+`media.channel.api` remains protocol-neutral and does not imply HTTP, gRPC, or
+SDK applicability. No implementation state, absent mapping, or missing
+feature record is used as an N/A rationale.
+
+The exact feature, channel, surface, source, and disposition rows are recorded
+in `.product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability/records`
+and the source-generated PDP-0 surface matrix. PXD-207 supersedes only the
+identified open semantic and applicability decisions; it does not rewrite
+historical evidence. User-delegated product-definition decisions are
+recorded, independent acceptance remains `NOT_CLAIMED`, execution admission
+remains `NOT_ADMITTED`, and legal, scientific, security, specialist, native
+closure, implementation qualification, and Delivery claims remain outside
+this decision. PDP-0 becomes `DEV_COMPLETE` only when its current-source
+producer validates zero outstanding definition tasks.
+
+### PXD-208 — Require authorization for governed asset and checkpoint use
+
+Under the user's explicit delegation to make bounded PDP-0 product-definition
+decisions, clarify `MEDIA-REQ-CAP-ARTIFACT-AC-05` and
+`MEDIA-REQ-CAP-GENERATE-AUDIO-AC-05` so their actors are authorized. The exact
+artifact-search capability meaning requires an authorized search scope and
+reports unresolved authorization as denied or unknown; its prior actor phrase
+named a Studio creator without stating that prerequisite. Audio generation's
+parent requirement likewise requires an explicit authorized binding, while
+its checkpoint-specific case binds the request to license and use-scope terms.
+The case now states that its creator is authorized to make that request. An
+actor role does not itself grant permission.
+
+These changes add only the explicit authorization precondition to the two
+PDP-0 cases. They do not change exact asset-version, current rights/license
+evidence, intended-use, checkpoint identity, UNKNOWN, or non-legal-clearance
+requirements. This is a user-delegated PDP-0 source decision only; it does not
+claim a human owner signature, independent acceptance, implementation,
+qualification, runtime admission, native closure, or Delivery readiness. Any
+source-bound current projections affected by this requirement edit must be
+refreshed at their owning PDP-0 records.
+
+### PXD-209 — Bind caption import to an exact source-version observation
+
+Under the user's explicit delegation to complete PDP-0 definition work, resolve
+the exact sidecar/embedded-caption import meaning already required by
+`MEDIA-REQ-CAP-ARTIFACT-AC-08` and the original feature `AUD-ASSET-012`.
+`media.artifact.import` may include an optional caption-track observation only
+when an authorized sidecar or embedded track is explicitly requested and
+observed for the exact immutable imported source version. Preserve the observed
+track identity/location, declared source timebase and any explicit mapping,
+language/format when known, and whether it was observed embedded or supplied as
+an authorized sidecar. Missing, malformed, or unknown mapping remains explicit;
+this observation does not alter source media, establish caption correctness,
+or register/replace a canonical artifact. Caption delivery remains a separate
+`media.deliver.subtitles` outcome with its own destination and authorization.
+
+Update the PDP-0 audit crosswalk for `AUD-ASSET-012` to bind both exact
+capabilities and the import/export requirements while retaining its original
+source phrase and mismatched source-acceptance text as provenance. Operation
+wire/domain semantics remain PDP-1; interface grammar and journey behavior
+remain PDP-2/PDP-3. Preserve the 501 audit identities and the historical 462
+owner-adjudication cohort; no new capability identity or cohort membership is
+created.
+
+This is a user-delegated PDP-0 source-definition decision, not a named human
+owner signature or independent acceptance. It asserts no parser implementation,
+format support, runtime admission, caption accuracy, qualification, legal
+determination, native closure, or Delivery readiness. PXD-171 remains an
+immutable historical source cut; its current-source successor must bind this
+exact optional output and requirement case without changing PXD-171's record.
+
+### PXD-210 — Reconcile current PDP-0 source observations without changing meaning
+
+Record the current raw source fingerprints and exact selected target projections
+for the additive PDP-0 observations previously bound to PXD-139, PXD-130,
+PXD-196, and PXD-206, plus the PDP-0 rows in the 199-claim candidate artifact.
+Where the exact selected target projection is unchanged, this is a source-pin
+refresh only. Preserve every predecessor decision, source digest, target digest,
+and historical observation. Do not infer semantic equivalence, owner approval,
+independent acceptance, implementation, qualification, closure, or Delivery
+readiness from this reconciliation.
+
+One previously selected PDP-0 locator changed and remains unresolved:
+`MPSEM-0172-C002` at
+`capabilities.yaml#/capabilities/@id=media.multimodal.describe/outcome`.
+Preserve its old projection digest, record the exact current projection digest,
+and do not represent the selector as unchanged or semantically approved. The
+current semantic route requires a separate PDP-0 correction to the exact
+capability-naming rule in `requirements.yaml`; this record does not perform
+that correction. The prior `MPSEM-0278-C001` and `MPSEM-0311-C004` locator
+projections are historical; their exact current review bindings remain the
+current selectors for PXD-210's equality checks. The full source cut and
+per-claim predecessor/current projection fingerprints are recorded in
+`docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd210.json`.
+
+### PXD-211 — Correct current P0 migration routes and PDP-0 audit mappings
+
+Correct the current PDP-0 owner route for `MPSEM-0172-C002` to the exact `requirements.yaml#ownerDefinedCapabilityNamingRules/@id=media.requirement.capability-identities-name-media-semantics.v1` definition. The route covers semantic identity, provider separation, and explicit aliasing; preserve the former `media.multimodal.describe/outcome` locator and its source/value pins as history. Correct `MPSEM-0278-C001` to `qualification-policy.yaml#/decisionRules/6`, the exact six-dimension separate-observation rule, preserving `/decisionRules/5` as history. Correct `MPSEM-0311-C004` to the PDP-0 `media.job.submit/ownerDefinition/idempotencyExpiryContract`: retain UNKNOWN_OUTCOME through missing or expired idempotency evidence, forbid a fresh identity from bypassing unresolved work, keep artifact retention independent, and hand off exact per-operation duration/storage/lookup/expiry to PDP-1. Preserve artifact `EXPIRED` as separate cleanup meaning.
+
+Correct the current PDP-0 mapping for these 29 audit rows while retaining all 501 source identities: `AUD-ASSET-003`, `AUD-ASSET-004`, `AUD-ASSET-006`, `AUD-ASSET-012`; `AUD-TTS-012`, `AUD-TTS-021`; `AUD-DSP-003`, `AUD-DSP-014`, `AUD-DSP-016`, `AUD-DSP-018`; `AUD-MUSIC-003`; `AUD-VISION-006`, `AUD-VISION-013`, `AUD-VISION-017`, `AUD-VISION-016`; `AUD-MOTION-007`, `AUD-MOTION-008`; `AUD-DIRECT-005`, `AUD-DIRECT-017`; `AUD-SOCIAL-006`, `AUD-SOCIAL-009`; `AUD-EDIT-013`; `AUD-GEN-014`, `AUD-GEN-015`, `AUD-GEN-026`, `AUD-GEN-028`; `AUD-CAP-026`; `AUD-INTER-008`; and `AUD-CROSS3-003`. Each row preserves its imported source title and acceptance text verbatim and binds only exact PDP-0 intents/cases. Any unmatched acceptance clause remains provenance-only with an explicit bounded owner-phase handoff; mapping is not acceptance, implementation, qualification, or runtime evidence.
+
+GEN-014/015 are feature-scoped compound candidate observations in `campaign-extensions.yaml#records`, outside the historical 462 capability / seven additive-definition population. They name separate requested candidate outputs and relation/timebase state, default the unobserved relation to UNKNOWN, provide no synchronization threshold, and do not assert provider/runtime support or license admission. Existing `drive.audio` and `drive.speech` source-input capability meanings remain intact. EDIT-013 keeps freeze hold and reverse source-time mapping distinct and as local candidate effects. GEN-026 binds candidate recast to the applicable rights decision; GEN-028 binds motion-brush/region trajectories to generated-video shot conditioning, not scene animation. CROSS3-003 retains agent-tools as a proposed applicable channel with admission pending and execution NOT_ADMITTED; exact CAS/revision/conflict semantics remain a PDP-1 handoff. No owner acceptance or execution admission is claimed.
+
+These are coordinator-authored PDP-0 source-routing and audit-disposition corrections. They do not claim human owner signature, independent acceptance, runtime admission, implementation, qualification, closure, or Delivery readiness. Historical source text, routes, and pins remain retained in predecessor fields. Final current-source pins/status projections are deferred pending review of this consolidated edit set.
+
+### PXD-212 — Reconcile current PDP-0 candidate meanings and 501-row source coverage
+
+Review the consolidated PDP-0 source after PXD-211. The current edit leaves
+`media.edit.inpaint`, `media.edit.matte`, and
+`media.edit.retime-slow-motion-speed-ramp` define distinct local candidate or
+draft outputs. Inpaint and matte remain source-derived, estimated/reconstructed
+representations; retime, freeze hold, and reverse remain distinct source-time
+mapping candidates. They do not claim canonical registration, project mutation,
+runtime availability, or quality qualification. Align each current trust branch,
+goal/output join, and quality applicability row with that exact candidate type;
+all metric measurement and qualification dispositions remain
+`NOT_EVALUATED`. Align `media.artifact.import`'s effect semantic outcome with
+its existing owner outcome, including the exact immutable source-version and
+explicitly requested/observed caption-track conditions. This alignment adds no
+new import behavior or artifact type.
+
+The current source disposition crosswalk preserves all 501 stable audit IDs
+(428 original plus 73 focused additions): 499 `BOUND_EXISTING`, 2
+`POST_PDP_IMPLEMENTATION_ONLY`, and 0 unresolved P0 rows. This is an exact
+source-identity and selector join, not proof of owner acceptance, implementation,
+runtime availability, qualification, or delivery. The current P0 meaning for
+`AUD-SIM3-009` is linked to the soft-body, cloth, rope, particle, and fluid
+capability leaves and their scoped simulation acceptance cases; `AUD-SIM3-010`
+is linked to the agent simulation leaf, PRNG/seed/distribution/confidence
+constraints, and scoped acceptance cases. Numerical validity and solver-family
+qualification remain later gates. PDP-1 operation/payload contracts, PDP-2
+interface detail, PDP-3 journey detail, Build implementation, and qualification
+stay in their owning phases.
+
+The October 18 plan/reconciliation artifacts remain immutable historical source
+cuts. Their statements that all 428 exact reviews remain outstanding and that
+the two specialized simulation families lack scoped case candidates are
+superseded for current planning by the live PDP-0 crosswalk and this review.
+Preserve the original 86 task/experiment identifiers in the source task
+crosswalk; do not move Build or qualification work into PDP-0. Refresh the
+consolidated current-source review and phase projections against exact current
+sources. This coordinator-authored source review makes no human owner approval,
+independent acceptance, implementation, measurement, qualification, closure,
+or Delivery claim. PXD-208 through PXD-211 remain immutable predecessor cuts.
+
+### PXD-213 — Restore exact speech and dubbing audit joins
+
+Correct only the PDP-0 audit crosswalk bindings for `AUD-TTS-012`,
+`AUD-TTS-014`, and `AUD-DUB-003`; retain each imported source title and
+acceptance text verbatim. The current PDP-0 definitions already provide
+ordered authorized-speaker assignments, explicit unknown/denied admission,
+and requested-versus-observed voice identity. This is a crosswalk coverage
+repair, not a change to those product meanings.
+
+Bind `AUD-TTS-012` to the text-to-speech and speaker-conditioning leaves and
+synthesis AC-02/07/08/09. The per-segment speaker binding, fail-closed
+admission, shared profile/context, and requested-versus-observed identity
+meanings are covered. The source acceptance's perceptual-distinction claim is
+not guaranteed by PDP-0; cloning-specific behavior is not inferred from the
+generic admission rule. Keep feature controls/journey detail in PDP-2/PDP-3
+and perceptual engine behavior/qualification in their later gates.
+
+Bind `AUD-TTS-014` to the speaker-conditioning leaf and synthesis AC-02 for
+authorized profile and fail-closed admission meaning. Locale/style-specific
+narrator casting and license selection remain bounded PDP-1 domain details;
+the repeated source acceptance text remains provenance and does not expand
+this feature's scope.
+
+Bind `AUD-DUB-003` to the dubbing and speaker-conditioning leaves, synthesis
+AC-02/08/09, and speech-transcription AC-06. These references cover candidate
+dubbing intent, supplied per-segment speaker/locale/source-timing/translation
+provenance, authorization, and requested-versus-observed identity. AC-06
+explicitly does not establish exported audio/video synchronization. PDP-1
+must define measurable synchronization criteria and the intended
+identity-control semantics in the operation/domain contract; PDP-2/PDP-3 must
+define how those controls and review outcomes are presented in the interface
+and journey. Only those source-defined criteria can become later
+Build/qualification oracles; the current PDP-0 references are not a
+verification oracle. No audible distinction, successful synchronization,
+implementation, owner acceptance, independent acceptance, qualification,
+closure, or Delivery readiness is claimed.
+
+The 501 stable source IDs and existing disposition counts remain unchanged.
+PXD-213 preserves PXD-212 as the predecessor source cut and records exact
+current source pins after all affected PDP-0 tests and projections pass.
+
+### PXD-214 — Reconcile current PDP-0 source coverage and applicability
+
+Record the current PDP-0 source cut after the 501-row crosswalk repairs and
+source-completeness review of `AUD-OPS-021` and `AUD-CLONE-006`. Preserve the
+full 501 source identities, 54-surface denominator, existing 499
+`BOUND_EXISTING` and 2 `POST_PDP_IMPLEMENTATION_ONLY` dispositions, and the
+historical 462/469/7 population. Correct only invalid selectors and current
+source bindings; keep imported audit text verbatim and keep predecessor reviews
+PXD-211 and PXD-213 as immutable history.
+
+Define `AUD-OPS-021` as a coordinator-authored PDP-0 proposal for exact,
+purpose-bound model-package lifecycle intent. Machine/checkpoint qualification,
+missing-model behavior, and no-synthetic-success/no-unauthorized-fallback
+semantics bind to current profile, policy, and rights authorities. The current
+`reuse-decisions.yaml#notAdmittedByThisRecord` remains in force: package
+acquisition, installation, execution, provider selection, and production
+activation are `NOT_ADMITTED`. The imported adoption mode and product priority
+remain pending owner disposition; no provider, model, or package is selected.
+The source topology binds its proposed recorder-orchestrator CLI scope to the
+client package and relevant compositions. This scope record is not runtime
+support or owner approval.
+
+Define `AUD-CLONE-006` as a coordinator-authored PDP-0 proposal for source-free
+synthetic voice design without human reference. Any separately defined future
+inference must check applicable voice grants and exact model/checkpoint/source
+rights before inference, block when required rights are missing, denied,
+unavailable, unknown, expired, or revoked, and attach truthful rights and
+provenance to every output. Piper and synthetic/test placeholders never prove
+a clone, identity, successful inference, or rights clearance. The source's
+`ADOPT_QUALIFIED_MODEL_OR_OWN_RIGHTS` proposal and product priority remain
+pending owner disposition. No model/provider is selected and no inference is
+admitted. The proposed production-studio web scope is bound to its physical UI
+leaf and parent compositions from the current topology.
+
+PXD-214 records current source fingerprints and selector projections for
+`MPSEM-0172-C002` and `MPSEM-0030-C001` without asserting semantic equivalence,
+owner approval, acceptance effect, implementation, runtime admission,
+qualification, closure, or Delivery readiness. Exact source-currentness and
+the full per-surface PDP-0 matrix are retained in
+`docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd214.json`
+and `docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json`.
+This coordinator source reconciliation has no owner-acceptance or independent
+acceptance effect; all 501 imported source clauses remain traceable and no
+post-PDP-0 work is promoted into PDP-0.
+
+### PXD-215 — Bind proposal definitions separately in the PDP-0 audit projection
+
+Refresh the PDP-0 source projection after PXD-214 to keep canonical capability
+joins distinct from coordinator-authored feature proposals. `AUD-SPEC-020` and
+`AUD-OPS-021` each resolve to exact proposal capability, requirement, and
+acceptance-case selectors in `campaign-extensions.yaml`; the projection labels
+them `COORDINATOR_AUTHORED_PDP0_PROPOSAL_PENDING_OWNER_REVIEW` and does not
+present them as canonical capability or requirement records. Their owner
+approval and independent acceptance remain `NOT_CLAIMED`.
+
+The current traceability projection contains 501 source IDs: 497 canonical
+capability/requirement/case joins, 2 separately labeled proposal-definition
+joins, 2 post-PDP implementation handoffs, and zero missing PDP-0 definition
+joins. The 462 canonical capability-leaf and 7 current definition-extension
+population counts remain unchanged; the two feature-specific proposal records
+are tracked in their own source-bound proposal rows.
+
+For PDP-0 validation, preserve exact locators for claims routed to the shared
+acceptance authority, but do not require their mutable acceptance content to
+match a PDP-0 source cut. That authority's review or receipt is outside this
+phase. The PDP-0 migration test validates only the route and non-acceptance
+effect for those claims; it does not refresh their acceptance record or claim
+receipt.
+
+PXD-215 retains PXD-214, PXD-213, and earlier reviews as immutable predecessor
+source cuts. This source reconciliation does not assert semantic equivalence,
+owner approval, independent acceptance, implementation, runtime admission,
+qualification, closure, or Delivery readiness. The source-bound projection and
+current material fingerprints are recorded in
+`docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd215.json`.
+
+### PXD-216 — Reconcile the current 20-leaf PDP-0 capability source cut
+
+Review the 20 capability leaves whose source meaning fields are materially
+changed in this PDP-0 source cut. The exact leaf identities, changed meaning
+fields, and source fingerprints are recorded in
+`docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json`.
+The review checks each leaf against its unique capability family and
+requirement, acceptance-case references, actor and role, intent and outcome,
+typed semantic inputs and outputs, profile and bounds, trust branches,
+channel applicability, and quality disposition. It preserves leaf-specific
+uncertainty, rights, candidate, version, fallback, and unsupported-case
+semantics. For `media.artifact.search`, the top-level `supportedParameters`
+summary now enumerates every field in its eight-field parameter schema. The
+summary for `media.artifact.list` now names only its schema fields `pageSize`
+and `pageToken`; it does not describe semantic, transcript, or duplicate
+search. Its schema rejects additional fields. The source review found no
+additional product requirement.
+
+PDP-0 records no concrete implementation lane as selected or admitted for the
+462 canonical leaf records or the seven separately dispositioned definition
+extensions. Implementation-lane choice belongs to BUILD planning against the
+frozen definitions and reviewed dependency decisions. PXD-207 extension
+applicability remains a coordinator-authored applicability disposition, not
+owner approval or independent acceptance.
+
+The review is source-definition work only. Owner approval and independent
+acceptance are `NOT_CLAIMED`; acceptance effect is none; implementation is not
+claimed; runtime admission is `NOT_ADMITTED`; qualification is
+`NOT_EVALUATED`; closure and Delivery are not claimed. The exact test and
+current-source fingerprints are recorded in the review and PDP-0 status
+projections. This decision does not authorize BUILD, closure, or Delivery.
+
+### PXD-217 — Keep legacy multimodal RPCs separate from canonical capability operations
+
+PDP-0 already defines multimodal cross-modal analysis, description, summary,
+structured extraction, speaker-to-face association, scene/audio relation, and
+source-grounded observation as separate capability intents. PDP-1 keeps those
+individual capability-operation records as the canonical domain operations and
+uses `media.operation.job.submit.v1` to target one exact operation with its
+typed request, purpose, source version, and request identity.
+
+The five observed `MultimodalService` analysis RPCs are source candidates, not
+canonical wire bindings. `GenerateDescription`, `AnalyzeCrossModal`, and
+`GetInsights` have direct intent candidates for their matching capability
+operations, but their legacy request and response messages omit the complete
+canonical source-version, typed-request, result-provenance, and uncertainty
+join. `ProcessMultimodal` and `AnalyzeVideoWithAudio` bundle distinct result
+families without a closed per-result operation selector, so they do not receive
+a single canonical operation target. Use separate canonical submissions for
+explicitly selected capability operations; do not infer a combined operation.
+
+PDP-1 also disposes every top-level and nested response field in these legacy
+messages. The generic `combined_analysis` string does not establish a
+source-grounded relation; untyped sentiment, activity, event, score, confidence,
+and unbound timestamp or bounding-coordinate values are not carried into the
+canonical result. Candidate field mappings remain intent-only and do not imply
+wire equivalence.
+
+This disposition does not change PDP-0, accept the legacy protobuf contracts,
+or establish a gRPC transport, runtime, provider, or service admission. PDP-2
+owns the replacement wire contract for applicable gRPC consumers. Authoring is
+within the user-delegated Media product-definition task; owner acceptance and
+independent acceptance remain `NOT_CLAIMED`.
+
+### PXD-218 — Refresh PDP-0 quality currentness after PXD-216
+
+PXD-216 is the current semantic review for its 20 capability leaves. Refresh
+the PDP-0 quality source-currentness record against the exact PXD-216 review,
+its source reconciliation, and the live capability, quality, trust, goal,
+requirement, manifest, audit crosswalk, and traceability inputs. Preserve
+PXD-213 as an unchanged predecessor record. This refresh does not change
+capability meaning, quality disposition, or acceptance state; it records
+current source pins and revalidates the existing three quality type joins.
+
+This source-currentness record claims no owner approval, independent
+acceptance, implementation, runtime admission, qualification, closure, or
+Delivery readiness. Its explicit source fingerprints are retained in
+`docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd218.json`.

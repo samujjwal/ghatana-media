@@ -150,7 +150,7 @@ gaps:
   scope: built-Explorer-browser-visual-accessibility-and-human-review-evidence
   owner: independent-experience-reviewer
   evidence: On 2026-10-08, the rebuilt Media-owned Vite preview was audited across all six viewports, 29 Explore scenarios, all 315 current Specification records, 47 canonical Product routes (282 route/viewport observations), Verify, Tools Review, keyboard navigation, 100%/200% text scaling, zoom/reflow, forced colors, reduced motion, long-label stress, and canonical artifact-ID search through to matching trace metadata. The run had zero assertion failures, console errors, or page errors. It checked 25 enabled visible touch targets against 24 CSS px; two visually-hidden controls were represented by visible associated labels, and five disabled/hidden/non-rendered controls were excluded. This is local browser evidence, not visual or accessibility acceptance.
-  currentSourceIndex: "Current generated source index: 356 source-derived records plus the manifest projection (357 total); source census only, this regeneration does not rerun or qualify browser evidence."
+  currentSourceIndex: "Current generated source index: 365 source-derived records plus the manifest projection (366 total); source census only, this regeneration does not rerun or qualify browser evidence."
   localProgress: The recorded browser audit emits a structured report and screenshots under /tmp/media-experience-browser-audit; CSP remained enabled while text scaling was injected through Chromium’s DevTools CSS domain and verified at 16px/32px. The prior audit index contained 316 source-derived records plus the manifest projection (317 total); the browser audit exercised all 317 records and verified canonical-ID search selects one exact source and displays the same ID in trace metadata. A focused current Preview check also verified that the corrected caption workflow has no inline style attributes or console errors. RTL is not admitted by the rendered surface. Screen-reader testing, canonical visual references, and independent expert visual review remain manual/unverified.
   remaining: complete-supported-screen-reader-and-independent-human-visual-review; collect-canonical-visual-reference-and-all-admitted-view/channel-variant-evidence
   impact: blocks-PDP-3-acceptance
@@ -246,18 +246,21 @@ gaps:
   impact: blocks-affected-domain-capability-acceptance-and-must-be-reconciled-at-P0-010
 - id: GAP-MEDIA-CAPABILITY-LEAF-DETAIL
   status: open
-  scope: per-leaf-source-reconciled-meaning-references-and-operation-specific-parameters-units-ranges-defaults-channels-priority-implementation-lane-and-availability-for-the-462-capability-leaves
+  scope: owner-and-specialist-acceptance-of-the-462-source-defined-capability-leaf-dispositions
   owner: Media-capability-specialists-and-relevant-domain-owners
   evidence: .product-experience/pdp-0-product-truth/capabilities.yaml; master-plan-section-6.1; nine-job-operation-proposals
     plus eight operation-specific artifact-intake/speech/profile proposals now define selected parameter shapes,
     preconditions, effects, recovery, explicit unsupported cases, and acceptance cases.
   localProgress: A standard YAML parse confirms 462 capability leaves in 38 families; the source crosswalk contains all 462 IDs exactly once.
-    Existing source-backed requirement, actor, intent, input/output, channel, scope, implementation, and qualification references are
-    retained and checked where present. Seventeen operation-specific parameter proposals exist; no unapproved bounds are inferred.
-  remaining: Obtain owner-approved operation-specific bounds for 445 leaves; reconcile 385 unresolved leaf-level journey references;
-    complete proposal-action capability reachability review for 123 actions; obtain specialist/owner decisions and per-leaf channel,
-    availability, implementation-lane, and qualification dispositions. Existing proposals remain unaccepted until their owners review them.
-  impact: blocks-full-P0-003-capability-definition-P0-009-channel-disposition-and-P0-010-closure
+    The current PDP-0 source-bound status record is the authority for definition development status on its exact source cut.
+    The previously reported 445 operation-bound, 385 journey-reference, and 123 proposal-action counts are retained as historical
+    review observations, not current PDP-0 definition blockers. Owner and specialist review/acceptance of applicable dispositions
+    remains pending; no unapproved bounds or owner decisions are inferred.
+  remaining: Obtain applicable owner and specialist review and acceptance records for capability-leaf dispositions, including
+    channel, availability, implementation-lane, and qualification decisions where those owners are required. The historical counts
+    of 445 operation-bound observations, 385 journey-reference observations, and 123 proposal-action observations do not reopen
+    P0-003 or P0-009 authoring on the current source cut; independent P0-010 review remains unexecuted.
+  impact: owner-and-specialist-acceptance-and-independent-P0-010-review-remain-pending; historical-review-counts-do-not-block-current-PDP-0-definition-development
 - id: GAP-MEDIA-NODE-YAML-PARSER
   status: open
   scope: repeatable-Node-native-YAML-parse-regression-for-product-definition-authorities
@@ -322,7 +325,7 @@ gaps:
     as historical counts, not as the current P0-03 exit denominator. A prior Explorer index had 353 source-derived records plus the manifest projection (354 total); this is a historical inventory observation, not a PDP meaning count or currentness result. GAP-12 records the active Explorer source-index denominator.
     The active source-change delta is
     docs/migration/current-master-plan-claim-dispositions.json: 129 exact current-source claims are dispositioned
-    (20 clarified, 12 adopted, 57 execution-only, 7 external-owner, 12 superseded, 21 out-of-current-product-scope),
+    (19 clarified, 11 adopted, 59 execution-only, 7 external-owner, 12 superseded, 21 out-of-current-product-scope),
     `p0MeaningOnlyInOldPlan` is empty, and its one P1 external handoff is explicitly not a P0 meaning gap. Its focused
     regression is tests/pdp-migration-current-source-claim-dispositions.test.mjs. This owner overlay establishes no
     independent semantic acceptance, implementation, qualification, runtime behavior, or Lifecycle evidence.

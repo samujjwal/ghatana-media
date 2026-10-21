@@ -208,8 +208,8 @@ test("P3-05 binds typed bounded definition fixtures to every journey step", () =
   assert.equal(typedGuardLinks, 254, "all 254 typed guard-step instances are linked into the bounded fixture corpus");
   assert.equal(unknownOutcomeLinks, 48);
   assert.equal(recoveryLinks, 106, "105 bounded no-query cases plus the exact query-bound exception");
-  assert.equal(versionBindingLinks, 130, "all exact version-binding contracts stay linked; the separate stale-case test scopes the 64 applicable mismatch fixtures");
-  assert.equal(staleVersionFixtureLinks, 64);
+  assert.equal(versionBindingLinks, 130, "all exact version-binding contracts stay linked; the separate stale-case test scopes the 66 applicable mismatch fixtures");
+  assert.equal(staleVersionFixtureLinks, 66);
   assert.equal(localEffectLinks, 25);
 });
 

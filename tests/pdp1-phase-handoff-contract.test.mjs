@@ -89,6 +89,9 @@ test("PDP-1 to PDP-2 handoff names a stable source contract and current owner po
   assert.ok(operations.ownerDefinedOperationContracts.records.some(({ id }) =>
     id === "media.operation.stream-session.inspect-execution-recovery.v1"),
   "the J-29 read contract is included by exact identity without constraining its schema details");
+  assert.ok(operations.ownerDefinedOperationContracts.records.some(({ id }) =>
+    id === "media.operation.spatial-export.execute.v1"),
+  "the J-28 spatial export command is included in the owner-defined operation handoff population");
   assert.equal(population.interfaceIdentities.http.count, httpCount);
   assert.equal(population.interfaceIdentities.grpc.count, countGrpcMethods(grpcPaths));
   assert.equal(population.interfaceIdentities.sdk.rawRegistryRows, sdk.methods.length);
@@ -109,6 +112,7 @@ test("PDP-1 to PDP-2 handoff names a stable source contract and current owner po
   assert.deepEqual(handoff.deferredDownstreamFindings.map(({ id }) => id), [
     "P3-CAPABILITY-INVOCATION-OPERATION-REF-SHAPE",
     "P3-PROVENANCE-ACTION-CAPABILITY-CROSSWALK",
+    "PDP3-RULE-MANAGEMENT-AUTHOR-VALIDATE-REUSE-RECOVERY",
   ]);
   const invocationShape = handoff.deferredDownstreamFindings[0];
   assert.deepEqual(invocationShape.candidates, ["J-05", "J-06", "J-08"]);
@@ -124,5 +128,50 @@ test("PDP-1 to PDP-2 handoff names a stable source contract and current owner po
   assert.match(provenanceCrosswalk.observation, /media\.action\.inspect-provenance now includes media\.provenance\.source-lineage\.inspect/u);
   assert.ok(provenanceCrosswalk.sourceRefs.includes(".product-experience/decision-log.md#PXD-152"));
   assert.match(provenanceCrosswalk.observation, /runtime\/transport admission remains NOT_ADMITTED/u);
+
+  const ruleProposal = handoff.proposalHandoffs.find(({ id }) => id === "media.rules.manage.pdp1-definition-handoff.v1");
+  assert.ok(ruleProposal, "the PXD-185 rule contract is explicitly handed to PDP-2");
+  const ruleContract = readYaml(".product-experience/pdp-1-domain-data/rule-management-contracts.yaml");
+  assert.equal(ruleProposal.featureRef, "media.rules.manage");
+  assert.equal(ruleProposal.sourceArtifactId, "ART-P1-RULE-MANAGEMENT-CONTRACTS");
+  assert.equal(ruleProposal.source, ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml");
+  assert.ok(ruleProposal.sourceRefs.includes(".product-experience/decision-log.md#PXD-185"));
+  assert.equal(ruleProposal.disposition, "PROPOSAL_ONLY; PENDING_OWNER_REVIEW; NOT_IN_CANONICAL_OPERATION_DENOMINATOR");
+  assert.equal(ruleProposal.ownerApproval, "NOT_CLAIMED");
+  assert.equal(ruleProposal.independentAcceptance, "NOT_CLAIMED");
+  assert.equal(ruleProposal.runtimeAdmission, "NOT_ADMITTED");
+  assert.equal(ruleProposal.executionAdmission, "NOT_ADMITTED");
+  assert.equal(ruleProposal.operationDisposition, ruleContract.contractIdentity.operationDisposition);
+  assert.deepEqual(ruleProposal.operationRefs, [
+    ruleContract.compileContract.operationRef,
+    ruleContract.inspectContract.operationRef,
+    ruleContract.validationContract.operationRef,
+    ruleContract.reuseContract.operationRef,
+  ]);
+  assert.deepEqual(ruleProposal.typedContracts, {
+    versionedCandidate: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/ruleSetVersion/candidate/schema",
+    normalizedSemanticGraph: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/normalizedSemanticGraph/schema",
+    semanticFingerprint: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/semanticFingerprint/schema",
+    compileRequest: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/compileContract/requestSchema",
+    compileResult: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/compileContract/resultSchema",
+    inspectRequest: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/inspectContract/requestSchema",
+    inspectResult: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/inspectContract/resultSchema",
+    validationRequest: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract/requestSchema",
+    validationResult: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract/resultSchema",
+    reuseRequest: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/requestSchema",
+    reuseResult: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/resultSchema",
+    candidateOperationPlan: ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/operationPlanSchema",
+  });
+  assert.ok(ruleProposal.consumerObligations.some((obligation) => /accessible authoring and inspection/u.test(obligation)));
+  assert.ok(ruleProposal.consumerObligations.some((obligation) => /channel-to-surface mappings.*proposals/u.test(obligation)));
+  assert.ok(ruleProposal.negativeCases.some((negativeCase) => /proposal-only operation as callable/u.test(negativeCase)));
+  assert.ok(ruleProposal.negativeCases.some((negativeCase) => /separate request and admission/u.test(negativeCase)));
+
+  const ruleJourney = handoff.deferredDownstreamFindings[2];
+  assert.deepEqual(ruleJourney.candidates, ["media.rules.manage"]);
+  assert.equal(ruleJourney.ownerPhase, "PDP-3");
+  assert.equal(ruleJourney.disposition, "HANDOFF_TO_PDP3_AFTER_PDP2");
+  assert.ok(ruleJourney.sourceRefs.includes(".product-experience/pdp-1-domain-data/rule-management-contracts.yaml"));
+  assert.match(ruleJourney.observation, /owner approval is NOT_CLAIMED/u);
   assert.match(handoff.scopeStatus, /development-gate-status-is-recorded-separately/u);
 });

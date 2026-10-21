@@ -574,6 +574,13 @@
     "title": "Relationships"
   },
   {
+    "artifactId": "ART-P1-RULE-MANAGEMENT-CONTRACTS",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
+    "phase": "PDP-1",
+    "path": ".product-experience/pdp-1-domain-data/rule-management-contracts.yaml",
+    "title": "Rule Management Contracts"
+  },
+  {
     "artifactId": "ART-P1-STATE-ADJUDICATION",
     "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",

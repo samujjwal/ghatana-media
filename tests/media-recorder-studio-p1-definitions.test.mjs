@@ -204,3 +204,149 @@ test('PDP-1 Recorder Studio definitions preserve canonical owner reuse and all 5
     assert.ok(operation.invariant, `${operation.id}: explicit invariant`);
   }
 });
+
+test('PDP-1 edit commit binds typed CAS, replay, conflict, and unknown-outcome semantics to versioning authority', () => {
+  const recorder = readYaml('.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml');
+  const versioning = readYaml('.product-experience/pdp-1-domain-data/versioning.yaml');
+  const operation = recorder.canonicalOperationProposals.records
+    .find(({ id }) => id === 'media.recorder.operation.edit.commit.v1');
+  const contract = operation.resultContract;
+  const schema = contract.resultSchema;
+  const revisionRules = versioning.ownerDefinedRevisionSemantics.projectRevision;
+  const idempotencyRules = versioning.ownerDefinedRevisionSemantics.idempotency;
+
+  assert.equal(operation.revisionSemanticsRef,
+    '.product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics/projectRevision');
+  assert.equal(revisionRules.success,
+    'A successful mutation creates exactly one successor revision and returns its exact revision ID.');
+  assert.match(revisionRules.stale, /CONFLICT.*no mutation, automatic merge or overwrite/u);
+  assert.match(idempotencyRules.duplicate, /original receipt without a second effect/u);
+  assert.match(idempotencyRules.conflict, /different digest is rejected/u);
+  assert.match(idempotencyRules.unknown, /reconciled before retry/u);
+  assert.equal(contract.status, 'SOURCE_AUTHORED_DEFINITION_ONLY');
+
+  const variants = schema.oneOf;
+  assert.deepEqual(variants.map(({ properties }) => properties.outcome.const),
+    ['APPLIED', 'CONFLICT', 'DENIED', 'OUTCOME_UNKNOWN']);
+  const validate = new Ajv2020({ allErrors: true, strict: false }).compile(schema);
+  const revision = (revisionId) => ({
+    objectType: 'media.domain.project-revision',
+    identity: { tenantId: 'tenant-1', projectId: 'project-1', revisionId },
+  });
+  const request = {
+    tenantId: 'tenant-1', projectId: 'project-1', expectedRevisionId: 'revision-1',
+    editOperationIds: ['edit-1'], editorActorRef: 'actor-1', idempotencyKey: 'key-1',
+    payload: { kind: 'trim', clipId: 'clip-1', boundary: '00:00:03' },
+  };
+  const fingerprint = 'sha256:request-fingerprint-1';
+  const applied = {
+    outcome: 'APPLIED', tenantId: request.tenantId, projectId: request.projectId,
+    expectedRevisionId: request.expectedRevisionId, successorRevisionRef: revision('revision-2'),
+    editOperationIds: request.editOperationIds, idempotencyKey: request.idempotencyKey,
+    requestFingerprint: fingerprint, receiptRef: 'receipt-1',
+  };
+  assert.equal(validate(applied), true, JSON.stringify(validate.errors));
+  const appliedSemantics = (submitted, result) => result.outcome === 'APPLIED'
+    && result.tenantId === submitted.tenantId
+    && result.projectId === submitted.projectId
+    && result.expectedRevisionId === submitted.expectedRevisionId
+    && result.successorRevisionRef.identity.tenantId === submitted.tenantId
+    && result.successorRevisionRef.identity.projectId === submitted.projectId
+    && result.successorRevisionRef.identity.revisionId !== submitted.expectedRevisionId
+    && result.editOperationIds.length === submitted.editOperationIds.length
+    && result.editOperationIds.every((id, index) => id === submitted.editOperationIds[index]);
+  assert.equal(appliedSemantics(request, applied), true, 'APPLIED returns one exact successor for the submitted project revision');
+
+  const conflict = {
+    outcome: 'CONFLICT', tenantId: request.tenantId, projectId: request.projectId,
+    expectedRevisionId: request.expectedRevisionId, disclosure: 'AUTHORIZED',
+    currentHeadRevisionRef: revision('revision-3'), idempotencyKey: request.idempotencyKey,
+    requestFingerprint: fingerprint,
+  };
+  assert.equal(validate(conflict), true, JSON.stringify(validate.errors));
+  const withheldConflict = { ...conflict, disclosure: 'WITHHELD' };
+  delete withheldConflict.currentHeadRevisionRef;
+  assert.equal(validate(withheldConflict), true, 'unauthorized disclosure omits the current-head reference');
+  assert.equal(validate({ ...conflict, disclosure: 'WITHHELD' }), false,
+    'current head cannot be disclosed when authorization is withheld');
+  assert.equal(validate({ ...conflict, disclosure: 'AUTHORIZED', currentHeadRevisionRef: undefined }), false,
+    'authorized conflict must return the exact current head');
+  assert.equal(contract.conflictRule,
+    'atomically-compare-expectedRevisionId-to-current-head; no-project-write-no-automatic-merge-no-overwrite; current-head-reference-only-when-disclosure-is-authorized');
+  const conflictSemantics = (result) => result.outcome === 'CONFLICT'
+    && result.expectedRevisionId === request.expectedRevisionId
+    && (result.disclosure === 'WITHHELD'
+      ? !Object.hasOwn(result, 'currentHeadRevisionRef')
+      : result.disclosure === 'AUTHORIZED'
+        && result.currentHeadRevisionRef?.identity.tenantId === result.tenantId
+        && result.currentHeadRevisionRef?.identity.projectId === result.projectId
+        && result.currentHeadRevisionRef?.identity.revisionId !== result.expectedRevisionId)
+    && contract.conflictRule.includes('no-project-write-no-automatic-merge-no-overwrite');
+  assert.equal(conflictSemantics(conflict), true, 'stale CAS reports current head without merge or mutation');
+  assert.equal(conflictSemantics(withheldConflict), true, 'WITHHELD conflict contains no current-head reference');
+  assert.equal(conflictSemantics({
+    ...conflict,
+    currentHeadRevisionRef: {
+      ...revision('revision-3'),
+      identity: { ...revision('revision-3').identity, tenantId: 'tenant-2' },
+    },
+  }), false, 'authorized conflict cannot disclose a head from another tenant');
+  assert.equal(conflictSemantics({
+    ...conflict,
+    currentHeadRevisionRef: {
+      ...revision('revision-3'),
+      identity: { ...revision('revision-3').identity, projectId: 'project-2' },
+    },
+  }), false, 'authorized conflict cannot disclose a head from another project');
+  assert.equal(conflictSemantics({
+    ...conflict,
+    currentHeadRevisionRef: revision(request.expectedRevisionId),
+  }), false, 'a conflict head must differ from the expected revision');
+  assert.equal(conflictSemantics({
+    ...withheldConflict,
+    currentHeadRevisionRef: revision('revision-3'),
+  }), false, 'WITHHELD cannot carry a current-head reference');
+  assert.match(contract.conflictHeadInvariant, /tenantId-and-projectId-equal-result-scope.*revisionId-differs-from-expectedRevisionId/u);
+  assert.match(contract.disclosureRule, /server-governing-policy-authorizes-current-head-disclosure.*caller-authorization-alone-is-insufficient/u);
+
+  const ledger = new Map();
+  const submitOracle = (key, payloadFingerprint, receipt) => {
+    const prior = ledger.get(key);
+    if (!prior) {
+      ledger.set(key, { fingerprint: payloadFingerprint, receipt });
+      return { disposition: 'APPLIED', receipt };
+    }
+    if (prior.fingerprint !== payloadFingerprint) return { disposition: 'IDEMPOTENCY_CONFLICT' };
+    return { disposition: 'REPLAY', receipt: prior.receipt };
+  };
+  const first = submitOracle(request.idempotencyKey, fingerprint, 'receipt-1');
+  assert.deepEqual(first, { disposition: 'APPLIED', receipt: 'receipt-1' });
+  assert.deepEqual(submitOracle(request.idempotencyKey, fingerprint, 'receipt-2'),
+    { disposition: 'REPLAY', receipt: 'receipt-1' }, 'same key and fingerprint reuses original receipt without a second effect');
+  assert.deepEqual(submitOracle(request.idempotencyKey, 'sha256:different-payload', 'receipt-3'),
+    { disposition: 'IDEMPOTENCY_CONFLICT' }, 'same key with a different payload is rejected');
+  assert.match(contract.idempotencyRule, /same-key-same-fingerprint-returns-original-receipt.*same-key-different-fingerprint-is-rejected/u);
+
+  const unknown = {
+    outcome: 'OUTCOME_UNKNOWN', tenantId: request.tenantId, projectId: request.projectId,
+    expectedRevisionId: request.expectedRevisionId, idempotencyKey: request.idempotencyKey,
+    requestFingerprint: fingerprint, reconciliationRef: 'reconciliation-1',
+  };
+  assert.equal(validate(unknown), true, JSON.stringify(validate.errors));
+  let reconciled = false;
+  const mayRetry = (submitted, reconciliation) => reconciled
+    && reconciliation.tenantId === submitted.tenantId
+    && reconciliation.projectId === submitted.projectId
+    && reconciliation.idempotencyKey === submitted.idempotencyKey
+    && reconciliation.requestFingerprint === fingerprint;
+  const exactReconciliation = {
+    tenantId: request.tenantId, projectId: request.projectId,
+    idempotencyKey: request.idempotencyKey, requestFingerprint: fingerprint,
+  };
+  assert.equal(mayRetry(request, exactReconciliation), false, 'UNKNOWN blocks resubmission before exact readback');
+  reconciled = true;
+  assert.equal(mayRetry(request, exactReconciliation), true, 'only exact same-request reconciliation permits recovery');
+  assert.equal(mayRetry(request, { ...exactReconciliation, idempotencyKey: 'new-key' }), false,
+    'recovery cannot allocate a new semantic request identity');
+  assert.match(contract.unknownRule, /before-retry.*no-new-key-or-resubmission/u);
+});

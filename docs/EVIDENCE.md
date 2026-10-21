@@ -1,6 +1,6 @@
 # Media verification history
 
-> **Dated verification only:** PDP-0 through PDP-3 are `DEV_COMPLETE` with **0 remaining PDP development tasks**. The historical results below are not a current runtime or release qualification; follow the [Build handoff](implementation/MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md) for implementation progress.
+> This page indexes dated verification material. It does not report current PDP status or establish implementation, qualification, closure, or release. Consult the [PDP source index](../.product-experience/README.md) and its source-pinned status records for the current phase state.
 
 This page indexes local contract tests and runtime authority checks for media
 artifacts, jobs, streams, consent, and privacy. Evidence is separated into

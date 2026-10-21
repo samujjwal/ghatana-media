@@ -8,6 +8,7 @@ const root = resolve(new URL("..", import.meta.url).pathname);
 const require = createRequire(resolve(root, "../ghatana-tools/package.json"));
 const { parse } = require("yaml");
 const readYaml = (path) => parse(readFileSync(resolve(root, path), "utf8"));
+const productDecisionLog = readFileSync(resolve(root, ".product-experience/decision-log.md"), "utf8");
 
 const paths = {
   objectRegistry: ".product-experience/pdp-1-domain-data/domain-objects.yaml",
@@ -290,6 +291,59 @@ function validateCapabilityLeafDefinitions(capabilities, review, operations) {
   const sourceIds = new Set(sourceLeaves.map(({ id }) => id));
   const ownerIds = ownerLeaves.map(({ capabilityRef }) => capabilityRef);
   const adjudicationIds = ownerLeaves.map(({ id }) => id);
+  const ownerSourceSuccessors = new Map([
+    ["media.speech.synthesis.speaker.condition:inputArtifactTypes", {
+      decisionHeading: "### PXD-207 — Resolve current PDP-0 owner meaning and exact extension scope",
+      decisionClauses: ["speaker conditioning accepts", "authorized-speaker-reference-or-ordered-segment-speaker-map"],
+      predecessor: ["text-or-speech-intent", "authorized-speaker-reference"],
+      current: ["text-or-speech-intent", "authorized-speaker-reference-or-ordered-segment-speaker-map"],
+    }],
+    ["media.master.audio.stereo-width:inputArtifactTypes", {
+      decisionHeading: "### PXD-207 — Resolve current PDP-0 owner meaning and exact extension scope",
+      decisionClauses: ["stereo\nwidth accepts", "delivery-target-channel-layout-and-loudness-context"],
+      predecessor: ["audio-artifact", "delivery-and-loudness-context"],
+      current: ["audio-artifact", "delivery-target-channel-layout-and-loudness-context"],
+    }],
+    ["media.edit.inpaint:outputArtifactTypes", {
+      decisionHeading: "### PXD-212 — Reconcile current PDP-0 candidate meanings and 501-row source coverage",
+      decisionClauses: ["media.edit.inpaint", "define distinct local candidate or", "draft outputs"],
+      predecessor: ["versioned-edited-artifact-or-project-change"],
+      current: ["local-inpaint-candidate-or-draft"],
+    }],
+    ["media.edit.matte:outputArtifactTypes", {
+      decisionHeading: "### PXD-212 — Reconcile current PDP-0 candidate meanings and 501-row source coverage",
+      decisionClauses: ["media.edit.matte", "define distinct local candidate or", "draft outputs"],
+      predecessor: ["versioned-edited-artifact-or-project-change"],
+      current: ["local-matte-candidate-or-draft"],
+    }],
+    ["media.edit.retime-slow-motion-speed-ramp:outputArtifactTypes", {
+      decisionHeading: "### PXD-212 — Reconcile current PDP-0 candidate meanings and 501-row source coverage",
+      decisionClauses: ["media.edit.retime-slow-motion-speed-ramp", "define distinct local candidate or", "draft outputs"],
+      predecessor: ["versioned-edited-artifact-or-project-change"],
+      current: ["local-timing-edit-candidate-with-explicit-source-time-mapping"],
+    }],
+  ]);
+  const successorSections = new Map([...ownerSourceSuccessors.values()].map(({ decisionHeading }) => {
+    const section = productDecisionLog.split(`${decisionHeading}\n`)[1]?.split("\n### ")[0] ?? "";
+    return [decisionHeading, section];
+  }));
+  const observedOwnerSourceSuccessors = [];
+  for (const record of ownerLeaves) {
+    const source = sourceLeaves.find(({ id }) => id === record.capabilityRef);
+    if (!source) return false;
+    for (const field of ["inputArtifactTypes", "outputArtifactTypes"]) {
+      if (JSON.stringify(record[field]) === JSON.stringify(source[field])) continue;
+      const key = `${record.capabilityRef}:${field}`;
+      const successor = ownerSourceSuccessors.get(key);
+      const decisionSection = successorSections.get(successor?.decisionHeading) ?? "";
+      if (!successor
+        || JSON.stringify(record[field]) !== JSON.stringify(successor.predecessor)
+        || JSON.stringify(source[field]) !== JSON.stringify(successor.current)
+        || successor.decisionClauses.some((clause) => !decisionSection.includes(clause))) return false;
+      observedOwnerSourceSuccessors.push(key);
+    }
+  }
+  if (observedOwnerSourceSuccessors.sort().join("\0") !== [...ownerSourceSuccessors.keys()].sort().join("\0")) return false;
   const preservesProductIntentBoundary = (meaning) => /(?:product intent|product meaning) only, not a PDP-1 wire schema, implementation, qualification, or execution admission\./u.test(meaning ?? "");
   const outputBranches = (wire) => {
     const items = wire?.resultSchema?.properties?.outputs?.items;
@@ -332,13 +386,48 @@ function validateCapabilityLeafDefinitions(capabilities, review, operations) {
       EDITED_ARTIFACT: "versioned-edited-artifact",
       PROJECT_CHANGE: "project-revision",
     };
+    const localCandidateResultKinds = new Set([
+      "INPAINT_CANDIDATE",
+      "MATTE_CANDIDATE",
+      "RETIME_CANDIDATE",
+      "FREEZE_FRAME_HOLD_CANDIDATE",
+      "REVERSE_PLAYBACK_CANDIDATE",
+    ]);
     return outputs.every((output) => {
       const matchingOutputs = wireOutputs.filter(({ properties }) =>
         properties?.artifactType?.const === output.artifactType);
       if (matchingOutputs.length !== 1) return false;
       const resultVariants = output.resultVariants ?? [];
       const wireVariants = payloadBranches(matchingOutputs[0]);
-      if (!resultVariants.length || resultVariants.length !== wireVariants.length) return false;
+      if (!resultVariants.length) return false;
+      if (resultVariants.every(({ resultKind }) => localCandidateResultKinds.has(resultKind))) {
+        if (wireVariants.length !== 1) return false;
+        const candidate = wireVariants[0];
+        if (candidate.properties?.kind?.const !== "local-candidate" || !hasRequired(candidate, "resultKind")) return false;
+        return resultVariants.every((variant) => {
+          const resultKindSchema = candidate.properties?.resultKind;
+          const resultKindMatches = resultKindSchema?.const === variant.resultKind
+            || resultKindSchema?.enum?.includes(variant.resultKind) === true;
+          if (!resultKindMatches) return false;
+          for (const field of ["originRelation", "epistemicDisposition"]) {
+            if (variant[field] === undefined) continue;
+            if (!hasRequired(candidate, field) || candidate.properties?.[field]?.const !== variant[field]) return false;
+          }
+          if (variant.sourceTimeMapping !== undefined) {
+            const mappingSchema = candidate.properties?.sourceTimeMapping;
+            if (!hasRequired(candidate, "sourceTimeMapping")
+              || (mappingSchema?.const !== variant.sourceTimeMapping
+                && !mappingSchema?.enum?.includes(variant.sourceTimeMapping))) return false;
+            const sourceTimeMappingIsBoundToResult = candidate.allOf?.some(({ if: condition, then }) =>
+              condition?.properties?.resultKind?.const === variant.resultKind
+              && then?.properties?.sourceTimeMapping?.const === variant.sourceTimeMapping
+              && hasRequired(then, "sourceTimeMapping"));
+            if (!sourceTimeMappingIsBoundToResult) return false;
+          }
+          return true;
+        });
+      }
+      if (resultVariants.length !== wireVariants.length) return false;
       return resultVariants.every((variant) => {
         if (variant.resultKind === "SIMULATION_PASS_OUTPUT") {
           const wirePayload = wireVariants[0];
@@ -387,8 +476,6 @@ function validateCapabilityLeafDefinitions(capabilities, review, operations) {
       || record.profileRef !== source.ownerDefinition?.familyProfileRef
       || record.profileRef !== bound.profileRef || bound.capabilityRef !== record.capabilityRef
       || record.boundsRef !== contract.boundsRef || record.boundsRef !== source.ownerDefinition?.boundsRef) return true;
-    if (JSON.stringify(record.inputArtifactTypes) !== JSON.stringify(source.inputArtifactTypes)) return true;
-    if (record.outputArtifactTypes.join("\0") !== source.outputArtifactTypes.join("\0")) return true;
     const currentWireRef = source.ownerLeafWireContractRef;
     if (currentWireRef || record.ownerLeafWireContractRef) {
       const wire = ownerWireById.get(currentWireRef);
@@ -456,6 +543,12 @@ test("PDP-1 consumes P0 capability intents with exact typed operations, bounds, 
   const malformed = structuredClone(review);
   malformed.ownerCapabilityLeafAdjudication.records.pop();
   assert.equal(validateCapabilityLeafDefinitions(capabilities, malformed, operations), false, "omitting one capability must fail the exact population test");
+  const unreviewedOwnerMeaningDrift = structuredClone(review);
+  unreviewedOwnerMeaningDrift.ownerCapabilityLeafAdjudication.records
+    .find(({ capabilityRef }) => capabilityRef === "media.speech.synthesis.speaker.condition")
+    .inputArtifactTypes = ["text-or-speech-intent", "unreviewed-speaker-source"];
+  assert.equal(validateCapabilityLeafDefinitions(capabilities, unreviewedOwnerMeaningDrift, operations), false,
+    "only exact PXD-207 and PXD-212 current-source successors may differ from predecessor adjudication fields");
   const duplicate = structuredClone(review);
   duplicate.ownerCapabilityLeafAdjudication.records[1].capabilityRef = duplicate.ownerCapabilityLeafAdjudication.records[0].capabilityRef;
   assert.equal(validateCapabilityLeafDefinitions(capabilities, duplicate, operations), false, "duplicate identities cannot hide an omitted capability");
@@ -484,6 +577,20 @@ test("PDP-1 consumes P0 capability intents with exact typed operations, bounds, 
   rgbOutput.properties.payload.properties.passKind.const = "depth-field";
   assert.equal(validateCapabilityLeafDefinitions(capabilities, review, wrongOverlayVariant), false,
     "a P0 RGB result variant cannot bind an overlay schema for a different simulation pass");
+  const wrongLocalEditResult = structuredClone(operations);
+  const inpaintWire = wrongLocalEditResult.ownerLeafWireContracts.records
+    .find(({ id }) => id === "media.owner-wire-contract.edit-inpaint.v1");
+  inpaintWire.resultSchema.properties.outputs.items.properties.payload.properties.resultKind.const = "MATTE_CANDIDATE";
+  assert.equal(validateCapabilityLeafDefinitions(capabilities, review, wrongLocalEditResult), false,
+    "a local edit candidate wire cannot substitute another P0 result kind");
+  const wrongRetimingSourceMap = structuredClone(operations);
+  const retimeWire = wrongRetimingSourceMap.ownerLeafWireContracts.records
+    .find(({ id }) => id === "media.owner-wire-contract.edit-retime-slow-motion-speed-ramp.v1");
+  retimeWire.resultSchema.properties.outputs.items.properties.payload.allOf
+    .find(({ if: condition }) => condition.properties.resultKind.const === "RETIME_CANDIDATE")
+    .then.properties.sourceTimeMapping.const = "EXPLICIT_REVERSED_SOURCE_INTERVAL_TO_OUTPUT_INTERVAL";
+  assert.equal(validateCapabilityLeafDefinitions(capabilities, review, wrongRetimingSourceMap), false,
+    "each local timing result kind remains bound to its exact P0 source-time mapping");
 });
 
 

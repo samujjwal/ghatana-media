@@ -553,7 +553,7 @@
       "classification": "execution-only",
       "reason": "This exact changed fragment describes plan, execution, validation, or evidence handling; it is routed to its current phase owner without treating it as product acceptance or completion.",
       "ownerRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
-      "ownerValueSha256": "3adff4cc5de40ecdbe399fc7d03abb807fbda350f05c8c80588f56d64e68a2d0",
+      "ownerValueSha256": "b34d8ee173b23666fec8f40263b9abbfe96fca5036686438a10143e945f1c4ce",
       "ownerRole": "current semantic/execution owner for execution-only residual",
       "validationRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
       "acceptanceEffect": "none"
@@ -571,7 +571,7 @@
       "classification": "clarified",
       "reason": "This exact changed semantic text is routed to the current owner for the applicable PDP phase; the disposition records source meaning only and does not claim owner review or acceptance.",
       "ownerRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
-      "ownerValueSha256": "3adff4cc5de40ecdbe399fc7d03abb807fbda350f05c8c80588f56d64e68a2d0",
+      "ownerValueSha256": "b34d8ee173b23666fec8f40263b9abbfe96fca5036686438a10143e945f1c4ce",
       "ownerRole": "current semantic/execution owner for clarified residual",
       "validationRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
       "acceptanceEffect": "none"
@@ -589,7 +589,7 @@
       "classification": "clarified",
       "reason": "This exact changed semantic text is routed to the current owner for the applicable PDP phase; the disposition records source meaning only and does not claim owner review or acceptance.",
       "ownerRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
-      "ownerValueSha256": "3adff4cc5de40ecdbe399fc7d03abb807fbda350f05c8c80588f56d64e68a2d0",
+      "ownerValueSha256": "b34d8ee173b23666fec8f40263b9abbfe96fca5036686438a10143e945f1c4ce",
       "ownerRole": "current semantic/execution owner for clarified residual",
       "validationRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
       "acceptanceEffect": "none"

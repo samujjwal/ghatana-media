@@ -98,11 +98,11 @@ test("J26 binds exact lifecycle observation and separates consent revocation fro
   assert.match(privacy.ownerDefinedErasureInventoryContract.erasureFinality.outcomeClassifier.rule,
     /tombstone replay observation/u);
   assert.equal(journey.pdp1ResultEvidence.lifecycleEffectBoundaries.artifactErasure.journeyBindingStatus,
-    "NOT_BOUND_TO_AN_EXISTING_J26_STEP_PURPOSE; consent revocation is request-only and is not artifact deletion.");
+    "Bound as a separate purpose-scoped capability command under the exact artifact-inspection step; it is not the inspection step's transition, and consent revocation remains request-only and is not artifact deletion.");
   assert.equal(journey.sourceGap.id, "MDC30-C-26-purpose-bound-revocation-and-erasure-effect");
   assert.match(journey.sourceGap.status, /RUNTIME_NOT_ADMITTED/u);
   assert.match(journey.pdp1ResultEvidence.lifecycleEffectBoundaries.artifactErasure.journeyBindingStatus,
-    /NOT_BOUND_TO_AN_EXISTING_J26_STEP_PURPOSE/u);
+    /Bound as a separate purpose-scoped capability command/u);
   assert.match(journey.sourceGap.missingOwnerDefinition, /no current owner\/provider evidence supplies an all-copy erasure receipt/iu);
   assert.match(journey.sourceGap.missingOwnerDefinition, /do not claim consent revocation, physical deletion, or ERASURE_CONFIRMED/u);
 });

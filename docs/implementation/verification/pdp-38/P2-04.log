@@ -2,91 +2,91 @@ TAP version 13
 # Subtest: PDP-2 reuse audit counts match the executable UI inventory
 ok 1 - PDP-2 reuse audit counts match the executable UI inventory
   ---
-  duration_ms: 80.555944
+  duration_ms: 106.248852
   type: 'test'
   ...
 # Subtest: PDP-2 reuse audit records exact cross-product reuse and semantic exclusions
 ok 2 - PDP-2 reuse audit records exact cross-product reuse and semantic exclusions
   ---
-  duration_ms: 47.342199
+  duration_ms: 65.34283
   type: 'test'
   ...
 # Subtest: PDP-2 family crosswalk binds only source-exact public component exports and consumers
 ok 3 - PDP-2 family crosswalk binds only source-exact public component exports and consumers
   ---
-  duration_ms: 279.960089
+  duration_ms: 273.355681
   type: 'test'
   ...
 # Subtest: PDP-2 reuse audit covers the broader Ghatana workspace and dependency boundaries
 ok 4 - PDP-2 reuse audit covers the broader Ghatana workspace and dependency boundaries
   ---
-  duration_ms: 30.931788
+  duration_ms: 33.126827
   type: 'test'
   ...
 # Subtest: all 31 component families have one honest whole-family disposition
 ok 5 - all 31 component families have one honest whole-family disposition
   ---
-  duration_ms: 26.673526
+  duration_ms: 32.595164
   type: 'test'
   ...
 # Subtest: PDP-2 action identity enums exactly match the current PDP-3 action registry
 ok 6 - PDP-2 action identity enums exactly match the current PDP-3 action registry
   ---
-  duration_ms: 1.759794
+  duration_ms: 1.761241
   type: 'test'
   ...
 # Subtest: all 28 contract-only component families have typed, meaningful Media source definitions
 ok 7 - all 28 contract-only component families have typed, meaningful Media source definitions
   ---
-  duration_ms: 1847.28401
+  duration_ms: 1967.422705
   type: 'test'
   ...
 # Subtest: every family rejects a missing material field, an untyped field, and a missing semantic invariant
 ok 8 - every family rejects a missing material field, an untyped field, and a missing semantic invariant
   ---
-  duration_ms: 3071.242935
+  duration_ms: 3560.389033
   type: 'test'
   ...
 # Subtest: all 28 closed schemas validate positive values and reject invalid field types and contradictory state/variant pairs
 ok 9 - all 28 closed schemas validate positive values and reject invalid field types and contradictory state/variant pairs
   ---
-  duration_ms: 394.290502
+  duration_ms: 409.214007
   type: 'test'
   ...
 # Subtest: identity readiness requires an exact resolved upstream context tuple
 ok 10 - identity readiness requires an exact resolved upstream context tuple
   ---
-  duration_ms: 161.301738
+  duration_ms: 172.564586
   type: 'test'
   ...
 # Subtest: typed schema validators refresh when the current source bytes change
 ok 11 - typed schema validators refresh when the current source bytes change
   ---
-  duration_ms: 766.062078
+  duration_ms: 810.302866
   type: 'test'
   ...
 # Subtest: rational clock values and half-open intervals enforce exact bounded semantics
 ok 12 - rational clock values and half-open intervals enforce exact bounded semantics
   ---
-  duration_ms: 76.701978
+  duration_ms: 78.633986
   type: 'test'
   ...
 # Subtest: public-source dispositions remain distinct and are not mislabeled as typed Media contracts
 ok 13 - public-source dispositions remain distinct and are not mislabeled as typed Media contracts
   ---
-  duration_ms: 0.224652
+  duration_ms: 0.26158
   type: 'test'
   ...
 # Subtest: all 31 Media component families have an exact export or an explicit contract-only disposition
 ok 14 - all 31 Media component families have an exact export or an explicit contract-only disposition
   ---
-  duration_ms: 2.753991
+  duration_ms: 3.892947
   type: 'test'
   ...
 # Subtest: screen candidates, partial Shared reuse, and similar component exports never become family equivalence
 ok 15 - screen candidates, partial Shared reuse, and similar component exports never become family equivalence
   ---
-  duration_ms: 1.835815
+  duration_ms: 2.411692
   type: 'test'
   ...
 1..15
@@ -97,4 +97,4 @@ ok 15 - screen candidates, partial Shared reuse, and similar component exports n
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 7137.75099
+# duration_ms 7834.803082

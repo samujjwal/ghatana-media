@@ -64,7 +64,7 @@ handoffs:
         existingOperationBindingCount: 14
         source: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts
       ownerDefinedOperations:
-        count: 107
+        count: 108
         source: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records
       interfaceIdentities:
         http: {count: 27, source: contracts/openapi/media.yaml#/paths}
@@ -87,6 +87,55 @@ handoffs:
       uniqueCanonicalOperations: 39
       status: SOURCE_AUTHORED_SUCCESSOR_CURRENTNESS_PENDING
       boundary: Reuses existing P1 owner operations and job/project/model-state identities; no new route, solver writer or public admission.
+    proposalHandoffs:
+      - id: media.rules.manage.pdp1-definition-handoff.v1
+        featureRef: media.rules.manage
+        sourceArtifactId: ART-P1-RULE-MANAGEMENT-CONTRACTS
+        source: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml
+        sourceRefs:
+          - .product-experience/decision-log.md#PXD-185
+          - .product-experience/decision-log.md#PXD-188
+          - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020
+        disposition: PROPOSAL_ONLY; PENDING_OWNER_REVIEW; NOT_IN_CANONICAL_OPERATION_DENOMINATOR
+        ownerApproval: NOT_CLAIMED
+        independentAcceptance: NOT_CLAIMED
+        runtimeAdmission: NOT_ADMITTED
+        executionAdmission: NOT_ADMITTED
+        operationDisposition: PROPOSED_PDP1_CONTRACT_ONLY; NOT_IN_CANONICAL_OPERATION_DENOMINATOR
+        operationRefs:
+          - media.rules.compile-candidate.v1
+          - media.rules.inspect-candidate.v1
+          - media.rules.validate-candidate.v1
+          - media.rules.reuse-candidate.v1
+        typedContracts:
+          versionedCandidate: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/ruleSetVersion/candidate/schema
+          normalizedSemanticGraph: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/normalizedSemanticGraph/schema
+          semanticFingerprint: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/semanticFingerprint/schema
+          compileRequest: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/compileContract/requestSchema
+          compileResult: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/compileContract/resultSchema
+          inspectRequest: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/inspectContract/requestSchema
+          inspectResult: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/inspectContract/resultSchema
+          validationRequest: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract/requestSchema
+          validationResult: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract/resultSchema
+          reuseRequest: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/requestSchema
+          reuseResult: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/resultSchema
+          candidateOperationPlan: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/operationPlanSchema
+        preservedMeaning: >-
+          Candidate, exact version tuple, normalized graph, fingerprint, validation receipt, and candidate operation
+          plan remain distinct from approval, execution, and measured media results. Every affected operation needs
+          its own explicit request and admission; stale, invalid, denied, unavailable, unsupported, or unknown
+          evidence produces no partial effects.
+        consumerObligations:
+          - PDP-2 binds accessible authoring and inspection controls to these exact typed schemas and presents candidate, validation, reuse, and non-success states distinctly.
+          - PDP-2 preserves tenant, purpose, scope, exact version, source provenance, expected predecessor, and fingerprint bindings; no control implies approval or execution.
+          - PDP-3 defines the complete author, validate, reuse, and recovery journey only after the PDP-2 controls are specified.
+          - Treat the channel-to-surface mappings in AUD-SPEC-020 as coordinator proposals; they do not establish owner acceptance, implementation, runtime support, or invocation admission.
+        negativeCases:
+          - Presenting a proposal-only operation as callable, available, or owner-approved.
+          - Reusing a latest or different version after a stale or unknown result.
+          - Treating a candidate, valid fingerprint, validation receipt, or operation plan as approval or execution.
+          - Applying a rule or invoking a target media operation without its separate request and admission.
+          - Dropping tenant, purpose, exact-version, authorization, provenance, or non-success outcome distinctions.
     requiredMeaning:
       identitiesAndLineage: >-
         Preserve exact tenant and object/version identity tuples, immutable revision lineage, typed references,
@@ -96,7 +145,9 @@ handoffs:
         preconditions, effects, idempotency, cancellation, unknown finality, and safe reconciliation. The 79 wire
         contracts remain the single owner-action request/result source; the operation-only query exception is not a UI action.
         The separately inventoried owner-defined operation population includes read contracts that are not capability
-        mappings or action wire contracts and must retain their exact source identity and meaning.
+        mappings or action wire contracts and must retain their exact source identity and meaning. The separate
+        AUD-SPEC-020 proposal handoff exports its exact candidate, normalized graph, fingerprint, compile, inspect,
+        validation, and reuse contracts without adding them to canonical operation populations or implying admission.
       statesAndGuards: >-
         Preserve independent machine dimensions, legal transitions, typed current-fact origins, exact guard scope,
         deny-on-unknown behavior, and distinctions between accepted, queued, executing, cancelled, failed, and unknown.
@@ -159,4 +210,18 @@ handoffs:
           QUERY binding is media.operation-slice.inspect-provenance. PXD-152 accepts the caller-scoped, definition-only
           execution-reference branch; its source review records the crosswalk as reconciled. The full PDP-3 gate
           remains pending, and runtime/transport admission remains NOT_ADMITTED.
+      - id: PDP3-RULE-MANAGEMENT-AUTHOR-VALIDATE-REUSE-RECOVERY
+        ownerPhase: PDP-3
+        disposition: HANDOFF_TO_PDP3_AFTER_PDP2
+        candidates: [media.rules.manage]
+        sourceRefs:
+          - .product-experience/decision-log.md#PXD-185
+          - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020
+          - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml
+          - .product-experience/pdp-1-domain-data/handoff-contracts.yaml#handoffs/pdp1ToPdp2CanonicalDomain/proposalHandoffs
+        observation: >-
+          PDP-3 must define the exact author, validate, reuse, and recovery journey after PDP-2 binds accessible
+          authoring and inspection controls to the proposal's typed candidate, graph, fingerprint, validation,
+          and operation-plan contracts. The channel mappings remain proposals, owner approval is NOT_CLAIMED,
+          and runtime and execution admission remain NOT_ADMITTED.
     scopeStatus: canonical-domain-and-interface-meaning-exported-for-PDP2; development-gate-status-is-recorded-separately

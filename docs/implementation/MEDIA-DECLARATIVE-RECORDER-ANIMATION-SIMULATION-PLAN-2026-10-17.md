@@ -1,3 +1,5 @@
+> **Historical planning input only (2026-10-17).** This plan preserves source requirements and proposals from its dated cut. It is not an active task queue or product-definition authority. Use the [canonical PDP source index](../../.product-experience/README.md) and the [live source/status pointer](MEDIA-UNIFIED-PRODUCTION-CURRENT-PLAN.md).
+
 # Media declarative production: Recorder/Studio, animation and simulation — integration plan
 
 **Date:** 2026-10-17
@@ -111,4 +113,3 @@ The source-owned successor in progress is tracked in [the unified PDP-0–3 reco
 ## Exact October 18 source preservation and controlling worklist
 
 This dated plan remains **historical proposal context**, not a second current task tracker. Its parent [living unified production plan](MEDIA-UNIFIED-PRODUCTION-CURRENT-PLAN.md) now references both byte-identical attached source archives, the complete [428+73 original feature audit](references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json), the [73 exact third-pass source-ID/case candidate trace](observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json), and the [all-86 original work-item/experiment index](observations/media-unified-source-task-and-experiment-crosswalk-2026-10-18.json) across PBI-00…15. This prevents conflation of the uploaded original IDs and normalized `AUD-FOCUS-*` planning aliases. Scientific families `AUD-SIM3-009/010` remain **unbound at scoped PDP-0 case level**, and no new solver, film, provider, native validation or product release has been certified. For current phase/source status and Mermaid dependencies consult the living plan, not this original snapshot.
-

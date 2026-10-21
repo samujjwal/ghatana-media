@@ -77,14 +77,15 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
-      "sha256": "e997c6de4534ecf1d74d8bd91e0f7ad0a006098145b1970c003f4db0c10cd40b",
-      "bytes": 19148,
+      "sha256": "45fad668f42010258596be4729938b75c6f344d785080f5bb3aff5cbbfe39cb4",
+      "bytes": 19897,
       "format": "yaml",
       "schemaVersion": "media.journey-registry.v1",
       "authority": null,
       "status": "all-28-required-journeys-have-proposal-files; J-01-J-03-and-J-20-retain-scoped-proposal-slices; full-pdp-3-contracts-and-acceptance-pending",
       "topLevelFields": [
         "additionalPdp0JourneyCount",
+        "campaignExtensionProposals",
         "coverageObservation",
         "coverageRule",
         "currentStepBindingObservation",
@@ -234,8 +235,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/step-definition-oracles.yaml",
-      "sha256": "411eecbe43f5c7bb2a56f4fd640e3bf4545e0acb5cce18ce70052cad3dfb155d",
-      "bytes": 765751,
+      "sha256": "81f2e8c1dbe22c8fd2666f36df5379abbf9963118331e4e1f4a08ce92cb6201a",
+      "bytes": 765901,
       "format": "yaml",
       "schemaVersion": "media.pdp-3-step-definition-oracles.v1",
       "authority": null,
@@ -390,8 +391,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
-      "sha256": "e97780cafc218bfe00a088dc911ac521c642d7bec07c81d69584eee285881da7",
-      "bytes": 431753,
+      "sha256": "439016ffe0962889992fb0f2c4b9d0be9082d2d52b6c0e251a0bea2d76b2544a",
+      "bytes": 448228,
       "format": "yaml",
       "schemaVersion": "media.pdp3-step-purpose-bindings.v1",
       "authority": null,
@@ -405,11 +406,15 @@
       ],
       "declaredIds": [
         "media.pdp3.action-binding.j04-selected-tts-command.v1",
+        "media.pdp3.action-binding.j19-successor-choice.v1",
         "media.pdp3.action-binding.j21-read-rights-observation.v1",
         "media.pdp3.action-binding.j21-review-decision-receipt.v1",
         "media.pdp3.action-binding.j22-destination-ack-reconciliation.v1",
+        "media.pdp3.action-binding.j26-artifact-delete.v1",
         "media.pdp3.action-binding.j26-consent-revocation-request.v1",
         "media.pdp3.action-binding.j27-fallback-confirmation.v1",
+        "media.pdp3.action-binding.j28-deliver-exact-version.v1",
+        "media.pdp3.action-binding.j28-destination-ack-reconciliation.v1",
         "media.pdp3.step-purpose-binding.j01-step-01.v1",
         "media.pdp3.step-purpose-binding.j01-step-02.v1",
         "media.pdp3.step-purpose-binding.j01-step-03.v1",
@@ -544,8 +549,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml",
-      "sha256": "835becfc5386797db6b65964c4237b2674306f2072bf92e1ddeda5944fd47a86",
-      "bytes": 704047,
+      "sha256": "14da23592262a95ddcc2b9c0bd96e38cb6185ba116deef1a563712293b4c06d6",
+      "bytes": 686286,
       "format": "yaml",
       "schemaVersion": "media.pdp-3-step-version-binding-contracts.v1",
       "authority": null,
@@ -717,24 +722,20 @@
         "media.step-version-object-binding.j-03-08.caption-version.v1",
         "media.step-version-object-binding.j-04-02.artifact-version.v1",
         "media.step-version-object-binding.j-04-03.artifact-version.v1",
-        "media.step-version-object-binding.j-04-03.quality-assessment.v1",
         "media.step-version-object-binding.j-04-04.artifact-version.v1",
         "media.step-version-object-binding.j-05-01.artifact-version.v1",
         "media.step-version-object-binding.j-05-02.artifact-version.v1",
         "media.step-version-object-binding.j-05-03.artifact-version.v1",
         "media.step-version-object-binding.j-05-03.quality-assessment.v1",
         "media.step-version-object-binding.j-05-04.artifact-version.v1",
-        "media.step-version-object-binding.j-05-04.quality-assessment.v1",
         "media.step-version-object-binding.j-06-01.artifact-version.v1",
         "media.step-version-object-binding.j-06-01.provenance-manifest.v1",
         "media.step-version-object-binding.j-06-02.artifact-version.v1",
         "media.step-version-object-binding.j-07-03.artifact-version.v1",
-        "media.step-version-object-binding.j-07-03.quality-assessment.v1",
         "media.step-version-object-binding.j-07-04.artifact-version.v1",
         "media.step-version-object-binding.j-08-01.artifact-version.v1",
         "media.step-version-object-binding.j-08-02.artifact-version.v1",
         "media.step-version-object-binding.j-08-03.artifact-version.v1",
-        "media.step-version-object-binding.j-08-03.quality-assessment.v1",
         "media.step-version-object-binding.j-08-04.artifact-version.v1",
         "media.step-version-object-binding.j-08-04.quality-assessment.v1",
         "media.step-version-object-binding.j-09-02.artifact-version.v1",
@@ -746,11 +747,8 @@
         "media.step-version-object-binding.j-10-04.artifact-version.v1",
         "media.step-version-object-binding.j-10-04.quality-assessment.v1",
         "media.step-version-object-binding.j-10-05.artifact-version.v1",
-        "media.step-version-object-binding.j-10-05.quality-assessment.v1",
         "media.step-version-object-binding.j-11-03.artifact-version.v1",
-        "media.step-version-object-binding.j-11-03.quality-assessment.v1",
         "media.step-version-object-binding.j-12-02.artifact-version.v1",
-        "media.step-version-object-binding.j-12-02.quality-assessment.v1",
         "media.step-version-object-binding.j-12-03.artifact-version.v1",
         "media.step-version-object-binding.j-13-04.artifact-version.v1",
         "media.step-version-object-binding.j-14-02.simulation-world.v1",
@@ -761,13 +759,11 @@
         "media.step-version-object-binding.j-15-03.artifact-version.v1",
         "media.step-version-object-binding.j-15-03.quality-assessment.v1",
         "media.step-version-object-binding.j-15-04.artifact-version.v1",
-        "media.step-version-object-binding.j-15-04.quality-assessment.v1",
         "media.step-version-object-binding.j-16-01.artifact-version.v1",
         "media.step-version-object-binding.j-16-03.artifact-version.v1",
         "media.step-version-object-binding.j-16-03.caption-version.v1",
         "media.step-version-object-binding.j-16-03.transcript-version.v1",
         "media.step-version-object-binding.j-16-05.artifact-version.v1",
-        "media.step-version-object-binding.j-16-05.quality-assessment.v1",
         "media.step-version-object-binding.j-17-03.artifact-version.v1",
         "media.step-version-object-binding.j-17-03.quality-assessment.v1",
         "media.step-version-object-binding.j-17-04.artifact-version.v1",
@@ -779,7 +775,6 @@
         "media.step-version-object-binding.j-19-01.quality-assessment.v1",
         "media.step-version-object-binding.j-19-02.artifact-version.v1",
         "media.step-version-object-binding.j-19-03.artifact-version.v1",
-        "media.step-version-object-binding.j-19-03.quality-assessment.v1",
         "media.step-version-object-binding.j-20-01.artifact-version.v1",
         "media.step-version-object-binding.j-20-02.artifact-version.v1",
         "media.step-version-object-binding.j-20-03.artifact-version.v1",
@@ -1213,8 +1208,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml",
-      "sha256": "70c5d90e5e40526b9b5725f48543a3bafbe5dd834bf8093719dae5e954fe7df0",
-      "bytes": 11142337,
+      "sha256": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d",
+      "bytes": 11407107,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.operations.v1",
       "authority": ".product-experience/pdp-0-product-truth/state-models.yaml",
@@ -1806,6 +1801,13 @@
         "media.consent-read-binding.purpose.v1",
         "media.consent-read-binding.query.v1",
         "media.consent-read-binding.revision.v1",
+        "media.definition-extension-operation.media-generate-video-preset-manage",
+        "media.definition-extension-operation.media-generate-video-shot-condition",
+        "media.definition-extension-operation.media-job-schedule-manage",
+        "media.definition-extension-operation.media-master-audio-creative-effect-apply",
+        "media.definition-extension-operation.media-project-scene-patch-merge",
+        "media.definition-extension-operation.media-quality-audio-content-similarity-assess",
+        "media.definition-extension-operation.media-recipe-specification-compile",
         "media.job-result-observation.v1",
         "media.job-submit-direct-fields.artifact-derive.v1",
         "media.job-submit-direct-fields.artifact-import.v1",
@@ -1877,6 +1879,7 @@
         "media.observation-binding.transcript-submission-lineage.source-artifact-version",
         "media.observation-binding.transcript-submission-lineage.source-digest",
         "media.observation-binding.transcript-submission-lineage.transcript-version",
+        "media.observation-contract.candidate-metric-pair.v1",
         "media.observation-contract.consent-revision-current-read.v1",
         "media.observation-contract.declared-options.v1",
         "media.observation-contract.delegated-integration-result-context.v1",
@@ -1951,6 +1954,7 @@
         "media.operation-binding.list-projects-host-tuple",
         "media.operation-binding.list-projects-page-snapshot",
         "media.operation-binding.list-projects-record-workspace",
+        "media.operation-binding.spatial-export-exact-input-and-report.v1",
         "media.operation-evidence-join.fallback-selection.candidate-output",
         "media.operation-evidence-join.fallback-selection.cost",
         "media.operation-evidence-join.fallback-selection.license",
@@ -2606,6 +2610,7 @@
         "media.operation.project.export.v1",
         "media.operation.provider-diagnostics.inspect.v1",
         "media.operation.request-snapshot.inspect.v1",
+        "media.operation.spatial-export.execute.v1",
         "media.operation.speaker-reference.resolve-version.v1",
         "media.operation.stream-session",
         "media.operation.stream-session.inspect-execution-recovery.v1",
@@ -3055,6 +3060,7 @@
         "media.pdp1.journey-operation-binding.work-locally-and-reconcile-after-reconnect.index-1",
         "media.pdp1.typed-observation-contracts.v1",
         "media.pdp1.typed-observation-validation-rules.v1",
+        "media.render-result-contract.j13-exact-output-set.v1",
         "media.scalar-type-definition.bcp-47-language-tag",
         "media.scalar-type-definition.bounded-json-value",
         "media.scalar-type-definition.dimension-ref",
@@ -3109,6 +3115,7 @@
         "media.typed-input.authorized-outcome-evidence-reference",
         "media.typed-input.authorized-source-speaker-recording",
         "media.typed-input.authorized-speaker-reference",
+        "media.typed-input.authorized-speaker-reference-or-ordered-segment-speaker-map",
         "media.typed-input.authorized-workspace-and-optional-project-reference",
         "media.typed-input.candidate-artifacts-or-execution-observation",
         "media.typed-input.canonical-profileid-and-profileversion",
@@ -3124,6 +3131,7 @@
         "media.typed-input.declared-content-metadata-and-purpose",
         "media.typed-input.declared-source-and-target-color-context",
         "media.typed-input.delivery-and-loudness-context",
+        "media.typed-input.delivery-target-channel-layout-and-loudness-context",
         "media.typed-input.domain-model-and-initial-conditions",
         "media.typed-input.edit-intent",
         "media.typed-input.edit-intent-and-preservation-policy",
@@ -3271,6 +3279,10 @@
         "media.typed-output.import-observation-and-source-resolution-evidence",
         "media.typed-output.integrity-and-lifecycle-disposition",
         "media.typed-output.language-and-recognition-evidence-when-provided",
+        "media.typed-output.local-inpaint-candidate-or-draft",
+        "media.typed-output.local-matte-candidate-or-draft",
+        "media.typed-output.local-timing-edit-candidate-with-explicit-source-time-mapping",
+        "media.typed-output.local-versioned-composition-candidate",
         "media.typed-output.mastered-audio-candidate-with-measurements",
         "media.typed-output.media-job-status-snapshot",
         "media.typed-output.minimized-provenance-record-or-disclosure",
@@ -4208,8 +4220,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
-      "sha256": "5f7054de2784dc25b84c1ddc7f4b4864fb3352a42a4fce41f194e6f5983b526f",
-      "bytes": 85858,
+      "sha256": "0edfa30b72740441553b0def362f2a6105a09292a30a89e4265ba11ead0a70b5",
+      "bytes": 86418,
       "format": "yaml",
       "schemaVersion": "media.experience-source-bindings.v1",
       "authority": "Media PDP-3 scenario fixture registry, existing deterministic simulation seeds, and PDP-0 canonical state proposals",
@@ -4798,8 +4810,8 @@
     },
     {
       "sourceRef": "libs/media-experience-simulation/src/fixtures.ts",
-      "sha256": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
-      "bytes": 32931,
+      "sha256": "6ae3e7367f085592561456f3db73b1f878bfec0b7ae79b25f5586c581f737d85",
+      "bytes": 33901,
       "format": "markdown"
     },
     {
@@ -5335,8 +5347,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-      "sha256": "87c2e92a36a05bd6b9f34eed7b8e9b4cab2102a0448e9200615f85859526b8cb",
-      "bytes": 4526718,
+      "sha256": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
+      "bytes": 4526700,
       "format": "yaml",
       "schemaVersion": "media.goals-jtbd.v1",
       "authority": null,
@@ -7759,8 +7771,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-      "sha256": "0b30f351633d5d0209ea5f20a8a1b89d8641b086b3c554119014c22cf4e7d7ad",
-      "bytes": 96739,
+      "sha256": "db98413dfc314d85528d87515e8e7b100afe12276bfc8a73ca5401bbc92355eb",
+      "bytes": 97045,
       "format": "yaml",
       "schemaVersion": null,
       "authority": null,
@@ -7948,8 +7960,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
-      "sha256": "af774f4db0a306ac3514475d65170560c345e7a6ecdf17305edb2ac3b9af41fe",
-      "bytes": 436288,
+      "sha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "bytes": 492555,
       "format": "yaml",
       "schemaVersion": "media.requirements.v1",
       "authority": "prospective-Phase-0-definition; not accepted Product Truth",
@@ -8145,20 +8157,30 @@
         "MEDIA-REQ-CAP-ANIMATION-AC-01",
         "MEDIA-REQ-CAP-ANIMATION-AC-02",
         "MEDIA-REQ-CAP-ANIMATION-AC-03",
+        "MEDIA-REQ-CAP-ANIMATION-AC-04",
         "MEDIA-REQ-CAP-ANIMATION-EDITING",
         "MEDIA-REQ-CAP-ANIMATION-EDITING-AC-01",
         "MEDIA-REQ-CAP-ANIMATION-EDITING-AC-02",
         "MEDIA-REQ-CAP-ANIMATION-OUTPUT",
         "MEDIA-REQ-CAP-ANIMATION-OUTPUT-AC-01",
         "MEDIA-REQ-CAP-ANIMATION-OUTPUT-AC-02",
+        "MEDIA-REQ-CAP-ANIMATION-OUTPUT-AC-03",
         "MEDIA-REQ-CAP-ARTIFACT",
         "MEDIA-REQ-CAP-ARTIFACT-AC-01",
         "MEDIA-REQ-CAP-ARTIFACT-AC-02",
         "MEDIA-REQ-CAP-ARTIFACT-AC-03",
         "MEDIA-REQ-CAP-ARTIFACT-AC-04",
+        "MEDIA-REQ-CAP-ARTIFACT-AC-05",
+        "MEDIA-REQ-CAP-ARTIFACT-AC-06",
+        "MEDIA-REQ-CAP-ARTIFACT-AC-07",
+        "MEDIA-REQ-CAP-ARTIFACT-AC-08",
+        "MEDIA-REQ-CAP-ARTIFACT-AC-09",
+        "MEDIA-REQ-CAP-ARTIFACT-AC-10",
+        "MEDIA-REQ-CAP-ARTIFACT-AC-11",
         "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
         "MEDIA-REQ-CAP-AUDIO-ANALYSIS-AC-01",
         "MEDIA-REQ-CAP-AUDIO-ANALYSIS-AC-02",
+        "MEDIA-REQ-CAP-AUDIO-ANALYSIS-AC-03",
         "MEDIA-REQ-CAP-CAPABILITY",
         "MEDIA-REQ-CAP-CAPABILITY-AC-01",
         "MEDIA-REQ-CAP-CAPABILITY-AC-02",
@@ -8169,12 +8191,24 @@
         "MEDIA-REQ-CAP-COMPOSE-AC-01",
         "MEDIA-REQ-CAP-COMPOSE-AC-02",
         "MEDIA-REQ-CAP-COMPOSE-AC-03",
+        "MEDIA-REQ-CAP-COMPOSE-AC-04",
+        "MEDIA-REQ-CAP-COMPOSE-AC-05",
+        "MEDIA-REQ-CAP-COMPOSE-AC-06",
+        "MEDIA-REQ-CAP-COMPOSE-AC-07",
+        "MEDIA-REQ-CAP-COMPOSE-AC-08",
+        "MEDIA-REQ-CAP-COMPOSE-AC-09",
+        "MEDIA-REQ-CAP-COMPOSE-AC-10",
+        "MEDIA-REQ-CAP-COMPOSE-AC-11",
         "MEDIA-REQ-CAP-DELIVER",
         "MEDIA-REQ-CAP-DELIVER-AC-01",
         "MEDIA-REQ-CAP-DELIVER-AC-02",
+        "MEDIA-REQ-CAP-DELIVER-AC-03",
+        "MEDIA-REQ-CAP-DELIVER-AC-04",
+        "MEDIA-REQ-CAP-DELIVER-AC-05",
         "MEDIA-REQ-CAP-EDIT",
         "MEDIA-REQ-CAP-EDIT-AC-01",
         "MEDIA-REQ-CAP-EDIT-AC-02",
+        "MEDIA-REQ-CAP-EDIT-AC-03",
         "MEDIA-REQ-CAP-ENHANCE-AUDIO",
         "MEDIA-REQ-CAP-ENHANCE-AUDIO-AC-01",
         "MEDIA-REQ-CAP-ENHANCE-AUDIO-AC-02",
@@ -8189,6 +8223,7 @@
         "MEDIA-REQ-CAP-GENERATE-AUDIO-AC-02",
         "MEDIA-REQ-CAP-GENERATE-AUDIO-AC-03",
         "MEDIA-REQ-CAP-GENERATE-AUDIO-AC-04",
+        "MEDIA-REQ-CAP-GENERATE-AUDIO-AC-05",
         "MEDIA-REQ-CAP-GENERATE-IMAGE",
         "MEDIA-REQ-CAP-GENERATE-IMAGE-AC-01",
         "MEDIA-REQ-CAP-GENERATE-IMAGE-AC-02",
@@ -8199,6 +8234,12 @@
         "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-01",
         "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-02",
         "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-03",
+        "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-04",
+        "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-05",
+        "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-06",
+        "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-07",
+        "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-08",
+        "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-09",
         "MEDIA-REQ-CAP-HEALTH",
         "MEDIA-REQ-CAP-HEALTH-AC-01",
         "MEDIA-REQ-CAP-HEALTH-AC-02",
@@ -8206,13 +8247,17 @@
         "MEDIA-REQ-CAP-JOB-AC-01",
         "MEDIA-REQ-CAP-JOB-AC-02",
         "MEDIA-REQ-CAP-JOB-AC-03",
+        "MEDIA-REQ-CAP-JOB-AC-04",
         "MEDIA-REQ-CAP-MASTER-AUDIO",
         "MEDIA-REQ-CAP-MASTER-AUDIO-AC-01",
         "MEDIA-REQ-CAP-MASTER-AUDIO-AC-02",
         "MEDIA-REQ-CAP-MASTER-AUDIO-AC-03",
+        "MEDIA-REQ-CAP-MASTER-AUDIO-AC-04",
+        "MEDIA-REQ-CAP-MASTER-AUDIO-AC-05",
         "MEDIA-REQ-CAP-MULTIMODAL",
         "MEDIA-REQ-CAP-MULTIMODAL-AC-01",
         "MEDIA-REQ-CAP-MULTIMODAL-AC-02",
+        "MEDIA-REQ-CAP-MULTIMODAL-AC-03",
         "MEDIA-REQ-CAP-PROFILE",
         "MEDIA-REQ-CAP-PROFILE-AC-01",
         "MEDIA-REQ-CAP-PROFILE-AC-02",
@@ -8221,10 +8266,17 @@
         "MEDIA-REQ-CAP-PROJECT-AC-02",
         "MEDIA-REQ-CAP-PROJECT-AC-03",
         "MEDIA-REQ-CAP-PROJECT-AC-04",
+        "MEDIA-REQ-CAP-PROJECT-AC-05",
+        "MEDIA-REQ-CAP-PROJECT-AC-06",
+        "MEDIA-REQ-CAP-PROJECT-AC-07",
+        "MEDIA-REQ-CAP-PROJECT-AC-08",
         "MEDIA-REQ-CAP-PROVENANCE",
         "MEDIA-REQ-CAP-PROVENANCE-AC-01",
         "MEDIA-REQ-CAP-PROVENANCE-AC-02",
         "MEDIA-REQ-CAP-PROVENANCE-AC-03",
+        "MEDIA-REQ-CAP-PROVENANCE-AC-04",
+        "MEDIA-REQ-CAP-PROVENANCE-AC-05",
+        "MEDIA-REQ-CAP-PROVENANCE-AC-06",
         "MEDIA-REQ-CAP-QUALITY",
         "MEDIA-REQ-CAP-QUALITY-AC-01",
         "MEDIA-REQ-CAP-QUALITY-AC-02",
@@ -8234,6 +8286,12 @@
         "MEDIA-REQ-CAP-QUALITY-AC-06",
         "MEDIA-REQ-CAP-QUALITY-AC-07",
         "MEDIA-REQ-CAP-QUALITY-AC-08",
+        "MEDIA-REQ-CAP-QUALITY-AC-09",
+        "MEDIA-REQ-CAP-QUALITY-AC-10",
+        "MEDIA-REQ-CAP-QUALITY-AC-11",
+        "MEDIA-REQ-CAP-QUALITY-AC-12",
+        "MEDIA-REQ-CAP-QUALITY-AC-13",
+        "MEDIA-REQ-CAP-QUALITY-AC-14",
         "MEDIA-REQ-CAP-QUALITY-AUDIO",
         "MEDIA-REQ-CAP-QUALITY-AUDIO-AC-01",
         "MEDIA-REQ-CAP-QUALITY-AUDIO-AC-02",
@@ -8250,16 +8308,32 @@
         "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-04",
         "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-05",
         "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-06",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-07",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-08",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-09",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-10",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-11",
+        "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-12",
         "MEDIA-REQ-CAP-RIGHTS",
         "MEDIA-REQ-CAP-RIGHTS-AC-01",
         "MEDIA-REQ-CAP-RIGHTS-AC-02",
         "MEDIA-REQ-CAP-RIGHTS-AC-03",
         "MEDIA-REQ-CAP-RIGHTS-AC-04",
         "MEDIA-REQ-CAP-RIGHTS-AC-05",
+        "MEDIA-REQ-CAP-RIGHTS-AC-06",
+        "MEDIA-REQ-CAP-RIGHTS-AC-07",
+        "MEDIA-REQ-CAP-RIGHTS-AC-08",
+        "MEDIA-REQ-CAP-RIGHTS-AC-09",
+        "MEDIA-REQ-CAP-RIGHTS-AC-10",
+        "MEDIA-REQ-CAP-RIGHTS-AC-11",
+        "MEDIA-REQ-CAP-RIGHTS-AC-12",
+        "MEDIA-REQ-CAP-RIGHTS-AC-13",
         "MEDIA-REQ-CAP-SIMULATION",
         "MEDIA-REQ-CAP-SIMULATION-AC-01",
         "MEDIA-REQ-CAP-SIMULATION-AC-02",
         "MEDIA-REQ-CAP-SIMULATION-AC-03",
+        "MEDIA-REQ-CAP-SIMULATION-AC-04",
+        "MEDIA-REQ-CAP-SIMULATION-AC-05",
         "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
         "MEDIA-REQ-CAP-SIMULATION-OUTPUT-AC-01",
         "MEDIA-REQ-CAP-SIMULATION-OUTPUT-AC-02",
@@ -8269,16 +8343,26 @@
         "MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-03",
         "MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-04",
         "MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05",
+        "MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-06",
+        "MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-07",
+        "MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-08",
+        "MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-09",
         "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
         "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-01",
         "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-02",
         "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-03",
         "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-04",
         "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-05",
+        "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-06",
+        "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-07",
         "MEDIA-REQ-CAP-STREAM",
         "MEDIA-REQ-CAP-STREAM-AC-01",
         "MEDIA-REQ-CAP-STREAM-AC-02",
         "MEDIA-REQ-CAP-STREAM-AC-03",
+        "MEDIA-REQ-CAP-STREAM-AC-04",
+        "MEDIA-REQ-CAP-STREAM-AC-05",
+        "MEDIA-REQ-CAP-STREAM-AC-06",
+        "MEDIA-REQ-CAP-STREAM-AC-07",
         "MEDIA-REQ-CAP-SYNC",
         "MEDIA-REQ-CAP-SYNC-AC-01",
         "MEDIA-REQ-CAP-SYNC-AC-02",
@@ -8588,8 +8672,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/authority.yaml",
-      "sha256": "0f3b6cd8ffdc48f2fbb8adbeaaf8e61d7de93752f45972bcba90e700201cb6c0",
-      "bytes": 19524,
+      "sha256": "433f13db1adde6b7136656491125612a5894cfe8ad6d50e3f4c23d99223102ec",
+      "bytes": 20864,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.authority.v1",
       "authority": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
@@ -8612,6 +8696,7 @@
         "sourceRefs"
       ],
       "declaredIds": [
+        "media.authority.caller-identity-hint-compare-only.v1",
         "media.authority.job-status-dimension-read.v1",
         "media.authority.resource-locator-not-grant.v1",
         "media.decision.document-intelligence-boundary",
@@ -12065,8 +12150,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml",
-      "sha256": "8024440aa9a36ee6b2823214b8bc13330241b1e757ef08815001b08c9f27073f",
-      "bytes": 274058,
+      "sha256": "2fb27193c2b48a56d143260d6cd0d11ad0a1f0b2609b1bb9fa6c3b67f1f83277",
+      "bytes": 286860,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12107,8 +12192,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml",
-      "sha256": "de2efb030fe0a8a44384b83616f1df6a61a09a2ae652abae4493302fe9200228",
-      "bytes": 80266,
+      "sha256": "92e8f14beb2f925c89bf100e14456bcf7dc566b504e1b103a5fd08939de77637",
+      "bytes": 87104,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12150,8 +12235,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml",
-      "sha256": "426004cc15c26e8b08b84bed4b240b6b6fd1f6b87592b4532dd65a2b497ed1c8",
-      "bytes": 52692,
+      "sha256": "bfe9aa5e9a4b78ef4a7d4abcba5997bc28c7665ecfe98245be74495414506932",
+      "bytes": 52608,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12188,8 +12273,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml",
-      "sha256": "5db198bb8b0b018306c49fed0105f3548bbccb19a05bb7318ef3fe8d0c6dd98a",
-      "bytes": 91135,
+      "sha256": "67002aaa99c76e45c4fa3d0a0cc095f3ca5d1be243653d013e0a0ff4f60c28ea",
+      "bytes": 91842,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12270,8 +12355,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml",
-      "sha256": "0593181a3208a9594eea642b97c333e6e1a7b8ca1b62f8c5666e79f3973d682b",
-      "bytes": 69071,
+      "sha256": "2e321e4931201866952b65d90e4fc5188c2c17e61823e7666fc98af9b68c90ce",
+      "bytes": 68987,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12308,8 +12393,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml",
-      "sha256": "8ce4e5db2ff1b4252f35951c7afb0898318008f636861be4a27d037d82862bbe",
-      "bytes": 116958,
+      "sha256": "18b8601109899dd5e3aa79aa7781438328410c2da7d86b32f664ceb0721499d2",
+      "bytes": 118766,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12436,8 +12521,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml",
-      "sha256": "e110fa716c453d63f5d87a8aac35775c989492edb6b637945e80e8b5403d1f34",
-      "bytes": 77616,
+      "sha256": "ffb5468f1588e70403a963338927c5ea849281dd280b775ea23baa3b18e68ead",
+      "bytes": 89117,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12480,8 +12565,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml",
-      "sha256": "d9138400b06d7fdcffe6f9392d4340ac6e6566460666c8888db0bdd958216711",
-      "bytes": 81514,
+      "sha256": "32a5992fab944e38c419b18b01a96a7670ce3ee503b235b22a8a09d20f33e754",
+      "bytes": 84320,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12525,8 +12610,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml",
-      "sha256": "299c6983968cb22f6f514c3201351de1e87087af445424f277618eeb2342911e",
-      "bytes": 56079,
+      "sha256": "9a1171904375cebfe2bf93dae77e833dd0f887a1e20794014ef603795b8fd6e4",
+      "bytes": 55995,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12563,8 +12648,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml",
-      "sha256": "6e2871cf3fc4d82a71bf4bd86a4af9e9a8ccc3ead2b36b61c1b9f7d837532f73",
-      "bytes": 96045,
+      "sha256": "fe01fafc50cab2d1568c4e150c82c2425c9d764f52bd45b084cb22fde2b982ae",
+      "bytes": 101042,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12606,8 +12691,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml",
-      "sha256": "377d04b63b6f89a4715601be61070ecbc80f747ecfc6838d878d98360b69ba7c",
-      "bytes": 88273,
+      "sha256": "f88c4409047838dcbad772dbbee9b8954743962f91806b3d3af17107c5a13a08",
+      "bytes": 103318,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12692,8 +12777,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml",
-      "sha256": "2df4f884be0fc8788b811e816f40f03b728527a05e372bfb08f13a7610828035",
-      "bytes": 153890,
+      "sha256": "3fed2b63c6a4312e3bce5f17ac6058b5f029d6452c555f13e0a8ed96d3bd8835",
+      "bytes": 157075,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12721,6 +12806,7 @@
         "scenarioRefs",
         "schemaVersion",
         "scope",
+        "sourceGap",
         "status",
         "stepBindingRule",
         "steps",
@@ -12729,13 +12815,14 @@
         "unresolvedProductDecisions"
       ],
       "declaredIds": [
+        "MDC30-C-10-candidate-version-to-continuity-result-join",
         "phase0-critical-exception"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml",
-      "sha256": "3c23a8b6fbf379bcedf40920b14284cc5096662c371730d6c8727e3ed013b309",
-      "bytes": 104006,
+      "sha256": "72a80ab6c74ed58e5e9bdc6b6028d31b0d54c1db9ebdb559dffa1c7bb9b420ed",
+      "bytes": 99065,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12763,6 +12850,7 @@
         "status",
         "stepBindingRule",
         "steps",
+        "terminalOutcomeBinding",
         "terminalSuccess",
         "title",
         "unresolvedProductDecisions"
@@ -12822,8 +12910,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml",
-      "sha256": "bbb9038efef220789f99fd5701040cedca025fcc64dcc690388c6d1ffa67e4ff",
-      "bytes": 189226,
+      "sha256": "9d5c352d3be572c8a5866eb70ed0c8a9912540c591f05203287deb0c9ff6c334",
+      "bytes": 196105,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12835,6 +12923,7 @@
         "channelEquivalents",
         "channelLimits",
         "channels",
+        "completionDisposition",
         "contextPreserved",
         "criticalNonhappyPaths",
         "intent",
@@ -12908,8 +12997,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml",
-      "sha256": "37f7fa0014993246f96d25d74f9dd0456f5f3b951996a1f0fb5bf8a4a5098ff2",
-      "bytes": 78705,
+      "sha256": "559bd3180c01b1cd59633fdc6e8980479c5e4fc6f927042e2955c6c25a8cea90",
+      "bytes": 78621,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -12948,8 +13037,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml",
-      "sha256": "8eef756f6cd43087437b8d13fec6971789e38f90dded7c5b59866f0ae535e6ab",
-      "bytes": 157731,
+      "sha256": "f674e52fd4bbb3a41cc92eb97f85c744ad998971a6f171be214839c4ef061ce7",
+      "bytes": 163076,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -13029,8 +13118,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml",
-      "sha256": "6557621a42cfd0768bcb50a7cfbe50b95784deb04e4ea6d576c83ad5ee648a7e",
-      "bytes": 74161,
+      "sha256": "cebc3e196c85b4cd66e15b846f31d23e9317d7e67f68f32131a86ff0d34c5fcf",
+      "bytes": 78411,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -13075,8 +13164,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml",
-      "sha256": "6d63f7fc33783acde6ee1a71987e4868542f780767f80ed7d25d01f5286446b1",
-      "bytes": 74578,
+      "sha256": "1c2cace7480250ef4b247f45e34e31efe5ff750217eff4f456eee389762ecfc3",
+      "bytes": 77982,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -13154,8 +13243,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
-      "sha256": "6b6b006f0c23b8b4a516264d31946dc64572812a67edce15eddf1f6687026d25",
-      "bytes": 205442,
+      "sha256": "3d32bebd2328c105133280a66e5cdbab1098e1ea36d1b0b3a9b0990e973bb196",
+      "bytes": 207747,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -13196,8 +13285,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml",
-      "sha256": "a2fee8ac1976ac3c2e4e39ebcf11cc6faed41f04995504ab80505efb46d1e3aa",
-      "bytes": 113128,
+      "sha256": "165899957b42ba41f0543eb82a6594d9624b5680035fc4692768a4a780c27293",
+      "bytes": 116146,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -15104,7 +15193,10 @@
                 "media.domain.project"
               ],
               "objectVersionRefs": [],
-              "stateRefs": [],
+              "stateRefs": [
+                ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-project/stateDefinitions/ACTIVE",
+                ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-project/stateDefinitions/ARCHIVED"
+              ],
               "guardRefs": [],
               "authorityRefs": [
                 ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation"
@@ -16164,11 +16256,9 @@
                 "QUERY"
               ],
               "objectRefs": [
-                "media.domain.quality-assessment",
                 "media.domain.artifact-version"
               ],
               "objectVersionRefs": [
-                ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-04-03.v1/versionFieldBindings/@id=media.step-version-object-binding.j-04-03.quality-assessment.v1",
                 ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-04-03.v1/versionFieldBindings/@id=media.step-version-object-binding.j-04-03.artifact-version.v1"
               ],
               "stateRefs": [],
@@ -16708,11 +16798,9 @@
                 "QUERY"
               ],
               "objectRefs": [
-                "media.domain.quality-assessment",
                 "media.domain.artifact-version"
               ],
               "objectVersionRefs": [
-                ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-05-04.v1/versionFieldBindings/@id=media.step-version-object-binding.j-05-04.quality-assessment.v1",
                 ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-05-04.v1/versionFieldBindings/@id=media.step-version-object-binding.j-05-04.artifact-version.v1"
               ],
               "stateRefs": [],
@@ -17035,11 +17123,9 @@
                 "QUERY"
               ],
               "objectRefs": [
-                "media.domain.quality-assessment",
                 "media.domain.artifact-version"
               ],
               "objectVersionRefs": [
-                ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-07-03.v1/versionFieldBindings/@id=media.step-version-object-binding.j-07-03.quality-assessment.v1",
                 ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-07-03.v1/versionFieldBindings/@id=media.step-version-object-binding.j-07-03.artifact-version.v1"
               ],
               "stateRefs": [],
@@ -17408,11 +17494,9 @@
                 "QUERY"
               ],
               "objectRefs": [
-                "media.domain.quality-assessment",
                 "media.domain.artifact-version"
               ],
               "objectVersionRefs": [
-                ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-08-03.v1/versionFieldBindings/@id=media.step-version-object-binding.j-08-03.quality-assessment.v1",
                 ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-08-03.v1/versionFieldBindings/@id=media.step-version-object-binding.j-08-03.artifact-version.v1"
               ],
               "stateRefs": [],
@@ -18297,11 +18381,9 @@
                 "QUERY"
               ],
               "objectRefs": [
-                "media.domain.quality-assessment",
                 "media.domain.artifact-version"
               ],
               "objectVersionRefs": [
-                ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-10-05.v1/versionFieldBindings/@id=media.step-version-object-binding.j-10-05.quality-assessment.v1",
                 ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-10-05.v1/versionFieldBindings/@id=media.step-version-object-binding.j-10-05.artifact-version.v1"
               ],
               "stateRefs": [],
@@ -18443,11 +18525,9 @@
                 "QUERY"
               ],
               "objectRefs": [
-                "media.domain.quality-assessment",
                 "media.domain.artifact-version"
               ],
               "objectVersionRefs": [
-                ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-11-03.v1/versionFieldBindings/@id=media.step-version-object-binding.j-11-03.quality-assessment.v1",
                 ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-11-03.v1/versionFieldBindings/@id=media.step-version-object-binding.j-11-03.artifact-version.v1"
               ],
               "stateRefs": [],
@@ -18548,11 +18628,9 @@
                 "QUERY"
               ],
               "objectRefs": [
-                "media.domain.quality-assessment",
                 "media.domain.artifact-version"
               ],
               "objectVersionRefs": [
-                ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-12-02.v1/versionFieldBindings/@id=media.step-version-object-binding.j-12-02.quality-assessment.v1",
                 ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-12-02.v1/versionFieldBindings/@id=media.step-version-object-binding.j-12-02.artifact-version.v1"
               ],
               "stateRefs": [],
@@ -18802,6 +18880,12 @@
                 "media.operation.action.inspect-output-preview-and-version"
               ],
               "operationKinds": [
+                "QUERY"
+              ],
+              "supportingOperationRefs": [
+                "media.operation.job-status.read-dimensions.v1"
+              ],
+              "supportingOperationKinds": [
                 "QUERY"
               ],
               "objectRefs": [
@@ -19263,11 +19347,9 @@
                 "QUERY"
               ],
               "objectRefs": [
-                "media.domain.quality-assessment",
                 "media.domain.artifact-version"
               ],
               "objectVersionRefs": [
-                ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-15-04.v1/versionFieldBindings/@id=media.step-version-object-binding.j-15-04.quality-assessment.v1",
                 ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-15-04.v1/versionFieldBindings/@id=media.step-version-object-binding.j-15-04.artifact-version.v1"
               ],
               "stateRefs": [],
@@ -19375,7 +19457,11 @@
               "actionRefs": [],
               "operationRefs": [],
               "operationKinds": [],
-              "objectRefs": [],
+              "objectRefs": [
+                "media.domain.artifact-version",
+                "media.domain.transcript-version",
+                "media.domain.caption-version"
+              ],
               "objectVersionRefs": [],
               "stateRefs": [],
               "guardRefs": [],
@@ -19516,11 +19602,9 @@
                 "QUERY"
               ],
               "objectRefs": [
-                "media.domain.quality-assessment",
                 "media.domain.artifact-version"
               ],
               "objectVersionRefs": [
-                ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-16-05.v1/versionFieldBindings/@id=media.step-version-object-binding.j-16-05.quality-assessment.v1",
                 ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-16-05.v1/versionFieldBindings/@id=media.step-version-object-binding.j-16-05.artifact-version.v1"
               ],
               "stateRefs": [],
@@ -20177,11 +20261,9 @@
                 "QUERY"
               ],
               "objectRefs": [
-                "media.domain.quality-assessment",
                 "media.domain.artifact-version"
               ],
               "objectVersionRefs": [
-                ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-19-03.v1/versionFieldBindings/@id=media.step-version-object-binding.j-19-03.quality-assessment.v1",
                 ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=media.step-version-binding.j-19-03.v1/versionFieldBindings/@id=media.step-version-object-binding.j-19-03.artifact-version.v1"
               ],
               "stateRefs": [],
@@ -20206,7 +20288,7 @@
           },
           {
             "stepId": "J-19.step-04",
-            "intent": "Snapshot/profile, validation, cost and submission",
+            "intent": "Optional next action after the user has selected or declined the measured candidate; prepare and explicitly submit a render only when separately chosen.",
             "viewRef": "media.view.prepare-render",
             "transitionRefs": [],
             "semantics": {
@@ -22275,6 +22357,14 @@
               ],
               "operationKinds": [
                 "COMMAND"
+              ],
+              "supportingOperationRefs": [
+                "media.operation.job-status.read-dimensions.v1",
+                "media.operation.action.inspect-output-preview-and-version"
+              ],
+              "supportingOperationKinds": [
+                "QUERY",
+                "QUERY"
               ],
               "objectRefs": [
                 "media.domain.processing-job",
@@ -33284,8 +33374,8 @@
         "description": "Inspect deterministic experience scenario inputs and expected transitions as explicitly synthetic examples, never production media evidence or provider qualification."
       }
     ],
-    "createdAt": "2026-10-19T02:01:37.387Z",
-    "updatedAt": "2026-10-19T02:01:37.387Z"
+    "createdAt": "2026-10-21T04:08:50.453Z",
+    "updatedAt": "2026-10-21T04:08:50.453Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",
@@ -36251,14 +36341,14 @@
             "nestedActionTransitionDisposition": null,
             "stepDefinitionTransitionApplicability": {
               "status": "INITIAL_AGGREGATE_ADMISSION; NO_EXISTING_AGGREGATE_TRANSITION; OWNER_STATE_OBSERVATION_REQUIRED",
-              "reason": "The PDP-1 command contract describes a processing request and exact job/attempt state scope, but its receipt does not assert QUEUED, RUNNING, or a later result; owner state observation is required, and no initial aggregate edge is declared.",
+              "reason": "The PDP-1 command contract creates one new logical render job and defines the job and attempt state scopes, but its durable admission receipt does not assert QUEUED, RUNNING, or a later result; owner state observation is required, and no initial aggregate edge is declared.",
               "transitionRef": null,
               "stateRefs": [
                 ".product-experience/pdp-1-domain-data/states.yaml#media-job",
                 ".product-experience/pdp-1-domain-data/states.yaml#media-attempt"
               ],
               "operationRef": "media.operation.action.submit-render",
-              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-render",
+              "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render",
               "runtimeAdmission": "NOT_ADMITTED"
             },
             "transitionApplicability": null,

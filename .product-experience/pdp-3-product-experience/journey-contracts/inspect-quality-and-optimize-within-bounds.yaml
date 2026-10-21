@@ -71,11 +71,12 @@ pdp1ResultEvidence:
     - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/2
       journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j19-step-03.v1
       operationRef: media.operation.action.compare-candidate-on-metric
-      operationVersion: 1
+      operationVersion: 2
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/contractVersion
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
-      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/requestEnvelope
-      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+      pairedObservationResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
       authorityRefs:
         - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
         - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
@@ -84,7 +85,7 @@ pdp1ResultEvidence:
       recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/recovery
       unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
       exactResult: >-
-        The immediate result is the exact-target scoped owner observation with requestId, exactTargetRef, ownerReceipt, and observedAt. The owner receipt is limited to the source-declared comparison; no candidate improvement or user selection is inferred.
+        P1 v2 returns the exact distinct originalArtifactVersionRef and candidateArtifactVersionRef, requested metricRefs, and exactly one paired metric result per requested metric. Each side's status, currentness, raw observation, and provenance are retained; NOT_COMPARABLE or UNKNOWN is preserved, and no delta, winner, improvement, threshold, or user selection is inferred.
       unknownDisposition: >-
         Missing, stale, unavailable, or incomplete evidence remains UNKNOWN; reconcile the same request identity before any retry and never substitute a newer version.
     - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/3
@@ -93,8 +94,8 @@ pdp1ResultEvidence:
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/contractVersion
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render
-      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/requestEnvelope
-      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/resultEnvelope
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
       authorityRefs:
         - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
         - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
@@ -103,24 +104,37 @@ pdp1ResultEvidence:
       recoveryRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/recovery
       unknownDispositionRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
       exactResult: >-
-        The result identifies requestId, logicalJobId, sourceSnapshotDigest, renderProfileRef, and durableAdmissionReceipt; it confirms durable job admission only. Render completion and delivery require separate observations.
+        This optional next action returns requestId, logicalJobId, sourceSnapshotDigest, renderProfileRef, and durableAdmissionReceipt; it confirms durable admission only and is not the J19 selection/decline completion result.
       unknownDisposition: >-
-        UNKNOWN_OUTCOME is neither success nor failure; reconcile the same request identity before an eligible retry and do not infer completion or delivery.
-  terminalOutcomeObservationGap:
-    status: SOURCE_DEFINITION_MISSING; TERMINAL_OPTIMIZATION_NOT_BOUND
-    journeyCompletionRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-19/completion
-    currentPurposeRefs:
-      - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j19-step-03.v1
-      - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j19-step-04.v1
-    availableButInsufficientObservationRefs:
-      - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.job-status-seven-dimension.v1
-      - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1
-    availableButInsufficientOperationRefs:
-      - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render
-      - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
-    missingOwnerDefinition: >-
-      The current J-19 purpose bindings define comparison and render submission, but no source-defined operation/result selects or declines a measurable successor candidate, and no J-19 purpose-bound observation joins render completion to the exact resulting immutable output version. The submit-render durableAdmissionReceipt is admission only; the general job-status and output-preview/version-lineage observations are not joined to J-19 completion or successor selection. Owner definition must supply the exact selection/decline semantics and result identity, and the exact render-completion-to-output-version observation and purpose binding before this terminal outcome can be bound.
-    disposition: Keep terminalSuccess as an unbound PDP-0 outcome; do not infer selection, render completion, or output version from comparison or durable admission.
+        UNKNOWN_OUTCOME is neither success nor failure; reconcile the same request identity before an eligible retry and do not infer completion, output identity, or delivery.
+terminalOutcomeBinding:
+  status: P3_LOCAL_USER_CHOICE_BOUND; RUNTIME_NOT_ADMITTED
+  sourceCompletionRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-19/completion
+  sourceChoiceSemanticsRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.select-exact-candidates/actionDefinitionSemantics/typedDefinition
+  exactComparisonResultRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
+  terminalStepRef: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/2
+  terminalActionBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j19-step-03.v1/relatedActionBindings/@id=media.pdp3.action-binding.j19-successor-choice.v1
+  actionRef: media.action.select-exact-candidates
+  actionSemantics:
+    effect: Change only the current local draft or selection; committed source and versioned objects remain unchanged.
+    finality: local-draft-only; not-a-committed-result
+    operationRefs: []
+    runtimeAdmission: NOT_ADMITTED
+  exactChoice:
+    field: userChoice
+    allowedValues: [SELECT_SUCCESSOR, DECLINE_SUCCESSOR]
+    source: Explicit user input on the comparison screen; never derive it from metrics, rankings, render state, or inferred preference.
+  exactResult:
+    fields: [userChoice, originalArtifactVersionRef, candidateArtifactVersionRef, metricRefs, metricResults]
+    selectSuccessor: Record the exact candidateArtifactVersionRef selected by the user and retain the exact paired metric rows and source-reported disclosures.
+    declineSuccessor: Record DECLINE_SUCCESSOR with selectedArtifactVersionRef null, retain the exact originalArtifactVersionRef, and retain the declined candidate identity and paired metric rows.
+  disclosure:
+    preserveFields: [status, currentness, rawValue, applicability, disposition, method, methodVersion, unit, uncertainty, calibration, evidenceRefs]
+    estimatedOrReconstructed: Disclose only when identified by the source observation; otherwise disclose provenance as UNKNOWN.
+  eligibility:
+    require: The paired result names two distinct immutable versions and the requested metric rows; each required metric side is OBSERVED and CURRENT and comparability is SAME_DECLARED_SCOPE.
+    otherwise: Keep completion UNKNOWN/incomplete, preserve NOT_COMPARABLE and UNKNOWN, and follow the PDP-0 critical path; do not record a terminal choice.
+  boundary: The choice records user selection or decline only and is J19 completion. It does not commit a version, mutate a source, submit a render, approve, publish, deliver, or assert render completion. The optional M-RENDER next action remains separate and cannot change or defer this choice result.
 preconditions:
   - Applicable metrics, thresholds, budget, stop conditions, and protected
     properties are defined.
@@ -733,24 +747,17 @@ steps:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
-          proposal: User selects or declines a measurable successor candidate with
-            estimated/reconstructed properties disclosed.
+          proposal: User selects or declines a measurable successor candidate with estimated/reconstructed properties disclosed.
         nonhappyBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.criticalNonhappyPaths
-          proposal:
-            - id: phase0-critical-exception
-              condition: Metric abstention, no improvement, incorrect metric domain, exhausted
-                budget, or attempted fidelity downgrade.
-              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
-                copy, and action bindings remain pending.
+          proposal: Metric abstention, no improvement, incorrect metric domain, exhausted budget, or attempted fidelity downgrade; exact response remains pending.
         recoveryBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.recovery
-          proposal: Stop at declared bound, preserve best valid candidate and source, and
-            expose next permitted action.
+          proposal: Stop at declared bound, preserve best valid candidate and source, and expose next permitted action.
         executable: false
         ownerOracleAcceptance: pending-independent-review
       operationContractBinding:
@@ -891,7 +898,6 @@ steps:
     surfaceRefs:
       - media.surface.web
     objectRefs:
-      - media.domain.quality-assessment
       - media.domain.artifact-version
     canonicalOperationRef: media.operation.action.compare-candidate-on-metric
     authorityRef: null
@@ -901,15 +907,12 @@ steps:
     success:
       status: EXACT_OPERATION_RESULT_DEFINED
       scope: immediate-step-result
-      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
-      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+      pairedObservationResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
       operationRef: media.operation.action.compare-candidate-on-metric
-      meaning: Immediate result is the exact-target scoped owner observation with
-        requestId, exactTargetRef, ownerReceipt and observedAt.
-        Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
-        and this read implies no command effect or replay.
-      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
-        NOT_ADMITTED and no owner evidence/result is asserted
+      meaning: "Immediate result is the read-only P1 v2 paired observation: requestId, exact originalArtifactVersionRef, exact candidateArtifactVersionRef, requested metricRefs, one ordered metricResults row per requested metric, and observedAt. Preserve each side's status, currentness, raw observation and provenance; UNKNOWN and NOT_COMPARABLE remain explicit. No delta, direction, threshold, pass/fail, aggregate, rank, winner, improvement, qualification, or user selection is inferred."
+      evidenceBoundary: Definition-grade P1 v2 operation and typed paired-observation result only; runtimeAdmission NOT_ADMITTED and no owner evidence/result is asserted.
       laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
@@ -923,12 +926,9 @@ steps:
             copy, and action bindings remain pending.
     degradedBehavior:
       status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
-      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
       conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-19/criticalNonhappyPaths
-      disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
-        UNKNOWN; preserve exact target and label stale/unknown, infer neither
-        global absence nor downstream effect, and reobserve the same selector
-        only. No command replay.
+      disposition: "Unavailable, missing, stale, or incomplete paired evidence remains UNKNOWN; mismatched scope identity remains NOT_COMPARABLE with both sides preserved. Preserve exact source versions and request identity; do not derive a quality conclusion or replay an uncertain query."
       runtimeAdmission: NOT_ADMITTED
       dispatch: NEVER
       ownerAcceptedOutcomeOracle: false
@@ -965,12 +965,12 @@ steps:
       transitionRef: pending-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-binding
       success: step-scoped immediate result defined by
-        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope;
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema;
         later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
       degradedBehavior: source-backed immediate-step degraded disposition defined by
-        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
       recovery: candidate-proposal-only; not accepted step recovery
       postconditions: pending-explicit-step-postconditions
       requirementRefs: pending-explicit-requirement-crosswalk
@@ -1012,25 +1012,29 @@ steps:
           mutate a source object or infer permission from its presence.
       stepSourceFacts:
         intent: Before/after, candidate ranking and applicable measurements
-        result: Immediate result is the exact-target scoped owner observation with
-          requestId, exactTargetRef, ownerReceipt and observedAt.
-          Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
-          and this read implies no command effect or replay.
-          [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
-        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+        result: "Immediate result is the read-only P1 v2 paired observation: requestId, exact originalArtifactVersionRef, exact candidateArtifactVersionRef, requested metricRefs, one ordered metricResults row per requested metric, and observedAt. Preserve each side's status, currentness, raw observation and provenance; UNKNOWN and NOT_COMPARABLE remain explicit. No delta, direction, threshold, pass/fail, aggregate, rank, winner, improvement, qualification, or user selection is inferred."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
         resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
+        comparisonEvidenceDisposition:
+          status: SOURCE_BOUND_PAIRED_METRIC_RESULT; USER_SELECTION_AND_QUALITY_THRESHOLD_UNBOUND
+          operationVersion: 2
+          requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/requestSchema
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+          pairedObservationResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
+          metricSetSourceRef: .product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions
+          exactVersionPair: originalArtifactVersionRef and candidateArtifactVersionRef are distinct exact immutable artifact-version references echoed in the result
+          metricJoin: each metricResults row matches one requested metricRef and retains the paired source-side evidence for the exact original and candidate versions
+          comparability: all six providerSignalContract.scopeIdentity fields must match exactly; preserve both sides; mismatch is NOT_COMPARABLE and stale or unavailable evidence is UNKNOWN
+          noDerivedConclusion: true
         success:
           status: EXACT_OPERATION_RESULT_DEFINED
           scope: immediate-step-result
-          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
-          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+          pairedObservationResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
           operationRef: media.operation.action.compare-candidate-on-metric
-          meaning: Immediate result is the exact-target scoped owner observation with
-            requestId, exactTargetRef, ownerReceipt and observedAt.
-            Missing/stale/unavailable evidence is UNKNOWN; absence is scoped
-            only and this read implies no command effect or replay.
-          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
-            NOT_ADMITTED and no owner evidence/result is asserted
+          meaning: "Immediate result is the read-only P1 v2 paired observation: requestId, exact originalArtifactVersionRef, exact candidateArtifactVersionRef, requested metricRefs, one ordered metricResults row per requested metric, and observedAt. Preserve each side's status, currentness, raw observation and provenance; UNKNOWN and NOT_COMPARABLE remain explicit. No delta, direction, threshold, pass/fail, aggregate, rank, winner, improvement, qualification, or user selection is inferred."
+          evidenceBoundary: Definition-grade P1 v2 operation and typed paired-observation result only; runtimeAdmission NOT_ADMITTED and no owner evidence/result is asserted.
           laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
@@ -1044,12 +1048,9 @@ steps:
                 copy, and action bindings remain pending.
         degradedBehavior:
           status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
-          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
           conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-19/criticalNonhappyPaths
-          disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
-            UNKNOWN; preserve exact target and label stale/unknown, infer
-            neither global absence nor downstream effect, and reobserve the same
-            selector only. No command replay.
+          disposition: "Unavailable, missing, stale, or incomplete paired evidence remains UNKNOWN; mismatched scope identity remains NOT_COMPARABLE with both sides preserved. Preserve exact source versions and request identity; do not derive a quality conclusion or replay an uncertain query."
           runtimeAdmission: NOT_ADMITTED
           dispatch: NEVER
           ownerAcceptedOutcomeOracle: false
@@ -1072,7 +1073,6 @@ steps:
         surfaceRefs:
           - media.surface.web
         objectRefs:
-          - media.domain.quality-assessment
           - media.domain.artifact-version
         stateRefs: []
         canonicalOperationRef: media.operation.action.compare-candidate-on-metric
@@ -1094,41 +1094,62 @@ steps:
         object/state/authority/transition/requirement identities, external
         review and lifecycle evidence remain separate.
       fixtureOracle:
-        status: NO_STEP_SCENARIO_BOUND
+        status: DEFINITION_CHOICE_ORACLE_BOUND; SYNTHETIC_FIXTURE_NOT_BOUND
         sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
         journeyRef: J-19
         scenarioRefs: []
         scenarios: []
+        cases:
+          - selectedChoice: null
+            expectedDecision: CHOICE_REQUIRED
+            effect: none
+            runtimeAdmission: NOT_ADMITTED
+          - selectedChoice: SELECT_SUCCESSOR
+            expectedDecision: LOCAL_SUCCESSOR_SELECTION_RECORDED
+            precondition: exact measured pair is comparable and successor-eligible
+            effect: local-selection-only; no source object mutation or domain transition
+            runtimeAdmission: NOT_ADMITTED
+          - selectedChoice: DECLINE_SUCCESSOR
+            expectedDecision: SUCCESSOR_DECLINED
+            effect: local-choice-only; no source object mutation or domain transition
+            runtimeAdmission: NOT_ADMITTED
+          - selectedChoice: SELECT_SUCCESSOR
+            exactMeasuredPairStatus: UNKNOWN
+            expectedDecision: NO_TERMINAL_CHOICE
+            effect: none
+            runtimeAdmission: NOT_ADMITTED
+          - selectedChoice: SELECT_SUCCESSOR
+            exactMeasuredPairStatus: NOT_COMPARABLE
+            expectedDecision: NO_TERMINAL_CHOICE
+            effect: none
+            runtimeAdmission: NOT_ADMITTED
+          - selectedChoice: media.action.not-in-source-choice-set
+            expectedDecision: INVALID_CHOICE
+            effect: none
+            runtimeAdmission: NOT_ADMITTED
+        executable: true
+        executionBoundary: Pure choice definition oracle over the exact measured pair; no action dispatch, domain transition, or synthetic media payload is produced.
         positiveBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
-          proposal: User selects or declines a measurable successor candidate with
-            estimated/reconstructed properties disclosed.
+          proposal: User selects or declines a measurable successor candidate with estimated/reconstructed properties disclosed.
         nonhappyBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.criticalNonhappyPaths
-          proposal:
-            - id: phase0-critical-exception
-              condition: Metric abstention, no improvement, incorrect metric domain, exhausted
-                budget, or attempted fidelity downgrade.
-              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
-                copy, and action bindings remain pending.
+          proposal: Metric abstention, no improvement, incorrect metric domain, exhausted budget, or attempted fidelity downgrade; exact response remains pending.
         recoveryBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.recovery
-          proposal: Stop at declared bound, preserve best valid candidate and source, and
-            expose next permitted action.
-        executable: false
+          proposal: Stop at declared bound, preserve best valid candidate and source, and expose next permitted action.
         ownerOracleAcceptance: pending-independent-review
       operationContractBinding:
         sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
         operationRef: media.operation.action.compare-candidate-on-metric
         operationKind: QUERY
         domainObjectRefs:
-          - media.domain.quality-assessment
           - media.domain.artifact-version
         stateRefs: []
         authorityRefs:
@@ -1146,11 +1167,12 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
           intendedResult:
-            status: candidate-proposal
-            scope: journey-level-not-allocated-to-this-step
-            sourceRef: journey.terminalSuccess
-            proposal: User selects or declines a measurable successor candidate with
-              estimated/reconstructed properties disclosed.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            scope: immediate-step-result
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+            resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+            pairedObservationResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1/resultSchema
+            summary: "Read-only paired result preserves the exact original and candidate versions, requested metrics, per-side evidence status/currentness/raw observations and provenance. UNKNOWN and NOT_COMPARABLE remain explicit; no quality conclusion or user selection is inferred."
           effect: Read or navigate using the exact selected context; do not mutate a
             source object or infer permission from its presence.
           finality: read-only-or-navigation; no-write-finality
@@ -1200,7 +1222,6 @@ steps:
         status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
         operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
         objectRefs:
-          - media.domain.quality-assessment
           - media.domain.artifact-version
         versionIdentityRule: Exact immutable version identity is required whenever the
           source action names a version; do not substitute a newer version.
@@ -1244,22 +1265,17 @@ steps:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
     scenarioRefs: []
     capabilityRefs: []
-    result: Immediate result is the exact-target scoped owner observation with
-      requestId, exactTargetRef, ownerReceipt and observedAt.
-      Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only and
-      this read implies no command effect or replay.
-      [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
+    result: "Immediate result is the read-only P1 v2 paired observation: requestId, exact originalArtifactVersionRef, exact candidateArtifactVersionRef, requested metricRefs, one ordered metricResults row per requested metric, and observedAt. Preserve each side's status, currentness, raw observation and provenance; UNKNOWN and NOT_COMPARABLE remain explicit. No delta, direction, threshold, pass/fail, aggregate, rank, winner, improvement, qualification, or user selection is inferred."
   - view: media.view.prepare-render
     legacyViewRef: M-RENDER
     screenContractRef: screen-contracts/prepare-render.yaml
-    viewIntent: Snapshot/profile, validation, cost and submission
+    viewIntent: Optional next action after the user has selected or declined the measured candidate; prepare and explicitly submit a render only when separately chosen.
+    optionalAfterTerminalOutcome: true
+    completionEffect: NONE; J-19 completion remains the preceding explicit local selection or decline.
     actionRef: media.action.submit-render
-    actionBindingState: journey-specific-action-binding-pending;
-      candidate-refs-come-from-screen-contract-only
-    stateRefs:
-      - .product-experience/pdp-1-domain-data/states.yaml#media-job
-      - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
-    stateBindingState: pending-owner-bound-state-reference-and-transition
+    actionBindingState: SOURCE_BOUND_OPTIONAL_COMMAND; RUNTIME_NOT_ADMITTED
+    stateRefs: []
+    stateBindingState: command creates a new logical render job; job and attempt state are observations owned separately, and the admission receipt asserts no state.
     candidateActionRefs: []
     surfaceRefs:
       - media.surface.web
@@ -1273,198 +1289,123 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: EXACT_OPERATION_RESULT_DEFINED
-      scope: immediate-step-result
+      status: EXACT_OPERATION_RESULT_DEFINED; ADMISSION_ONLY
+      scope: optional-next-action-immediate-result
       sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
       operationRef: media.operation.action.submit-render
-      meaning: Immediate result is durable job admission only (requestId,
-        logicalJobId, sourceSnapshotDigest, renderProfileRef,
-        durableAdmissionReceipt); render completion and delivery are separate
-        later observations.
-      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
-        NOT_ADMITTED and no owner evidence/result is asserted
-      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/terminalSuccess
+      meaning: The durableAdmissionReceipt confirms job admission only; it does not establish render completion or link the logicalJobId to the selected candidate version.
+      evidenceBoundary: Optional action definition only; it does not revise J-19's already-recorded selection or decline.
+      runtimeAdmission: NOT_ADMITTED
     failure:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.criticalNonhappyPaths
-      proposal:
-        - id: phase0-critical-exception
-          condition: Metric abstention, no improvement, incorrect metric domain, exhausted
-            budget, or attempted fidelity downgrade.
-          responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
-            copy, and action bindings remain pending.
+      status: UNKNOWN_OUTCOME_OR_COMMAND_FAILURE
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/errors
+      meaning: Preserve request identity; UNKNOWN is neither success nor failure and requires reconciliation before retry.
     degradedBehavior:
       status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
-      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
-      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-19/criticalNonhappyPaths
-      disposition: UNKNOWN_OUTCOME holds; preserve request identity and reconcile the
-        same request before any retry. Do not infer success, completion,
-        persistence, or delivery; no blind replay.
+      sourceRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+      disposition: Do not infer render completion, selected-candidate production, or delivery from admission or request identity.
       runtimeAdmission: NOT_ADMITTED
-      dispatch: NEVER
-      ownerAcceptedOutcomeOracle: false
     recovery:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.recovery
-      proposal: Stop at declared bound, preserve best valid candidate and source, and
-        expose next permitted action.
+      status: SAME_REQUEST_RECONCILIATION
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/recovery
+      proposal: Reconcile the same request identity before an eligible retry; never substitute a newer version.
     postconditions: []
     requirementRefs: []
     verification:
       status: not-run
-      requiredChecks:
-        - duplicate-key-safe YAML parse
-        - focused PDP3-005 ten-contract structural/reference check
+      requiredChecks: [focused J19 local-choice and optional-render boundary]
       actualEvidence: []
-    contextPreservation:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.contextPreserved
-      proposal:
-        - Retain metric version/scope, candidate fingerprint, budget consumed,
-          and previous accepted quality.
     bindingStatus:
-      surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal;
-        channel admission and step-specific mapping remain pending
-      objectRefs: pending-explicit-domain-object-reference
-      stateRefs: pending-owner-bound-state-reference
-      canonicalOperationRef: pending-canonical-logical-operation-binding; transport
-        routes and action refs are not converted
-      authorityRef: pending-explicit-step-authority-binding
-      decisionRef: pending-explicit-owner-decision-binding
-      transitionRef: pending-legal-transition-binding
-      handoffRef: pending-explicit-step-handoff-binding
-      success: step-scoped immediate result defined by
-        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema;
-        later journey outcome remains separate
-      failure: candidate-proposal-only; journey-level exceptions not allocated to this
-        step
-      degradedBehavior: source-backed immediate-step degraded disposition defined by
-        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
-      recovery: candidate-proposal-only; not accepted step recovery
-      postconditions: pending-explicit-step-postconditions
-      requirementRefs: pending-explicit-requirement-crosswalk
-      verification: not-run; no evidence refs recorded
-      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+      surfaceRefs: candidate web surface source is bound; channel transport and screen admission remain pending
+      objectRefs: exact submit-render operation object set is bound; per-instance identity remains pending until use
+      stateRefs: no state transition is asserted; owner job and attempt state observations remain pending
+      canonicalOperationRef: exact optional submit-render operation is source-bound; transport and runtime admission remain pending
+      authorityRef: exact authority enforcement is not admitted; step-specific authority binding remains pending
+      decisionRef: PXD-075 classifies the action role; a J-19-specific action decision remains pending
+      transitionRef: INITIAL_AGGREGATE_ADMISSION; NO_EXISTING_AGGREGATE_TRANSITION; OWNER_STATE_OBSERVATION_REQUIRED
+      handoffRef: no step-specific handoff is defined; handoff binding remains pending
+      success: optional immediate result is admission-only and does not alter the preceding J-19 selection or decline; runtimeAdmission NOT_ADMITTED
+      failure: candidate-proposal-only command failure and UNKNOWN handling remain separately defined; owner acceptance pending
+      degradedBehavior: source-backed UNKNOWN hold is defined; runtimeAdmission NOT_ADMITTED and owner acceptance pending
+      recovery: source-defined same-request reconciliation is bound; step recovery acceptance remains pending
+      postconditions: no postcondition beyond optional durable admission is bound; further claims remain pending
+      requirementRefs: no additional requirement mapping is inferred; requirement crosswalk remains pending
+      verification: definition source is recorded; runtime evidence is not-run and remains empty
+      contextPreservation: exact request identity and prior selection/decline are preserved; runtime evidence remains pending
+    contextPreservation:
+      status: SOURCE_BOUND
+      sourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-19/contextPreserved
+      preserve: [candidateFingerprint, budget, previousAcceptedQuality]
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/3
       journeyRef: J-19
       ordinal: 4
       viewRef: media.view.prepare-render
-      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
       bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
       action:
         actionRef: media.action.submit-render
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
         semanticRole: DOMAIN_OPERATION
-        actorRefs:
-          - media.creator
-          - media.editor
+        actorRefs: [media.creator, media.editor]
         guards:
           - resolve-the-current-workspace-and-exact-target-before-access-or-change
           - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
           - preserve-the-requested-context-and-exact-version-across-recovery
-        effect: Request the explicitly named operation for the exact target only after
-          fresh actor, capability, policy, and target checks.
+        effect: Request the explicitly named operation for the exact target only after fresh actor, capability, policy, and target checks.
         reversibilityDisposition: NOT_REVERSIBLE
-        finality: external-effect-or-request; owner-acknowledgment-required;
-          unknown-is-not-failure
-        failureRecovery: preserve-the-exact-target-and-current-draft;
-          explain-denial-or-incomplete-evidence;
-          never-claim-success-from-local-state
+        finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure
+        failureRecovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence; never-claim-success-from-local-state
         domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
-        exactOperationRefs:
-          - media.operation.action.submit-render
+        exactOperationRefs: [media.operation.action.submit-render]
         runtimeAdmission: NOT_ADMITTED
-        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
-        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
-      stepSourceFacts:
-        intent: Snapshot/profile, validation, cost and submission
-        result: Immediate result is durable job admission only (requestId, logicalJobId,
-          sourceSnapshotDigest, renderProfileRef, durableAdmissionReceipt);
-          render completion and delivery are separate later observations.
-          [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema]
-        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
-        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
-        success:
-          status: EXACT_OPERATION_RESULT_DEFINED
-          scope: immediate-step-result
-          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
-          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
-          operationRef: media.operation.action.submit-render
-          meaning: Immediate result is durable job admission only (requestId,
-            logicalJobId, sourceSnapshotDigest, renderProfileRef,
-            durableAdmissionReceipt); render completion and delivery are
-            separate later observations.
-          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
-            NOT_ADMITTED and no owner evidence/result is asserted
-          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/terminalSuccess
-        failure:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.criticalNonhappyPaths
-          proposal:
-            - id: phase0-critical-exception
-              condition: Metric abstention, no improvement, incorrect metric domain, exhausted
-                budget, or attempted fidelity downgrade.
-              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
-                copy, and action bindings remain pending.
-        degradedBehavior:
-          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
-          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
-          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-19/criticalNonhappyPaths
-          disposition: UNKNOWN_OUTCOME holds; preserve request identity and reconcile the
-            same request before any retry. Do not infer success, completion,
-            persistence, or delivery; no blind replay.
-          runtimeAdmission: NOT_ADMITTED
-          dispatch: NEVER
-          ownerAcceptedOutcomeOracle: false
-        recovery:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.recovery
-          proposal: Stop at declared bound, preserve best valid candidate and source, and
-            expose next permitted action.
-        postconditions: []
-        contextPreservation:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.contextPreserved
-          proposal:
-            - Retain metric version/scope, candidate fingerprint, budget
-              consumed, and previous accepted quality.
-        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/3
-      canonicalBindings:
-        surfaceRefs:
-          - media.surface.web
-        objectRefs:
-          - media.domain.processing-job
-          - media.domain.job-attempt
-          - media.domain.resolved-plan
+      transitionApplicability:
+        status: INITIAL_AGGREGATE_ADMISSION; NO_EXISTING_AGGREGATE_TRANSITION; OWNER_STATE_OBSERVATION_REQUIRED
+        reason: The PDP-1 command contract creates one new logical render job and defines the job and attempt state scopes, but its durable admission receipt does not assert QUEUED, RUNNING, or a later result; owner state observation is required, and no initial aggregate edge is declared.
+        transitionRef: null
         stateRefs:
           - .product-experience/pdp-1-domain-data/states.yaml#media-job
           - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+        operationRef: media.operation.action.submit-render
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render
+        runtimeAdmission: NOT_ADMITTED
+      stepSourceFacts:
+        intent: Optional render preparation and explicit submission after the local choice; this action is not required for J-19 completion.
+        result: Durable job admission only; output identity and render completion remain separate observations.
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
+        success:
+          status: EXACT_OPERATION_RESULT_DEFINED; ADMISSION_ONLY
+          scope: optional-next-action-immediate-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+          operationRef: media.operation.action.submit-render
+          meaning: The durableAdmissionReceipt confirms job admission only; it does not establish render completion or link the logicalJobId to the selected candidate version.
+          evidenceBoundary: Optional action definition only; it does not revise J-19's already-recorded selection or decline.
+          runtimeAdmission: NOT_ADMITTED
+        failure:
+          status: UNKNOWN_OUTCOME_OR_COMMAND_FAILURE
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/errors
+          meaning: Preserve request identity; UNKNOWN is neither success nor failure and requires reconciliation before retry.
+        recovery:
+          status: SAME_REQUEST_RECONCILIATION
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/recovery
+          proposal: Reconcile the same request identity before an eligible retry; never substitute a newer version.
+      canonicalBindings:
+        actionRef: media.action.submit-render
+        surfaceRefs: [media.surface.web]
+        operationRefs: [media.operation.action.submit-render]
         canonicalOperationRef: media.operation.action.submit-render
+        objectRefs: [media.domain.processing-job, media.domain.job-attempt, media.domain.resolved-plan]
+        stateRefs: []
         authorityRef: null
+        decisionRef: null
         transitionRef: null
         requirementRefs: []
         scenarioRefs: []
-        authorityRefs:
-          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
-          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-        capabilityRefs: []
-      verification:
-        status: not-run
-        requiredChecks:
-          - duplicate-key-safe YAML parse
-          - focused PDP3-005 ten-contract structural/reference check
-        actualEvidence: []
-      acceptanceBoundary: Source definition only. Proposal branches, unbound
-        object/state/authority/transition/requirement identities, external
-        review and lifecycle evidence remain separate.
+        runtimeAdmission: NOT_ADMITTED
       fixtureOracle:
         status: NO_STEP_SCENARIO_BOUND
         sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
@@ -1473,166 +1414,21 @@ steps:
         scenarios: []
         positiveBranch:
           status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: User selects or declines a measurable successor candidate with
-            estimated/reconstructed properties disclosed.
+          scope: optional-render-step-not-required-for-journey-completion
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/3
+          proposal: A render request may be explicitly submitted after the terminal choice; admission does not change or establish that choice or render completion.
         nonhappyBranch:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.criticalNonhappyPaths
-          proposal:
-            - id: phase0-critical-exception
-              condition: Metric abstention, no improvement, incorrect metric domain, exhausted
-                budget, or attempted fidelity downgrade.
-              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
-                copy, and action bindings remain pending.
+          status: source-backed-definition
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/errors
+          proposal: Preserve UNKNOWN separately from command failure; no scenario fixture is bound to this optional action.
         recoveryBranch:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.recovery
-          proposal: Stop at declared bound, preserve best valid candidate and source, and
-            expose next permitted action.
+          status: source-backed-definition
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1/recovery
+          proposal: Reconcile the same request identity before any eligible retry; no scenario fixture is bound.
         executable: false
         ownerOracleAcceptance: pending-independent-review
-      operationContractBinding:
-        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-render
-        operationRef: media.operation.action.submit-render
-        operationKind: COMMAND
-        domainObjectRefs:
-          - media.domain.processing-job
-          - media.domain.job-attempt
-          - media.domain.resolved-plan
-        stateRefs:
-          - .product-experience/pdp-1-domain-data/states.yaml#media-job
-          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
-        authorityRefs:
-          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
-          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-        profileRef: media.operation-profile.async-job-command.v1
-        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
-          meaning selected; independent-PDP1-and-PDP3-review-open;
-          transport/runtime-NOT_ADMITTED
-        runtimeAdmission: NOT_ADMITTED
-      stepOutcomeSemantics:
-        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
-        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-render
-        actionRef: media.action.submit-render
-        positive:
-          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-render
-          intendedResult:
-            status: candidate-proposal
-            scope: journey-level-not-allocated-to-this-step
-            sourceRef: journey.terminalSuccess
-            proposal: User selects or declines a measurable successor candidate with
-              estimated/reconstructed properties disclosed.
-          effect: Request the explicitly named operation for the exact target only after
-            fresh actor, capability, policy, and target checks.
-          finality: external-effect-or-request; owner-acknowledgment-required;
-            unknown-is-not-failure
-        nonhappy:
-          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-render
-          guards:
-            - resolve-the-current-workspace-and-exact-target-before-access-or-change
-            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
-            - preserve-the-requested-context-and-exact-version-across-recovery
-          failure: preserve-the-exact-target-and-current-draft;
-            explain-denial-or-incomplete-evidence;
-            never-claim-success-from-local-state
-        recovery:
-          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-render
-          recovery: preserve-the-exact-target-and-current-draft;
-            explain-denial-or-incomplete-evidence;
-            never-claim-success-from-local-state
-          automaticRetry: not-admitted; reconcile same identity only as exact source allows
-      transitionApplicability:
-        status: INITIAL_AGGREGATE_ADMISSION; NO_EXISTING_AGGREGATE_TRANSITION;
-          OWNER_STATE_OBSERVATION_REQUIRED
-        reason: The PDP-1 command contract describes a processing request and exact
-          job/attempt state scope, but its receipt does not assert QUEUED,
-          RUNNING, or a later result; owner state observation is required, and
-          no initial aggregate edge is declared.
-        transitionRef: null
-        stateRefs:
-          - .product-experience/pdp-1-domain-data/states.yaml#media-job
-          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
-        operationRef: media.operation.action.submit-render
-        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-render
-        runtimeAdmission: NOT_ADMITTED
-      canonicalBindingDisposition:
-        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/3
-        fields:
-          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
-          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
-          stateRefs: OWNER_OPERATION_STATE_SCOPE_PRESENT
-          canonicalOperationRef: EXACT_OPERATION_REF
-          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
-          transitionRef: CANONICAL_STATES_BOUND; EXACT_LEGAL_TRANSITION_REF_UNBOUND
-          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
-          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
-        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-render
-        authorityRefs:
-          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
-          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
-        noAcceptanceInference: source bindings do not establish independent review,
-          runtime admission, or lifecycle receipt
-      versionedObjectObservation:
-        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
-        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-render
-        objectRefs:
-          - media.domain.processing-job
-          - media.domain.job-attempt
-          - media.domain.resolved-plan
-        versionIdentityRule: Exact immutable version identity is required whenever the
-          source action names a version; do not substitute a newer version.
-        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-render
-        observation: null
-        runtimeAdmission: NOT_ADMITTED
-      intentBinding:
-        status: STEP_INTENT_SOURCE
-        intent: Snapshot/profile, validation, cost and submission
-        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/3
-        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml
-      screenActorScope:
-        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
-        actorRefs:
-          - media.creator
-          - media.editor
-        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml#actors
-        actionActorRefs:
-          - media.creator
-          - media.editor
-      stepKindDisposition:
-        kind: EXACT_SOURCE_ACTION
-        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/3
-        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml#purpose
-        actionRef: media.action.submit-render
-        candidateActionRefs: []
-        operationRefs:
-          - media.operation.action.submit-render
-        effectClaim: see-stepOutcomeSemantics
-      actionCapabilityBinding:
-        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
-          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
-        capabilityRefs: []
-        requirementRefs: []
-        sourceRefs:
-          - .product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml
-        acceptance: crosswalk source only; no independent review/runtime admission
-    authorityRefs:
-      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
-      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-    scenarioRefs: []
-    capabilityRefs: []
-    result: Immediate result is durable job admission only (requestId, logicalJobId,
-      sourceSnapshotDigest, renderProfileRef, durableAdmissionReceipt); render
-      completion and delivery are separate later observations.
-      [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema]
-stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy
-  view maps to one registered intent-based screen. Null actionRef and empty
-  stateRefs are deliberate open bindings, not no-op actions or completed
-  transitions.
+stepBindingRule: >-
+  The ordered P0 views map in order: quality review, plan review, exact comparison, then optional render preparation. The exact local selection or decline on the comparison view is the J19 completion result; the subsequent M-RENDER action is optional and non-completing.
 terminalSuccess: User selects or declines a measurable successor candidate with
   estimated/reconstructed properties disclosed.
 criticalNonhappyPaths:

@@ -456,23 +456,28 @@
   "latestCurrentnessRefresh": {
     "status": "CURRENTNESS_REFRESH_ONLY",
     "phaseScope": "PDP-0",
-    "decisionRef": ".product-experience/decision-log.md#PXD-213",
+    "decisionRef": ".product-experience/decision-log.md#PXD-218",
     "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
     "currentSourceSha256": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
     "sourceFingerprints": {
-      ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
-      ".product-experience/pdp-0-product-truth/quality-policy.yaml": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
-      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "53afdf91fd0fceb65e3058fb8dd2b7a384f2cfe4923609dbc5706d8859c7c8c3",
-      ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
-      ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
-      ".product-experience/source-manifest.yaml#PDP-0-projection": "ed2ecf39745ca58b4eaae452e3bab4ba36dff4d7ed0d69572773a2d5ced025ad",
-      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "969d94b291d279a238ae8b19e3982ef2294d1e77d4e4d86f5a376c86188c8807",
-      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json": "1306cf6c0ccbdeab776307f3a69732db62bbce5eb5a4d2be0062526685a35244",
       ".product-experience/decision-log.md#PXD-211-section": "b1e0e32ae20914152547c20f0fbe8b020070c77f3fd78572e1965753f943c4cf",
       ".product-experience/decision-log.md#PXD-212-section": "1cd0c87ee6a05c80685bd7766e4100adb7bb08cf2e5bb7449f6fdf6a2897030e",
       ".product-experience/decision-log.md#PXD-213-section": "d5b234b6e18cc6c916c25a9425d594b15238599ef1125812e75f097602984a59",
+      ".product-experience/decision-log.md#PXD-216-section": "1adcd700671d93ba0d05dbc271dd1c1e2b9184970f384f1a15b210122b43e95c",
+      ".product-experience/decision-log.md#PXD-218-section": "396d5a9b12572c33bbaca6aad225421637be91a70b09392a7354e22736841d32",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+      ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
+      ".product-experience/pdp-0-product-truth/quality-policy.yaml": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      ".product-experience/source-manifest.yaml#PDP-0-projection": "ed2ecf39745ca58b4eaae452e3bab4ba36dff4d7ed0d69572773a2d5ced025ad",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "82343cdb98eb123207a0e22f8c3daa3c353cc4041ec2e0d769d4d2c7e0b34c12",
+      "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json": "6b269d54f93ed86de5220fc4ed0e286089b53a0a23ef53fdd18da97cc418ce04",
+      "docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json": "2177e350b2c8eeda74af2f498df7452477db24141daf94e9c875e7872b76fe54",
       "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd213.json": "9bd0f2fe837f11c638c9f425a9ec4e1cb55c7438f10e23376f471de2c81d989d",
-      "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd212.json": "db03b1594f86518a699892ae2652ab5efea1d5547b2d5feced137ea9bdb36337"
+      "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd212.json": "db03b1594f86518a699892ae2652ab5efea1d5547b2d5feced137ea9bdb36337",
+      "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd213.json": "977494736f13fd3474fa850ef4dbd2d0cefeb30e76aa74cf2e1e32962e5054a7",
+      "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd216.json": "4a4062c419ec2adace53f270a72ecc623277de5ab7e7c1914f42afa66fcc1fa6"
     },
     "reviewedPopulation": {
       "canonicalCapabilityRows": 462,
@@ -485,7 +490,7 @@
       "measurementState": "NOT_EVALUATED",
       "qualificationState": "NOT_EVALUATED"
     },
-    "semanticReview": "PXD-212_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW",
+    "semanticReview": "PXD-216_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW",
     "changedTypeJoins": [
       {
         "capabilityId": "media.edit.inpaint",
@@ -532,7 +537,7 @@
     "acceptanceEffect": "none",
     "reviewArtifactRef": "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd213.json",
     "reviewArtifactSha256": "9bd0f2fe837f11c638c9f425a9ec4e1cb55c7438f10e23376f471de2c81d989d",
-    "preservedSemanticReviewRef": ".product-experience/decision-log.md#PXD-212",
-    "preservedSemanticReviewArtifactSha256": "db03b1594f86518a699892ae2652ab5efea1d5547b2d5feced137ea9bdb36337"
+    "preservedSemanticReviewRef": ".product-experience/decision-log.md#PXD-216",
+    "preservedSemanticReviewArtifactSha256": "2177e350b2c8eeda74af2f498df7452477db24141daf94e9c875e7872b76fe54"
   }
 }

@@ -135,8 +135,53 @@ ownerDefinedCaptionAndAudioDescriptionOutputUse:
     - infer universal applicability or exemption from capability name alone
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
+ownerDefinedRuleManagementProposalControls:
+  id: media.a11y.rule-management-proposal-controls.v1
+  authority: Media accessibility definition for a coordinator-authored PDP-1 proposal; independent specialist acceptance remains separate
+  scopeStatus: PROPOSAL_ONLY; PENDING_OWNER_REVIEW; DEFINITION_ONLY_NOT_MEASURED
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/handoff-contracts.yaml#/handoffs/pdp1ToPdp2CanonicalDomain/proposalHandoffs/@id=media.rules.manage.pdp1-definition-handoff.v1
+    - .product-experience/pdp-1-domain-data/rule-management-contracts.yaml
+    - .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#ruleManagementProposalInterfaceBinding
+    - .product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#ruleManagementProposalPresentation
+  requiredBindings:
+    - exact authenticated tenant and purpose context
+    - exact rule-set scope and target operation reference
+    - exact immutable rule-set version and expected predecessor, including explicit null only for a known absent head
+    - exact versioned source provenance, normalized graph, and semantic fingerprint
+    - exact validation context and validation receipt when validation is requested
+    - exact candidate operation plan when reuse is requested
+    - operation-specific authorization and current status where applicable
+  interactionRequirements:
+    - Every author, inspect, validate, and reuse affordance has a keyboard-operable, non-drag equivalent and a visible focus indicator.
+    - Accessible names identify the requested action and the exact rule-set/version or target operation affected.
+    - Programmatic state distinguishes proposal, candidate, validation result, candidate operation plan, and each exact non-success outcome; color or icon alone never carries the distinction.
+    - Long rule details and diagnostics remain navigable by keyboard and exposed in a stable reading order; no editor requires drag, hover, or animation to inspect or correct a value.
+    - Validation and reuse outcomes are associated with the exact version, fingerprint, scope, and target operation that produced them.
+    - UNKNOWN and STALE expose safe read-only reconciliation or an explicit new-request path; they never trigger silent fallback, rebase, or blind retry.
+  states:
+    source: .product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#ruleManagementProposalPresentation
+    presentationOnly: true
+    createsLifecycleState: false
+  negativeCases:
+    - keyboard or screen-reader user cannot author, inspect, correct, or understand a rule candidate without pointer dragging
+    - tenant, purpose, scope, exact version, predecessor, source provenance, or fingerprint is hidden or inferred from a display label
+    - valid validation is presented as approval, execution, applied media effect, or measured quality
+    - STALE or UNKNOWN silently selects a latest/different version or automatically resubmits
+    - non-success state is represented by color, icon, or animation without an accessible name and explanation
+  evidenceBoundary:
+    status: DEFINITION_ONLY_NOT_MEASURED
+    requiredObservation: Independent keyboard and screen-reader review of each accepted author, inspect, validate, and reuse flow plus status announcements and focus restoration.
+    nonClaims: [no-rendered-conformance-finding, no-specialist-accessibility-acceptance, no-owner-acceptance, no-runtime-admission, no-phase-acceptance]
+  runtimeAdmission: NOT_ADMITTED
+  executionAdmission: NOT_ADMITTED
+  acceptanceEffect: none
 normativeRuleRecords:
   - id: media.p2.rule.caption-and-audio-description-output-use.v1
     ruleRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml#ownerDefinedCaptionAndAudioDescriptionOutputUse
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/accessibility.yaml#selectedPolicy
+    acceptanceEffect: none
+  - id: media.p2.rule.rule-management-proposal-controls-accessibility.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml#ownerDefinedRuleManagementProposalControls
     sourceAuthority: .product-experience/pdp-2-design-interface-system/accessibility.yaml#selectedPolicy
     acceptanceEffect: none

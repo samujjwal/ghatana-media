@@ -23,9 +23,21 @@ test('caption version registration definition', () => {
     'sourceClockId', 'ticksPerSecond', 'sourceDurationTicks', 'languageDisposition', 'captionSegments', 'requestId',
   ]);
   assert.deepEqual(write.outputSemantics.successFields, [
-    'captionVersionId', 'registrationReceiptId', 'requestFingerprint', 'sourceArtifactId',
+    'requestId', 'captionVersionId', 'registrationReceiptId', 'requestFingerprint', 'sourceArtifactId',
     'sourceArtifactVersionId', 'parentVersionKind', 'parentVersionId', 'languageDisposition', 'sourceClockId', 'registeredAt',
   ]);
+  const requestIdSchema = write.ownerWireSchema.requestSchema.properties.requestId;
+  const resultSchema = write.ownerWireSchema.resultSchema;
+  const resultRequestIdSchema = resultSchema.properties.requestId;
+  assert.equal(requestIdSchema.pattern, '^[A-Za-z0-9][A-Za-z0-9._~-]*$');
+  assert.deepEqual(resultRequestIdSchema, requestIdSchema, 'the response echoes the same exact bounded request identity');
+  assert.ok(resultSchema.required.includes('requestId'), 'every outcome must carry the exact request identity');
+  for (const outcome of resultSchema.properties.outcome.enum) {
+    assert.ok(resultSchema.required.includes('requestId'), `${outcome} results require requestId`);
+  }
+  const requestIdPattern = new RegExp(requestIdSchema.pattern);
+  assert.equal(requestIdPattern.test('A9._~-z'), true, 'requestId accepts the declared ASCII letters, digits, dot, underscore, tilde, and hyphen');
+  assert.equal(requestIdPattern.test('request:id'), false, 'requestId rejects colon, which is outside the owner-defined key domain');
   assert.equal(write.executionAdmission, undefined);
   assert.match(write.scopeStatus, /runtime-NOT_ADMITTED/u);
 
@@ -69,6 +81,15 @@ test('caption version registration definition', () => {
   const executionAdmissionForged = structuredClone(base);
   executionAdmissionForged.operations.operations.find(({ id }) => id === write.id).executionAdmission = 'ADMITTED';
   assert.match(validateMediaCaptionVersionDefinitions(executionAdmissionForged).join('\n'), /cannot forge execution admission/u);
+
+  const responseRequestIdMismatch = structuredClone(base);
+  responseRequestIdMismatch.operations.operations.find(({ id }) => id === write.id).ownerWireSchema.resultSchema.properties.requestId.pattern = '^[A-Za-z0-9][A-Za-z0-9._~:-]*$';
+  assert.match(validateMediaCaptionVersionDefinitions(responseRequestIdMismatch).join('\n'), /every result outcome must require the same bounded opaque idempotency-key domain/u);
+
+  const resultIdentityOptional = structuredClone(base);
+  resultIdentityOptional.operations.operations.find(({ id }) => id === write.id).ownerWireSchema.resultSchema.required =
+    resultIdentityOptional.operations.operations.find(({ id }) => id === write.id).ownerWireSchema.resultSchema.required.filter((field) => field !== 'requestId');
+  assert.match(validateMediaCaptionVersionDefinitions(resultIdentityOptional).join('\n'), /every result outcome must require the same bounded opaque idempotency-key domain/u);
 
   const legacyParentEquated = structuredClone(base);
   legacyParentEquated.domainObjects.objects.find(({ id }) => id === 'media.domain.caption-version').canonicalParentRequirement =

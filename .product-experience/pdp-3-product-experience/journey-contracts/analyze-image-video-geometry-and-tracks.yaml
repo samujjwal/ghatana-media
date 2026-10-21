@@ -26,14 +26,24 @@ channelDefinitionEvidence:
   sourceRefs:
     - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect/requestSchema
     - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect/requestSchema/properties/input2/properties/payload/properties/scopeSelectors
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
     - .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/unknownOutcome
-  sourceGroundedInputs: image-or-video-artifact-with-exact-artifactId-and-versionId; requested-dimensions; optional-opaque-timeRange; one requestId
-  sourceGroundedResult: capability-result-envelope-with-outcome-observedAt-outputs-provenance-implementationState-qualificationState-runtimeAvailability
+  sourceGroundedInputs: Exact image-or-video artifactId/versionId; requested dimensions; requestId; P1 input2 analysis-request scopeSelectors expose temporalApplicability, frameSelectors (selectorRef, streamRef, zero-based frameIndex, optional source time base and rational presentation time with clock), optional temporalRange, spatialApplicability, and regionSelectors (selectorRef, regionRef, coordinateContextRef, optional bounds). A legacy opaque timeRange remains opaque.
+  sourceGroundedResult: Capability envelope outcome/observedAt/outputs/provenance/implementationState/qualificationState/runtimeAvailability; typed visual result analysisRef/sourceRefs/dimensionResults/overallDisposition and, when required, sourceObservations preserving exact subject version, temporalScope, spatialScope, observedAt, provenanceDisclosure, disposition, evidenceRefs, and reasonRefs. Source-reported method/provider/model and uncertainty remain as disclosed; absent disclosure/scope remains NOT_REPORTED or UNKNOWN.
+  sourceObservationBinding:
+    status: SOURCE_BOUND_INLINE_TYPED_RESULT; NO_PERSISTENT_OBSERVATION_ID; RUNTIME_NOT_ADMITTED
+    schemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+    exactSubject: Each sourceObservations.subjectVersion matches the trusted tenant and exact requested artifactId/versionId; dimensionRef matches a requested dimension.
+    temporalSelection: KNOWN scope is allowed only for the exact requested frameSelectors entry or temporalRange; otherwise scope remains UNKNOWN or NOT_APPLICABLE with source evidence.
+    spatialSelection: KNOWN scope is allowed only for the exact requested regionSelectors entry, region, and declared coordinateContextRef; no coordinate conversion is inferred.
+    provenanceAndUncertainty: Preserve only source-reported method/provider/model/modelVersion and sourceSignals; NOT_REPORTED, UNKNOWN, ABSTAINED, PARTIAL, and NOT_APPLICABLE remain explicit. Signals do not establish calibrated confidence or correctness.
+    identityBoundary: analysisRef plus exact subject version, dimensionRef, scopes, observedAt, and evidenceRefs identify the inline result for this response. P1 defines no durable observation-object identity or lifecycle.
   blockedSemantics:
-    - P1 request schema does not bind a selected frame/region or typed geometry/tracks/confidence fields to this journey request/result.
-    - P1 result finality requires an authoritative owner receipt and exact output-version references; no same-job terminal analysis observation identity is established by this journey contract.
+    - P1 defines source-scoped typed inline observations, not a durable observation object, lifecycle, or job/result join. Do not claim persistence or finality beyond the exact response; a request/submission receipt is not completed analysis.
+    - The typed result does not establish calibrated confidence or prove absence from confidence/empty output; preserve only source-reported fields, dispositions, uncertainty, provenance, and limitations.
     - P2 channel grammar does not admit web, gRPC, or SDK transport; all three remain UNBOUND and NOT_ADMITTED.
-  unknownAndDenied: Preserve denied, unavailable, stale-frame, missing-region, unsupported-provider and ambiguous-finality outcomes as denied/UNKNOWN/partial according to authoritative evidence; do not infer absence, calibrated confidence or completion from transport acknowledgement.
+  unknownAndDenied: Preserve denied/unavailable requests, stale or missing frame/region selection, UNKNOWN temporal/spatial scope, unsupported providers, NOT_REPORTED/UNKNOWN provenance, abstention, partial results, and ambiguous finality from source evidence. Do not infer absence, calibrated confidence, provider support, analysis completion, or a job/observation join from a submission or transport acknowledgement.
 pdp1ResultEvidence:
   status: SOURCE_BOUND_DEFINITION_ONLY; CHANNEL_TRANSPORT_UNBOUND; RUNTIME_NOT_ADMITTED
   sourceRefs:
@@ -329,6 +339,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-analyze-expression
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-analyze-expression/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-analyze-expression/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-analyze-expression/operationVersion
       authorityRefs:
@@ -351,6 +363,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-analyze-gaze
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-analyze-gaze/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-analyze-gaze/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-analyze-gaze/operationVersion
       authorityRefs:
@@ -373,6 +387,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-classify
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-classify/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-classify/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-classify/operationVersion
       authorityRefs:
@@ -395,6 +411,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect/operationVersion
       authorityRefs:
@@ -417,6 +435,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect-shot-boundary
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect-shot-boundary/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect-shot-boundary/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect-shot-boundary/operationVersion
       authorityRefs:
@@ -439,6 +459,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-camera-motion
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-camera-motion/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-camera-motion/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-camera-motion/operationVersion
       authorityRefs:
@@ -461,6 +483,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-depth
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-depth/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-depth/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-depth/operationVersion
       authorityRefs:
@@ -483,6 +507,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-face-landmarks
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-face-landmarks/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-face-landmarks/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-face-landmarks/operationVersion
       authorityRefs:
@@ -505,6 +531,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-hand-pose
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-hand-pose/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-hand-pose/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-hand-pose/operationVersion
       authorityRefs:
@@ -527,6 +555,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-human-pose
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-human-pose/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-human-pose/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-human-pose/operationVersion
       authorityRefs:
@@ -549,6 +579,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-optical-flow
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-optical-flow/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-optical-flow/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-optical-flow/operationVersion
       authorityRefs:
@@ -571,6 +603,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-surface-normals
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-surface-normals/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-surface-normals/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-estimate-surface-normals/operationVersion
       authorityRefs:
@@ -593,6 +627,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-matte-foreground-background
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-matte-foreground-background/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-matte-foreground-background/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-matte-foreground-background/operationVersion
       authorityRefs:
@@ -615,6 +651,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-segment-image
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-segment-image/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-segment-image/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-segment-image/operationVersion
       authorityRefs:
@@ -637,6 +675,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-segment-motion
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-segment-motion/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-segment-motion/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-segment-motion/operationVersion
       authorityRefs:
@@ -659,6 +699,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-segment-video
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-segment-video/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-segment-video/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-segment-video/operationVersion
       authorityRefs:
@@ -681,6 +723,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-object
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-object/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-object/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-object/operationVersion
       authorityRefs: &a3
@@ -703,6 +747,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-object
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-object/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-object/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-object/operationVersion
       authorityRefs: *a3
@@ -722,6 +768,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-point
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-point/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-point/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-point/operationVersion
       authorityRefs: &a4
@@ -744,6 +792,8 @@ pdp1ResultEvidence:
       operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-point
       requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-point/requestSchema
       resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-point/resultSchema
+      typedOutputSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      typedOutputFields: [analysisRef, sourceRefs, dimensionResults.dimensionRef, dimensionResults.disposition, dimensionResults.evidenceRef, dimensionResults.uncertaintyDisposition, dimensionResults.reasonRef, dimensionResults.measurement?, dimensionResults.unitRef?, overallDisposition]
       operationVersion: 1
       operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-point/operationVersion
       authorityRefs: *a4
@@ -3264,7 +3314,6 @@ steps:
       - media.surface.service-grpc
       - media.surface.sdk
     objectRefs:
-      - media.domain.quality-assessment
       - media.domain.artifact-version
     canonicalOperationRef: media.operation.action.compare-candidate-on-metric
     authorityRef: null
@@ -3398,7 +3447,6 @@ steps:
           - media.surface.service-grpc
           - media.surface.sdk
         objectRefs:
-          - media.domain.quality-assessment
           - media.domain.artifact-version
         stateRefs: []
         canonicalOperationRef: media.operation.action.compare-candidate-on-metric

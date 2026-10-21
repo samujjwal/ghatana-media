@@ -1,3 +1,5 @@
+> **Historical proposal / provenance record:** This dated plan is not current status, a product-definition source, or an active task queue. Use the [canonical PDP source index](../../.product-experience/README.md) for definitions and `pdp-0-phase-dev-status.json` through `pdp-3-phase-dev-status.json` in this directory for current phase status.
+
 # Superseded — PDP-0–3 have no remaining development tasks
 
 > **Discovery currentness hold (2026-10-13):** The four historical PDP development records still say `DEV_COMPLETE` with **zero outstanding definition-meaning tasks**, but the currently required per-surface source/currentness barrier is not yet validated. Under `AGENTS.md`, do not enter Build until [the approved reconciliation/Discovery exit plan](MEDIA-DISCOVERY-SOURCE-CURRENTNESS-EXIT-PLAN-2026-10-13.md) reaches PASS. This is source-currentness verification and binding, **not** revival of the withdrawn PDP-D01…D15 backlog. [Delegated review and decisions](../../.product-experience/reviews/2026-10-13-pdp0-discovery-delegated-review.md).

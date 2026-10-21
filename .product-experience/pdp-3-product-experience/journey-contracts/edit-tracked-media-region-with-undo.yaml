@@ -653,7 +653,6 @@ steps:
     surfaceRefs:
       - media.surface.web
     objectRefs:
-      - media.domain.quality-assessment
       - media.domain.artifact-version
     canonicalOperationRef: media.operation.action.compare-candidate-on-metric
     authorityRef: null
@@ -793,7 +792,6 @@ steps:
         surfaceRefs:
           - media.surface.web
         objectRefs:
-          - media.domain.quality-assessment
           - media.domain.artifact-version
         stateRefs: []
         canonicalOperationRef: media.operation.action.compare-candidate-on-metric

@@ -46,26 +46,16 @@ projection outside those phases. The authoring tree now uses
 `pdp-2-design-interface-system/`, `pdp-3-product-experience/`, and `explorer/`
 beneath `.product-experience/`.
 
-Intended consumer surfaces and their proposal, implementation, and
-qualification dispositions are indexed in
-[surface-registry.yaml](../.product-experience/surface-registry.yaml). The
-expert-reviewed migration plan remains an execution and provenance reference;
-it does not override meaning in the owning PDP authority.
+Intended consumer surfaces are indexed in the
+[surface registry](../.product-experience/surface-registry.yaml). The
+expert-reviewed migration plan remains a provenance reference; it does not
+override meaning in the owning PDP authority. This page is a reader summary,
+not a second source for requirements, coverage, or phase status.
 
-PDP-0, PDP-1, PDP-2 and PDP-3 are `DEV_COMPLETE` at their recorded
-definition cuts, with **zero remaining PDP authoring tasks**. The source tree
-provides product contracts, not actual deployment or service qualification.
-
-The complete vision-to-requirement-to-experience crosswalk is maintained in
-[PRODUCT-DEFINITION-COVERAGE.md](PRODUCT-DEFINITION-COVERAGE.md) and its
-machine-readable ledger
-[../.product-experience/vision-requirements-coverage.yaml](../.product-experience/vision-requirements-coverage.yaml).
-Each of the ten P0 outcomes is linked to requirement groups and either a
-canonical journey or an explicitly classified supporting view. Each later
-phase retains those links; implementation, owner acceptance, currentness, and
-native evidence remain separate statuses.
-
-The earlier narrow P0-001 migration-boundary acceptance is distinct from
-completed PDP development. Independent reviews, public provider admission,
-runtime implementation and production release are downstream, not unfinished
-PDP tasks.
+Canonical outcomes and requirements are in
+[Product Truth](../.product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md).
+The single vision-to-requirement-to-experience crosswalk is
+[`vision-requirements-coverage.yaml`](../.product-experience/vision-requirements-coverage.yaml).
+Current phase status is recorded in the source-pinned records linked from the
+[PDP source index](../.product-experience/README.md). No Media application has
+been released.

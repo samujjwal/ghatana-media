@@ -40,6 +40,20 @@ function normalizedSchema(schema, scalarTypes) {
   if ((schema.type === "enum" || schema.type === "optional-enum") && Array.isArray(schema.values)) {
     return stable({ type: "string", enum: [...schema.values] });
   }
+  if (schema.type === "optional-source-time-range-bound-to-exact-immutable-source-version") {
+    return stable({ type: "object", additionalProperties: false, required: ["startMs", "endMs"], properties: { startMs: { type: "integer", minimum: 0 }, endMs: { type: "integer", minimum: 0 } } });
+  }
+  if (schema.type === "optional-timeline-person-scene-speaker-facet-query") {
+    return stable({ type: "object", additionalProperties: false, required: ["facetKind", "value"], properties: { facetKind: { type: "string", enum: ["person", "scene", "speaker", "timeline"] }, value: { type: "string", pattern: ".*\\S.*", minLength: 1, maxLength: 512 } } });
+  }
+  if (schema.type === "optional-visual-content-or-metadata-query") {
+    return stable({ type: "object", additionalProperties: false, required: ["query"], properties: { query: { type: "string", pattern: ".*\\S.*", minLength: 1, maxLength: 4096 } } });
+  }
+  // PDP-0 owns this actor-declared purpose/use-scope reference token; PDP-1
+  // projects it onto the registered opaque-reference wire validator.
+  if (schema.type === "optional-actor-declared-purpose-and-use-scope-reference") {
+    return stable({ type: "string", format: "opaque-reference", minLength: 1, maxLength: 256 });
+  }
   // P0 marks optionality with a shorthand type; parent required arrays remain
   // the authority for requiredness, so normalize only the value validator.
   if (schema.type === "optional-boolean") return { type: "boolean" };
@@ -111,7 +125,9 @@ function outputTypes(schema) {
 function diagnostics(capabilities, operations, { ignoredIssues = () => false } = {}) {
   const issues = [];
   const fail = (id, check, detail = "mismatch") => issues.push(`${id}: ${check} (${detail})`);
-  const capRows = capabilities.capabilities ?? [];
+  const ownerLeafIds = new Set(read(".product-experience/pdp-0-product-truth/capability-leaf-review.yaml")
+    .ownerCapabilityLeafAdjudication.records.map(({ capabilityRef }) => capabilityRef));
+  const capRows = (capabilities.capabilities ?? []).filter(({ id }) => ownerLeafIds.has(id));
   const actionRows = actionRowsSource;
   const contractRows = operations.capabilityOperationContracts?.records ?? [];
   const capById = new Map(capRows.map((row) => [row.id, row]));
@@ -2649,7 +2665,11 @@ test("seven image, video, and audio source slots require exact immutable artifac
     const outputType = operation.successOutputs[0].artifactType;
     const outputPayload = outputType === "spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata"
       ? { kind: "spatial-artifact", artifactId: "output-1", versionId: "output-v1", sourceLineage }
-      : { jobId: "job-1", sourceLineage };
+      : outputType === "candidate-video-artifact-with-execution-provenance"
+        ? { jobId: "job-1", artifactId: "output-1", versionId: "output-v1", sourceLineage }
+        : outputType === "candidate-audio-artifact-with-execution-provenance"
+          ? { jobId: "job-1", sourceLineage }
+          : assert.fail(`Unexpected source-derived output type: ${outputType}`);
     const success = (lineage = sourceLineage, sourceRefs = [sourceRef]) => ({
       outcome: "SUCCEEDED",
       observedAt: "2026-10-10T12:00:00Z",
@@ -2733,7 +2753,7 @@ test("project create, inspect, and attach preserve exact project receipt variant
   }, "effective-project-state-output-matches-source-defined-project-revision-variant");
 });
 
-test("all 462 PDP-1 mappings preserve P0 capability input, parameter, and success-output meaning", () => {
+test("all 462 owner-adjudicated PDP-1 mappings preserve P0 capability input, parameter, and success-output meaning", () => {
   const capabilities = read(CAP_PATH);
   const operations = read(OPS_PATH);
   const issues = diagnostics(capabilities, operations, {
@@ -2823,6 +2843,46 @@ test("all 462 PDP-1 mappings preserve P0 capability input, parameter, and succes
   assert.equal(issues.length, 0, `${issues.length} semantic mapping failures; first: ${issues[0] ?? "none"}${issues.length ? `\n${[...issues].sort().join("\n")}` : ""}`);
 });
 
+test("PXD-207 candidate outputs preserve local-only source semantics", () => {
+  const operations = read(OPS_PATH);
+  const composeIds = ["media.compose.multitrack-timeline", "media.compose.reusable-composition", "media.compose.safe-area"];
+  for (const capabilityRef of composeIds) {
+    const row = operations.capabilityOperationContracts.records.find((item) => item.capabilityRef === capabilityRef);
+    const effective = resolveEffectiveCapabilityWireSchemas(operations, capabilityRef);
+    assert.equal(effective.valid, true, `${capabilityRef} resolves its current P1 wire schema`);
+    assert.deepEqual(outputTypes(effective.resultSchema), ["local-versioned-composition-candidate"]);
+    const typed = operations.capabilityOperationContracts.outputPayloadSchemas.find(({ id }) => id === row.successOutputs[0].payloadSchemaRef);
+    assert.ok(typed, `${capabilityRef} has a canonical typed output schema`);
+    assert.equal(typed.schema.properties.payload.required.includes("resultKind"), false,
+      "composition candidate does not claim a render-manifest result variant");
+  }
+  const editIds = ["media.edit.inpaint", "media.edit.matte", "media.edit.retime-slow-motion-speed-ramp"];
+  for (const capabilityRef of editIds) {
+    const source = read(CAP_PATH).capabilities.find(({ id }) => id === capabilityRef);
+    const effective = resolveEffectiveCapabilityWireSchemas(operations, capabilityRef);
+    assert.equal(effective.valid, true, `${capabilityRef} resolves its current P1 owner overlay`);
+    assert.deepEqual(outputTypes(effective.resultSchema), [source.ownerDefinition.successOutputs[0].artifactType]);
+    const output = effective.resultSchema.properties.outputs.items;
+    const payload = output.properties.payload;
+    assert.equal(payload.properties.kind.const, "local-candidate");
+    assert.equal(payload.properties.editKind.const, source.ownerDefinition.parameterSchema?.properties?.editKind?.const
+      ?? capabilityRef.split(".").at(-1));
+    assert.equal(payload.oneOf, undefined, "success cannot claim a committed project revision");
+    if (capabilityRef === "media.edit.inpaint") {
+      assert.equal(payload.properties.resultKind.const, "INPAINT_CANDIDATE");
+      assert.equal(payload.properties.epistemicDisposition.const, "ESTIMATED_OR_RECONSTRUCTED");
+    }
+    if (capabilityRef === "media.edit.matte") {
+      assert.equal(payload.properties.resultKind.const, "MATTE_CANDIDATE");
+      assert.equal(payload.properties.epistemicDisposition.const, "SOURCE_DERIVED_TRANSFORMATION");
+    }
+    if (capabilityRef === "media.edit.retime-slow-motion-speed-ramp") {
+      assert.deepEqual(payload.properties.resultKind.enum, ["RETIME_CANDIDATE", "FREEZE_FRAME_HOLD_CANDIDATE", "REVERSE_PLAYBACK_CANDIDATE"]);
+      assert.equal(payload.allOf.length, 3, "each timing variant binds its exact source-time mapping");
+    }
+  }
+});
+
 test("PDP-1 successor operations remain pinned to exact P0 capability identities", () => {
   const capabilities = read(CAP_PATH);
   const operations = read(OPS_PATH);
@@ -2870,7 +2930,7 @@ test("PDP-1 successors preserve exact P0 AC mapping and bounded observation sema
   const operations = read(OPS_PATH);
   const rows = new Map(operations.capabilityOperationContracts.records.map((row) => [row.capabilityRef, row]));
   const expectedAc = new Map([
-    ["media.artifact.search", ["MEDIA-REQ-CAP-ARTIFACT-AC-03", "MEDIA-REQ-CAP-ARTIFACT-AC-04"]],
+    ["media.artifact.search", ["MEDIA-REQ-CAP-ARTIFACT-AC-03", "MEDIA-REQ-CAP-ARTIFACT-AC-04", "MEDIA-REQ-CAP-ARTIFACT-AC-05"]],
     ["media.speech.transcription.file", ["MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-04", "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-05"]],
     ["media.stream.recording.integrate", ["MEDIA-REQ-CAP-STREAM-AC-03"]],
     ["media.speech.synthesis.streaming", ["MEDIA-REQ-CAP-SPEECH-SYNTHESIS-AC-05"]],
@@ -2890,6 +2950,16 @@ test("PDP-1 successors preserve exact P0 AC mapping and bounded observation sema
   const search = rows.get("media.artifact.search").sourceSemanticContract;
   assert.ok(search.requestFields.parameters?.searchIntent || search.requestFields["parameters.searchIntent"]);
   assert.ok(search.requestFields.parameters?.transcriptQuery || search.requestFields["parameters.transcriptQuery"]);
+  const intendedUseScopeContract = search.requestFields.parameters?.declaredIntendedUseScope
+    ?? search.requestFields["parameters.declaredIntendedUseScope"];
+  assert.equal(intendedUseScopeContract.type, "opaque-reference",
+    "license search uses the P0 actor-declared use-scope reference token");
+  assert.equal(intendedUseScopeContract.origin, "ACTOR_DECLARED_OPAQUE_REFERENCE");
+  assert.equal(intendedUseScopeContract.absentBehavior, "REJECT_WHEN_LICENSE_ELIGIBLE_ASSET_CANDIDATES");
+  assert.ok(search.requestFields.conditionalRules?.some((rule) => /LICENSE_ELIGIBLE_ASSET_CANDIDATES/u.test(compact(rule))
+    && /declaredIntendedUseScope/u.test(compact(rule))));
+  assert.ok(search.sourceRequirementRefs?.some((ref) => ref.endsWith("/@id=MEDIA-REQ-CAP-ARTIFACT-AC-05")),
+    "license-eligible candidate semantics are pinned to P0 AC-05");
   const transcriptQueryContract = search.requestFields.parameters?.transcriptQuery
     ?? search.requestFields["parameters.transcriptQuery"];
   assert.equal(transcriptQueryContract.maxLength, 4096,
@@ -2910,6 +2980,14 @@ test("PDP-1 successors preserve exact P0 AC mapping and bounded observation sema
   }
   assert.match(compact(search.resultFields.semantics), /no-merge-replace-delete-or-project-mutation-authority/u);
   assert.match(search.resultFields.duplicateCandidateGroups.absence, /UNAVAILABLE/u);
+  assert.deepEqual(search.resultFields.licenseEligibleAssetCandidates.each,
+    ["exactAssetVersionRef", "rightsLicenseDispositionRef", "declaredIntendedUseScopeRef"]);
+  assert.match(search.resultFields.licenseEligibleAssetCandidates.eligibility,
+    /affirmative-current-scope-compatible-authoritative-rights-license-evidence-only/u);
+  assert.match(search.resultFields.licenseEligibleAssetCandidates.limitation,
+    /not-legal-clearance-or-runtime-admission/u);
+  assert.match(search.requestFields.conditionalRules.find((rule) => /LICENSE_ELIGIBLE_ASSET_CANDIDATES/u.test(compact(rule))).unresolvedEvidence,
+    /UNKNOWN_OR_REVIEW_REQUIRED.*never-eligible-and-never-complete-empty/u);
 
   const transcription = rows.get("media.speech.transcription.file").sourceSemanticContract;
   const transcriptionP0 = read(CAP_PATH).capabilities.find(({ id }) => id === "media.speech.transcription.file")
@@ -2989,9 +3067,28 @@ test("PDP-1 successors preserve exact P0 AC mapping and bounded observation sema
   const searchP0 = capabilities.capabilities.find(({ id }) => id === "media.artifact.search").ownerDefinition.parameterSchema;
   assert.equal(searchP0.required.includes("searchIntent"), false,
     "P0 searchIntent remains optional at the parameter envelope");
+  assert.equal(searchP0.required.includes("declaredIntendedUseScope"), false,
+    "P0 declaredIntendedUseScope remains optional unless the license intent is selected");
   assert.equal(searchParameters.additionalProperties, false);
   assert.deepEqual(searchParameters.properties.searchIntent.enum,
-    ["SEMANTIC_TRANSCRIPT_CANDIDATES", "DUPLICATE_OR_NEAR_DUPLICATE_CANDIDATES"]);
+    searchP0.properties.searchIntent.values,
+    "P1 preserves the exact P0 search intent set");
+  const searchScalarTypes = operations.capabilityOperationContracts.scalarTypes ?? {};
+  for (const [intent, parameter] of [["TIMELINE_FACET_CANDIDATES", "facetQuery"], ["VISUAL_METADATA_CANDIDATES", "visualMetadataQuery"]]) {
+    assert.ok(searchParameters.allOf.some((rule) => rule.if?.properties?.searchIntent?.const === intent
+      && rule.if?.required?.includes("searchIntent") && rule.then?.required?.includes(parameter)),
+    `${intent} requires its P0-declared ${parameter}`);
+  }
+  for (const parameter of ["sourceTimeRange", "facetQuery", "visualMetadataQuery"]) {
+    assert.deepEqual(normalizedParameterField(searchP0.properties[parameter], searchP0, searchScalarTypes),
+      normalizedSchema(searchParameters.properties[parameter], searchScalarTypes),
+      `P1 preserves current P0 ${parameter} shape`);
+  }
+  assert.deepEqual(
+    normalizedParameterField(searchP0.properties.declaredIntendedUseScope, searchP0, searchScalarTypes),
+    normalizedSchema(searchParameters.properties.declaredIntendedUseScope, searchScalarTypes),
+    "P1 preserves the P0 actor-declared scope reference validator",
+  );
   assert.equal(searchParameters.properties.transcriptQuery.type, "string");
   assert.equal(searchParameters.properties.transcriptQuery.pattern, ".*\\S.*",
     "transcriptQuery preserves P0 NOT_EMPTY semantics by rejecting whitespace-only values");
@@ -2999,14 +3096,20 @@ test("PDP-1 successors preserve exact P0 AC mapping and bounded observation sema
     rule.if?.properties?.searchIntent?.const === "SEMANTIC_TRANSCRIPT_CANDIDATES");
   const duplicateSearchBranch = searchParameters.allOf.find(rule =>
     rule.if?.properties?.searchIntent?.const === "DUPLICATE_OR_NEAR_DUPLICATE_CANDIDATES");
+  const licenseSearchBranch = searchParameters.allOf.find(rule =>
+    rule.if?.properties?.searchIntent?.const === "LICENSE_ELIGIBLE_ASSET_CANDIDATES");
   assert.deepEqual(searchParameters.allOf.map(rule => rule.if?.properties?.searchIntent?.const).sort(),
-    ["DUPLICATE_OR_NEAR_DUPLICATE_CANDIDATES", "SEMANTIC_TRANSCRIPT_CANDIDATES"],
-    "wire schema has exactly the transcript and duplicate intent branches");
+    [...searchP0.properties.searchIntent.values].sort(),
+    "wire schema has exactly the P0-defined intent branches");
   assert.ok(transcriptSearchBranch?.then?.required?.includes("transcriptQuery"),
     "transcriptQuery is required on the exact semantic transcript intent branch");
   assert.ok(duplicateSearchBranch, "duplicate search has its own exact intent branch");
   assert.equal(duplicateSearchBranch.then?.required?.includes("transcriptQuery") ?? false, false,
     "duplicate search does not require a transcript query");
+  assert.ok(licenseSearchBranch?.then?.required?.includes("declaredIntendedUseScope"),
+    "license-eligible search requires the actor-declared scope on its exact intent branch");
+  assert.equal(licenseSearchBranch?.if?.required?.includes("searchIntent"), true,
+    "license scope conditional is guarded by an explicit license intent");
 
   const simulationWire = rows.get("media.simulation.scientific-demo");
   const findPropertySchema = (schema, propertyName) => {
@@ -3126,7 +3229,7 @@ test("PDP-1 successor wire schemas enforce conditional observations, proposal ev
   assert.ok(searchResult, "artifact search has a typed semantic-observation result");
   assert.deepEqual(searchResult.required, ["searchIntent", "disposition"]);
   assert.deepEqual(searchResult.properties.disposition.enum, ["COMPLETE", "UNAVAILABLE", "UNKNOWN"]);
-  for (const field of ["transcriptSearchCandidates", "duplicateCandidateGroups"]) {
+  for (const field of ["transcriptSearchCandidates", "duplicateCandidateGroups", "licenseEligibleAssetCandidates"]) {
     const group = searchResult.properties[field];
     assert.equal(group.type, "array", `${field} is a typed array`);
     assert.ok(group.items.additionalProperties === false, `${field} entries are closed typed objects`);
@@ -3138,11 +3241,19 @@ test("PDP-1 successor wire schemas enforce conditional observations, proposal ev
   assert.deepEqual(searchResult.properties.duplicateCandidateGroups.items.required,
     ["candidateGroupId", "exactArtifactVersionRefs", "matchUncertainty"]);
   assert.equal(searchResult.properties.duplicateCandidateGroups.items.properties.exactArtifactVersionRefs.type, "array");
-  assert.ok(searchResult.allOf.some(rule => rule.then?.oneOf?.length === 2),
+  const licenseCandidate = searchResult.properties.licenseEligibleAssetCandidates.items;
+  assert.deepEqual(licenseCandidate.required,
+    ["exactAssetVersionRef", "rightsLicenseDispositionRef", "declaredIntendedUseScopeRef"]);
+  assert.equal(licenseCandidate.properties.exactAssetVersionRef.format, "opaque-versioned-reference");
+  assert.equal(licenseCandidate.properties.rightsLicenseDispositionRef.format, "opaque-versioned-reference");
+  assert.equal(licenseCandidate.properties.declaredIntendedUseScopeRef.format, "opaque-reference");
+  assert.equal(licenseCandidate.properties.declaredIntendedUseScopeRef.maxLength, 256);
+  assert.ok(searchResult.allOf.some(rule => rule.then?.oneOf?.length === 3),
     "COMPLETE observations require exactly the requested intent's candidate branch");
   assert.ok(searchResult.allOf.some(rule => rule.then?.not?.anyOf?.some(branch =>
     branch.required?.includes("transcriptSearchCandidates"))
-    && rule.then.not.anyOf.some(branch => branch.required?.includes("duplicateCandidateGroups"))),
+    && rule.then.not.anyOf.some(branch => branch.required?.includes("duplicateCandidateGroups"))
+    && rule.then.not.anyOf.some(branch => branch.required?.includes("licenseEligibleAssetCandidates"))),
   "UNAVAILABLE and UNKNOWN dispositions prohibit candidate claims");
   assert.equal(search.resultSchema.allOf.find(rule => rule.if?.properties?.outcome?.const === "UNKNOWN_OUTCOME")
     ?.then?.not?.required?.includes("semanticObservations"), true,
@@ -3413,6 +3524,80 @@ test("PXD-144 delete, keyframe, attestation, dub, and clone outputs preserve exa
   assert.ok(profileRefs("media.capability-profile.media-speech-synthesis").includes("media.typed-output.derived-authorized-speaker-voice-profile-record"));
 });
 
+test("PXD-207 extensions have separate exact P1 operation mappings and remain not admitted", () => {
+  const capabilities = read(CAP_PATH);
+  const operations = read(OPS_PATH).capabilityOperationContracts;
+  const rows = operations.definitionExtensionOperationMappings ?? [];
+  const expectedIds = [
+    "media.generate.video.preset.manage", "media.generate.video.shot-condition",
+    "media.job.schedule.manage", "media.master.audio.creative-effect.apply",
+    "media.project.scene.patch-merge", "media.quality.audio.content-similarity.assess",
+    "media.recipe.specification.compile",
+  ];
+  assert.equal(operations.records.length, 462, "extensions stay outside the historical owner-adjudicated binding set");
+  assert.deepEqual(rows.map(({ capabilityRef }) => capabilityRef).sort(), [...expectedIds].sort());
+  for (const row of rows) {
+    const p0 = capabilities.capabilities.find(({ id }) => id === row.capabilityRef);
+    assert.ok(p0, `${row.capabilityRef} exists in current P0`);
+    assert.equal(row.sourceCapabilityRef, `${CAP_PATH}#capabilities/@id=${row.capabilityRef}`);
+    assert.equal(row.decisionRef, `${DECISION_PATH}#PXD-207`);
+    assert.deepEqual(row.inputSlots.map(({ slotId, sourceType, cardinality, required, alternatives }) => ({ slotId, sourceType, cardinality, required, ...(alternatives ? { alternatives } : {}) })),
+      p0.ownerDefinition.typedInputSlots.map(({ slotId, sourceType, cardinality, required, alternatives }) => ({ slotId, sourceType, cardinality, required, ...(alternatives ? { alternatives } : {}) })));
+    assert.deepEqual(row.successOutputs.map(({ artifactType, requiredOnSuccess }) => ({ artifactType, requiredOnSuccess })),
+      p0.ownerDefinition.successOutputs.map(({ artifactType, requiredOnSuccess }) => ({ artifactType, requiredOnSuccess })));
+    assert.equal(row.executionAdmission, "NOT_ADMITTED");
+    assert.equal(row.ownerApproval, "NOT_CLAIMED");
+    assert.equal(row.independentAcceptance, "NOT_CLAIMED");
+  }
+});
+
+test("PXD-207 shot conditioning and audio similarity preserve complete P0 intent", () => {
+  const rows = read(OPS_PATH).capabilityOperationContracts.definitionExtensionOperationMappings;
+  const shot = rows.find(({ capabilityRef }) => capabilityRef === "media.generate.video.shot-condition");
+  const similarity = rows.find(({ capabilityRef }) => capabilityRef === "media.quality.audio.content-similarity.assess");
+  const assertClauses = (row, clauses) => {
+    for (const clause of clauses) assert.ok(row.semanticOutcomeContract.includes(clause), `${row.capabilityRef} preserves: ${clause}`);
+  };
+  const shotClauses = [
+    "prompt, mask",
+    "region trajectory or motion-brush condition",
+    "exact declared shot/segment and source version",
+    "region identity, timebase, and anchor mapping",
+    "conditions never silently expand to the whole clip",
+    "Report each constraint per shot as APPLIED, UNSUPPORTED, ESTIMATED, or UNKNOWN",
+    "distinguish generated conditions from authored or observed scene facts",
+    "Reject invalid shot/time ranges",
+    "unsupported controls or unmapped region/time/anchor conditions remain explicitly UNKNOWN or blocked",
+    "Require exact current, purpose-specific rights evidence for each mask",
+    "masks without required rights are rejected",
+    "missing or unknown rights block the affected scope as UNKNOWN or blocked",
+    "Reject unresolved conflicting overlaps unless an explicit precedence policy resolves them",
+    "never infer precedence from input order",
+    "does not define scene/path animation",
+    "does not dispatch generation",
+  ];
+  const similarityClauses = [
+    "bounded, method-identified similarity observation",
+    "exact supplied audio versions and declared scope",
+    "preserving uncertainty and abstention",
+    "no ownership, copying, infringement, licensing, authorization, permitted-use, or clearance determination",
+    "cannot substitute for an authoritative rights decision",
+  ];
+  assertClauses(shot, shotClauses);
+  assert.deepEqual(shot.sourceRequirementRefs, [
+    ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-GENERATE-VIDEO/acceptanceCases/@id=MEDIA-REQ-CAP-GENERATE-VIDEO-AC-06",
+  ]);
+  assertClauses(similarity, similarityClauses);
+
+  for (const [row, clauses] of [[shot, shotClauses], [similarity, similarityClauses]]) {
+    for (const clause of clauses) {
+      const mutated = { ...row, semanticOutcomeContract: row.semanticOutcomeContract.replace(clause, "") };
+      assert.throws(() => assertClauses(mutated, clauses), /preserves:/,
+        `${row.capabilityRef} contract check rejects omission of ${clause}`);
+    }
+  }
+});
+
 test("PXD-145 exact required inputs preserve P0 source types, identity, and alternatives", () => {
   const capabilities = read(CAP_PATH);
   const operations = read(OPS_PATH);
@@ -3550,7 +3735,10 @@ test("PXD-145 exact required inputs preserve P0 source types, identity, and alte
     if (capabilityRef === "media.speech.synthesis.speaker.condition") {
       assert.equal(request.input2.payload.disposition, "USER_CONFIRMED_REFERENCE");
       assert.ok(request.input2.payload.speakerRef && request.input2.payload.consentRef && request.input2.payload.rightsEvidenceRefs.length);
-      assert.equal(operation.requestSchema.properties.input2.properties.payload.properties.disposition.enum, undefined, "only the user-confirmed branch is exposed");
+      const speakerBranches = operation.requestSchema.properties.input2.properties.payload.oneOf;
+      assert.ok(speakerBranches.some((branch) => branch.properties?.disposition?.const === "USER_CONFIRMED_REFERENCE"));
+      assert.ok(speakerBranches.some((branch) => branch.properties?.kind?.const === "ordered-segment-speaker-map"),
+        "PXD-207 carries the ordered segment speaker-map alternative");
     }
     if (capabilityRef === "media.speech.synthesis.speaker.clone-authorized") {
       assert.ok(request.input2.payload.artifactId && request.input2.payload.versionId);
@@ -3600,4 +3788,162 @@ test("PXD-145 exact required inputs preserve P0 source types, identity, and alte
   const ambiguousAlternatives = structuredClone(recipientScopeRequest);
   ambiguousAlternatives.input1.payload.reference = "grant:v1";
   assert.equal(validateRevoke(ambiguousAlternatives).reason, "REQUEST_SCHEMA_REJECTED", "revoke rejects a payload that mixes both alternatives");
+});
+
+
+// PDP-1 legacy RPC reconciliation is covered in the phase-gated operation mapping suite.
+
+const operations = parse(readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/operations.yaml"), "utf8"));
+const capabilities = parse(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/capabilities.yaml"), "utf8"));
+const proto = readFileSync(resolve(root, "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto"), "utf8");
+
+const expectedMethods = {
+  ProcessMultimodal: {
+    requestMessage: "MultimodalRequest",
+    responseMessage: "MultimodalResponse",
+    canonicalOperationRef: null,
+    mappingPrefix: "NO_SINGLE_TARGET",
+    outputFields: [
+      "combined_analysis",
+      "audio_analysis.transcription",
+      "audio_analysis.detected_sounds",
+      "audio_analysis.sentiment",
+      "audio_analysis.confidence",
+      "visual_analysis.scene_description",
+      "visual_analysis.objects[].class_name",
+      "visual_analysis.objects[].confidence",
+      "visual_analysis.objects[].bounding_box.x",
+      "visual_analysis.objects[].bounding_box.y",
+      "visual_analysis.objects[].bounding_box.width",
+      "visual_analysis.objects[].bounding_box.height",
+      "visual_analysis.activities[]",
+      "visual_analysis.confidence",
+      "metadata",
+      "processing_time_ms",
+    ],
+  },
+  AnalyzeVideoWithAudio: {
+    requestMessage: "VideoAudioRequest",
+    responseMessage: "VideoAudioResponse",
+    canonicalOperationRef: null,
+    mappingPrefix: "NO_SINGLE_TARGET",
+    outputFields: [
+      "video_summary",
+      "audio_transcription",
+      "frame_analyses[].timestamp_ms",
+      "frame_analyses[].description",
+      "frame_analyses[].objects[].class_name",
+      "frame_analyses[].objects[].confidence",
+      "frame_analyses[].objects[].bounding_box.x",
+      "frame_analyses[].objects[].bounding_box.y",
+      "frame_analyses[].objects[].bounding_box.width",
+      "frame_analyses[].objects[].bounding_box.height",
+      "combined_narrative",
+    ],
+  },
+  GenerateDescription: {
+    requestMessage: "DescriptionRequest",
+    responseMessage: "DescriptionResponse",
+    canonicalOperationRef: "media.operation.capability.media-multimodal-describe",
+    mappingPrefix: "DIRECT_INTENT_CANDIDATE",
+    outputFields: ["description", "confidence", "key_elements[]"],
+  },
+  AnalyzeCrossModal: {
+    requestMessage: "CrossModalRequest",
+    responseMessage: "CrossModalResponse",
+    canonicalOperationRef: "media.operation.capability.media-multimodal-analyze-cross-modal",
+    mappingPrefix: "DIRECT_INTENT_CANDIDATE",
+    outputFields: ["alignment_score", "events[].timestamp_ms", "events[].event_type", "events[].description", "events[].confidence", "summary", "processing_time_ms"],
+  },
+  GetInsights: {
+    requestMessage: "InsightsRequest",
+    responseMessage: "InsightsResponse",
+    canonicalOperationRef: "media.operation.capability.media-multimodal-extract-structured",
+    mappingPrefix: "DIRECT_INTENT_CANDIDATE",
+    outputFields: ["overall_sentiment", "topics[]", "entities[]", "actions[]", "confidence_scores", "processing_time_ms"],
+  },
+};
+
+function messageBody(name) {
+  const match = proto.match(new RegExp(`message\\s+${name}\\s*\\{([\\s\\S]*?)\\n\\}`));
+  assert.ok(match, `protobuf message ${name} exists`);
+  return match[1];
+}
+
+test("five multimodal gRPC methods have explicit PDP-1 intent and non-equivalence dispositions", () => {
+  const operation = operations.operations.find(({ id }) => id === "media.operation.multimodal-analysis");
+  const reconciliation = operation?.legacyGrpcCandidateReconciliation;
+  assert.ok(reconciliation, "PDP-1 records the legacy multimodal RPC reconciliation");
+  assert.equal(reconciliation.status, "PDP1_DEFINITION_COMPLETE_LEGACY_WIRE_NON_EQUIVALENCE_EXPLICIT");
+  assert.equal(reconciliation.canonicalSubmissionRef, "media.operation.job.submit.v1");
+  assert.equal(reconciliation.runtimeAdmission, "NOT_ADMITTED");
+  assert.equal(reconciliation.transportAdmission, "NOT_ADMITTED");
+  assert.equal(reconciliation.ownerAcceptance, "NOT_CLAIMED");
+
+  const service = proto.match(/service\s+MultimodalService\s*\{([\s\S]*?)\n\}/)?.[1];
+  assert.ok(service, "MultimodalService exists in the source proto");
+  const productMethods = [...service.matchAll(/rpc\s+(\w+)\s*\((\w+)\)\s+returns\s+\((\w+)\)\s*;/g)]
+    .filter(([, name]) => Object.hasOwn(expectedMethods, name))
+    .map(([, name, requestMessage, responseMessage]) => ({ name, requestMessage, responseMessage }));
+  assert.deepEqual(productMethods, Object.entries(expectedMethods).map(([name, value]) => ({
+    name,
+    requestMessage: value.requestMessage,
+    responseMessage: value.responseMessage,
+  })));
+
+  assert.equal(reconciliation.records.length, Object.keys(expectedMethods).length);
+  assert.deepEqual(reconciliation.records.map(({ rpc }) => rpc), productMethods.map(({ name }) => `MultimodalService.${name}`));
+  const capabilityIds = new Set(capabilities.capabilities.map(({ id }) => id));
+  const canonicalCapabilityOperationIds = new Set(operations.capabilityOperationContracts.records.map(({ id }) => id));
+  const jobSubmitExists = operations.ownerDefinedOperationContracts.records.some(({ id }) => id === reconciliation.canonicalSubmissionRef);
+  assert.equal(jobSubmitExists, true, "canonical replacement uses the existing job.submit owner contract");
+
+  for (const record of reconciliation.records) {
+    const method = record.rpc.slice("MultimodalService.".length);
+    const expected = expectedMethods[method];
+    assert.ok(expected, `${record.rpc} is a source-declared product method`);
+    assert.equal(record.requestMessage, expected.requestMessage);
+    assert.equal(record.responseMessage, expected.responseMessage);
+    assert.equal(record.canonicalOperationRef, expected.canonicalOperationRef);
+    assert.ok(record.mappingDisposition.startsWith(expected.mappingPrefix));
+    assert.equal(record.candidateCapabilityRefScope,
+      "family-intent-candidates-only; outputFieldDispositions below are authoritative for response-field coverage");
+    assert.deepEqual(record.outputFieldDispositions.map(({ field }) => field), expected.outputFields,
+      `${record.rpc} has an explicit disposition for every response field in its product schema`);
+    assert.ok(record.candidateCapabilityRefs.length > 0);
+    for (const capabilityRef of record.candidateCapabilityRefs) {
+      assert.equal(capabilityIds.has(capabilityRef), true, `${record.rpc} references a PDP-0 capability`);
+    }
+    for (const fieldDisposition of record.outputFieldDispositions) {
+      assert.ok(["CANONICAL_INTENT_CANDIDATE", "LEGACY_VALUE_NOT_CARRIED_FORWARD", "TRANSPORT_DIAGNOSTIC_ONLY"]
+        .includes(fieldDisposition.disposition), `${record.rpc}.${fieldDisposition.field} has a closed output disposition`);
+      if (fieldDisposition.disposition === "CANONICAL_INTENT_CANDIDATE") {
+        assert.equal(capabilityIds.has(fieldDisposition.capabilityRef), true,
+          `${record.rpc}.${fieldDisposition.field} points to an existing PDP-0 capability`);
+        assert.ok(record.candidateCapabilityRefs.includes(fieldDisposition.capabilityRef),
+          `${record.rpc}.${fieldDisposition.field} is included in its family intent candidates`);
+        assert.ok(fieldDisposition.note?.trim(), `${record.rpc}.${fieldDisposition.field} explains intent-only mapping`);
+      } else {
+        assert.equal(fieldDisposition.capabilityRef, null,
+          `${record.rpc}.${fieldDisposition.field} is explicitly excluded from canonical intent mapping`);
+        assert.ok(fieldDisposition.reason?.trim(), `${record.rpc}.${fieldDisposition.field} explains its disposition`);
+      }
+    }
+    if (record.canonicalOperationRef) {
+      assert.equal(canonicalCapabilityOperationIds.has(record.canonicalOperationRef), true,
+        `${record.rpc} targets an existing PDP-1 capability operation`);
+      assert.match(record.canonicalReplacement, new RegExp(`^${reconciliation.canonicalSubmissionRef} targeting `));
+    } else {
+      assert.equal(record.canonicalReplacement.startsWith("separate "), true,
+        `${record.rpc} decomposes into explicit capability submissions`);
+    }
+    assert.equal(record.runtimeAdmission ?? reconciliation.runtimeAdmission, "NOT_ADMITTED");
+
+    const request = messageBody(record.requestMessage);
+    const response = messageBody(record.responseMessage);
+    assert.doesNotMatch(request, /\bversion_id\b|\bversionId\b|\brequest_id\b|\brequestId\b/,
+      `${record.rpc} does not carry canonical source-version and request identity fields`);
+    assert.doesNotMatch(response, /\bsource_ref\b|\bsourceRefs\b|\bprovenance\b|\bartifact_version\b|\bversion_id\b/,
+      `${record.rpc} does not return the canonical source/provenance join`);
+  }
 });

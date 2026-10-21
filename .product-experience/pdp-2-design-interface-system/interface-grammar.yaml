@@ -132,3 +132,69 @@ recorderStudioInterfaceSpecialization:
   pdp0AcceptanceCases: 84
   noAlternateAuthority: GUI-CLI-SDK-and-API-are-view-projections-not-separate-owner-of-product-business-actions
   nonClaims: [no-deployed-screen, no-public-operation, no-PDP3-exit, no-human-a11y-certification]
+
+ruleManagementProposalInterfaceBinding:
+  id: media.pdp2.interface.rule-management-proposal-binding.v1
+  authorship: COORDINATOR_AUTHORED_PDP2_PROPOSAL; not existing owner authority
+  featureRef: media.rules.manage
+  sourceHandoff: .product-experience/pdp-1-domain-data/handoff-contracts.yaml#/handoffs/pdp1ToPdp2CanonicalDomain/proposalHandoffs/@id=media.rules.manage.pdp1-definition-handoff.v1
+  sourceContracts: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml
+  sourceChannelProposal: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability
+  disposition: PROPOSAL_ONLY; PENDING_OWNER_REVIEW; NOT_IN_CANONICAL_OPERATION_DENOMINATOR
+  ownerApproval: NOT_CLAIMED
+  independentAcceptance: NOT_CLAIMED
+  runtimeAdmission: NOT_ADMITTED
+  executionAdmission: NOT_ADMITTED
+  operationRefs:
+    - media.rules.compile-candidate.v1
+    - media.rules.inspect-candidate.v1
+    - media.rules.validate-candidate.v1
+    - media.rules.reuse-candidate.v1
+  typedBindings:
+    versionedCandidate: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/ruleSetVersion/candidate/schema
+    normalizedSemanticGraph: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/normalizedSemanticGraph/schema
+    semanticFingerprint: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/semanticFingerprint/schema
+    compileRequest: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/compileContract/requestSchema
+    compileResult: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/compileContract/resultSchema
+    inspectRequest: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/inspectContract/requestSchema
+    inspectResult: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/inspectContract/resultSchema
+    validationRequest: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract/requestSchema
+    validationResult: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract/resultSchema
+    validationReceiptIdentity: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/validationContract/validationResultIdentity
+    reuseRequest: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/requestSchema
+    reuseResult: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/resultSchema
+    candidateOperationPlan: .product-experience/pdp-1-domain-data/rule-management-contracts.yaml#/reuseContract/operationPlanSchema
+  preservedBindings:
+    exactContext: [tenantRef, purposeRef, actorRef, principalRef, rightsConsentContextRef]
+    exactScopeAndVersion: [declaredScope, ruleSetRef, ruleSetVersion, candidateVersionRef, targetOperationRef]
+    provenance: [sourceRefs, validationContextRef, validationResultRef]
+    optimisticConcurrency: [expectedVersionRef, parentVersionRef, expectedFingerprint, fingerprint]
+    semantics:
+      - Bind controls and any machine projection to the exact typed P1 request/result schemas above; do not coerce or substitute fields.
+      - Preserve exact tenant, purpose, declared scope, immutable version tuple, source provenance, expected predecessor, and fingerprint end to end.
+      - Unknown predecessor remains UNKNOWN; stale or mismatched predecessor/fingerprint is surfaced as stale/conflict and never silently rebased to latest.
+      - Invalid, unsupported, denied, unavailable, stale, conflict, and unknown outcomes remain distinct non-success states.
+      - Every non-success outcome has no partial effects; an unknown result is not retry permission and must be reconciled by exact read-only inspection.
+      - Candidate, validation receipt, and candidate operation plan are separate inspectable values; none is approval, execution, or measured media output.
+  channelProposalMappings:
+    authority: coordinator-authored proposal mappings copied by reference from AUD-SPEC-020; no owner applicability decision or implementation claim
+    source: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability
+    mappings:
+      - { id: media.pdp2.interface.rules.web-proposal.v1, sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-WEB, channelRef: media.channel.web, disposition: PROPOSED_APPLICABLE }
+      - { id: media.pdp2.interface.rules.api-proposal.v1, sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-API, channelRef: media.channel.api, disposition: PROPOSED_APPLICABLE }
+      - { id: media.pdp2.interface.rules.embedded-proposal.v1, sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-EMBEDDED, channelRef: media.channel.embedded, disposition: PROPOSED_APPLICABLE }
+      - { id: media.pdp2.interface.rules.http-api-proposal.v1, sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-HTTP-API, channelRef: media.channel.http-api, disposition: PROPOSED_APPLICABLE }
+      - { id: media.pdp2.interface.rules.grpc-api-proposal.v1, sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-GRPC-API, channelRef: media.channel.grpc-api, disposition: PROPOSED_APPLICABLE }
+      - { id: media.pdp2.interface.rules.sdk-proposal.v1, sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-SDK, channelRef: media.channel.sdk, disposition: PROPOSED_APPLICABLE }
+      - { id: media.pdp2.interface.rules.cli-proposal.v1, sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-CLI, channelRef: media.channel.cli, disposition: PROPOSED_APPLICABLE }
+      - { id: media.pdp2.interface.rules.product-integration-proposal.v1, sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-PRODUCT-INTEGRATION, channelRef: media.channel.product-integration, disposition: PROPOSED_APPLICABLE }
+      - { id: media.pdp2.interface.rules.legacy-desktop-proposal.v1, sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-LEGACY-DESKTOP, channelRef: media.channel.legacy-desktop, disposition: NOT_APPLICABLE_ARCHIVED }
+      - { id: media.pdp2.interface.rules.agent-proposal.v1, sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-AGENT, channelRef: media.channel.agent, disposition: NOT_APPLICABLE_NON_INVOCATION }
+      - { id: media.pdp2.interface.rules.event-proposal.v1, sourceRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY/channelApplicability/@id=AUD-SPEC-020-CHANNEL-EVENT, channelRef: media.channel.event, disposition: NOT_APPLICABLE_NON_INVOCATION }
+  controlSemantics:
+    authoring: Proposal-only control may collect exact typed compile inputs and display the resulting candidate; it does not persist or admit a runtime by implication.
+    inspection: Read-only inspection names the exact tenant/rule-set/version tuple and never substitutes a latest version.
+    validation: Validation displays the exact candidate version, fingerprint, source refs, context and typed outcome; VALID is an observation, not authorization.
+    reuse: Reuse displays only the returned candidate operation plan; affected operations require separate explicit requests and separate admission.
+    accessibility: Controls expose accessible name, role, value, state, errors and status updates; all actions are keyboard operable and do not depend on drag, color, or pointer-only interaction.
+    forbiddenImplications: [candidate-implies-approval, validation-implies-approval, valid-implies-execution, reuse-plan-implies-execution, channel-mapping-implies-applicability, definition-implies-runtime-support]

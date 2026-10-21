@@ -31,6 +31,12 @@ test('PXD-216 binds current PDP-0 source rows and phase-scoped material pins', (
   assert.equal(artifact.authority.qualification, 'NOT_EVALUATED');
   assert.equal(artifact.authority.closure, 'NOT_CLAIMED');
   assert.equal(artifact.authority.delivery, 'NOT_CLAIMED');
+  assert.equal(Object.hasOwn(artifact.sourceFingerprints, '.product-experience/decision-log.md'), false,
+    'PDP-0 binds the exact PXD section and must not depend on downstream decision-log additions');
+  assert.equal(Object.hasOwn(artifact.sourceFingerprints, 'scripts/report-media-pdp-readiness.mjs'), false,
+    'shared reporting code is verification tooling, not a material PDP-0 source');
+  assert.equal(Object.hasOwn(crosswalk.sourceBaseline.workingTreeSourceFingerprintsSha256, 'scripts/report-media-pdp-readiness.mjs'), false,
+    'shared reporting code cannot invalidate the current 501-row PDP-0 crosswalk');
 
   const expectedPhasePins = currentPdp0PhaseScopedSourceFingerprints('PXD-216');
   assert.deepEqual(artifact.phaseScopedSourceFingerprintsSha256, expectedPhasePins);

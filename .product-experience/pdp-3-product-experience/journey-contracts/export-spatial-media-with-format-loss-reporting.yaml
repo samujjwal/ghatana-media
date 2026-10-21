@@ -26,6 +26,9 @@ pdp1ResultEvidence:
   sourceRefs:
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.async-job-command.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.workflow-contract.spatial-export-boundary.v1
     - .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
   operationResultBindings:
     - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/2
@@ -47,6 +50,96 @@ pdp1ResultEvidence:
         The result identifies requestId, logicalJobId, sourceSnapshotDigest, renderProfileRef, and durableAdmissionReceipt; it confirms durable job admission only. Render completion, package contents, conversion loss, consumer receipt, and delivery are not established by this operation.
       unknownDisposition: >-
         UNKNOWN_OUTCOME is neither success nor failure; reconcile the same request identity before an eligible retry and do not infer render completion or consumer receipt.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/2
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-03.v1
+      presentationOperationRef: media.operation.action.submit-render
+      sourceQueryOperationRef: media.operation.job-status.read-dimensions.v1
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1/resultSchema
+      typedObservationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.job-status-seven-dimension.v1
+      exactJoin: query jobId equals the exact logicalJobId returned by submit-render; status is an independent later observation and does not alter admission finality.
+      unknownDisposition: Missing, stale, denied, unavailable, or UNKNOWN_OBSERVATION remains UNKNOWN; no package or receipt is implied.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/2
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-03.v1
+      presentationOperationRef: media.operation.action.submit-render
+      sourceQueryOperationRef: media.operation.action.inspect-output-preview-and-version
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1/resultSchema
+      typedObservationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1
+      exactJoin: current FULL OBSERVED lineage identifies the exact immutable rendered output version and source versions; it does not establish job production or delivery.
+      unknownDisposition: Missing, stale, mismatched, denied, unavailable, or incomplete lineage remains UNKNOWN and contains no artifact identity.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/3
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1
+      operationRef: media.operation.action.deliver-exact-version
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/contractVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
+      exactResult: REQUEST_ACCEPTED is a submission receipt for the exact immutable output artifact version, destination, and delivery profile; it does not establish destination receipt, consumer access, acknowledgment, or conversion-report receipt.
+      finality: Delivery request acceptance remains separate from the later destination acknowledgment observation.
+      unknownDisposition: Preserve deliveryRequestId, immutable deliveryRequestResultRef, trusted-host deliveryRequestFingerprint, artifact version, destination, and profile; an uncertain request is reconciled before any authorized retry.
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/3
+      journeyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1
+      operationRef: media.operation.action.reconcile-delivery-acknowledgment
+      operationVersion: 1
+      operationVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.reconcile-delivery-acknowledgment/contractVersion
+      operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.reconcile-delivery-acknowledgment
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1/requestSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1/resultSchema
+      exactResult: The query receipt is not destination evidence. Only a current, fully accessible typed observation exactly joined to the original delivery result, request ID, fingerprint, artifact version, and destination can report ACKNOWLEDGED.
+      finality: Read-only reconciliation; it never changes the original request or asserts consumer receipt without current owner authority and matching evidence.
+      unknownDisposition: Missing, stale, denied, timed-out, mismatched, or unavailable observation remains UNKNOWN; preserve exact identities and do not retry delivery.
+  typedObservationBindings:
+    - journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/3
+      purposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1
+      actionBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1/relatedActionBindings/@id=media.pdp3.action-binding.j28-destination-ack-reconciliation.v1
+      operationRef: media.operation.action.reconcile-delivery-acknowledgment
+      observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1/resultSchema
+      requiredExactIdentity: [deliveryRequestResultRef, deliveryRequestId, deliveryRequestFingerprint, artifactVersionRef, destinationRef]
+      acknowledgedOnlyWhen: Current owner-issued acknowledgment authority and nonempty evidence match the original immutable delivery result and exact identity.
+      unknownDisposition: Missing, stale, denied, timed-out, mismatched, or unavailable evidence is UNKNOWN; preserve the exact request and never retry blindly.
+  journeySourceBindings:
+    status: SOURCE_BOUND_DEFINITION_ONLY; RUNTIME_AND_DELIVERY_NOT_ADMITTED
+    spatialExport:
+      workflowContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedWorkflowContracts/records/@id=media.workflow-contract.spatial-export-boundary.v1
+      sourcePdp0CompletionRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-28/completion
+      requiredReportFields: [sourceArtifactRef, sourceArtifactVersionRef, targetFormatProfileRef, targetFormatProfileVersionRef, sourceGeometryPlanRef, coordinateTransformRef, unitTransformRef, axisTransformRef, handednessDisposition, originDisposition, fieldDispositionRecords, unsupportedFieldDisposition, integrityEvidenceRef]
+      fieldDispositionRule: Every source field is PRESERVED, TRANSFORMED, OMITTED_WITH_EXPLICIT_LOSS, or REJECTED with reason and evidenceRef.
+      identityJoin: Exact render-outcome jobId and outputArtifactVersionRef, output-lineage artifactVersionRef, spatial export source artifact/version, package identity, and declared destination must agree where applicable.
+      deliveryBoundary: Consumer receipt is a separate destination-authoritative outcome. It remains external and NOT_ADMITTED; no receipt or delivery is asserted.
+      deliveryReceiptBinding:
+        status: P1_SOURCE_DEFINED; J28_RELATED_DELIVERY_REQUEST_BOUND; TYPED_ACKNOWLEDGMENT_SOURCE_BOUND; RUNTIME_NOT_ADMITTED
+        deliveryOperationRef: media.operation.action.deliver-exact-version
+        deliveryOperationResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
+        acknowledgmentObservationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1
+        acknowledgmentResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.destination-delivery-acknowledgment.v1/resultSchema
+        currentJourneyPurposeBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1
+        relatedActionBindingRef: .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1/relatedActionBindings/@id=media.pdp3.action-binding.j28-deliver-exact-version.v1
+        purposeBindingBoundary: Step 04 retains local destination selection as its primary action with EXPLICIT_NO_DOMAIN_DISPATCH and no operationRefs. Its separately source-bound related action names the exact deliver-exact-version command and acknowledgment observation; journeyStepTransition is false, so this related request does not change the step's local-selection effect or immediate result.
+        conditionalReceiptJoin: The related definition binds a deliver-exact-version request to the immutable output version prepared by J28, its exact declared consumer destination, and the declared versioned delivery profile. REQUEST_ACCEPTED is only a request receipt. Destination receipt requires a separate current FULL OBSERVED acknowledgment whose original request result, request ID, fingerprint, artifact version, and destination match exactly, with owner acknowledgment authority and evidence.
+        pendingDisposition: The command and typed acknowledgment observation are definition-bound, but runtime remains NOT_ADMITTED and transport remains UNBOUND. Without exact owner-issued observed evidence, actual delivery and destination receipt remain UNKNOWN; neither destination selection, render admission/completion, output lineage, nor the request receipt establishes consumer receipt or conversion-report receipt.
+      expectedSpatialExportResult:
+        outputContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedWorkflowContracts/records/@id=media.workflow-contract.spatial-export-boundary.v1/output
+        meaning: A versioned spatial export candidate bound to the exact source artifact/version, target profile/version, and a complete transformation and loss report.
+        requiredReportFields: [sourceArtifactRef, sourceArtifactVersionRef, targetFormatProfileRef, targetFormatProfileVersionRef, sourceGeometryPlanRef, coordinateTransformRef, unitTransformRef, axisTransformRef, handednessDisposition, originDisposition, fieldDispositionRecords, unsupportedFieldDisposition, integrityEvidenceRef]
+        fieldDispositionRecords:
+          requiredPerSourceField: true
+          dispositionEnum: [PRESERVED, TRANSFORMED, OMITTED_WITH_EXPLICIT_LOSS, REJECTED]
+          reasonRequired: true
+          evidenceRefRequired: true
+        resultBoundary: This is a definition of the candidate and report shape, not a produced result, persisted package, external format conformance, or runtime qualification.
+      productionResultJoinGap:
+        status: P1_PREDECESSOR_SOURCE_GAP; UNKNOWN_NOT_ADMITTED
+        missingJoin: No reviewed source contract joins the exact J28 render job/request to the produced spatial export candidate version, completed conversion report, and package identity. Preserve those production identities as UNKNOWN; do not infer a job-to-output join from admission or lineage alone.
+        sourceRefs:
+          - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+          - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedWorkflowContracts/records/@id=media.workflow-contract.spatial-export-boundary.v1/output
+          - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1
+    terminalSuccessJoin: P0 completion requires the consumer to receive the identified package and conversion report; definition bindings alone cannot satisfy success. Unknown/missing report or external receipt keeps the journey incomplete.
 preconditions:
   - Destination subset, coordinate/time conventions, synthetic-data labeling,
     and licensing are declared.
@@ -1472,18 +1565,21 @@ steps:
 sourceGap:
   id: MDC30-C-28-output-and-conversion-result
   status: UNKNOWN_NOT_ADMITTED
-  missingOwnerDefinition: >-
-    Define and purpose-bind a J-28 post-render result for the exact immutable
-    output identity and a conversion report before claiming consumer receipt.
-    P1 submit-render establishes durable job admission only; inspect-output-
-    preview-and-version defines output lineage but has no J-28 purpose/operation
-    join; the P1 transform declaration is DECLARED_NOT_APPLIED and defines no
-    conversion-report result. No consumer receipt, conversion fields, transport,
-    or output are established for this journey.
+  missingJourneyEvidence: >-
+    J28 now allocates the exact job-status query, output-lineage observation, and
+    spatial-export loss-report shape to source steps, and step 04 now binds a
+    related exact-version delivery request plus its typed acknowledgment
+    observation. These definitions do not establish job-to-output production,
+    export execution, package persistence, conversion-report receipt, or actual
+    consumer receipt. Keep P0 completion unmet until exact owner evidence joins
+    the job, output version, conversion report, package, and destination receipt;
+    channel/runtime admission remains absent.
   sourceRefs:
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version
     - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.workflow-contract.spatial-export-boundary.v1
     - .product-experience/pdp-1-domain-data/value-objects.yaml#spatialTransformDeclarationContract/transformDeclaration
     - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-03.v1
     - .product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=media.pdp3.step-purpose-binding.j28-step-04.v1

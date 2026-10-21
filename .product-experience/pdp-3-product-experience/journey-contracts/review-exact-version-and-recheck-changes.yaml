@@ -85,8 +85,38 @@ pdp1ResultEvidence:
       - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-21/completion
       - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-rights-approval-and-format-effects
     evidenceRequirement: A real current rights-owner approval record and exact-version typed observation are required before any approval claim; this journey contains neither as an owner decision receipt.
+    developmentBoundary: The read-only query and explicit exclusion of an approval mutation are source-bound PDP-3 definitions; a genuine owner receipt is external current evidence and is not a prerequisite to completing this source definition.
+    ownerReceiptDisposition: EXTERNAL_CURRENT_OWNER_EVIDENCE; NOT_A_PDP3_DEVELOPMENT_PREREQUISITE; NO_RECEIPT_ASSERTED
     queryBoundary: The exact-version J-21 purpose binds the existing review-rights-approval-and-format-effects operation as a read-only query; it never creates or changes approval.
     disposition: Preserve read-only review and exact-version inspection; do not dispatch or infer an approval action from a query, review record, reviewer role, or request receipt.
+  productIntegrationBoundary:
+    status: SOURCE_EVIDENCE_ONLY; READ_ONLY_RIGHTS_OBSERVATION; APPROVAL_MUTATION_BLOCKED; RUNTIME_NOT_ADMITTED
+    channelRef: media.channel.product-integration
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-21/preconditions
+      - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-21/completion
+      - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-21/criticalNonhappy
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.record-version-review-decision/resultSchema
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-rights-approval-and-format-effects
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1/resultSchema
+      - .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.record-version-review-decision.v1/resultSchema
+    readOnlyEvidence:
+      operationRef: media.operation.action.review-rights-approval-and-format-effects
+      observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1
+      exactSubject: Only a current, owner-confirmed registered output ArtifactVersionRef equal to the immutable version reviewed by J-21 may be observed; preserve exact query/request and decision-subject identity.
+      approvedOnlyWhen: observationStatus is APPROVED and currentness is CURRENT, with exact request and decision subject equality, current authority/version, validity interval, and nonempty authoritative evidenceRefs.
+      missingOrUncertainEvidence: Preserve UNKNOWN for missing, stale, denied, mismatched, or unavailable authority/evidence; UNKNOWN and NOT_FOUND carry no decision and do not establish absence.
+      observationEffect: Read-only evidence of an existing owner decision; it never creates or changes approval.
+    blockedApprovalMutation:
+      status: BLOCKED_EXCLUDED
+      actionRef: null
+      disposition: Do not dispatch or infer an approval mutation from a read-only observation, review record, caller/reviewer role, or request receipt.
+    receiptBoundary:
+      operationRef: media.operation.action.record-version-review-decision
+      meaning: If this separately defined command returns its exact owner receipt, it confirms only that the review record was appended to the owner-issued case; it does not imply HUMAN_REVIEW_APPROVAL, authorize delivery, or establish that the product-integration path is admitted.
+      unknown: Retain requestId and the exact reviewed version for authorized reconciliation; UNKNOWN is neither success nor failure and does not permit a second write.
+    transport: UNBOUND
+    runtimeAdmission: NOT_ADMITTED
 preconditions:
   - Review purpose, exact artifact version, reviewer authority, and scope/expiry
     are explicit.

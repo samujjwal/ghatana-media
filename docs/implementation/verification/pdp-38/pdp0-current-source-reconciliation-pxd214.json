@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "media.pdp0.current-source-reconciliation.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-214",
+  "phaseScope": "PDP-0",
+  "sourceCut": {
+    "repositoryHead": "79329cc4ec49ce546bc1097f53f3c2ff125bad2c",
+    "workingTree": "MODIFIED_SOURCE_CUT",
+    "sourceCount": 16
+  },
+  "currentSourcePinsStatus": "CURRENT_SOURCE_PINS_VERIFIED_NO_ACCEPTANCE_EFFECT",
+  "authority": {
+    "phaseScope": "PDP-0",
+    "reviewKind": "COORDINATOR_AUTHORED_CURRENT_SOURCE_RECONCILIATION",
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "acceptanceEffect": "none",
+    "implementation": "NOT_CLAIMED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "qualification": "NOT_EVALUATED",
+    "closure": "NOT_CLAIMED",
+    "delivery": "NOT_CLAIMED"
+  },
+  "sourceFingerprints": {
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "a0e94ab197a76d1de2ecb9ddcbb92869644b16b603e1813eca5f091979ef8cf8",
+    ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "1e90f5fd1f3994822f79ce2db5cc60e0be4f00a38b5ecf25b5747e6f2bf2a467",
+    ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+    ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce",
+    ".product-experience/pdp-0-product-truth/information-architecture.yaml": "d975ee33c3752ab64f84b10aa4e008206fd84f67b8e68ce5665309cd360f4b9f",
+    ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "faadcc8eaa9c1338d1b3014f899d8ae7c7b69c290d694956e8eae2c477003ac8",
+    ".product-experience/pdp-0-product-truth/reuse-decisions.yaml": "22319bb51b947ca105f99c8c970c6ae2efdf30ed53b34a91ce2981451278effa",
+    ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "c773587617d430bb3db7da47a0c3f1fe73ce22ecc1f540e8faa23516cfdb7ceb",
+    ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
+    ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "d40f523e9b8b5ab60493cc28d909fca7b50f690d8814f3700fe6c1316f66f195",
+    "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json": "7889439f0d94f3153381bed8826a822f0a91f45859ae561fd6269a74f4751af2",
+    ".product-experience/source-manifest.yaml#PDP-0-projection": "2806c4d8a56a98f2a4840b7e83681548fd7f716506c0184d5bf212c2a345cfde",
+    "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
+    ".product-experience/decision-log.md#PXD-214-section": "86103c23009257ed2ffbdfe0bd0e95c51f8bd3247367a8d2a660ea4d966a5d27"
+  },
+  "phaseScopedSourceFingerprintsSha256": {
+    ".product-experience/source-manifest.yaml#PDP-0-projection": "2806c4d8a56a98f2a4840b7e83681548fd7f716506c0184d5bf212c2a345cfde",
+    "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
+    ".product-experience/decision-log.md#PXD-214-section": "86103c23009257ed2ffbdfe0bd0e95c51f8bd3247367a8d2a660ea4d966a5d27"
+  },
+  "predecessorRefs": [
+    "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd196.json",
+    "docs/implementation/verification/pdp-38/pdp0-current-semantic-route-successor-pxd211.json",
+    ".product-experience/decision-log.md#PXD-213"
+  ],
+  "records": [
+    {
+      "recordId": "PXD-214:MPSEM-0172-C002",
+      "claimId": "MPSEM-0172-C002",
+      "selectorRef": ".product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedCapabilityNamingRules/@id=media.requirement.capability-identities-name-media-semantics.v1",
+      "sourceArtifactRef": ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml",
+      "currentRawSourceSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "currentProjectionSha256": "dbc15beac1eccc925d642e7082f1dfa5ac08eedd33a18444ae0a7e6b4c979444",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "ownerApproval": "NOT_CLAIMED",
+      "acceptanceEffect": "none"
+    },
+    {
+      "recordId": "PXD-214:MPSEM-0030-C001",
+      "claimId": "MPSEM-0030-C001",
+      "selectorRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.job.watch/acceptanceCases/1/when",
+      "sourceArtifactRef": "docs/implementation/verification/pdp-38/migration-p0-current-source-observations.json#/records/@claimId=MPSEM-0030-C001",
+      "currentRawSourceSha256": "a0e94ab197a76d1de2ecb9ddcbb92869644b16b603e1813eca5f091979ef8cf8",
+      "currentProjectionSha256": "f345b03166fb90385b0580feed499f838344df02b45b838e5201c4acbca1f1a2",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "ownerApproval": "NOT_CLAIMED",
+      "acceptanceEffect": "none"
+    }
+  ],
+  "auditRows": {
+    "total": 501,
+    "original": 428,
+    "focused": 73,
+    "dispositions": {
+      "BOUND_EXISTING": 499,
+      "POST_PDP_IMPLEMENTATION_ONLY": 2,
+      "unresolved": 0
+    },
+    "ownerAdjudicatedPopulation": {
+      "capabilities": 462,
+      "allRows": 469,
+      "definitionExtensions": 7
+    }
+  },
+  "featureDefinitions": [
+    {
+      "auditId": "AUD-OPS-021",
+      "definitionRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-OPS-021",
+      "ownerApproval": "NOT_CLAIMED",
+      "independentAcceptance": "NOT_CLAIMED",
+      "priority": "PENDING_OWNER_DISPOSITION",
+      "adoptionDecision": "PENDING_OWNER_DISPOSITION",
+      "runtimeAdmission": "NOT_ADMITTED",
+      "physicalSurfaceRefs": [
+        "media.physical.libs-audio-video-client"
+      ],
+      "compositeSurfaceRefs": [
+        "media.composition.repository-root",
+        "media.composition.creation-composition-and-delivery",
+        "media.composition.client-and-machine-interfaces"
+      ]
+    },
+    {
+      "auditId": "AUD-CLONE-006",
+      "definitionRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-CLONE-006",
+      "ownerApproval": "NOT_CLAIMED",
+      "independentAcceptance": "NOT_CLAIMED",
+      "priority": "PENDING_OWNER_DISPOSITION",
+      "adoptionDecision": "PENDING_OWNER_DISPOSITION",
+      "runtimeAdmission": "NOT_ADMITTED",
+      "physicalSurfaceRefs": [
+        "media.physical.libs-audio-video-ui"
+      ],
+      "compositeSurfaceRefs": [
+        "media.composition.repository-root",
+        "media.composition.client-and-machine-interfaces",
+        "media.composition.creation-composition-and-delivery"
+      ]
+    }
+  ],
+  "decisionEffect": "Source-current reconciliation and definition routing only; no semantic equivalence, owner approval, acceptance, implementation, runtime admission, qualification, closure, or delivery is asserted."
+}

@@ -10,6 +10,8 @@ runtimeAdmission: NOT_ADMITTED
 executionAdmission: NOT_ADMITTED
 sourceRefs:
   - .product-experience/decision-log.md#PXD-185
+  - .product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics/projectRevision
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerOptimisticConcurrencyRule
   - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/compileAcceptance
   - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/validationCoverage
   - .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/capabilityDefinition/acceptanceCases/@id=AUD-SPEC-020-CAP-AC-01
@@ -32,6 +34,7 @@ referenceEncoding:
     - A compile request's ruleSetRef identifies its tenant and stable rule-set ID; its COMPILED candidate returns the exact resulting tuple and same ruleSetRef.
     - On compile, decode request.ruleSetRef and require its tenantRef to equal requestContext.tenantRef; when expectedVersionRef is non-null, decode it and require the same tenantRef and ruleSetId as request.ruleSetRef. A mismatch is CONFLICT and cannot return a candidate.
     - A COMPILED result.ruleSetRef equals both request.ruleSetRef and candidate.ruleSetRef; the candidate tuple's tenantRef and ruleSetId equal the decoded request.ruleSetRef.
+    - expectedVersionRef is the exact compare-and-swap predecessor: null is valid only when the rule-set head is known to be absent; a non-null value must equal the exact current head. An unknown head returns UNKNOWN; a mismatch returns STALE or CONFLICT and creates no candidate. Never substitute the latest version or silently rebase.
 ruleSetVersion:
   identity:
     schema:
@@ -272,6 +275,7 @@ requestContextRules:
 compileContract:
   operationRef: media.rules.compile-candidate.v1
   disposition: PROPOSAL_ONLY; NOT_IN_CANONICAL_OPERATION_DENOMINATOR; NOT_ADMITTED
+  predecessorRuleBasis: Adapts the generic ownerOptimisticConcurrencyRule and Media projectRevision expected-head semantics to a rule-set version head. This rule-management proposal remains pending owner review and is not runtime admission.
   requestSchema:
     type: object
     additionalProperties: false
@@ -297,7 +301,7 @@ compileContract:
       candidate: { $ref: "#/ruleSetVersion/candidate/schema" }
       normalizedSemanticGraph: { $ref: "#/normalizedSemanticGraph/schema" }
       semanticFingerprint: { $ref: "#/semanticFingerprint/schema" }
-      diagnostics: { type: array, items: { $ref: "#/validationContract/diagnosticSchema" } }
+      diagnostics: { type: array, minItems: 1, items: { $ref: "#/validationContract/diagnosticSchema" } }
       reasonRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
     oneOf:
       - { properties: { outcome: { const: COMPILED } }, required: [candidate, normalizedSemanticGraph, semanticFingerprint] }
@@ -332,6 +336,10 @@ compileContract:
     UNKNOWN: [reasonRef]
     UNAVAILABLE: [reasonRef]
     noEffectOn: [REJECTED, UNSUPPORTED, DENIED, CONFLICT, STALE, UNKNOWN, UNAVAILABLE]
+  rules:
+    - expectedVersionRef is the exact observed current predecessor for the compile request; a COMPILED candidate.parentVersionRef equals it, including null for an initial version with no existing head.
+    - If the exact current predecessor cannot be established, return UNKNOWN; if it differs from expectedVersionRef, return STALE or CONFLICT with no candidate. Never substitute the latest version or silently rebase.
+    - The exact-predecessor comparison adapts the cited generic owner optimistic-concurrency rule to the ruleSetVersion head; it does not establish that a rule-management runtime or storage implementation exists.
 inspectContract:
   operationRef: media.rules.inspect-candidate.v1
   disposition: PROPOSAL_ONLY; NOT_IN_CANONICAL_OPERATION_DENOMINATOR; NOT_ADMITTED

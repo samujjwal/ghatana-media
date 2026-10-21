@@ -217,6 +217,16 @@ journeys:
     contract: journey-contracts/check-which-processing-options-are-eligible.yaml
     detailState: pdp-0-grounded-contract-authored;
       option-eligibility-fixtures-and-owner-semantics-review-pending
+campaignExtensionProposals:
+  status: PROPOSAL_ONLY; separate-from-required-master-plan-and-PDP0-catalog-journeys
+  records:
+    - proposalId: J-31
+      title: Author, inspect, validate, and request reuse of a reusable rule candidate
+      sourceExtensionRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020
+      sourceApplicabilityRef: .product-experience/pdp-0-product-truth/campaign-extensions.yaml#records/@id=AUD-SPEC-020/channelApplicability/records/@id=AUD-SPEC-020-CHANNEL-APPLICABILITY
+      contract: proposal-journeys/manage-reusable-rules-proposal.yaml
+      pdp0JourneyLink: NOT_A_PDP0_CATALOG_JOURNEY
+      disposition: CONDITIONAL_PROPOSAL; OWNER_APPROVAL_NOT_CLAIMED; RUNTIME_NOT_ADMITTED
 coverageRule: Every-required-journey-needs-a-complete-channel-contract; the J-03
   lane contract does not pass full PDP-3 acceptance.
 coverageObservation:
@@ -303,12 +313,12 @@ currentStepBindingObservation:
     unresolvedStepActionBinding: 0
   canonicalBindingPopulation:
     surfaceRefsNonempty: 123
-    objectRefsNonempty: 97
-    stateRefsNonempty: 25
+    objectRefsNonempty: 98
+    stateRefsNonempty: 24
     primaryCanonicalOperationRefNonNull: 95
     primaryCanonicalOperationRefNull: 35
-    authorityRefsNonempty: 81
-    singularAuthorityRefNonNull: 17
+    authorityRefsNonempty: 86
+    singularAuthorityRefNonNull: 21
     transitionRefNonNull: 1
     requirementRefsNonempty: 40
     scenarioRefsNonempty: 19
