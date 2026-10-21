@@ -1,0 +1,273 @@
+{
+  "schemaVersion": "media.build-early-business-demo-recording.v1",
+  "productId": "media",
+  "purpose": "PLAN_ONLY_SOURCE_DERIVED_RECORDER_EXECUTION_PROFILE",
+  "status": "PLANNED_NOT_CAPTURED_NOT_IMPLEMENTED_NOT_REVIEWED",
+  "planAuthority": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md#5A",
+  "sourceTruth": {
+    "rule": "All product outcomes, operations, guards, UI semantics, journeys, scenario steps and media recording requirements come from current source-pinned PDP-0 to PDP-3; this file is a replaceable Build execution projection and editorial overlay, never a normative duplicate.",
+    "pdp0": {
+      "product": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "businessJourneys": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys",
+      "businessJourneysBlobAtReview": "84482a1f1fa69a8da32a3488289a56b4b033e498",
+      "recorder": ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml",
+      "recorderBlobAtReview": "2a6699172c0cb1bd8baabd050b32a8ee475d9eec",
+      "acceptance": ".product-experience/pdp-0-product-truth/requirements.yaml#recorderStudioProfile"
+    },
+    "pdp1": {
+      "businessOperations": ".product-experience/pdp-1-domain-data/operations.yaml",
+      "rightsAuthority": ".product-experience/pdp-1-domain-data/authority.yaml",
+      "stateAndFinality": ".product-experience/pdp-1-domain-data/states.yaml",
+      "recorder": ".product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml",
+      "recorderBlobAtReview": "f449204f0faaf248313fe6544c7c161260e9fee9"
+    },
+    "pdp2": {
+      "interface": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
+      "recorder": ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml",
+      "recorderBlobAtReview": "a27d73377e170eea73bdbdc04e5e51e79f5aab52"
+    },
+    "pdp3": {
+      "journeyRegistry": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "stepPurpose": ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+      "channelEdges": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+      "screenRegistry": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+      "recorder": ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml",
+      "targetJourney": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#terminalSuccess",
+      "targetJourneyBlobAtReview": "999fe23a670e64baafd6b6355176bd16145dcf59"
+    },
+    "phaseDevelopmentRecords": [
+      "docs/implementation/pdp-0-phase-dev-status.json",
+      "docs/implementation/pdp-1-phase-dev-status.json",
+      "docs/implementation/pdp-2-phase-dev-status.json",
+      "docs/implementation/pdp-3-phase-dev-status.json"
+    ],
+    "sourceCurrentness": "MUST_REVALIDATE_BEFORE_EACH_CAPTURE_AND_SEMANTIC_SOURCE_CHANGE"
+  },
+  "selectionPolicy": {
+    "earliestEligible": "Select the first **already implemented** customer-valuable PDP-0 terminal outcome with corresponding PDP-1 owner result, PDP-2 approved/implemented channel semantics and PDP-3 real step/channel success evidence. No dependency on unrelated verticals or release. No infrastructure-only or Explorer-mock film.",
+    "preferredInitialJourneyId": "J-03",
+    "supportingJourneyIds": [
+      "J-01",
+      "J-02",
+      "J-20"
+    ],
+    "allowedFallback": "A different source-defined business journey can become the first film only after its own terminal postcondition and recorder admission pass; record exact changed source refs and owner decision rather than silently relabeling an upload or technical smoke test.",
+    "noCrossJourneyFinality": "J-03 is a reviewable caption version; this profile does not claim reviewer approval (J-21), exported delivery or remote publishing (J-22), or product release.",
+    "recommendedCaptureChannel": "media.channel.web",
+    "sourcePermittedAlternateChannel": "media.channel.cli",
+    "noMockHost": true
+  },
+  "firstCandidate": {
+    "profileId": "media.build.demo.first-business-outcome.captions.v1",
+    "title": "From authorized audio recording to corrected reviewable captions",
+    "endUserOutcome": "A creator/editor can work from a real verified source, receive actual transcription, correct words/timing, register and inspect a reviewable immutable caption version with source/language/timing/provenance/uncertainty.",
+    "sourceTerminalRef": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#terminalSuccess",
+    "sourcePdp0Journey": "J-03",
+    "sourcePdp0CompletionRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-03/completion",
+    "ownerOutcomeRefs": [
+      "media.goal.understand-media",
+      "media.goal.review-trustworthy-output"
+    ],
+    "roles": [
+      "media.creator",
+      "media.editor"
+    ],
+    "businessProof": {
+      "sourceVersion": "READ_FROM_AUTHORITATIVE_RUNTIME",
+      "processingRequestAndAttempt": "READ_FROM_AUTHORITATIVE_RUNTIME",
+      "providerAndModel": "READ_FROM_ADMITTED_RUNTIME",
+      "transcriptVersion": "READ_FROM_AUTHORITATIVE_RUNTIME",
+      "correctedCaptionVersion": "READ_FROM_AUTHORITATIVE_RUNTIME",
+      "currentRightsDecision": "READ_FROM_AUTHORITATIVE_RUNTIME",
+      "finalityAndObservedAt": "READ_FROM_AUTHORITATIVE_RUNTIME",
+      "correlationAndVersionReadback": "REQUIRED_AND_REDACTED",
+      "immutableMediaOutput": "VIDEO_FILE_CAPTURED_ONLY_AFTER_REAL_OUTCOME",
+      "neverAccept": [
+        "STATIC_EXPLORER_ONLY",
+        "MOCKED_STT_OR_JOB",
+        "UPLOADED_BUT_NO_CAPTION_VERSION",
+        "PARTIAL_CAPTURE",
+        "SCREEN_WITH_NO_OWNER_RECEIPT",
+        "LOST_SOURCE_IDENTITY",
+        "UNKNOWN_OUTCOME_DECLARED_SUCCESS",
+        "FAKE_APPROVAL_OR_DELIVERY"
+      ]
+    }
+  },
+  "recorderReuse": {
+    "neutralOwner": "gharbatai/tooling/experience-recorder/",
+    "privatePackage": "@ghatana/experience-recorder",
+    "requiredExports": [
+      "./capture-core",
+      "./scenario-director",
+      "./pacing",
+      "./presentation",
+      "./narration",
+      "./quality"
+    ],
+    "adopter": "Media-owned source-bound adapter; Gharbatai stories/data/demo drivers do not migrate",
+    "firstCaptureKinds": [
+      "browser",
+      "terminal"
+    ],
+    "laterCaptureKinds": [
+      "desktop",
+      "mobile",
+      "http-api",
+      "grpc-api",
+      "camera",
+      "media-file"
+    ],
+    "qualification": "Pinned private source-composite permitted for local development only after packed/export consumer tests, license/security admission, Playwright/browser isolation and actual product-effect receipt comparison. Not proof of published production dependency.",
+    "runtimeWriter": "ghatana/services/media until authorized F01 cutover"
+  },
+  "storyboard": {
+    "policy": "Editorial beats only. Generate actionable commands, selectors and expected finalities from source-authoritative PDP1/PDP2/PDP3 bindings. Never hardcode route, CSS selector, undocumented command or new product semantics in this file.",
+    "scenes": [
+      {
+        "id": "s01",
+        "purpose": "Business problem and source-bound outcome",
+        "journeyIds": [
+          "J-03"
+        ],
+        "capture": "editorial-title-only",
+        "requiredProof": "VERIFIED_STORY_CLAIM_BEFORE_FILM",
+        "narrationIntent": "Identify the creator's need to turn permitted audio into reviewable timed captions."
+      },
+      {
+        "id": "s02",
+        "purpose": "Authorized workspace and project",
+        "journeyIds": [
+          "J-01"
+        ],
+        "capture": "real-browser-or-admitted-cli",
+        "requiredProof": "AUTHORIZED_PROJECT_VERSION_READBACK",
+        "narrationIntent": "Show the right project and workspace, not an invented login or project."
+      },
+      {
+        "id": "s03",
+        "purpose": "Original audio integrity and source attachment",
+        "journeyIds": [
+          "J-02"
+        ],
+        "capture": "real-browser-or-admitted-cli",
+        "requiredProof": "EXACT_ARTIFACT_SOURCE_VERSION_AND_DIGEST",
+        "narrationIntent": "Demonstrate safe, reproducible upload or import and verified original bytes."
+      },
+      {
+        "id": "s04",
+        "purpose": "STT submission, progress, uncertainty handling",
+        "journeyIds": [
+          "J-20",
+          "J-03"
+        ],
+        "capture": "real-browser-or-admitted-cli",
+        "requiredProof": "SAME_JOB_ID_AUTHORITATIVE_STATUS_AND_PROVIDER_RECEIPT",
+        "narrationIntent": "Show real work and distinguish acceptance from finished recognition."
+      },
+      {
+        "id": "s05",
+        "purpose": "Review and correct transcript words and caption timing",
+        "journeyIds": [
+          "J-03"
+        ],
+        "capture": "real-browser-or-admitted-cli",
+        "requiredProof": "EXACT_TRANSCRIPT_READBACK_AND_CAPTION_DRAFT_PARENT_CAS",
+        "narrationIntent": "Show the person correcting the words and timing while preserving original provenance."
+      },
+      {
+        "id": "s06",
+        "purpose": "Register and inspect immutable reviewable caption version",
+        "journeyIds": [
+          "J-03"
+        ],
+        "capture": "real-browser-or-admitted-cli",
+        "requiredProof": "CAPTION_VERSION_READBACK_WITH_SOURCE_LANGUAGE_TIMING_AND_FINALITY",
+        "narrationIntent": "Show the completed source-defined business outcome, not a queued job."
+      },
+      {
+        "id": "s07",
+        "purpose": "Optional safe failure and recovery evidence",
+        "journeyIds": [
+          "J-20",
+          "J-03"
+        ],
+        "capture": "real-browser-or-admitted-cli",
+        "requiredProof": "REAL_DENIED_OR_UNKNOWN_OBSERVATION_WITH_SAFE_RECOVERY",
+        "narrationIntent": "Explain a genuine failure boundary without inventing or forcing an unobserved successful effect."
+      }
+    ]
+  },
+  "admission": {
+    "requiredTasks": [
+      "M-BLD-L01.T01",
+      "M-BLD-L01.T02",
+      "M-BLD-L01.T03",
+      "M-BLD-L01.T04"
+    ],
+    "productPrerequisites": [
+      "M-BLD-F00",
+      "M-BLD-F03",
+      "M-BLD-F04",
+      "M-BLD-F05",
+      "M-BLD-F06",
+      "M-BLD-F07",
+      "M-BLD-F08",
+      "M-BLD-F09",
+      "M-BLD-F10",
+      "M-BLD-F12",
+      "M-BLD-F13",
+      "M-BLD-V01",
+      "M-BLD-V02",
+      "M-BLD-V20",
+      "M-BLD-V03"
+    ],
+    "notPrerequisitesToFirstFilm": [
+      "M-BLD-V24",
+      "M-BLD-V29",
+      "M-BLD-L01 full scope",
+      "M-BLD-L02",
+      "M-BLD-L03",
+      "M-BLD-X01",
+      "M-BLD-X02",
+      "M-BLD-X03",
+      "J-21 approval",
+      "J-22 external delivery",
+      "Delivery/release"
+    ],
+    "sourceDefinedScopeRule": "Other foundation prerequisites follow the actual F package DAG. This list is illustrative of directly material stages, not a second dependency graph.",
+    "conditions": [
+      "FOUR_PDP_SOURCE_CUTS_CURRENT_AND_JOURNEY_BUSINESS_POSTCONDITION_EXACTLY_JOINED",
+      "KERNEL_BUILD_IMPLEMENT_TASKS_ADMITTED_AND_WRITER_OWNERSHIP_RESOLVED",
+      "REAL_AUTHORIZED_BUSINESS_JOURNEY_SUCCEEDED_ON_CURRENT_RUNTIME_CODE",
+      "ALL_DEMO_SHOWN_STEPS_HAVE_AUTHENTIC_OWNER_RESULTS_AND_SAFE_NEGATIVE_OUTCOMES",
+      "ADMITTED_CAPTURE_HOST_OR_SOURCE_DECLARED_HEADLESS_CHANNEL_EXECUTES_REAL_EFFECTS",
+      "GIVEN_FIXTURE_SEED_AND_CLEANUP_ARE_SCOPE_SAFE_AND_REPRODUCIBLE",
+      "NO_UNQUALIFIED_PROVIDER_OR_VISUAL_SOURCE_IS_SUBSTITUTED",
+      "OUTPUT_CAPTURE_AND_NARRATION_PROFILES_PROVED_WITH_CONTENT_RIGHTS",
+      "NO_RELEASE_OR_REVIEW_APPROVAL_INFERRED_FROM_RECORDING"
+    ]
+  },
+  "dataAndQuality": {
+    "fixtureProfile": "Synthetic, consented, licensed test audio with intelligible phrases and intentional correctable timing/text mistakes; real media bytes processed through a real admitted STT engine, not a prerecorded transcript posed as inference.",
+    "fixtureProvisioning": "Idempotent isolated demo tenant/workspace; deterministic seed identifiers; ownership/lease-scoped cleanup of only generated resources; avoid arbitrary database resets.",
+    "capture": "Native browser/terminal/media capture grounded in actual host/runtime; source clocks and wall/media timelines kept separate; headless is allowed, explorer-only pixels are not.",
+    "privacy": "No passwords/tokens/customer recordings/PII/biometric samples in output frames, logs, narration or bundle; consent and license verified for soundtrack, fonts and source content.",
+    "quality": "Sound, framing, pacing, captions, accessibility, artifacts and visual continuity measured against owner-approved profile; no invented thresholds; crop/annotation or AI polish may not hide denied/UNKNOWN states.",
+    "narration": "Declarative storyboard/captions with human review or qualified TTS; narration must follow observed output and may be manually edited without affecting business-source receipts.",
+    "outputArtifacts": [
+      "playable-recording",
+      "chapter-and-scene-timeline",
+      "source-joined-redacted-effect-receipts",
+      "captions-and-transcript",
+      "recording-quality-report",
+      "privacy-and-license-check",
+      "sha256-output-manifest",
+      "review-and-approval-disposition"
+    ],
+    "filmStatus": "NOT_CAPTURED",
+    "automaticReRecording": "On source/product UI changes, compare semantic and visual anchors to invalidate only affected scenes while preserving approved manual edits and immutable old film versions.",
+    "approvalBoundary": "Recording may be captured after conditions are met; 'APPROVED_FILM' requires real file inspection and reviewer disposition; no film or external publication is currently approved."
+  },
+  "successPolicy": "FIRST_FILM_TRIGGER = CURRENT_PDP_SOURCE_AND_REAL_BUSINESS_OUTCOME_AND_CAPTURE_READY; then capture now, verify output, review film. Never gate first film on V24/V29/all verticals/full Studio or Delivery."
+}
