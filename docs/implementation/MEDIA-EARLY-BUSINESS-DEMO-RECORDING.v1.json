@@ -1,8 +1,8 @@
 {
   "schemaVersion": "media.build-early-business-demo-recording.v1",
   "productId": "media",
-  "purpose": "PLAN_ONLY_SOURCE_DERIVED_RECORDER_EXECUTION_PROFILE",
-  "status": "PLANNED_NOT_CAPTURED_NOT_IMPLEMENTED_NOT_REVIEWED",
+  "purpose": "PLAN_ONLY_PDP3_EXPLORER_SIMULATED_PLUS_BUILD_REAL_TWIN_RECORDING",
+  "status": "PLANNED_BOTH_RECORDINGS_NOT_CAPTURED_UNVERIFIED",
   "planAuthority": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md#5a-early-pdp-source-derived-recording-of-the-first-complete-business-outcome",
   "sourceTruth": {
     "rule": "All product outcomes, operations, guards, UI semantics, journeys, scenario steps and media recording requirements come from current source-pinned PDP-0 to PDP-3; this file is a replaceable Build execution projection and editorial overlay, never a normative duplicate.",
@@ -154,7 +154,17 @@
         ],
         "capture": "editorial-title-only",
         "requiredProof": "VERIFIED_STORY_CLAIM_BEFORE_FILM",
-        "narrationIntent": "Identify the creator's need to turn permitted audio into reviewable timed captions."
+        "narrationIntent": "Identify the creator's need to turn permitted audio into reviewable timed captions.",
+        "narration": {
+          "sharedNarrationIntentId": "media.demo.j03.narration.s01.v1",
+          "explorerDraft": "This is a simulated view of a creator’s journey from an audio recording to corrected, timed captions. All data shown in this Explorer demonstration is illustrative.",
+          "productDraft": "This recording follows the actual product workflow that turns a source audio recording into corrected, reviewable captions. Only outcomes verified in this run are presented.",
+          "spokenAudioNotYetRecorded": true,
+          "captionsNotYetGenerated": true,
+          "reviewRule": "Mode-specific draft is not evidence; compare against actual recorded Explorer/product state, revise text as necessary and render voice with aligned subtitles only after source-current checks"
+        },
+        "pdp3CaptureStatus": "NOT_RECORDED",
+        "buildCaptureStatus": "NOT_RECORDED"
       },
       {
         "id": "s02",
@@ -164,7 +174,17 @@
         ],
         "capture": "real-browser-or-admitted-cli",
         "requiredProof": "AUTHORIZED_PROJECT_VERSION_READBACK",
-        "narrationIntent": "Show the right project and workspace, not an invented login or project."
+        "narrationIntent": "Show the right project and workspace, not an invented login or project.",
+        "narration": {
+          "sharedNarrationIntentId": "media.demo.j03.narration.s02.v1",
+          "explorerDraft": "The Explorer demonstrates the intended authorized workspace and project experience using sample data. No real sign-in or project creation occurs here.",
+          "productDraft": "The user works in an authorized workspace and an actual project. The recorded project identity and version are verified before continuing.",
+          "spokenAudioNotYetRecorded": true,
+          "captionsNotYetGenerated": true,
+          "reviewRule": "Mode-specific draft is not evidence; compare against actual recorded Explorer/product state, revise text as necessary and render voice with aligned subtitles only after source-current checks"
+        },
+        "pdp3CaptureStatus": "NOT_RECORDED",
+        "buildCaptureStatus": "NOT_RECORDED"
       },
       {
         "id": "s03",
@@ -174,7 +194,17 @@
         ],
         "capture": "real-browser-or-admitted-cli",
         "requiredProof": "EXACT_ARTIFACT_SOURCE_VERSION_AND_DIGEST",
-        "narrationIntent": "Demonstrate safe, reproducible upload or import and verified original bytes."
+        "narrationIntent": "Demonstrate safe, reproducible upload or import and verified original bytes.",
+        "narration": {
+          "sharedNarrationIntentId": "media.demo.j03.narration.s03.v1",
+          "explorerDraft": "Here, representative asset metadata illustrates the intended upload and source-verification experience. The Explorer is not transferring real file bytes.",
+          "productDraft": "The source audio is uploaded or imported through the admitted product workflow; its verified content digest and exact artifact version are read back.",
+          "spokenAudioNotYetRecorded": true,
+          "captionsNotYetGenerated": true,
+          "reviewRule": "Mode-specific draft is not evidence; compare against actual recorded Explorer/product state, revise text as necessary and render voice with aligned subtitles only after source-current checks"
+        },
+        "pdp3CaptureStatus": "NOT_RECORDED",
+        "buildCaptureStatus": "NOT_RECORDED"
       },
       {
         "id": "s04",
@@ -185,7 +215,17 @@
         ],
         "capture": "real-browser-or-admitted-cli",
         "requiredProof": "SAME_JOB_ID_AUTHORITATIVE_STATUS_AND_PROVIDER_RECEIPT",
-        "narrationIntent": "Show real work and distinguish acceptance from finished recognition."
+        "narrationIntent": "Show real work and distinguish acceptance from finished recognition.",
+        "narration": {
+          "sharedNarrationIntentId": "media.demo.j03.narration.s04.v1",
+          "explorerDraft": "The simulated job states illustrate submission, progress and uncertainty. No speech-recognition provider is called by the Explorer.",
+          "productDraft": "The authorized recognition job is processed by the admitted provider. Job identity, status and completion are checked from the owning runtime, not inferred from the screen.",
+          "spokenAudioNotYetRecorded": true,
+          "captionsNotYetGenerated": true,
+          "reviewRule": "Mode-specific draft is not evidence; compare against actual recorded Explorer/product state, revise text as necessary and render voice with aligned subtitles only after source-current checks"
+        },
+        "pdp3CaptureStatus": "NOT_RECORDED",
+        "buildCaptureStatus": "NOT_RECORDED"
       },
       {
         "id": "s05",
@@ -195,7 +235,17 @@
         ],
         "capture": "real-browser-or-admitted-cli",
         "requiredProof": "EXACT_TRANSCRIPT_READBACK_AND_CAPTION_DRAFT_PARENT_CAS",
-        "narrationIntent": "Show the person correcting the words and timing while preserving original provenance."
+        "narrationIntent": "Show the person correcting the words and timing while preserving original provenance.",
+        "narration": {
+          "sharedNarrationIntentId": "media.demo.j03.narration.s05.v1",
+          "explorerDraft": "This example transcript and its timing can be corrected in the simulated experience. The changes affect only the Explorer fixture state.",
+          "productDraft": "The transcript and caption timing are reviewed and corrected against the real source version. Changes preserve revision identity and provenance.",
+          "spokenAudioNotYetRecorded": true,
+          "captionsNotYetGenerated": true,
+          "reviewRule": "Mode-specific draft is not evidence; compare against actual recorded Explorer/product state, revise text as necessary and render voice with aligned subtitles only after source-current checks"
+        },
+        "pdp3CaptureStatus": "NOT_RECORDED",
+        "buildCaptureStatus": "NOT_RECORDED"
       },
       {
         "id": "s06",
@@ -205,7 +255,17 @@
         ],
         "capture": "real-browser-or-admitted-cli",
         "requiredProof": "CAPTION_VERSION_READBACK_WITH_SOURCE_LANGUAGE_TIMING_AND_FINALITY",
-        "narrationIntent": "Show the completed source-defined business outcome, not a queued job."
+        "narrationIntent": "Show the completed source-defined business outcome, not a queued job.",
+        "narration": {
+          "sharedNarrationIntentId": "media.demo.j03.narration.s06.v1",
+          "explorerDraft": "The Explorer shows how a reviewable caption version is intended to appear. This is a simulated terminal outcome, not a published or approved product artifact.",
+          "productDraft": "The real product has registered a reviewable caption version and read it back with its source, timing, language and provenance. This does not claim formal approval or external delivery.",
+          "spokenAudioNotYetRecorded": true,
+          "captionsNotYetGenerated": true,
+          "reviewRule": "Mode-specific draft is not evidence; compare against actual recorded Explorer/product state, revise text as necessary and render voice with aligned subtitles only after source-current checks"
+        },
+        "pdp3CaptureStatus": "NOT_RECORDED",
+        "buildCaptureStatus": "NOT_RECORDED"
       },
       {
         "id": "s07",
@@ -216,7 +276,17 @@
         ],
         "capture": "real-browser-or-admitted-cli",
         "requiredProof": "REAL_DENIED_OR_UNKNOWN_OBSERVATION_WITH_SAFE_RECOVERY",
-        "narrationIntent": "Explain a genuine failure boundary without inventing or forcing an unobserved successful effect."
+        "narrationIntent": "Explain a genuine failure boundary without inventing or forcing an unobserved successful effect.",
+        "narration": {
+          "sharedNarrationIntentId": "media.demo.j03.narration.s07.v1",
+          "explorerDraft": "An unavailable or uncertain result remains visible in the Explorer, illustrating the intended safe recovery path. No external effect has occurred.",
+          "productDraft": "This recovery demonstration is shown only when the real system has actually reported the relevant denied, unavailable or uncertain outcome; its request identity is preserved for safe reconciliation.",
+          "spokenAudioNotYetRecorded": true,
+          "captionsNotYetGenerated": true,
+          "reviewRule": "Mode-specific draft is not evidence; compare against actual recorded Explorer/product state, revise text as necessary and render voice with aligned subtitles only after source-current checks"
+        },
+        "pdp3CaptureStatus": "NOT_RECORDED",
+        "buildCaptureStatus": "NOT_RECORDED"
       }
     ]
   },
@@ -286,18 +356,140 @@
     "quality": "Sound, framing, pacing, captions, accessibility, artifacts and visual continuity measured against owner-approved profile; no invented thresholds; crop/annotation or AI polish may not hide denied/UNKNOWN states.",
     "narration": "Declarative storyboard/captions with human review or qualified TTS; narration must follow observed output and may be manually edited without affecting business-source receipts.",
     "outputArtifacts": [
-      "playable-recording",
-      "chapter-and-scene-timeline",
-      "source-joined-redacted-effect-receipts",
-      "captions-and-transcript",
-      "recording-quality-report",
-      "privacy-and-license-check",
-      "sha256-output-manifest",
-      "review-and-approval-disposition"
+      "pdp3-explorer-playable-recording-with-audible-narration",
+      "pdp3-explorer-synchronized-captions-and-simulation-label",
+      "build-real-product-playable-recording-with-audible-narration",
+      "build-real-product-synchronized-captions",
+      "shared-source-scenario-and-beat-coverage",
+      "separate-explorer-and-runtime-result-receipts",
+      "semantic-equivalence-and-discrepancy-report",
+      "each-mode-quality-privacy-license-check",
+      "immutable-source-and-output-hash-manifests",
+      "separate-review-and-approval-dispositions"
     ],
-    "filmStatus": "NOT_CAPTURED",
+    "filmStatus": "BOTH_TRACKS_NOT_RECORDED",
     "automaticReRecording": "On source/product UI changes, compare semantic and visual anchors to invalidate only affected scenes while preserving approved manual edits and immutable old film versions.",
     "approvalBoundary": "Recording may be captured after conditions are met; 'APPROVED_FILM' requires real file inspection and reviewer disposition; no film or external publication is currently approved."
   },
-  "successPolicy": "FIRST_FILM_TRIGGER = CURRENT_PDP_SOURCE_AND_REAL_BUSINESS_OUTCOME_AND_CAPTURE_READY; then capture now, verify output, review film. Never gate first film on V24/V29/all verticals/full Studio or Delivery."
+  "successPolicy": "TWO_PASS_TARGET: PDP3 records narrated Explorer simulated scenario with static seeded data; Build replays and records the same scenario against the real product when its actual business outcome works. Historical phase DEV_COMPLETE does not prove new Explorer video. Do not delay already-ready Build outcomes for unrelated scenario backfill.",
+  "dualStageRecording": {
+    "governingSection": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md#5b-two-pass-pdp-3-explorer--build-product-recording-standard",
+    "designDisposition": "OWNER_SELECTED_MEDIA_TARGET; CROSS_REPOSITORY_KERNEL_TOOLS_LIFECYCLE_GATE_NOT_YET_ADMITTED",
+    "scenarioIdentity": {
+      "demoScenarioId": "media.demo.j03.corrected-captions.v1",
+      "normativePdp3Journey": "J-03",
+      "supportJourneyRefs": [
+        "J-01",
+        "J-02",
+        "J-20"
+      ],
+      "variantId": "positive-with-reviewable-caption-terminal",
+      "semanticBeats": [
+        "s01",
+        "s02",
+        "s03",
+        "s04",
+        "s05",
+        "s06",
+        "s07"
+      ],
+      "semanticsAuthority": "Current PDP-0..3 sources only; this is a derivative identifier, not a new P0 capability or normative operation",
+      "scenarioRevision": "PLANNED_REQUIRES_SOURCE_FINGERPRINT_ADMISSION"
+    },
+    "sourceOfTruth": "One source-owned PDP-3 scenario/fixture/ordered-step/narration intent; Build only substitutes real adapters, data and observations. Media recorder capability semantics are independently governed by Media PDP-0..3.",
+    "passes": [
+      {
+        "id": "pdp3-explorer",
+        "mode": "EXPLORER_SIMULATED",
+        "stage": "PDP-3",
+        "state": "NOT_RECORDED",
+        "host": "apps/media-experience-explorer/ frontend-only product/explore projection",
+        "realBackendAllowed": false,
+        "fixtureAuthority": ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        "dataBinding": "Central, deterministic, realistic seeded frontend state and scenario action reducer; source-defined denial/UNKNOWN/recovery; no live login/upload/STT/provider",
+        "requirements": [
+          "ACTUAL_EXPLORER_RUN",
+          "STATIC_SOURCE_LINKED_FIXTURE",
+          "SIMULATED_MODE_VISIBLE_IN_EVERY_RELEVANT_SCENE",
+          "ACTUAL_CAPTURED_VIDEO",
+          "AUDIBLE_NARRATION_TRACK",
+          "SYNCHRONIZED_CAPTIONS",
+          "SOURCE_STEP_COVERAGE",
+          "QUALITY_PRIVACY_LICENSE_REVIEW",
+          "CURRENT_DIGEST_MANIFEST"
+        ],
+        "evidenceClass": "DEFINITION_EXPLORER_DEMONSTRATION_NOT_PRODUCT_IMPLEMENTATION",
+        "recordingRef": null,
+        "audioNarrationRef": null,
+        "captionsRef": null,
+        "qualityReportRef": null,
+        "manifestRef": null
+      },
+      {
+        "id": "build-product",
+        "mode": "PRODUCT_EXECUTED",
+        "stage": "BUILD",
+        "state": "NOT_RECORDED",
+        "host": "Owner-admitted real product GUI or source-declared actual CLI/API/embedded channel",
+        "realBackendAllowed": true,
+        "fixtureAuthority": "Owner-scoped, idempotent real seed and cleanup; illustrative Explorer IDs must be semantically resolved, not used as runtime IDs",
+        "dataBinding": "Actual persistent source digest, authenticated tenant/principal, admitted STT provider execution, authoritative transcript/caption/version receipts",
+        "requirements": [
+          "CURRENT_SAME_DEMO_SCENARIO_REVISION",
+          "REAL_BUSINESS_TERMINAL_PROVED",
+          "REAL_CHANNEL_AND_PROVIDER_ADMITTED",
+          "ACTUAL_CAPTURED_VIDEO_OR_AUTHORIZED_HEADLESS_REPLAY",
+          "AUDIBLE_NARRATION_TRACK",
+          "SYNCHRONIZED_CAPTIONS",
+          "SOURCE_STEP_COVERAGE",
+          "OWNER_RECEIPTS_AND_UNKNOWN_RESOLUTION",
+          "QUALITY_PRIVACY_LICENSE_REVIEW",
+          "CURRENT_DIGEST_MANIFEST"
+        ],
+        "evidenceClass": "IMPLEMENTATION_BUSINESS_OUTCOME_AND_RECORDING_PROOF",
+        "recordingRef": null,
+        "audioNarrationRef": null,
+        "captionsRef": null,
+        "qualityReportRef": null,
+        "manifestRef": null
+      }
+    ],
+    "sharedAuthoredElements": [
+      "demoScenarioId",
+      "scenarioRevision",
+      "sourcePdp0OutcomeRefs",
+      "sourcePdp1OperationAndFinalityRefs",
+      "sourcePdp2InteractionAndPresentationRefs",
+      "sourcePdp3JourneyStepAndScenarioRefs",
+      "semanticBeatIds",
+      "semanticNarrationIntents",
+      "negativeAndRecoveryOracles",
+      "rightsPrivacyConstraints"
+    ],
+    "explicitModeDifferences": [
+      "narrationWording",
+      "fixtureResolver",
+      "hostAndAdapter",
+      "runtimeEntityAliases",
+      "actualRequestAndResultIds",
+      "source/processingClocks",
+      "actualDataValues",
+      "visualTiming",
+      "recordingRunId",
+      "providerRuntimeAuthority",
+      "capturedFilmHash",
+      "filmReview"
+    ],
+    "explorerBadgeText": "Simulated Explorer experience — illustrative data, no live product operations",
+    "productBadgeText": "Recorded from actual product execution — exact result/authority proof required",
+    "narrationRule": "Actual audio plus synchronized captions for both tracks; share intent/chapters, never a false completed-effect statement in PDP3 Explorer or ahead of Build owner receipt",
+    "semanticComparison": {
+      "expectedBehavior": "P0 customer goal/P1 guards and finality/P2 interaction/P3 steps+positive+denial+UNKNOWN+recovery must match, while runtime IDs, visuals and elapsed times can legitimately differ",
+      "terminalProof": "Mock scenario may show the designed caption terminal; only Build receipt proves a real immutable caption version was registered",
+      "resultStatus": "NOT_COMPARED",
+      "reportRef": null
+    },
+    "recapture": "Invalidate only affected shared scenes or one mode's footage based on semantic/source/fixture/host/narration fingerprint; preserve previous immutable records and manual edits",
+    "historicalState": "All four PDP phase status records are pre-standard development evidence; none proves the new PDP3 narrated recording requirement"
+  }
 }
