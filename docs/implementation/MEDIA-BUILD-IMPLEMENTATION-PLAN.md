@@ -44,9 +44,15 @@ flowchart LR
   WRITER["ghatana/services/media\ncanonical executable writer"] --> CUT["F01 owner-approved cutover plan"]
   TRACE --> F["F02–F13 shared foundations"]
   CUT --> F
-  F --> V["J01/J02/J20/J03\nfirst real thin slice"]
+  F --> V["J01/J02/J20/J03\nfirst full business outcome"]
   F --> W["Other J04–J30\nfull end-to-end verticals"]
-  V --> S["L01 Recorder / L02 Studio / L03 Player"]
+  TRACE --> DP["L01.T01 PDP-bound recording recipe"]
+  F --> QA["L01.T02 qualified Media capture adapter"]
+  V --> FIRST{Business postcondition & capture ready?}
+  DP --> FIRST
+  QA --> FIRST
+  FIRST --> REC["L01.T03/T04 FIRST FILM now"]
+  V --> S["Full L01 / L02 Studio / L03 Player"]
   W --> S
   S --> X["X01 parity → X02 hardening → X03 Build handoff"]
 ```
@@ -115,7 +121,7 @@ The implementing owner records **(1)** exact existing owner/source and admissibl
 | J22/J24/J25 | Action Plane, Shared messaging/outbox, Agents, typed machine contracts | Exact destination ACK, CLI JSON/exit, delegated Agent Tools without privilege invention |
 | Recorder/Studio/Player | Gharbatai neutral recorder candidate, Shared DS, TutorPutor AEF, canonical Media jobs/versions | Actual source-grounded recording/recapture, full manual edits, provenance-safe interactive playback |
 
-**Execution rule:** F00/F01 freeze writer/trace; independent F02–F13 can work concurrently with disjoint files; require F-READY once common foundations are implemented to their contracts; then J01→J02→J20→J03 proves the first real thin vertical. J04–J30 run in bounded independent lanes **after their named prerequisites**. Do not duplicate Shared work per vertical or convert local fixture output into runtime proof. No runtime implementation, PDP closure or Delivery is performed by updating this plan.
+**Execution rule:** F00/F01 freeze writer/trace; prepare read-only PDP-source-bound recording specs and qualify the Gharbatai recorder as early as the scoped prerequisites allow; independent F02–F13 work can proceed concurrently with disjoint files; F-READY gates vertical implementation; J01→J02→J20→J03 then establishes the first real business outcome and triggers early capture at §5A's actual proof gate. J04–J30 run in bounded independent lanes **after their named prerequisites**. Do not duplicate Shared work per vertical or convert local fixture output into runtime proof. No runtime implementation, PDP closure or Delivery is performed by updating this plan.
 
 ## 3D. Independent plan-quality review and mandatory implementation admission
 
@@ -418,7 +424,7 @@ The foundation packages in §4 retain the **same 14 IDs and dependency graph**. 
 
 **First path:** **M-BLD-V01 → M-BLD-V02 → M-BLD-V20 → M-BLD-V03**. It must exercise a real configured identity/tenant/workspace, real project revision, real resumable upload and checksum-verifiable durable artifact, actual authorized STT provider or owner-approved deterministic engine (not mocked response), durable job state with fenced attempt and lifecycle outbox, exact transcript/caption output registration and readback through real HTTP/SDK/UI. A missing licensed/admitted provider makes only the provider execution step blocked; no green fixture substitutes. Prove retries at accepted vs uncertain boundaries, cancellation requested vs final, scoped missing/denied/unavailable and restart before claiming the slice functional.
 
-**System acceptance:** Given approved test credentials and fixtures, a fresh authorized user can complete this flow and see the exact output version with source/producer/rights/provenance; all stage transitions and negative cases are observable, durable and reproducible. This is **first working product slice**, not first released app.
+**System acceptance:** Given approved test credentials and fixtures, a fresh authorized user can complete this flow and see the exact output version with source/producer/rights/provenance; all stage transitions and negative cases are observable, durable and reproducible. This is **first working product slice**, not first released app. Its PDP-3 J03 terminal is a **reviewable caption version**, not final approval/export. Immediately run the qualified §5A early recording task when business and capture proof are real; neither L01 full completion nor later verticals are prerequisites.
 
 ## 5A. Early, PDP-source-derived recording of the first complete business outcome
 
@@ -865,11 +871,11 @@ The source journey contracts and current P3 step/edge bindings remain normative;
 
 ### M-BLD-L01 — Autonomous Recorder Orchestrator and capture-adapter integration
 
-**Owner/write isolation:** Media recorder owner + Gharbatai recorder package owner. **Dependencies:** M-BLD-F13, M-BLD-V01, M-BLD-V02, M-BLD-V20, M-BLD-V24, M-BLD-V29. **Paths:** `gharbatai/tooling/experience-recorder/` `@ghatana/experience-recorder` reusable source; `gharbatai/tooling/demo-recording/` consumer-specific code retained; Media `libs/audio-video-client/`, `runtime-contracts/`, `launcher/`; logical `media.surface.recorder-orchestrator`, `media.surface.capture-adapters`.
+**Owner/write isolation:** Media recorder owner + Gharbatai recorder package owner. **Dependencies for full L01 completion:** M-BLD-F13, M-BLD-V01, M-BLD-V02, M-BLD-V20, M-BLD-V24, M-BLD-V29. **Early source-derived film subtasks L01.T01–T04:** execute under their **distinct §5A prerequisites**, before V24/V29/full L01 acceptance; never claim that this waives the full recorder requirements. **Paths:** `gharbatai/tooling/experience-recorder/` `@ghatana/experience-recorder` reusable source; `gharbatai/tooling/demo-recording/` consumer-specific code retained; Media `libs/audio-video-client/`, `runtime-contracts/`, `launcher/`; logical `media.surface.recorder-orchestrator`, `media.surface.capture-adapters`.
 
-**Outcome/implementation:** Config/metadata-driven authenticated browser, desktop, mobile, terminal, API/gRPC and allowed A/V capture; reuse product-neutral Gharbatai recorder, storyboard and narration contracts. Real source effects require exact upstream outcome readback, source capture clock/camera/mic permissions, evidence classification and selective scene recapture. Integrate voice/subtitle/animation/simulation attachments; never treat static Explorer mock as an actual journey.
+**Outcome/implementation:** Start with a PDP-0..3-derived **real-business-outcome browser/terminal recording** using a single config/data-driven recipe and actual owner receipts; expand to config/metadata-driven authenticated browser, desktop, mobile, terminal, API/gRPC and allowed A/V capture; reuse product-neutral Gharbatai recorder, storyboard and narration contracts. Real source effects require exact upstream outcome readback, source capture clock/camera/mic permissions, evidence classification and selective scene recapture. Integrate voice/subtitle/animation/simulation attachments; never treat static Explorer mock as an actual journey.
 
-**Acceptance/test/evidence:** Given pinned config and authorized fixture project, recording executes reproducible actions, captures actual frames + receipts, narrates/annotates and recaptures one changed scene; denied/timeout/source-unknown produce bounded report without manufactured success. Tests: contract+unit+headless/browser/device/provider where meaningful, source receipt readback, privacy/isolation and fault injection; exact fixtures and source/object fingerprints. **Risks/external decisions:** External capture permissions, host/device security, gRPC tooling, recorder migration authority; only qualified drivers permitted.. **Rollback:** preserve immutable project/scene/spec revisions and disable unadmitted channel/provider; never delete older source or claim external effect when UNKNOWN.
+**Acceptance/test/evidence:** §5A <code>DEMO-READY</code> plus a complete real business terminal and film-specific independent review are mandatory for the first accepted film; early scoped recording does not mark L01 fully complete. Given pinned config and authorized fixture project, recording executes reproducible actions, captures actual frames + receipts, narrates/annotates and recaptures one changed scene; denied/timeout/source-unknown produce bounded report without manufactured success. Tests: contract+unit+headless/browser/device/provider where meaningful, source receipt readback, privacy/isolation and fault injection; exact fixtures and source/object fingerprints. **Risks/external decisions:** External capture permissions, host/device security, gRPC tooling, recorder migration authority; only qualified drivers permitted.. **Rollback:** preserve immutable project/scene/spec revisions and disable unadmitted channel/provider; never delete older source or claim external effect when UNKNOWN.
 
 ### M-BLD-L02 — Professional manual Studio over one canonical revision engine
 
@@ -939,13 +945,17 @@ flowchart TD
  V20-->V03[J03 captions]
  G-->CORE[Other J04-J30 by declared deps]
  V03-->CORE
- CORE-->L[L01 recorder / L02 Studio / L03 player]
+ F13-->RP[L01 T01/T02 recorder prep]
+ V03-->BR{First J03 business terminal proven?}
+ RP-->BR
+ BR-->RF[L01 T03/T04 record first film NOW]
+ CORE-->L[Full L01 / L02 Studio / L03 Player]
  L-->X01[X01 all surface parity]
  X01-->X02[X02 hardening]
  X02-->X03[X03 Build handoff]
 ```
 
-This is the **summary DAG**. The exact acyclic package edges are the `Dependencies` fields on F00–F13, V01–V30 and L01–L03/X01–X03 above. No cycle or implicit prerequisite from a later journey to its predecessor may be added. F00 is read-only source trace; F01 is owner decision/cutover **plan**, not an executed release. No vertical runs before F-READY. After first thin slice, independent execution lanes can run in parallel with exclusive file ownership:
+This is the **summary DAG**, with an **early scoped recording task/milestone overlay** (RP/BR/RF); it adds no 51st package and no prerequisite for other verticals. L01's full-package dependencies include V24/V29, but its earlier §5A source-qualified T01–T04 may execute without them; first-film acceptance is not full-L01 acceptance. The exact acyclic package edges are the `Dependencies` fields on F00–F13, V01–V30 and L01–L03/X01–X03 above. No cycle or implicit prerequisite from a later journey to its predecessor may be added. F00 is read-only source trace; F01 is owner decision/cutover **plan**, not an executed release. No vertical runs before F-READY. After first thin slice, independent execution lanes can run in parallel with exclusive file ownership:
 
 | Lane | Journey/scope | Key common owner |
 | --- | --- | --- |
@@ -984,6 +994,7 @@ Every package specifies its focused tests above. Central matrix: (a) schema/stab
 | R11 | SLO numbers, qualified benchmarks and target deployment resources absent | SRE/performance and product owners | X02 qualification; do not fabricate thresholds |
 | R12 | Unreleased product + source-only Explorer may masquerade as runtime | Media UI/Build owner | User-visible completeness assertions; never claim production-ready |
 | R13 | Detailed source ID routing and 61 channel transport-equivalence still `UNBOUND` | F00/F09, per-vertical owners | Exact affected channel admission until transport code/evidence exists |
+| R14 | First business-outcome film is accidentally deferred behind all recorder modalities, later verticals or Studio, or falsely claims approval from a partial/Explorer-based clip | Media Build, host, QA and recorder owners: execute §5A L01.T01–T04 from actual PDP-0–3 and verified product receipts as soon as its local gates pass | Only first qualified recording; other independent Build work continues |
 
 **Definition defect vs Build uncertainty:** If an actual missing semantic rule contradicts frozen PDP-0..3, record exact ID/path and return to earliest owning PDP with downstream impact. Missing implementation, provider, auth, venue, engine/hardware/license, test result or deployable host is a Build/external prerequisite and must never be misreported as a remaining PDP development task.
 
@@ -1095,4 +1106,4 @@ Every package specifies its focused tests above. Central matrix: (a) schema/stab
 3. **Build lane:** **PLANNED — Plan Implementation document authored**; no runtime package entered IMPLEMENT or received runtime acceptance in this work.
 4. **PDP closure lane:** **SEPARATE / NOT PERFORMED**.
 5. **Delivery gate:** **BLOCKED / NOT ENTERED**, pending independent closure, Build verification/development completion, release/operational prerequisites.
-6. **Next allowed action:** establish F00 current trace and F01 one-writer decision, then implement **M-BLD-F02** build/toolchain and remaining common foundations F03–F13. **First legal implementation package:** **M-BLD-F02**, only in the owner-authorized writer/workspace after F00/F01 planning checks; first vertical **M-BLD-V01** only after F-READY, followed by V02→V20→V03.
+6. **Next allowed action:** establish F00 current trace and F01 one-writer decision; concurrently prepare §5A source-derived L01.T01 recorder recipe, then implement **M-BLD-F02** build/toolchain and remaining common foundations F03–F13. Once the real business-outcome and capture gates pass, run L01.T04 immediately, not after other verticals. **First legal implementation package:** **M-BLD-F02**, only in the owner-authorized writer/workspace after F00/F01 planning checks; first vertical **M-BLD-V01** only after F-READY, followed by V02→V20→V03.
