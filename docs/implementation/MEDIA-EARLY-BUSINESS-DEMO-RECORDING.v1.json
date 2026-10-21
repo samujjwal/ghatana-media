@@ -44,7 +44,7 @@
     "sourceCurrentness": "MUST_REVALIDATE_BEFORE_EACH_CAPTURE_AND_SEMANTIC_SOURCE_CHANGE"
   },
   "selectionPolicy": {
-    "earliestEligible": "Select the first **already implemented** customer-valuable PDP-0 terminal outcome with corresponding PDP-1 owner result, PDP-2 approved/implemented channel semantics and PDP-3 real step/channel success evidence. No dependency on unrelated verticals or release. No infrastructure-only or Explorer-mock film.",
+    "earliestEligible": "The earliest actually implemented customer-valuable source-governed business terminal in Media OR an authorized product consumer may be recorded, provided target-product semantics/receipts and Media PDP0-3 recorder authority both resolve. Never gate a ready Gharbatai/TutorPutor customer film on the unrelated Media J03 STT vertical.",
     "preferredInitialJourneyId": "J-03",
     "supportingJourneyIds": [
       "J-01",
@@ -56,7 +56,28 @@
     "recommendedCaptureChannel": "media.channel.web",
     "sourcePermittedAlternateChannel": "media.channel.cli",
     "noMockHost": true,
-    "firstChannelCompletionRule": "Every normative step and customer terminal result implemented through one declared real channel with applicable failure/UNKNOWN recovery. Other J03 channels and full V03 remain open for independent Build parity."
+    "firstChannelCompletionRule": "Every normative step and customer terminal result implemented through one declared real channel with applicable failure/UNKNOWN recovery. Other J03 channels and full V03 remain open for independent Build parity.",
+    "candidateScopes": [
+      {
+        "kind": "MEDIA_SELF_DEMO",
+        "sourceAuthority": "Media current PDP-0..3",
+        "initialCandidate": "J-03",
+        "recordingAuthority": "Media recorder PDP-0..3",
+        "trigger": "real Media customer terminal on one declared channel + recorder ready"
+      },
+      {
+        "kind": "OTHER_GHATANA_PRODUCT_DOGFOOD",
+        "sourceAuthority": "Target product's current normative business goal/requirements/operations/interface/journey sources; prefer PDP-0..3 where authored, require validated source-to-result binding",
+        "potentialConsumers": [
+          "Gharbatai",
+          "TutorPutor"
+        ],
+        "recordingAuthority": "Media recorder PDP-0..3; target product adapter owns actions, fixtures and business finality",
+        "trigger": "target product real terminal business postcondition and exact own receipts + Media recorder adapter ready; Media J-03 is NOT required",
+        "admission": "NO_CANDIDATE_ADMITTED_OR_RECORDED_FROM_THIS_PLAN",
+        "targetBusinessContractRefs": "REQUIRED_AT_ADMISSION_NOT_INVENTED"
+      }
+    ]
   },
   "firstCandidate": {
     "profileId": "media.build.demo.first-business-outcome.captions.v1",
@@ -237,7 +258,7 @@
       "Delivery/release",
       "M-BLD-V03 full cross-channel acceptance"
     ],
-    "sourceDefinedScopeRule": "Product prerequisite package IDs name authoritative component owners; their end-to-end outcome *subtasks* for the chosen actual source-authorized channel, not whole-package multi-channel completion, are the first-film prerequisite. Full package dependencies remain in canonical plan. F-READY and Kernel stage admission still apply.",
+    "sourceDefinedScopeRule": "Product prerequisite package IDs name authoritative component owners; their end-to-end outcome *subtasks* for the chosen actual source-authorized channel, not whole-package multi-channel completion, are the first-film prerequisite. Full package dependencies remain in canonical plan. F-READY and Kernel stage admission still apply. External product first-film path uses its own target-product package/business prerequisites; Media V01/V02/V20/V03 are NOT prerequisites unless recording those Media journeys.",
     "conditions": [
       "FOUR_PDP_SOURCE_CUTS_CURRENT_AND_JOURNEY_BUSINESS_POSTCONDITION_EXACTLY_JOINED",
       "KERNEL_BUILD_IMPLEMENT_TASKS_ADMITTED_AND_WRITER_OWNERSHIP_RESOLVED",
