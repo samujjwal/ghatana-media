@@ -55,7 +55,8 @@
     "noCrossJourneyFinality": "J-03 is a reviewable caption version; this profile does not claim reviewer approval (J-21), exported delivery or remote publishing (J-22), or product release.",
     "recommendedCaptureChannel": "media.channel.web",
     "sourcePermittedAlternateChannel": "media.channel.cli",
-    "noMockHost": true,
+    "productExecutedRequiresRealHost": true,
+    "pdp3ExplorerUsesFrontendStaticFixtureHost": true,
     "firstChannelCompletionRule": "Every normative step and customer terminal result implemented through one declared real channel with applicable failure/UNKNOWN recovery. Other J03 channels and full V03 remain open for independent Build parity.",
     "candidateScopes": [
       {
@@ -351,7 +352,7 @@
   "dataAndQuality": {
     "fixtureProfile": "Synthetic, consented, licensed test audio with intelligible phrases and intentional correctable timing/text mistakes; real media bytes processed through a real admitted STT engine, not a prerecorded transcript posed as inference.",
     "fixtureProvisioning": "Idempotent isolated demo tenant/workspace; deterministic seed identifiers; ownership/lease-scoped cleanup of only generated resources; avoid arbitrary database resets.",
-    "capture": "Native browser/terminal/media capture grounded in actual host/runtime; source clocks and wall/media timelines kept separate; headless is allowed, explorer-only pixels are not.",
+    "capture": "PDP-3 captures the real running Explorer UI or headless projection against centrally mocked static fixtures, explicitly labeled SIMULATED; BUILD captures an admitted real product host or actual structured channel. Each mode records audible narration and captions. Explorer footage never proves live product effects.",
     "privacy": "No passwords/tokens/customer recordings/PII/biometric samples in output frames, logs, narration or bundle; consent and license verified for soundtrack, fonts and source content.",
     "quality": "Sound, framing, pacing, captions, accessibility, artifacts and visual continuity measured against owner-approved profile; no invented thresholds; crop/annotation or AI polish may not hide denied/UNKNOWN states.",
     "narration": "Declarative storyboard/captions with human review or qualified TTS; narration must follow observed output and may be manually edited without affecting business-source receipts.",
