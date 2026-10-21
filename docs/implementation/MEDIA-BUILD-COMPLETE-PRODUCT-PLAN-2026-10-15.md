@@ -1,3 +1,5 @@
+> **SUPERSEDED AS A BUILD TASK AUTHORITY (2026-10-21).** The current 54-identity, 20-active-consumer Build planning authority is [MEDIA-BUILD-IMPLEMENTATION-PLAN.md](MEDIA-BUILD-IMPLEMENTATION-PLAN.md), with exact-ID appendix [MEDIA-BUILD-IDENTITY-TRACE.v1.json](MEDIA-BUILD-IDENTITY-TRACE.v1.json). The dated candidate below preserves historical decisions and the older 50/17 inventory; do not schedule implementation from those older package IDs. Product meaning remains in `.product-experience/`. No runtime, closure, or release work is authorized by this notice.
+
 # Ghatana Media — deferred Build Plan Implementation candidate
 
 > **Planning reference only.** BUILD has not been entered. Do not schedule or execute this plan until the live source-pinned PDP-0 through PDP-3 records establish the Discovery exit barrier. This document is not a product-definition source or current development status; keep PDP meaning in `.product-experience/` and consult its status index before any later-stage planning.
