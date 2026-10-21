@@ -47,8 +47,9 @@ flowchart LR
   F --> V["J01/J02/J20/J03\nfirst full business outcome"]
   F --> W["Other J04–J30\nfull end-to-end verticals"]
   TRACE --> DP["L01.T01 PDP-bound recording recipe"]
-  F --> QA["L01.T02 qualified Media capture adapter"]
-  V --> FIRST{Business postcondition & capture ready?}
+  TRACE --> QA["L01.T02 qualified Media capture adapter"]
+  V --> FIRST{First qualified business postcondition + capture?}
+  EXT["Any other admitted Ghatana product business outcome"] --> FIRST
   DP --> FIRST
   QA --> FIRST
   FIRST --> REC["L01.T03/T04 FIRST FILM now"]
@@ -946,8 +947,9 @@ flowchart TD
  V02-->V20[J20 job]
  V20-->V03[J03 first real-channel caption outcome]
  G-->CORE[Other J04-J30 by declared deps]
- F13-->RP[L01 T01/T02 recorder prep]
- V03-->BR{First J03 business terminal proven?}
+ F00-->RP[L01 T01/T02 recorder prep in parallel]
+ V03-->BR{One real source-bound business terminal proven?}
+ EXT[Qualified external product customer terminal]-->BR
  RP-->BR
  BR-->RF[L01 T03/T04 record first film NOW]
  CORE-->L[Full L01 / L02 Studio / L03 Player]
@@ -956,7 +958,7 @@ flowchart TD
  X02-->X03[X03 Build handoff]
 ```
 
-This is the **summary DAG**, with an **early scoped recording task/milestone overlay** (RP/BR/RF); it adds no 51st package and no prerequisite for other verticals. L01's full-package dependencies include V24/V29, but its earlier §5A source-qualified T01–T04 may execute without them; first-film acceptance is not full-L01 acceptance. Other verticals follow only their own source-defined prerequisites; the first real business outcome is prioritized for recording but is not an artificial prerequisite for independent verticals. The exact acyclic package edges are the `Dependencies` fields on F00–F13, V01–V30 and L01–L03/X01–X03 above. No cycle or implicit prerequisite from a later journey to its predecessor may be added. F00 is read-only source trace; F01 is owner decision/cutover **plan**, not an executed release. No vertical runs before F-READY. After first thin slice, independent execution lanes can run in parallel with exclusive file ownership:
+This is the **summary DAG**, with an **early scoped recording task/milestone overlay** (RP/BR/RF); it adds no 51st package and no prerequisite for other verticals. L01's full-package dependencies include V24/V29, but its earlier §5A source-qualified T01–T04 may execute without them; an independently source-verified Gharbatai/TutorPutor outcome also triggers an early film without requiring Media V03; first-film acceptance is not full-L01 acceptance. Other verticals follow only their own source-defined prerequisites; the first real business outcome is prioritized for recording but is not an artificial prerequisite for independent verticals. The exact acyclic package edges are the `Dependencies` fields on F00–F13, V01–V30 and L01–L03/X01–X03 above. No cycle or implicit prerequisite from a later journey to its predecessor may be added. F00 is read-only source trace; F01 is owner decision/cutover **plan**, not an executed release. No vertical runs before F-READY. After first thin slice, independent execution lanes can run in parallel with exclusive file ownership:
 
 | Lane | Journey/scope | Key common owner |
 | --- | --- | --- |
