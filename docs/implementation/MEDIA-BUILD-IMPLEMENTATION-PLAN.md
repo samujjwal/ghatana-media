@@ -92,7 +92,7 @@ Each foundation package below includes exact paths, ownership, dependency, contr
 
 ### M-BLD-F01 — One canonical runtime writer and reversible source cutover
 
-**Owner / exclusive write boundary:** Media runtime owner + Ghatana source owner. **Dependencies:** F00. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
+**Owner / exclusive write boundary:** Media runtime owner + Ghatana source owner. **Dependencies:** M-BLD-F00. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
 
 **Outcome & scope:** Compare `ghatana/services/media` writer against `ghatana-media` prepared mirror at exact commits and directory/build coordinates. Enumerate runtime sources, registry ownership, migrations, deployment manifests, routes, consumer imports and overlapping writers. Prepare reviewed migration/cutover sequence with one write freeze, data/lease/outbox reconciliation and rollback; until authorized migration, implementations of the executable runtime belong to Ghatana's `services/media`.
 
@@ -108,7 +108,7 @@ Each foundation package below includes exact paths, ownership, dependency, contr
 
 ### M-BLD-F02 — Polyglot build, dependency and toolchain admission
 
-**Owner / exclusive write boundary:** Media build tooling owner. **Dependencies:** F00,F01. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
+**Owner / exclusive write boundary:** Media build tooling owner. **Dependencies:** M-BLD-F00, M-BLD-F01. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
 
 **Outcome & scope:** Reconcile Gradle JVM 21 modules/version catalog, pnpm workspaces/lock, Rust 2021 Cargo lock, source-composite dependencies and release-artifact-only policy; verify generated OpenAPI/protobuf/TS identity/version parity and module builds with no skipped essential tasks. Distinguish local-source composite from published admissible artifacts.
 
@@ -124,7 +124,7 @@ Each foundation package below includes exact paths, ownership, dependency, contr
 
 ### M-BLD-F03 — Canonical domain identity, revisions, clocks and typed outcomes
 
-**Owner / exclusive write boundary:** Media domain/contracts owner. **Dependencies:** F02. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
+**Owner / exclusive write boundary:** Media domain/contracts owner. **Dependencies:** M-BLD-F02. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
 
 **Outcome & scope:** Implement product-owned project, artifact, immutable version, transcript/caption, recipe, scene/animation/simulation, job and delivery records; typed request/result/error envelopes, CAS/version constraints, strict timebase/unit conversions and producer/output joins. No duplicate domain definition under SDK or Studio.
 
@@ -140,7 +140,7 @@ Each foundation package below includes exact paths, ownership, dependency, contr
 
 ### M-BLD-F04 — Identity, tenant authority, rights, consent and policy enforcement
 
-**Owner / exclusive write boundary:** Media security/governance owner + external identity/policy owner. **Dependencies:** F03. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
+**Owner / exclusive write boundary:** Media security/governance owner + external identity/policy owner. **Dependencies:** M-BLD-F03. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
 
 **Outcome & scope:** Bind Shared identity; tenant/workspace scopes, principal roles/delegation, operation-purpose consent/biometric rights/residency/retention and provider availability; enforce authorization on reads, queue admission, provider egress, repeated lease dispatch, render/export and erasure, not merely UI. Fail closed for missing/expired authority.
 
@@ -156,7 +156,7 @@ Each foundation package below includes exact paths, ownership, dependency, contr
 
 ### M-BLD-F05 — Artifact ingestion, durable stores, integrity, version and erasure primitives
 
-**Owner / exclusive write boundary:** Media storage/runtime owner. **Dependencies:** F03,F04. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
+**Owner / exclusive write boundary:** Media storage/runtime owner. **Dependencies:** M-BLD-F03, M-BLD-F04. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
 
 **Outcome & scope:** Implement immutable source/object versions, resumable bounded chunk upload, full digest/size finality, tenant/principal-qualified dedup, encrypted S3-backed bytes, Postgres metadata, Flyway up/down strategy, retain/hold/tombstone and physical purge hooks. Keep legacy audio/transcription tables under planned dual-read/upcaster only.
 
@@ -172,7 +172,7 @@ Each foundation package below includes exact paths, ownership, dependency, contr
 
 ### M-BLD-F06 — Durable command/job/attempt engine, cancellation and UNKNOWN reconciliation
 
-**Owner / exclusive write boundary:** Media runtime/reliability owner. **Dependencies:** F04,F05. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
+**Owner / exclusive write boundary:** Media runtime/reliability owner. **Dependencies:** M-BLD-F04, M-BLD-F05. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
 
 **Outcome & scope:** One idempotent durable job planner and worker lease/fencing engine for every modality/recorder/render/simulation job. Explicit request fingerprint, attempt owner, timeout, provider status, restart recovery, cancellation REQUESTED vs CONFIRMED vs UNKNOWN, no blind replay after ambiguous remote side effect.
 
@@ -188,7 +188,7 @@ Each foundation package below includes exact paths, ownership, dependency, contr
 
 ### M-BLD-F07 — Transactional lifecycle events, outbox and consumer idempotency
 
-**Owner / exclusive write boundary:** Media messaging owner + Event Plane public API owner. **Dependencies:** F05,F06. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
+**Owner / exclusive write boundary:** Media messaging owner + Event Plane public API owner. **Dependencies:** M-BLD-F05, M-BLD-F06. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
 
 **Outcome & scope:** Atomic state/outbox joins for accepted/completed/cancel requested/cancel confirmed/failure/artifact/session lifecycle; durable publisher with retry and idempotent consumers. Reuse Shared/Event Plane published interfaces; preserve subscriber cursor, event contract versions, authority/least-data redaction.
 
@@ -204,7 +204,7 @@ Each foundation package below includes exact paths, ownership, dependency, contr
 
 ### M-BLD-F08 — Provider/model eligibility and modality runtime adapter substrate
 
-**Owner / exclusive write boundary:** Media provider owner + AI Inference/specialist owners. **Dependencies:** F04,F06. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
+**Owner / exclusive write boundary:** Media provider owner + AI Inference/specialist owners. **Dependencies:** M-BLD-F04, M-BLD-F06. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
 
 **Outcome & scope:** Define common capability profiles and adapters for STT/TTS/vision/multimodal/render/capture/encoder/solver; version/permissions/residency/retention/hardware/cost limits and readiness; deterministic local nonfake test engines where source admits them, explicit UNAVAILABLE elsewhere; never assume arbitrary external OSS or model deployment.
 
@@ -220,7 +220,7 @@ Each foundation package below includes exact paths, ownership, dependency, contr
 
 ### M-BLD-F09 — Public machine channels and compatibility grammar
 
-**Owner / exclusive write boundary:** Media API/SDK/CLI/Agent integration owner. **Dependencies:** F03,F04,F06,F07. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
+**Owner / exclusive write boundary:** Media API/SDK/CLI/Agent integration owner. **Dependencies:** M-BLD-F03, M-BLD-F04, M-BLD-F06, M-BLD-F07. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
 
 **Outcome & scope:** Map 27 observed HTTP operations, 43 RPCs, 33 SDK records, 11 CLI command contracts, 4 Agent Tools, event/read-only channels and 79 owner action-wire contracts to canonical product operation IDs; implement schema validation, auth, versioning, pagination, idempotency/error/UNKNOWN/cancel/retry, parity and generated typed clients. Keep one command engine, not channel-owned business logic.
 
@@ -236,7 +236,7 @@ Each foundation package below includes exact paths, ownership, dependency, contr
 
 ### M-BLD-F10 — Accessible GUI/embedded host and reusable Studio components
 
-**Owner / exclusive write boundary:** Media UX/UI owner + Shared design-system/host owners. **Dependencies:** F03,F04,F09. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
+**Owner / exclusive write boundary:** Media UX/UI owner + Shared design-system/host owners. **Dependencies:** M-BLD-F03, M-BLD-F04, M-BLD-F09. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
 
 **Outcome & scope:** Ship actual host-bound React UI and embedded contracts for 47 screens, 31 P2 component families, timeline/workbench and machine-readable state; Shared tokens/a11y, keyboard/focus/screen-reader semantics, loading/empty/unauthorized/UNKNOWN/recovery and responsive layouts. Explorer remains frontend-mocked PDP inspection, never the production host or backend.
 
@@ -252,7 +252,7 @@ Each foundation package below includes exact paths, ownership, dependency, contr
 
 ### M-BLD-F11 — Shared time/media processing, scene/render and reproducible model primitives
 
-**Owner / exclusive write boundary:** Media signal/renderer/animation/simulation platform owner. **Dependencies:** F03,F05,F06,F08. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
+**Owner / exclusive write boundary:** Media signal/renderer/animation/simulation platform owner. **Dependencies:** M-BLD-F03, M-BLD-F05, M-BLD-F06, M-BLD-F08. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
 
 **Outcome & scope:** Reuse typed timeline, audio sample/media/physical simulation clocks, frame timestamp/VFR, streaming bounds, scene/animation/model IR binding, immutable recipe/composition/revision graph, deterministic seed/fidelity profiles, binary/native engine isolation and quality/provenance; provide one substrate used by manual Studio, recorder, animation, render and simulation.
 
@@ -268,7 +268,7 @@ Each foundation package below includes exact paths, ownership, dependency, contr
 
 ### M-BLD-F12 — Observability, privacy, performance, environments and evidence fixtures
 
-**Owner / exclusive write boundary:** Media SRE/security/quality owner. **Dependencies:** F02,F04,F05,F06,F07,F08,F09,F10,F11. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
+**Owner / exclusive write boundary:** Media SRE/security/quality owner. **Dependencies:** M-BLD-F02, M-BLD-F04, M-BLD-F05, M-BLD-F06, M-BLD-F07, M-BLD-F08, M-BLD-F09, M-BLD-F10, M-BLD-F11. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
 
 **Outcome & scope:** Instrument OpenTelemetry traces/metrics/logs with tenant-safe correlation and low-cardinality tags; golden test media and negative conditions; SLO/profile owner decision (not invented), performance/resource bounds, load, queue-backpressure, fault injection, entitlement/secret audit and diagnostics; non-deployable candidates stay disabled.
 
@@ -284,11 +284,11 @@ Each foundation package below includes exact paths, ownership, dependency, contr
 
 ### M-BLD-F13 — Declarative recorder/animation/simulation shared production contracts
 
-**Owner / exclusive write boundary:** Media Studio/recorder architect + consumer owners. **Dependencies:** F03,F04,F05,F06,F09,F10,F11. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
+**Owner / exclusive write boundary:** Media Studio/recorder architect + consumer owners. **Dependencies:** M-BLD-F03, M-BLD-F04, M-BLD-F05, M-BLD-F06, M-BLD-F09, M-BLD-F10, M-BLD-F11. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
 
 **Outcome & scope:** Share versioned ProductionSpec, CaptureSceneSpec, AnimationSpec and SimulationSpec as typed *views* onto existing Media recipe/project/job/scene/run/clock/rights objects. Reuse Gharbatai `@ghatana/experience-recorder` capture qualification/storyboard/narration and TutorPutor AEF Model/Scene/Experience IR adapters through contracts; no duplicate recorder database, simulation engine, scientific source authority, generic capture runtime or hidden AI-only editor.
 
-**Canonical source/target paths:** `.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml`, `.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml`, `libs/audio-video-{client,types,ui}/`, `runtime-contracts/`, `gharbatai` experience-recorder package (read-only selection until approved transfer). Product meaning remains referenced (read-only); selected executable writer is `ghatana/services/media` until approved transfer.
+**Canonical source/target paths:** `.product-experience/pdp-1-domain-data/recorder-studio-contracts.yaml`, `.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml`, `libs/audio-video-{client,types,ui}/`, `runtime-contracts/`, `gharbatai/tooling/experience-recorder/` (product-neutral reusable source), `gharbatai/tooling/demo-recording/` (Gharbatai-specific adapters, remain product-owned; read-only until approved transfer). Product meaning remains referenced (read-only); selected executable writer is `ghatana/services/media` until approved transfer.
 
 **Test layers / commands (plan only):** ProductionSpec fixtures, source receipt readback, animation determinism, model unit/numeric invariants, manual/CLI schema parity.
 
@@ -311,11 +311,11 @@ Proceed to vertical implementations only when every F00–F13 has a current owne
 
 ## 6. Every current PDP-3 journey — end-to-end vertical packages
 
-Each `M-BLD-Vxx` covers its full source journey and *all* declared target channels, from auth/admission to exact outcome, UI/machine readback, negative/unknown/retry/cancel/recovery and immutable version finality. The journey contract owns steps/purposes; the source files stay frozen during Build. The companion exact trace supplies stable P0 leaf/P1 operation/P2 component/P3 step and channel identities. Workstream role is accountable for the vertical; F09 and F10 retain common transport and UI file ownership and supply bounded adapters only. Passes require observed product effects, not explorer simulation.
+Each `M-BLD-Vxx` covers its full source journey and *all* declared target channels, from auth/admission to exact outcome, UI/machine readback, negative/unknown/retry/cancel/recovery and immutable version finality. The journey contract owns steps/purposes; the source files stay frozen during Build. The companion exact trace supplies stable P0 leaf/P1 operation/P2 component, component-value, token/CSS, composition-rule, machine-invariant/P3 step and channel identities. Workstream role is accountable for the vertical; F09 and F10 retain common transport and UI file ownership and supply bounded adapters only. Passes require observed product effects, not explorer simulation.
 
 ### M-BLD-V01 — First-use identity and versioned project (`J-01`)
 
-**Surface/journey/PDP identities:** `J-01`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-F03`, `M-BLD-F04`, `M-BLD-F05`, `M-BLD-F09`, `M-BLD-F10`, `M-BLD-F12`. **Owner:** media-app/backend and UX owners.
+**Surface/journey/PDP identities:** `J-01`, `.product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 5 linked screen IDs: `media.view.resume-work`, `media.view.find-projects`, `media.view.work-in-project`, `media.view.create-media`, `media.view.authenticate-and-select-context`. **Dependencies:** `M-BLD-F03`, `M-BLD-F04`, `M-BLD-F05`, `M-BLD-F09`, `M-BLD-F10`, `M-BLD-F12`. **Owner:** media-app/backend and UX owners.
 
 **Implementation paths and write boundary:** `launcher/`, `libs/audio-video-ui/`, `libs/audio-video-client/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -327,7 +327,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V02 — Resumable artifact upload, import and inspection (`J-02`)
 
-**Surface/journey/PDP identities:** `J-02`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V01`, `M-BLD-F05`, `M-BLD-F09`, `M-BLD-F10`. **Owner:** artifact/storage owner.
+**Surface/journey/PDP identities:** `J-02`, `.product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 5 linked screen IDs: `media.view.browse-media`, `media.view.inspect-media`, `media.view.import-media`, `media.view.review-activity`, `media.view.job-status`. **Dependencies:** `M-BLD-V01`, `M-BLD-F05`, `M-BLD-F09`, `M-BLD-F10`. **Owner:** artifact/storage owner.
 
 **Implementation paths and write boundary:** `launcher/`, `providers/aws-postgresql/`, `libs/audio-video-ui/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -339,7 +339,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V03 — Transcription, draft correction, immutable captions (`J-03`)
 
-**Surface/journey/PDP identities:** `J-03`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V02`, `M-BLD-V20`, `M-BLD-F08`, `M-BLD-F11`, `M-BLD-F09`, `M-BLD-F10`. **Owner:** speech and caption owner.
+**Surface/journey/PDP identities:** `J-03`, `.product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 11 linked screen IDs: `media.view.create-video`, `media.view.create-audio`, `media.view.work-with-speech`, `media.view.edit-captions`, `media.view.compare-results`, `media.view.select-source`, `media.view.monitor-transcription`, `media.view.review-transcript`, `media.view.correct-captions`, `media.view.compare-caption-versions`, `media.view.check-job-outcome`. **Dependencies:** `M-BLD-V02`, `M-BLD-V20`, `M-BLD-F08`, `M-BLD-F11`, `M-BLD-F09`, `M-BLD-F10`. **Owner:** speech and caption owner.
 
 **Implementation paths and write boundary:** `modules/speech/stt-service/`, `launcher/`, `libs/audio-video-ui/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -351,7 +351,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V04 — Rights-scoped text-to-speech and approved audio (`J-04`)
 
-**Surface/journey/PDP identities:** `J-04`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V01`, `M-BLD-V20`, `M-BLD-F08`, `M-BLD-F11`. **Owner:** speech/voice and privacy owners.
+**Surface/journey/PDP identities:** `J-04`, `.product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 4 linked screen IDs: `media.view.work-with-speech`, `media.view.use-authorized-voice`, `media.view.compare-results`, `media.view.inspect-output`. **Dependencies:** `M-BLD-V01`, `M-BLD-V20`, `M-BLD-F08`, `M-BLD-F11`. **Owner:** speech/voice and privacy owners.
 
 **Implementation paths and write boundary:** `modules/speech/tts-service/`, `modules/intelligence/ai-voice/`, `libs/audio-video-ui/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -363,7 +363,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V05 — Image/video geometry, detection and tracks (`J-05`)
 
-**Surface/journey/PDP identities:** `J-05`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V02`, `M-BLD-V20`, `M-BLD-F08`, `M-BLD-F11`. **Owner:** vision and media analysis owner.
+**Surface/journey/PDP identities:** `J-05`, `.product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 4 linked screen IDs: `media.view.create-image`, `media.view.create-video`, `media.view.compare-results`, `media.view.review-quality`. **Dependencies:** `M-BLD-V02`, `M-BLD-V20`, `M-BLD-F08`, `M-BLD-F11`. **Owner:** vision and media analysis owner.
 
 **Implementation paths and write boundary:** `modules/vision/vision-service/`, `launcher/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -375,7 +375,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V06 — Grounded multimodal and document-consumer response (`J-06`)
 
-**Surface/journey/PDP identities:** `J-06`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V02`, `M-BLD-V05`, `M-BLD-F08`, `M-BLD-F09`. **Owner:** multimodal integration + Document Intelligence API owner.
+**Surface/journey/PDP identities:** `J-06`, `.product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 3 linked screen IDs: `media.view.inspect-output`, `media.view.inspect-provenance`, `media.view.find-task-guidance`. **Dependencies:** `M-BLD-V02`, `M-BLD-V05`, `M-BLD-F08`, `M-BLD-F09`. **Owner:** multimodal integration + Document Intelligence API owner.
 
 **Implementation paths and write boundary:** `modules/intelligence/multimodal-service/`, `runtime-contracts/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -387,7 +387,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V07 — Preserving source in noise and clipping repair (`J-07`)
 
-**Surface/journey/PDP identities:** `J-07`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V02`, `M-BLD-V20`, `M-BLD-F11`. **Owner:** audio DSP owner.
+**Surface/journey/PDP identities:** `J-07`, `.product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 4 linked screen IDs: `media.view.create-audio`, `media.view.improve-media`, `media.view.compare-results`, `media.view.inspect-output`. **Dependencies:** `M-BLD-V02`, `M-BLD-V20`, `M-BLD-F11`. **Owner:** audio DSP owner.
 
 **Implementation paths and write boundary:** `modules/intelligence/speech/libs/speech-audio-rust/`, `modules/audio-streaming/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -399,7 +399,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V08 — Video enhancement with measured comparison (`J-08`)
 
-**Surface/journey/PDP identities:** `J-08`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V02`, `M-BLD-V05`, `M-BLD-V20`, `M-BLD-F11`. **Owner:** video DSP/restoration owner.
+**Surface/journey/PDP identities:** `J-08`, `.product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 4 linked screen IDs: `media.view.create-video`, `media.view.improve-media`, `media.view.compare-results`, `media.view.review-quality`. **Dependencies:** `M-BLD-V02`, `M-BLD-V05`, `M-BLD-V20`, `M-BLD-F11`. **Owner:** video DSP/restoration owner.
 
 **Implementation paths and write boundary:** `modules/video-streaming/`, `launcher/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -411,7 +411,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V09 — Brief to storyboard, composition, render and review (`J-09`)
 
-**Surface/journey/PDP identities:** `J-09`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V01`, `M-BLD-V02`, `M-BLD-V20`, `M-BLD-F13`. **Owner:** production/renderer owner.
+**Surface/journey/PDP identities:** `J-09`, `.product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 9 linked screen IDs: `media.view.create-media`, `media.view.review-creation-plan`, `media.view.arrange-scenes`, `media.view.create-video`, `media.view.create-audio`, `media.view.compose-media`, `media.view.prepare-render`, `media.view.deliver-output`, `media.view.review-exact-version`. **Dependencies:** `M-BLD-V01`, `M-BLD-V02`, `M-BLD-V20`, `M-BLD-F13`. **Owner:** production/renderer owner.
 
 **Implementation paths and write boundary:** `runtime-contracts/`, `launcher/`, `libs/audio-video-ui/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -423,7 +423,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V10 — Reference-conditioned creation and continuity (`J-10`)
 
-**Surface/journey/PDP identities:** `J-10`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V09`, `M-BLD-F08`. **Owner:** generative media owner.
+**Surface/journey/PDP identities:** `J-10`, `.product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 5 linked screen IDs: `media.view.review-creation-plan`, `media.view.create-video`, `media.view.compare-results`, `media.view.animate-media`, `media.view.review-quality`. **Dependencies:** `M-BLD-V09`, `M-BLD-F08`. **Owner:** generative media owner.
 
 **Implementation paths and write boundary:** `runtime-contracts/`, `launcher/`, `libs/audio-video-ui/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -435,7 +435,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V11 — Tracked region edit and reversible undo (`J-11`)
 
-**Surface/journey/PDP identities:** `J-11`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V05`, `M-BLD-V09`, `M-BLD-F13`. **Owner:** timeline/video editing owner.
+**Surface/journey/PDP identities:** `J-11`, `.product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 3 linked screen IDs: `media.view.compare-results`, `media.view.edit-media`, `media.view.edit-media-region`. **Dependencies:** `M-BLD-V05`, `M-BLD-V09`, `M-BLD-F13`. **Owner:** timeline/video editing owner.
 
 **Implementation paths and write boundary:** `libs/audio-video-ui/`, `runtime-contracts/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -447,7 +447,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V12 — Parameterized 2D/procedural animation (`J-12`)
 
-**Surface/journey/PDP identities:** `J-12`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V09`, `M-BLD-F13`. **Owner:** animation engine/UI owner.
+**Surface/journey/PDP identities:** `J-12`, `.product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 3 linked screen IDs: `media.view.compare-results`, `media.view.animate-media`, `media.view.inspect-output`. **Dependencies:** `M-BLD-V09`, `M-BLD-F13`. **Owner:** animation engine/UI owner.
 
 **Implementation paths and write boundary:** `runtime-contracts/`, `libs/audio-video-ui/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -459,7 +459,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V13 — Rigged 3D animation and spatial export semantics (`J-13`)
 
-**Surface/journey/PDP identities:** `J-13`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V09`, `M-BLD-V12`, `M-BLD-F13`. **Owner:** 3D/rig/render owner.
+**Surface/journey/PDP identities:** `J-13`, `.product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 4 linked screen IDs: `media.view.animate-media`, `media.view.compose-scene`, `media.view.prepare-render`, `media.view.inspect-output`. **Dependencies:** `M-BLD-V09`, `M-BLD-V12`, `M-BLD-F13`. **Owner:** 3D/rig/render owner.
 
 **Implementation paths and write boundary:** `runtime-contracts/`, `libs/audio-video-ui/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -471,7 +471,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V14 — Executable domain simulation with instruments (`J-14`)
 
-**Surface/journey/PDP identities:** `J-14`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V01`, `M-BLD-F13`. **Owner:** simulation core owner + TutorPutor model owner.
+**Surface/journey/PDP identities:** `J-14`, `.product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 4 linked screen IDs: `media.view.compose-scene`, `media.view.explore-simulation`, `media.view.review-quality`, `media.view.prepare-render`. **Dependencies:** `M-BLD-V01`, `M-BLD-F13`. **Owner:** simulation core owner + TutorPutor model owner.
 
 **Implementation paths and write boundary:** `runtime-contracts/`, `libs/audio-video-ui/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -483,7 +483,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V15 — Semantic-validation guarded simulation passes (`J-15`)
 
-**Surface/journey/PDP identities:** `J-15`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V14`, `M-BLD-V12`, `M-BLD-F13`. **Owner:** simulation validation owner.
+**Surface/journey/PDP identities:** `J-15`, `.product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 4 linked screen IDs: `media.view.review-creation-plan`, `media.view.compare-results`, `media.view.explore-simulation`, `media.view.review-quality`. **Dependencies:** `M-BLD-V14`, `M-BLD-V12`, `M-BLD-F13`. **Owner:** simulation validation owner.
 
 **Implementation paths and write boundary:** `runtime-contracts/`, `libs/audio-video-ui/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -495,7 +495,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V16 — Translation, dubbing, lip and timing review (`J-16`)
 
-**Surface/journey/PDP identities:** `J-16`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V03`, `M-BLD-V04`, `M-BLD-V18`. **Owner:** speech localization/dubbing owner.
+**Surface/journey/PDP identities:** `J-16`, `.product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 5 linked screen IDs: `media.view.create-audio`, `media.view.work-with-speech`, `media.view.edit-captions`, `media.view.review-dubbing`, `media.view.compare-results`. **Dependencies:** `M-BLD-V03`, `M-BLD-V04`, `M-BLD-V18`. **Owner:** speech localization/dubbing owner.
 
 **Implementation paths and write boundary:** `modules/speech/{stt-service,tts-service}/`, `libs/audio-video-ui/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -507,7 +507,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V17 — Music, Foley, stems, mix and audio mastering (`J-17`)
 
-**Surface/journey/PDP identities:** `J-17`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V04`, `M-BLD-V07`, `M-BLD-F11`. **Owner:** audio composition owner.
+**Surface/journey/PDP identities:** `J-17`, `.product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 4 linked screen IDs: `media.view.create-audio`, `media.view.compose-media`, `media.view.review-quality`, `media.view.inspect-output`. **Dependencies:** `M-BLD-V04`, `M-BLD-V07`, `M-BLD-F11`. **Owner:** audio composition owner.
 
 **Implementation paths and write boundary:** `modules/intelligence/speech/libs/speech-audio-rust/`, `libs/audio-video-ui/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -519,7 +519,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V18 — Multitrack video composition, captions, color and master (`J-18`)
 
-**Surface/journey/PDP identities:** `J-18`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V09`, `M-BLD-V11`, `M-BLD-V17`, `M-BLD-F13`. **Owner:** production timeline owner.
+**Surface/journey/PDP identities:** `J-18`, `.product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 6 linked screen IDs: `media.view.edit-captions`, `media.view.edit-media`, `media.view.compose-media`, `media.view.adjust-color`, `media.view.prepare-render`, `media.view.inspect-output`. **Dependencies:** `M-BLD-V09`, `M-BLD-V11`, `M-BLD-V17`, `M-BLD-F13`. **Owner:** production timeline owner.
 
 **Implementation paths and write boundary:** `libs/audio-video-ui/`, `launcher/`, `runtime-contracts/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -531,7 +531,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V19 — Measured quality optimization inside declared bounds (`J-19`)
 
-**Surface/journey/PDP identities:** `J-19`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V07`, `M-BLD-V08`, `M-BLD-V18`. **Owner:** quality science/media owner.
+**Surface/journey/PDP identities:** `J-19`, `.product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 4 linked screen IDs: `media.view.review-creation-plan`, `media.view.compare-results`, `media.view.review-quality`, `media.view.prepare-render`. **Dependencies:** `M-BLD-V07`, `M-BLD-V08`, `M-BLD-V18`. **Owner:** quality science/media owner.
 
 **Implementation paths and write boundary:** `runtime-contracts/`, `libs/audio-video-ui/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -543,7 +543,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V20 — Long-job status, cancellation and same-request reconciliation (`J-20`)
 
-**Surface/journey/PDP identities:** `J-20`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V02`, `M-BLD-F06`, `M-BLD-F07`, `M-BLD-F09`, `M-BLD-F10`. **Owner:** runtime jobs/UX owner.
+**Surface/journey/PDP identities:** `J-20`, `.product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 5 linked screen IDs: `media.view.work-in-project`, `media.view.review-activity`, `media.view.job-status`, `media.view.review-outputs`, `media.view.check-job-outcome`. **Dependencies:** `M-BLD-V02`, `M-BLD-F06`, `M-BLD-F07`, `M-BLD-F09`, `M-BLD-F10`. **Owner:** runtime jobs/UX owner.
 
 **Implementation paths and write boundary:** `launcher/`, `providers/aws-postgresql/`, `libs/audio-video-ui/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -555,7 +555,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V21 — Review, comments and approvals on exact immutable version (`J-21`)
 
-**Surface/journey/PDP identities:** `J-21`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V02`, `M-BLD-V18`, `M-BLD-F04`, `M-BLD-F07`. **Owner:** review/collaboration owner.
+**Surface/journey/PDP identities:** `J-21`, `.product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 3 linked screen IDs: `media.view.inspect-output`, `media.view.review-exact-version`, `media.view.inspect-provenance`. **Dependencies:** `M-BLD-V02`, `M-BLD-V18`, `M-BLD-F04`, `M-BLD-F07`. **Owner:** review/collaboration owner.
 
 **Implementation paths and write boundary:** `runtime-contracts/`, `libs/audio-video-ui/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -567,7 +567,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V22 — Export/download/publish with destination ACK (`J-22`)
 
-**Surface/journey/PDP identities:** `J-22`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V18`, `M-BLD-V21`, `M-BLD-F07`, `M-BLD-F09`. **Owner:** delivery/effect-boundary owner.
+**Surface/journey/PDP identities:** `J-22`, `.product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 3 linked screen IDs: `media.view.job-status`, `media.view.inspect-output`, `media.view.deliver-output`. **Dependencies:** `M-BLD-V18`, `M-BLD-V21`, `M-BLD-F07`, `M-BLD-F09`. **Owner:** delivery/effect-boundary owner.
 
 **Implementation paths and write boundary:** `launcher/`, `providers/aws-postgresql/`, `libs/audio-video-client/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -579,7 +579,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V23 — Private/local offline workflow and safe reconnect (`J-23`)
 
-**Surface/journey/PDP identities:** `J-23`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V01`, `M-BLD-V02`, `M-BLD-V21`, `M-BLD-F10`. **Owner:** offline/UX data owner.
+**Surface/journey/PDP identities:** `J-23`, `.product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 4 linked screen IDs: `media.view.work-in-project`, `media.view.inspect-media`, `media.view.review-activity`, `media.view.job-status`. **Dependencies:** `M-BLD-V01`, `M-BLD-V02`, `M-BLD-V21`, `M-BLD-F10`. **Owner:** offline/UX data owner.
 
 **Implementation paths and write boundary:** `libs/audio-video-client/`, `libs/audio-video-ui/`, `runtime-contracts/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -591,7 +591,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V24 — CLI batch/JSON command-to-verified-result (`J-24`)
 
-**Surface/journey/PDP identities:** `J-24`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V01`, `M-BLD-V02`, `M-BLD-V20`, `M-BLD-F09`. **Owner:** CLI/SDK owner.
+**Surface/journey/PDP identities:** `J-24`, `.product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 4 linked screen IDs: `media.view.create-media`, `media.view.review-creation-plan`, `media.view.job-status`, `media.view.review-outputs`. **Dependencies:** `M-BLD-V01`, `M-BLD-V02`, `M-BLD-V20`, `M-BLD-F09`. **Owner:** CLI/SDK owner.
 
 **Implementation paths and write boundary:** `libs/audio-video-client/`, `.product-experience/pdp-3-product-experience/cli/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -603,7 +603,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V25 — Bounded Agent Tool and product integration (`J-25`)
 
-**Surface/journey/PDP identities:** `J-25`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V03`, `M-BLD-V04`, `M-BLD-V05`, `M-BLD-V06`, `M-BLD-F09`. **Owner:** Agents/Media integration owner.
+**Surface/journey/PDP identities:** `J-25`, `.product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 3 linked screen IDs: `media.view.review-creation-plan`, `media.view.job-status`, `media.view.inspect-output`. **Dependencies:** `M-BLD-V03`, `M-BLD-V04`, `M-BLD-V05`, `M-BLD-V06`, `M-BLD-F09`. **Owner:** Agents/Media integration owner.
 
 **Implementation paths and write boundary:** `runtime-contracts/`, `libs/audio-video-client/`, `.product-experience/pdp-3-product-experience/agent-tools/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -615,7 +615,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V26 — Retention/revocation/holds and physical erasure (`J-26`)
 
-**Surface/journey/PDP identities:** `J-26`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V02`, `M-BLD-V04`, `M-BLD-V22`, `M-BLD-F05`. **Owner:** Media privacy/retention owner.
+**Surface/journey/PDP identities:** `J-26`, `.product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 3 linked screen IDs: `media.view.inspect-media`, `media.view.review-activity`, `media.view.review-rights-and-consent`. **Dependencies:** `M-BLD-V02`, `M-BLD-V04`, `M-BLD-V22`, `M-BLD-F05`. **Owner:** Media privacy/retention owner.
 
 **Implementation paths and write boundary:** `providers/aws-postgresql/`, `launcher/`, `modules/infrastructure/security/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -627,7 +627,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V27 — Unavailable/degraded processing and safe alternatives (`J-27`)
 
-**Surface/journey/PDP identities:** `J-27`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V20`, `M-BLD-V30`, `M-BLD-F08`, `M-BLD-F10`. **Owner:** service reliability/UX owner.
+**Surface/journey/PDP identities:** `J-27`, `.product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 5 linked screen IDs: `media.view.review-creation-plan`, `media.view.review-quality`, `media.view.review-activity`, `media.view.job-status`, `media.view.check-job-outcome`. **Dependencies:** `M-BLD-V20`, `M-BLD-V30`, `M-BLD-F08`, `M-BLD-F10`. **Owner:** service reliability/UX owner.
 
 **Implementation paths and write boundary:** `launcher/`, `libs/audio-video-ui/`, `libs/audio-video-client/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -639,7 +639,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V28 — Spatial/360/synthetic/interactive export integrity (`J-28`)
 
-**Surface/journey/PDP identities:** `J-28`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V13`, `M-BLD-V14`, `M-BLD-V22`. **Owner:** spatial/content export owner.
+**Surface/journey/PDP identities:** `J-28`, `.product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 4 linked screen IDs: `media.view.animate-media`, `media.view.compose-scene`, `media.view.prepare-render`, `media.view.deliver-output`. **Dependencies:** `M-BLD-V13`, `M-BLD-V14`, `M-BLD-V22`. **Owner:** spatial/content export owner.
 
 **Implementation paths and write boundary:** `runtime-contracts/`, `libs/audio-video-client/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -651,7 +651,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V29 — Live capture/stream loss, consent change and recovery (`J-29`)
 
-**Surface/journey/PDP identities:** `J-29`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V01`, `M-BLD-V20`, `M-BLD-F08`, `M-BLD-F11`. **Owner:** streaming/runtime owner.
+**Surface/journey/PDP identities:** `J-29`, `.product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 3 linked screen IDs: `media.view.create-video`, `media.view.review-activity`, `media.view.job-status`. **Dependencies:** `M-BLD-V01`, `M-BLD-V20`, `M-BLD-F08`, `M-BLD-F11`. **Owner:** streaming/runtime owner.
 
 **Implementation paths and write boundary:** `modules/{audio-streaming,video-streaming}/`, `launcher/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -663,7 +663,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-V30 — Discover currently eligible processing options (`J-30`)
 
-**Surface/journey/PDP identities:** `J-30`, `.product-experience/pdp-3-product-experience/journey-contracts/[resolve-from-current-journey-registry].yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; no extra GUI inferred; enforce exact source channel declarations. **Dependencies:** `M-BLD-V01`, `M-BLD-F04`, `M-BLD-F08`, `M-BLD-F09`, `M-BLD-F10`. **Owner:** provider readiness/UX owner.
+**Surface/journey/PDP identities:** `J-30`, `.product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml` (exact source), P0 capability intents and P1 operation IDs selected by matching source journey/step-purpose bindings; P2 headless/GUI grammar on declared channels; 4 linked screen IDs: `media.view.review-activity`, `media.view.choose-eligible-processing-option`, `media.view.check-processing-options`, `media.view.check-processing-readiness`. **Dependencies:** `M-BLD-V01`, `M-BLD-F04`, `M-BLD-F08`, `M-BLD-F09`, `M-BLD-F10`. **Owner:** provider readiness/UX owner.
 
 **Implementation paths and write boundary:** `config/provider-manifest.yaml`, `launcher/`, `libs/audio-video-ui/`. All Java runtime changes target authorized `ghatana/services/media` until F01-approved cutover; F09 owns shared channel files and F10 owns shared UI framework, with per-vertical adapter changes coordinated.
 
@@ -678,7 +678,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-L01 — Autonomous Recorder Orchestrator and capture-adapter integration
 
-**Owner/write isolation:** Media recorder owner + Gharbatai recorder package owner. **Dependencies:** M-BLD-F13, M-BLD-V01, M-BLD-V02, M-BLD-V20, M-BLD-V24, M-BLD-V29 (resolve all `M-BLD-Vxx` before cross-journey final acceptance). **Paths:** `gharbatai` `@ghatana/experience-recorder` reuse candidate; Media `libs/audio-video-client/`, `runtime-contracts/`, `launcher/`; logical `media.surface.recorder-orchestrator`, `media.surface.capture-adapters`.
+**Owner/write isolation:** Media recorder owner + Gharbatai recorder package owner. **Dependencies:** M-BLD-F13, M-BLD-V01, M-BLD-V02, M-BLD-V20, M-BLD-V24, M-BLD-V29 (resolve all `M-BLD-Vxx` before cross-journey final acceptance). **Paths:** `gharbatai/tooling/experience-recorder/` `@ghatana/experience-recorder` reusable source; `gharbatai/tooling/demo-recording/` consumer-specific code retained; Media `libs/audio-video-client/`, `runtime-contracts/`, `launcher/`; logical `media.surface.recorder-orchestrator`, `media.surface.capture-adapters`.
 
 **Outcome/implementation:** Config/metadata-driven authenticated browser, desktop, mobile, terminal, API/gRPC and allowed A/V capture; reuse product-neutral Gharbatai recorder, storyboard and narration contracts. Real source effects require exact upstream outcome readback, source capture clock/camera/mic permissions, evidence classification and selective scene recapture. Integrate voice/subtitle/animation/simulation attachments; never treat static Explorer mock as an actual journey.
 
