@@ -11,6 +11,6 @@ Media owns audio/video/image/speech/timeline product meaning: governed artifact 
 
 Media does **not** own Shared generic identity/workflow/messaging/UI primitives, generic Document Intelligence/OCR, generic AI Inference model governance, platform Data Cloud read models or Event Plane delivery, or Lifecycle proof issuance. [BOUNDARY.md](BOUNDARY.md) records authoritative ownership and migration conditions.
 
-Route real implementation defects to the [Build program](docs/implementation/MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md). Changes to normative product meaning require a separately approved, versioned request. Transfer/release requires its actual accountable source and release owners. Do not invent an on-call address, named maintainer, or audit score.
+Route real implementation defects to the [canonical Build Implementation Plan](docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md). Changes to normative product meaning require a separately approved, versioned request. Transfer/release requires its actual accountable source and release owners. Do not invent an on-call address, named maintainer, or audit score.
 
 Legacy `audio-video` package coordinates are retained where consumer compatibility requires them; new local names should express domain intent.
