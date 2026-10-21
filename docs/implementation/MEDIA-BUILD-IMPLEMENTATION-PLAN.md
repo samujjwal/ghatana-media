@@ -17,7 +17,7 @@
 
 - Media product meaning: `.product-experience/pdp-0-product-truth/`, `pdp-1-domain-data/`, `pdp-2-design-interface-system/`, `pdp-3-product-experience/`; no rewriting closed PDP meaning to fit code. `AGENTS.md`, Kernel `KDEV-STAGE-PLAN-IMPLEMENTATION`, and Lifecycle `PhaseProgram` govern the stage; `PHASE-*` is not a PDP.
 - Physical topology SHA (Git blob): `f8a02ddc1505306ee8fe2a9d44e7d6155eb3afdd`; surface registry blob `dec599b257e074e908e70fb5f77d5ee8a7132ec8`; source-manifest blob `7b66a559d97765b72101f455d140f843374f0382`. PDP-0/1/2/3 status blobs: `585dc9f21d81c2efb728ae4db75c08c24eea7fbf`, `f0327eec5fbf36b31638d2e0d0d6bdccb974b437`, `4bfabc621b79bf45c097767e5536da5e1a4b837c`, `750b9b52714f47c9b7fde7ce4e34f57a0d4cb9b9`. These and the full Git tree are immutable baseline locators; phase `sourceShaSet` values remain the normative material-content pins, not commit SHA truth.
-- PDP source coverage: **462** adjudicated capability leaves and **7** definition-extension operation mappings; **38** requirement groups; PDP-1 **2040** recorded identity entries, including 108 owner operation records, 27 HTTP, 43 gRPC, 33 SDK, 11 CLI, 4 Agent Tool, 9 events, 148 UI actions; PDP-2 **31** component families; PDP-3 **47** screens, **30** journeys, **130** steps, **61** intended channel edges and **31** scenario source definitions.
+- PDP source coverage: **462** adjudicated capability leaves and **7** definition-extension operation mappings; **38** requirement groups; PDP-1 **2040** recorded identity entries, including 108 owner operation records, 27 HTTP, 43 gRPC, 33 SDK, 11 CLI, 4 Agent Tool, 9 events, 148 UI actions; PDP-2 **31** component families plus 122 typed values, 9 token aliases, 24 public CSS bindings, 20 media CSS projections, 13 templates, 11 layouts, 13 recipes, 43 composition rules, 19 interaction patterns and 12 machine invariants; PDP-3 **47** screens, **30** journeys, **130** steps, **61** intended channel edges and **31** scenario source definitions.
 - Three independent levels must not be conflated: **authored product definition** (`DEV_COMPLETE`), **actual tested implementation** (Build), and **independent acceptance/PDP closure/release** (other lanes). A UI mock, queued job, proposal, generated client, local provider or source validator is not product behavior. No Media app is released.
 - Evidence caveat: recorded 38 development criteria and representative current source SHA-256 pins reviewed; native full source-current/phase validators could not be reexecuted in this remote-only review. **No actual semantic mismatch established.** F00 reconciles exact pins locally without reopening completed PDPs for superficial commit drift.
 - Single master: **this file** governs Build package ordering and dispositions. Companion `MEDIA-BUILD-IDENTITY-TRACE.v1.json` is a generated/indexed *appendix*, not a separate authoring source or competing plan. Existing `MEDIA-BUILD-COMPLETE-PRODUCT-PLAN-2026-10-15.md` and dated post-PDP plans are historical leads only (50/17 denominators superseded by current 54/21). Do not silently delete them while links/provenance remain.
@@ -284,7 +284,7 @@ Each foundation package below includes exact paths, ownership, dependency, contr
 
 ### M-BLD-F13 — Declarative recorder/animation/simulation shared production contracts
 
-**Owner / exclusive write boundary:** Media Studio/recorder architect + consumer owners. **Dependencies:** M-BLD-F03, M-BLD-F04, M-BLD-F05, M-BLD-F06, M-BLD-F09, M-BLD-F10, M-BLD-F11. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
+**Owner / exclusive write boundary:** Media Studio/recorder architect + consumer owners. **Dependencies:** M-BLD-F03, M-BLD-F04, M-BLD-F05, M-BLD-F06, M-BLD-F09, M-BLD-F10, M-BLD-F11, M-BLD-F12. Avoid concurrent mutations in the same paths; the cross-repo writer rule in F01 overrides a target path mention.
 
 **Outcome & scope:** Share versioned ProductionSpec, CaptureSceneSpec, AnimationSpec and SimulationSpec as typed *views* onto existing Media recipe/project/job/scene/run/clock/rights objects. Reuse Gharbatai `@ghatana/experience-recorder` capture qualification/storyboard/narration and TutorPutor AEF Model/Scene/Experience IR adapters through contracts; no duplicate recorder database, simulation engine, scientific source authority, generic capture runtime or hidden AI-only editor.
 
@@ -678,7 +678,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-L01 — Autonomous Recorder Orchestrator and capture-adapter integration
 
-**Owner/write isolation:** Media recorder owner + Gharbatai recorder package owner. **Dependencies:** M-BLD-F13, M-BLD-V01, M-BLD-V02, M-BLD-V20, M-BLD-V24, M-BLD-V29 (resolve all `M-BLD-Vxx` before cross-journey final acceptance). **Paths:** `gharbatai/tooling/experience-recorder/` `@ghatana/experience-recorder` reusable source; `gharbatai/tooling/demo-recording/` consumer-specific code retained; Media `libs/audio-video-client/`, `runtime-contracts/`, `launcher/`; logical `media.surface.recorder-orchestrator`, `media.surface.capture-adapters`.
+**Owner/write isolation:** Media recorder owner + Gharbatai recorder package owner. **Dependencies:** M-BLD-F13, M-BLD-V01, M-BLD-V02, M-BLD-V20, M-BLD-V24, M-BLD-V29. **Paths:** `gharbatai/tooling/experience-recorder/` `@ghatana/experience-recorder` reusable source; `gharbatai/tooling/demo-recording/` consumer-specific code retained; Media `libs/audio-video-client/`, `runtime-contracts/`, `launcher/`; logical `media.surface.recorder-orchestrator`, `media.surface.capture-adapters`.
 
 **Outcome/implementation:** Config/metadata-driven authenticated browser, desktop, mobile, terminal, API/gRPC and allowed A/V capture; reuse product-neutral Gharbatai recorder, storyboard and narration contracts. Real source effects require exact upstream outcome readback, source capture clock/camera/mic permissions, evidence classification and selective scene recapture. Integrate voice/subtitle/animation/simulation attachments; never treat static Explorer mock as an actual journey.
 
@@ -686,7 +686,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-L02 — Professional manual Studio over one canonical revision engine
 
-**Owner/write isolation:** Media Studio UI/UX and production owner. **Dependencies:** M-BLD-F13, M-BLD-V09, M-BLD-V11, M-BLD-V12, M-BLD-V14, M-BLD-V17, M-BLD-V18, M-BLD-V21 (resolve all `M-BLD-Vxx` before cross-journey final acceptance). **Paths:** `libs/audio-video-ui/`, `modules/intelligence/ai-voice/libs/ai-voice-ui-react/`; logical `media.surface.production-studio`.
+**Owner/write isolation:** Media Studio UI/UX and production owner. **Dependencies:** M-BLD-F13, M-BLD-V09, M-BLD-V11, M-BLD-V12, M-BLD-V14, M-BLD-V17, M-BLD-V18, M-BLD-V21. **Paths:** `libs/audio-video-ui/`, `modules/intelligence/ai-voice/libs/ai-voice-ui-react/`; logical `media.surface.production-studio`.
 
 **Outcome/implementation:** Implement timeline/keyframe tools, cut/trim/merge, layer lock/mute/solo, noise cleanup, backgrounds, smart/protected cropping, speed ramps, overlays, masks, annotations, 2D/3D and simulation inspectors, guided AI proposals and manual override using same versioned operations as CLI/SDK; never fork a Studio-only project DB.
 
@@ -694,7 +694,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-L03 — Interactive Demo Player and simulation-aware embedding
 
-**Owner/write isolation:** Media embedded player + TutorPutor/Gharbatai integration owner. **Dependencies:** M-BLD-F10, M-BLD-F13, M-BLD-V12, M-BLD-V14, M-BLD-V22, M-BLD-L01 (resolve all `M-BLD-Vxx` before cross-journey final acceptance). **Paths:** `libs/audio-video-ui/`, `libs/audio-video-client/`; logical `media.surface.interactive-demo-player` and `media.surface.embedded`.
+**Owner/write isolation:** Media embedded player + TutorPutor/Gharbatai integration owner. **Dependencies:** M-BLD-F10, M-BLD-F13, M-BLD-V12, M-BLD-V14, M-BLD-V22, M-BLD-L01. **Paths:** `libs/audio-video-ui/`, `libs/audio-video-client/`; logical `media.surface.interactive-demo-player` and `media.surface.embedded`.
 
 **Outcome/implementation:** Implement branchable governed playback of exact media versions and observable simulation states, interactive controls/measurements, captions, narration, semantic alternative content and offline-safe viewer. Never let player interaction secretly invoke privileged product changes or advance t_sim merely due to media seek.
 
@@ -702,7 +702,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-X01 — Exact cross-surface contract parity and integrated test matrix
 
-**Owner/write isolation:** Media integration/test owner. **Dependencies:** M-BLD-F12 and every applicable M-BLD-Vxx, M-BLD-L01..L03 (resolve all `M-BLD-Vxx` before cross-journey final acceptance). **Paths:** `integration-tests/`, `modules/integration-tests/`, `tests/`, `docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json`.
+**Owner/write isolation:** Media integration/test owner. **Dependencies:** M-BLD-F12, M-BLD-V01, M-BLD-V02, M-BLD-V03, M-BLD-V04, M-BLD-V05, M-BLD-V06, M-BLD-V07, M-BLD-V08, M-BLD-V09, M-BLD-V10, M-BLD-V11, M-BLD-V12, M-BLD-V13, M-BLD-V14, M-BLD-V15, M-BLD-V16, M-BLD-V17, M-BLD-V18, M-BLD-V19, M-BLD-V20, M-BLD-V21, M-BLD-V22, M-BLD-V23, M-BLD-V24, M-BLD-V25, M-BLD-V26, M-BLD-V27, M-BLD-V28, M-BLD-V29, M-BLD-V30, M-BLD-L01, M-BLD-L02, M-BLD-L03. **Paths:** `integration-tests/`, `modules/integration-tests/`, `tests/`, `docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json`.
 
 **Outcome/implementation:** Crosswalk every PDP identity/operation/request/result/step/channel to actual integration evidence, desktop archive N/A preserved. Verify 27 HTTP, 43 RPC transport dispositions, 33 SDK method records, 11 CLI contracts, four Agent Tools, nine event contracts, 148 UI actions, 61 channel edges and 47 screen bindings; reject admitted vs fixture conflation.
 
@@ -710,7 +710,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-X02 — Whole-product security, privacy, performance, fault and accessibility verification
 
-**Owner/write isolation:** Independent Media quality/security/performance/a11y roles. **Dependencies:** M-BLD-X01 (resolve all `M-BLD-Vxx` before cross-journey final acceptance). **Paths:** `docs/TESTING.md`, `docs/OPERATIONS.md`, `audio-video-observability/`, `integration-tests/`, `libs/audio-video-ui/`.
+**Owner/write isolation:** Independent Media quality/security/performance/a11y roles. **Dependencies:** M-BLD-X01. **Paths:** `docs/TESTING.md`, `docs/OPERATIONS.md`, `audio-video-observability/`, `integration-tests/`, `libs/audio-video-ui/`.
 
 **Outcome/implementation:** Plan cross-domain load, queue/outbox resilience, worker kill, provider outage, data erasure, cross-tenant isolation, fuzz/native decoder sandbox, OSS/SBOM/model rights, GUI accessibility/responsiveness. Obtain actual SLO thresholds from owners; don't invent numerical targets or certificates.
 
@@ -718,7 +718,7 @@ Each `M-BLD-Vxx` covers its full source journey and *all* declared target channe
 
 ### M-BLD-X03 — Build Development Complete handoff (not closure/release)
 
-**Owner/write isolation:** Media Build owner and designated reviewers. **Dependencies:** M-BLD-X02 (resolve all `M-BLD-Vxx` before cross-journey final acceptance). **Paths:** `docs/implementation/`, active readiness/test output references, no edits to frozen PDP meaning.
+**Owner/write isolation:** Media Build owner and designated reviewers. **Dependencies:** M-BLD-X02. **Paths:** `docs/implementation/`, active readiness/test output references, no edits to frozen PDP meaning.
 
 **Outcome/implementation:** Assemble implementation evidence, actual source/code revision, trace exact-set, per-surface Build completeness, migrations/rollback proofs and explicit blockers. Progress from Plan Implementation to Implement/Verify/Development Complete only by native Kernel stage rules. PDP closure remains independent and Delivery separately gated.
 
@@ -802,7 +802,7 @@ Every package specifies its focused tests above. Central matrix: (a) schema/stab
 
 ## 11. Canonical coverage trace, identity owner contract and completeness gates
 
-- Companion machine appendix: [`MEDIA-BUILD-IDENTITY-TRACE.v1.json`](MEDIA-BUILD-IDENTITY-TRACE.v1.json). It enumerates exact P0 capability/requirement, P1 identity, P2 component, P3 screen/journey/step/channel, physical/composite/consumer IDs and assigns a provisional primary Build owner package. **It is a planning index only; code path and behavioral equivalence are unverified until the package passes implementation tests.**
+- Companion machine appendix: [`MEDIA-BUILD-IDENTITY-TRACE.v1.json`](MEDIA-BUILD-IDENTITY-TRACE.v1.json) with **3,186 exact source and topology rows**, every row assigned a primary implementation owner but still UNVERIFIED. It enumerates exact P0 capability/requirement, P1 identity, P2 component, P3 screen/journey/step/channel, physical/composite/consumer IDs and assigns a provisional primary Build owner package. **It is a planning index only; code path and behavioral equivalence are unverified until the package passes implementation tests.**
 - Source selectors: P0 `capabilities.yaml#/...capabilityIntentId`, `requirements.yaml`; P1 `operations.yaml` plus companion domain/guard/identity registries (status `sourceIdentityIds`); P2 `component-contracts.yaml`/phase status `sourceFamilyIds`; P3 `screen-registry.yaml`, `journey-registry.yaml`, `journey-purpose-bindings.yaml`, `journey-channel-contract-bindings.yaml`; surface topology. Each package must resolve exact request/result/state/version/authority and primary runtime path before coding; a semantic-name classifier alone is *not* binding evidence.
 - Completeness invariant: `source_set == trace_set` for each category, stable unique ID, exactly one primary implementation owner (possibly shared F package), zero unspecified consumer/applicable leaves. Missing identity is a **Build planning blocker F00**; source meaning defect escalates to owning PDP, never silently N/A. Each trace row carries `planningDisposition=ASSIGNED_UNVERIFIED`, not completion.
 - Same semantic capability can be consumed by several channels and journeys: implement once in F/vertical; retain **all** consumer obligations and channel tests, not duplicate code. P1 provider-administration RPCs and fixture CLI identities require explicit compatibility interpretation before public admission.
