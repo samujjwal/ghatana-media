@@ -13,6 +13,12 @@
       ".product-experience/pdp-0-product-truth/capabilities.yaml": "dad44a6feb5abf9152bb88d97800ef7b9e9e7515",
       ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml": "7996919faa4c966faf4ea8988e963ae72b5a7c60",
       ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml": "4abcbac1337d5e35dff7b4e4dd15a159a9be121d"
+    },
+    "p2AdditionalSources": {
+      ".product-experience/pdp-2-design-interface-system/component-value-types.yaml": "944ec547b425e6d18aaa2b0c867eb3adc39b3249",
+      ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml": "4fdb32039f89d45dfb7ec3e9f3be2754126d1975",
+      ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml": "5ae53f972f5446d61b381dafd74f401cd177689d",
+      ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml": "c463c71a88b5cd3ee170e391019948c59f174693"
     }
   },
   "sourceRegistryByKind": {
@@ -28,7 +34,13 @@
     "PDP-3.journey": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
     "PDP-3.journey-step-purpose": ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
     "PDP-3.journey-channel-edge": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
-    "TOPOLOGY.*": ".product-experience/surfaces/media-physical-topology.v1.json"
+    "TOPOLOGY.*": ".product-experience/surfaces/media-physical-topology.v1.json",
+    "PDP-2.p2-component-value-types": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+    "PDP-2.p2-semantic-token-aliases": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+    "PDP-2.p2-shared-public-css": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+    "PDP-2.p2-media-css-projection": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+    "PDP-2.p2-composition-rules": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+    "PDP-2.p2-machine-interface-invariants": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml"
   },
   "denominatorExpectations": {
     "capabilities": 469,
@@ -43,7 +55,13 @@
     "journeys": 30,
     "steps": 130,
     "edges": 61,
-    "surfaces": 54
+    "surfaces": 54,
+    "componentValueTypes": 122,
+    "semanticTokenAliases": 9,
+    "sharedPublicCssVariables": 24,
+    "mediaCssProjections": 20,
+    "compositionRules": 43,
+    "machineInterfaceInvariants": 12
   },
   "observedPopulations": {
     "capabilities": 469,
@@ -58,7 +76,13 @@
     "journeys": 30,
     "steps": 130,
     "edges": 61,
-    "surfaces": 54
+    "surfaces": 54,
+    "componentValueTypes": 122,
+    "semanticTokenAliases": 9,
+    "sharedPublicCssVariables": 24,
+    "mediaCssProjections": 20,
+    "compositionRules": 43,
+    "machineInterfaceInvariants": 12
   },
   "sourceEnumerationDiscrepancies": [],
   "duplicateRows": [],
@@ -69,7 +93,7 @@
     "Physical support-only and archived consumer applicability remains explicit; no product runtime admission inferred.",
     "An actual semantic defect returns to earliest PDP; unavailable provider/test/host stays an owned Build/external blocker."
   ],
-  "rowCount": 2956,
+  "rowCount": 3186,
   "populations": {
     "PDP-0.capability-intent": 469,
     "PDP-0.requirement-group": 38,
@@ -110,7 +134,13 @@
     "TOPOLOGY.physical": 26,
     "TOPOLOGY.REPOSITORY_ROOT": 1,
     "TOPOLOGY.SEMANTIC_COMPOSITION": 6,
-    "TOPOLOGY.consumer": 21
+    "TOPOLOGY.consumer": 21,
+    "PDP-2.p2-component-value-types": 122,
+    "PDP-2.p2-semantic-token-aliases": 9,
+    "PDP-2.p2-shared-public-css": 24,
+    "PDP-2.p2-media-css-projection": 20,
+    "PDP-2.p2-composition-rules": 43,
+    "PDP-2.p2-machine-interface-invariants": 12
   },
   "traceRows": [
     {
@@ -29490,6 +29520,2076 @@
         "media.physical.libs-audio-video-ui"
       ],
       "applicability": "APPLICABLE"
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.MediaViewRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.RegisteredMediaReturnRouteRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.MediaActionIntentRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ActionIntentRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.CanonicalIntentRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.TenantScopedWorkspaceRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ExactArtifactVersionRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ImmutableProjectRevisionRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ExactCompositionVersionRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ExactTranscriptVersionRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ExactModelVersionRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ExactSceneVersionRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ExactSubjectVersionRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OpaqueProjectRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ProjectSearchQuery",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ArtifactSearchQuery",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.PageState",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.RationalSourceTime",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.RationalTimelineTimebaseRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.SourceTimebaseRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.SourceSampleTimebaseRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.CompositionTimebaseRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OptionalHalfOpenRationalInterval",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OptionalHalfOpenFrameInterval",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.PositiveRationalRate",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.DigestWithAlgorithm",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ExplicitChannelLayout",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ConsentValidity",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.IdentityHandoffRequest",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.IdentityHandoffResult",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.IdentityOwnerPin",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.IdentityHandoffEvaluation",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.RightsConsentScope",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.RightsConsentType",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.RetentionDecision",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.EffectFinality",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ProposalFinality",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.MediaJobState",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.CanonicalOperationState",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.AccessDisposition",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.QualificationDisposition",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ObservationFreshness",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.UploadTransferState",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.TypedExitDisposition",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.IanaMediaType",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.BCP47LanguageTag",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.NonnegativeInteger",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.MeasuredNonnegativeInteger",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.CanonicalCommandId",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OpaqueJobRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OpaqueRequestRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OpaqueUploadRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.CaptionDraftRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.TranscriptSegmentRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.FidelityDefinitionRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ImageCoordinateProfileRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.VersionedDeliveryProfileRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.CurrentAuthorityRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.EvidenceRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.CompatibilityEvidence",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ExplicitFallbackPlan",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.AuthorizedDestinationRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.AuthorizedPreviewRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OptionalQualifiedProfileRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OptionalIdentityHandoffRequest",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OptionalIdentityHandoffEvaluation",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OptionalOpaqueCursor",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OptionalOpaqueJobRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OptionalOpaqueProjectRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OptionalNonnegativeInteger",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OptionalRationalDuration",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OptionalMeasuredProgress",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OptionalSimulationRunRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OptionalTypedMachineResult",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.EstimateWithMethodAndUncertainty",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.CaptionCueDraft",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.TranscriptSegment",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.JobAttemptSummary",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ProvenanceUnknown",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.QualityObservation",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.UncertaintyInterval",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ScopedAcceptanceThreshold",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ReasonEvidence",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ChunkReceipt",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ArtifactVersionSummary",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.IntentOption",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.EditConstraint",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.JobActivityRecord",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ExactResultReference",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.SpectralWindowDefinition",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.HalfOpenRationalInterval",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ProjectSummary",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.SourceVersionCandidate",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ArtifactVersionCandidate",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.AudioTrackBinding",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.UnitBearingAudioGain",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.AudioMeasurement",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ChannelRoutingBinding",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OrderedScene",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.VersionedTransitionSpec",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.VersionedTrack",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.Keyframe",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.VersionedMask",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.TrackingObservation",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.SimulationObservation",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.QualifiedModelBinding",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ComparisonBasis",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ScopedDifference",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.CapabilityProfileDisposition",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ScopedPolicyDecision",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.TransformWithCoordinateProfile",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.SourceTimestampWithClock",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ScopedSignalObservation",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ProposedPlanRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OperationExecutionRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.IntegrityEvidenceRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OpaqueSceneEntityRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.VersionedMaterialRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ProvenanceRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.ScopedDecisionRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.VersionedDecisionRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-component-value-types",
+      "id": "media.component-value-type.OutcomeEvidenceRef",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-semantic-token-aliases",
+      "id": "media.token.state.completed",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-semantic-token-aliases",
+      "id": "media.token.state.in-progress",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-semantic-token-aliases",
+      "id": "media.token.state.needs-review",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-semantic-token-aliases",
+      "id": "media.token.state.blocked",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-semantic-token-aliases",
+      "id": "media.token.trust.measured",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-semantic-token-aliases",
+      "id": "media.token.trust.recognized",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-semantic-token-aliases",
+      "id": "media.token.trust.generated",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-semantic-token-aliases",
+      "id": "media.token.surface.source",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-semantic-token-aliases",
+      "id": "media.token.surface.derived",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.typography.body.font-size",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.typography.body.line-height",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.typography.body.font-weight",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.typography.page-title.font-size",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.typography.page-title.line-height",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.typography.section-title.font-size",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.typography.section-title.font-weight",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.typography.supporting.font-size",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.typography.supporting.line-height",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.typography.metadata.font-size",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.typography.button.font-size",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.geometry.gutter.compact",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.geometry.gutter.standard",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.geometry.gutter.comfortable",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.geometry.section-rhythm.compact",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.geometry.section-rhythm.standard",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.geometry.section-rhythm.comfortable",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.geometry.interactive-target.minimum",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.color.state.completed.light",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.color.state.completed.dark",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.color.state.in-progress.light",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.color.state.in-progress.dark",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.color.state.needs-review.light",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-shared-public-css",
+      "id": "media.shared-css.color.state.needs-review.dark",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.typography.body.font-size",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.typography.body.line-height",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.typography.page-title.font-size",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.typography.page-title.line-height",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.typography.section-title.font-size",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.typography.section-title.font-weight",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.typography.supporting.font-size",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.typography.metadata.font-size",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.typography.button.font-size",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.typography.supporting.line-height",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.geometry.gutter.compact",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.geometry.gutter.standard",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.geometry.gutter.comfortable",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.geometry.section-rhythm.compact",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.geometry.section-rhythm.standard",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.geometry.section-rhythm.comfortable",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.geometry.interactive-target.minimum",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.color.state.completed",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.color.state.in-progress",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-media-css-projection",
+      "id": "media.token.css.color.state.needs-review",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-rule.link.template",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-rule.link.layout",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-rule.link.recipe",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-rule.link.pattern",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-rule.link.requiredRegions",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-rule.link.overlaySelection",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-rule.link.component",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-rule.accessibility.screenFocus",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-rule.accessibility.keyboard",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-rule.accessibility.unknownFinality",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-rule.accessibility.motion",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.template.collection",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.template.workbench",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.template.job-observation",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.template.review-and-compare",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.template.consent-gate",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.template.render-preparation-and-review",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.template.lifecycle-confirmation",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.template.media-composition",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.template.operational-readiness",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.template.record-detail",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.template.workspace-settings",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.template.project-overview",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.template.task-setup",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.pattern.project-browser",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.pattern.project-context-header",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.pattern.intent-launcher",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.pattern.creation-plan-review",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.pattern.source-picker",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.pattern.upload-and-verification",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.pattern.job-status-and-recovery",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.pattern.activity-attention",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.pattern.multitrack-composition",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.pattern.transcript-and-playback",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.pattern.caption-editor",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.pattern.version-comparison",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.pattern.review-approval",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.pattern.quality-and-uncertainty",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.pattern.rights-and-consent-review",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.pattern.rendering",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.pattern.provenance-and-lineage",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.pattern.safe-confirmation-and-unknown-outcome",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-composition-rules",
+      "id": "media.gui.composition-region.pattern.destructive-lifecycle-action",
+      "primaryPackageId": "M-BLD-F10",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-machine-interface-invariants",
+      "id": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/identity",
+      "primaryPackageId": "M-BLD-F09",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-machine-interface-invariants",
+      "id": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/authority",
+      "primaryPackageId": "M-BLD-F09",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-machine-interface-invariants",
+      "id": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/mutation",
+      "primaryPackageId": "M-BLD-F09",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-machine-interface-invariants",
+      "id": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/unknownOutcome",
+      "primaryPackageId": "M-BLD-F09",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-machine-interface-invariants",
+      "id": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/retry",
+      "primaryPackageId": "M-BLD-F09",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-machine-interface-invariants",
+      "id": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/progress",
+      "primaryPackageId": "M-BLD-F09",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-machine-interface-invariants",
+      "id": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/errors",
+      "primaryPackageId": "M-BLD-F09",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-machine-interface-invariants",
+      "id": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/typedContract",
+      "primaryPackageId": "M-BLD-F09",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-machine-interface-invariants",
+      "id": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/tenantAndVersion",
+      "primaryPackageId": "M-BLD-F09",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-machine-interface-invariants",
+      "id": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/cancellation",
+      "primaryPackageId": "M-BLD-F09",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-machine-interface-invariants",
+      "id": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/admission",
+      "primaryPackageId": "M-BLD-F09",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
+      "requiresExactPublicBinding": true
+    },
+    {
+      "phase": "PDP-2",
+      "kind": "p2-machine-interface-invariants",
+      "id": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/eventObservation",
+      "primaryPackageId": "M-BLD-F09",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourceIdField": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
+      "requiresExactPublicBinding": true
     }
   ]
 }
