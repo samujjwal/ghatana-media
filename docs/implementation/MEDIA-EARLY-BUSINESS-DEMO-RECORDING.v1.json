@@ -3,7 +3,7 @@
   "productId": "media",
   "purpose": "PLAN_ONLY_SOURCE_DERIVED_RECORDER_EXECUTION_PROFILE",
   "status": "PLANNED_NOT_CAPTURED_NOT_IMPLEMENTED_NOT_REVIEWED",
-  "planAuthority": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md#5A",
+  "planAuthority": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md#5a-early-pdp-source-derived-recording-of-the-first-complete-business-outcome",
   "sourceTruth": {
     "rule": "All product outcomes, operations, guards, UI semantics, journeys, scenario steps and media recording requirements come from current source-pinned PDP-0 to PDP-3; this file is a replaceable Build execution projection and editorial overlay, never a normative duplicate.",
     "pdp0": {
@@ -55,7 +55,8 @@
     "noCrossJourneyFinality": "J-03 is a reviewable caption version; this profile does not claim reviewer approval (J-21), exported delivery or remote publishing (J-22), or product release.",
     "recommendedCaptureChannel": "media.channel.web",
     "sourcePermittedAlternateChannel": "media.channel.cli",
-    "noMockHost": true
+    "noMockHost": true,
+    "firstChannelCompletionRule": "Every normative step and customer terminal result implemented through one declared real channel with applicable failure/UNKNOWN recovery. Other J03 channels and full V03 remain open for independent Build parity."
   },
   "firstCandidate": {
     "profileId": "media.build.demo.first-business-outcome.captions.v1",
@@ -233,9 +234,10 @@
       "M-BLD-X03",
       "J-21 approval",
       "J-22 external delivery",
-      "Delivery/release"
+      "Delivery/release",
+      "M-BLD-V03 full cross-channel acceptance"
     ],
-    "sourceDefinedScopeRule": "Other foundation prerequisites follow the actual F package DAG. This list is illustrative of directly material stages, not a second dependency graph.",
+    "sourceDefinedScopeRule": "Product prerequisite package IDs name authoritative component owners; their end-to-end outcome *subtasks* for the chosen actual source-authorized channel, not whole-package multi-channel completion, are the first-film prerequisite. Full package dependencies remain in canonical plan. F-READY and Kernel stage admission still apply.",
     "conditions": [
       "FOUR_PDP_SOURCE_CUTS_CURRENT_AND_JOURNEY_BUSINESS_POSTCONDITION_EXACTLY_JOINED",
       "KERNEL_BUILD_IMPLEMENT_TASKS_ADMITTED_AND_WRITER_OWNERSHIP_RESOLVED",
@@ -246,7 +248,14 @@
       "NO_UNQUALIFIED_PROVIDER_OR_VISUAL_SOURCE_IS_SUBSTITUTED",
       "OUTPUT_CAPTURE_AND_NARRATION_PROFILES_PROVED_WITH_CONTENT_RIGHTS",
       "NO_RELEASE_OR_REVIEW_APPROVAL_INFERRED_FROM_RECORDING"
-    ]
+    ],
+    "productPrerequisiteAcceptance": {
+      "M-BLD-V01": "REAL SOURCE-AUTHORIZED CHANNEL PROJECT/IDENTITY RESULT; FULL PACKAGE MAY REMAIN OPEN",
+      "M-BLD-V02": "REAL VERIFIED SOURCE VERSION AND METADATA; OTHER CHANNELS MAY REMAIN OPEN",
+      "M-BLD-V20": "DURABLE SAME-JOB OBSERVATION AND RECONCILIATION ON FILMED CHANNEL",
+      "M-BLD-V03": "REAL QUALIFIED STT, CORRECTED CAPTION VERSION AND PDP3 TERMINAL READBACK ON ONE SOURCE-AUTHORIZED CHANNEL; FULL V03 ALL-CHANNEL PARITY MAY REMAIN OPEN",
+      "M-BLD-L01": "ONLY T01-T04 QUALIFIED FOR FIRST FILM; GENERAL MODALITY/DEVICE/STREAM CAPTURE REMAINS OPEN"
+    }
   },
   "dataAndQuality": {
     "fixtureProfile": "Synthetic, consented, licensed test audio with intelligible phrases and intentional correctable timing/text mistakes; real media bytes processed through a real admitted STT engine, not a prerecorded transcript posed as inference.",
