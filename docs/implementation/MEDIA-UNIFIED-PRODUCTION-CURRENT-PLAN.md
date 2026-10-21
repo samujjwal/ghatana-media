@@ -10,6 +10,12 @@ This index routes readers to the authored product sources and the records that r
 - Cross-phase source ownership: [`.product-experience/source-manifest.yaml`](../../.product-experience/source-manifest.yaml)
 - Cross-phase traces: [`.product-experience/traceability.yaml`](../../.product-experience/traceability.yaml)
 
+## Build implementation planning (current)
+
+- **Single canonical BUILD / Plan Implementation plan:** [Media Build Implementation Plan](MEDIA-BUILD-IMPLEMENTATION-PLAN.md) — 14 common/foundation work packages F00–F13, 30 PDP-3 end-to-end journey packages V01–V30, three Recorder/Studio/Player consumer packages L01–L03, and three integrated Build verification/handoff packages X01–X03. Reuse public Ghatana ecosystem contracts; canonical writer remains `ghatana/services/media` until an authorized transfer.
+- **Exact indexed trace (projection, not second plan):** [Build Identity Trace](MEDIA-BUILD-IDENTITY-TRACE.v1.json) — 3,186 stable source identities with 54 surface and 61 channel-edge obligations. Derived planning ownership is not observed runtime proof or PDP closure.
+- Earlier dated Build/discovery/implementation plans are reference/provenance only; do not treat their counts or task statuses as current implementation authority. No release or external acceptance is claimed.
+
 ## Phase definitions and development status
 
 - PDP-0 Product Truth: [definition](../../.product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md) · [development status](pdp-0-phase-dev-status.json)
