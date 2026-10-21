@@ -1,5 +1,9 @@
 # Ghatana Media documentation
 
+## Current BUILD implementation plan
+
+The single canonical plan for Media's post-Discovery **BUILD / Plan Implementation** lane is [Media BUILD Implementation Plan](implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md). Its [exact source-identity trace](implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json) is a subordinate read-only planning appendix, not a second product-definition or runtime authority. The plan targets all shared foundations before all 30 PDP-3 end-to-end journeys and the Recorder/Studio/Player consumers. It is source-bound planning, **not** runtime implementation, independent PDP closure or release qualification.
+
 ## Product definition source
 
 The canonical editable Media product-definition root is [`.product-experience/`](../.product-experience/README.md). [Product Truth](../.product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md) owns PDP-0 meaning; PDP-1, PDP-2 and PDP-3 have their own phase-owned sources. The generated source manifest indexes declared artifacts; Explorer views, matrices and reports are projections. None of these projections establishes semantic acceptance, currentness, implementation, or release. Consult the source-pinned phase status records and validate their pins with the owning phase's native fingerprint rules. No Media application has been released.
