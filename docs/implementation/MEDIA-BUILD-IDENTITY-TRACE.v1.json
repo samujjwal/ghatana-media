@@ -29264,7 +29264,66 @@
       "physicalRefs": [
         "media.physical.libs-audio-video-ui"
       ],
-      "applicability": "APPLICABLE"
+      "applicability": "APPLICABLE",
+      "journeyIds": [
+        "J-01",
+        "J-02",
+        "J-03",
+        "J-04",
+        "J-05",
+        "J-07",
+        "J-08",
+        "J-09",
+        "J-10",
+        "J-11",
+        "J-12",
+        "J-13",
+        "J-14",
+        "J-15",
+        "J-16",
+        "J-17",
+        "J-18",
+        "J-19",
+        "J-20",
+        "J-21",
+        "J-22",
+        "J-23",
+        "J-26",
+        "J-27",
+        "J-28",
+        "J-29",
+        "J-30"
+      ],
+      "intendedChannelEdgeIds": [
+        "media.pdp3.channel-binding.j01.web.v1",
+        "media.pdp3.channel-binding.j02.web.v1",
+        "media.pdp3.channel-binding.j03.web.v1",
+        "media.pdp3.channel-binding.j04.web.v1",
+        "media.pdp3.channel-binding.j05.web.v1",
+        "media.pdp3.channel-binding.j07.web.v1",
+        "media.pdp3.channel-binding.j08.web.v1",
+        "media.pdp3.channel-binding.j09.web.v1",
+        "media.pdp3.channel-binding.j10.web.v1",
+        "media.pdp3.channel-binding.j11.web.v1",
+        "media.pdp3.channel-binding.j12.web.v1",
+        "media.pdp3.channel-binding.j13.web.v1",
+        "media.pdp3.channel-binding.j14.web.v1",
+        "media.pdp3.channel-binding.j15.web.v1",
+        "media.pdp3.channel-binding.j16.web.v1",
+        "media.pdp3.channel-binding.j17.web.v1",
+        "media.pdp3.channel-binding.j18.web.v1",
+        "media.pdp3.channel-binding.j19.web.v1",
+        "media.pdp3.channel-binding.j20.web.v1",
+        "media.pdp3.channel-binding.j21.web.v1",
+        "media.pdp3.channel-binding.j22.web.v1",
+        "media.pdp3.channel-binding.j23.web.v1",
+        "media.pdp3.channel-binding.j26.web.v1",
+        "media.pdp3.channel-binding.j27.web.v1",
+        "media.pdp3.channel-binding.j28.web.v1",
+        "media.pdp3.channel-binding.j29.web.v1",
+        "media.pdp3.channel-binding.j30.web.v1"
+      ],
+      "actualTransportAdmitted": false
     },
     {
       "phase": "TOPOLOGY",
@@ -29289,7 +29348,28 @@
         "media.physical.launcher",
         "media.physical.runtime-contracts"
       ],
-      "applicability": "APPLICABLE"
+      "applicability": "APPLICABLE",
+      "journeyIds": [
+        "J-02",
+        "J-06",
+        "J-22",
+        "J-24",
+        "J-25",
+        "J-26",
+        "J-27",
+        "J-30"
+      ],
+      "intendedChannelEdgeIds": [
+        "media.pdp3.channel-binding.j02.http-api.v1",
+        "media.pdp3.channel-binding.j06.http-api.v1",
+        "media.pdp3.channel-binding.j22.http-api.v1",
+        "media.pdp3.channel-binding.j24.http-api.v1",
+        "media.pdp3.channel-binding.j25.http-api.v1",
+        "media.pdp3.channel-binding.j26.http-api.v1",
+        "media.pdp3.channel-binding.j27.http-api.v1",
+        "media.pdp3.channel-binding.j30.http-api.v1"
+      ],
+      "actualTransportAdmitted": false
     },
     {
       "phase": "TOPOLOGY",
@@ -29305,7 +29385,24 @@
         "media.physical.modules-vision-vision-service",
         "media.physical.modules-intelligence-multimodal-service"
       ],
-      "applicability": "APPLICABLE"
+      "applicability": "APPLICABLE",
+      "journeyIds": [
+        "J-03",
+        "J-04",
+        "J-05",
+        "J-06",
+        "J-16",
+        "J-29"
+      ],
+      "intendedChannelEdgeIds": [
+        "media.pdp3.channel-binding.j03.grpc-api.v1",
+        "media.pdp3.channel-binding.j04.grpc-api.v1",
+        "media.pdp3.channel-binding.j05.grpc-api.v1",
+        "media.pdp3.channel-binding.j06.grpc-api.v1",
+        "media.pdp3.channel-binding.j16.grpc-api.v1",
+        "media.pdp3.channel-binding.j29.grpc-api.v1"
+      ],
+      "actualTransportAdmitted": false
     },
     {
       "phase": "TOPOLOGY",
@@ -29366,7 +29463,20 @@
         "media.physical.libs-audio-video-client",
         "media.physical.libs-audio-video-types"
       ],
-      "applicability": "APPLICABLE"
+      "applicability": "APPLICABLE",
+      "journeyIds": [
+        "J-02",
+        "J-03",
+        "J-04",
+        "J-05"
+      ],
+      "intendedChannelEdgeIds": [
+        "media.pdp3.channel-binding.j02.sdk.v1",
+        "media.pdp3.channel-binding.j03.sdk.v1",
+        "media.pdp3.channel-binding.j04.sdk.v1",
+        "media.pdp3.channel-binding.j05.sdk.v1"
+      ],
+      "actualTransportAdmitted": false
     },
     {
       "phase": "TOPOLOGY",
@@ -29379,7 +29489,26 @@
         "media.physical.libs-audio-video-client",
         "media.physical.libs-media-experience-simulation"
       ],
-      "applicability": "APPLICABLE"
+      "applicability": "APPLICABLE",
+      "journeyIds": [
+        "J-03",
+        "J-20",
+        "J-22",
+        "J-23",
+        "J-24",
+        "J-27",
+        "J-30"
+      ],
+      "intendedChannelEdgeIds": [
+        "media.pdp3.channel-binding.j03.cli.v1",
+        "media.pdp3.channel-binding.j20.cli.v1",
+        "media.pdp3.channel-binding.j22.cli.v1",
+        "media.pdp3.channel-binding.j23.cli.v1",
+        "media.pdp3.channel-binding.j24.cli.v1",
+        "media.pdp3.channel-binding.j27.cli.v1",
+        "media.pdp3.channel-binding.j30.cli.v1"
+      ],
+      "actualTransportAdmitted": false
     },
     {
       "phase": "TOPOLOGY",
@@ -29422,7 +29551,30 @@
         "media.physical.modules-infrastructure-cache",
         "media.physical.modules-infrastructure-messaging"
       ],
-      "applicability": "APPLICABLE"
+      "applicability": "APPLICABLE",
+      "journeyIds": [
+        "J-06",
+        "J-09",
+        "J-14",
+        "J-15",
+        "J-21",
+        "J-22",
+        "J-25",
+        "J-26",
+        "J-28"
+      ],
+      "intendedChannelEdgeIds": [
+        "media.pdp3.channel-binding.j06.product-integration.v1",
+        "media.pdp3.channel-binding.j09.product-integration.v1",
+        "media.pdp3.channel-binding.j14.product-integration.v1",
+        "media.pdp3.channel-binding.j15.product-integration.v1",
+        "media.pdp3.channel-binding.j21.product-integration.v1",
+        "media.pdp3.channel-binding.j22.product-integration.v1",
+        "media.pdp3.channel-binding.j25.product-integration.v1",
+        "media.pdp3.channel-binding.j26.product-integration.v1",
+        "media.pdp3.channel-binding.j28.product-integration.v1"
+      ],
+      "actualTransportAdmitted": false
     },
     {
       "phase": "TOPOLOGY",
@@ -31591,5 +31743,171 @@
       "sourceIdField": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
       "requiresExactPublicBinding": true
     }
-  ]
+  ],
+  "channelConsumerCoverage": {
+    "media.surface.web": {
+      "edgeIds": [
+        "media.pdp3.channel-binding.j01.web.v1",
+        "media.pdp3.channel-binding.j02.web.v1",
+        "media.pdp3.channel-binding.j03.web.v1",
+        "media.pdp3.channel-binding.j04.web.v1",
+        "media.pdp3.channel-binding.j05.web.v1",
+        "media.pdp3.channel-binding.j07.web.v1",
+        "media.pdp3.channel-binding.j08.web.v1",
+        "media.pdp3.channel-binding.j09.web.v1",
+        "media.pdp3.channel-binding.j10.web.v1",
+        "media.pdp3.channel-binding.j11.web.v1",
+        "media.pdp3.channel-binding.j12.web.v1",
+        "media.pdp3.channel-binding.j13.web.v1",
+        "media.pdp3.channel-binding.j14.web.v1",
+        "media.pdp3.channel-binding.j15.web.v1",
+        "media.pdp3.channel-binding.j16.web.v1",
+        "media.pdp3.channel-binding.j17.web.v1",
+        "media.pdp3.channel-binding.j18.web.v1",
+        "media.pdp3.channel-binding.j19.web.v1",
+        "media.pdp3.channel-binding.j20.web.v1",
+        "media.pdp3.channel-binding.j21.web.v1",
+        "media.pdp3.channel-binding.j22.web.v1",
+        "media.pdp3.channel-binding.j23.web.v1",
+        "media.pdp3.channel-binding.j26.web.v1",
+        "media.pdp3.channel-binding.j27.web.v1",
+        "media.pdp3.channel-binding.j28.web.v1",
+        "media.pdp3.channel-binding.j29.web.v1",
+        "media.pdp3.channel-binding.j30.web.v1"
+      ],
+      "journeyIds": [
+        "J-01",
+        "J-02",
+        "J-03",
+        "J-04",
+        "J-05",
+        "J-07",
+        "J-08",
+        "J-09",
+        "J-10",
+        "J-11",
+        "J-12",
+        "J-13",
+        "J-14",
+        "J-15",
+        "J-16",
+        "J-17",
+        "J-18",
+        "J-19",
+        "J-20",
+        "J-21",
+        "J-22",
+        "J-23",
+        "J-26",
+        "J-27",
+        "J-28",
+        "J-29",
+        "J-30"
+      ],
+      "count": 27
+    },
+    "media.surface.public-http": {
+      "edgeIds": [
+        "media.pdp3.channel-binding.j02.http-api.v1",
+        "media.pdp3.channel-binding.j06.http-api.v1",
+        "media.pdp3.channel-binding.j22.http-api.v1",
+        "media.pdp3.channel-binding.j24.http-api.v1",
+        "media.pdp3.channel-binding.j25.http-api.v1",
+        "media.pdp3.channel-binding.j26.http-api.v1",
+        "media.pdp3.channel-binding.j27.http-api.v1",
+        "media.pdp3.channel-binding.j30.http-api.v1"
+      ],
+      "journeyIds": [
+        "J-02",
+        "J-06",
+        "J-22",
+        "J-24",
+        "J-25",
+        "J-26",
+        "J-27",
+        "J-30"
+      ],
+      "count": 8
+    },
+    "media.surface.sdk": {
+      "edgeIds": [
+        "media.pdp3.channel-binding.j02.sdk.v1",
+        "media.pdp3.channel-binding.j03.sdk.v1",
+        "media.pdp3.channel-binding.j04.sdk.v1",
+        "media.pdp3.channel-binding.j05.sdk.v1"
+      ],
+      "journeyIds": [
+        "J-02",
+        "J-03",
+        "J-04",
+        "J-05"
+      ],
+      "count": 4
+    },
+    "media.surface.cli": {
+      "edgeIds": [
+        "media.pdp3.channel-binding.j03.cli.v1",
+        "media.pdp3.channel-binding.j20.cli.v1",
+        "media.pdp3.channel-binding.j22.cli.v1",
+        "media.pdp3.channel-binding.j23.cli.v1",
+        "media.pdp3.channel-binding.j24.cli.v1",
+        "media.pdp3.channel-binding.j27.cli.v1",
+        "media.pdp3.channel-binding.j30.cli.v1"
+      ],
+      "journeyIds": [
+        "J-03",
+        "J-20",
+        "J-22",
+        "J-23",
+        "J-24",
+        "J-27",
+        "J-30"
+      ],
+      "count": 7
+    },
+    "media.surface.service-grpc": {
+      "edgeIds": [
+        "media.pdp3.channel-binding.j03.grpc-api.v1",
+        "media.pdp3.channel-binding.j04.grpc-api.v1",
+        "media.pdp3.channel-binding.j05.grpc-api.v1",
+        "media.pdp3.channel-binding.j06.grpc-api.v1",
+        "media.pdp3.channel-binding.j16.grpc-api.v1",
+        "media.pdp3.channel-binding.j29.grpc-api.v1"
+      ],
+      "journeyIds": [
+        "J-03",
+        "J-04",
+        "J-05",
+        "J-06",
+        "J-16",
+        "J-29"
+      ],
+      "count": 6
+    },
+    "media.surface.integrations": {
+      "edgeIds": [
+        "media.pdp3.channel-binding.j06.product-integration.v1",
+        "media.pdp3.channel-binding.j09.product-integration.v1",
+        "media.pdp3.channel-binding.j14.product-integration.v1",
+        "media.pdp3.channel-binding.j15.product-integration.v1",
+        "media.pdp3.channel-binding.j21.product-integration.v1",
+        "media.pdp3.channel-binding.j22.product-integration.v1",
+        "media.pdp3.channel-binding.j25.product-integration.v1",
+        "media.pdp3.channel-binding.j26.product-integration.v1",
+        "media.pdp3.channel-binding.j28.product-integration.v1"
+      ],
+      "journeyIds": [
+        "J-06",
+        "J-09",
+        "J-14",
+        "J-15",
+        "J-21",
+        "J-22",
+        "J-25",
+        "J-26",
+        "J-28"
+      ],
+      "count": 9
+    }
+  }
 }
