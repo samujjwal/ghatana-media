@@ -2,7 +2,8 @@
 /**
  * Produce a real, reproducible AP-03 source membership candidate from tracked Media files.
  * Does not issue AP-03, register a verifier or assert Lifecycle admission.
- * Usage: node scripts/prepare-media-ap03-snapshot.mjs --archive <actual-archive> --output <relative-in-repo.json> [--check]
+ * Usage: node scripts/prepare-media-ap03-snapshot.mjs --create-archive --archive <new-outside-repo.tar> --output <relative-in-repo.json> [--check]
+ * --create-archive packages exactly the selected committed source members using git archive; no shell.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -40,11 +41,10 @@ function readOwned(root,name){
  if(dirty.error||dirty.status!==0)throw Error('SOURCE_NOT_COMMITTED_CURRENT:'+name);
  return fs.readFileSync(real);
 }
-export function createSnapshotCandidate({root,archivePath,outputPath,check=false}){
+export function createSnapshotCandidate({root,archivePath,outputPath,check=false,createArchive=false}){
  const r=fs.realpathSync(root);
  if(!relativeSafe(outputPath)||SOURCE.includes(outputPath))throw Error('SNAPSHOT_OUTPUT_PATH_INVALID');
- const archive=fs.realpathSync(archivePath),archiveStat=fs.statSync(archive);
- if(!archiveStat.isFile()||archiveStat.size===0)throw Error('ACTUAL_ARCHIVE_REQUIRED');
+ if(createArchive&&check)throw Error('ARCHIVE_CREATE_AND_CHECK_INCOMPATIBLE');
  const obligations=JSON.parse(readOwned(r,'config/closure/media-product-definition/obligations.json'));
  if(!Array.isArray(obligations))throw Error('OBLIGATION_ARRAY_REQUIRED');
  const sourceRefs=obligations.map(o=>o?.extensions?.['media-source']?.sourceRef).filter(x=>typeof x==='string').map(x=>x.split('#')[0]);
@@ -56,6 +56,19 @@ export function createSnapshotCandidate({root,archivePath,outputPath,check=false
  const members=[...new Set([...SOURCE,...sourceRefs,...consumerRefs])].sort((a,b)=>Buffer.compare(Buffer.from(a),Buffer.from(b)));
  if(members.length>8191)throw Error('TRACKED_SNAPSHOT_MEMBER_LIMIT');
  const files=members.map(name=>({path:name,sha256:sha(readOwned(r,name))}));
+ const headBefore=cmd(r,['rev-parse','HEAD']);
+ if(createArchive){
+  const absoluteArchive=path.resolve(archivePath),relation=path.relative(r,absoluteArchive);
+  if(relation===''||(!relation.startsWith('..'+path.sep)&&relation!=='..'&&!path.isAbsolute(relation)))throw Error('ARCHIVE_OUTPUT_MUST_BE_OUTSIDE_REPOSITORY');
+  if(fs.existsSync(absoluteArchive))throw Error('ARCHIVE_ALREADY_EXISTS');
+  fs.mkdirSync(path.dirname(absoluteArchive),{recursive:true});
+  const result=spawnSync('git',['archive','--format=tar','--output='+absoluteArchive,'HEAD','--',...members],{cwd:r,encoding:'utf8',timeout:120000,maxBuffer:1024*1024});
+  if(result.error||result.status!==0)throw Error('EXACT_SOURCE_ARCHIVE_FAILED:'+String(result.stderr||result.error||result.status));
+ }
+ const archive=fs.realpathSync(archivePath),archiveStat=fs.statSync(archive);
+ if(!archiveStat.isFile()||archiveStat.size===0)throw Error('ACTUAL_ARCHIVE_REQUIRED');
+ if(cmd(r,['rev-parse','HEAD'])!==headBefore)throw Error('SOURCE_HEAD_CHANGED_DURING_ARCHIVE');
+ for(const member of files)if(sha(readOwned(r,member.path))!==member.sha256)throw Error('SOURCE_MEMBER_CHANGED_DURING_ARCHIVE:'+member.path);
  const material=crypto.createHash('sha256');
  for(const member of files)material.update(member.path+'\0'+member.sha256+'\n','utf8');
  const snapshot={
@@ -79,5 +92,5 @@ if(process.argv[1]&&process.argv[1].endsWith('prepare-media-ap03-snapshot.mjs'))
  const arg=k=>{const i=process.argv.indexOf(k);return i===-1?null:process.argv[i+1]};
  const archivePath=arg('--archive'),outputPath=arg('--output'),root=arg('--root')||process.cwd();
  if(!archivePath||!outputPath)throw Error('Supply actual --archive and repo-relative --output');
- console.log(JSON.stringify(createSnapshotCandidate({root,archivePath,outputPath,check:process.argv.includes('--check')}),null,2));
+ console.log(JSON.stringify(createSnapshotCandidate({root,archivePath,outputPath,check:process.argv.includes('--check'),createArchive:process.argv.includes('--create-archive')}),null,2));
 }
