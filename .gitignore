@@ -41,3 +41,6 @@ local-models/
 .DS_Store
 *.swp
 *.log
+
+# AP-03 local snapshot candidates bind absolute checkout paths; issue authority externally
+/config/closure/admission/
