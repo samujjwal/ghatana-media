@@ -835,7 +835,9 @@
       "repo": "samujjwal/ghatana-lifecycle",
       "issues": [
         24,
-        25
+        25,
+        26,
+        27
       ]
     },
     {
@@ -865,5 +867,13 @@
   ],
   "noTrustFabrication": true,
   "noClosureAsBuildGate": true,
-  "noAutomaticPhaseMutation": true
+  "noAutomaticPhaseMutation": true,
+  "gtoolContracts": {
+    "sourceProgression": "@ghatana/gtool/source-development-progression",
+    "pdp3Recording": "@ghatana/documentation-model/pdp3-demo-recording-source",
+    "pdp3RecordingCli": "tools/documentation-model/bin/validate-pdp3-demo-recording.mjs",
+    "runtimeTransition": "LIFECYCLE_ISSUE_26_OPEN",
+    "oobRecordingOwnerBinding": "LIFECYCLE_ISSUE_27_OPEN",
+    "automaticCompletion": "PROHIBITED"
+  }
 }
