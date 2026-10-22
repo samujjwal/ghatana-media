@@ -105,11 +105,11 @@
     },
     {
       "path": "docs/implementation/pdp-0-phase-dev-status.json",
-      "sha256": "7abec713f1a73fce87f12c40e2581b64b6e0a577c6f7f3d80f4cba060bb67adc"
+      "sha256": "e02d1917c9acb2786e8ac18b246ae22147857810f3b8a00dc2954b8a73123492"
     },
     {
       "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-      "sha256": "6269984ee4c44e953f15e1eed6db0c46d0fa367f58eb8912c51bd8d37a8fa38a"
+      "sha256": "609db31450baaffa76a07d69e5219dfbaef59ca95b6f3b14209151f0d603224e"
     }
   ],
   "recomputedPopulations": {
@@ -587,36 +587,36 @@
       "phaseClosure": "NOT_PERFORMED"
     },
     "currentnessRefreshSuccessor": {
-      "id": "PDP1-INTERFACE-PREDECESSOR-P0-CURRENTNESS-REFRESH-2026-10-21-R5",
-      "reviewedOn": "2026-10-21",
+      "id": "PDP1-INTERFACE-PREDECESSOR-P0-CURRENTNESS-REFRESH-2026-10-22-R6",
+      "reviewedOn": "2026-10-22",
       "phase": "PDP-1",
       "status": "PREDECESSOR_PINS_CURRENT; INTERFACE_POPULATIONS_AND_BINDINGS_UNCHANGED",
-      "method": "Rebound the PDP-1 interface review to the current PDP-0 native DEV_COMPLETE status and current 54-surface matrix after PDP-0 validator/projection repairs. This updates only predecessor currentness; interface identities, route and operation populations, proposal dispositions, bindings, and acceptance boundaries are unchanged.",
+      "method": "Rebound the PDP-1 interface review to the PDP-0 status validated on the current cf34006d source cut and its regenerated 54-surface matrix. This refresh updates predecessor currentness only; interface identities, route and operation populations, proposal dispositions, bindings, and acceptance boundaries are unchanged.",
       "sourceFingerprints": {
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+        "docs/implementation/pdp-0-phase-dev-status.json": "e02d1917c9acb2786e8ac18b246ae22147857810f3b8a00dc2954b8a73123492",
+        "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "609db31450baaffa76a07d69e5219dfbaef59ca95b6f3b14209151f0d603224e"
+      },
+      "previousSourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
         "docs/implementation/pdp-0-phase-dev-status.json": "7abec713f1a73fce87f12c40e2581b64b6e0a577c6f7f3d80f4cba060bb67adc",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "6269984ee4c44e953f15e1eed6db0c46d0fa367f58eb8912c51bd8d37a8fa38a"
       },
-      "previousSourceFingerprints": {
-        ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
-        "docs/implementation/pdp-0-phase-dev-status.json": "50120191df71eb9a904489f6d2587b58ff22f626ecfff620c669377030445f92",
-        "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "9ef37a44444a616225f6f3aa20a474b6f9e08e2195ef9b489b0785ba62168267"
-      },
       "sourceDelta": [
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "previousSha256": "50120191df71eb9a904489f6d2587b58ff22f626ecfff620c669377030445f92",
-          "currentSha256": "7abec713f1a73fce87f12c40e2581b64b6e0a577c6f7f3d80f4cba060bb67adc",
-          "disposition": "PDP0_NATIVE_DEV_COMPLETE_STATUS_REVERIFIED; PREDECESSOR_PIN_REFRESH_ONLY",
-          "impact": "PDP-0 remains DEV_COMPLETE with zero outstanding meaning IDs after native validation. This status refresh changes no PDP-1 interface meaning or binding.",
+          "previousSha256": "7abec713f1a73fce87f12c40e2581b64b6e0a577c6f7f3d80f4cba060bb67adc",
+          "currentSha256": "e02d1917c9acb2786e8ac18b246ae22147857810f3b8a00dc2954b8a73123492",
+          "disposition": "PDP0_DIRECT_CRITERIA_REVERIFIED; PREDECESSOR_PIN_REFRESH_ONLY",
+          "impact": "PDP-0 remains DEV_COMPLETE with zero outstanding meaning IDs after all eight direct criteria passed on the current source cut. This status refresh changes no PDP-1 interface meaning or binding.",
           "changedPdp1MeaningIds": []
         },
         {
           "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-          "previousSha256": "9ef37a44444a616225f6f3aa20a474b6f9e08e2195ef9b489b0785ba62168267",
-          "currentSha256": "6269984ee4c44e953f15e1eed6db0c46d0fa367f58eb8912c51bd8d37a8fa38a",
+          "previousSha256": "6269984ee4c44e953f15e1eed6db0c46d0fa367f58eb8912c51bd8d37a8fa38a",
+          "currentSha256": "609db31450baaffa76a07d69e5219dfbaef59ca95b6f3b14209151f0d603224e",
           "disposition": "PDP0_54_SURFACE_MATRIX_REGENERATED_CURRENT; PREDECESSOR_PIN_REFRESH_ONLY",
-          "impact": "The 54-surface projection retains 26 physical, 7 composition, and 21 logical identities with zero PDP-0 tasks; no PDP-1 interface applicability or meaning changed.",
+          "impact": "The current source matrix preserves 26 physical, 7 composition, and 21 logical identities across 54 rows, with zero PDP-0 tasks; no PDP-1 interface applicability or meaning changed.",
           "changedPdp1MeaningIds": []
         }
       ],
@@ -641,7 +641,7 @@
       "runtimeAdmission": "NOT_ADMITTED",
       "transportAdmission": "NOT_ADMITTED",
       "focusedVerification": {
-        "command": "pnpm exec node --test tests/pdp1-interface-current-source-review.test.mjs",
+        "command": "node --test tests/pdp1-interface-current-source-review.test.mjs",
         "status": "PASS",
         "passed": 2,
         "total": 2
@@ -756,6 +756,67 @@
         "transportAdmission": "NOT_ADMITTED",
         "focusedVerification": {
           "command": "pnpm exec node --test tests/pdp1-interface-current-source-review.test.mjs",
+          "status": "PASS",
+          "passed": 2,
+          "total": 2
+        }
+      },
+      {
+        "id": "PDP1-INTERFACE-PREDECESSOR-P0-CURRENTNESS-REFRESH-2026-10-22-R6",
+        "reviewedOn": "2026-10-22",
+        "phase": "PDP-1",
+        "status": "PREDECESSOR_PINS_CURRENT; INTERFACE_POPULATIONS_AND_BINDINGS_UNCHANGED",
+        "method": "Rebound the PDP-1 interface review to the PDP-0 status validated on the current cf34006d source cut and its regenerated 54-surface matrix. This refresh updates predecessor currentness only; interface identities, route and operation populations, proposal dispositions, bindings, and acceptance boundaries are unchanged.",
+        "sourceFingerprints": {
+          ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+          "docs/implementation/pdp-0-phase-dev-status.json": "e02d1917c9acb2786e8ac18b246ae22147857810f3b8a00dc2954b8a73123492",
+          "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "609db31450baaffa76a07d69e5219dfbaef59ca95b6f3b14209151f0d603224e"
+        },
+        "previousSourceFingerprints": {
+          ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+          "docs/implementation/pdp-0-phase-dev-status.json": "7abec713f1a73fce87f12c40e2581b64b6e0a577c6f7f3d80f4cba060bb67adc",
+          "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "6269984ee4c44e953f15e1eed6db0c46d0fa367f58eb8912c51bd8d37a8fa38a"
+        },
+        "sourceDelta": [
+          {
+            "path": "docs/implementation/pdp-0-phase-dev-status.json",
+            "previousSha256": "7abec713f1a73fce87f12c40e2581b64b6e0a577c6f7f3d80f4cba060bb67adc",
+            "currentSha256": "e02d1917c9acb2786e8ac18b246ae22147857810f3b8a00dc2954b8a73123492",
+            "disposition": "PDP0_DIRECT_CRITERIA_REVERIFIED; PREDECESSOR_PIN_REFRESH_ONLY",
+            "impact": "PDP-0 remains DEV_COMPLETE with zero outstanding meaning IDs after all eight direct criteria passed on the current source cut. This status refresh changes no PDP-1 interface meaning or binding.",
+            "changedPdp1MeaningIds": []
+          },
+          {
+            "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+            "previousSha256": "6269984ee4c44e953f15e1eed6db0c46d0fa367f58eb8912c51bd8d37a8fa38a",
+            "currentSha256": "609db31450baaffa76a07d69e5219dfbaef59ca95b6f3b14209151f0d603224e",
+            "disposition": "PDP0_54_SURFACE_MATRIX_REGENERATED_CURRENT; PREDECESSOR_PIN_REFRESH_ONLY",
+            "impact": "The current source matrix preserves 26 physical, 7 composition, and 21 logical identities across 54 rows, with zero PDP-0 tasks; no PDP-1 interface applicability or meaning changed.",
+            "changedPdp1MeaningIds": []
+          }
+        ],
+        "predecessorStatus": {
+          "status": "DEV_COMPLETE",
+          "outstandingMeaningCount": 0
+        },
+        "predecessorMatrix": {
+          "surfaceCount": 54,
+          "physical": 26,
+          "compositions": 7,
+          "logicalConsumers": 21,
+          "completeApplicableCells": 45,
+          "explicitNotApplicableCells": 8,
+          "archivedLogicalConsumers": 1,
+          "remainingPhaseLocalTaskCount": 0,
+          "staleSourcePins": 0
+        },
+        "ownerApproval": "NOT_CLAIMED",
+        "independentAcceptance": "NOT_CLAIMED",
+        "phaseClosure": "NOT_PERFORMED",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "transportAdmission": "NOT_ADMITTED",
+        "focusedVerification": {
+          "command": "node --test tests/pdp1-interface-current-source-review.test.mjs",
           "status": "PASS",
           "passed": 2,
           "total": 2

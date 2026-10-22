@@ -28,8 +28,18 @@ function fixture(){
  write('config/closure/media-product-definition/pending-decisions.json',{receipts:[]});
  return {root,write,compositions,physical,logical};
 }
-test('54 source identities remain distinct from native closure',()=>{
+test('canonicalized temporary fixture root keeps 54 source identities distinct from native closure',()=>{
  const f=fixture();try{const result=auditMediaClosure(f.root);assert.equal(result.invariants.passed,true);assert.equal(result.sourcePopulation.total,54);assert.equal(result.nativeClosure.status,'NOT_PROVEN');assert.equal(result.writesPerformed,false);assert.ok(result.nativeClosure.blockers.includes('AP02_AP03_OWNER_ADMISSION_UNVERIFIED'))}finally{fs.rmSync(f.root,{recursive:true,force:true})}
+});
+test('reject symlinked source that escapes the canonicalized temporary root',()=>{
+ const f=fixture(),outside=fs.mkdtempSync(path.join(os.tmpdir(),'media-gtool-outside-'));
+ try{
+  const source=path.join(outside,'consumer.json');fs.writeFileSync(source,JSON.stringify({consumerId:'ghatana-media.product-definition',providerBindings:[]}));
+  const linked=path.join(f.root,'config/closure/consumer.json');fs.unlinkSync(linked);fs.symlinkSync(source,linked);
+  const result=auditMediaClosure(f.root);
+  const issue=result.invariants.issues.find(x=>x.code==='SOURCE_UNAVAILABLE'&&x.detail.kind==='consumer');
+  assert.ok(issue);assert.match(issue.detail.reason,/SOURCE_PATH_ESCAPE:config\/closure\/consumer\.json/);
+ }finally{fs.rmSync(f.root,{recursive:true,force:true});fs.rmSync(outside,{recursive:true,force:true})}
 });
 test('reject orphan child and unsupported consumer proof-producer binding',()=>{
  const f=fixture();try{f.compositions[0].children=['missing'];f.write('.product-experience/surfaces/media-physical-topology.v1.json',{manifestCandidates:f.physical,compositions:f.compositions,consumerCrosswalk:f.logical});f.write('config/closure/consumer.json',{consumerId:'ghatana-media.product-definition',providerBindings:[{}]});const result=auditMediaClosure(f.root);assert.ok(result.invariants.issues.some(x=>x.code==='COMPOSITION_CHILD_MISSING'));assert.ok(result.invariants.issues.some(x=>x.code==='CONSUMER_PROOF_PRODUCER_BINDING_UNSUPPORTED'))}finally{fs.rmSync(f.root,{recursive:true,force:true})}

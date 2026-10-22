@@ -95,8 +95,8 @@ test("PXD-216 enumerates and pins the current 20-leaf PDP-0 meaning review", () 
   for (const path of Object.values(paths).filter(path => path !== paths.capabilities)) {
     assert.equal(review.sourceFingerprints?.[path], sha256(readText(path)), `${path} is pinned to current bytes`);
   }
-  const pxd216HistoricalCapabilities = execFileSync("git", ["show", `HEAD:${paths.capabilities}`], { encoding: "utf8", maxBuffer: 10 * 1024 * 1024 });
-  assert.equal(review.sourceFingerprints?.[paths.capabilities], sha256(pxd216HistoricalCapabilities),
+  const pxd223Currentness = JSON.parse(readText("docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json"));
+  assert.equal(review.sourceFingerprints?.[paths.capabilities], pxd223Currentness.preservedSemanticReview.historicalCapabilitiesSha256,
     "PXD-216 retains its historical full-file source pin; PXD-223 establishes currentness for the unchanged reviewed slice");
   assert.equal(review.sourceFingerprints?.[`${paths.capabilities}#PXD-216-reviewed-capability-rows`], undefined,
     "source pins are file-current; the reviewed ID set is asserted separately");
@@ -172,7 +172,9 @@ test("PXD-223 refreshes only source currentness for the preserved PXD-216 20-lea
   const currentness = JSON.parse(readText("docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json"));
   const review = JSON.parse(readText(reviewPath));
   const liveBytes = readText(paths.capabilities);
-  const historicalBytes = execFileSync("git", ["show", `HEAD:${paths.capabilities}`], { encoding: "utf8", maxBuffer: 10 * 1024 * 1024 });
+  const historicalHead = currentness.sourceCut.repositoryHead;
+  assert.match(historicalHead, /^[0-9a-f]{40}$/u, "PXD-223 names the immutable source commit for PXD-216's historical pin");
+  const historicalBytes = execFileSync("git", ["show", `${historicalHead}:${paths.capabilities}`], { encoding: "utf8", maxBuffer: 10 * 1024 * 1024 });
   const historical = parse(historicalBytes);
   const live = parse(liveBytes);
   const ids = review.reviewedCapabilityIds;

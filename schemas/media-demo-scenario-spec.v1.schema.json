@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ghatana.dev/schemas/media-demo-scenario-spec.v1.schema.json",
+  "title": "Media source-derived demo scenario projection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "productId", "demoScenarioId", "scenarioRevision", "journeyId", "variantId",
+    "surfaceId", "sourcePhaseMaterialFingerprints", "sourcePhaseStatuses", "sourceCoverage", "fixture",
+    "storyboard", "targets", "status", "validationIssues", "effectsExecuted", "canonicalAdmission"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "media.demo-scenario-spec.v1" },
+    "productId": { "const": "media" },
+    "demoScenarioId": { "type": "string", "minLength": 1 },
+    "scenarioRevision": { "type": "string", "minLength": 1 },
+    "journeyId": { "type": "string", "minLength": 1 },
+    "variantId": { "type": "string", "minLength": 1 },
+    "surfaceId": { "type": "string", "minLength": 1 },
+    "sourcePhaseMaterialFingerprints": {
+      "type": "object", "minProperties": 1,
+      "additionalProperties": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+    },
+    "sourcePhaseStatuses": {
+      "type": "object", "required": ["PDP-0", "PDP-1", "PDP-2", "PDP-3"],
+      "properties": {
+        "PDP-0": { "$ref": "#/$defs/phaseStatus" }, "PDP-1": { "$ref": "#/$defs/phaseStatus" },
+        "PDP-2": { "$ref": "#/$defs/phaseStatus" }, "PDP-3": { "$ref": "#/$defs/phaseStatus" }
+      }, "additionalProperties": false
+    },
+    "sourceCoverage": {
+      "type": "object", "required": ["pdp0", "pdp1", "pdp2", "pdp3"],
+      "properties": {
+        "pdp0": { "type": "array", "items": { "$ref": "#/$defs/sourceRef" } },
+        "pdp1": { "type": "array", "items": { "$ref": "#/$defs/sourceRef" } },
+        "pdp2": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "pdp3": { "type": "array", "items": { "$ref": "#/$defs/sourceRef" } }
+      }, "additionalProperties": false
+    },
+    "fixture": {
+      "type": "object", "required": ["fixtureIds", "fixtureRegistryRef", "sourceDataClass", "rightsConsentRef"],
+      "properties": {
+        "fixtureIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } },
+        "fixtureRegistryRef": { "type": "string" },
+        "sourceDataClass": { "const": "CENTRALLY_MOCKED_STATIC_FIXTURE" },
+        "rightsConsentRef": { "type": "string" }
+      }, "additionalProperties": false
+    },
+    "storyboard": {
+      "type": "object", "required": ["orderedSceneIds", "beats"],
+      "properties": {
+        "orderedSceneIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } },
+        "beats": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/beat" } }
+      }, "additionalProperties": false
+    },
+    "targets": {
+      "type": "object", "required": ["captureTargets", "explorerRecordingRef", "productRecordingRef", "productChannelAdmission"],
+      "properties": {
+        "captureTargets": { "const": ["EXPLORER_SIMULATED", "PRODUCT_EXECUTED"] },
+        "explorerRecordingRef": { "type": ["string", "null"] },
+        "productRecordingRef": { "type": "null" },
+        "productChannelAdmission": { "type": "string" }
+      }, "additionalProperties": false
+    },
+    "status": { "enum": ["SOURCE_RECIPE_CANDIDATE", "BLOCKED_SOURCE_TRACE"] },
+    "validationIssues": {
+      "type": "array", "items": {
+        "type": "object", "required": ["code", "sourceRef", "detail"],
+        "properties": { "code": { "type": "string" }, "sourceRef": { "type": "string" }, "detail": { "type": "string" } },
+        "additionalProperties": false
+      }
+    },
+    "effectsExecuted": { "const": false },
+    "canonicalAdmission": { "const": "NOT_ASSERTED" }
+  },
+  "$defs": {
+    "phaseStatus": {
+      "type": "object", "required": ["status", "mainSha", "outstandingMeaningCount"],
+      "properties": {
+        "status": { "type": "string" }, "mainSha": { "type": "string" },
+        "outstandingMeaningCount": { "type": ["integer", "null"], "minimum": 0 }
+      }, "additionalProperties": false
+    },
+    "sourceRef": {
+      "type": "object", "required": ["sourceRef"],
+      "properties": { "journeyId": { "type": "string" }, "operationRef": { "type": "string" }, "sourceRef": { "type": ["string", "null"] } },
+      "additionalProperties": false
+    },
+    "beat": {
+      "type": "object", "required": ["beatId", "journeyId", "stepRef", "purposeBindingRef", "actionIntentRef", "expectedObservationRefs", "operationBindings", "capabilityRefs", "requirementRefs", "domainObjectRefs", "authorityRefs", "sourceRefs", "recovery", "finality"],
+      "properties": {
+        "beatId": { "type": "string" }, "journeyId": { "type": "string" }, "stepRef": { "type": "string" },
+        "purposeBindingRef": { "type": "string" }, "actionIntentRef": { "type": ["string", "null"] },
+        "expectedObservationRefs": { "type": "array", "items": { "type": "string" } },
+        "operationBindings": { "type": "array", "items": { "type": "object", "required": ["operationRef", "sourceRef"], "properties": { "operationRef": { "type": "string" }, "sourceRef": { "type": ["string", "null"] } }, "additionalProperties": false } },
+        "capabilityRefs": { "type": "array", "items": { "type": "string" } },
+        "requirementRefs": { "type": "array", "items": { "type": "string" } },
+        "domainObjectRefs": { "type": "array", "items": { "type": "string" } },
+        "authorityRefs": { "type": "array", "items": { "type": "string" } },
+        "sourceRefs": { "type": "array", "items": { "type": "string" } },
+        "recovery": { "type": ["string", "null"] }, "finality": { "type": ["string", "null"] }
+      }, "additionalProperties": false
+    }
+  }
+}

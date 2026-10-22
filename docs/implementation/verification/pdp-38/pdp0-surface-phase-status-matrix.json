@@ -4,20 +4,20 @@
   "campaign": {
     "macroStage": "DISCOVERY",
     "phase": "PDP-0",
-    "sourceBaselineCommit": "b3f11733d2b997c12f0438d95b5330d1516c4f1d",
+    "sourceBaselineCommit": "cf34006d43e3173f889e36a71dc919944fbb8ef1",
     "status": "DEV_COMPLETE"
   },
-  "generatedAt": "2026-10-22T05:03:53.319Z",
+  "generatedAt": "2026-10-22T18:08:03.121Z",
   "statusRecordRef": "docs/implementation/pdp-0-phase-dev-status.json",
-  "statusRecordSha256": "7abec713f1a73fce87f12c40e2581b64b6e0a577c6f7f3d80f4cba060bb67adc",
-  "sourceFingerprintSetSha256": "5f8a4de6ee0da2cebd24c579b969b6dc600e4f9ab90fd2bf1cce3bba38797837",
+  "statusRecordSha256": "e02d1917c9acb2786e8ac18b246ae22147857810f3b8a00dc2954b8a73123492",
+  "sourceFingerprintSetSha256": "05f68037fdea8b01347ce70fc0cc7c5d3000cb6589aa383e3623425a89401639",
   "sourceFingerprints": {
     ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
     ".product-experience/surfaces/media-physical-topology.v1.json": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
     ".product-experience/pdp-0-product-truth/applications-channels.yaml": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
     ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
     ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
-    "docs/implementation/pdp-0-phase-dev-status.json": "7abec713f1a73fce87f12c40e2581b64b6e0a577c6f7f3d80f4cba060bb67adc",
+    "docs/implementation/pdp-0-phase-dev-status.json": "e02d1917c9acb2786e8ac18b246ae22147857810f3b8a00dc2954b8a73123492",
     ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
     ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
     ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe"
@@ -92980,8 +92980,8 @@
   "sourcePinImpactReview": {
     "phase": "PDP-0",
     "reviewedPath": "docs/implementation/pdp-0-phase-dev-status.json",
-    "predecessorSha256": "50120191df71eb9a904489f6d2587b58ff22f626ecfff620c669377030445f92",
-    "currentSha256": "7abec713f1a73fce87f12c40e2581b64b6e0a577c6f7f3d80f4cba060bb67adc",
+    "predecessorSha256": "7abec713f1a73fce87f12c40e2581b64b6e0a577c6f7f3d80f4cba060bb67adc",
+    "currentSha256": "e02d1917c9acb2786e8ac18b246ae22147857810f3b8a00dc2954b8a73123492",
     "disposition": "PDP0_DEFINITION_EXTENSION_APPLICABILITY_MATRIX_REFRESH; PXD207_EXPLICIT_PARTITION_SOURCE_CURRENT",
     "impact": "The 54-surface matrix now carries all 4,158 channel-by-surface cells and 378 extension-by-surface summaries. Counts: 14 direct proposal cells, 21 derived aggregate proposal cells, 3430 explicit owner-decided N/A cells, 616 source-backed support-only N/A cells, and 77 source-backed archived N/A cells. PXD-207 source decisions preserve owner approval and independent acceptance as unclaimed.",
     "pdp0Retest": "P0_TESTS_PASS; DISCOVERY_BARRIER_RECALCULATED",

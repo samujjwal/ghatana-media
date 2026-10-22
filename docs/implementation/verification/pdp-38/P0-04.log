@@ -3,37 +3,37 @@ TAP version 13
 # Subtest: /Users/samujjwal/Development/ghatana-media/tests/media-pdp0-acceptance-actor-binding.test.mjs
 ok 1 - /Users/samujjwal/Development/ghatana-media/tests/media-pdp0-acceptance-actor-binding.test.mjs
   ---
-  duration_ms: 196.467292
+  duration_ms: 193.22
   type: 'test'
   ...
 # Subtest: PDP-0 projects only the exact resolved P0-04 user intent actor and priority decisions
 ok 2 - PDP-0 projects only the exact resolved P0-04 user intent actor and priority decisions
   ---
-  duration_ms: 1.555959
+  duration_ms: 1.510417
   type: 'test'
   ...
 # Subtest: PDP-0 preserves exact collaborator actor lists and only resolved initiating actors
 ok 3 - PDP-0 preserves exact collaborator actor lists and only resolved initiating actors
   ---
-  duration_ms: 0.587666
+  duration_ms: 0.572334
   type: 'test'
   ...
 # Subtest: PDP-0 requirement trace targets are limited to resolvable intents and unresolved targets stay in the review
 ok 4 - PDP-0 requirement trace targets are limited to resolvable intents and unresolved targets stay in the review
   ---
-  duration_ms: 0.3395
+  duration_ms: 0.304083
   type: 'test'
   ...
 # Subtest: P0-04 owner intent decisions are auditable and preserve collaborative actor references
 ok 5 - P0-04 owner intent decisions are auditable and preserve collaborative actor references
   ---
-  duration_ms: 754.377084
+  duration_ms: 718.660667
   type: 'test'
   ...
 # Subtest: P0-04 journey actors and requirement intent targets remain source-bound
 ok 6 - P0-04 journey actors and requirement intent targets remain source-bound
   ---
-  duration_ms: 558.739959
+  duration_ms: 554.535417
   type: 'test'
   ...
 1..6
@@ -44,4 +44,4 @@ ok 6 - P0-04 journey actors and requirement intent targets remain source-bound
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1457.198583
+# duration_ms 1400.785708

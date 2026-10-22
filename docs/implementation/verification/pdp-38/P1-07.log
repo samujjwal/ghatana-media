@@ -2,109 +2,109 @@ TAP version 13
 # Subtest: tool registry records the exact four handler-observed contracts without implying admission
 ok 1 - tool registry records the exact four handler-observed contracts without implying admission
   ---
-  duration_ms: 2.076666
+  duration_ms: 2.272209
   type: 'test'
   ...
 # Subtest: all four entries inventory validated inputs while retaining output and operation admission gates
 ok 2 - all four entries inventory validated inputs while retaining output and operation admission gates
   ---
-  duration_ms: 0.457375
+  duration_ms: 0.564542
   type: 'test'
   ...
 # Subtest: tool registry rejects missing, extra, or duplicate handler entries and missing observed fields
 ok 3 - tool registry rejects missing, extra, or duplicate handler entries and missing observed fields
   ---
-  duration_ms: 1.731625
+  duration_ms: 1.309708
   type: 'test'
   ...
 # Subtest: each handler input/error source drift is rejected independently
 ok 4 - each handler input/error source drift is rejected independently
   ---
-  duration_ms: 3.166875
+  duration_ms: 3.179167
   type: 'test'
   ...
 # Subtest: observed authoring inputs match exact handler defaults, bounds, and closed-field behavior
 ok 5 - observed authoring inputs match exact handler defaults, bounds, and closed-field behavior
   ---
-  duration_ms: 0.197917
+  duration_ms: 0.178667
   type: 'test'
   ...
 # Subtest: registry distinguishes pre-dispatch local failures from ambiguous post-dispatch outcomes
 ok 6 - registry distinguishes pre-dispatch local failures from ambiguous post-dispatch outcomes
   ---
-  duration_ms: 0.256041
+  duration_ms: 0.305
   type: 'test'
   ...
 # Subtest: registry rejects accidental runtime, operation, authority, or finality promotion
 ok 7 - registry rejects accidental runtime, operation, authority, or finality promotion
   ---
-  duration_ms: 0.933458
+  duration_ms: 1.0285
   type: 'test'
   ...
 # Subtest: runtime source observation does not turn Tools build resolution into Shared owner acceptance
 ok 8 - runtime source observation does not turn Tools build resolution into Shared owner acceptance
   ---
-  duration_ms: 1.028416
+  duration_ms: 1.065625
   type: 'test'
   ...
 # Subtest: owner-selected operation families remain definition-only until handler bindings and admission are proved
 ok 9 - owner-selected operation families remain definition-only until handler bindings and admission are proved
   ---
-  duration_ms: 0.704917
+  duration_ms: 0.735292
   type: 'test'
   ...
 # Subtest: adapter input validation and generic unknown outcome support do not admit Media tool execution
 ok 10 - adapter input validation and generic unknown outcome support do not admit Media tool execution
   ---
-  duration_ms: 0.417625
+  duration_ms: 0.586833
   type: 'test'
   ...
 # Subtest: bounded Media planning is a closed definition, not dynamic agent or dispatch authority
 ok 11 - bounded Media planning is a closed definition, not dynamic agent or dispatch authority
   ---
-  duration_ms: 40.707709
+  duration_ms: 38.894958
   type: 'test'
   ...
 # Subtest: Media Agent Tool contracts resolve exact canonical source records and stay definition-only
 ok 12 - Media Agent Tool contracts resolve exact canonical source records and stay definition-only
   ---
-  duration_ms: 3495.602959
+  duration_ms: 3021.148958
   type: 'test'
   ...
 # Subtest: host execution budget capability bounds join exactly to each selected canonical operation
 ok 13 - host execution budget capability bounds join exactly to each selected canonical operation
   ---
-  duration_ms: 201.244792
+  duration_ms: 207.904041
   type: 'test'
   ...
 # Subtest: contract validator rejects exact-ref substitutions, admitted bindings, missing unknown semantics, and weak success evidence
 ok 14 - contract validator rejects exact-ref substitutions, admitted bindings, missing unknown semantics, and weak success evidence
   ---
-  duration_ms: 51.986208
+  duration_ms: 57.092459
   type: 'test'
   ...
 # Subtest: input schemas enforce bounds, formats, and decoded byte counts at the exact 20 MiB boundary
 ok 15 - input schemas enforce bounds, formats, and decoded byte counts at the exact 20 MiB boundary
   ---
-  duration_ms: 227.577958
+  duration_ms: 216.1995
   type: 'test'
   ...
 # Subtest: host context requires exact object/version/tenant/purpose authority evidence, not opaque resource refs
 ok 16 - host context requires exact object/version/tenant/purpose authority evidence, not opaque resource refs
   ---
-  duration_ms: 32.633625
+  duration_ms: 26.559666
   type: 'test'
   ...
 # Subtest: closed result/error union uses bounded error codes and keeps unknown non-final
 ok 17 - closed result/error union uses bounded error codes and keeps unknown non-final
   ---
-  duration_ms: 12.856542
+  duration_ms: 39.91125
   type: 'test'
   ...
 # Subtest: pre-dispatch failure, accepted receipt, unknown dispatch, and completion remain distinct
 ok 18 - pre-dispatch failure, accepted receipt, unknown dispatch, and completion remain distinct
   ---
-  duration_ms: 75.3005
+  duration_ms: 63.529416
   type: 'test'
   ...
 1..18
@@ -115,4 +115,4 @@ ok 18 - pre-dispatch failure, accepted receipt, unknown dispatch, and completion
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 4239.558833
+# duration_ms 3766.334084

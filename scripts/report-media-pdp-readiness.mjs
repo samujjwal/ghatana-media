@@ -1725,11 +1725,12 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const args = process.argv.slice(2);
   const phaseStatusArg=args.find(a=>a.startsWith('--phase-dev-status='));
   const phaseStatus=phaseStatusArg?.slice('--phase-dev-status='.length);
-  if(args.some(a=>!['--verify','--write'].includes(a) && !a.startsWith('--verify-tasks=') && !a.startsWith('--phase-dev-status='))) throw new Error('Usage: report-media-pdp-readiness.mjs [--verify] [--verify-tasks=P0-01,P0-02,...] [--phase-dev-status=PDP-0|PDP-1|PDP-2|PDP-3] [--write]');
+  if(args.some(a=>!['--verify','--write','--no-write-verification-logs'].includes(a) && !a.startsWith('--verify-tasks=') && !a.startsWith('--phase-dev-status='))) throw new Error('Usage: report-media-pdp-readiness.mjs [--verify] [--verify-tasks=P0-01,P0-02,...] [--phase-dev-status=PDP-0|PDP-1|PDP-2|PDP-3] [--write] [--no-write-verification-logs]');
   if(phaseStatus && (!['PDP-0','PDP-1','PDP-2','PDP-3'].includes(phaseStatus) || !args.includes('--verify'))) throw new Error('--phase-dev-status supports PDP-0 through PDP-3 and requires --verify');
   const selectedTasksArg=args.find(a=>a.startsWith('--verify-tasks='));
   const phaseCriteria=phaseStatus==='PDP-1'?p1Criteria:phaseStatus==='PDP-2'?p2Criteria:phaseStatus==='PDP-3'?p3Criteria:p0Criteria;
   const selectedTasks=selectedTasksArg ? selectedTasksArg.slice('--verify-tasks='.length).split(',') : phaseStatus ? phaseCriteria : Object.keys(suites);
+  const writeVerificationLogs = !args.includes('--no-write-verification-logs');
   if(selectedTasks.some(id=>!Object.hasOwn(suites,id)) || new Set(selectedTasks).size!==selectedTasks.length) throw new Error('Verification tasks must name distinct configured PDP suites');
   if(selectedTasksArg && !args.includes('--verify')) throw new Error('--verify-tasks requires --verify');
   if (phaseStatus && args.includes('--write')
@@ -1857,8 +1858,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       outputSha256:crypto.createHash('sha256').update(output).digest('hex'),testSourceFingerprints:Object.fromEntries(files.map(f=>[f,digest(f)]))};
     verification[id].sourceCut = {fingerprints:before, changedDuringVerification:changedSources};
     if (verification[id].status==='PASS' && changedSources.length) verification[id].status='PASS_ON_CHANGED_SOURCE_CUT_REVALIDATION_REQUIRED';
-    fs.mkdirSync(path.join(root,'docs/implementation/verification/pdp-38'),{recursive:true});
-    fs.writeFileSync(path.join(root,`docs/implementation/verification/pdp-38/${id}.log`),output);
+    if (writeVerificationLogs) {
+      fs.mkdirSync(path.join(root,'docs/implementation/verification/pdp-38'),{recursive:true});
+      fs.writeFileSync(path.join(root,`docs/implementation/verification/pdp-38/${id}.log`),output);
+    }
   }
   let report;
   if(!phaseStatus) {

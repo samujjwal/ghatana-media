@@ -2,241 +2,241 @@ TAP version 13
 # Subtest: PDP-3 screen and journey contracts preserve exact registry cross-links
 ok 1 - PDP-3 screen and journey contracts preserve exact registry cross-links
   ---
-  duration_ms: 16327.652292
+  duration_ms: 21656.324375
   type: 'test'
   ...
 # Subtest: PDP-3 coverage preserves historical action counts and exposes current per-step dispositions
 ok 2 - PDP-3 coverage preserves historical action counts and exposes current per-step dispositions
   ---
-  duration_ms: 832.873542
+  duration_ms: 1606.133333
   type: 'test'
   ...
 # Subtest: PDP-3 cross-link assertions reject stale, orphan, and duplicate references
 ok 3 - PDP-3 cross-link assertions reject stale, orphan, and duplicate references
   ---
-  duration_ms: 1.20825
+  duration_ms: 1.886666
   type: 'test'
   ...
 # Subtest: PDP-3 actor projection rejects inferred initiators and invented actors
 ok 4 - PDP-3 actor projection rejects inferred initiators and invented actors
   ---
-  duration_ms: 0.189917
+  duration_ms: 0.325958
   type: 'test'
   ...
 # Subtest: PDP-3 J-29/J-30 step views use exact owner-selected source contracts and preserve proposal status
 ok 5 - PDP-3 J-29/J-30 step views use exact owner-selected source contracts and preserve proposal status
   ---
-  duration_ms: 82.1525
+  duration_ms: 69.334875
   type: 'test'
   ...
 # Subtest: J-02 upload workflow binds exact slices and preserves verification authority
 ok 6 - J-02 upload workflow binds exact slices and preserves verification authority
   ---
-  duration_ms: 4493.207042
+  duration_ms: 11806.334166
   type: 'test'
   ...
 # Subtest: PDP-3 navigation-only steps reject operation placeholders
 ok 7 - PDP-3 navigation-only steps reject operation placeholders
   ---
-  duration_ms: 0.34275
+  duration_ms: 0.48075
   type: 'test'
   ...
 # Subtest: J-01 passive project reads admit only their exact source identity, view, and unadmitted QUERY
 ok 8 - J-01 passive project reads admit only their exact source identity, view, and unadmitted QUERY
   ---
-  duration_ms: 0.450583
+  duration_ms: 0.757792
   type: 'test'
   ...
 # Subtest: PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk and remain proposals
 ok 9 - PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk and remain proposals
   ---
-  duration_ms: 4237.246833
+  duration_ms: 8597.284458
   type: 'test'
   ...
 # Subtest: 47 screen contracts bind every action consequence to its exact typed action definition
 ok 10 - 47 screen contracts bind every action consequence to its exact typed action definition
   ---
-  duration_ms: 23.658208
+  duration_ms: 3.341708
   type: 'test'
   ...
 # Subtest: 47 screen action lists include every action with a declared consequence
 ok 11 - 47 screen action lists include every action with a declared consequence
   ---
-  duration_ms: 0.974458
+  duration_ms: 0.30625
   type: 'test'
   ...
 # Subtest: operation and token refs are exact or carry a narrow non-applicable disposition
 ok 12 - operation and token refs are exact or carry a narrow non-applicable disposition
   ---
-  duration_ms: 2.837542
+  duration_ms: 2.044458
   type: 'test'
   ...
 # Subtest: domain refs resolve and fixture applicability follows exact screen-step links or the P3-B/P3-F preview boundary
 ok 13 - domain refs resolve and fixture applicability follows exact screen-step links or the P3-B/P3-F preview boundary
   ---
-  duration_ms: 2.473834
+  duration_ms: 2.891666
   type: 'test'
   ...
 # Subtest: 47 screens bind reciprocal P2 recipes, component contracts, responsive rules, keyboard semantics, and display-state dispositions
 ok 14 - 47 screens bind reciprocal P2 recipes, component contracts, responsive rules, keyboard semantics, and display-state dispositions
   ---
-  duration_ms: 3.464167
+  duration_ms: 3.362958
   type: 'test'
   ...
 # Subtest: 47 screen and lane-view contracts have resolved entry/exit dispositions
 ok 15 - 47 screen and lane-view contracts have resolved entry/exit dispositions
   ---
-  duration_ms: 2.623959
+  duration_ms: 2.983375
   type: 'test'
   ...
 # Subtest: screen audience actors are scoped to human Web users, separately from channel-agnostic action actors
 ok 16 - screen audience actors are scoped to human Web users, separately from channel-agnostic action actors
   ---
-  duration_ms: 0.557958
+  duration_ms: 1.146875
   type: 'test'
   ...
 # Subtest: source-link validators reject dangling action, operation, token, and fixture references
 ok 17 - source-link validators reject dangling action, operation, token, and fixture references
   ---
-  duration_ms: 0.496208
+  duration_ms: 0.332584
   type: 'test'
   ...
 # Subtest: Media default global and utility destinations are exact and distinct
 ok 18 - Media default global and utility destinations are exact and distinct
   ---
-  duration_ms: 1.226917
+  duration_ms: 3.3365
   type: 'test'
   ...
 # Subtest: provider exposure, utility misclassification, and authorization bypass are rejected
 ok 19 - provider exposure, utility misclassification, and authorization bypass are rejected
   ---
-  duration_ms: 0.238958
+  duration_ms: 0.519417
   type: 'test'
   ...
 # Subtest: all 47 view definitions enumerate every source label without treating a label or source pointer as evidence
 ok 20 - all 47 view definitions enumerate every source label without treating a label or source pointer as evidence
   ---
-  duration_ms: 8.952042
+  duration_ms: 8.181292
   type: 'test'
   ...
 # Subtest: no view-label enum is treated as an observation schema; unsupported fact families fail closed
 ok 21 - no view-label enum is treated as an observation schema; unsupported fact families fail closed
   ---
-  duration_ms: 0.4895
+  duration_ms: 0.859334
   type: 'test'
   ...
 # Subtest: project list labels derive from a fresh trusted query result, not a label or self-asserted currentness
 ok 22 - project list labels derive from a fresh trusted query result, not a label or self-asserted currentness
   ---
-  duration_ms: 68.650542
+  duration_ms: 141.204666
   type: 'test'
   ...
 # Subtest: in-flight labels derive only from a fresh exact local request tuple and never assert remote finality
 ok 23 - in-flight labels derive only from a fresh exact local request tuple and never assert remote finality
   ---
-  duration_ms: 2.296417
+  duration_ms: 10.944792
   type: 'test'
   ...
 # Subtest: all 27 in-flight labels bind pending observations to a source action-operation tuple
 ok 24 - all 27 in-flight labels bind pending observations to a source action-operation tuple
   ---
-  duration_ms: 3.0975
+  duration_ms: 3.214167
   type: 'test'
   ...
 # Subtest: offline labels derive from fresh exact client-local availability signals, not remote state
 ok 25 - offline labels derive from fresh exact client-local availability signals, not remote state
   ---
-  duration_ms: 4.924875
+  duration_ms: 3.498125
   type: 'test'
   ...
 # Subtest: stale labels compare an exact object/version snapshot against trusted currentness and age policy
 ok 26 - stale labels compare an exact object/version snapshot against trusted currentness and age policy
   ---
-  duration_ms: 1.54275
+  duration_ms: 2.21425
   type: 'test'
   ...
 # Subtest: query predicates fail closed on absent scope, stale reads, incomplete empty pages, malformed facts, or wrong source
 ok 27 - query predicates fail closed on absent scope, stale reads, incomplete empty pages, malformed facts, or wrong source
   ---
-  duration_ms: 1.849958
+  duration_ms: 0.775792
   type: 'test'
   ...
 # Subtest: labels whose current owner query schema cannot support a state remain explicitly unsupported
 ok 28 - labels whose current owner query schema cannot support a state remain explicitly unsupported
   ---
-  duration_ms: 1.109292
+  duration_ms: 0.531708
   type: 'test'
   ...
 # Subtest: artifact lifecycle predicates bind the exact proposed read model, immutable version, evidence and currentness
 ok 29 - artifact lifecycle predicates bind the exact proposed read model, immutable version, evidence and currentness
   ---
-  duration_ms: 1.877416
+  duration_ms: 6.42075
   type: 'test'
   ...
 # Subtest: stored job observations bind exact owner read scope and map only OUTCOME_UNKNOWN
 ok 30 - stored job observations bind exact owner read scope and map only OUTCOME_UNKNOWN
   ---
-  duration_ms: 16.95825
+  duration_ms: 11.812875
   type: 'test'
   ...
 # Subtest: local draft observations compare exact current snapshot and base across every typed draft label
 ok 31 - local draft observations compare exact current snapshot and base across every typed draft label
   ---
-  duration_ms: 18.562708
+  duration_ms: 44.475333
   type: 'test'
   ...
 # Subtest: all unknown-outcome labels bind exact action-operation tuples to local loss-of-response facts only
 ok 32 - all unknown-outcome labels bind exact action-operation tuples to local loss-of-response facts only
   ---
-  duration_ms: 13.864292
+  duration_ms: 17.639541
   type: 'test'
   ...
 # Subtest: all local observation predicates project to distinct view-state refs, separate from PDP1 states
 ok 33 - all local observation predicates project to distinct view-state refs, separate from PDP1 states
   ---
-  duration_ms: 3.946083
+  duration_ms: 33.315042
   type: 'test'
   ...
 # Subtest: projection refuses cross-view predicates, duplicate IDs, and unresolved schemas
 ok 34 - projection refuses cross-view predicates, duplicate IDs, and unresolved schemas
   ---
-  duration_ms: 100.463084
+  duration_ms: 147.895583
   type: 'test'
   ...
 # Subtest: local observation state refs validate in the public Tools schema without becoming PDP1 states
 ok 35 - local observation state refs validate in the public Tools schema without becoming PDP1 states
   ---
-  duration_ms: 11.257
+  duration_ms: 6.699625
   type: 'test'
   ...
 # Subtest: all 47 PDP-3 view identities have exact P1 state bindings or explicit noncanonical presentation dispositions
 ok 36 - all 47 PDP-3 view identities have exact P1 state bindings or explicit noncanonical presentation dispositions
   ---
-  duration_ms: 4.296458
+  duration_ms: 28.488666
   type: 'test'
   ...
 # Subtest: find-projects outcome labels have exact scoped query and create-receipt predicates
 ok 37 - find-projects outcome labels have exact scoped query and create-receipt predicates
   ---
-  duration_ms: 0.689833
+  duration_ms: 0.816458
   type: 'test'
   ...
 # Subtest: view-state validation rejects omitted views, invented states, drifted labels and automatic transitions
 ok 38 - view-state validation rejects omitted views, invented states, drifted labels and automatic transitions
   ---
-  duration_ms: 26.475917
+  duration_ms: 37.513625
   type: 'test'
   ...
 # Subtest: job status screen binds the normalized read model and exact safe command meanings
 ok 39 - job status screen binds the normalized read model and exact safe command meanings
   ---
-  duration_ms: 4.665792
+  duration_ms: 2.018875
   type: 'test'
   ...
 # Subtest: job-status screen rejects command/query substitution, foreign state dimensions, and invented actions
 ok 40 - job-status screen rejects command/query substitution, foreign state dimensions, and invented actions
   ---
-  duration_ms: 1.930542
+  duration_ms: 0.556375
   type: 'test'
   ...
 1..40
@@ -247,4 +247,4 @@ ok 40 - job-status screen rejects command/query substitution, foreign state dime
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 26135.821041
+# duration_ms 44115.612583

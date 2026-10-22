@@ -28,8 +28,9 @@ function read(root,path){
 }
 const unique=a=>new Set(a).size===a.length;
 export function auditMediaClosure(root){
+ const canonicalRoot=realpathSync(resolve(root));
  const issues=[],inputs={};const fail=(code,detail={})=>issues.push({code,detail});
- for(const [kind,path]of Object.entries(paths))try{inputs[kind]=read(root,path)}catch(e){fail('SOURCE_UNAVAILABLE',{kind,path,reason:String(e?.message||e)})}
+ for(const [kind,path]of Object.entries(paths))try{inputs[kind]=read(canonicalRoot,path)}catch(e){fail('SOURCE_UNAVAILABLE',{kind,path,reason:String(e?.message||e)})}
  const t=inputs.topology?.value||{},s=inputs.surface?.value||{},p=inputs.program?.value||{},b=inputs.binding?.value||{},c=inputs.consumer?.value||{},l=inputs.cases?.value||{},r=inputs.routes?.value||{},d=inputs.pending?.value||{};
  const physical=t.manifestCandidates||[],compositions=t.compositions||[],logical=t.consumerCrosswalk||[];
  const identities=[...physical,...compositions,...logical].map(x=>x.surfaceId),ids=new Set(identities);

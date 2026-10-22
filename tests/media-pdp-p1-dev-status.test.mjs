@@ -278,11 +278,19 @@ test('PDP-1 current identity census matches the normative owner registry denomin
 test('PDP-1 source cut fingerprints the P0 time-unit conversion vocabulary it consumes', () => {
   const dependency = '.product-experience/pdp-0-product-truth/time-units-fidelity.yaml';
   assert.ok(p1SourceRoots.includes(dependency));
-  const result = spawnSync(process.execPath, ['scripts/report-media-pdp-readiness.mjs', '--verify', '--phase-dev-status=PDP-1', '--verify-tasks=P1-01'], {
-    cwd: process.cwd(), encoding: 'utf8', maxBuffer: 32 * 1024 * 1024,
+  const verificationLog = 'docs/implementation/verification/pdp-38/P1-01.log';
+  const logBefore = crypto.createHash('sha256').update(fs.readFileSync(verificationLog)).digest('hex');
+  const env = {...process.env};
+  delete env.NODE_TEST_CONTEXT;
+  const result = spawnSync(process.execPath, ['scripts/report-media-pdp-readiness.mjs', '--verify', '--phase-dev-status=PDP-1', '--verify-tasks=P1-01', '--no-write-verification-logs'], {
+    cwd: process.cwd(), encoding: 'utf8', env, maxBuffer: 32 * 1024 * 1024,
   });
   assert.equal(result.status, 1, result.stderr || result.stdout);
   const status = JSON.parse(result.stdout);
   assert.equal(status.phase, 'PDP-1');
   assert.equal(status.sourceShaSet[dependency], crypto.createHash('sha256').update(fs.readFileSync(dependency)).digest('hex'));
+  assert.equal(status.testsActuallyRun['P1-01'].status, 'PASS');
+  assert.equal(status.testsActuallyRun['P1-01'].testCount, 22);
+  assert.equal(crypto.createHash('sha256').update(fs.readFileSync(verificationLog)).digest('hex'), logBefore,
+    'a subset verification must not replace the full phase verification log');
 });
