@@ -2,7 +2,10 @@
 
 ## Current BUILD implementation plan
 
-The single canonical plan for Media's post-Discovery **BUILD / Plan Implementation** lane is [Media BUILD Implementation Plan](implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md). Its [exact source-identity trace](implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json) is a subordinate read-only planning appendix, not a second product-definition or runtime authority. The plan targets all shared foundations before all 30 PDP-3 end-to-end journeys and the Recorder/Studio/Player consumers. It is source-bound planning, **not** runtime implementation, independent PDP closure or release qualification.
+The single canonical plan for Media's post-Discovery **BUILD / Plan Implementation** lane is [Media BUILD Implementation Plan](implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md).
+
+**Current implementation handoff (2026-10-22):** [PDP-0–3 gtool execution board v2](implementation/MEDIA-PDP0-3-GTOOL-EXECUTION-BOARD.v2.md), [structured 19-task queue](implementation/MEDIA-GTOOL-EXECUTION-QUEUE.v2.json), and [owner-approved scope/protocol](implementation/MEDIA-PDP0-3-GTOOL-OWNER-APPROVED-EXECUTION.md). These describe dependency ordering, per-surface advancement and parallel native closure. They are **execution coordination records**, subordinate to source PDP and the canonical Build plan, not another project task authority or fake `KCRIT-PLAN-READY` proof. The Lifecycle OOB method v2 adds declarative PDP3 narrated recording artifact vocabulary; actual source-owner recording admission and transition host integration remain explicit work.
+ Its [exact source-identity trace](implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json) is a subordinate read-only planning appendix, not a second product-definition or runtime authority. The plan targets all shared foundations before all 30 PDP-3 end-to-end journeys and the Recorder/Studio/Player consumers. It is source-bound planning, **not** runtime implementation, independent PDP closure or release qualification.
 
 ## Product definition source
 
