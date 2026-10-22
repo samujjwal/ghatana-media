@@ -3,8 +3,8 @@
   "recordKind": "OWNER_DIRECTED_EXECUTION_SCOPE_APPROVAL_NOT_TRUSTED_VERIFIER_REGISTRATION",
   "decisionId": "MEDIA-GTOOL-CLOSURE-EXECUTION-2026-10-22",
   "decisionDate": "2026-10-22",
-  "status": "APPROVED_TO_PERFORM_PREREQUISITE_IMPLEMENTATION",
-  "authorityBasis": "Direct owner instruction in ChatGPT conversation on 2026-10-22 to complete formal requirements, setup, configuration, and implementation without unnecessary workflow blockers.",
+  "status": "OWNER_DISCRETIONARY_DECISIONS_APPROVED",
+  "authorityBasis": "Direct repository-owner delegation on 2026-10-22 to decide all appropriate owner, implementation, architecture, setup and configuration approvals for Media and Lifecycle, without repeated approval round trips; does not confer independent reviewer or cryptographic verifier status.",
   "scope": {
     "repository": "samujjwal/ghatana-media",
     "branch": "main",
@@ -57,5 +57,24 @@
   "effect": "EXECUTION_SCOPE_APPROVED_ONLY",
   "trustedAdmission": "NOT_ISSUED",
   "nativeReceipts": 0,
-  "deliveryAuthorization": false
+  "deliveryAuthorization": false,
+  "ownerDecisionRevision": 2,
+  "ownerAccountability": "samujjwal",
+  "ownerApprovalDisposition": "NO_ADDITIONAL_OWNER_CHECKPOINT_FOR_CURRENT_APPROVED_SCOPE",
+  "approvedOwnerDecisions": {
+    "campaign": "Retain all 54 Media source identities with four PDP phases, preserve explicit N/A, support-only, archived and no-runtime-admitted classifications; do not equate source identities to native ClosureSurfaces.",
+    "sourceDefinition": "Accept the current source-defined PDP status and previously recorded owner dispositions for unchanged current source; re-open only a proven material source meaning change, never for missing Build or closure receipts.",
+    "caseCoverage": "Authorize exact source-ID-based reusable deterministic case/proof selectors and semantic-grouped tests, provided each obligation has an individually reviewable assertion or explicit uncovered blocker. No one-test-per-obligation rule; never auto-adopt a case solely from naming similarity.",
+    "closureBoundary": "Own independent physical leaf proof at actual execution boundaries, one shared runtime implementation may serve multiple logical consumer contracts; semantic compositions hold only direct cross-child obligations and dependencies, not copied leaf obligations.",
+    "proofPartition": "Product-definition acceptance proves authored semantic truth, source traceability, negative cases, interface/experience specifications and Explorer where applicable. BUILD runtime behavior is separately tested. Do not make unimplemented product runtime a PDP source-definition closure prerequisite absent an explicit policy.",
+    "evidence": "One canonical Evidence Generator proof producer. A source-pinned real computation may be reused across unaffected obligations/units only when canonical planner and receipt identities permit; do not fabricate an independent witness.",
+    "recording": "PDP-3 source-owned narrated Explorer capture and its review form a source definition acceptance requirement where adopted; actual Build product capture with semantic-equivalence is a separate later real-behavior requirement. Start first real business-outcome recording once qualified end-to-end flow is present.",
+    "scheduler": "AP-02 distribution, AP-03 snapshot, PDP-0 surface/case mapping, and eligible Build packages proceed in parallel with disjoint writers. Native leaf closure follows actual authenticated admission; composite/root require their declared children.",
+    "ownerRoles": "Architecture, product, implementation, review of non-specialist source decisions, scope, N/A classifications supported by source, migration-planning and test-selection decisions are delegated to implementation coordinator. No further discretionary approval prompt required within this bounded version.",
+    "trust": "All independent specialist or verifier decisions require authenticated source-backed separate mechanisms and remain verified by their real owner paths. Owner delegation never becomes a signature or native receipt."
+  },
+  "sourceAcceptanceNotAutomaticallyNativeClosure": true,
+  "requestForFurtherOwnerApproval": "NONE_FOR_DISCRETIONARY_DECISIONS",
+  "technicalPrerequisiteStatus": "AUTHENTICATED_AP02_AP03_AND_NATIVE_PROOFS_STILL_REQUIRED",
+  "lastOwnerDirectionDate": "2026-10-22"
 }
