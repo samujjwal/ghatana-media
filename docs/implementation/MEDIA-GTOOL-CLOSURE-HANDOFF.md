@@ -17,6 +17,14 @@ The 54 rows comprise 26 physical candidates, 6 intermediate compositions, one ro
 
 The source-current matrices and source manifest are the authoritative baseline, not this table. Prior L02 had 65 candidate links / 44 linked obligations / 8,620 unmapped; L03 had five candidates and zero admitted; observers, oracles and receipts were zero. Never infer execution proof from source links.
 
+## Approved owner dispositions (2026-10-22)
+
+[Media's versioned owner execution authorization](../../config/closure/media-product-definition/owner-execution-authorization.v1.json) is approved for the present campaign after the repository owner's explicit delegation. No routine owner review is required again for execution sequencing, development source treatment, source-grounded applicability, mapping work, test reuse, data-driven Explorer/Build film separation, case policy, or non-specialist architecture choices within the existing scope. The four issues are owned by the authenticated repository owner and are executable implementation queues, not requests to obtain another discretionary signoff.
+
+The owner explicitly approves one reusable computation covering multiple obligations **only when** each exact assertion and applicable requirement is independently traceable and the real evidence class proves it. Do not create a duplicate test per each of 8,664 IDs by default, and do not bulk mark the 8,620 previously unmapped obligations verified. The source-definition closure proof must establish definition correctness and source-current semantics; live product functionality remains in the separate Build lane. Only source-approved PDP-3 Explorer evidence applies to definition acceptance. Its future real product recording remains separately verified.
+
+**Native status boundary:** AP-02 distribution signature/verifier, AP-03 trusted current snapshot, authoritative closure graph/cases, independent oracles, executed proof and receipts still require genuine owner-path outputs. They are technical or independent-acceptance prerequisites, **not missing owner discussion approval**. Do not modify `pending-decisions.json` to advertise closure while those facts are absent.
+
 ## Media owner execution work
 
 1. [Issue #19 — exact source-to-surface/phase/obligation/case topology](https://github.com/samujjwal/ghatana-media/issues/19). Reconcile all 54 identities with actual physical owners, leaf/composite dependencies, applicability/N/A/archive, unique obligations and source-pinned case assertions. Start with PDP-0. Explicitly retain unmapped items until real source/case evidence exists.
