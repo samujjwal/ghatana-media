@@ -352,8 +352,9 @@ pnpm run test:build-plan-task-closure
 pnpm run check:w3-pdp0-source-case-map
 
 # Lifecycle (real Work Planner composition; use a NEW output path each run)
-node scripts/gtool-media-method-dogfood.mjs --media-root /path/to/ghatana-media --lifecycle-root /path/to/ghatana-lifecycle --output docs/engineering/MEDIA_METHOD_READBACK_<unique-run-id>.json
-node scripts/gtool-media-phase-status-io.mjs --input docs/engineering/MEDIA_METHOD_READBACK_<unique-run-id>.json --output docs/engineering/MEDIA_SOURCE_STATUS_<unique-run-id>.json
+RUN_ID=$(date -u +%Y%m%dT%H%M%SZ)-$RANDOM
+node scripts/gtool-media-method-dogfood.mjs --media-root /path/to/ghatana-media --lifecycle-root /path/to/ghatana-lifecycle --output "docs/engineering/MEDIA_METHOD_READBACK_${RUN_ID}.json"
+node scripts/gtool-media-phase-status-io.mjs --input "docs/engineering/MEDIA_METHOD_READBACK_${RUN_ID}.json" --output "docs/engineering/MEDIA_SOURCE_STATUS_${RUN_ID}.json"
 node --test scripts/__tests__/gtool-media-phase-status-io.test.mjs
 node --test tools/gtool/test/source-development-progression.test.mjs
 node --test tools/documentation-model/test/pdp3-demo-recording-source.test.mjs
@@ -385,7 +386,7 @@ On UNKNOWN after a side effect, reconcile the **same operation ID** against the 
 | Repository | Exact work authorization and open coordination |
 | --- | --- |
 | `ghatana-media` | Own PDP semantics, trace repairs, 54-identity/native crosswalk, PDP3 scenario and recorder integration, Build 50/57. [#19](https://github.com/samujjwal/ghatana-media/issues/19), [#20](https://github.com/samujjwal/ghatana-media/issues/20), [#21](https://github.com/samujjwal/ghatana-media/issues/21), [#22](https://github.com/samujjwal/ghatana-media/issues/22) |
-| `ghatana-lifecycle` | Method host/Work Planner, canonical PhaseProgram, AP02/AP03 registered owner trust, proof/receipt. [#24](https://github.com/samujjwal/ghatana-lifecycle/issues/24), [#25](https://github.com/samujjwal/ghatana-lifecycle/issues/25) |
+| `ghatana-lifecycle` | Method host/Work Planner, canonical PhaseProgram, AP02/AP03 registered owner trust, proof/receipt. [#24](https://github.com/samujjwal/ghatana-lifecycle/issues/24), [#25](https://github.com/samujjwal/ghatana-lifecycle/issues/25), [#26](https://github.com/samujjwal/ghatana-lifecycle/issues/26), [#27](https://github.com/samujjwal/ghatana-lifecycle/issues/27) |
 | `ghatana-kernel` | 16 KDEV stages, authentic `KCRIT-PLAN-TASK-CLOSURE`, `KCRIT-PLAN-READY`, scoped stage transition; do not invent Media stage machine |
 | `ghatana-tools`, `ghatana-toolchain` | Canonical documentation-model, implementation-handoff/evidence contract public APIs, no forked semantics or separate campaign stage promotion |
 | `ghatana` | Canonical writer, Flyway history, external runtime/provider abilities, Media migration. [#257](https://github.com/samujjwal/ghatana/issues/257) |
